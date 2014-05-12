@@ -1,0 +1,16 @@
+04f4c8cbe86116fa5d04a10833b66706 *DESCRIPTION
+4b1324f3b9c9af21ac4c35a7fbdb2748 *NAMESPACE
+c084a76f54b59b376033ef7d531efe63 *R/SES.R
+ee611d456b9a7db0da35b2798b299668 *R/SESoutput_script.R
+fd4ad70e7663973f218490a3795945c4 *R/censIndLR.R
+6dbc3258b79725a55350b1e2e31eb178 *R/gSquare.R
+b0a437428aaff765e1f6a0580e61ad57 *R/testIndFisher.R
+dd6c2b6b91177d1f7500913a4902eb4d *R/testIndLogistic.R
+8500b1c0321cc5c02ca250a22a2df88c *man/MXM-package.Rd
+839b82f5350ca296aa663447992b8ff9 *man/SES-internal.Rd
+ed1d9f9a8bdb16cff24d7bdcedc5bea7 *man/SES.Rd
+2b9610d1387e9ad4673140e35cf52622 *man/SESoutput-class.Rd
+4313163f3a5a3401abd34db256abf5ee *man/censIndLR.Rd
+0eeef4576f23f7bd47929d71ba2c4541 *man/gSquare.Rd
+3f14f3d5710bad5dd2004433ed840c4c *man/testIndFisher.Rd
+e72424b4d9f7573693b23d0be60dfdce *man/testIndLogistic.Rd
