@@ -1,7 +1,7 @@
 \name{gSquare}
 \alias{gSquare}
 \title{
-G square conditional independence test for binary data based on the log likelihood ratio test.
+G square conditional independence test for discrete data based on the log likelihood ratio test.
 }
 \description{
 The main task of this test is to provide a p-value PVALUE for the null hypothesis: feature 'X' is independent from 'TARGET' given a conditioning set CS. This test is based on the log likelihood ratio test.
@@ -68,7 +68,7 @@ The current hash object used for the p-values. See argument stat_hash and detail
 R implementation and documentation: Giorgos Athineou <athineou@ics.forth.gr>
 }
 \note{
-This test uses the function gSquareBin of the package pcalg in order to generate the pvalue for the G^2 test.
+This test uses the functions gSquareBin and gSquareDis of the package pcalg in order to generate the pvalue for the G^2 test.
 }
 \seealso{
 \code{\link{SES}, \link{testIndFisher}, \link{testIndLogistic}, \link{censIndLR}}

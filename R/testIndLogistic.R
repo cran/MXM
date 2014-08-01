@@ -110,6 +110,12 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, dataInfo=NULL , uni
   x = dataset[ , xIndex];
   cs = dataset[ , csIndex];
   
+  if(length(csIndex) > 1)
+  {
+    #remove same columns
+    cs = unique(as.matrix(cs), MARGIN = 2);
+  }
+  
   #if x or target is constant then there is no point to perform the test
   if(var(x) == 0 || var(target) == 0)
   {
@@ -132,6 +138,39 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, dataInfo=NULL , uni
   if(length(cs) == 0 || is.na(cs) == TRUE)
   {
     cs = NULL;
+  }
+  
+  #if x = any of the cs then pvalue = 1 and flag = 1.
+  #That means that the x variable does not add more information to our model due to an exact copy of this in the cs, so it is independent from the target
+  if(length(cs)!=0)
+  {
+    if(is.null(dim(cs)[2]) == TRUE) #cs is a vector
+    {
+      if(any(x != cs) == FALSE)  #if(!any(x == cs) == FALSE)
+      {
+        if(hash == TRUE)#update hash objects
+        {
+          .set(stat_hash , key , 0)
+          .set(pvalue_hash , key , 1)
+        }
+        results <- list(pvalue = 1, stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+        return(results);
+      }
+    }else{ #more than one var
+      for(col in 1:dim(cs)[2])
+      {
+        if(any(x != cs[,col]) == FALSE)  #if(!any(x == cs) == FALSE)
+        {
+          if(hash == TRUE)#update hash objects
+          {
+            .set(stat_hash , key , 0)
+            .set(pvalue_hash , key , 1)
+          }
+          results <- list(pvalue = 1, stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+          return(results);
+        }
+      }
+    }
   }
   
   if(target_type == 0)

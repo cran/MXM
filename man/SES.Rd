@@ -55,6 +55,10 @@ This function implements the Statistically Equivalent Signature (SES) algorithm 
 
 For faster computations in the internal SES functions, install the suggested package "\bold{gRbase}".
 
+The max_k option: the maximum size of the conditioning set to use in the conditioning independence test. Larger values provide more accurate results, at the cost of higher computational times. When the sample size is small (e.g., <50 samples) the max_k parameter should be <=5, otherwise the conditional independence test may not be able to provide reliable results.
+
+If the dataset contains missing (NA) values, they will automatically be replaced by the current variable (column) mean value with an appropriate warning to the user after the execution.
+
 If the target is a single integer value or a string, it has to corresponds to the column number or to the name of the target feature in the dataset. In any other case the target is a variable that is not contained in the dataset.
 
 If the current 'test' argument is defined as NULL or "auto" and the user_test argument is NULL then the algorithm automatically selects the best test based on the type of the data. Particularly:
@@ -123,53 +127,66 @@ R implementation and documentation: Giorgos Athineou <athineou@ics.forth.gr> Vin
 \note{
 The packages required for the SES algorithm operations are: 
 
-#require(gRbase) #for faster computations in the internal functions
+\bold{gRbase} : for faster computations in the internal functions
 
-require(hash) #for the hash-based implementation
+\bold{hash} : for the hash-based implementation
 
-require(VGAM) #require(stats) and require(MASS) for the testIndLogistic test
+\bold{VGAM} : require(stats) and require(MASS) for the testIndLogistic test
 
-require(survival) #for the censIndLR test
+\bold{survival} : for the censIndLR test
 
-require(pcalg) #for the gSquare test.
+\bold{pcalg} : for the gSquare test.
 }
 \seealso{
 \code{\link{testIndFisher}, \link{testIndLogistic}, \link{gSquare}, \link{censIndLR}}
 }
 
 \examples{
+set.seed(123)
 #require(gRbase) #for faster computations in the internal functions
 require(hash)
+
 #simulate a dataset with continuous data
-dataset <- matrix(nrow = 1000 , ncol = 200)
+dataset <- matrix(nrow = 1000 , ncol = 300)
 dataset <- apply(dataset, 1:2, function(i) runif(1, 1, 100))
-#define class variable (here tha last column of the dataset)
-target = 200;
+
+#define a simulated class variable 
+target = 3*dataset[,10] + 2*dataset[,200] + 3*dataset[,20] + runif(1, 0, 1);
+
+#define some simulated equivalences
+dataset[,15] = dataset[,10]
+dataset[,250] = dataset[,200] 
+dataset[,230] = dataset[,200] 
+
 #run the SES algorithm
-sesObject <- SES(target , dataset , max_k=3 , threshold=0.1 , test="testIndFisher", hash = TRUE, 
-hashObject=NULL);
+sesObject <- SES(target , dataset , max_k=5 , threshold=0.2 , test="testIndFisher", 
+hash = TRUE, hashObject=NULL);
 #print summary of the SES output
 summary(sesObject);
 #plot the SES output
 plot(sesObject, mode="all");
+#get the queues with the equivalences for each selected variable
+sesObject@queues
 #get the generated signatures
 sesObject@signatures;
 #get the run time
 # > sesObject@runtime;
 # user  system elapsed 
-# 5.21    0.00    5.21
+# 0.35    0.00    0.35
+
 
 #re-run the SES algorithm with the same or different configuration 
 #under the hash-based implementation of retrieving the statistics
+#in the SAME dataset (!important)
 hashObj <- sesObject@hashObject;
-sesObject2 <- SES(target , dataset , max_k=2 , threshold=0.05 , test="testIndFisher", hash = TRUE, 
-hashObject=sesObject@hashObject);
+sesObject2 <- SES(target , dataset , max_k=2 , threshold=0.01 , test="testIndFisher",
+hash = TRUE, hashObject=hashObj);
 #retrieve the results: summary, plot, sesObject2@...)
 summary(sesObject2)
 #get the run time
 # > sesObject2@runtime;
-# user  system elapsed 
-# 0.14    0.00    0.14
+# user  system elapsed
+# 0.01    0.00    0.01
 }
 
 \keyword{ SES }

@@ -68,7 +68,7 @@ V. Lagani and I. Tsamardinos (2010). Structure-based variable selection for surv
 Cox,D.R. (1972) Regression models and life-tables. J. R. Stat. Soc., 34, 187-220.
 }
 \author{
-R implementation and documentation: Vincenzo Lagani <vlagani@ics.forth.gr> Giorgos Athineou <athineou@ics.forth.gr>
+R implementation and documentation: Vincenzo Lagani <vlagani@ics.forth.gr>, Giorgos Athineou <athineou@ics.forth.gr>
 }
 \note{
 This test uses the functions coxph and Surv of the package survival and the function anova (analysis of variance) of the package stats.

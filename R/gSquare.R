@@ -64,7 +64,17 @@ gSquare = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariateMo
       return(results);
     }
   }
-  pvalue = gSquareBin(as.numeric(xIndex),(dim(dataset)[2]+1),as.numeric(csIndex),dm = cbind(dataset,target));
+  
+  #levels for each variable
+  dfs <- apply(cbind(dataset,target), 2, function(x) length(unique(x)))
+  
+  if( (max(dfs) == min(dfs)) && min(dfs) == 2)
+  {  
+    pvalue = gSquareBin(as.numeric(xIndex),(dim(dataset)[2]+1),as.numeric(csIndex),dm = cbind(dataset,target));
+  }else{
+    pvalue = gSquareDis(as.numeric(xIndex),(dim(dataset)[2]+1),as.numeric(csIndex),dm = cbind(dataset,target), nlev = dfs);
+  }
+  
   flag = 1;
   #define a temp statistic due to the pvalue because gSquareBin does not return the stat
   stat = (1 - pvalue)*100;

@@ -154,6 +154,14 @@ SES = function(target=NULL , dataset=NULL , max_k = 3 , threshold = 0.05 , test 
       target = target;
     }
   
+  #check for NA values in the dataset and replace them with the variable mean
+  if(anyNA(dataset) == TRUE)
+  {
+    dataset = as.matrix(dataset);
+    warning("The dataset contains missing values and they were replaced automatically by the variable (column) mean.")
+    dataset = apply(dataset, 2, function(x){ x[which(is.na(x))] = mean(x,na.rm = TRUE) ; return(x)});
+  }
+  
   ##################################
   # target checking and initialize #
   ##################################
@@ -174,7 +182,7 @@ SES = function(target=NULL , dataset=NULL , max_k = 3 , threshold = 0.05 , test 
   #checking if target is a single number
   if (is.numeric(target) && length(target) == 1){
     if(target > dim(dataset)[2]){
-      warning('Target index larger then num vars');
+      warning('Target index larger than the number of variables');
       return(NULL);
     }
     targetID <- target;
@@ -346,7 +354,20 @@ InternalSES = function(target , dataset , max_k = 3 , threshold = 0.05 , test = 
   
   #univariate feature selection test
   
-  univariateModels = univariateScore(target , dataset , test, hash=hash, dataInfo, stat_hash=stat_hash, pvalue_hash=pvalue_hash, targetID);
+  if(is.loaded("fisher_uv") == TRUE && identical(test, testIndFisher) == TRUE )
+  {
+    a = .Fortran("fisher_uv", R = as.integer(dim(dataset)[1]), C = as.integer(dim(dataset)[2]), y = target, dataset = dataset,cs_cols = as.integer(0), pvalues = as.double(rep(0,dim(dataset)[2])), stats = as.double(rep(0,dim(dataset)[2])), targetID = as.integer(targetID))
+    univariateModels = NULL;
+    univariateModels$pvalue = a$pvalues;
+    univariateModels$stat = a$stats;
+    univariateModels$flag = rep(1,dim(dataset)[2]);
+  	univariateModels$stat_hash = stat_hash;
+  	univariateModels$pvalue_hash = pvalue_hash;
+  }else{  
+    univariateModels = univariateScore(target , dataset , test, hash=hash, dataInfo, stat_hash=stat_hash, pvalue_hash=pvalue_hash, targetID);
+  }
+  
+  #univariateModels = univariateScore(target , dataset , test, hash=hash, dataInfo, stat_hash=stat_hash, pvalue_hash=pvalue_hash, targetID);
   pvalues = univariateModels$pvalue;
   stats = univariateModels$stat;
   flags = univariateModels$flag;
@@ -809,3 +830,10 @@ min_assoc = function(target , dataset , test ,  max_k , cvar , selectedVars , pv
   results <- list(pvalue = ma_pvalue , stat = ma_stat , pvalues = pvalues , stats = stats, stat_hash=stat_hash, pvalue_hash  = pvalue_hash);
   return(results);
 }
+
+# .onAttach <- function(libname, pkgname){
+#   # do whatever needs to be done when the package is loaded
+#   packageStartupMessage( "Loading MXM package version 0.2, thanks for downloading." )
+#   #load the dll files from the fortran code for the package
+#   #library.dynam("MXM", pkgname, libname)
+# }
