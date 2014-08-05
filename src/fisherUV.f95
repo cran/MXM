@@ -1,4 +1,5 @@
 subroutine fisher_uv(R, C, y, dataset, cs_cols, pvalues, stats, targetID)
+
         integer R,C,cs_cols,e,targetID
         integer, dimension(2):: xyIdx
         integer, dimension(cs_cols):: csIdx
@@ -191,7 +192,8 @@ subroutine fisher_uv(R, C, y, dataset, cs_cols, pvalues, stats, targetID)
 
 			flag = 1
 
-			if(ISNAN(pvalue)) then
+			!By definition, NAN is not equal to anything, even itself. Simply compare the variable to itself
+			if(pvalue /= pvalue) then
 					pvalue = 1;
 					stat = 0;
 					flag = 0;

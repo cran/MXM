@@ -155,7 +155,7 @@ SES = function(target=NULL , dataset=NULL , max_k = 3 , threshold = 0.05 , test 
     }
   
   #check for NA values in the dataset and replace them with the variable mean
-  if(anyNA(dataset) == TRUE)
+  if(any(is.na(dataset)) == TRUE)
   {
     dataset = as.matrix(dataset);
     warning("The dataset contains missing values and they were replaced automatically by the variable (column) mean.")
