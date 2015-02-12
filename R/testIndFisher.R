@@ -59,8 +59,8 @@ testIndFisher = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univar
   {
     if(hash == TRUE)#update hash objects
     {
-      .set(stat_hash , key , 0)
-      .set(pvalue_hash , key , 1)
+      stat_hash$key <- 0;#.set(stat_hash , key , 0)
+      pvalue_hash$key <- 1;#.set(pvalue_hash , key , 1)
     }
     results <- list(pvalue = 1, stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
     return(results);
@@ -81,12 +81,18 @@ testIndFisher = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univar
   x = dataset[ , xIndex];
   cs = dataset[ , csIndex];
   
-  #remove equal columns of the CS
-  if(length(csIndex) > 1)
-  {
-    #remove same columns
-    cs = unique(as.matrix(cs), MARGIN = 2);
-  }
+  #remove equal columns of the CS (takes a lot of time)
+#   if(length(csIndex) > 1)
+#   {
+#     #remove same columns
+#     #cs = unique(as.matrix(cs), MARGIN = 2);
+#     #or
+#     w = which(duplicated(cs, MARGIN = 2))
+#     if(length(w) > 0)
+#     {
+#       cs = cs[,-w]
+#     }
+#   }
   
   #checking the length
   if (length(x) == 0 || length(target) == 0)
@@ -106,8 +112,8 @@ testIndFisher = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univar
       {
         if(hash == TRUE)#update hash objects
         {
-          .set(stat_hash , key , 0)
-          .set(pvalue_hash , key , 1)
+          stat_hash$key <- 0;#.set(stat_hash , key , 0)
+          pvalue_hash$key <- 1;#.set(pvalue_hash , key , 1)
         }
         results <- list(pvalue = 1, stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
         return(results);
@@ -119,8 +125,8 @@ testIndFisher = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univar
         {
           if(hash == TRUE)#update hash objects
           {
-            .set(stat_hash , key , 0)
-            .set(pvalue_hash , key , 1)
+            stat_hash$key <- 0;#.set(stat_hash , key , 0)
+            pvalue_hash$key <- 1;#.set(pvalue_hash , key , 1)
           }
           results <- list(pvalue = 1, stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
           return(results);
@@ -134,8 +140,8 @@ testIndFisher = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univar
   {
     if(hash == TRUE)#update hash objects
     {
-      .set(stat_hash , key , 0)
-      .set(pvalue_hash , key , 1)
+      stat_hash$key <- 0;#.set(stat_hash , key , 0)
+      pvalue_hash$key <- 1;#.set(pvalue_hash , key , 1)
     }
     results <- list(pvalue = 1, stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
     return(results);
@@ -200,8 +206,8 @@ testIndFisher = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univar
     #update hash objects
     if(hash == TRUE)
     {
-      .set(stat_hash , key , stat)
-      .set(pvalue_hash , key , pvalue)
+      stat_hash$key <- stat;#.set(stat_hash , key , stat)
+      pvalue_hash$key <- pvalue;#.set(pvalue_hash , key , pvalue)
     }
   }
   

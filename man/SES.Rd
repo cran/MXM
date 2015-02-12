@@ -144,7 +144,7 @@ The packages required for the SES algorithm operations are:
 \examples{
 set.seed(123)
 #require(gRbase) #for faster computations in the internal functions
-require(hash)
+#require(hash)
 
 #simulate a dataset with continuous data
 dataset <- matrix(nrow = 1000 , ncol = 300)
@@ -155,9 +155,12 @@ target = 3*dataset[,10] + 2*dataset[,200] + 3*dataset[,20] + runif(1, 0, 1);
 
 #define some simulated equivalences
 dataset[,15] = dataset[,10]
+dataset[1,10] = dataset[1,10] + 0.2
 dataset[,250] = dataset[,200] 
 dataset[,230] = dataset[,200] 
 
+require("hash", quietly = TRUE)
+{
 #run the SES algorithm
 sesObject <- SES(target , dataset , max_k=5 , threshold=0.2 , test="testIndFisher", 
 hash = TRUE, hashObject=NULL);
@@ -187,6 +190,7 @@ summary(sesObject2)
 # > sesObject2@runtime;
 # user  system elapsed
 # 0.01    0.00    0.01
+}
 }
 
 \keyword{ SES }

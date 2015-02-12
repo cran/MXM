@@ -78,8 +78,8 @@ censIndLR = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariate
     
     if(hash == TRUE)#update hash objects
     {
-      .set(stat_hash , key , stat)
-      .set(pvalue_hash , key , pvalue)
+      stat_hash$key <- stat;#.set(stat_hash , key , stat)
+      pvalue_hash$key <- pvalue;#.set(pvalue_hash , key , pvalue)
     }
     
     flag = 1;
@@ -137,8 +137,8 @@ censIndLR = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariate
     
     if(hash == TRUE)#update hash objects
     {
-      .set(stat_hash , key , stat)
-      .set(pvalue_hash , key , pvalue)
+      stat_hash$key <- stat;#.set(stat_hash , key , stat)
+      pvalue_hash$key <- pvalue;#.set(pvalue_hash , key , pvalue)
     }
     
     flag = 1;

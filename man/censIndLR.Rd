@@ -96,23 +96,25 @@ for(i in 1:1000)
 }
 
 #init the Surv object class feature
-require(survival)
-target <- Surv(time=timeToEvent, event=event)
-
-#run the censIndLR   conditional independence test
-require(stats)
-res = censIndLR(target, dataset, xIndex=12, csIndex=c(35,7,4))
-res
-
-#run the SES algorithm using the censIndLR conditional independence
-#test for the survival class variable
-
-#require(gRbase) #for faster computations in the internal functions
-sesObject <- SES(target , dataset , max_k=1 , threshold=0.05 , test="censIndLR");
-#print summary of the SES output
-summary(sesObject);
-#plot the SES output
-plot(sesObject, mode="all");
+if(require(survival, quietly = TRUE))
+{
+  target <- Surv(time=timeToEvent, event=event)
+  
+  #run the censIndLR   conditional independence test
+  require(stats)
+  res = censIndLR(target, dataset, xIndex=12, csIndex=c(35,7,4))
+  res
+  
+  #run the SES algorithm using the censIndLR conditional independence
+  #test for the survival class variable
+  
+  #require(gRbase) #for faster computations in the internal functions
+  sesObject <- SES(target , dataset , max_k=1 , threshold=0.05 , test="censIndLR");
+  #print summary of the SES output
+  summary(sesObject);
+  #plot the SES output
+  plot(sesObject, mode="all");
+}
 }
 \keyword{ Survival }
 \keyword{ Log Likelihood Ratio }

@@ -2,6 +2,11 @@
 \Rdversion{1.1}
 \docType{class}
 \alias{SESoutput-class}
+\alias{SESoutput}
+\alias{plot,SESoutput-method}
+\alias{summary,SESoutput-method}
+\alias{plot,SESoutput,ANY-method}
+
 
 \title{Class \code{"SESoutput"}}
 \description{

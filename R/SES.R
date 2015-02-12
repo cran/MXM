@@ -85,7 +85,7 @@ SES = function(target=NULL , dataset=NULL , max_k = 3 , threshold = 0.05 , test 
   faster = 0;
   #assign("gRbaseON",0,envir = .GlobalEnv)
   options(warn=-1)
-  if(require(gRbase, quietly = TRUE, warn.conflicts = FALSE) == TRUE)
+  if(requireNamespace("gRbase", quietly = TRUE, warn.conflicts = FALSE) == TRUE)
   {
     #assign("gRbaseON",1,envir = .GlobalEnv)
     faster = 1;
@@ -98,7 +98,7 @@ SES = function(target=NULL , dataset=NULL , max_k = 3 , threshold = 0.05 , test 
   
   if(hash == TRUE)
   {
-    if(require(hash))
+    if(requireNamespace("hash"))
     {
       if(is.null(hashObject))
       {
@@ -170,7 +170,7 @@ SES = function(target=NULL , dataset=NULL , max_k = 3 , threshold = 0.05 , test 
   
   #check if the target is a string
   if (is.character(target) && length(target) == 1){
-    findingTarget <- target %in% colnames(dataset);
+    findingTarget <- target == colnames(dataset);#findingTarget <- target %in% colnames(dataset);
     if(!sum(findingTarget)==1){
       warning('Target name not in colnames or it appears multiple times');
       return(NULL);
@@ -241,7 +241,7 @@ SES = function(target=NULL , dataset=NULL , max_k = 3 , threshold = 0.05 , test 
         dataInfo$target_type = "ordinal";
         #cat('\nTarget variable type: Ordinal')
         
-        if(require(MASS, quietly = TRUE, warn.conflicts = FALSE)==FALSE)
+        if(requireNamespace("MASS", quietly = TRUE, warn.conflicts = FALSE)==FALSE)
         {
           cat("The testIndLogistic test requires the MASS package for the ordered logistic regression method. Please install it.");
           return(NULL);
@@ -256,7 +256,7 @@ SES = function(target=NULL , dataset=NULL , max_k = 3 , threshold = 0.05 , test 
           dataInfo$target_type = "nominal"
           #cat('\nTarget variable type: Nominal')
           
-          if(require(VGAM, quietly = TRUE, warn.conflicts = FALSE)==FALSE)
+          if(requireNamespace("VGAM", quietly = TRUE, warn.conflicts = FALSE)==FALSE)
           {
             cat("The testIndLogistic test requires the VGAM package for the multinomial logistic regression method. Please install it.");
             return(NULL);
@@ -281,7 +281,7 @@ SES = function(target=NULL , dataset=NULL , max_k = 3 , threshold = 0.05 , test 
       else if(test == "censIndLR")
       {
         test = censIndLR;
-        if(require(survival, quietly = TRUE, warn.conflicts = FALSE)==FALSE)
+        if(requireNamespace("survival", quietly = TRUE, warn.conflicts = FALSE)==FALSE)
         {
           cat("The censIndLR requires the survival package. Please install it.");
           return(NULL);
@@ -294,7 +294,7 @@ SES = function(target=NULL , dataset=NULL , max_k = 3 , threshold = 0.05 , test 
       else if(test == "gSquare")
       {
         test = gSquare;
-        if(require(pcalg, quietly = TRUE, warn.conflicts = FALSE)==FALSE)
+        if(requireNamespace("pcalg", quietly = TRUE, warn.conflicts = FALSE)==FALSE)
         {
           cat("The gSquare test requires the pcalg package. Please install it.");
           return(NULL);

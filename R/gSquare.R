@@ -29,8 +29,8 @@ gSquare = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariateMo
     {
       if(hash == TRUE)#update hash objects
       {
-        .set(stat_hash , key , 0)
-        .set(pvalue_hash , key , 1)
+        stat_hash$key <- 0;#.set(stat_hash , key , 0)
+        pvalue_hash$key <- 1;#.set(pvalue_hash , key , 1)
       }
       pvalue = 1;
       stat = 0;
@@ -81,8 +81,8 @@ gSquare = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariateMo
   
   if(hash == TRUE)
   {
-    .set(stat_hash , key , stat)
-    .set(pvalue_hash , key , pvalue)
+    stat_hash$key <- stat;#.set(stat_hash , key , stat)
+    pvalue_hash$key <- pvalue;#.set(pvalue_hash , key , pvalue)
   }
   
   results <- list(pvalue = pvalue, stat = stat, flag = flag, stat_hash=stat_hash, pvalue_hash=pvalue_hash);

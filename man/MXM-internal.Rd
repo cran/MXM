@@ -8,8 +8,7 @@
 \alias{min_assoc}
 \alias{nchoosekm}
 \alias{univariateScore}
-\alias{plot,SESoutput,ANY-method}
-\alias{summary,SESoutput-method}
+
 \alias{proc_time-class}
 
 \title{ Internal MXM Functions }

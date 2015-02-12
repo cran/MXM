@@ -81,18 +81,21 @@ dataset <- apply(dataset, 2, function(i) sample(c(0,1),50, replace=TRUE))
 target <- dataset[,101]
 #remove target from the dataset
 dataset <- dataset[,-101]
-#run the gSquare conditional independence test for the binary class variable
-require(pcalg)
-results <- gSquare(target, dataset, xIndex = 44, csIndex = c(10,20))
-results
 
-#require(gRbase) #for faster computations in the internal functions
-#run the SES algorithm using the gSquare conditional independence test for the binary class variable
-sesObject <- SES(target , dataset , max_k=3 , threshold=0.05 , test="gSquare");
-#print summary of the SES output
-summary(sesObject);
-#plot the SES output
-plot(sesObject, mode="all");
+if(require("pcalg", quietly = TRUE))
+{
+  #run the gSquare conditional independence test for the binary class variable
+  results <- gSquare(target, dataset, xIndex = 44, csIndex = c(10,20))
+  results
+  
+  #require(gRbase) #for faster computations in the internal functions
+  #run SES algorithm using the gSquare conditional independence test for the binary class variable
+  sesObject <- SES(target , dataset , max_k=3 , threshold=0.05 , test="gSquare");
+  #print summary of the SES output
+  summary(sesObject);
+  #plot the SES output
+  plot(sesObject, mode="all");
+}
 }
 \keyword{ G^2 }
 \keyword{ Log Likelihood Ratio }

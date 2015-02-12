@@ -1,4 +1,18 @@
-exportPattern("^[[:alpha:]]+")
-exportPattern("^[^\\.]")
+#exportPattern("^[[:alpha:]]+")
+#exportPattern("^[^\\.]")
+
+export(SES, censIndLR, gSquare, testIndFisher, testIndLogistic)
+exportClasses(SESoutput)
+
+
+importFrom(Biobase, exprs)
+importFrom(survival, is.Surv)
+importFrom(survival, coxph)
+importFrom(pcalg, gSquareBin, gSquareDis)
+importFrom(VGAM, vglm, multinomial)
+importFrom(MASS, polr )
+importFrom(gRbase, combnPrim)
+
+exportMethods(plot, summary)
 
 useDynLib(MXM, .registration = TRUE)

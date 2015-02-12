@@ -93,9 +93,9 @@ This test uses the function vglm (package VGAM) for multinomial logistic regress
 }
 \examples{
 #require(gRbase) #for faster computations in the internal functions
-require(VGAM)
-require(MASS)
-require(stats)
+#require(VGAM)
+#require(MASS)
+#require(stats)
 
 #simulate a dataset with categorical data
 dataset_m <- matrix(nrow = 20 , ncol = 51)
@@ -104,34 +104,40 @@ dataset_m <- apply(dataset_m, 2, function(i) sample(c(0,1,2),50, replace=TRUE))
 target_m <- dataset_m[,51]
 #remove target from the dataset
 dataset_m <- dataset_m[,-51]
-#run the conditional independence test for the nominal class variable
-results_m <- testIndLogistic(target_m, dataset_m, xIndex = 44, csIndex = c(10,20), target_type=2)
-results_m
 
-require(VGAM)
-#run the SES algorithm using the testIndLogistic conditional independence test 
-#for the nominal class variable
-sesObject <- SES(as.factor(target_m), dataset_m, max_k=3 ,threshold=0.05 ,test="testIndLogistic");
-#print summary of the SES output
-summary(sesObject);
-#plot the SES output
-plot(sesObject, mode="all");
+if(require("VGAM", quietly = TRUE))
+{
+  #run the conditional independence test for the nominal class variable
+  results_m <- testIndLogistic(target_m, dataset_m, xIndex = 44, csIndex = c(10,20), target_type=2)
+  results_m
+
+  #run the SES algorithm using the testIndLogistic conditional independence test 
+  #for the nominal class variable
+  sesObject <- SES(as.factor(target_m), dataset_m, max_k=3 ,threshold=0.05 ,test="testIndLogistic");
+  #print summary of the SES output
+  summary(sesObject);
+  #plot the SES output
+  plot(sesObject, mode="all");
+}
 
 ########################################################################
 
-#run the conditional independence test for the ordinal class variable
-results_o <- testIndLogistic(target_m, dataset_m, xIndex = 44, csIndex = c(10,20), target_type=3)
-results_o
+if(require("MASS", quietly = TRUE))
+{
+  #run the conditional independence test for the ordinal class variable
+  results_o <- testIndLogistic(target_m, dataset_m, xIndex = 44, csIndex = c(10,20), target_type=3)
+  results_o
+  
+  #run the SES algorithm using the testIndLogistic conditional independence test 
+  #for the ordinal class variable
+  sesObject <- SES(factor(target_m, ordered=TRUE) , dataset_m , max_k=3 , threshold=0.05 , 
+                   test="testIndLogistic");
+  #print summary of the SES output
+  summary(sesObject);
+  #plot the SES output
+  plot(sesObject, mode="all");
+}
 
-require(MASS)
-#run the SES algorithm using the testIndLogistic conditional independence test 
-#for the ordinal class variable
-sesObject <- SES(factor(target_m, ordered=TRUE) , dataset_m , max_k=3 , threshold=0.05 , 
-                 test="testIndLogistic");
-#print summary of the SES output
-summary(sesObject);
-#plot the SES output
-plot(sesObject, mode="all");
 
 ########################################################################
 
@@ -142,18 +148,21 @@ dataset_b <- apply(dataset_b, 2, function(i) sample(c(0,1),50, replace=TRUE))
 target_b <- dataset_b[,51]
 #remove target from the dataset
 dataset_b <- dataset_b[,-51]
-#run the conditional independence test for the binary class variable
-results_b <- testIndLogistic(target_b, dataset_b, xIndex = 44, csIndex = c(10,20), target_type=1)
-results_b
 
-require(stats)
-#run the SES algorithm using the testIndLogistic conditional independence test
-#for the binary class variable
-sesObject <- SES(factor(target_b) , dataset_m , max_k=3 , threshold=0.05 , test="testIndLogistic");
-#print summary of the SES output
-summary(sesObject);
-#plot the SES output
-plot(sesObject, mode="all");
+if(require("stats", quietly = TRUE))
+{
+  #run the conditional independence test for the binary class variable
+  results_b <- testIndLogistic(target_b, dataset_b, xIndex = 44, csIndex = c(10,20), target_type=1)
+  results_b
+  
+  #run the SES algorithm using the testIndLogistic conditional independence test
+  #for the binary class variable
+  sesObject <- SES(factor(target_b), dataset_m, max_k=3, threshold=0.05, test="testIndLogistic");
+  #print summary of the SES output
+  summary(sesObject);
+  #plot the SES output
+  plot(sesObject, mode="all");
+}
 }
 \keyword{ Logistic Regression }
 \keyword{ Conditional Independence Test }

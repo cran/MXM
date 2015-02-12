@@ -88,8 +88,8 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, dataInfo=NULL , uni
   {
     if(hash == TRUE)#update hash objects
     {
-      .set(stat_hash , key , 0)
-      .set(pvalue_hash , key , 1)
+      stat_hash$key <- 0;#.set(stat_hash , key , 0)
+      pvalue_hash$key <- 1;#.set(pvalue_hash , key , 1)
     }
     results <- list(pvalue = 1, stat = 0, flag = 1, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
     return(results);
@@ -110,19 +110,19 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, dataInfo=NULL , uni
   x = dataset[ , xIndex];
   cs = dataset[ , csIndex];
   
-  if(length(csIndex) > 1)
-  {
-    #remove same columns
-    cs = unique(as.matrix(cs), MARGIN = 2);
-  }
+#   if(length(csIndex) > 1)
+#   {
+#     #remove same columns
+#     cs = unique(as.matrix(cs), MARGIN = 2);
+#   }
   
   #if x or target is constant then there is no point to perform the test
   if(var(x) == 0 || var(target) == 0)
   {
     if(hash == TRUE)#update hash objects
     {
-      .set(stat_hash , key , 0)
-      .set(pvalue_hash , key , 1)
+      stat_hash$key <- 0;#.set(stat_hash , key , 0)
+      pvalue_hash$key <- 1;#.set(pvalue_hash , key , 1)
     }
     results <- list(pvalue = 1, stat = 0, flag = 1, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
     return(results);
@@ -150,8 +150,8 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, dataInfo=NULL , uni
       {
         if(hash == TRUE)#update hash objects
         {
-          .set(stat_hash , key , 0)
-          .set(pvalue_hash , key , 1)
+          stat_hash$key <- 0;#.set(stat_hash , key , 0)
+          pvalue_hash$key <- 1;#.set(pvalue_hash , key , 1)
         }
         results <- list(pvalue = 1, stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
         return(results);
@@ -163,8 +163,8 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, dataInfo=NULL , uni
         {
           if(hash == TRUE)#update hash objects
           {
-            .set(stat_hash , key , 0)
-            .set(pvalue_hash , key , 1)
+            stat_hash$key <- 0;#.set(stat_hash , key , 0)
+            pvalue_hash$key <- 1;#.set(pvalue_hash , key , 1)
           }
           results <- list(pvalue = 1, stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
           return(results);
@@ -283,13 +283,13 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, dataInfo=NULL , uni
   
   #calculate the p value and stat.
   stat = abs(dev1 - dev2);
-  pvalue = 1 - pchisq(stat, 1);
+  pvalue = 1 - pchisq(stat, yCounts-1);
   flag = 1;
   #update hash objects
   if(hash == TRUE)
   {
-    .set(stat_hash , key , stat)
-    .set(pvalue_hash , key , pvalue)
+    stat_hash$key <- stat;#.set(stat_hash , key , stat)
+    pvalue_hash$key <- pvalue;#.set(pvalue_hash , key , pvalue)
   }
   
   #last error check
