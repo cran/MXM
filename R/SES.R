@@ -136,7 +136,7 @@ SES = function(target=NULL , dataset=NULL , max_k = 3 , threshold = 0.05 , test 
     if(class(dataset) == "ExpressionSet")
     {
       #get the elements (numeric matrix) of the current ExpressionSet object.
-      dataset = exprs(dataset);
+      dataset = Biobase::exprs(dataset);
       dataset = t(dataset);#take tha features as columns and the samples as rows
     }else if(is.data.frame(dataset)){
       if(class(target) != "Surv")
@@ -227,7 +227,7 @@ SES = function(target=NULL , dataset=NULL , max_k = 3 , threshold = 0.05 , test 
           }
         }
         test = "testIndFisher";
-      }else if(is.Surv(target) == TRUE){
+      }else if(survival::is.Surv(target) == TRUE){
         test = "censIndLR";
       }else{
         stop('Target must be a factor, vector, matrix with one column or a Surv object');
@@ -575,7 +575,7 @@ nchoosekm = function(cs , k, faster) #i can also pass the compFun arg for select
   }else{
     if(faster == 1)
     {
-      res = combnPrim(cs,k); #combs(as.vector(cs),k); #combnPrim
+      res = gRbase::combnPrim(cs,k); #combs(as.vector(cs),k); #combnPrim
     }else
     {
       res = combn(cs,k);

@@ -244,16 +244,16 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, dataInfo=NULL , uni
       #dev1 = multinom(as.factor(target)~rep(0,dim(dataset)[1]) , as.data.frame(dataset) ,maxit=100 , trace=FALSE)$deviance;
       #dev2 = multinom(as.factor(target)~x , as.data.frame(dataset) ,  maxit=100 , trace=FALSE)$deviance; #not the exact dev as i expect (matlabs mnrfit) ~-1
       
-      fit <- vglm(target ~ 1, multinomial, as.data.frame(dataset))
+      fit <- VGAM::vglm(target ~ 1, VGAM::multinomial, as.data.frame(dataset))
       dev1 = deviance(fit)
-      fit <- vglm(target ~ x, multinomial, as.data.frame(dataset))
+      fit <- VGAM::vglm(target ~ x, VGAM::multinomial, as.data.frame(dataset))
       dev2 = deviance(fit)
     }
     else if(target_type == 3) #ordinal
     {
       #Fitting ordinal Logistic regression
-      dev1 = polr(as.factor(target)~rep(0,dim(dataset)[1]) , dataset)$deviance;
-      dev2 = polr(as.factor(target)~x , dataset)$deviance;
+      dev1 = MASS::polr(as.factor(target)~rep(0,dim(dataset)[1]) , dataset)$deviance;
+      dev2 = MASS::polr(as.factor(target)~x , dataset)$deviance;
     }
   }else{
     if(target_type == 1) #binomial
@@ -268,16 +268,16 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, dataInfo=NULL , uni
       #dev1 = multinom(as.factor(target)~as.matrix(cs) , as.data.frame(dataset) , maxit=100 , trace=FALSE)$deviance;
       #dev2 = multinom(as.factor(target)~cbind(x,as.matrix(cs)) , as.data.frame(dataset) , maxit=100 , trace=FALSE)$deviance; #not the exact dev as i expect (matlabs mnrfit) ~-1
       
-      fit <- vglm(target ~ as.matrix(cs), multinomial, as.data.frame(dataset))
+      fit <- VGAM::vglm(target ~ as.matrix(cs), VGAM::multinomial, as.data.frame(dataset))
       dev1 = deviance(fit)
-      fit <- vglm(target ~ x+as.matrix(cs), multinomial, as.data.frame(dataset))
+      fit <- VGAM::vglm(target ~ x+as.matrix(cs), VGAM::multinomial, as.data.frame(dataset))
       dev2 = deviance(fit)
     }
     else if(target_type == 3) #ordinal
     {
       #Fitting ordinal Logistic regression
-      dev1 = polr(as.factor(target)~cs , dataset)$deviance;
-      dev2 = polr(as.factor(target)~x+cs , dataset)$deviance;
+      dev1 = MASS::polr(as.factor(target)~cs , dataset)$deviance;
+      dev2 = MASS::polr(as.factor(target)~x+cs , dataset)$deviance;
     }
   }
   

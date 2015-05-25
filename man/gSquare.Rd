@@ -82,6 +82,8 @@ target <- dataset[,101]
 #remove target from the dataset
 dataset <- dataset[,-101]
 
+require(pcalg)
+
 if(require("pcalg", quietly = TRUE))
 {
   #run the gSquare conditional independence test for the binary class variable

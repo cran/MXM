@@ -93,9 +93,9 @@ This test uses the function vglm (package VGAM) for multinomial logistic regress
 }
 \examples{
 #require(gRbase) #for faster computations in the internal functions
-#require(VGAM)
-#require(MASS)
-#require(stats)
+require(VGAM)
+require(MASS)
+require(stats)
 
 #simulate a dataset with categorical data
 dataset_m <- matrix(nrow = 20 , ncol = 51)

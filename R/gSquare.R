@@ -70,9 +70,9 @@ gSquare = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariateMo
   
   if( (max(dfs) == min(dfs)) && min(dfs) == 2)
   {  
-    pvalue = gSquareBin(as.numeric(xIndex),(dim(dataset)[2]+1),as.numeric(csIndex),dm = cbind(dataset,target));
+    pvalue = pcalg::gSquareBin(as.numeric(xIndex),(dim(dataset)[2]+1),as.numeric(csIndex),dm = cbind(dataset,target));
   }else{
-    pvalue = gSquareDis(as.numeric(xIndex),(dim(dataset)[2]+1),as.numeric(csIndex),dm = cbind(dataset,target), nlev = dfs);
+    pvalue = pcalg::gSquareDis(as.numeric(xIndex),(dim(dataset)[2]+1),as.numeric(csIndex),dm = cbind(dataset,target), nlev = dfs);
   }
   
   flag = 1;

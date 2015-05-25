@@ -95,6 +95,8 @@ for(i in 1:1000)
   }
 }
 
+require(survival)
+
 #init the Surv object class feature
 if(require(survival, quietly = TRUE))
 {

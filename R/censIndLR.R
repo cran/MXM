@@ -1,7 +1,7 @@
 censIndLR = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariateModels=NULL, hash = FALSE, stat_hash=NULL, pvalue_hash=NULL){
   # Conditional independence test based on the Log Likelihood ratio test
   
-  if(!is.Surv(target))
+  if(!survival::is.Surv(target))
   {
     stop('The survival test can not be performed without a Surv object target');
   }
@@ -63,7 +63,7 @@ censIndLR = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariate
     
     #fitting the model
     tryCatch(
-      cox_results <- coxph(target ~ x),
+      cox_results <- survival::coxph(target ~ x),
       warning=function(w) {
         #Do nothing...
       }
@@ -101,11 +101,11 @@ censIndLR = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariate
       #fitting the model (without x)
       if(length(csIndex) == 1)
       {
-        cox_results <- coxph(target ~ tecs);
+        cox_results <- survival::coxph(target ~ tecs);
       }
       else
       {
-        cox_results <- coxph(target ~ ., tecs);
+        cox_results <- survival::coxph(target ~ ., tecs);
       },
       
       warning=function(w) {
@@ -119,7 +119,7 @@ censIndLR = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariate
     tryCatch(
       
       #fitting the full model
-      cox_results_full <- coxph(target ~ ., texcs),
+      cox_results_full <- survival::coxph(target ~ ., texcs),
       
       warning=function(w) {
         #Do nothing

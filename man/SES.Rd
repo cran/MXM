@@ -144,7 +144,7 @@ The packages required for the SES algorithm operations are:
 \examples{
 set.seed(123)
 #require(gRbase) #for faster computations in the internal functions
-#require(hash)
+require(hash)
 
 #simulate a dataset with continuous data
 dataset <- matrix(nrow = 1000 , ncol = 300)
