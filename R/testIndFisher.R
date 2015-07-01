@@ -177,6 +177,7 @@ testIndFisher = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univar
     xyIdx = 1:2;
     csIdx = 3:(ncol(as.matrix(cs))+2); #or csIdx = 3;
     
+    #use pseudoinverse instead of solve (if there is an error or in general)
     residCorrMatrix = (corrMatrix[xyIdx, xyIdx]) - as.matrix(corrMatrix[xyIdx, csIdx])%*%(solve( as.matrix(corrMatrix[csIdx, csIdx]) , rbind(corrMatrix[csIdx, xyIdx])));
     #residCorrMatrix = (corrMatrix[xyIdx, xyIdx]) - as.matrix(corrMatrix[xyIdx, csIdx])%*%(mldivide(as.matrix(corrMatrix[csIdx, csIdx]),rbind(corrMatrix[csIdx, xyIdx]) ));
     
@@ -192,7 +193,7 @@ testIndFisher = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univar
   
   pvalue = 2 * pt(-abs(w),df);#?dt for documentation
   #or alternatively we can calculate the p-value by comparing against the normal distribution
-  #pvalue = 2 * dnorm(-abs(w),mean=0,sd=1);
+  #pvalue = 2 * pnorm(-abs(w));
   
   flag = 1;
   
@@ -218,9 +219,9 @@ testIndFisher = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univar
   
 },
 error=function(cond) {
-  message(paste("error in try catch of the testIndFisher test"))
-  message("Here's the original error message:")
-  message(cond)
+  #message(paste("error in try catch of the testIndFisher test"))
+  #message("Here's the original error message:")
+  #message(cond)
   
   #        
   #        #for debug
@@ -229,7 +230,7 @@ error=function(cond) {
   #        printf("\ncsindex = \n");
   #        print(csIndex);
   
-  stop();
+  #stop();
   
   #error case
   pvalue = 1;

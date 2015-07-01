@@ -305,9 +305,9 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, dataInfo=NULL , uni
   
 },
 error=function(cond) {
-  message(paste("error in try catch of the testIndLogistic test"))
-  message("Here's the original error message:")
-  message(cond)
+  #message(paste("error in try catch of the testIndLogistic test"))
+  #message("Here's the original error message:")
+  #message(cond)
   
   #for debug
   #   printf("\nxIndex = \n");
@@ -320,7 +320,7 @@ error=function(cond) {
   stat = 0;
   flag = 0;
   
-  stop();
+  #stop();
   
   results <- list(pvalue = pvalue, stat = stat, flag = flag, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
   return(results);

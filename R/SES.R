@@ -55,7 +55,7 @@
 #   else in any other case, if we have more than one equivalent vars in z , we select the first one
 # In this version we support the equal_case = 3.
 
-# Packages required for SES
+# Packages suggested for SES
 # 
 # packages for combnPrim (combn in C)
 # library(gRbase)
@@ -98,7 +98,7 @@ SES = function(target=NULL , dataset=NULL , max_k = 3 , threshold = 0.05 , test 
   
   if(hash == TRUE)
   {
-    if(requireNamespace("hash"))
+    if(requireNamespace("hash", quietly = TRUE, warn.conflicts = FALSE) == TRUE)
     {
       if(is.null(hashObject))
       {
@@ -135,6 +135,10 @@ SES = function(target=NULL , dataset=NULL , max_k = 3 , threshold = 0.05 , test 
     #check if dataset is an ExpressionSet object of Biobase package
     if(class(dataset) == "ExpressionSet")
     {
+      if(requireNamespace("Biobase", quietly = TRUE, warn.conflicts = FALSE) == FALSE){
+        warning("You have to load the package 'Biobase' in order to use an ExpressionSet dataset");
+        return(NULL);
+      }
       #get the elements (numeric matrix) of the current ExpressionSet object.
       dataset = Biobase::exprs(dataset);
       dataset = t(dataset);#take tha features as columns and the samples as rows

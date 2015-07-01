@@ -2,7 +2,7 @@
 \alias{MXM-package}
 \docType{package}
 \title{
-This is an R package that implements feature selection methods for identifying minimal, statistically-equivalent and equally-predictive feature subsets.
+This is an R package that currently implements feature selection methods for identifying minimal, statistically-equivalent and equally-predictive feature subsets.
 }
 \description{
 The 'MXM' (Mens eX Machina, meaning 'Mind from the Machine' in Latin) package provides source code for the SES algorithm and for some appropriate statistical conditional independence tests (testIndFisher, testIndLogistic, gSquare and censIndLR are included). Read the package's help pages for more details.
@@ -11,8 +11,8 @@ The 'MXM' (Mens eX Machina, meaning 'Mind from the Machine' in Latin) package pr
 \tabular{ll}{
 Package: \tab MXM\cr
 Type: \tab Package\cr
-Version: \tab 0.2.2\cr
-Date: \tab 2014-8-04\cr
+Version: \tab 0.4\cr
+Date: \tab 2015-07-1\cr
 License: \tab GPL-2\cr
 }
 }

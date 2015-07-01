@@ -15,7 +15,8 @@ SES(target = NULL, dataset = NULL, max_k = 3, threshold = 0.05, test = NULL,
 The class variable. Provide either a string, an integer value, a vector, a factor, an ordered factor or a Surv object. See also Details.
 }
   \item{dataset}{
-The data-set; provide either a data frame or a matrix (columns = variables , rows = samples). Alternatively, provide an ExpressionSet (in which case rows are samples and columns are features, see bioconductor for details).
+The data-set; provide either a data frame or a matrix (columns = variables , rows = samples). \bold{All variables must be continuous}. 
+Alternatively, provide an ExpressionSet (in which case rows are samples and columns are features, see bioconductor for details).
 }
   \item{max_k}{
 The maximum conditioning set to use in the conditional indepedence test (see Details). Integer, default value is 3.
