@@ -23,6 +23,12 @@ importFrom("stats", pt)
 importFrom("stats", binomial)
 importFrom("stats", family)
 
+importFrom("graphics", barplot)
+importFrom("graphics", grid)
+importFrom("graphics", lines)
+importFrom("graphics", legend)
+importFrom("graphics", axis)
+
 #importFrom("pcalg", gSquareBin, gSquareDis)
 #importFrom("gRbase", combnPrim)
 #importFrom("Biobase", exprs)

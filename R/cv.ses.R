@@ -166,6 +166,7 @@ cv.ses <- function(target, dataset, kfolds = 10, folds = NULL, alphas = NULL, ma
       
       #get the data of the reference signature (i.e the selected variables)
       curr_sign <- as.matrix(signatures[1, ])
+      #curr_sign <- as.matrix(results@selectedVars) #in case that the signature slot is not returned due to lack of memory. See InternalSES final part.
       sign_data <- as.matrix(train_set[ ,curr_sign])
       sign_test <- as.matrix(test_set[ ,curr_sign]);
       

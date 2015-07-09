@@ -504,7 +504,28 @@ InternalSES = function(target , dataset , max_k = 3 , threshold = 0.05 , test = 
   results$selectedVarsOrder = svorder;
   
   results$queues = queues;
-  results$signatures = as.matrix(do.call(expand.grid, results$queues))
+  
+  #results$signatures = as.matrix(do.call(expand.grid, results$queues))
+  
+  #try catch because we may habe a memmory error when generating all the combinations of the queues.
+  sigmatrix <- tryCatch(
+    {
+      as.matrix(do.call(expand.grid, results$queues))
+    },
+    error=function(cond) {
+      warning("Cannot allocate space for all the possible signatures for this system, so it doesnt expand grid all the queues combinations in order to generate the slot signatures of the output. The current slot signatures contains only the selected variables. In order to construct the signatures, combine one variable from each queue in the queues slot of the SES output.")
+      warning(cond)
+      #message("Here's the original error message:")
+      #message(cond)
+      
+      # sig_matrix = matrix(NA,1,3)
+      sig_matrix = as.matrix(rbind(results$selectedVars))
+      return(sig_matrix);
+    },
+    finally={}
+  )
+  results$signatures <- sigmatrix;
+  
   hashObject = NULL;
   hashObject$stat_hash = stat_hash;
   hashObject$pvalue_hash = pvalue_hash;
