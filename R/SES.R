@@ -164,6 +164,7 @@ SES = function(target=NULL , dataset=NULL , max_k = 3 , threshold = 0.05 , test 
     dataset = as.matrix(dataset);
     warning("The dataset contains missing values and they were replaced automatically by the variable (column) mean.")
     dataset = apply(dataset, 2, function(x){ x[which(is.na(x))] = mean(x,na.rm = TRUE) ; return(x)});
+    dataset = as.data.frame(dataset);
   }
   
   ##################################

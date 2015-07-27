@@ -56,7 +56,11 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, dataInfo=NULL , uni
   #initialization
   
   #cast factor into numeric vector
-  target = as.numeric(as.vector(target));
+  #target = as.numeric(as.vector(target));
+  if(class(target) == "factor")
+  {
+    target = as.numeric(target)-1;
+  }
   
   csIndex[which(is.na(csIndex))] = 0
   

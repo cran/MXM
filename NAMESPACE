@@ -33,6 +33,6 @@ importFrom("graphics", axis)
 #importFrom("gRbase", combnPrim)
 #importFrom("Biobase", exprs)
 
-export(SES, censIndLR, gSquare, testIndFisher, testIndLogistic, cv.ses, auc.mxm, acc.mxm, mse.mxm, ci.mxm, glm.mxm, lm.mxm, coxph.mxm)
+export(SES, InternalSES, censIndLR, gSquare, testIndFisher, testIndLogistic, cv.ses, auc.mxm, acc.mxm, mse.mxm, ci.mxm, glm.mxm, lm.mxm, coxph.mxm)
 exportClasses("SESoutput")
 exportMethods("plot", "summary")

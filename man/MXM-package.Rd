@@ -11,8 +11,8 @@ The 'MXM' (Mens eX Machina, meaning 'Mind from the Machine' in Latin) package pr
 \tabular{ll}{
 Package: \tab MXM\cr
 Type: \tab Package\cr
-Version: \tab 0.4.1\cr
-Date: \tab 2015-07-09\cr
+Version: \tab 0.4.2\cr
+Date: \tab 2015-07-27\cr
 License: \tab GPL-2\cr
 }
 }

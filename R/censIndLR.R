@@ -6,8 +6,10 @@ censIndLR = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariate
     stop('The survival test can not be performed without a Surv object target');
   }
   
-  csIndex = csIndex[-which(is.na(csIndex))]#csIndex[which(is.na(csIndex))] = 0;
-  
+  #csIndex = csIndex[-which(is.na(csIndex))]
+  csIndex[which(is.na(csIndex))] = 0;
+  csIndex = csIndex[which(csIndex!=0)]
+
   if(hash == TRUE)
   {
     csIndex2 = csIndex[which(csIndex!=0)]
@@ -87,28 +89,27 @@ censIndLR = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariate
   }else{
     
     #perform the test with the cs
-    tecs = dataset[ , c(csIndex)];
+    tecs = as.data.frame(dataset[ , c(csIndex)]);
     
     #tecs = dataset[ ,c(timeIndex, csIndex)];
     #names(tecs)[1] = 'timeToEvent';
     #tecs$event = event; #it was without comment (warning LHS to a list)
-    texcs = dataset[ , c(xIndex, csIndex)]; #texcs = dataset[ ,c(timeIndex, xIndex, csIndex)];
+    texcs = as.data.frame(dataset[ , c(xIndex, csIndex)]); #texcs = dataset[ ,c(timeIndex, xIndex, csIndex)];
     #names(texcs)[1] = 'timeToEvent';
     #texcs$event = event; #it was without comment (warning LHS to a list)
         
     tryCatch(
       
       #fitting the model (without x)
-      if(length(csIndex) == 1)
-      {
-        cox_results <- survival::coxph(target ~ tecs);
-      }
-      else
-      {
-        cox_results <- survival::coxph(target ~ ., tecs);
-      },
-      
-      warning=function(w) {
+#       if(length(csIndex) == 1)
+#       {
+#         cox_results <- survival::coxph(target ~ tecs);
+#       }
+#       else
+#       {
+        cox_results <- survival::coxph(target ~ ., tecs)
+      # }
+      ,error=function(w) {
         #Do nothing
       }
     )
@@ -119,9 +120,9 @@ censIndLR = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariate
     tryCatch(
       
       #fitting the full model
-      cox_results_full <- survival::coxph(target ~ ., texcs),
+      cox_results_full <- survival::coxph(target ~ ., texcs)
       
-      warning=function(w) {
+      ,error=function(w) {
         #Do nothing
       }
     )
