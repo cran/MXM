@@ -188,6 +188,9 @@ cv.ses <- function(target, dataset, kfolds = 10, folds = NULL, alphas = NULL, ma
           conf_ses[[ses_conf_id]]$preds[[k]] <- preds
           conf_ses[[ses_conf_id]]$performances[k] <- performance
         }
+      }else{
+        conf_ses[[ses_conf_id]]$preds[[k]] <- NULL
+        conf_ses[[ses_conf_id]]$performances[k] <- NA
       }
       
     }
@@ -260,7 +263,9 @@ mse.mxm <- function(predictions, test_target){
 #cindex
 ci.mxm <- function(predictions, test_target){
   #Hmisc package required
+  
   ci = 1 - rcorr.cens(predictions, test_target)[1];
+  
   return(ci);
 }
 
@@ -275,30 +280,49 @@ ci.mxm <- function(predictions, test_target){
 #preds
 
 glm.mxm <- function(train_target, sign_data, sign_test){
-  if(dim(sign_data)[2] == 1)
-  {
-    return(NULL);
-  }else{
-    sign_model <- glm(train_target ~ ., data = data.frame(sign_data), family = binomial());
-    preds <- predict(sign_model, newdata=data.frame(sign_test), type = 'response')
+#   if(dim(sign_data)[2] == 1)
+#   {
+#     return(NULL);
+#   }else{
+  
+    #using this dummy variable x to overcome the structure naming problems when we have just one variable as a sign_data. For more on this contact athineou ;)
+    x = sign_data
+    # sign_model <- glm(train_target ~ ., data = data.frame(sign_data), family = binomial());
+    sign_model <- glm(train_target ~ ., data = data.frame(x), family = binomial());
+    x = sign_test
+    # preds <- predict(sign_model, newdata=data.frame(sign_test), type = 'response')
+    preds <- predict(sign_model, newdata=data.frame(x), type = 'response')
     return(preds);
-  }
+#  }
 }
 
 lm.mxm <- function(train_target, sign_data, sign_test){
   
-  if(dim(sign_data)[2] == 1)
-  {
-    return(NULL);
-  }else{
-    sign_model <- lm(train_target ~ ., data = data.frame(sign_data));
-    preds <- predict(sign_model, newdata=data.frame(sign_test), type = 'response')
+#   if(dim(sign_data)[2] == 1)
+#   {
+#     return(NULL);
+#   }else{
+  
+    #using this dummy variable x to overcome the structure naming problems when we have just one variable as a sign_data. For more on this contact athineou ;)
+    x = sign_data
+    # sign_model <- lm(train_target ~ ., data = data.frame(sign_data));
+    sign_model <- lm(train_target ~ ., data = data.frame(x));
+    x = sign_test
+    # preds <- predict(sign_model, newdata=data.frame(sign_test), type = 'response')
+    preds <- predict(sign_model, newdata=data.frame(x), type = 'response')
     return(preds);
-  }
+#   }
 }
 
 coxph.mxm <- function(train_target, sign_data, sign_test){
-  sign_model <- coxph(train_target~., data = data.frame(sign_data))
-  preds <- predict(sign_model, newdata=data.frame(sign_test), type="risk")
+  
+  #using this dummy variable x to overcome the structure naming problems when we have just one variable as a sign_data. For more on this contact athineou ;)
+  x = sign_data
+  #sign_model <- coxph(train_target~., data = data.frame(sign_data))
+  sign_model <- coxph(train_target~., data = data.frame(x))
+  x = sign_test
+  #preds <- predict(sign_model, newdata=data.frame(sign_test), type="risk")
+  preds <- predict(sign_model, newdata=data.frame(x), type="risk")
+  
   return(preds);
 }

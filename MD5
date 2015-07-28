@@ -1,14 +1,14 @@
-12a453cfbd16ff80433ba17c75f44b2f *DESCRIPTION
+d893815369a6a7a9a45ecd5d04d37987 *DESCRIPTION
 42a7e18a08909a0c410ee5027b833ab2 *NAMESPACE
 2a50d60f09252a7c1ca046f228692d94 *R/SES.R
 ee611d456b9a7db0da35b2798b299668 *R/SESoutput_script.R
 f2cf0a27976d154b690d502ee21227bf *R/censIndLR.R
-38a11e13217b57b8ce2875b29548f48c *R/cv.ses.R
+11199a5c67cfd4a3f7be8467d0588cec *R/cv.ses.R
 32001e25d7c4ee8987b9ce57b6ac9a98 *R/gSquare.R
 811db5b6d369a159606eb0c87bb14a04 *R/testIndFisher.R
 bc6e3ed49b9f764720f3bfd49bc406f6 *R/testIndLogistic.R
 d46bb99f8fd97169b0124ca3847a194a *man/MXM-internal.Rd
-6cb0d9327d2a522b81d2d3ae2cb715df *man/MXM-package.Rd
+963e16268453b99fffbd8fdc5d71be5e *man/MXM-package.Rd
 5a5e6bbe48e46b1dc513dde7cf7c0d6a *man/SES.Rd
 ba44b05e553339700719effb573a6cb9 *man/SESoutput-class.Rd
 36e5d138950f0c8b821d6009cd6db65e *man/censIndLR.Rd
