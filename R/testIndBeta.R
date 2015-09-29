@@ -1,48 +1,35 @@
-testIndLogistic = function(target, dataset, xIndex, csIndex, dataInfo=NULL , univariateModels=NULL ,
- hash = FALSE,stat_hash=NULL, pvalue_hash=NULL, target_type=0, robust=FALSE)
+testIndBeta = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariateModels=NULL, hash = FALSE, stat_hash=NULL, pvalue_hash=NULL,robust=FALSE)
 {
-  #   TESTINDLOGISTIC Conditional Independence Test based on logistic regression for binary,categorical or ordinal class variables
+  #   TESTINDBETA Conditional Independence Test based on beta regression for proportions
   #
   #   provides a p-value PVALUE for the null hypothesis: X independent by target
-  #   given CS. The pvalue is calculated by comparing a logistic model based 
+  #   given CS. The pvalue is calculated by comparing a beta regression model based 
   #   on the conditioning set CS against a model containing both X and CS. 
-  #   The comparison is performed through a chi-square test with one degree 
-  #   of freedom on the difference between the deviances of the two models. 
-  #   TESTINDLOGISTIC requires the following inputs:
+  #   The comparison is performed through a chi-square test with some degrees 
+  #   of freedom on the difference between the log-likelihoodss of the two models. 
+  #   TESTINDBETA requires the following inputs:
   
   #   target: a column vector containing the values of the target variable. 
-  #   target must be an integer vector, with values from 0 to k-1, where k is
-  #   the number of categories
+  #   target must be an integer vector, with values between 0 and 1 
   #
   #   dataset: a numeric data matrix containing the variables for performing
-  #   the conditional independence test. They can be mixed variables, either continous or categorical
+  #   the conditional independence test. There can be mixed variables, i.e. continous and or categorical
   #
   #   xIndex: the index of the variable whose association with the target
-  #   must be tested. Can be any type of variable, either continous or categorical.
+  #   must be tested. Can be mixed variables, either continous or categorical
   #
-  #   csIndex: the indices of the variables to condition on. They can be mixed variables, either continous or categorical
+  #   csIndex: the indices of the variables to condition on. 
   #
-  #   target_Type: the type of the target
-  #   target_type == 1 (binomial target)
-  #   target_type == 2 (nominal target)
-  #   target_type == 3 (ordinal target)
-  #   default target_type=0
-  #  
   #   this method returns: the pvalue PVALUE, the statistic STAT and a control variable FLAG.
   #   if FLAG == 1 then the test was performed succesfully 
   #
   #   Examples:
   #      # Perform a conditional independence test on a toy example.
   #      x = c(19, 38, 44, 45, 49, 65, 71, 75, 77, 80);
-  #      y = t(t(c(0, 0, 0, 0, 1, 0, 1, 1, 1, 1)));
+  #      y = c(0.969, 0.402, 0.143, 0.888, 0.117, 0.861, 0.606, 0.384, 0.178, 0.241);
   #      cs = c(28, 75, 68, 26, 66, 51, 16, 70, 12, 89);
-  #      results = testIndLogistic(y, cbind(x,cs), 1, 2)
+  #      results = testIndBeta(y, cbind(x,cs), 1, 2)
   #
-  #      # Conditional independence test with multiple-class outcome
-  #      x = c(19, 38, 44, 45, 49, 65, 71, 75, 77, 80);
-  #      y = t(t(c(0, 0, 0, 1, 1, 0, 1, 2, 2, 2)));
-  #      cs = c(28, 75, 68, 26, 66, 51, 16, 70, 12, 89);
-  #      results = testIndLogistic(y, cbind(x,cs), 1 , 2 ,target_type = 2)
   #
   #   See also testIndFisher
   #
@@ -57,10 +44,7 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, dataInfo=NULL , uni
   #initialization
   
   #cast factor into numeric vector
-  if(is.ordered(target) == FALSE)
-  {
-    target = as.factor(as.numeric(as.vector(target)));
-  }
+  target = as.numeric(as.vector(target));
   
   csIndex[which(is.na(csIndex))] = 0
   
@@ -102,7 +86,7 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, dataInfo=NULL , uni
   #check input validity
   if(xIndex < 0 || csIndex < 0)
   {
-    message(paste("error in testIndLogistic : wrong input of xIndex or csIndex"))
+    message(paste("error in testIndBeta : wrong input of xIndex or csIndex"))
     results <- list(pvalue = pvalue, stat = stat, flag = flag, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
     return(results);
   }
@@ -176,38 +160,11 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, dataInfo=NULL , uni
       }
     }
   }
-  
-  if(target_type == 0)
-  {
-    target_type = dataInfo$target_type;
-    if(dataInfo$target_type == "nominal")
-    {
-      #cat("Multinomial Logistic Regression")
-      target_type = 2;
-    }else if(dataInfo$target_type == "ordinal"){
-      #cat("Ordinal Logistic Regression")
-      target_type = 3;
-    }else if(dataInfo$target_type == "binary"){
-      #cat("Binary Logistic Regression")
-      target_type = 1;
-    }else{
-      #cat("Multinomial Logistic Regression")
-      target_type = 2; #default value in case of bad definition
-    }
-  }else{
-    target_type = floor(target_type);
-    if(target_type < 1 || target_type > 3)
-    {
-      message(paste("error in testIndLogistic : wrong input of target_type"))
-      results <- list(pvalue = pvalue, stat = stat, flag = flag, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
-      return(results);
-    }
-  }
-  
+   
   #checking the length
   if (length(x) == 0 || length(target) == 0)
   {
-    message(paste("error in testIndLogistic : empty variable x or target"))
+    message(paste("error in testIndBeta : empty variable x or target"))
     results <- list(pvalue = pvalue, stat = stat, flag = flag, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
     return(results);
   }
@@ -215,17 +172,6 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, dataInfo=NULL , uni
   #trycatch for dealing with errors
   res <- tryCatch(
 {
-  #binomial or multinomial target?
-  yCounts = length(unique(target));
-  if(yCounts == 2)
-  {
-    target_type = 1;
-  }#else{
-    #nominal or ordinal target
-    #correct encoding for target
-    #target = target + 1;
-  #}
-  
   #if the conditioning set (cs) is empty, we use the t-test on the coefficient of x.
   if(length(cs) == 0)
   {
@@ -239,99 +185,28 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, dataInfo=NULL , uni
       results <- list(pvalue = pvalue, stat = stat, flag = flag, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
       return(results);
     }
-    
-    if(target_type == 1) #binomial
-    {
-      #Fitting generalized Linear Models
-      ff <- target ~ x
-      m <- model.frame(ff)
-      mat <- model.matrix(ff, m)
-      mat <- mat[1:n, ]
-      fit2 = glm.fit(mat, target, family=binomial(logit))
-      dev1 = fit2$null.deviance 
-      dev2 = fit2$deviance;
-      p1 = 1
-      p2 = length( coef(fit2) )
-    }else if(target_type == 2) #nominal-categorical
-    {
-      #Fitting multinomial Logistic regression
-      fit1 <- nnet::multinom(target ~ 1, trace = F)
-      fit2 <- nnet::multinom(target ~ x, trace = F)
-      dev1 = fit1$deviance
-      dev2 = fit2$deviance
-      p1 = yCounts - 1
-      p2 = length( coef(fit2) )
-  
-    }
-    else if(target_type == 3) #ordinal
-    {
-      #Fitting ordinal Logistic regression
-      fit1 <- ordinal::clm(target ~ 1 )
-      fit2 <- ordinal::clm(target ~ x )
-      dev1 = 2* fit1$logLik
-      dev2 = 2* fit2$logLik
-      p1 = yCounts - 1
-      p2 = length( coef(fit2) )
-      
-    }
+     #Fitting beta regressions
+      fit = betareg::betareg(target ~ x )
+      mod = lmtest::lrtest(fit)
+      stat = mod[2, 4]
+      pvalue = mod[2, 5] 
   }else{
-    if(target_type == 1) #binomial
-    {
-      #Fitting generalized Linear Models
-      kapa = length(csIndex)
-      ff1 = as.formula(paste("target ~ ",paste("dataset[,",csIndex[1:kapa],"]",sep="",collapse="+"), sep=""))
-      m1 <- model.frame(ff1)
-      mat1 <- model.matrix(ff1, m1)
-      mat1 <- mat1[1:n,]
-      fit1 = glm.fit(mat1, target, family=binomial(logit))
-      dev1 = fit1$deviance 
-      p1 = length( coef(fit1) )      
-      
-      ff2 = as.formula(paste(paste("target ~ ",paste("dataset[,",csIndex[1:kapa],"]",sep="",collapse="+"), sep="") , "+dataset[,",xIndex,"]", sep = ""))
-      m2 <- model.frame(ff2)
-      mat2 <- model.matrix(ff2, m2)
-      mat2 <- mat2[1:n,]
-      fit2 = glm.fit(mat2, target, family=binomial(logit))
-      dev2 = fit2$deviance 
-      p2 = length( coef(fit2) )
-      
-    }
-    else if(target_type == 2) #nominal-categorical
-    {
-      #Fitting multinomial Logistic regression
+      #Fitting beta regressions
+    
       if(length(csIndex) == 1){
-        fit1 = nnet::multinom( target ~ dataset[, csIndex], data = dataset[,c(csIndex, xIndex)], trace = F)
+        fit1 = betareg::betareg( target ~ dataset[, csIndex], data = dataset[,c(csIndex, xIndex)] )
       }else{
-        fit1 = nnet::multinom( target ~., data = dataset[, csIndex], trace = F)
+        fit1 = betareg::betareg( target ~., data = dataset[, csIndex] )
       }
-      dev1 = deviance(fit1)
-      fit2 <- nnet::multinom(target ~.,  data = dataset[, c(xIndex, csIndex)], trace = F)
-      dev2 = deviance(fit2)
-      p1 = length(coef(fit1))
-      p2 = length(coef(fit2))
-    }
-    else if(target_type == 3) #ordinal
-    {
-      #Fitting ordinal Logistic regression
-      if(length(csIndex) == 1){
-        fit1 = ordinal::clm( target ~ dataset[, csIndex], data = dataset[,c(csIndex, xIndex)])
-      }else{
-        fit1 = ordinal::clm( target ~., data = dataset[, csIndex] )
-      }
-      dev1 = 2*fit1$logLik
-      fit2 <- ordinal::clm(target ~., data = dataset[, c(csIndex, xIndex)])
-      dev2 = 2*fit2$logLik
-      p1 = length(coef(fit1))
-      p2 = length(coef(fit2))
-    }
+      fit2 = betareg::betareg(target ~., data = dataset[, c(csIndex, xIndex)] ) ;
+      mod = lmtest::lrtest(fit1, fit2)
+      pr = nrow(mod)
+      stat = mod[pr, 4]
+      pvalue = mod[pr, 5] 
   }
   
   #calculate the p value and stat.
-  stat = abs (dev1 - dev2) 
-  df = abs( p2 - p1 ) ## a bit stupid, but it works
-  pvalue = 1 - pchisq(stat, df); 
   flag = 1;
-  
   #update hash objects
   if(hash == TRUE)
   {
@@ -352,7 +227,7 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, dataInfo=NULL , uni
   
 },
 error=function(cond) {
-#   message(paste("error in try catch of the testIndLogistic test"))
+#   message(paste("error in try catch of the testIndBeta test"))
 #   message("Here's the original error message:")
 #   message(cond)
 #   
@@ -361,8 +236,8 @@ error=function(cond) {
 #     print(xIndex);
 #     print("\ncsindex = \n");
 #     print(csIndex);
-  
-  #error case
+#   
+#   #error case
   pvalue = 1;
   stat = 0;
   flag = 0;
@@ -374,7 +249,7 @@ error=function(cond) {
 },
 #   warning=function(cond) {
 #     #do nothing, or
-#     message(paste("Warning in the testIndLogistic testL"))
+#     message(paste("Warning in the testIndBeta testL"))
 #     message("Here's the original warning message:")
 #     message(cond)
 #   },

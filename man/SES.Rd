@@ -7,15 +7,15 @@ Feature selection algorithm for identifying multiple minimal, statistically-equi
 SES algorithm follows a forward-backward filter approach for feature selection in order to provide minimal, highly-predictive, statistically-equivalent, multiple feature subsets of a high dimensional dataset. See also Details.
 }
 \usage{
-SES(target = NULL, dataset = NULL, max_k = 3, threshold = 0.05, test = NULL,
- user_test = NULL, hash = FALSE, hashObject = NULL)
+SES(target, dataset, max_k = 3, threshold = 0.05, test = NULL,
+ user_test = NULL, hash = FALSE, hashObject = NULL, robust = FALSE)
 }
 \arguments{
   \item{target}{
 The class variable. Provide either a string, an integer value, a vector, a factor, an ordered factor or a Surv object. See also Details.
 }
   \item{dataset}{
-The data-set; provide either a data frame or a matrix (columns = variables , rows = samples). \bold{All variables must be continuous}. 
+The data-set; provide either a data frame or a matrix (columns = variables , rows = samples).
 Alternatively, provide an ExpressionSet (in which case rows are samples and columns are features, see bioconductor for details).
 }
   \item{max_k}{
@@ -48,6 +48,10 @@ Each time SES runs with "hash=TRUE" it produces a list of hashObjects that can b
 
 Important: the generated hashObjects should be used only when the same dataset is re-analyzed, possibly with different values of max_k and threshold.
 }
+
+\item{robust}{
+A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust version of the statistical test if it is available. It takes more time than a non robust version but it is suggested in case of outliers. Default value is FALSE.
+}
 }
 \details{
 This function implements the Statistically Equivalent Signature (SES) algorithm as presented in "Tsamardinos, Lagani and Pappas, HSCBB 2012" 
@@ -72,6 +76,7 @@ If the current 'test' argument is defined as NULL or "auto" and the user_test ar
 
 Conditional independence test functions to be pass through the user_test argument should have the same signature of the included test. See "?testIndFisher" for an example.
 
+For all the available conditional independence tests that are currently included on the package, please see "?CondIndTests".
 }
 \value{
 The output of the algorithm is an object of the class 'SESoutput' including:
@@ -103,7 +108,7 @@ The max_k option used in the current run.
 The threshold option used in the current run.
 }
 \item{runtime}{
-The run time of the algorithm. A numeric vector. The first element is the user time, the seond element is the system time and the third element is the elapsed time.
+The run time of the algorithm. A numeric vector. The first element is the user time, the second element is the system time and the third element is the elapsed time.
 }
 
 Generic Functions implemented for SESoutput Object:
@@ -121,7 +126,7 @@ Argument mode can be either "all" or "partial" for the first 500 pvalues of the 
 I. Tsamardinos, V. Lagani and D. Pappas (2012) Discovering multiple, equivalent biomarker signatures. In proceedings of the 7th conference of the Hellenic Society for Computational Biology & Bioinformatics - HSCBB12.
 }
 \author{
-Ioannis Tsamardinos, Vincenzo Lagani (Copyright 2013)
+Ioannis Tsamardinos, Vincenzo Lagani
 
 R implementation and documentation: Giorgos Athineou <athineou@ics.forth.gr> Vincenzo Lagani <vlagani@ics.forth.gr>  
 }
@@ -139,7 +144,7 @@ The packages required for the SES algorithm operations are:
 \bold{pcalg} : for the gSquare test.
 }
 \seealso{
-\code{\link{testIndFisher}, \link{testIndLogistic}, \link{gSquare}, \link{censIndLR}}
+\code{\link{CondIndTests}, \link{cv.ses}}
 }
 
 \examples{

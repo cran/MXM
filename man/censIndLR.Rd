@@ -1,21 +1,21 @@
 \name{censIndLR}
 \alias{censIndLR}
 \title{
-Conditional independence test based on the Log Likelihood ratio test for survival data (see reference below)
+Conditional independence test for survival data
 }
 \description{
 The main task of this test is to provide a p-value PVALUE for the null hypothesis: feature 'X' is independent from 'TARGET' given a conditioning set CS. This test is based on the widely used Cox regression model (Cox, 1972).
 }
 \usage{
 censIndLR(target, dataset, xIndex, csIndex, dataInfo = NULL, univariateModels = NULL, 
-hash = FALSE, stat_hash = NULL, pvalue_hash = NULL)
+hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, robust = FALSE)
 }
 \arguments{
   \item{target}{
   A Survival object (class Surv from package survival) containing the time to event data (time) and the status indicator vector (event). View \link{Surv} documentation for more information.
 }
   \item{dataset}{
-  A numeric data matrix containing the variables for performing the test. Rows as samples and columns as features.
+  A numeric matrix or data frame, in case of categorical predictors (factors), containing the variables for performing the test. Rows as samples and columns as features.
 }
   \item{xIndex}{
   The index of the variable whose association with the target we want to test.
@@ -38,11 +38,16 @@ A hash object (hash package required) which contains the cached generated statis
   \item{pvalue_hash}{
 A hash object (hash package required) which contains the cached generated p-values of a SES run in the current dataset, using the current test.
 }
+  \item{robust}{
+A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robustified version of Cox regression. Currently the robust version is not available for this test.
+}
 }
 \details{
 If hash = TRUE, testIndLogistic requires the arguments 'stat_hash' and 'pvalue_hash' for the hash-based implementation of the statistic test. These hash Objects are produced or updated by each run of SES (if hash == TRUE) and they can be reused in order to speed up next runs of the current statistic test. If "SESoutput" is the output of a SES run, then these objects can be retrieved by SESoutput@hashObject$stat_hash and the SESoutput@hashObject$pvalue_hash.
 
 Important: Use these arguments only with the same dataset that was used at initialization.
+
+For all the available conditional independence tests that are currently included on the package, please see "?CondIndTests".
 }
 \value{
 A list including:
@@ -74,7 +79,7 @@ R implementation and documentation: Vincenzo Lagani <vlagani@ics.forth.gr>, Gior
 This test uses the functions coxph and Surv of the package survival and the function anova (analysis of variance) of the package stats.
 }
 \seealso{
-\code{\link{SES}, \link{testIndFisher}, \link{gSquare}, \link{testIndLogistic}, \link{Surv}, \link{coxph}, \link{anova}}
+\code{\link{SES}, \link{testIndFisher}, \link{gSquare}, \link{testIndLogistic}, \link{Surv}, \link{coxph}, \link{anova}, \link{CondIndTests}}
 }
 \examples{
 #create a survival simulated dataset

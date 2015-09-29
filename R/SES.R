@@ -6,20 +6,29 @@
 
 # INPUTS
 
-# target : the class variable , provide either a vector, an 1D matrix, an 1D array (same length with the data rows), a factor or a formula.
+# target : the class variable , provide either a vector, an 1D matrix, an 1D array (same length with the data rows), a factor 
+# or a formula. The data can be either continuous data in R, values within (0,1), binary [0,1], nominal or ordinal data.
 # dataset : tha dataset , provide a data frame (columns = variables , rows = samples) or a matrix or an ExpressionSet.
 # max_k : the maximum conditioning set which is used in the current conditional indepedence test used.
 # threshold : the significance threshold ( must be in (0,1) ) for testing the null hypothesis of the generated pvalues.
-# test : the conditional independence test we are going to use. the available conditional independence tests so far in this implementation are:
-#   "testIndFisher" : Fisher conditional independence test for continous targets
-#   "testIndLogistic" : Conditional Independence Test based on logistic regression for binary,categorical or ordinal class variables
+# test : the conditional independence test we are going to use. the available conditional independence tests so far in this 
+# implementation are:
+#   "testIndFisher" : Fisher conditional independence test for continous targets (or proportions) and continuous predictors only
+#   "testIndReg" : Conditional independence test based on regression for continous targets (or proportions) and mixed predictors using the F test
+#   "testIndRQ" : Conditional Independence Test based on quantile (median) regression for numerical class variables and mixed predictors (F test)
+#   "testIndLogistic" : Conditional Independence Test based on logistic regression for binary,categorical or ordinal class variables and mixed predictors
+#   "testIndPois" : Conditional Independence Test based on Poisson regression for discrete class variables and mixed predictors (log-likelihood ratio test)
+#   "testIndNB" : Conditional Independence Test based on Negative Binomial regression for discrete class variables and mixed predictors (log-likelihood ratio test)
+#   "testIndBeta" : Conditional Independence Test based on beta regression for proportions and mixed predictors (log likelihood ratio test)
 #   "gSquare" : Conditional Independence test based on the G test of independence (log likelihood ratio  test)
-#   "censIndLR" : Conditional independence test for survival data based on the Log likelihood ratio test
+#   "censIndLR" : Conditional independence test for survival data based on the Log likelihood ratio test with mixed predictors
 # user_test : the user defined conditional independence test ( provide a closure type object )
-# hash : a boolean variable whuch indicates whether (TRUE) or not (FALSE) to use tha hash-based implementation of the statistics of SES.
+# hash : a boolean variable whuch indicates whether (TRUE) or not (FALSE) to use the hash-based implementation of the statistics of SES.
 # hashObject : a List with the hash objects (hash package) on which we have cached the generated statistics. 
-#              SES requires this Object for the hash-based implementation of the statistics. This hashObject is produced or updated by each run
+#              SES requires this Object for the hash-based implementation of the statistics. This hashObject is produced or 
+# updated by each run
 #              of SES (if hash == TRUE) and it can be reused in next runs of SES.
+# robust : Should the Fisher or the normal regression be robustly estimated? TRUE or FALSE 
 
 # there are default values for all of the parameters of the algorithm.
 
@@ -28,8 +37,11 @@
 
 # selectedVars : the selected variables i.e. the dependent of the target variables.
 # selectedVarsOrder : the increasing order of the selected variables due to their pvalues
-# queues : the selected variable queues with the multiple statistically equivalent variables (if you want to make multiple statistically equivalent signatures you have to take one variable from each queue).
-# signatures : all the possible combinations of the variables in the queues. One variable per queue in each signature. (signature ~ the minimum subset with the most relevant features).
+# queues : the selected variable queues with the multiple statistically equivalent variables 
+# (if you want to make multiple statistically equivalent signatures you 
+# have to take one variable from each queue).
+# signatures : all the possible combinations of the variables in the queues. One variable per queue in each signature. 
+# (signature ~ the minimum subset with the most relevant features).
 # hashObject : the hashObject with the cached statistic results of the current run.
 
 # pvalues : the pvalues of all of the variables.
@@ -45,8 +57,10 @@
 # runtime : the run time of the algorithm.
 
 # Conditional independence test arguments have to be in this exact fixed order : 
-# target(target variable), data(dataset), xIndex(x index), csIndex(cs index), dataInfo(list), univariateModels(cached statistics for the univariate indepence test), hash(hash booleab), stat_hash(hash object), pvalue_hash(hash object)
-# example: test(target, data, xIndex, csIndex, dataInfo=NULL, univariateModels=NULL, hash=FALSE, stat_hash=NULL, pvalue_hash=NULL)
+# target(target variable), data(dataset), xIndex(x index), csIndex(cs index), dataInfo(list), 
+# univariateModels(cached statistics for the univariate indepence test), hash(hash booleab), stat_hash(hash object), 
+# pvalue_hash(hash object), robust=robust
+# example: test(target, data, xIndex, csIndex, dataInfo=NULL, univariateModels=NULL, hash=FALSE, stat_hash=NULL, pvalue_hash=NULL, robust=robust = FALSE)
 # output of each test: LIST of the generated pvalue, stat, flag and the updated hash objects.
 
 # equal_case variable inside the code : it determines the method of the equivalent estimation
@@ -54,30 +68,13 @@
 #   if equal_case = 2 then, if we have more than one equivalent vars in z , we select the one with the most minimum pvalue (>a)
 #   else in any other case, if we have more than one equivalent vars in z , we select the first one
 # In this version we support the equal_case = 3.
-
-# Packages suggested for SES
 # 
-# packages for combnPrim (combn in C)
-# library(gRbase)
+# library(gRbase) #faster
 # 
 # #hashObject
 # library(hash)
-# 
-# #TestIndLogistic
-# #vglm for multinomial logistic regression
-# library(VGAM)
-# #glm for fitting generalized linear models
-# library(stats)
-# #ordinal logistic regression
-# library(MASS)
-# 
-# #survival test (censIndLR)
-# library(survival)
-# 
-# #gSquare test (gSquareBin)
-# library(pcalg)
 
-SES = function(target=NULL , dataset=NULL , max_k = 3 , threshold = 0.05 , test = NULL , user_test = NULL, hash=FALSE, hashObject=NULL)
+SES = function(target , dataset , max_k = 3 , threshold = 0.05 , test = NULL , user_test = NULL, hash=FALSE, hashObject=NULL, robust = FALSE)
 {
   ##############################
   # initialization part of SES #
@@ -98,7 +95,7 @@ SES = function(target=NULL , dataset=NULL , max_k = 3 , threshold = 0.05 , test 
   
   if(hash == TRUE)
   {
-    if(requireNamespace("hash", quietly = TRUE, warn.conflicts = FALSE) == TRUE)
+    if(requireNamespace("hash"))
     {
       if(is.null(hashObject))
       {
@@ -135,19 +132,15 @@ SES = function(target=NULL , dataset=NULL , max_k = 3 , threshold = 0.05 , test 
     #check if dataset is an ExpressionSet object of Biobase package
     if(class(dataset) == "ExpressionSet")
     {
-      if(requireNamespace("Biobase", quietly = TRUE, warn.conflicts = FALSE) == FALSE){
-        warning("You have to load the package 'Biobase' in order to use an ExpressionSet dataset");
-        return(NULL);
-      }
       #get the elements (numeric matrix) of the current ExpressionSet object.
       dataset = Biobase::exprs(dataset);
-      dataset = t(dataset);#take tha features as columns and the samples as rows
-    }else if(is.data.frame(dataset)){
-      if(class(target) != "Surv")
-      {
-        dataset = as.matrix(dataset);
-      }
-    }else if(class(dataset) != "matrix"){
+      dataset = t(dataset);#take the features as columns and the samples as rows
+#     }else if(is.data.frame(dataset)){
+#       if(class(target) != "Surv")
+#       {
+#         dataset = as.matrix(dataset);
+#       }
+    }else if((class(dataset) != "matrix") && (is.data.frame(dataset) == FALSE) ){
       stop('Invalid dataset class. It must be either a matrix, a dataframe or an ExpressionSet');
     }
   }
@@ -161,10 +154,9 @@ SES = function(target=NULL , dataset=NULL , max_k = 3 , threshold = 0.05 , test 
   #check for NA values in the dataset and replace them with the variable mean
   if(any(is.na(dataset)) == TRUE)
   {
-    dataset = as.matrix(dataset);
+    #dataset = as.matrix(dataset);
     warning("The dataset contains missing values and they were replaced automatically by the variable (column) mean.")
     dataset = apply(dataset, 2, function(x){ x[which(is.na(x))] = mean(x,na.rm = TRUE) ; return(x)});
-    dataset = as.data.frame(dataset);
   }
   
   ##################################
@@ -231,7 +223,13 @@ SES = function(target=NULL , dataset=NULL , max_k = 3 , threshold = 0.05 , test 
             stop('Target can not be a matrix')
           }
         }
-        test = "testIndFisher";
+        
+        if(identical(floor(target),target) == TRUE)
+        {
+          test = "testIndPois";
+        }else{
+          test = "testIndFisher";  
+        }
       }else if(survival::is.Surv(target) == TRUE){
         test = "censIndLR";
       }else{
@@ -244,11 +242,11 @@ SES = function(target=NULL , dataset=NULL , max_k = 3 , threshold = 0.05 , test 
       if(is.ordered(target) == TRUE)
       {
         dataInfo$target_type = "ordinal";
-        #cat('\nTarget variable type: Ordinal')
+        cat('\nTarget variable type: Ordinal')
         
-        if(requireNamespace("MASS", quietly = TRUE, warn.conflicts = FALSE)==FALSE)
+        if(requireNamespace("ordinal", quietly = TRUE, warn.conflicts = FALSE)==FALSE)
         {
-          cat("The testIndLogistic test requires the MASS package for the ordered logistic regression method. Please install it.");
+          cat("The testIndLogistic test requires the ordinal package for the ordered logistic regression method. Please install it.");
           return(NULL);
         }
         
@@ -256,14 +254,14 @@ SES = function(target=NULL , dataset=NULL , max_k = 3 , threshold = 0.05 , test 
         if(length(unique(target)) == 2)
         {
           dataInfo$target_type = "binary"
-          #cat('\nTarget variable type: Binomial')
+          cat('\nTarget variable type: Binomial')
         }else{
           dataInfo$target_type = "nominal"
-          #cat('\nTarget variable type: Nominal')
+          cat('\nTarget variable type: Nominal')
           
-          if(requireNamespace("VGAM", quietly = TRUE, warn.conflicts = FALSE)==FALSE)
+          if(requireNamespace("nnet", quietly = TRUE, warn.conflicts = FALSE)==FALSE)
           {
-            cat("The testIndLogistic test requires the VGAM package for the multinomial logistic regression method. Please install it.");
+            cat("The testIndLogistic test requires the nnet package for the multinomial logistic regression method. Please install it.");
             return(NULL);
           }
         }
@@ -273,7 +271,7 @@ SES = function(target=NULL , dataset=NULL , max_k = 3 , threshold = 0.05 , test 
     cat("\nConditional independence test used: ");cat(test);cat("\n");
     
     #available conditional independence tests
-    av_tests = c("testIndFisher", "censIndLR", "testIndLogistic", "gSquare", "auto" ,  NULL);
+    av_tests = c("testIndFisher", "testIndReg", "testIndRQ", "testIndBeta", "censIndLR", "testIndLogistic", "testIndPois", "testIndNB", "gSquare", "auto" ,  NULL);
     
     if(length(test) == 1) #avoid vectors, matrices etc
     {
@@ -281,7 +279,80 @@ SES = function(target=NULL , dataset=NULL , max_k = 3 , threshold = 0.05 , test 
       #convert to closure type
       if(test == "testIndFisher")
       {
+        #an einai posostiaio target
+        if ( all(target>0 & target<1) ){
+          target = log(target/(1-target)) ## logistic normal 
+        }
+        
         test = testIndFisher;
+      }
+      else if (test == "testIndReg") ## It uses the F test
+      {
+        #dataframe class for dataset is required
+        if(class(dataset) == "matrix"){
+          dataset = as.data.frame(dataset)
+          warning("Dataset was turned into a data.frame which is required for this test")
+        }
+        
+        #an einai posostiaio target
+        if ( all(target>0 & target<1) ){
+          target = log(target/(1-target)) ## logistic normal 
+        }
+        
+        test = testIndReg;
+      }
+      else if(test == "testIndBeta") ## beta regression for proportions
+      {
+        #dataframe class for dataset is required
+        if(class(dataset) == "matrix"){
+          dataset = as.data.frame(dataset)
+          warning("Dataset was turned into a data.frame which is required for this test")
+        }
+        test = testIndBeta;
+        if(requireNamespace("betareg", quietly = TRUE, warn.conflicts = FALSE)==FALSE)
+        {
+          cat("The testIndBeta requires the betareg package. Please install it.");
+          return(NULL);
+        }
+      }
+      else if(test == "testIndRQ") ## beta regression for proportions
+      {
+        #dataframe class for dataset is required
+        if(class(dataset) == "matrix"){
+          dataset = as.data.frame(dataset)
+          warning("Dataset was turned into a data.frame which is required for this test")
+        }
+        
+        #an einai posostiaio target
+        if ( all(target>0 & target<1) ){
+          target = log(target/(1-target)) ## logistic normal 
+        }
+        
+        test = testIndRQ;
+        if(requireNamespace("quantreg", quietly = TRUE, warn.conflicts = FALSE)==FALSE)
+        {
+          cat("The testIndRQ requires the quantreg package. Please install it.");
+          return(NULL);
+        }
+      }
+      else if (test == "testIndPois") ## Poisson regression
+      {
+        #dataframe class for dataset is required
+        if(class(dataset) == "matrix"){
+          dataset = as.data.frame(dataset)
+          warning("Dataset was turned into a data.frame which is required for this test")
+        }
+        test = testIndPois;
+      }
+      else if (test == "testIndNB") ## Negative binomial regression
+      {
+        #dataframe class for dataset is required
+        if(class(dataset) == "matrix"){
+          dataset = as.data.frame(dataset)
+          warning("Dataset was turned into a data.frame which is required for this test")
+        }
+        
+        test = testIndNB;
       }
       else if(test == "censIndLR")
       {
@@ -292,8 +363,14 @@ SES = function(target=NULL , dataset=NULL , max_k = 3 , threshold = 0.05 , test 
           return(NULL);
         }
       }
+
       else if(test == "testIndLogistic")
       {
+        #dataframe class for dataset is required
+        if(class(dataset) == "matrix"){
+          dataset = as.data.frame(dataset)
+          warning("Dataset was turned into a data.frame which is required for this test")
+        }
         test = testIndLogistic;
       }
       else if(test == "gSquare")
@@ -340,7 +417,7 @@ SES = function(target=NULL , dataset=NULL , max_k = 3 , threshold = 0.05 , test 
   #######################################################################################
   
   #call the main SES function after the checks and the initializations
-  results = InternalSES(target, dataset, max_k, threshold , test, equal_case, user_test, dataInfo, hash, varsize, stat_hash, pvalue_hash, targetID, faster);
+  results = InternalSES(target, dataset, max_k, threshold , test, equal_case, user_test, dataInfo, hash, varsize, stat_hash, pvalue_hash, targetID, faster, robust=robust);
   
   SESoutput <-new("SESoutput", selectedVars = results$selectedVars, selectedVarsOrder=results$selectedVarsOrder, queues=results$queues, signatures=results$signatures, hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, max_k=results$max_k, threshold = results$threshold, runtime=results$runtime);
   
@@ -350,7 +427,7 @@ SES = function(target=NULL , dataset=NULL , max_k = 3 , threshold = 0.05 , test 
 
 #########################################################################################################
 
-InternalSES = function(target , dataset , max_k = 3 , threshold = 0.05 , test = NULL , equal_case = 3 , user_test = NULL , dataInfo = NULL , hash=FALSE, varsize, stat_hash, pvalue_hash, targetID, faster)
+InternalSES = function(target , dataset , max_k = 3 , threshold = 0.05 , test = NULL , equal_case = 3 , user_test = NULL , dataInfo = NULL , hash=FALSE, varsize, stat_hash, pvalue_hash, targetID, faster, robust=robust)
 {
   #get the current time
   runtime = proc.time();
@@ -359,7 +436,7 @@ InternalSES = function(target , dataset , max_k = 3 , threshold = 0.05 , test = 
   
   #univariate feature selection test
   
-  if(is.loaded("fisher_uv") == TRUE && identical(test, testIndFisher) == TRUE )
+  if(is.loaded("fisher_uv") == TRUE && identical(test, testIndFisher) == TRUE && robust == FALSE)
   {
     a = .Fortran("fisher_uv", R = as.integer(dim(dataset)[1]), C = as.integer(dim(dataset)[2]), y = target, dataset = dataset,cs_cols = as.integer(0), pvalues = as.double(rep(0,dim(dataset)[2])), stats = as.double(rep(0,dim(dataset)[2])), targetID = as.integer(targetID))
     univariateModels = NULL;
@@ -369,10 +446,10 @@ InternalSES = function(target , dataset , max_k = 3 , threshold = 0.05 , test = 
   	univariateModels$stat_hash = stat_hash;
   	univariateModels$pvalue_hash = pvalue_hash;
   }else{  
-    univariateModels = univariateScore(target , dataset , test, hash=hash, dataInfo, stat_hash=stat_hash, pvalue_hash=pvalue_hash, targetID);
+    univariateModels = univariateScore(target , dataset , test, hash=hash, dataInfo, stat_hash=stat_hash, pvalue_hash=pvalue_hash, targetID, robust=robust);
   }
   
-  #univariateModels = univariateScore(target , dataset , test, hash=hash, dataInfo, stat_hash=stat_hash, pvalue_hash=pvalue_hash, targetID);
+  #univariateModels = univariateScore(target , dataset , test, hash=hash, dataInfo, stat_hash=stat_hash, pvalue_hash=pvalue_hash, targetID, robust=robust);
   pvalues = univariateModels$pvalue;
   stats = univariateModels$stat;
   flags = univariateModels$flag;
@@ -438,7 +515,7 @@ InternalSES = function(target , dataset , max_k = 3 , threshold = 0.05 , test = 
   while(loop)
   {
     #lets find the equivalences
-    IdEq_results <- IdentifyEquivalence(equal_case , queues , target , dataset , test , threshold , max_k , selectedVars , pvalues , stats , remainingVars , univariateModels, selectedVarsOrder, hash=hash, dataInfo, stat_hash=stat_hash, pvalue_hash=pvalue_hash, faster);
+    IdEq_results <- IdentifyEquivalence(equal_case , queues , target , dataset , test , threshold , max_k , selectedVars , pvalues , stats , remainingVars , univariateModels, selectedVarsOrder, hash=hash, dataInfo, stat_hash=stat_hash, pvalue_hash=pvalue_hash, faster, robust=robust);
     queues = IdEq_results$queues;
     selectedVars = IdEq_results$selectedVars;
     remainingVars = IdEq_results$remainingVars;
@@ -448,7 +525,7 @@ InternalSES = function(target , dataset , max_k = 3 , threshold = 0.05 , test = 
     pvalue_hash=IdEq_results$pvalue_hash;
     
     #lets find the variable with the max min association
-    max_min_results = max_min_assoc(target, dataset , test , threshold , max_k , selectedVars , pvalues , stats , remainingVars , univariateModels, selectedVarsOrder, hash=hash, dataInfo, stat_hash=stat_hash, pvalue_hash=pvalue_hash, faster);
+    max_min_results = max_min_assoc(target, dataset , test , threshold , max_k , selectedVars , pvalues , stats , remainingVars , univariateModels, selectedVarsOrder, hash=hash, dataInfo, stat_hash=stat_hash, pvalue_hash=pvalue_hash, faster, robust=robust);
     selectedVar = max_min_results$selected_var;
     selectedPvalue = max_min_results$selected_pvalue;
     remainingVars = max_min_results$remainingVars;
@@ -469,7 +546,7 @@ InternalSES = function(target , dataset , max_k = 3 , threshold = 0.05 , test = 
   }
   
   #lets find the variables to be discarded
-  IdEq_results <- IdentifyEquivalence(equal_case , queues , target , dataset , test , threshold , max_k , selectedVars , pvalues , stats , remainingVars , univariateModels, selectedVarsOrder, hash=hash, dataInfo, stat_hash=stat_hash, pvalue_hash=pvalue_hash, faster);
+  IdEq_results <- IdentifyEquivalence(equal_case , queues , target , dataset , test , threshold , max_k , selectedVars , pvalues , stats , remainingVars , univariateModels, selectedVarsOrder, hash=hash, dataInfo, stat_hash=stat_hash, pvalue_hash=pvalue_hash, faster, robust=robust);
   queues = IdEq_results$queues;
   selectedVars = IdEq_results$selectedVars;
   pvalues = IdEq_results$pvalues;
@@ -505,28 +582,7 @@ InternalSES = function(target , dataset , max_k = 3 , threshold = 0.05 , test = 
   results$selectedVarsOrder = svorder;
   
   results$queues = queues;
-  
-  #results$signatures = as.matrix(do.call(expand.grid, results$queues))
-  
-  #try catch because we may habe a memmory error when generating all the combinations of the queues.
-  sigmatrix <- tryCatch(
-    {
-      as.matrix(do.call(expand.grid, results$queues))
-    },
-    error=function(cond) {
-      warning("Cannot allocate space for all the possible signatures for this system, so it doesnt expand grid all the queues combinations in order to generate the slot signatures of the output. The current slot signatures contains only the selected variables. In order to construct the signatures, combine one variable from each queue in the queues slot of the SES output.")
-      warning(cond)
-      #message("Here's the original error message:")
-      #message(cond)
-      
-      # sig_matrix = matrix(NA,1,3)
-      sig_matrix = as.matrix(rbind(results$selectedVars))
-      return(sig_matrix);
-    },
-    finally={}
-  )
-  results$signatures <- sigmatrix;
-  
+  results$signatures = as.matrix(do.call(expand.grid, results$queues))
   hashObject = NULL;
   hashObject$stat_hash = stat_hash;
   hashObject$pvalue_hash = pvalue_hash;
@@ -553,7 +609,7 @@ InternalSES = function(target , dataset , max_k = 3 , threshold = 0.05 , test = 
 
 #univariate feature selection ( uncoditional independence )
 
-univariateScore = function(target , dataset , test, hash, dataInfo, stat_hash=stat_hash, pvalue_hash=pvalue_hash, targetID)
+univariateScore = function(target , dataset , test, hash, dataInfo, stat_hash=stat_hash, pvalue_hash=pvalue_hash, targetID, robust=robust)
 {
   #how many tests
   nTests = ncol(dataset);
@@ -572,7 +628,7 @@ univariateScore = function(target , dataset , test, hash, dataInfo, stat_hash=st
   {
     #arguments order for any CI test are fixed
     if (i != targetID){
-      test_results = test(target , dataset , i, 0 , dataInfo=dataInfo, hash=hash, stat_hash=stat_hash, pvalue_hash=pvalue_hash)
+      test_results = test(target , dataset , i, 0 , dataInfo=dataInfo, hash=hash, stat_hash=stat_hash, pvalue_hash=pvalue_hash, robust=robust)
       univariateModels$pvalue[[i]] = test_results$pvalue;
       univariateModels$stat[[i]] = test_results$stat;
       univariateModels$flag[[i]] = test_results$flag;
@@ -611,7 +667,7 @@ nchoosekm = function(cs , k, faster) #i can also pass the compFun arg for select
   return(res);
 }
 
-IdentifyEquivalence = function(equal_case , queues , target , dataset , test , threshold , max_k , selectedVars , pvalues , stats , remainingVars , univariateModels, selectedVarsOrder, hash, dataInfo, stat_hash, pvalue_hash, faster)
+IdentifyEquivalence = function(equal_case , queues , target , dataset , test , threshold , max_k , selectedVars , pvalues , stats , remainingVars , univariateModels, selectedVarsOrder, hash, dataInfo, stat_hash, pvalue_hash, faster, robust=robust)
 { 
   varsToBeConsidered = which(selectedVars==1 | remainingVars==1); #CHANGE
   lastvar = which(selectedVarsOrder == max(selectedVarsOrder))[1]; #CHANGE
@@ -657,7 +713,7 @@ IdentifyEquivalence = function(equal_case , queues , target , dataset , test , t
         z = subsetcsk[,i];
         z = t(t(z));
         
-        cur_results = test(target , dataset , cvar, z , dataInfo=dataInfo, univariateModels, hash = hash, stat_hash, pvalue_hash);
+        cur_results = test(target , dataset , cvar, z , dataInfo=dataInfo, univariateModels, hash = hash, stat_hash, pvalue_hash, robust=robust);
         stat_hash = cur_results$stat_hash;
         pvalue_hash = cur_results$pvalue_hash;
         
@@ -676,7 +732,7 @@ IdentifyEquivalence = function(equal_case , queues , target , dataset , test , t
         {
           remainingVars[[cvar]] = 0;
           selectedVars[[cvar]] = 0;
-          queues = identifyTheEquivalent(equal_case , queues , target , dataset , cvar , z , test , threshold , univariateModels , pvalues, hash, dataInfo, stat_hash, pvalue_hash);
+          queues = identifyTheEquivalent(equal_case , queues , target , dataset , cvar , z , test , threshold , univariateModels , pvalues, hash, dataInfo, stat_hash, pvalue_hash, robust=robust);
           breakFlag = TRUE;
           break;
         }
@@ -696,7 +752,7 @@ IdentifyEquivalence = function(equal_case , queues , target , dataset , test , t
 
 #########################################################################################################
 
-identifyTheEquivalent = function(equal_case , queues , target , dataset , cvar , z , test , threshold , univariateModels , pvalues, hash, dataInfo, stat_hash, pvalue_hash)
+identifyTheEquivalent = function(equal_case , queues , target , dataset , cvar , z , test , threshold , univariateModels , pvalues, hash, dataInfo, stat_hash, pvalue_hash, robust=robust)
 {
   z = t(z);
   
@@ -710,7 +766,7 @@ identifyTheEquivalent = function(equal_case , queues , target , dataset , cvar ,
     w = t(t(w));
     zPrime = c(setdiff(z , w) , cvar);
     
-    cur_results = test(target , dataset , w, zPrime , dataInfo=dataInfo, univariateModels, hash = hash, stat_hash, pvalue_hash);
+    cur_results = test(target , dataset , w, zPrime , dataInfo=dataInfo, univariateModels, hash = hash, stat_hash, pvalue_hash, robust=robust);
     
     if(cur_results$flag & (cur_results$pvalue > threshold))
     {  
@@ -723,13 +779,13 @@ identifyTheEquivalent = function(equal_case , queues , target , dataset , cvar ,
   return(queues);
 }
 
-apply_ideq = function(i , queues , target , dataset , cvar , z , test , threshold , univariateModels, hash, dataInfo, stat_hash, pvalue_hash)
+apply_ideq = function(i , queues , target , dataset , cvar , z , test , threshold , univariateModels, hash, dataInfo, stat_hash, pvalue_hash, robust=robust)
 {
   w = z[,i];
   w = t(t(w));
   zPrime = c(setdiff(z , w) , cvar);
   
-  cur_results = test(target , dataset , w, zPrime , dataInfo=dataInfo, univariateModels, hash = hash, stat_hash, pvalue_hash);
+  cur_results = test(target , dataset , w, zPrime , dataInfo=dataInfo, univariateModels, hash = hash, stat_hash, pvalue_hash, robust=robust);
   
   if(cur_results$flag & (cur_results$pvalue > threshold))
   {
@@ -764,7 +820,7 @@ compare_p_values = function(pval, pval2, stat, stat2)
 
 #########################################################################################################
 
-max_min_assoc = function(target, dataset , test , threshold , max_k , selectedVars , pvalues , stats , remainingVars , univariateModels, selectedVarsOrder, hash, dataInfo, stat_hash, pvalue_hash, faster)
+max_min_assoc = function(target, dataset , test , threshold , max_k , selectedVars , pvalues , stats , remainingVars , univariateModels, selectedVarsOrder, hash, dataInfo, stat_hash, pvalue_hash, faster, robust=robust)
 {
   #Initialize
   selected_var = -1;
@@ -774,7 +830,7 @@ max_min_assoc = function(target, dataset , test , threshold , max_k , selectedVa
   varsToIterate = which(remainingVars==1);
   for(cvar in varsToIterate)
   {
-    mma_res = min_assoc(target, dataset , test , max_k , cvar , selectedVars , pvalues , stats , univariateModels , selectedVarsOrder, hash, dataInfo, stat_hash, pvalue_hash, faster);
+    mma_res = min_assoc(target, dataset , test , max_k , cvar , selectedVars , pvalues , stats , univariateModels , selectedVarsOrder, hash, dataInfo, stat_hash, pvalue_hash, faster, robust=robust);
     pvalues = mma_res$pvalues;
     stats = mma_res$stats;
     stat_hash = mma_res$stat_hash;
@@ -799,7 +855,7 @@ max_min_assoc = function(target, dataset , test , threshold , max_k , selectedVa
 
 #########################################################################################################
 
-min_assoc = function(target , dataset , test ,  max_k , cvar , selectedVars , pvalues , stats , univariateModels , selectedVarsOrder, hash, dataInfo, stat_hash, pvalue_hash, faster)
+min_assoc = function(target , dataset , test ,  max_k , cvar , selectedVars , pvalues , stats , univariateModels , selectedVarsOrder, hash, dataInfo, stat_hash, pvalue_hash, faster, robust=robust)
 {
   #initialization
   #baseline values
@@ -837,7 +893,7 @@ min_assoc = function(target , dataset , test ,  max_k , cvar , selectedVars , pv
       s = subsetcsk[,i];
       s = t(t(s));
       
-      cur_results = test(target , dataset , cvar, selectedVars[s] , dataInfo=dataInfo, univariateModels, hash = hash, stat_hash, pvalue_hash);
+      cur_results = test(target , dataset , cvar, selectedVars[s] , dataInfo=dataInfo, univariateModels, hash = hash, stat_hash, pvalue_hash, robust=robust);
       stat_hash = cur_results$stat_hash;
       pvalue_hash = cur_results$pvalue_hash;
       

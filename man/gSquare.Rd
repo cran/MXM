@@ -1,21 +1,21 @@
 \name{gSquare}
 \alias{gSquare}
 \title{
-G square conditional independence test for discrete data based on the log likelihood ratio test.
+G square conditional independence test for discrete data.
 }
 \description{
 The main task of this test is to provide a p-value PVALUE for the null hypothesis: feature 'X' is independent from 'TARGET' given a conditioning set CS. This test is based on the log likelihood ratio test.
 }
 \usage{
 gSquare(target, dataset, xIndex, csIndex, dataInfo = NULL, univariateModels = NULL,
-hash = FALSE, stat_hash = NULL, pvalue_hash = NULL)
+hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, robust = FALSE)
 }
 \arguments{
   \item{target}{
   A numeric vector containing the values of the target variable.
 }
   \item{dataset}{
-  A numeric data matrix containing the variables for performing the test. Rows as samples and columns as features.
+  A numeric matrix containing the variables for performing the test. Rows as samples and columns as features.
 }
   \item{xIndex}{
   The index of the variable whose association with the target we want to test.
@@ -38,19 +38,25 @@ A hash object (hash package required) which contains the cached generated statis
   \item{pvalue_hash}{
 A hash object (hash package required) which contains the cached generated p-values of a SES run in the current dataset, using the current test.
 }
+  \item{robust}{
+A boolean variable which indicates whether (TRUE) or not (FALSE) 
+to use a robust test. Currently it is not available for this test.
+}
 }
 \details{
 If hash = TRUE, testIndLogistic requires the arguments 'stat_hash' and 'pvalue_hash' for the hash-based implementation of the statistic test. These hash Objects are produced or updated by each run of SES (if hash == TRUE) and they can be reused in order to speed up next runs of the current statistic test. If "SESoutput" is the output of a SES run, then these objects can be retrieved by SESoutput@hashObject$stat_hash and the SESoutput@hashObject$pvalue_hash.
 
 Important: Use these arguments only with the same dataset that was used at initialization.
+
+For all the available conditional independence tests that are currently included on the package, please see "?CondIndTests".
 }
 \value{
 A list including:
 \item{pvalue}{
-A numeric value that represents the generated p-value due to Fisher's method (see reference below).
+A numeric value that represents the generated p-value due to G^2  test (see reference below).
 }
 \item{stat}{
-A numeric value that represents the generated statistic due to Fisher's method (see reference below).
+A numeric value that represents the generated statistic due to G^2 test (see reference below).
 }
 \item{flag}{
 A numeric value (control flag) which indicates whether the test was succesful (0) or not (1).
@@ -62,8 +68,9 @@ The current hash object used for the statistics. See argument stat_hash and deta
 The current hash object used for the p-values. See argument stat_hash and details. If argument hash = FALSE this is NULL.
 }
 }
-%\references{
-%}
+\references{
+Tsamardinos, Ioannis, Laura E. Brown, and Constantin F. Aliferis. The max-min hill-climbing Bayesian network structure learning algorithm. Machine learning, 2006 65(1): 31-78. 
+}
 \author{
 R implementation and documentation: Giorgos Athineou <athineou@ics.forth.gr>
 }
@@ -71,7 +78,7 @@ R implementation and documentation: Giorgos Athineou <athineou@ics.forth.gr>
 This test uses the functions gSquareBin and gSquareDis of the package pcalg in order to generate the pvalue for the G^2 test.
 }
 \seealso{
-\code{\link{SES}, \link{testIndFisher}, \link{testIndLogistic}, \link{censIndLR}}
+\code{\link{SES}, \link{testIndFisher}, \link{testIndLogistic}, \link{censIndLR}, \link{CondIndTests}}
 }
 \examples{
 #simulate a dataset with binary data

@@ -1,4 +1,4 @@
-censIndLR = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariateModels=NULL, hash = FALSE, stat_hash=NULL, pvalue_hash=NULL){
+censIndLR = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariateModels=NULL, hash = FALSE, stat_hash=NULL, pvalue_hash=NULL,robust=FALSE){
   # Conditional independence test based on the Log Likelihood ratio test
   
   if(!survival::is.Surv(target))
@@ -6,10 +6,8 @@ censIndLR = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariate
     stop('The survival test can not be performed without a Surv object target');
   }
   
-  #csIndex = csIndex[-which(is.na(csIndex))]
-  csIndex[which(is.na(csIndex))] = 0;
-  csIndex = csIndex[which(csIndex!=0)]
-
+  csIndex = csIndex[-which(is.na(csIndex))]#csIndex[which(is.na(csIndex))] = 0;
+  
   if(hash == TRUE)
   {
     csIndex2 = csIndex[which(csIndex!=0)]
@@ -80,8 +78,8 @@ censIndLR = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariate
     
     if(hash == TRUE)#update hash objects
     {
-      stat_hash$key <- stat;#.set(stat_hash , key , stat)
-      pvalue_hash$key <- pvalue;#.set(pvalue_hash , key , pvalue)
+      stat_hash[[key]] <- stat;#.set(stat_hash , key , stat)
+      pvalue_hash[[key]] <- pvalue;#.set(pvalue_hash , key , pvalue)
     }
     
     flag = 1;
@@ -89,27 +87,28 @@ censIndLR = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariate
   }else{
     
     #perform the test with the cs
-    tecs = as.data.frame(dataset[ , c(csIndex)]);
+    tecs = dataset[ , c(csIndex)];
     
     #tecs = dataset[ ,c(timeIndex, csIndex)];
     #names(tecs)[1] = 'timeToEvent';
     #tecs$event = event; #it was without comment (warning LHS to a list)
-    texcs = as.data.frame(dataset[ , c(xIndex, csIndex)]); #texcs = dataset[ ,c(timeIndex, xIndex, csIndex)];
+    texcs = dataset[ , c(xIndex, csIndex)]; #texcs = dataset[ ,c(timeIndex, xIndex, csIndex)];
     #names(texcs)[1] = 'timeToEvent';
     #texcs$event = event; #it was without comment (warning LHS to a list)
         
     tryCatch(
       
       #fitting the model (without x)
-#       if(length(csIndex) == 1)
-#       {
-#         cox_results <- survival::coxph(target ~ tecs);
-#       }
-#       else
-#       {
-        cox_results <- survival::coxph(target ~ ., tecs)
-      # }
-      ,error=function(w) {
+      if(length(csIndex) == 1)
+      {
+        cox_results <- survival::coxph(target ~ tecs);
+      }
+      else
+      {
+        cox_results <- survival::coxph(target ~ ., tecs);
+      },
+      
+      warning=function(w) {
         #Do nothing
       }
     )
@@ -120,9 +119,9 @@ censIndLR = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariate
     tryCatch(
       
       #fitting the full model
-      cox_results_full <- survival::coxph(target ~ ., texcs)
+      cox_results_full <- survival::coxph(target ~ ., texcs),
       
-      ,error=function(w) {
+      warning=function(w) {
         #Do nothing
       }
     )
@@ -138,8 +137,8 @@ censIndLR = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariate
     
     if(hash == TRUE)#update hash objects
     {
-      stat_hash$key <- stat;#.set(stat_hash , key , stat)
-      pvalue_hash$key <- pvalue;#.set(pvalue_hash , key , pvalue)
+      stat_hash[[key]] <- stat;#.set(stat_hash , key , stat)
+      pvalue_hash[[key]] <- pvalue;#.set(pvalue_hash , key , pvalue)
     }
     
     flag = 1;

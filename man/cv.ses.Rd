@@ -106,7 +106,7 @@ R implementation and documentation: Giorgos Athineou <athineou@ics.forth.gr> and
 %%  ~~further notes~~
 %}
 \seealso{
-\code{\link{SES}, \link{testIndFisher}, \link{testIndLogistic}, \link{gSquare}, \link{censIndLR}}
+\code{\link{SES}, \link{CondIndTests}, \link{testIndFisher}, \link{testIndLogistic}, \link{gSquare}, \link{censIndLR}}
 }
 \examples{
 
