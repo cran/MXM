@@ -19,14 +19,10 @@ testIndPois = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univaria
   # if FLAG == 1 then the test was performed succesfully
   
   # References
-  # [1] Norman R. Draper and Harry Smith. Applied Regression Analysis,  
-  # Wiley, New York, USA, third edition, May 1998.
-  
-  # Copyright 2012 Vincenzo Lagani and Ioannis Tsamardinos
-  # R Implementation by Giorgos Athineou (10/2013)
+  # [1] McCullagh, Peter, and John A. Nelder. Generalized linear models. CRC press, USA, 2nd edition, 1989.
   
   
-  #########################################################################################################
+   #########################################################################################################
   
   #initialization
   
@@ -167,18 +163,18 @@ testIndPois = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univaria
     #fit1 = glm(target ~., data = dataset[, csIndex], poisson)
     #dev1 = fit1$deviance
     #d1 = length( coef(fit1) )
-    fit2 = glm(target ~., data = dataset[, c(csIndex, xIndex)], poisson)
+    fit2 = glm(target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ), poisson)
     #dev2 = fit2$deviance
     #d2 = length( coef(fit2) )
     mod = anova(fit2)
     pr = nrow(mod)
-    dev1 = mod[pr-1, 4]
-    dev2 = mod[pr, 4]
-    d1 = mod[pr-1, 3]
+    dev1 = mod[pr - 1, 4]
+    dev2 = mod[pr , 4]
+    d1 = mod[pr - 1, 3]
     d2 = mod[pr, 3]
   } 
     stat = abs(dev1 - dev2)
-    pvalue = 1-pchisq(stat, abs(d2-d1) ) 
+    pvalue = pchisq( stat, abs(d1 - d2), lower.tail = FALSE, log.p = TRUE ) 
     flag = 1;
   
   #last error check

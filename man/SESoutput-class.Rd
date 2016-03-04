@@ -27,7 +27,8 @@ Objects can be created by calls of the form \code{new("SESoutput", ...)}.
     \item{\code{max_k}:}{Object of class \code{"numeric"}}
     \item{\code{threshold}:}{Object of class \code{"numeric"}}
     \item{\code{runtime}:}{Object of class \code{"proc_time"}}
-  }
+    \item{\code{test}:}{Object of class \code{"character"}}
+    \item{\code{rob}:}{Object of class \code{"logical"}}  }
 }
 \section{Methods}{
   \describe{
@@ -36,7 +37,7 @@ Objects can be created by calls of the form \code{new("SESoutput", ...)}.
 	 }
 }
 \author{
-Giorgos Athineou <athineou@ics.forth.gr>
+Giorgos Athineou <athineou@csd.uoc.gr>
 }
 
 \seealso{

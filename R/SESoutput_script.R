@@ -11,8 +11,8 @@
 setOldClass('proc_time')
 
 setClass(Class='SESoutput', 
-         slots=list(selectedVars='numeric', selectedVarsOrder='numeric', queues='list', signatures='matrix', hashObject='list', pvalues='numeric', stats='numeric', max_k='numeric', threshold='numeric', runtime='proc_time'), 
-         prototype=list(selectedVars=NULL, selectedVarsOrder=NULL, queues=NULL, signatures=NULL, hashObject=NULL, pvalues=NULL, stats=NULL, max_k=NULL, threshold=NULL, runtime=NULL));
+         slots=list(selectedVars='numeric', selectedVarsOrder='numeric', queues='list', signatures='matrix', hashObject='list', pvalues='numeric', stats='numeric', max_k='numeric', threshold='numeric', runtime='proc_time', test='character', rob='logical'), 
+         prototype=list(selectedVars=NULL, selectedVarsOrder=NULL, queues=NULL, signatures=NULL, hashObject=NULL, pvalues=NULL, stats=NULL, max_k=NULL, threshold=NULL, runtime=NULL, test=NULL, rob=NULL));
 
 setMethod("summary", signature(object="SESoutput"), 
           function(object){
@@ -39,10 +39,14 @@ setMethod("summary", signature(object="SESoutput"),
               cat(x@max_k);
               cat("\nthreshold option: ")
               cat(x@threshold);
+              cat("\nTest: ")
+              cat(x@test);
               cat("\nTotal Runtime:\n")
               print(x@runtime)
               #cat("    user system elapsed\n")
               #print(x@runtime[1:3]);
+              cat("\nRobust:\n")
+              print(x@rob)
             }else{
               cat("\nSelected Variables: ")
               print(x@selectedVars);
@@ -65,10 +69,14 @@ setMethod("summary", signature(object="SESoutput"),
               print(x@max_k);
               cat("\nthreshold option: ")
               print(x@threshold);
+              cat("\nTest: ")
+              cat(x@test);
               cat("\nTotal Runtime:\n")
               print(x@runtime)
               #cat("    user system elapsed\n")
               #print(x@runtime[1:3]);
+              cat("\nRobust:\n")
+              print(x@rob)
             }
           }
 );

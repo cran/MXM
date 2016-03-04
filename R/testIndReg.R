@@ -19,12 +19,10 @@ testIndReg = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariat
   # if FLAG == 1 then the test was performed succesfully
   
   # References
-  # [1] Norman R. Draper and Harry Smith. Applied Regression Analysis,  
-  # Wiley, New York, USA, third edition, May 1998.
+  # [1] Norman R. Draper and Harry Smith. Applied Regression 
+  # Analysis, Wiley, New York, USA, third edition, May 1998.
   
-  # Copyright 2012 Vincenzo Lagani and Ioannis Tsamardinos
-  # R Implementation by Giorgos Athineou (10/2013)
-  
+ 
   
   #########################################################################################################
   
@@ -97,15 +95,15 @@ testIndReg = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariat
 #       cs = cs[,-w]
 #     }
 #   }
-  
+   n = length(target)
   #checking the length
-  if (length(x) == 0 || length(target) == 0)
+  if (length(x) == 0 || n == 0)
   {
     message(paste("error in testIndReg : empty variable x or target"))
     results <- list(pvalue = pvalue, stat = stat, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
     return(results);
   }
-  
+
   #if x = any of the cs then pvalue = 1 and flag = 1.
   #That means that the x variable does not add more information to our model due to an exact copy of this in the cs, so it is independent from the target
   if(length(cs)!=0)
@@ -161,7 +159,7 @@ testIndReg = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariat
   #if the conditioning set (cs) is empty, we use a simplified formula
   if(length(cs) == 0)
   {
-    if(!is.null(univariateModels))
+    if( !is.null(univariateModels) )
     {
       pvalue = univariateModels$pvalue[[xIndex]];
       stat = univariateModels$stat[[xIndex]];
@@ -172,33 +170,53 @@ testIndReg = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariat
     if (robust == TRUE) { ## robust estimation
       fit1 = MASS::rlm( target ~ 1 )    
       fit2 = MASS::rlm( target ~ x )
-      mod = lmtest::lrtest(fit1, fit2)
-      stat = as.numeric(mod[2, 4] )  
-      pvalue = as.numeric(mod[2, 5] )   
+
+      lik1 = as.numeric( logLik(fit1) )
+      lik2 = as.numeric( logLik(fit2) )
+      stat = 2 * abs(lik1 -lik2)
+      dof = length( coef(fit2) ) - 1
+      pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)  
+ 
     }else{
       #compute the relationship between x,target directly
-      fit2 = lm(target ~ x) 
-      mod = anova(fit2)
-      stat = as.numeric( mod[1, 4] )
-      pvalue = as.numeric( mod[1, 5] )
+      #fit2 = lm(target ~ x) 
+      #mod = anova(fit2)
+      #stat = as.numeric( mod[1, 4] )
+      #pr = nrow(mod) - 1
+      #df1 = mod[pr, 1]
+      #df2 = mod[pr + 1, 1]
+      #pvalue = pf(stat, df1, df2, lower.tail = FALSE, log.p = TRUE)  
+      s0 = var(target) * (n - 1)
+      ff = target ~ x
+      m = model.frame(ff)
+      mat = model.matrix(ff, m)
+      mat = mat[1:n, ]
+      fit2 = lm.fit(mat, target)
+      s1 = sum( fit2$residuals^2 )
+      dof = fit2$df.residual
+      stat = ( ( s0 - s1 ) / (n - 1 - dof ) ) / (s1 / dof)
+      pvalue = pf(stat, 1, dof, lower.tail = FALSE, log.p = TRUE)
+      
     } 
     }else{
         if (robust == TRUE ){ ##robust estimation
-        if(length(csIndex) == 1){
-          fit1 = MASS::rlm( target ~ dataset[, csIndex], data = dataset[,c(csIndex, xIndex)] )
-        }else{
-          fit1 = MASS::rlm( target ~., data = dataset[, csIndex] )
-        }
-        fit2 = MASS::rlm( target ~., data = dataset[, c(csIndex, xIndex)] )
-        mod = lmtest::lrtest(fit1, fit2)
-        stat = as.numeric(mod[2, 4] )  
-        pvalue = as.numeric(mod[2, 5] )   
+          fit1 = MASS::rlm( target ~., data = as.data.frame( dataset[, csIndex] ) ) 
+          fit2 = MASS::rlm( target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ) )
+    
+          lik1 = as.numeric( logLik(fit1) )
+          lik2 = as.numeric( logLik(fit2) )
+          stat = 2 * abs(lik1 - lik2)
+          dof = abs( length( coef(fit1) ) - length( coef(fit2) ) )
+          pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)   
       }else{
-      fit2 = lm( target ~., data = dataset[, c(csIndex, xIndex)])
+      fit2 = lm( target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ) )
       mod = anova(fit2)
       pr = nrow(mod) - 1
       stat = as.numeric(mod[pr, 4] )  
-      pvalue = as.numeric(mod[pr, 5] )  
+      df1 = mod[pr, 1]
+      df2 = mod[pr + 1, 1]
+      pvalue = pf(stat, df1, df2, lower.tail = FALSE, log.p = TRUE)  
+
      }
    }
   

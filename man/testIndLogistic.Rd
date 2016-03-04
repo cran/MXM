@@ -1,15 +1,18 @@
 \name{testIndLogistic}
 \alias{testIndLogistic}
 \title{
-Conditional independence test for binary, categorical or ordinal class variables.
+Conditional independence test for binary, categorical or ordinal class variables
 }
+
 \description{
 The main task of this test is to provide a p-value PVALUE for the null hypothesis: feature 'X' is independent from 'TARGET' given a conditioning set CS. The pvalue is calculated by comparing a logistic model based on the conditioning set CS against a model whose regressor are both X and CS. The comparison is performed through a chi-square test with the aproprirate degrees of freedom on the difference between the deviances of the two models.
 }
+
 \usage{
 testIndLogistic(target,dataset,xIndex,csIndex,dataInfo = NULL,univariateModels = NULL, 
 hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, target_type = 0, robust = FALSE)
 }
+
 \arguments{
   \item{target}{
   A numeric vector containing the values of the target variable.
@@ -50,6 +53,7 @@ A numeric vector that represents the type of the target. Default value is 0. See
 A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robustified version of the logistic regressions available here. Currently it is not available for these cases.
 }
 }
+
 \details{
 If argument target_type=0 then testIndLogistic requires the dataInfo argument to indicate the type of the current target:
 \itemize{
@@ -64,6 +68,7 @@ Important: Use these arguments only with the same dataset that was used at initi
 
 For all the available conditional independence tests that are currently included on the package, please see "?CondIndTests".
 }
+
 \value{
 A list including:
 \item{pvalue}{
@@ -82,94 +87,99 @@ The current hash object used for the statistics. See argument stat_hash and deta
 The current hash object used for the p-values. See argument stat_hash and details. If argument hash = FALSE this is NULL.
 }
 }
+
 \references{
 Vincenzo Lagani, George Kortas and Ioannis Tsamardinos (2013), Biomarker signature identification in "omics" with multiclass outcome. Computational and Structural Biotechnology Journal, 6(7):1-7.
 
 McCullagh, Peter, and John A. Nelder. Generalized linear models.  CRC press, USA, 2nd edition, 1989.
 }
+
 \author{
 Vincenzo Lagani and Ioannis Tsamardinos 
 
-R implementation and documentation: Vincenzo Lagani <vlagani@ics.forth.gr>, Giorgos Athineou <athineou@ics.forth.gr> and Michail Tsagris <mtsagris@yahoo.gr>
+R implementation and documentation: Vincenzo Lagani <vlagani@csd.uoc.gr>, Giorgos Athineou <athineou@csd.uoc.gr> and Michail Tsagris <mtsagris@yahoo.gr>
 }
+
 \note{
 This test uses the function vglm (package VGAM) for multinomial logistic regression, the function polr (package MASS) for ordinal logit regression and the function glm (package stats) for binomial regression.
 }
+
 \seealso{
 \code{\link{SES}, \link{testIndFisher}, \link{gSquare}, \link{censIndLR}, \link{CondIndTests}}
 }
+
 \examples{
 #require(gRbase) #for faster computations in the internal functions
 require(nnet)
 require(stats)
 require(ordinal)
 
-#simulate a dataset with categorical data
-dataset_m <- matrix(nrow = 20 , ncol = 51)
-dataset_m <- apply(dataset_m, 2, function(i) sample(c(0,1,2),50, replace=TRUE))
+#simulate a dataset with categorical data 
+dataset_m <- matrix( sample(c(0, 1, 2), 50 * 100, replace = TRUE), ncol = 50)
 #initialize categorical target
-target_m <- dataset_m[,51]
+target_m <- dataset_m[, 50]
 #remove target from the dataset
-dataset_m <- dataset_m[,-51]
+dataset_m <- dataset_m[, -50]
 
-#if(require("VGAM", quietly = TRUE))
-#{
   #run the conditional independence test for the nominal class variable
-  results_m <- testIndLogistic(target_m, dataset_m, xIndex = 44, csIndex = c(10,20), target_type=2)
+  results_m <- testIndLogistic(target_m, dataset_m, xIndex = 44, csIndex = c(10, 20), 
+  target_type = 2)
   results_m
 
   #run the SES algorithm using the testIndLogistic conditional independence test 
   #for the nominal class variable
-  sesObject <- SES(as.factor(target_m), dataset_m, max_k=3 ,threshold=0.05 ,test="testIndLogistic");
+  sesObject <- SES(as.factor(target_m), dataset_m, max_k = 3, threshold = 0.05, 
+  test = "testIndLogistic");
   #print summary of the SES output
   summary(sesObject);
   #plot the SES output
-  plot(sesObject, mode="all");
-#}
+  plot(sesObject, mode = "all");
+
 
 ########################################################################
 
-#if(require("MASS", quietly = TRUE))
-#{
   #run the conditional independence test for the ordinal class variable
-  results_o <- testIndLogistic(target_m, dataset_m, xIndex = 44, csIndex = c(10,20), target_type=3)
+  results_o <- testIndLogistic(target_m, dataset_m, xIndex = 44, csIndex = c(10, 20), 
+  target_type = 3)
   results_o
   
   #run the SES algorithm using the testIndLogistic conditional independence test 
   #for the ordinal class variable
-  sesObject <- SES(factor(target_m, ordered=TRUE) , dataset_m , max_k=3 , threshold=0.05 , 
-                   test="testIndLogistic");
+  sesObject <- SES(factor(target_m, ordered=TRUE), dataset_m, max_k = 3 , 
+  threshold = 0.05, 
+                   test = "testIndLogistic");
   #print summary of the SES output
   summary(sesObject);
   #plot the SES output
-  plot(sesObject, mode="all");
-#}
+  plot(sesObject, mode = "all");
 
 
 ########################################################################
 
 #simulate a dataset with binary data
-dataset_b <- matrix(nrow = 20 , ncol = 51)
-dataset_b <- apply(dataset_b, 2, function(i) sample(c(0,1),50, replace=TRUE))
+dataset_b <- matrix(sample(c(0,1),50 * 60, replace = TRUE), ncol = 50)
 #initialize binary target
-target_b <- dataset_b[,51]
+target_b <- dataset_b[, 50]
 #remove target from the dataset
-dataset_b <- dataset_b[,-51]
+dataset_b <- dataset_b[, -50]
 
-#if(require("stats", quietly = TRUE))
-#{
   #run the conditional independence test for the binary class variable
-  results_b <- testIndLogistic(target_b, dataset_b, xIndex = 44, csIndex = c(10,20), target_type=1)
+  results_b <- testIndLogistic(target_b, dataset_b, xIndex = 44, csIndex = c(10, 20), 
+  target_type = 1)
   results_b
   
   #run the SES algorithm using the testIndLogistic conditional independence test
   #for the binary class variable
-  sesObject <- SES(factor(target_b), dataset_m, max_k=3, threshold=0.05, test="testIndLogistic");
+  sesObject <- SES(factor(target_b), dataset_m, max_k = 3, threshold = 0.05, 
+  test = "testIndLogistic");
   #print summary of the SES output
   summary(sesObject);
   #plot the SES output
-  plot(sesObject, mode="all");
-#}
+  plot(sesObject, mode = "all");
 }
-\keyword{ Binary Logistic Regression, Multinomial logistic Regression, Ordinal Logistic Regression }
+
+\keyword{ Binary Logistic Regression }
+\keyword{ Multinomial logistic Regression }
+\keyword{ Ordinal Logistic Regression }
+\keyword{ \eqn{G^2} test }
 \keyword{ Conditional Independence Test }

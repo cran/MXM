@@ -19,11 +19,7 @@ testIndNB = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariate
   # if FLAG == 1 then the test was performed succesfully
   
   # References
-  # [1] Norman R. Draper and Harry Smith. Applied Regression Analysis,  
-  # Wiley, New York, USA, third edition, May 1998.
-  
-  # Copyright 2012 Vincenzo Lagani and Ioannis Tsamardinos
-  # R Implementation by Giorgos Athineou (10/2013)
+  # [1] Joseph M. Hilbe. Negative Binomial Regression. Cambridge University Press, second edition, March 2011.
   
   
   #########################################################################################################
@@ -166,14 +162,14 @@ testIndNB = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariate
   }else{
     
     if(length(csIndex) == 1){
-      fit1 = MASS::glm.nb( target ~ dataset[, csIndex], data = dataset[,c(csIndex, xIndex)])
+      fit1 = MASS::glm.nb( target ~ dataset[, csIndex], data = as.data.frame( dataset[,c(csIndex, xIndex)] ) )
     }else{
-      fit1 = MASS::glm.nb( target ~., data = dataset[, csIndex])
+      fit1 = MASS::glm.nb( target ~., data = as.data.frame( dataset[, csIndex] ) )
     }
     
-    fit2 = MASS::glm.nb( target ~., data = dataset[, c(csIndex, xIndex)] ) 
+    fit2 = MASS::glm.nb( target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ) )  
     if ( is.null(fit2) ) { 
-      fit2 = MASS::glm.nb( target ~., data = dataset[, c(xIndex, csIndex)] ) 
+      fit2 = MASS::glm.nb( target ~., data = as.data.frame( dataset[, c(xIndex, csIndex)] ) ) 
     }
     dev1 = fit1$deviance
     dev2 = fit2$deviance
@@ -181,8 +177,8 @@ testIndNB = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariate
     d2 = length( coef(fit2) )
   }
     stat = abs(dev1 - dev2)
-    df =  abs(d2 - d1)
-    pvalue = 1-pchisq(stat, df) 
+    dof =  abs(d2 - d1)
+    pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE) 
   flag = 1;
   
   #last error check

@@ -1,19 +1,21 @@
 \name{testIndRQ}
 \alias{testIndRQ}
 \title{
-Quantile regression conditional independence test for continous class dependent variables. By default the quantile is set to 0.5, so median regression is performed. This is more robust  than the standard linear regression.
+Quantile regression conditional independence test for continous class dependent variables 
 }
-\description{
-The main task of this test is to provide a p-value PVALUE for the null hypothesis: feature 'X' is independent from 'TARGET' given a conditioning set CS. The pvalue is calculated by comparing a quantiloe regression model based on the conditioning set CS against a model whose regressor are both X and CS. The comparison is performed through a chi square test with the appropriate degrees of freedom on the difference between the log-likelihoods of the two models.
 
+\description{
+The main task of this test is to provide a p-value PVALUE for the null hypothesis: feature 'X' is independent from 'TARGET' given a conditioning set CS. The pvalue is calculated by comparing a quantiloe regression model based on the conditioning set CS against a model whose regressor are both X and CS. The comparison is performed through a chi square test with the appropriate degrees of freedom on the difference between the log-likelihoods of the two models. By default the quantile is set to 0.5, so median regression is performed. This is more robust than the standard linear regression.
 }
+
 \usage{
 testIndRQ(target, dataset, xIndex, csIndex, dataInfo = NULL, univariateModels = NULL, 
 hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, robust = FALSE)
 }
+
 \arguments{
   \item{target}{
-  A numeric vector containing the values of the target variable.
+  A numeric vector containing the values of the target variable. If the values are proportions or percentages, i.e. strictly within 0 and 1 they are mapped into R using log( target/(1 - target) ).
 }
   \item{dataset}{
   A numeric matrix or data frame, in case of categorical predictors (factors), containing the variables for performing the test. Rows as samples and columns as features.
@@ -43,6 +45,7 @@ A hash object (hash package required) which contains the cached generated p-valu
 A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust regression. Median regression is robust, so this argument is not applicable here at all. 
 }
 }
+
 \details{
 If hash = TRUE, testIndLogistic requires the arguments 'stat_hash' and 'pvalue_hash' for the hash-based implementation of the statistic test. These hash Objects are produced or updated by each run of SES (if hash == TRUE) and they can be reused in order to speed up next runs of the current statistic test. If "SESoutput" is the output of a SES run, then these objects can be retrieved by SESoutput@hashObject$stat_hash and the SESoutput@hashObject$pvalue_hash.
 
@@ -50,10 +53,12 @@ Important: Use these arguments only with the same dataset that was used at initi
 
 For all the available conditional independence tests that are currently included on the package, please see "?CondIndTests".
 }
+
 \value{
 A list including:
 \item{pvalue}{
 A numeric value that represents the generated p-value due to quantile regression (see reference below).
+
 }
 \item{stat}{
 A numeric value that represents the generated statistic due to quantile regression (see reference below).
@@ -68,39 +73,46 @@ The current hash object used for the statistics. See argument stat_hash and deta
 The current hash object used for the p-values. See argument stat_hash and details. If argument hash = FALSE this is NULL.
 }
 }
+
 \references{
-Koenker, Roger. Quantile regression. New York, Cambridge university press, 2005.
+Koenker R.W. (2005). Quantile regression. New York, Cambridge University Press.
 }
+
 \author{
 Vincenzo Lagani, Ioannis Tsamardinos, Michail Tsagris and Giorgos Athineou
 
-R implementation and documentation: Giorgos Athineou <athineou@ics.forth.gr>, Vincenzo Lagani <vlagani@ics.forth.gr> and Michail Tsagris <mtsagris@yahoo.gr>
+R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr>, Vincenzo Lagani <vlagani@csd.uoc.gr> and Michail Tsagris <mtsagris@yahoo.gr>
 }
+
 %\note{
 %%  ~~further notes~~
 %}
+
 \seealso{
-\code{\link{SES}, \link{testIndReg}, \link{testIndFisher}, \link{censIndLR}, \link{CondIndTests}}
+\code{\link{SES}, \link{testIndReg}, \link{testIndFisher}, \link{testIndSpearman}, \link{censIndLR}, \link{CondIndTests}}
 }
+
 \examples{
 
 #simulate a dataset with continuous data
-dataset <- matrix(runif(1000 * 100, 1, 100), nrow = 1000 ) 
+dataset <- matrix(runif(200 * 100, 1, 100), nrow = 200 ) 
 #the target feature is the last column of the dataset as a vector
-target <- dataset[,100]
-results <- testIndRQ(target, dataset, xIndex = 44, csIndex = 100)
+target <- dataset[, 50]
+dataset <- dataset[, -50]
+results <- testIndRQ(target, dataset, xIndex = 4, csIndex = 45)
 results
 
 #require(gRbase)  #for faster computations in the internal functions
-#define class variable (here tha last column of the dataset)
-target = 100;
+#define class variable (here the last column of the dataset)
+target <- 49;
 #run the SES algorithm using the testIndRQ conditional independence test
-sesObject <- SES(target , dataset , max_k=3 , threshold=0.05 , test="testIndRQ");
+sesObject <- SES(target, dataset, max_k = 3, threshold = 0.05, test = "testIndRQ");
 #print summary of the SES output
 summary(sesObject);
 #plot the SES output
-plot(sesObject, mode="all");
+plot(sesObject, mode = "all");
 
 }
+
 \keyword{ Quantile regression Test}
 \keyword{ Conditional Independence Test }

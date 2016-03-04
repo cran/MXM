@@ -19,10 +19,9 @@ testIndRQ = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariate
   # if FLAG == 1 then the test was performed succesfully
   
   # References
-  # [1] Koenker, Roger. Quantile regression. New York, Cambridge university press, 2005.
-  #
-  # Vincenzo Lagani, Ioannis Tsamardinos and Michail Tsagris
-  # R Implementation by Giorgos Athineou and Michail Tsagris (8/2015)
+  # [1] Koenker, Roger. Quantile regression. New York, Cambridge        
+  # university press, 2005.
+ 
   
   
   #########################################################################################################
@@ -35,6 +34,11 @@ testIndRQ = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariate
   flag = 0;
   csIndex[which(is.na(csIndex))] = 0;
   
+   if ( all(target>0 & target<1) ) ## are they proportions?
+   { 
+     target = log( target/(1-target) ) 
+   }
+
   if(hash == TRUE)
   {
     csIndex2 = csIndex[which(csIndex!=0)]
@@ -161,19 +165,28 @@ testIndRQ = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariate
     fit2 = quantreg::rq(target ~ x)
   }else{
     
-    if(length(csIndex) == 1){
-      fit1 = quantreg::rq( target ~ dataset[, csIndex], data = dataset[, c(csIndex, xIndex)] )
-    }else{
-      fit1 = quantreg::rq(target ~., data = dataset[, csIndex] )
-    }
+   # if(length(csIndex) == 1){
+   #  fit1 = quantreg::rq( target ~ dataset[, csIndex], data = dataset[, c(csIndex, xIndex)] )
+   # }else{
+   #  fit1 = quantreg::rq(target ~., data = dataset[, csIndex] )
+   #  }
     
-    fit2 = quantreg::rq(target ~., data = dataset[, c(csIndex, xIndex)] )
+   # fit2 = quantreg::rq(target ~., data = dataset[, c(csIndex, xIndex)] )
+  # 
+    kapa = length( csIndex )
+    ff1 = as.formula(paste("target ~ ",paste("dataset[,",csIndex[1:kapa],"]",sep="",collapse="+"), sep=""))
+    ff2 = as.formula(paste(paste("target ~ ",paste("dataset[,",csIndex[1:kapa],"]",sep="",collapse="+"), sep="") , "+dataset[,",xIndex,"]", sep = ""))
+  
+    fit1 = quantreg::rq( ff1 )
+    fit2 = quantreg::rq( ff2 )
   }
   
-    mod=anova(fit1, fit2, test = 'rank') 
-    stat = as.numeric( mod[[1]][3] )  
-    pvalue = as.numeric( mod[[1]][4] )
-  flag = 1;
+    mod = anova(fit1,fit2, test = "rank")
+    df1 = as.numeric( mod[[1]][1] )
+    df2 = as.numeric( mod[[1]][2] )
+    stat = as.numeric( mod[[1]][3] )
+    pvalue = pf(stat, df1, df2, lower.tail = FALSE, log.p = TRUE)
+    flag = 1;
   
   #last error check
   if(is.na(pvalue) || is.na(stat))

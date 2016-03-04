@@ -1,6 +1,5 @@
 gSquare = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariateModels=NULL, hash = FALSE, 
-stat_hash=NULL, pvalue_hash=NULL,robust=FALSE)
-{
+stat_hash=NULL, pvalue_hash=NULL,robust=FALSE) {
   #Conditional Independence test based on the G test of independence (log likelihood ratio  test)
   
   csIndex[which(is.na(csIndex))] = 0;
@@ -40,10 +39,6 @@ stat_hash=NULL, pvalue_hash=NULL,robust=FALSE)
       return(results);
     }
     
-    if(csIndex == 0)
-    {
-      csIndex = NULL;
-    }
   }else
   {
     csIndex = csIndex[csIndex!=0]
@@ -65,20 +60,14 @@ stat_hash=NULL, pvalue_hash=NULL,robust=FALSE)
       return(results);
     }
   }
-  
+  p <- ncol(dataset) + 1
   #levels for each variable
-  dfs <- apply(cbind(dataset,target), 2, function(x) length(unique(x)))
-  
-  if( (max(dfs) == min(dfs)) && min(dfs) == 2)
-  {  
-    pvalue = pcalg::gSquareBin(as.numeric(xIndex),(dim(dataset)[2]+1),as.numeric(csIndex),dm = cbind(dataset,target));
-  }else{
-    pvalue = pcalg::gSquareDis(as.numeric(xIndex),(dim(dataset)[2]+1),as.numeric(csIndex),dm = cbind(dataset,target), nlev = dfs);
-  }
-  
+   mod <- cat.ci(p, xIndex, csIndex, cbind(dataset, target) )
+     stat <- mod[1]
+     pvalue <- mod[2]
   flag = 1;
   #define a temp statistic due to the pvalue because gSquareBin does not return the stat
-  stat = (1 - pvalue)*100;
+
   
   if(hash == TRUE)
   {
@@ -89,3 +78,11 @@ stat_hash=NULL, pvalue_hash=NULL,robust=FALSE)
   results <- list(pvalue = pvalue, stat = stat, flag = flag, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
   return(results);
 }
+
+
+
+
+
+
+
+

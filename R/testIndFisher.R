@@ -173,21 +173,21 @@ res <- tryCatch(
     }
     #compute the correlation coefficient between x,target directly
     if (robust == TRUE) { ## robust correlation
-      b1 = coef(MASS::rlm(target ~ x, maxit=1000))[2]
-      b2 = coef(MASS::rlm(x ~ target, maxit=1000))[2]
-      stat = sqrt( abs(b1*b2) )
+      b1 = coef( MASS::rlm(target ~ x, maxit = 2000) )[2]
+      b2 = coef( MASS::rlm(x ~ target, maxit = 2000) )[2]
+      stat = sqrt( abs (b1 * b2) ) 
     }else{
-      stat = abs(cor(x, target));
+      stat = cor(x, target);
     }
   }else{
     #perform the test with the cs
     
    if (robust == TRUE) { ## robust correlation
-     e1 = resid( MASS::rlm(target ~ dataset[, csIndex], maxit=1000) ) 
-     e2 = resid( MASS::rlm(dataset[, xIndex] ~ dataset[, csIndex], maxit=1000) ) 
+     e1 = resid( MASS::rlm(target ~ dataset[, csIndex], maxit = 2000) ) 
+     e2 = resid( MASS::rlm(dataset[, xIndex] ~ dataset[, csIndex], maxit = 2000) ) 
      stat = cor(e1,e2) 
    }else{
-     tmpm = cbind(x,target,cs);
+     tmpm = cbind(x, target, cs);
      
      corrMatrix = cor(tmpm);
      
@@ -203,10 +203,10 @@ res <- tryCatch(
   
   #comparing against the Student's t distribution
   z = 0.5*log( (1+stat)/(1-stat) );
-  df = n - ncol(as.matrix(cs)) - 3; #degrees of freedom
-  w = sqrt(df) * z;
+  dof = n - ncol(as.matrix(cs)) - 3; #degrees of freedom
+  w = sqrt(dof) * z;
   
-  pvalue = 2 * pt(-abs(w), df) ;  # ?dt for documentation
+  pvalue = log(2) + pt(-abs(w), dof, log.p = TRUE) ;  # ?dt for documentation
   #or alternatively we can calculate the p-value by comparing against the normal distribution
   #pvalue = 2 * pnorm(-abs(w));  ### 
   

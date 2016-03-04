@@ -1,0 +1,179 @@
+\name{Constraint based feature selection algorithms for longitudinal data}
+\alias{SES.temporal}
+\alias{MMPC.temporal}
+\title{
+SES.temporal: Feature selection algorithm for identifying multiple minimal, statistically-equivalent and equally-predictive feature signatures.
+MMPC.temporal: Feature selection algorithm for identifying minimal feature subsets.
+}
+
+\description{
+SES.temporal algorithm follows a forward-backward filter approach for feature selection in order to provide minimal, highly-predictive, statistically-equivalent, multiple feature subsets of a high dimensional dataset. See also Details. MMPC.temporal algorithm follows the same approach without generating multiple feature subsets. They are both adapted to longitudinal target variables.
+}
+
+\usage{
+SES.temporal(target, reps, group, dataset, max_k = 3, threshold = 0.05, test = NULL,
+ user_test = NULL, hash = FALSE, hashObject = NULL, slopes = FALSE, ncores = 1)
+MMPC.temporal(target, reps, group, dataset, max_k = 3, threshold = 0.05, test = NULL,
+ user_test = NULL, hash = FALSE, hashObject = NULL, slopes = FALSE, ncores = 1)
+}
+
+\arguments{
+  \item{target}{
+The class variable. Provide a vector with continuous (normal), binary (binomial) or discrete (Poisson) data.
+}
+  \item{reps}{
+  A numeric vector containing the time points of the subjects. It's length is equal to the length of the target variable. If you have clustered data, leave this NULL. 
+}
+  \item{group}{
+  A numeric vector containing the subjects or groups. It must be of the same legnth as target. 
+}
+  \item{dataset}{
+The data-set; provide either a data frame or a matrix (columns = variables , rows = samples).
+Alternatively, provide an ExpressionSet (in which case rows are samples and columns are features, see bioconductor for details).
+}
+  \item{max_k}{
+The maximum conditioning set to use in the conditional indepedence test (see Details). Integer, default value is 3.
+}
+  \item{threshold}{
+Threshold (suitable values in [0, 1]) for assessing p-values significance. Default value is 0.05.
+}
+  \item{test}{
+The conditional independence test to use. Default value is NULL. Currently, the only available conditional independence test is the \code{\link{testIndGLMM}}, which fits linear mixed models. 
+}
+  \item{user_test}{
+A user-defined conditional independence test (provide a closure type object). Default value is NULL. If this is defined, the "test" argument is ignored.
+}
+  \item{hash}{
+A boolean variable which indicates whether (TRUE) or not (FALSE) to store the statistics calculated during SES execution in a hash-type object. Default value is FALSE. If TRUE a hashObject is produced.
+}
+  \item{hashObject}{
+A List with the hash objects generated in a previous run of SES.temporal. 
+Each time SES runs with "hash=TRUE" it produces a list of hashObjects that can be re-used in order to speed up next runs of SES.
+
+Important: the generated hashObjects should be used only when the same dataset is re-analyzed, possibly with different values of max_k and threshold.
+}
+\item{slopes}{
+Should random slopes for the ime effect be fitted as well? Default value is FALSE. 
+}
+
+\item{ncores}{
+How many cores to use. This plays an important role if you have tens of thousands of variables or really large sample sizes and tens of thousands of variables and a regression based test which requires numerical optimisation. In other cases it will not make a difference in the overall time (in fact it can be slower). The parallel computation is used in the first step of the algorithm, where univariate associations are examined, those take place in parallel. We have seen a reduction in time of 50\% with 4 cores in comparison to 1 core. Note also, that the amount of reduction is definetely not linear in the number of cores.
+}
+}
+
+\details{
+The SES.temporal function implements the Statistically Equivalent Signature (SES) algorithm as presented in "Tsamardinos, Lagani and Pappas, HSCBB 2012" adapted to longitudinal data. 
+
+http://www.mensxmachina.org/publications/discovering-multiple-equivalent-biomarker-signatures/
+
+The MMPC function mplements the MMPC algorithm as presented in "Tsamardinos, Brown and Aliferis. The max-min hill-climbing Bayesian network
+structure learning algorithm" adapted to longitudinal data. 
+
+http://www.dsl-lab.org/supplements/mmhc_paper/paper_online.pdf
+
+For faster computations in the internal SES functions, install the suggested package "\bold{gRbase}".
+
+The max_k option: the maximum size of the conditioning set to use in the conditioning independence test. Larger values provide more accurate results, at the cost of higher computational times. When the sample size is small (e.g., \eqn{<50} observations) the max_k parameter should be \eqn{\leq 5}, otherwise the conditional independence test may not be able to provide reliable results.
+
+If the dataset contains missing (NA) values, they will automatically be replaced by the current variable (column) mean value with an appropriate warning to the user after the execution.
+
+If the target is a single integer value or a string, it has to corresponds to the column number or to the name of the target feature in the dataset. In any other case the target is a variable that is not contained in the dataset.
+
+If the current 'test' argument is defined as NULL or "auto" and the user_test argument is NULL then the algorithm automatically selects only available, which is \code{\link{testIndGLMM}}.
+
+Conditional independence test functions to be pass through the user_test argument should have the same signature of the included test. See "?testIndFisher" for an example.
+
+For all the available conditional independence tests that are currently included on the package, please see "?CondIndTests". 
+
+If two or more p-values are below the machine epsilon (.Machine$double.eps which is equal to 2.220446e-16), all of them are set to 0. To make the comparison or the ordering feasible we use the logarithm of the p-value. The max-min heuristic though, requires comparison and an ordering of the p-values. Hence, all conditional independence tests calculate the logarithm of the p-value.
+
+If there are missing values in the dataset (predictor variables) columnwise imputation takes place. The median is used for the continuous variables and the mode for categorical variables. It is a naive and not so clever method. For this reason the user is encouraged to make sure his data contain no missing values. 
+
+If you have percentages, in the (0, 1) interval, they are automatically mapped into \eqn{R} by using the logit transformation and a linear mixed model is fitted. If you have binary data, logistic mixed regression is applied and if you have discrete data (counts), Poisson mixed regression is applied. 
+}
+
+\value{
+The output of the algorithm is an object of the class 'SES.temporal.output' for SES.temporal or 'MMPC.temporal.output' for MMPC.temporal including:
+\item{selectedVars}{
+The selected variables, i.e., the signature of the target variable.
+}
+\item{selectedVarsOrder}{
+The order of the selected variables according to increasing pvalues.
+}
+\item{queues}{
+A list containing a list (queue) of equivalent features for each variable included in selectedVars. An equivalent signature can be built by selecting a single feature from each queue. Featured only in SES.
+}
+\item{signatures}{
+A matrix reporting all equivalent signatures (one signature for each row). Featured only in SES.
+}
+\item{hashObject}{
+The hashObject caching the statistic calculted in the current run.
+}
+\item{pvalues}{
+For each feature included in the dataset, this vector reports the strength of its association with the target in the context of all other variables. Particularly, this vector reports the max p-values foudn when the association of each variable with the target is tested against different conditional sets. Lower values indicate higher association.
+}
+\item{stats}{
+The statistics corresponding to "pvalues" (higher values indicates higher association).
+}
+\item{max_k}{
+The max_k option used in the current run.
+}
+\item{threshold}{
+The threshold option used in the current run.
+}
+\item{slope}{
+Whether random slopes for the time effects were used or not, TRUE or FALSE.
+}
+\item{runtime}{
+The run time of the algorithm. A numeric vector. The first element is the user time, the second element is the system time and the third element is the elapsed time.
+}
+
+Generic Functions implemented for SESoutput Object:
+\item{summary(x=SES.temporal.output)}{
+Summary view of the SES.temporal.output object.
+}
+\item{plot(object=SES.temporal.output, mode="all")}{
+Plots the generated pvalues (using barplot) of the current SESoutput object in comparison to the threshold.
+Argument mode can be either "all" or "partial" for the first 500 pvalues of the object.
+}
+
+}
+\references{
+I. Tsamardinos, V. Lagani and D. Pappas (2012). Discovering multiple, equivalent biomarker signatures. In proceedings of the 7th conference of the Hellenic Society for Computational Biology & Bioinformatics - HSCBB12.
+
+Tsamardinos, Brown and Aliferis (2006). The max-min hill-climbing Bayesian network structure learning algorithm. Machine learning, 65(1), 31-78.
+
+I. Tsamardinos, M. and V. Lagani (2015). Feature selection for longitudinal data. Proceedings of the 10th conference of the Hellenic Society for Computational Biology & Bioinformatics (HSCBB15)
+
+Pinheiro J., and D. Bates. Mixed-effects models in S and S-PLUS. Springer Science \& Business Media, 2006.
+}
+
+\author{
+Ioannis Tsamardinos, Vincenzo Lagani
+
+R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> Vincenzo Lagani <vlagani@csd.uoc.gr>  
+}
+
+\note{
+The only package required for the SES.temporal and MMPC.temporal algorithm operations is the \bold{lme4} and the 
+\bold{doParallel} for parallel computations
+}
+
+\seealso{
+\code{\link{CondIndTests}, \link{testIndGLMM}}
+}
+
+\examples{
+#require(gRbase) #for faster computations in the internal functions
+#require(lme4)
+#data(sleepstudy)
+#attach(sleepstudy)
+#x <- matrix(rnorm(180 * 100),ncol = 100) ## unrelated preidctor variables
+#m1 <- SES.temporal(Reaction, Days, Subject, x)
+#m2 <- MMPC.temporal(Reaction, Days, Subject, x)
+}
+
+\keyword{ SES }
+\keyword{ Mixed models }
+\keyword{ Longitudinal data }
+\keyword{ Variable Selection }

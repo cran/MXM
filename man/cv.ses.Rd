@@ -7,16 +7,27 @@
 \alias{glm.mxm}
 \alias{lm.mxm}
 \alias{coxph.mxm}
+\alias{poisdev.mxm}
+\alias{nbdev.mxm}
+\alias{rlm.mxm}
+\alias{pois.mxm}
+\alias{nb.mxm}
+\alias{multinom.mxm}
+\alias{ordinal.mxm}
+\alias{beta.mxm}
 \title{
 Cross-Validation for SES
 }
+
 \description{
 The function performs a k-fold cross-validation for identifying the best values for the SES 'max_k' and 'threshold' hyper-parameters
 }
+
 \usage{
 cv.ses (target, dataset, kfolds = 10, folds = NULL, alphas = NULL, max_ks = NULL,
 task = NULL, metric = NULL, modeler = NULL, ses_test = NULL)
 }
+
 \arguments{
   \item{target}{
   The target or class variable as in SES.
@@ -37,7 +48,7 @@ task = NULL, metric = NULL, modeler = NULL, ses_test = NULL)
   A vector of SES max_ks parameters used in CV. Default is c(3, 2).
 }
   \item{task}{
-  A character ("C", "R" or "S"). It can be "C" for classification (logistic regression classifier), "R" for regression (linear regression classifier), "S" for cox survival analysis (cox regression classifier)
+  A character ("C", "R" or "S"). It can be "C" for classification (logistic, multinomial or ordinal regression), "R" for regression (robust and non robust linear regression, median regression, poisson and negative binomial regression, beta regression), "S" for cox survival analysis (cox regression).
 }
   \item{metric}{
   A metric function provided by the user. If NULL the following functions will be used: auc.mxm, mse.mxm, ci.mxm for classification, regression and survival analysis tasks, respectively. See details for more.
@@ -49,7 +60,10 @@ task = NULL, metric = NULL, modeler = NULL, ses_test = NULL)
   A function object that defines the conditional independence test used in the SES function (see also SES help page). If NULL, testIndFisher, testIndLogistic and censIndLR are used for classification, regression and survival analysis tasks, respectively.
 }
 }
+
 \details{
+
+Note that the Tibshirani and Tibshirani (2009) bias correction method is applied. 
 
 Input for metric functions:
 predictions: A vector of predictions to be tested.
@@ -61,8 +75,10 @@ The Metric functions that are currently supported are:
 \itemize{
   \item auc.mxm: "area under the receiver operator characteristic curve" metric, as provided in the package ROCR.
   \item acc.mxm: accuracy metric.
-	\item mse.mxm: -1 * (mean squared error).
+	\item mse.mxm: -1 * (mean squared error), for robust and non robust linear regression and median (quantile) regression.
 	\item ci.mxm: concordance index as provided in the rcorr.cens function from the Hmisc package.
+	\item poisdev.mxm: Poisson regression deviance.
+	\item nbdev.mxm: Negative binomial regression deviance.
 }
 Usage: metric(predictions, test_target)
 
@@ -76,13 +92,20 @@ Modelling functions provide a single vector of predictions obtained by applying 
 
 The modelling functions that are currently supported are:
 \itemize{
-  \item glm.mxm: fits a glm model (stats) for a binomial family (Classification task)
-  \item lm.mxm: fits an lm model (stats) for the regression task.
+  \item glm.mxm: fits a glm for a binomial family (Classification task).
+  \item lm.mxm: fits a linear model model (stats) for the regression task.
   \item coxph.mxm: fits a cox proportional hazards regression model for the survival task.
+  \item rq.mxm: fits a quantile (median) regression model for the regression task.
+  \item rlm.mxm: fits a robust linear model model for the regression task.
+  \item pois.mxm: fits a poisson regression model model for the regression task.  
+  \item nb.mxm: fits a negative binomial regression model model for the regression task.  
+  \item multinom.mxm: fits a multinomial regression model model for the regression task.
+  \item ordinal.mxm: fits an ordinal regression model model for the regression task.
+  \item beta.mxm: fits a beta regression model model for the regression task.  
+
+
 }
 Usage: modeler(train_target, sign_data, sign_test)
-
-
 }
 
 \value{
@@ -93,34 +116,45 @@ A list with predictions, performances and signatures for each fold and each SES 
 \item{best_performance}{
 A numeric value that represents the best average performance.
 }
+\item{BC_best_perf}{
+A numeric value that represents the bias corrected best average performance.
+}
 \item{best_configuration}{
 A list that corresponds to the best configuration of SES including id, threshold (named 'a') and max_k.
 }
+
+Bear in mind that the values can be extracted with the $ symbol, i.e. this is an S3 class output. 
+
 }
-%\references{
-%}
+
+\references{
+Tibshirani R.J., and Tibshirani R. (2009). A bias correction for the minimum error rate in cross-validation. The Annals of Applied Statistics 3(2): 822-829.
+}
+
 \author{
-R implementation and documentation: Giorgos Athineou <athineou@ics.forth.gr> and Vincenzo Lagani <vlagani@ics.forth.gr>
+R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> and Vincenzo Lagani <vlagani@csd.uoc.gr>
 }
+
 %\note{
 %%  ~~further notes~~
 %}
+
 \seealso{
 \code{\link{SES}, \link{CondIndTests}, \link{testIndFisher}, \link{testIndLogistic}, \link{gSquare}, \link{censIndLR}}
 }
-\examples{
 
+\examples{
 set.seed(1234)
 
 #simulate a dataset with continuous data
-dataset <- matrix(nrow = 100 , ncol = 100)
-dataset <- apply(dataset, 1:2, function(i) runif(1, 1, 10))
+dataset <- matrix( rnorm(100 * 100), ncol = 100 )
 #the target feature is the last column of the dataset as a vector
-target <- dataset[,100]
+target <- dataset[, 100]
+dataset <- dataset[, -100]
 
 #get 50 percent of the dataset as a train set
-train_set <- dataset[1:50,]
-train_target=target[1:50]
+train_set <- dataset[1:50, ]
+train_target <- target[1:50]
 
 #run a 10 fold CV for the regression task
 best_model = cv.ses(target = train_target, dataset = train_set, kfolds = 10, task = "R")
@@ -136,10 +170,10 @@ best_model$best_performance
 #mse value for the 1st configuration of SES of the 5 fold
 abs(best_model$cv_results_all[[1]]$performances[5])
 
-best_a = best_model$best_configuration$a
-best_max_k = best_model$best_configuration$max_k
-
+best_a <- best_model$best_configuration$a
+best_max_k <- best_model$best_configuration$max_k
 }
+
 \keyword{ Cross Validation}
 \keyword{ CV }
 \keyword{ CV SES }

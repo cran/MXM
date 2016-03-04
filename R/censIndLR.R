@@ -42,8 +42,8 @@ censIndLR = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariate
   event = target[,2]#dataInfo$event;
   
   #retrieving the data
-  x = dataset[ ,xIndex];
-  timeToEvent = target[,1];
+  x = dataset[ , xIndex];
+  timeToEvent = target[, 1];
   
   #if no data, let's return
   if (length(x) == 0 || length(timeToEvent) == 0){
@@ -73,8 +73,12 @@ censIndLR = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariate
     }
     
     #retrieve the p value and stat. 
-    pvalue = 1-pchisq(cox_results$score,1);
+    if ( is.factor(x) ) {
+     dof = nlevels(x) - 1   
+    } else dof = 1
+    
     stat = cox_results$score;
+    pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE);
     
     if(hash == TRUE)#update hash objects
     {
@@ -87,27 +91,20 @@ censIndLR = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariate
   }else{
     
     #perform the test with the cs
-    tecs = dataset[ , c(csIndex)];
+    #tecs = dataset[ , c(csIndex)];
     
     #tecs = dataset[ ,c(timeIndex, csIndex)];
     #names(tecs)[1] = 'timeToEvent';
     #tecs$event = event; #it was without comment (warning LHS to a list)
-    texcs = dataset[ , c(xIndex, csIndex)]; #texcs = dataset[ ,c(timeIndex, xIndex, csIndex)];
+    #texcs = dataset[ , c(xIndex, csIndex)]; #texcs = dataset[ ,c(timeIndex, xIndex, csIndex)];
     #names(texcs)[1] = 'timeToEvent';
     #texcs$event = event; #it was without comment (warning LHS to a list)
         
     tryCatch(
       
       #fitting the model (without x)
-      if(length(csIndex) == 1)
-      {
-        cox_results <- survival::coxph(target ~ tecs);
-      }
-      else
-      {
-        cox_results <- survival::coxph(target ~ ., tecs);
-      },
-      
+      cox_results <- survival::coxph (target ~ ., data = as.data.frame( dataset[ , c(csIndex)] ) ), 
+
       warning=function(w) {
         #Do nothing
       }
@@ -119,7 +116,7 @@ censIndLR = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariate
     tryCatch(
       
       #fitting the full model
-      cox_results_full <- survival::coxph(target ~ ., texcs),
+      cox_results_full <- survival::coxph(target ~ ., data = as.data.frame(  dataset[ , c(xIndex, csIndex)] ) ),
       
       warning=function(w) {
         #Do nothing
@@ -131,9 +128,9 @@ censIndLR = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariate
     
     #retrieving the p value
     res = anova(cox_results_full, cox_results)
-    stat = res$Chisq[2];
-    dF = res$Df[2];
-    pvalue = res$'P(>|Chi|)'[2];
+    stat = abs( res$Chisq[2] );
+    dF = abs( res$Df[2] );
+    pvalue = pchisq(stat, dF, lower.tail = FALSE, log.p = TRUE)
     
     if(hash == TRUE)#update hash objects
     {

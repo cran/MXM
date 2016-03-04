@@ -225,7 +225,7 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, dataInfo=NULL , uni
     #correct encoding for target
     #target = target + 1;
   #}
-  
+  n = length(target)
   #if the conditioning set (cs) is empty, we use the t-test on the coefficient of x.
   if(length(cs) == 0)
   {
@@ -243,20 +243,16 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, dataInfo=NULL , uni
     if(target_type == 1) #binomial
     {
       #Fitting generalized Linear Models
-      ff <- target ~ x
-      m <- model.frame(ff)
-      mat <- model.matrix(ff, m)
-      mat <- mat[1:n, ]
-      fit2 = glm.fit(mat, target, family=binomial(logit))
-      dev1 = fit2$null.deviance 
-      dev2 = fit2$deviance;
-      p1 = 1
-      p2 = length( coef(fit2) )
+      fit2 = glm(target ~ x, binomial)
+      dev1 = fit2$null.deviance
+      dev2 = fit2$deviance
+      d2 = length( coef(fit2) )
+      d1 = 1
     }else if(target_type == 2) #nominal-categorical
     {
       #Fitting multinomial Logistic regression
-      fit1 <- nnet::multinom(target ~ 1, trace = F)
-      fit2 <- nnet::multinom(target ~ x, trace = F)
+      fit1 <- nnet::multinom(target ~ 1, trace = FALSE)
+      fit2 <- nnet::multinom(target ~ x, trace = FALSE)
       dev1 = fit1$deviance
       dev2 = fit2$deviance
       p1 = yCounts - 1
@@ -268,8 +264,8 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, dataInfo=NULL , uni
       #Fitting ordinal Logistic regression
       fit1 <- ordinal::clm(target ~ 1 )
       fit2 <- ordinal::clm(target ~ x )
-      dev1 = 2* fit1$logLik
-      dev2 = 2* fit2$logLik
+      dev1 = 2 * fit1$logLik
+      dev2 = 2 * fit2$logLik
       p1 = yCounts - 1
       p2 = length( coef(fit2) )
       
@@ -278,34 +274,24 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, dataInfo=NULL , uni
     if(target_type == 1) #binomial
     {
       #Fitting generalized Linear Models
-      kapa = length(csIndex)
-      ff1 = as.formula(paste("target ~ ",paste("dataset[,",csIndex[1:kapa],"]",sep="",collapse="+"), sep=""))
-      m1 <- model.frame(ff1)
-      mat1 <- model.matrix(ff1, m1)
-      mat1 <- mat1[1:n,]
-      fit1 = glm.fit(mat1, target, family=binomial(logit))
-      dev1 = fit1$deviance 
-      p1 = length( coef(fit1) )      
-      
-      ff2 = as.formula(paste(paste("target ~ ",paste("dataset[,",csIndex[1:kapa],"]",sep="",collapse="+"), sep="") , "+dataset[,",xIndex,"]", sep = ""))
-      m2 <- model.frame(ff2)
-      mat2 <- model.matrix(ff2, m2)
-      mat2 <- mat2[1:n,]
-      fit2 = glm.fit(mat2, target, family=binomial(logit))
-      dev2 = fit2$deviance 
-      p2 = length( coef(fit2) )
-      
+      fit2 = glm(target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ), binomial)
+      mod = anova(fit2)
+      pr = nrow(mod)
+      dev1 = mod[pr - 1, 4]
+      dev2 = mod[pr , 4]
+      d1 = mod[pr - 1, 3]
+      d2 = mod[pr , 3]
     }
     else if(target_type == 2) #nominal-categorical
     {
       #Fitting multinomial Logistic regression
       if(length(csIndex) == 1){
-        fit1 = nnet::multinom( target ~ dataset[, csIndex], data = dataset[,c(csIndex, xIndex)], trace = F)
+        fit1 = nnet::multinom( target ~ dataset[, csIndex], data = as.data.frame( dataset[,c(csIndex, xIndex)] ), trace = FALSE)
       }else{
-        fit1 = nnet::multinom( target ~., data = dataset[, csIndex], trace = F)
+        fit1 = nnet::multinom( target ~., data = as.data.frame( dataset[, csIndex] ), trace = FALSE)
       }
       dev1 = deviance(fit1)
-      fit2 <- nnet::multinom(target ~.,  data = dataset[, c(xIndex, csIndex)], trace = F)
+      fit2 <- nnet::multinom(target ~.,  data = as.data.frame( dataset[, c(xIndex, csIndex)] ), trace = FALSE)
       dev2 = deviance(fit2)
       p1 = length(coef(fit1))
       p2 = length(coef(fit2))
@@ -314,12 +300,12 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, dataInfo=NULL , uni
     {
       #Fitting ordinal Logistic regression
       if(length(csIndex) == 1){
-        fit1 = ordinal::clm( target ~ dataset[, csIndex], data = dataset[,c(csIndex, xIndex)])
+        fit1 = ordinal::clm( target ~ dataset[, csIndex], data = as.data.frame( dataset[,c(csIndex, xIndex)] ) )
       }else{
-        fit1 = ordinal::clm( target ~., data = dataset[, csIndex] )
+        fit1 = ordinal::clm( target ~., data = as.data.frame( dataset[, csIndex] ) )
       }
       dev1 = 2*fit1$logLik
-      fit2 <- ordinal::clm(target ~., data = dataset[, c(csIndex, xIndex)])
+      fit2 <- ordinal::clm(target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ) )
       dev2 = 2*fit2$logLik
       p1 = length(coef(fit1))
       p2 = length(coef(fit2))
@@ -329,7 +315,7 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, dataInfo=NULL , uni
   #calculate the p value and stat.
   stat = abs (dev1 - dev2) 
   df = abs( p2 - p1 ) ## a bit stupid, but it works
-  pvalue = 1 - pchisq(stat, df); 
+  pvalue = pchisq(stat, df, lower.tail = FALSE, log.p = TRUE); 
   flag = 1;
   
   #update hash objects

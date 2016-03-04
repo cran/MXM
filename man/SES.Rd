@@ -1,15 +1,23 @@
-\name{SES}
+\name{Constraint based feature selection algorithms}
 \alias{SES}
+\alias{MMPC}
 \title{
-Feature selection algorithm for identifying multiple minimal, statistically-equivalent and equally-predictive feature signatures.
+SES: Feature selection algorithm for identifying multiple minimal, statistically-equivalent and equally-predictive feature signatures.
+MMPC: Feature selection algorithm for identifying minimal feature subsets.
 }
+
 \description{
-SES algorithm follows a forward-backward filter approach for feature selection in order to provide minimal, highly-predictive, statistically-equivalent, multiple feature subsets of a high dimensional dataset. See also Details.
+SES algorithm follows a forward-backward filter approach for feature selection in order to provide minimal, highly-predictive, statistically-equivalent, multiple feature subsets of a high dimensional dataset. See also Details. MMPC algorithm follows the same approach without generating multiple feature subsets.
 }
+
 \usage{
 SES(target, dataset, max_k = 3, threshold = 0.05, test = NULL,
- user_test = NULL, hash = FALSE, hashObject = NULL, robust = FALSE)
+ user_test = NULL, hash = FALSE, hashObject = NULL, robust = FALSE, ncores = 1)
+MMPC(target, dataset, max_k = 3, threshold = 0.05, test = NULL,
+ user_test = NULL, hash = FALSE, hashObject = NULL, robust = FALSE, ncores = 1, 
+ backward = FALSE)
 }
+
 \arguments{
   \item{target}{
 The class variable. Provide either a string, an integer value, a vector, a factor, an ordered factor or a Surv object. See also Details.
@@ -25,16 +33,7 @@ The maximum conditioning set to use in the conditional indepedence test (see Det
 Threshold (suitable values in [0,1]) for assessing p-values significance. Default value is 0.05.
 }
   \item{test}{
-The conditional independence test to use. Default value is NULL.
-
-Available conditional independence tests:
-\itemize{
-  \item "testIndFisher": Fisher conditional independence test for continous targets.
-  \item "testIndLogistic": Conditional Independence Test based on logistic regression for binary, categorical and ordinal targets.
-  \item "gSquare": Conditional Independence test based on the G test of independence (log likelihood ratio test).
-  \item "censIndLR": Conditional independence test for survival data based on the Log likelihood ratio test.
-}
-See also Details.
+The conditional independence test to use. Default value is NULL. See also \code{link{CondIndTests}}.
 }
   \item{user_test}{
 A user-defined conditional independence test (provide a closure type object). Default value is NULL. If this is defined, the "test" argument is ignored.
@@ -48,19 +47,29 @@ Each time SES runs with "hash=TRUE" it produces a list of hashObjects that can b
 
 Important: the generated hashObjects should be used only when the same dataset is re-analyzed, possibly with different values of max_k and threshold.
 }
-
 \item{robust}{
 A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust version of the statistical test if it is available. It takes more time than a non robust version but it is suggested in case of outliers. Default value is FALSE.
 }
+\item{ncores}{
+How many cores to use. This plays an important role if you have tens of thousands of variables or really large sample sizes and tens of thousands of variables and a regression based test which requires numerical optimisation. In other cases it will not make a difference in the overall time (in fact it can be slower). The parallel computation is used in the first step of the algorithm, where univariate associations are examined, those take place in parallel. We have seen a reduction in time of 50\% with 4 cores in comparison to 1 core. Note also, that the amount of reduction is not linear in the number of cores.
 }
-\details{
-This function implements the Statistically Equivalent Signature (SES) algorithm as presented in "Tsamardinos, Lagani and Pappas, HSCBB 2012" 
+\item{backward}{
+This is an argument used by MMPC only. If TRUE, the backward (or symmetry correction) phase will be implemented. This removes any falsely included variables in the parents and children set of the target variable and it will slow down the algorithm. Bear in mind that the target becomes predictor variables. Hence, this is not to be used with survival and multivariate targets.  
+}
 
-(http://www.mensxmachina.org/publications/discovering-multiple-equivalent-biomarker-signatures/)
+}
+
+\details{
+The SES function implements the Statistically Equivalent Signature (SES) algorithm as presented in "Tsamardinos, Lagani and Pappas, HSCBB 2012" 
+http://www.mensxmachina.org/publications/discovering-multiple-equivalent-biomarker-signatures/
+
+The MMPC function mplements the MMPC algorithm as presented in "Tsamardinos, Brown and Aliferis. The max-min hill-climbing Bayesian network
+structure learning algorithm"
+http://www.dsl-lab.org/supplements/mmhc_paper/paper_online.pdf
 
 For faster computations in the internal SES functions, install the suggested package "\bold{gRbase}".
 
-The max_k option: the maximum size of the conditioning set to use in the conditioning independence test. Larger values provide more accurate results, at the cost of higher computational times. When the sample size is small (e.g., <50 samples) the max_k parameter should be <=5, otherwise the conditional independence test may not be able to provide reliable results.
+The max_k option: the maximum size of the conditioning set to use in the conditioning independence test. Larger values provide more accurate results, at the cost of higher computational times. When the sample size is small (e.g., \eqn{<50} observations) the max_k parameter should be \eqn{ \leq 5}, otherwise the conditional independence test may not be able to provide reliable results.
 
 If the dataset contains missing (NA) values, they will automatically be replaced by the current variable (column) mean value with an appropriate warning to the user after the execution.
 
@@ -68,18 +77,27 @@ If the target is a single integer value or a string, it has to corresponds to th
 
 If the current 'test' argument is defined as NULL or "auto" and the user_test argument is NULL then the algorithm automatically selects the best test based on the type of the data. Particularly:
 \itemize{
-	\item if target is a factor, the multinomial logistic test is used
-	\item if target is a ordered factor, the ordered logit regression is used in the logistic test
-	\item if target is a numerical vector, the fisher conditional independence test is used
-	\item if target is a Surv object, the Survival conditional independence test is used
+	\item if target is a factor, the multinomial or the binary logistic test is used.
+	\item if target is a ordered factor, the ordered logit regression is used in the logistic test.
+	\item if target is a numerical vector and the dataset is a matrix or a data.frame with continuous variables, the fisher conditional independence test is used. If the dataset is a data.frame and there are categorical variables, linear regression is used.
+	\item if target is discrete numerical (counts), the poisson regression conditional independence test is used.
+	\item if target is a Surv object, the Survival conditional independence test is used.
+	\item if target is a matrix with at least 2 columns, the multivariate linear regression is used.
 }
 
-Conditional independence test functions to be pass through the user_test argument should have the same signature of the included test. See "?testIndFisher" for an example.
+Conditional independence test functions to be pass through the user_test argument should have the same signature of the included test. See \code{\link{testIndFisher}} for an example.
 
-For all the available conditional independence tests that are currently included on the package, please see "?CondIndTests".
+For all the available conditional independence tests that are currently included on the package, please see \code{\link{CondIndTests}}. 
+
+If two or more p-values are below the machine epsilon (.Machine$double.eps which is equal to 2.220446e-16), all of them are set to 0. To make the comparison or the ordering feasible we use the logarithm of the p-value. The max-min heuristic though, requires comparison and an ordering of the p-values. Hence, all conditional independence tests calculate the logarithm of the p-value.
+
+If there are missing values in the dataset (predictor variables) columnwise imputation takes place. The median is used for the continuous variables and the mode for categorical variables. It is a naive and not so clever method. For this reason the user is encouraged to make sure his data contain no missing values. 
+
+If you have percentages, in the (0, 1) interval, they are automatically mapped into \eqn{R} by using the logit transformation. If you set the test to \code{\link{testIndBeta}}, beta regression is used. If you have compositional data, positive multivariate data where each vector sums to 1, with NO zeros, they are also mapped into the Euclidean space using the additive log-ratio (multivariate logit) transformation (Aitchison, 1986).
 }
+
 \value{
-The output of the algorithm is an object of the class 'SESoutput' including:
+The output of the algorithm is an object of the class 'SESoutput' for SES or 'MMPCoutput' for MMPC including:
 \item{selectedVars}{
 The selected variables, i.e., the signature of the target variable.
 }
@@ -87,10 +105,10 @@ The selected variables, i.e., the signature of the target variable.
 The order of the selected variables according to increasing pvalues.
 }
 \item{queues}{
-A list containing a list (queue) of equivalent features for each variable included in selectedVars. An equivalent signature can be built by selecting a single feature from each queue.
+A list containing a list (queue) of equivalent features for each variable included in selectedVars. An equivalent signature can be built by selecting a single feature from each queue. Featured only in SES.
 }
 \item{signatures}{
-A matrix reporting all equivalent signatures (one signature for each row).
+A matrix reporting all equivalent signatures (one signature for each row). Featured only in SES.
 }
 \item{hashObject}{
 The hashObject caching the statistic calculted in the current run.
@@ -106,6 +124,9 @@ The max_k option used in the current run.
 }
 \item{threshold}{
 The threshold option used in the current run.
+}
+\item{rob}{
+The value of the robust option, either TRUE or FALSE.
 }
 \item{runtime}{
 The run time of the algorithm. A numeric vector. The first element is the user time, the second element is the system time and the third element is the elapsed time.
@@ -123,13 +144,17 @@ Argument mode can be either "all" or "partial" for the first 500 pvalues of the 
 
 }
 \references{
-I. Tsamardinos, V. Lagani and D. Pappas (2012) Discovering multiple, equivalent biomarker signatures. In proceedings of the 7th conference of the Hellenic Society for Computational Biology & Bioinformatics - HSCBB12.
+I. Tsamardinos, V. Lagani and D. Pappas (2012). Discovering multiple, equivalent biomarker signatures. In proceedings of the 7th conference of the Hellenic Society for Computational Biology & Bioinformatics - HSCBB12.
+
+Tsamardinos, Brown and Aliferis (2006). The max-min hill-climbing Bayesian network structure learning algorithm. Machine learning, 65(1), 31-78.
 }
+
 \author{
 Ioannis Tsamardinos, Vincenzo Lagani
 
-R implementation and documentation: Giorgos Athineou <athineou@ics.forth.gr> Vincenzo Lagani <vlagani@ics.forth.gr>  
+R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> Vincenzo Lagani <vlagani@csd.uoc.gr>  
 }
+
 \note{
 The packages required for the SES algorithm operations are: 
 
@@ -137,12 +162,26 @@ The packages required for the SES algorithm operations are:
 
 \bold{hash} : for the hash-based implementation
 
-\bold{VGAM} : require(stats) and require(MASS) for the testIndLogistic test
+\bold{MASS} : for the robust options
+
+\bold{quantreg}: for the quantile (median) regression
+
+\bold{betareg}: for beta regression
+
+\bold{MASS}: for negative binomial regression
+
+\bold{pscl}: for zero inlfated poisson regression
+
+\bold{nnet} : also require(stats) and require(MASS) for the testIndLogistic test
+
+and \bold{ordinal} : also require(stats) and require(MASS) for the testIndLogistic test
 
 \bold{survival} : for the censIndLR test
 
-\bold{pcalg} : for the gSquare test.
+\bold{doParallel}: for parallel computations
+
 }
+
 \seealso{
 \code{\link{CondIndTests}, \link{cv.ses}}
 }
@@ -153,53 +192,50 @@ set.seed(123)
 require(hash)
 
 #simulate a dataset with continuous data
-dataset <- matrix(nrow = 1000 , ncol = 300)
-dataset <- apply(dataset, 1:2, function(i) runif(1, 1, 100))
+dataset <- matrix(runif(1000 * 1000, 1, 100), ncol = 1000)
 
 #define a simulated class variable 
-target = 3*dataset[,10] + 2*dataset[,200] + 3*dataset[,20] + runif(1, 0, 1);
+target <- 3 * dataset[, 10] + 2 * dataset[, 200] + 3 * dataset[, 20] + rnorm(1000, 0, 5)
 
 #define some simulated equivalences
-dataset[,15] = dataset[,10]
-dataset[1,10] = dataset[1,10] + 0.2
-dataset[,250] = dataset[,200] 
-dataset[,230] = dataset[,200] 
+dataset[, 15] <- dataset[,10] + rnorm(1000, 0, 2)
+dataset[, 10] <- dataset[ ,10] + rnorm(1000, 0, 2)
+dataset[, 250] <- dataset[,200] + rnorm(1000, 0, 2) 
+dataset[, 230] <- dataset[,200] + rnorm(1000, 0, 2)
 
-require("hash", quietly = TRUE)
-{
+require("hash", quietly = TRUE) 
 #run the SES algorithm
-sesObject <- SES(target , dataset , max_k=5 , threshold=0.2 , test="testIndFisher", 
-hash = TRUE, hashObject=NULL);
+sesObject <- SES(target , dataset, max_k = 5, threshold = 0.05, test = "testIndFisher", 
+hash = TRUE, hashObject = NULL);
 #print summary of the SES output
 summary(sesObject);
 #plot the SES output
-plot(sesObject, mode="all");
+plot(sesObject, mode = "all");
 #get the queues with the equivalences for each selected variable
 sesObject@queues
 #get the generated signatures
 sesObject@signatures;
 #get the run time
-# > sesObject@runtime;
-# user  system elapsed 
-# 0.35    0.00    0.35
-
+sesObject@runtime;
 
 #re-run the SES algorithm with the same or different configuration 
 #under the hash-based implementation of retrieving the statistics
 #in the SAME dataset (!important)
 hashObj <- sesObject@hashObject;
-sesObject2 <- SES(target , dataset , max_k=2 , threshold=0.01 , test="testIndFisher",
-hash = TRUE, hashObject=hashObj);
+sesObject2 <- SES(target, dataset, max_k = 2, threshold = 0.01, test = "testIndFisher", 
+hash = TRUE, hashObject = hashObj);
 #retrieve the results: summary, plot, sesObject2@...)
 summary(sesObject2)
 #get the run time
-# > sesObject2@runtime;
-# user  system elapsed
-# 0.01    0.00    0.01
-}
+sesObject2@runtime;
+
+MMPCObject <- MMPC(target , dataset , max_k=3 , threshold=0.05 , test="testIndFisher", 
+hash = FALSE, hashObject=NULL);
+MMPCObject@selectedVars
+MMPCObject@runtime
 }
 
 \keyword{ SES }
 \keyword{ Multiple Feature Signatures }
 \keyword{ Feature Selection }
-\keyword{ Variable Selection }% __ONLY ONE__ keyword per line
+\keyword{ Variable Selection }

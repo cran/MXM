@@ -34,12 +34,12 @@ testIndBeta = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univaria
   #   See also testIndFisher
   #
   #   References:
-  #   [1] Vincenzo Lagani and Ioannis Tsamardinos (2010), Structure-based
-  #   Variable Selection for Survival Data, Bioinformatics 26(15):1887-1894. 
-  #
-  #   Copyright 2012 Vincenzo Lagani and Ioannis Tsamardinos
-  #   Revision: 1.0 Date: 18/05/2012
-  #   R Implementation by Giorgos Athineou (12/2013)
+  #   [1] Ferrari S.L.P., Cribari-Neto F. (2004). Beta Regression for  
+  #   Modelling Rates and Proportions. Journal of Applied Statistics, 
+  #   31(7): 799--815.
+ 
+
+
   
   #initialization
   
@@ -186,24 +186,19 @@ testIndBeta = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univaria
       return(results);
     }
      #Fitting beta regressions
-      fit = betareg::betareg(target ~ x )
-      mod = lmtest::lrtest(fit)
-      stat = mod[2, 4]
-      pvalue = mod[2, 5] 
+      fit1 = betareg::betareg(target ~ 1)
+      fit2 = betareg::betareg(target ~ x )
   }else{
       #Fitting beta regressions
-    
-      if(length(csIndex) == 1){
-        fit1 = betareg::betareg( target ~ dataset[, csIndex], data = dataset[,c(csIndex, xIndex)] )
-      }else{
-        fit1 = betareg::betareg( target ~., data = dataset[, csIndex] )
-      }
-      fit2 = betareg::betareg(target ~., data = dataset[, c(csIndex, xIndex)] ) ;
-      mod = lmtest::lrtest(fit1, fit2)
-      pr = nrow(mod)
-      stat = mod[pr, 4]
-      pvalue = mod[pr, 5] 
+
+      fit1 = betareg::betareg( target ~., data = as.data.frame( dataset[, csIndex] ) )
+      fit2 = betareg::betareg(target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ) )  ;
   }
+      lik1 = as.numeric( logLik(fit1) )
+      lik2 = as.numeric( logLik(fit2) )
+      stat = 2 * abs(lik1 - lik2)
+      dof = abs( length( coef(fit1) ) - length( coef(fit2) ) )
+      pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE) 
   
   #calculate the p value and stat.
   flag = 1;
