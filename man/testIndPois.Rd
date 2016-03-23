@@ -1,15 +1,23 @@
-\name{testIndPois}
+\name{Count data regression models}
 \alias{testIndPois}
+\alias{testIndZIP}
+\alias{testIndNB}
 \title{
-Poisson regression conditional independence test for discrete (counts) class dependent variables
+Regression conditional independence test for discrete (counts) class dependent variables
 }
 
 \description{
-The main task of this test is to provide a p-value PVALUE for the null hypothesis: feature 'X' is independent from 'TARGET' given a conditioning set CS. The pvalue is calculated by comparing a Poisson regression model based on the conditioning set CS against a model whose regressor are both X and CS. The comparison is performed through a chi-square test with the appropriate degrees of freedom on the difference between the deviances of the two models.
+The main task of this test is to provide a p-value PVALUE for the null hypothesis: feature 'X' is independent from 'TARGET' given a conditioning set CS. The pvalue is calculated by comparing a Poisson regression model based on the conditioning set CS against a model whose regressor are both X and CS. The comparison is performed through a chi-square test with the appropriate degrees of freedom on the difference between the deviances of the two models. The models supported here are poisson, zero inlftaed poisson and negative binomial.
 }
 
 \usage{
 testIndPois(target, dataset, xIndex, csIndex, dataInfo = NULL, univariateModels = NULL, 
+hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, robust = FALSE)
+
+testIndNB(target, dataset, xIndex, csIndex, dataInfo = NULL, univariateModels = NULL, 
+hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, robust = FALSE)
+
+testIndZIP(target, dataset, xIndex, csIndex, dataInfo = NULL, univariateModels = NULL, 
 hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, robust = FALSE)
 }
 
@@ -47,17 +55,22 @@ A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust
 }
 
 \details{
-If hash = TRUE, testIndPois requires the arguments 'stat_hash' and 'pvalue_hash' for the hash-based implementation of the statistic test. These hash Objects are produced or updated by each run of SES (if hash == TRUE) and they can be reused in order to speed up next runs of the current statistic test. If "SESoutput" is the output of a SES run, then these objects can be retrieved by SESoutput@hashObject$stat_hash and the SESoutput@hashObject$pvalue_hash.
+If hash = TRUE, all three tests require the arguments 'stat_hash' and 'pvalue_hash' for the hash-based implementation of the statistic test. These hash Objects are produced or updated by each run of SES (if hash == TRUE) and they can be reused in order to speed up next runs of the current statistic test. If "SESoutput" is the output of a SES run, then these objects can be retrieved by SESoutput@hashObject$stat_hash and the SESoutput@hashObject$pvalue_hash.
 
 Important: Use these arguments only with the same dataset that was used at initialization.
 
 For all the available conditional independence tests that are currently included on the package, please see "?CondIndTests".
+
+If you have overdispersion, the variance is higher than the mean, a negative binomial is to be used.
+
+If you have more zeros than expected under a Poisson model, not overdispersion, then zero inlfated Poisson is to be used. 
+
 }
 
 \value{
 A list including:
 \item{pvalue}{
-A numeric value that represents the generated p-value due to Poisson regression (see reference below).
+A numeric value that represents the logarithm of the generated p-value due to the count data regression (see references below).
 }
 \item{stat}{
 A numeric value that represents the generated statistic due to Poisson regression(see reference below).
@@ -75,6 +88,10 @@ The current hash object used for the p-values. See argument stat_hash and detail
 
 \references{
 McCullagh P., and Nelder J.A. (1989). Generalized linear models.  CRC press, USA, 2nd edition.
+
+Lambert D. (1992). Zero-inflated Poisson regression, with an application to defects in manufacturing. Technometrics, 34(1):1-14.
+
+Joseph M.H. (2011). Negative Binomial Regression. Cambridge University Press, 2nd edition.
 }
 
 \author{
@@ -88,7 +105,7 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr>, Vinc
 %}
 
 \seealso{
-\code{\link{SES}, \link{testIndNB}, \link{testIndZIP}, \link{gSquare}, \link{CondIndTests}}
+\code{\link{testIndSpeedglm}, \link{testIndNB}, \link{testIndZIP}, \link{gSquare}, \link{CondIndTests}}
 }
 
 \examples{
@@ -103,6 +120,7 @@ results
 #require(gRbase)  #for faster computations in the internal functions
 #run the SES algorithm using the testIndPois conditional independence test
 sesObject <- SES(target, dataset, max_k = 3, threshold = 0.05, test = "testIndPois");
+sesObject2 <- SES(target, dataset, max_k = 3, threshold = 0.05, test = "testIndNB");
 #print summary of the SES output
 summary(sesObject);
 #plot the SES output
@@ -110,5 +128,7 @@ plot(sesObject, mode = "all");
 
 }
 
-\keyword{ Poisson regression test}
-\keyword{ Conditional Independence Test }
+\keyword{ Poisson regression }
+\keyword{ Negative binomial regression }
+\keyword{ Zero inflated poisson regression }
+\keyword{ Conditional independence test }

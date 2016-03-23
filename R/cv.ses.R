@@ -52,12 +52,15 @@ cv.ses <- function(target, dataset, kfolds = 10, folds = NULL, alphas = NULL, ma
   
   if(is.null(folds))
   {
-    folds = generateCVRuns(train_target, ntimes = 1, nfold = kfolds, leaveOneOut = FALSE, stratified = TRUE)
+    folds = generateCVRuns(target, ntimes = 1, nfold = kfolds, leaveOneOut = FALSE, stratified = TRUE)
   }else{
     kfolds <- length(folds[[1]]);
   }
   
-  if(task == 'C'){
+  if(is.null(task)){
+    stop("Please provide a valid task argument 'C'-classification, 'R'-regression, 'S'-survival.")
+    #to do: select automatically the appropriate task due to the data, target
+  }else if(task == 'C'){
     
     #Classification task (logistic regression)
     if (is.null(metric)){
@@ -115,7 +118,7 @@ cv.ses <- function(target, dataset, kfolds = 10, folds = NULL, alphas = NULL, ma
     }
     
     if (is.null(ses_test)){
-      test = "censIndLR";
+      test = "censIndCR";
     }else{
       test <- ses_test;
     }
@@ -160,6 +163,7 @@ cv.ses <- function(target, dataset, kfolds = 10, folds = NULL, alphas = NULL, ma
       
       #running SES
       results <- MXM::SES(train_target, train_set, max_k, threshold, test = test, hash <- TRUE, hashObject = SESHashMap)
+      #results <- MXM::SES(train_target, train_set, max_k, threshold, user_test = testIndFisher2, hash <- TRUE, hashObject = SESHashMap)
       
       SESHashMap <- results@hashObject;
       signatures <- results@signatures;
@@ -223,14 +227,13 @@ cv.ses <- function(target, dataset, kfolds = 10, folds = NULL, alphas = NULL, ma
     }
   }
   
-  
   #recording the best results
   best_model <- NULL
   best_model$cv_results_all <- conf_ses;
   best_model$best_performance <- best_perf
   best_model$best_configuration = conf_ses[[index]]$configuration
   
-  
+  #TT
   res <- array( dim = c( length(alphas), length(max_ks), kfolds ) )
   mat <- matrix(nrow = length(best_model[[ 1 ]]), ncol = kfolds)
   
@@ -240,9 +243,9 @@ cv.ses <- function(target, dataset, kfolds = 10, folds = NULL, alphas = NULL, ma
   
   opti <- rowMeans(mat)
   bestpar <- which.min(opti)
-  estb <- mean( colMeans(mat) - min(opti) )
+  estb <- mean( min(opti) - colMeans(mat) )
   
-  best_model$BC_best_perf <- best_model$best_performance - estb
+  best_model$BC_best_perf <- best_model$best_performance + estb
   
   return(best_model)
   
@@ -322,8 +325,8 @@ glm.mxm <- function(train_target, sign_data, sign_test){
     x = sign_test
     # preds <- predict(sign_model, newdata=data.frame(sign_test), type = 'response')
     preds <- predict( sign_model, newdata=data.frame(x), type = 'response' )
-    preds[ preds>=0.5 ] = 1
-    preds[ preds<0.5 ] =0
+#     preds[ preds>=0.5 ] = 1
+#     preds[ preds<0.5 ] = 0
     return(preds);
 #  }
 }

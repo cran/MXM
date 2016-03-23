@@ -5,11 +5,11 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, grap
   ## "cat" for categorical variables
   ## alpha is the level of significance, set to 0.05 by default
   ## rob is TRUE or FALSE and is supported by type = "pearson" only, i.e. it is to be used
-  ## for robust estimation of Pearson's correlation coefficient only
+  ## for robust estimation of Pearson correlation coefficient only
   ## if graph is true, the graph will appear
 
   alpha <- log(alpha)
-  title = deparse( substitute(dataset) )
+  title <- deparse( substitute(dataset) )
 
   ### if you want to use Spearman, simply use Spearman on the ranks
   if (method == "spearman")  {
@@ -29,7 +29,7 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, grap
   
   n = ncol(dataset)
   m = nrow(dataset)
-  k <- 0  ## initial size of the sperating set
+  k <- 0  ## initial size of the conditioning set
   G = matrix(2, n, n)  # 3 sep-set indicates a subset of variables which eliminate given edge  
   ## If an element has the number 2 it means there is connection, otherwiser it will have 0
   diag(G) = -100
@@ -61,6 +61,7 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, grap
       dof = dof + t(dof)  ## p-values
       stadf = stat / dof
     }
+
   } else { ## type = cat
     stat = pv = dof = matrix(0, n, n)
     for ( i in 1:c(n - 1) ) {
@@ -73,6 +74,7 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, grap
       }
     pvalue = pv + t(pv)  ## p-values
     stat = stat + t(stat)
+    diag(stat) <- 0
     dof = dof + t(dof)  ## p-values
     stadf = stat / dof
   } 
@@ -84,7 +86,7 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, grap
   if ( is.null( colnames(dataset) ) ) {
     colnames(G) = rownames(G) = paste("X", 1:n, sep = "")
   } else colnames(G) = rownames(G) = colnames(dataset)
-  diag(pvalue) = diag(pv) = 1
+  diag(pvalue) = diag(pv) = 0
   ina = 1:n 
   sep = list()
   n.tests = NULL
@@ -104,13 +106,7 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, grap
     final = list(kappa = k, G = G) 
   } else {
 
-    ax = ay = list()
-    lx = ly = numeric(duo)
-    for ( i in 1:duo ) {
-      ax[[ i ]] = ina[ G[ zeu[i, 1], ] == 2 ]  ;  lx[i] = length( ax[[ i ]] )
-      ay[[ i ]] = ina[ G[ zeu[i, 2], ] == 2 ]  ;  ly[i] = length( ay[[ i ]] ) 
-    }
-    ell = max(lx, ly)
+    ell = 2
 
     ## Execute PC algorithm: main loop
 
@@ -222,12 +218,13 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, grap
       n.tests[ k + 1 ] = tes
 
     }
+    
+    G <- G / 2  
+    diag(G) = 0
+    durat = proc.time() - durat
 
-    diag(G) <- 0
-    durat <- proc.time() - durat
-    
     ###### end of the algorithm
-    
+
     for ( l in 1:k ) { 
       if ( is.matrix(sep[[ l ]]) ) {
         if ( nrow(sep[[ l ]]) > 0) {  
@@ -242,16 +239,15 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, grap
           names( sep[[ l ]] )[ c(l + 3):c(l + 4) ] = c("stat", "logged.p-value")
         } 
       }
-    } 
-    
-  }
+    }
+  
+  }  
 
-
-  n.tests <- n.tests[ n.tests>0 ]
-  k <- length(n.tests) - 1
-  sepset <- list()
+  n.tests = n.tests[ n.tests>0 ]
+  k = length(n.tests) - 1
+  sepset = list()
   if (k == 0) {
-    sepset <- NULL
+    sepset = NULL
   } else {
     for ( l in 1:k ) {
       if ( is.matrix( sep[[ l ]] ) )  {
@@ -260,7 +256,10 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, grap
       } else sepset[[ l ]] = sep[[ l ]]    
     }
   }  
-  names(n.tests) <- paste("k=", 0:k, sep ="")
+  names(n.tests) = paste("k=", 0:k, sep ="")
+
+  aa = rowSums(G)
+  info = summary(aa)
   
   if(graph == TRUE)
   {
@@ -272,7 +271,6 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, grap
       warning('In order to plot the generated network, package Rgraphviz is required.')
     }
   }
-  
-  list(stat = stat, pvalue = pvalue, runtime = durat, kappa = k, n.tests = n.tests, G = G, sepset = sepset, title = title )
-}
 
+  list(stat = stat, pvalue = pvalue, info = info, runtime = durat, kappa = k, n.tests = n.tests, G = G, sepset = sepset, title = title )
+}

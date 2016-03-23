@@ -1,24 +1,24 @@
-\name{testIndNB}
-\alias{testIndNB}
+\name{testIndClogit}
+\alias{testIndClogit}
 \title{
-Negative binomial regression conditional independence test for discrete (counts) dependent variables
+Conditional independence test based on conditional logistic regression for case control studies 
 }
 
 \description{
-The main task of this test is to provide a p-value PVALUE for the null hypothesis: feature 'X' is independent from 'TARGET' given a conditioning set CS. The pvalue is calculated by comparing a logistic model based on the conditioning set CS against a model whose regressor are both X and CS. The comparison is performed through a chi-square test with the appropriate degrees of freedom on the difference between the deviances of the two models.
+The main task of this test is to provide a p-value PVALUE for the null hypothesis: feature 'X' is independent from 'TARGET' given a conditioning set CS. The pvalue is calculated by comparing a conditional logistic regression model based on the conditioning set CS against a model whose regressor are both X and CS. The comparison is performed through a chi-square test with the appropriate degrees of freedom on the difference between the deviances of the two models. This is suitable for a case control design
 }
 
 \usage{
-testIndNB(target, dataset, xIndex, csIndex, dataInfo = NULL, univariateModels = NULL, 
+testIndClogit(target, dataset, xIndex, csIndex, dataInfo = NULL, univariateModels = NULL, 
 hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, robust = FALSE)
 }
 
 \arguments{
   \item{target}{
-  A numeric vector containing the values of the target variable.
+  A matrix with two columns, the first one must be 0 and 1, standing for 0 = control and 1 = case. The second column is the id of the patients. A numerical variable, for example c(1,2,3,4,5,6,7,1,2,3,4,5,6,7). 
 }
   \item{dataset}{
-  A numeric matrix or data frame, in case of categorical predictors (factors), containing the variables for performing the test. Rows as samples and columns as features.
+  A numeric matrix or a data.frame in case of categorical predictors (factors), containing the variables for performing the test. Rows as samples and columns as features.
 }
   \item{xIndex}{
   The index of the variable whose association with the target we want to test.
@@ -47,7 +47,7 @@ A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust
 }
 
 \details{
-If hash = TRUE, testIndNB requires the arguments 'stat_hash' and 'pvalue_hash' for the hash-based implementation of the statistic test. These hash Objects are produced or updated by each run of SES (if hash == TRUE) and they can be reused in order to speed up next runs of the current statistic test. If "SESoutput" is the output of a SES run, then these objects can be retrieved by SESoutput@hashObject$stat_hash and the SESoutput@hashObject$pvalue_hash.
+If hash = TRUE, testIndClogit requires the arguments 'stat_hash' and 'pvalue_hash' for the hash-based implementation of the statistic test. These hash Objects are produced or updated by each run of SES (if hash == TRUE) and they can be reused in order to speed up next runs of the current statistic test. If "SESoutput" is the output of a SES run, then these objects can be retrieved by SESoutput@hashObject$stat_hash and the SESoutput@hashObject$pvalue_hash.
 
 Important: Use these arguments only with the same dataset that was used at initialization.
 
@@ -57,10 +57,10 @@ For all the available conditional independence tests that are currently included
 \value{
 A list including:
 \item{pvalue}{
-A numeric value that represents the generated p-value due to Negative binomial regression (see reference below).
+A numeric value that represents the logarithm of the generated p-value due to Beta regression (see reference below).
 }
 \item{stat}{
-A numeric value that represents the generated statistic due to Negative binomial regression (see reference below).
+A numeric value that represents the generated statistic due to Beta regression (see reference below).
 }
 \item{flag}{
 A numeric value (control flag) which indicates whether the test was succesful (0) or not (1).
@@ -74,7 +74,7 @@ The current hash object used for the p-values. See argument stat_hash and detail
 }
 
 \references{
-Joseph M.H. (2011). Negative Binomial Regression. Cambridge University Press, 2nd edition.
+Ferrari S.L.P. and Cribari-Neto F. (2004). Beta Regression for Modelling Rates and Proportions. Journal of Applied Statistics, 31(7): 799-815.
 }
 
 \author{
@@ -88,30 +88,33 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr>, Vinc
 %}
 
 \seealso{
-\code{\link{SES}, \link{testIndPois}, \link{testIndZIP}, \link{gSquare}, \link{CondIndTests}}
+\code{\link{SES}, \link{testIndLogistic}, \link{censIndCR}, \link{censIndWR}}
 }
 
 \examples{
 #simulate a dataset with continuous data
-dataset <- matrix(runif(100 * 50, 1, 100), nrow = 100 ) 
+dataset <- matrix(rnorm(300 * 100), nrow = 300 ) 
 #the target feature is the last column of the dataset as a vector
-target <- round(dataset[, 50])  ## discretize the variable
-dataset <- dataset[, -50]
-results <- testIndNB(target, dataset, xIndex = 44, csIndex = 40)
+case = rbinom(300, 1, 0.6)
+ina = which(case==1)
+ina = sample(ina, 100)
+case[-ina] = 0 
+id = rep(1:100,3)
+target = cbind(case, id)
+
+results <- testIndClogit(target, dataset, xIndex = 44, csIndex = 60)
 results
 
 #require(gRbase)  #for faster computations in the internal functions
-#define class variable (here the last column of the dataset)
-target <- 49;
-dataset[, 49] <- round(dataset[, 49])
-#run the SES algorithm using the testIndNB conditional independence test
-sesObject <- SES(target, dataset, max_k = 3, threshold = 0.05, test = "testIndNB");
+
+#run the SES algorithm using the testIndClogit conditional independence test
+sesObject <- SES(target, dataset, max_k = 3, threshold = 0.05, test = "testIndClogit");
 #print summary of the SES output
 summary(sesObject);
 #plot the SES output
 plot(sesObject, mode = "all");
-
 }
 
-\keyword{ Negative binomial regression Test}
-\keyword{ Conditional Independence Test }
+\keyword{ Conditional logistic regression}
+\keyword{ Case-control studies }
+\keyword{ Conditional independence test }

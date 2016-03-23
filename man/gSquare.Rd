@@ -70,10 +70,10 @@ For all the available conditional independence tests that are currently included
 \value{
 A list including:
 \item{pvalue}{
-A numeric value that represents the generated p-value due to G^2  test (see reference below).
+A numeric value that represents the logarithm of the generated p-value of the \eqn{G^2} test (see reference below).
 }
 \item{stat}{
-A numeric value that represents the generated statistic due to G^2 test (see reference below).
+A numeric value that represents the generated statistic of the \eqn{G^2} test (see reference below).
 }
 \item{flag}{
 A numeric value (control flag) which indicates whether the test was succesful (0) or not (1).
@@ -99,7 +99,7 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr>
 %}
 
 \seealso{
-\code{\link{SES}, \link{testIndFisher}, \link{testIndLogistic}, \link{censIndLR}, \link{CondIndTests}}
+\code{\link{SES}, \link{testIndFisher}, \link{testIndLogistic}, \link{censIndCR}, \link{CondIndTests}}
 }
 
 \examples{
@@ -126,6 +126,6 @@ summary(sesObject2);
 plot(sesObject, mode = "all");
 }
 
-\keyword{ \eqn{G^2} }
-\keyword{ Log Likelihood Ratio }
-\keyword{ Conditional Independence Test }
+\keyword{ \eqn{G^2} test }
+\keyword{ Log likelihood ratio }
+\keyword{ Conditional independence test }

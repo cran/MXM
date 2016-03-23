@@ -143,9 +143,9 @@ MMPC = function(target , dataset , max_k = 3 , threshold = 0.05 , test = NULL , 
         test = "testIndMVreg"
       }
       
-      if ( all(target > 0) & all(rowSums(target) == 1) ) ## are they compositional data?
+      if ( min(target) > 0 & sum( rowSums(target) - 1 ) == 0 ) ## are they compositional data?
       { 
-        target = log( target[, -1]/target[, 1] ) 
+        target = log( target[, -1] / target[, 1] ) 
       }
       if(is.null(user_test) && test!="testIndMVreg"){
         test = "testIndMVreg"
@@ -165,6 +165,11 @@ MMPC = function(target , dataset , max_k = 3 , threshold = 0.05 , test = NULL , 
     #auto detect independence test in case of not defined by the user and the test is null or auto
     if(is.null(test) || test == "auto")
     {
+      
+      if ( length( unique(target) ) == 2 ) {
+        target = as.factor(target)
+      }
+      
       #if target is a factor then use the Logistic test
       if("factor" %in% class(target))
       {
@@ -251,7 +256,7 @@ MMPC = function(target , dataset , max_k = 3 , threshold = 0.05 , test = NULL , 
     #cat("\nConditional independence test used: ");cat(test);cat("\n");
     
     #available conditional independence tests
-    av_tests = c("testIndFisher", "testIndSpearman", "testIndReg", "testIndRQ", "testIndBeta", "censIndLR", "testIndLogistic", "testIndPois", "testIndNB", "gSquare", "auto" , "testIndZIP" , "testIndMVreg", NULL);
+    av_tests = c("testIndFisher", "testIndSpearman", "testIndReg", "testIndRQ", "testIndBeta", "censIndCR", "censIndWR", "testIndLogistic", "testIndPois", "testIndNB", "gSquare", "auto" , "testIndZIP" , "testIndMVreg", NULL);
     
     ci_test = test
     #cat(test)
@@ -263,7 +268,7 @@ MMPC = function(target , dataset , max_k = 3 , threshold = 0.05 , test = NULL , 
       if(test == "testIndFisher")
       {
         #an einai posostiaio target
-        if ( all(target>0 & target<1) ){
+        if ( min(target) > 0 & max(target) < 1 ) {
           target = log(target/(1-target)) ## logistic normal 
         }
         
@@ -279,7 +284,7 @@ MMPC = function(target , dataset , max_k = 3 , threshold = 0.05 , test = NULL , 
       else if(test == "testIndSpearman")
       {
         #an einai posostiaio target
-        if ( all( target>0 & target<1 ) ){
+        if ( min(target) > 0 & max(target) < 1 ) {
           target = log( target / (1 - target) ) ## logistic normal 
         }
         
@@ -302,7 +307,7 @@ MMPC = function(target , dataset , max_k = 3 , threshold = 0.05 , test = NULL , 
         }
         
         #an einai posostiaio target
-        if ( all(target>0 & target<1) ){
+        if ( min(target) > 0 & max(target) < 1 ) {
           target = log(target/(1-target)) ## logistic normal 
         }
         
@@ -359,6 +364,15 @@ MMPC = function(target , dataset , max_k = 3 , threshold = 0.05 , test = NULL , 
         }
         test = testIndPois;
       }
+      else if (test == "testIndSpeedglm") ## Poisson regression
+      {
+        #dataframe class for dataset is required
+        if(class(dataset) == "matrix"){
+          dataset = as.data.frame(dataset)
+          warning("Dataset was turned into a data.frame which is required for this test")
+        }
+        test = testIndSpeedglm;
+      }
       else if (test == "testIndNB") ## Negative binomial regression
       {
         #dataframe class for dataset is required
@@ -378,21 +392,34 @@ MMPC = function(target , dataset , max_k = 3 , threshold = 0.05 , test = NULL , 
         }
         test = testIndZIP;
       }
-      else if(test == "censIndLR")
+      else if(test == "censIndCR")
       {
         #dataframe class for dataset is required
         #if(class(dataset) == "matrix"){
         #  dataset = as.data.frame(dataset)
         #  warning("Dataset was turned into a data.frame which is required for this test")
         #}
-        test = censIndLR;
+        test = censIndCR;
         if(requireNamespace("survival", quietly = TRUE, warn.conflicts = FALSE)==FALSE)
         {
-          cat("The censIndLR requires the survival package. Please install it.");
+          cat("The censIndCR requires the survival package. Please install it.");
           return(NULL);
         }
       }
-
+      else if(test == "censIndWR")
+      {
+        #dataframe class for dataset is required
+        #if(class(dataset) == "matrix"){
+        #  dataset = as.data.frame(dataset)
+        #  warning("Dataset was turned into a data.frame which is required for this test")
+        #}
+        test = censIndWR;
+        if(requireNamespace("survival", quietly = TRUE, warn.conflicts = FALSE)==FALSE)
+        {
+          cat("The censIndWR requires the survival package. Please install it.");
+          return(NULL);
+        }
+      }
       else if(test == "testIndLogistic")
       {
         #dataframe class for dataset is required
@@ -489,23 +516,23 @@ MMPC = function(target , dataset , max_k = 3 , threshold = 0.05 , test = NULL , 
 }
 
 #BACKWORD CONDITIONING (PHASE B) discard the false positives
-backwardConditioning = function(target , dataset , test , threshold , max_k , selectedVars , pvalues, stats, univariateModels)
-{
-  #for every selected var
-  varsToIterate = which(selectedVars==1);
-  for(cvar in varsToIterate)
-  {
-    mma_res = min_assoc(target, dataset , test , max_k , cvar , selectedVars , pvalues , stats , univariateModels);
-    pvalues = mma_res$pvalues;
-    stats = mma_res$stats;
-    if(mma_res$pvalue > threshold)
-    {
-      selectedVars[cvar] = 0;
-    }
-  }
-  results <- list(selectedVars = selectedVars , pvalues = pvalues , stats = stats);
-  return(results);
-}
+# backwardConditioning = function(target , dataset , test , threshold , max_k , selectedVars , pvalues, stats, univariateModels)
+# {
+#   #for every selected var
+#   varsToIterate = which(selectedVars==1);
+#   for(cvar in varsToIterate)
+#   {
+#     mma_res = min_assoc(target, dataset , test , max_k , cvar , selectedVars , pvalues , stats , univariateModels);
+#     pvalues = mma_res$pvalues;
+#     stats = mma_res$stats;
+#     if(mma_res$pvalue > threshold)
+#     {
+#       selectedVars[cvar] = 0;
+#     }
+#   }
+#   results <- list(selectedVars = selectedVars , pvalues = pvalues , stats = stats);
+#   return(results);
+# }
 
 #########################################################################################################
 
@@ -666,113 +693,6 @@ InternalMMPC = function(target , dataset , max_k, threshold , test = NULL , equa
   return(results);
 }
 
-#univariate feature selection ( uncoditional independence )
-
-# univariateScore = function(target , dataset , test, hash, dataInfo, stat_hash=stat_hash, pvalue_hash=pvalue_hash, targetID, robust=robust, ncores = ncores)
-# {
-#   #how many tests
-#   nTests = ncol(dataset);
-#   
-#   #data structure to be returned
-#   univariateModels = NULL;
-#   univariateModels$pvalue = numeric(nTests) + 1
-#   univariateModels$stat = numeric(nTests)
-#   univariateModels$flag = numeric(nTests) 
-#   #univariateModels$uniModelFit = rep(NA,nTests);
-#   
-#   test_results = NULL;
-#   #for way to initialize the univariateModel
-#   #FOR LOOP IS FASTER THAN VAPPLY IN THIS CASE (try apply withm margin 2)
-#   if ( ncores == 1 | is.null(ncores) | ncores <= 0 ) {
-#     for(i in 1:nTests)
-#     {
-#       #arguments order for any CI test are fixed
-#       if (i != targetID){
-#         test_results = test(target, dataset, i, 0, dataInfo = dataInfo, hash = hash, stat_hash = stat_hash, pvalue_hash = pvalue_hash, robust = robust)
-#         univariateModels$pvalue[[i]] = test_results$pvalue;
-#         univariateModels$stat[[i]] = test_results$stat;
-#         univariateModels$flag[[i]] = test_results$flag;
-#         univariateModels$stat_hash = test_results$stat_hash
-#         univariateModels$pvalue_hash = test_results$pvalue_hash      
-#       }else{
-#         univariateModels$pvalue[[i]] = 1;
-#         univariateModels$stat[[i]] = 0;
-#         univariateModels$flag[[i]] = 1;
-#       }
-#     }
-#   } else {
-#    # require(doParallel, quietly = TRUE, warn.conflicts = FALSE)  
-#     cl <- makePSOCKcluster(ncores)
-#     registerDoParallel(cl)
-#     test = test
-#     mod <- foreach(i = 1:nTests, .combine = rbind) %dopar% {
-#     ## arguments order for any CI test are fixed
-#       if (i != targetID) {
-#         test_results = test(target, dataset, i, 0, dataInfo = dataInfo, hash = hash, stat_hash = stat_hash, pvalue_hash = pvalue_hash, robust = robust)
-#         return( c(test_results$pvalue, test_results$stat, test_results$flag, test_results$stat_hash, test_results$pvalue_hash) )
-#       } else{
-#         return( c(1, 0, 1, test_results$stat_hash, test_results$pvalue_hash) )
-#       }
-#     }
-#     stopCluster(cl)
-#     univariateModels$pvalue = as.vector( mod[, 1] )
-#     univariateModels$stat = as.vector( mod[, 2] )
-#     univariateModels$flag = as.vector( mod[, 3] )
-#     if ( ncol(mod) == 3 ) { 
-#       univariateModels$stat_hash = NULL
-#       univariateModels$pvalue_hash = NULL   
-#     } 
-#   }
-#    return(univariateModels);
-# }
-
-#########################################################################################################
-# 
-# #just like matlab's nchoosek but with transposed result
-# #Its a slightly different from combn() 
-# #(ex. (nchoosekm(4,2) != nchoosekm(1:4,2) like nchoosek in matlab , combn(4,2) == combn(1:4,2)))
-# nchoosekm = function(cs , k, faster) #i can also pass the compFun arg for selecting
-# { 
-#   if(length(cs) == 1) #if not vector
-#   {
-#     res = choose(cs , k); #or nchoosek
-#   }else{
-#     if(faster == 1)
-#     {
-#       res = gRbase::combnPrim(cs,k); #combs(as.vector(cs),k); #combnPrim
-#     }else
-#     {
-#       res = combn(cs,k);
-#     }
-# 
-#   }
-#   return(res);
-# }
-# 
-# #########################################################################################################
-# 
-# compare_p_values = function(pval, pval2, stat, stat2)
-# {
-#   if(length(pval) == 0 | length(pval2) == 0 | length(stat) == 0 | length(stat2) ==0)
-#   {
-#     return(FALSE);
-#   }else{
-#     if(is.na(pval2)==TRUE | is.na(stat2)==TRUE | is.na(pval)==TRUE | is.na(stat)==TRUE)
-#     {
-#       pval2 = 0.0;
-#       return(FALSE);#(pval < pval2);
-#     }else{
-# #       if (pval <= 2e-16 | pval2 <= 2e-16){
-# #         return(stat > stat2);
-# #       }else{
-#         return(pval < pval2);
-#       # }
-#     }
-#   }
-# }
-# 
-# #########################################################################################################
-# 
 # max_min_assoc = function(target, dataset , test , threshold , max_k , selectedVars , pvalues , stats , remainingVars , univariateModels, selectedVarsOrder, hash, dataInfo, stat_hash, pvalue_hash, faster, robust = robust, ncores = ncores)
 # {
 #   #Initialize
@@ -866,9 +786,3 @@ InternalMMPC = function(target , dataset , max_k, threshold , test = NULL , equa
 #   return(results);
 # }
 # 
-# # .onAttach <- function(libname, pkgname){
-# #   # do whatever needs to be done when the package is loaded
-# #   packageStartupMessage( "Loading MXM package version 0.2, thanks for downloading." )
-# #   #load the dll files from the fortran code for the package
-# #   #library.dynam("MXM", pkgname, libname)
-# # }

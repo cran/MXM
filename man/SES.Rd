@@ -3,6 +3,7 @@
 \alias{MMPC}
 \title{
 SES: Feature selection algorithm for identifying multiple minimal, statistically-equivalent and equally-predictive feature signatures.
+
 MMPC: Feature selection algorithm for identifying minimal feature subsets.
 }
 
@@ -13,6 +14,7 @@ SES algorithm follows a forward-backward filter approach for feature selection i
 \usage{
 SES(target, dataset, max_k = 3, threshold = 0.05, test = NULL,
  user_test = NULL, hash = FALSE, hashObject = NULL, robust = FALSE, ncores = 1)
+ 
 MMPC(target, dataset, max_k = 3, threshold = 0.05, test = NULL,
  user_test = NULL, hash = FALSE, hashObject = NULL, robust = FALSE, ncores = 1, 
  backward = FALSE)
@@ -20,7 +22,7 @@ MMPC(target, dataset, max_k = 3, threshold = 0.05, test = NULL,
 
 \arguments{
   \item{target}{
-The class variable. Provide either a string, an integer value, a vector, a factor, an ordered factor or a Surv object. See also Details.
+The class variable. Provide either a string, an integer, a numeric value, a vector, a factor, an ordered factor or a Surv object. See also Details.
 }
   \item{dataset}{
 The data-set; provide either a data frame or a matrix (columns = variables , rows = samples).
@@ -77,10 +79,10 @@ If the target is a single integer value or a string, it has to corresponds to th
 
 If the current 'test' argument is defined as NULL or "auto" and the user_test argument is NULL then the algorithm automatically selects the best test based on the type of the data. Particularly:
 \itemize{
-	\item if target is a factor, the multinomial or the binary logistic test is used.
+	\item if target is a factor, the multinomial or the binary logistic regression is used. If the target has two values only,   binary logistic regression will be used.
 	\item if target is a ordered factor, the ordered logit regression is used in the logistic test.
-	\item if target is a numerical vector and the dataset is a matrix or a data.frame with continuous variables, the fisher conditional independence test is used. If the dataset is a data.frame and there are categorical variables, linear regression is used.
-	\item if target is discrete numerical (counts), the poisson regression conditional independence test is used.
+	\item if target is a numerical vector and the dataset is a matrix or a data.frame with continuous variables, the Fisher conditional independence test is used. If the dataset is a data.frame and there are categorical variables, linear regression is used.
+	\item if target is discrete numerical (counts), the poisson regression conditional independence test is used. If there are only two values, the binary logistic regression is to be used.
 	\item if target is a Surv object, the Survival conditional independence test is used.
 	\item if target is a matrix with at least 2 columns, the multivariate linear regression is used.
 }
@@ -94,6 +96,8 @@ If two or more p-values are below the machine epsilon (.Machine$double.eps which
 If there are missing values in the dataset (predictor variables) columnwise imputation takes place. The median is used for the continuous variables and the mode for categorical variables. It is a naive and not so clever method. For this reason the user is encouraged to make sure his data contain no missing values. 
 
 If you have percentages, in the (0, 1) interval, they are automatically mapped into \eqn{R} by using the logit transformation. If you set the test to \code{\link{testIndBeta}}, beta regression is used. If you have compositional data, positive multivariate data where each vector sums to 1, with NO zeros, they are also mapped into the Euclidean space using the additive log-ratio (multivariate logit) transformation (Aitchison, 1986).
+
+If you use testIndSpearman (argument "test"), the ranks of the data calculated and those are used in the caclulations. This speeds up the whole procedure.
 }
 
 \value{
@@ -125,11 +129,14 @@ The max_k option used in the current run.
 \item{threshold}{
 The threshold option used in the current run.
 }
-\item{rob}{
-The value of the robust option, either TRUE or FALSE.
-}
 \item{runtime}{
 The run time of the algorithm. A numeric vector. The first element is the user time, the second element is the system time and the third element is the elapsed time.
+}
+\item{test}{
+The character name of the statistic test used.
+}
+\item{rob}{
+The value of the robust option, either TRUE or FALSE.
 }
 
 Generic Functions implemented for SESoutput Object:
@@ -176,7 +183,7 @@ The packages required for the SES algorithm operations are:
 
 and \bold{ordinal} : also require(stats) and require(MASS) for the testIndLogistic test
 
-\bold{survival} : for the censIndLR test
+\bold{survival} : for the censIndCR and censIndWR test
 
 \bold{doParallel}: for parallel computations
 

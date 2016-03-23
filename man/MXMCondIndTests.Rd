@@ -40,7 +40,11 @@ As for the other tests, they share one thing in common. For all of them, two par
   Categorical \tab Categorical \tab gSquare \tab G-squared test of independence \cr  
   Categorical \tab Categorical \tab testIndLogistic \tab Multinomial logistic regression \cr  
   Categorical \tab Categorical \tab testIndLogistic \tab Ordinal logistic regression \cr  
-  Survival	\tab Mixed \tab censIndLR \tab Cox regression \cr
+  Continuous, proportions, \tab Mixed \tab testIndSpeedglm \tab Linear, binary logistic \cr   
+  binary or counts        \tab  \tab  \tab or poisson gression \cr  
+  Survival	\tab Mixed \tab censIndCR \tab Cox regression \cr
+  Survival	\tab Mixed \tab censIndWR \tab Weibull regression \cr
+  Case-control  \tab Mixed \tab testIndClogit \tab Conditional logistic regression \cr
   Multivariate continuous \tab Mixed \tab testIndMVreg  \tab Multivariate linear regression \cr 
   Compositional data \tab Mixed \tab testIndMVreg \tab Multivariate linear regression \cr 
   (no zeros) \tab  \tab after multivariate \tab  \cr 
@@ -76,12 +80,18 @@ As for the other tests, they share one thing in common. For all of them, two par
     
     \item \bold{testIndLogistic} (Ordered multinomial). This is a special case of multinomial regression, in which case the outcomes have an ordering, such as \bold{not satisfied}, \bold{neutral}, \bold{satisfied}. The appropriate method is ordinal logistic regression. 
     
+    \item \bold{testIndSpeedglm}. If you have a few tens of thousands of observations, the default functions for linear, binary logistic and poisson regression will be slow causing the computer to jamm. For this reason, memory efficient handling regressions should be used.
+    
     \item \bold{gSquare}. If all variables, both the target and predictors are categorical the default test is the G-square test of independence. It is similar to the chi-squared test of independence, but instead of using the chi-squared metric between the observed and estimated frequencies in contingency tables, the Kullback-Leibler divergence of the observed from the estimated frequencies is used. The asymptotic distribution of the test statistic is a chi-squared distribution on some appropriate degrees of freedom. The target variable can be either ordered or unordered with two or more outcomes. 
     
     \item \bold{Alternatives to gSquare}. An alternative to the \bold{gSquare} test is the \bold{testIndLogistic}. Depending on the nature of the target, binary, un-ordered multinomial or ordered multinomial the appropriate regression model is fitted. 
     
-    \item \bold{censIndLR}. Finally, for the case of time-to-event data, a Cox regression model is employed. The predictor variables can be either conitnuous, categorical or mixed. Again, the log-likelihood ratio test is used to assess the significance of the new variable. 
-        
+    \item \bold{censIndCR}. For the case of time-to-event data, a Cox regression model is employed. The predictor variables can be either continuous, categorical or mixed. Again, the log-likelihood ratio test is used to assess the significance of the new variable. 
+    
+    \item \bold{censIndWR}. A second model for the case of time-to-event data, a Weibull regression model is employed. The predictor variables can be either continuous, categorical or mixed. Again, the log-likelihood ratio test is used to assess the significance of the new variable. Unlike the semi-parametric Cox model, the Weibull model is fully parametric.
+
+    \item \bold{testIndClogit}. When the data come from a case-control study, the suitable test is via conditional logistic regression. 
+
     \item \bold{testIndMVReg}. In the case of multivariate continuous targets, the suggested test is via a multivariate linear regression.  The target variable can be compositional data as well. These are positive data, whose vectors sum to 1.  They can sum to any constant, as long as it the same, but for convenience reasons we assume that they are normalised to sum to 1.  In this case the additive log-ratio transformation (multivariate logit transformation) is applied beforehand. 
 
     \item \bold{testIndGLMM}. In the case of a longitudinal or clustered targets (continuous, proportions, binary or counts), the suggested test is via a (generalised) linear mixed model.   
@@ -137,7 +147,5 @@ Tsamardinos I., Lagani V. and Pappas D. (2012). Discovering multiple, equivalent
 Michail Tsagris <mtsagris@yahoo.gr>
 }
 
-\keyword{MXMCondIndTests}
-\keyword{Conditional Independence Tests, Statistical Tests, Tests}
-\keyword{Statistical Tests}
-\keyword{Tests}
+\keyword{ Conditional independence tests }
+\keyword{ Regression models }

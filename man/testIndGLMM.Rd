@@ -69,7 +69,7 @@ For all the available conditional independence tests that are currently included
 \value{
 A list including:
 \item{pvalue}{
-A numeric value that represents the generated p-value due to the (generalised) linear mixed model (see reference below).
+A numeric value that represents the logarithm of the generated p-value due to the (generalised) linear mixed model (see reference below).
 }
 \item{stat}{
 A numeric value that represents the generated statistic due to the (generalised) linear mixed model (see reference below).

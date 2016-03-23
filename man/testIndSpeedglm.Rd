@@ -1,7 +1,7 @@
-\name{testIndLogistic}
-\alias{testIndLogistic}
+\name{testIndSpeedglm}
+\alias{testIndSpeedglm}
 \title{
-Conditional independence test for binary, categorical or ordinal class variables
+Conditional independence test for continuous, binary and discrete (counts) variables with thousands of observations.
 }
 
 \description{
@@ -9,13 +9,13 @@ The main task of this test is to provide a p-value PVALUE for the null hypothesi
 }
 
 \usage{
-testIndLogistic(target,dataset,xIndex,csIndex,dataInfo = NULL,univariateModels = NULL, 
+testIndSpeedglm(target,dataset,xIndex,csIndex,dataInfo = NULL,univariateModels = NULL, 
 hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, target_type = 0, robust = FALSE)
 }
 
 \arguments{
   \item{target}{
-  A numeric vector containing the values of the target variable.
+  A numeric vector containing the values of the target variable. It can be either continuous or percentages (values within 0 and 1), binary or discrete (counts). 
 }
   \item{dataset}{
   A numeric matrix or data frame, in case of categorical predictors (factors), containing the variables for performing the test. Rows as samples and columns as features.
@@ -46,7 +46,7 @@ A numeric vector that represents the type of the target. Default value is 0. See
 \itemize{
 \item target_type = 1 (binary target)
 \item target_type = 2 (nominal target)
-\item target_type = 3 (ordinal target)
+\item target_type = 3 (discrete target)
 }
 }
   \item{robust}{
@@ -55,16 +55,18 @@ A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust
 }
 
 \details{
-If argument target_type=0 then testIndLogistic requires the dataInfo argument to indicate the type of the current target:
+If argument target_type=0 then testIndSpeedglm requires the dataInfo argument to indicate the type of the current target:
 \itemize{
+\item dataInfo$target_type = "normal" (continuous target)
 \item dataInfo$target_type = "binary" (binary target)
-\item dataInfo$target_type = "nominal" (nominal target)
-\item dataInfo$target_type = "ordinal" (ordinal target)
+\item dataInfo$target_type = "discrete" (discrete target)
 }
 
-If hash = TRUE, testIndLogistic requires the arguments 'stat_hash' and 'pvalue_hash' for the hash-based implementation of the statistic test. These hash Objects are produced or updated by each run of SES (if hash == TRUE) and they can be reused in order to speed up next runs of the current statistic test. If "SESoutput" is the output of a SES run, then these objects can be retrieved by SESoutput@hashObject$stat_hash and the SESoutput@hashObject$pvalue_hash.
+If hash = TRUE, testIndSpeedglm requires the arguments 'stat_hash' and 'pvalue_hash' for the hash-based implementation of the statistic test. These hash Objects are produced or updated by each run of SES (if hash == TRUE) and they can be reused in order to speed up next runs of the current statistic test. If "SESoutput" is the output of a SES run, then these objects can be retrieved by SESoutput@hashObject$stat_hash and the SESoutput@hashObject$pvalue_hash.
 
 Important: Use these arguments only with the same dataset that was used at initialization.
+
+This test is designed for large sample sized data, tens and hundreds of thousands and it works for linear, logistic and poisson regression. The classical \code{\link{lm}} and \code{\link{glm}} functions will use too much memory when many observations are available. The package "speedglm" handles such data more efficiently. You can try and see, in the first case the computer will jam, whereas in the second it will not. Hence, this test is to be used in these cases only. We have not set a threshold on the sample size, so that the algorithm decides whether to shift to speedglm or not, because this depends upon the user's computing fascilities. 
 
 For all the available conditional independence tests that are currently included on the package, please see "?CondIndTests".
 }
@@ -89,8 +91,6 @@ The current hash object used for the p-values. See argument stat_hash and detail
 }
 
 \references{
-Vincenzo Lagani, George Kortas and Ioannis Tsamardinos (2013), Biomarker signature identification in "omics" with multiclass outcome. Computational and Structural Biotechnology Journal, 6(7):1-7.
-
 McCullagh, Peter, and John A. Nelder. Generalized linear models.  CRC press, USA, 2nd edition, 1989.
 }
 
@@ -100,85 +100,36 @@ Vincenzo Lagani and Ioannis Tsamardinos
 R implementation and documentation: Vincenzo Lagani <vlagani@csd.uoc.gr>, Giorgos Athineou <athineou@csd.uoc.gr> and Michail Tsagris <mtsagris@yahoo.gr>
 }
 
-\note{
-This test uses the function multinom (package nnet) for multinomial logistic regression, the function clm (package ordinal) for ordinal logit regression and the function glm (package stats) for binomial regression.
-}
+%\note{
+%
+% }
 
 \seealso{
-\code{\link{SES}, \link{testIndSpeedglm}, \link{gSquare}, \link{CondIndTests}}
+\code{\link{SES}, \link{testIndLogistic}, \link{testIndReg}, \link{testIndPois}, \link{CondIndTests}}
 }
 
 \examples{
 #require(gRbase) #for faster computations in the internal functions
-require(nnet)
-require(stats)
-require(ordinal)
 
 #simulate a dataset with categorical data 
-dataset_m <- matrix( sample(c(0, 1, 2), 50 * 100, replace = TRUE), ncol = 50)
+dataset <- matrix( sample(c(0, 1), 50 * 100000, replace = TRUE), ncol = 50)
 #initialize categorical target
-target_m <- dataset_m[, 50]
+target <- dataset[, 50]
 #remove target from the dataset
-dataset_m <- dataset_m[, -50]
+dataset <- dataset[, -50]
 
-  #run the conditional independence test for the nominal class variable
-  results_m <- testIndLogistic(target_m, dataset_m, xIndex = 44, csIndex = c(10, 20), 
-  target_type = 2)
-  results_m
+#run the conditional independence test for the nominal class variable
+# check the runtimes between the two ways
+system.time( results <- testIndSpeedglm(target, dataset, xIndex = 44, csIndex = c(10, 20), 
+target_type = 2) )
 
-  #run the SES algorithm using the testIndLogistic conditional independence test 
-  #for the nominal class variable
-  sesObject <- SES(as.factor(target_m), dataset_m, max_k = 3, threshold = 0.05, 
-  test = "testIndLogistic");
-  #print summary of the SES output
-  summary(sesObject);
-  #plot the SES output
-  plot(sesObject, mode = "all");
+system.time( results <- testIndLogistic(target, dataset, xIndex = 44, csIndex = c(10, 20), 
+target_type = 2) )
 
 
-########################################################################
-
-  #run the conditional independence test for the ordinal class variable
-  results_o <- testIndLogistic(target_m, dataset_m, xIndex = 44, csIndex = c(10, 20), 
-  target_type = 3)
-  results_o
-  
-  #run the SES algorithm using the testIndLogistic conditional independence test 
-  #for the ordinal class variable
-  sesObject <- SES(factor(target_m, ordered=TRUE), dataset_m, max_k = 3 , 
-  threshold = 0.05, 
-                   test = "testIndLogistic");
-  #print summary of the SES output
-  summary(sesObject);
-  #plot the SES output
-  plot(sesObject, mode = "all");
-
-
-########################################################################
-
-#simulate a dataset with binary data
-dataset_b <- matrix(sample(c(0,1),50 * 60, replace = TRUE), ncol = 50)
-#initialize binary target
-target_b <- dataset_b[, 50]
-#remove target from the dataset
-dataset_b <- dataset_b[, -50]
-
-  #run the conditional independence test for the binary class variable
-  results_b <- testIndLogistic(target_b, dataset_b, xIndex = 44, csIndex = c(10, 20), 
-  target_type = 1)
-  results_b
-  
-  #run the SES algorithm using the testIndLogistic conditional independence test
-  #for the binary class variable
-  sesObject <- SES(factor(target_b), dataset_m, max_k = 3, threshold = 0.05, 
-  test = "testIndLogistic");
-  #print summary of the SES output
-  summary(sesObject);
-  #plot the SES output
-  plot(sesObject, mode = "all");
 }
 
+\keyword{ Linear regression }
 \keyword{ Binary logistic regression }
-\keyword{ Multinomial logistic regression }
-\keyword{ Ordinal logistic regression }
+\keyword{ Poisson regression }
 \keyword{ Conditional independence test }

@@ -57,7 +57,7 @@ For all the available conditional independence tests that are currently included
 \value{
 A list including:
 \item{pvalue}{
-A numeric value that represents the generated p-value due to Beta regression (see reference below).
+A numeric value that represents the logarithm of the generated p-value due to Beta regression (see reference below).
 }
 \item{stat}{
 A numeric value that represents the generated statistic due to Beta regression (see reference below).
@@ -114,4 +114,4 @@ plot(sesObject, mode = "all");
 }
 
 \keyword{Beta regression}
-\keyword{ Conditional Independence Test }
+\keyword{ Conditional independence test }

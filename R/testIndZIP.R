@@ -18,16 +18,12 @@ testIndZIP = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariat
   # this method returns: the pvalue PVALUE, the statistic STAT and a control variable FLAG.
   # if FLAG == 1 then the test was performed succesfully
   
-  # References
-  # [1] McCullagh, Peter, and John A. Nelder. Generalized linear models. CRC press, USA, 2nd edition, 1989.
-  
-  
   #########################################################################################################
   
   #initialization
   
   #if the test cannot performed succesfully these are the returned values
-  pvalue = 1;
+  pvalue = log(1);
   stat = 0;
   flag = 0;
   csIndex[which(is.na(csIndex))] = 0;
@@ -56,9 +52,9 @@ testIndZIP = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariat
     if(hash == TRUE)#update hash objects
     {
       stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
-      pvalue_hash[[key]] <- 1;#.set(pvalue_hash , key , 1)
+      pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
     }
-    results <- list(pvalue = 1, stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+    results <- list(pvalue = log(1), stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
     return(results);
   }
   
@@ -98,7 +94,7 @@ testIndZIP = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariat
     return(results);
   }
   
-  #if x = any of the cs then pvalue = 1 and flag = 1.
+  #if x = any of the cs then pvalue = log(1) and flag = 1.
   #That means that the x variable does not add more information to our model due to an exact copy of this in the cs, so it is independent from the target
   if(length(cs)!=0)
   {
@@ -109,9 +105,9 @@ testIndZIP = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariat
         if(hash == TRUE)#update hash objects
         {
           stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
-          pvalue_hash[[key]] <- 1;#.set(pvalue_hash , key , 1)
+          pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
         }
-        results <- list(pvalue = 1, stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+        results <- list(pvalue = log(1), stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
         return(results);
       }
     }else{ #more than one var
@@ -122,9 +118,9 @@ testIndZIP = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariat
           if(hash == TRUE)#update hash objects
           {
             stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
-            pvalue_hash[[key]] <- 1;#.set(pvalue_hash , key , 1)
+            pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
           }
-          results <- list(pvalue = 1, stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+          results <- list(pvalue = log(1), stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
           return(results);
         }
       }
@@ -137,9 +133,9 @@ testIndZIP = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariat
     if(hash == TRUE)#update hash objects
     {
       stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
-      pvalue_hash[[key]] <- 1;#.set(pvalue_hash , key , 1)
+      pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
     }
-    results <- list(pvalue = 1, stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+    results <- list(pvalue = log(1), stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
     return(results);
   }
   
@@ -155,23 +151,30 @@ testIndZIP = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariat
       {
         #compute the relationship between x,target directly
         fit1 = pscl::zeroinfl(target ~ 1 | 1)
-        fit2 = pscl::zeroinfl(target ~ x | x )
+        fit2 = pscl::zeroinfl(target ~ x | 1 )
+        lik1 = as.numeric( logLik(fit1) )
+        lik2 = as.numeric( logLik(fit2) )
+        stat = 2 * abs( lik1 - lik2 )
+        dof = length( coef(fit2) ) - 2
+        pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)   
+        flag = 1;
+
       } else {
-        fit1 = pscl::zeroinfl( target ~. | ., data = as.data.frame( dataset[, csIndex] ) )
-        fit2 = pscl::zeroinfl( target ~. | ., data = as.data.frame( dataset[, c(csIndex, xIndex)] ) )
+        fit1 = pscl::zeroinfl( target ~. | 1, data = as.data.frame( dataset[, csIndex] ) )
+        fit2 = pscl::zeroinfl( target ~. | 1, data = as.data.frame( dataset[, c(csIndex, xIndex)] ) )
+        lik1 = as.numeric( logLik(fit1) )
+        lik2 = as.numeric( logLik(fit2) )
+        stat = 2 * abs( lik1 - lik2 )
+        dof = length( coef(fit2) ) - length( coef(fit1) )
+        pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)   
+        flag = 1;
+
       } 
-      
-      lik1 = as.numeric( logLik(fit1) )
-      lik2 = as.numeric( logLik(fit2) )
-      stat = 2 * abs(lik1 -lik2)
-      dof = length( coef(fit2) ) - 1
-      pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)   
-      flag = 1;
-      
+            
       #last error check
       if(is.na(pvalue) || is.na(stat))
       {
-        pvalue = 1;
+        pvalue = log(1);
         stat = 0;
         flag = 0;
       }else{
@@ -204,7 +207,7 @@ testIndZIP = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariat
       #   stop();
       
       #error case
-      pvalue = 1;
+      pvalue = log(1);
       stat = 0;
       flag = 0;
       

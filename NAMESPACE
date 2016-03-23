@@ -27,11 +27,14 @@ importFrom("pscl", zeroinfl)
 importFrom("MASS", rlm)
 importFrom("stats", lm)
 
-#censIndLR
-importFrom("survival", is.Surv, coxph, Surv)
+#censIndWR
+importFrom("survival", is.Surv, coxph, Surv, survreg, clogit, strata)
 
 #testIndGLMM
 importFrom("lme4", lmer, glmer)
+
+#testIndSpeedglm
+importFrom("speedglm", speedlm, speedglm)
 
 #cv.ses
 importFrom("ROCR", prediction, performance)
@@ -63,12 +66,13 @@ import("foreach")
 #importFrom("Biobase", exprs)
 
 export(SES, InternalSES, MMPC, InternalMMPC, SES.temporal, InternalSES.temporal, MMPC.temporal, 
-       InternalMMPC.temporal, mmhc.skel, pc.skel, pc.con, censIndLR, gSquare, testIndFisher, testIndLogistic, 
-       testIndRQ, testIndGLMM, testIndMVreg, testIndBeta, testIndNB, testIndPois, testIndReg, 
-       testIndSpearman, testIndZIP, cv.ses, auc.mxm, acc.mxm, mse.mxm, ci.mxm, glm.mxm, lm.mxm, 
+       InternalMMPC.temporal, mmhc.skel, pc.skel, pc.con, censIndCR, censIndWR, gSquare, testIndFisher, testIndLogistic, 
+       testIndRQ, testIndGLMM, testIndMVreg, testIndBeta, testIndNB, testIndClogit, testIndPois, testIndReg, 
+       testIndSpearman, testIndZIP, testIndSpeedglm, cv.ses, auc.mxm, acc.mxm, mse.mxm, ci.mxm, glm.mxm, lm.mxm, 
        coxph.mxm, ridge.reg, ridgereg.cv, ridge.plot, model, nei, plota ,reg.fit)
 
 exportClasses("SESoutput")
+exportClasses("MMPCoutput")
 exportClasses("SES.temporal.output")
 exportClasses("MMPC.temporal.output")
 exportMethods("plot", "summary")

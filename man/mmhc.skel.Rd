@@ -56,6 +56,9 @@ A list including:
 \item{runtime}{
 The run time of the algorithm. A numeric vector. The first element is the user time, the second element is the system time and the third element is the elapsed time.
 }
+\item{info}{
+Some summary statistics about the edges, minimum, maximum, mean, median number of edges.
+}
 \item{G}{
 The adjancency matrix. A value of 1 in G[i, j] appears in G[j, i] also, indicating that i and j have an edge between them.
 }

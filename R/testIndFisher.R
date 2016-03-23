@@ -32,7 +32,7 @@ testIndFisher = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univar
   #initialization
   
   #if the test cannot performed succesfully these are the returned values
-  pvalue = 1;
+  pvalue = log(1);
   stat = 0;
   flag = 0;
    if ( all(target>0 & target<1) ) ## are they proportions?
@@ -66,9 +66,9 @@ testIndFisher = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univar
     if(hash == TRUE)#update hash objects
     {
       stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
-      pvalue_hash[[key]] <- 1;#.set(pvalue_hash , key , 1)
+      pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
     }
-    results <- list(pvalue = 1, stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+    results <- list(pvalue = log(1), stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
     return(results);
   }
   
@@ -119,9 +119,9 @@ testIndFisher = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univar
         if(hash == TRUE)#update hash objects
         {
           stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
-          pvalue_hash[[key]] <- 1;#.set(pvalue_hash , key , 1)
+          pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
         }
-        results <- list(pvalue = 1, stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+        results <- list(pvalue = log(1), stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
         return(results);
       }
     }else{ #more than one var
@@ -132,9 +132,9 @@ testIndFisher = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univar
           if(hash == TRUE)#update hash objects
           {
             stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
-            pvalue_hash[[key]] <- 1;#.set(pvalue_hash , key , 1)
+            pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
           }
-          results <- list(pvalue = 1, stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+          results <- list(pvalue = log(1), stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
           return(results);
         }
       }
@@ -147,9 +147,9 @@ testIndFisher = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univar
     if(hash == TRUE)#update hash objects
     {
       stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
-      pvalue_hash[[key]] <- 1;#.set(pvalue_hash , key , 1)
+      pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
     }
-    results <- list(pvalue = 1, stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+    results <- list(pvalue = log(1), stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
     return(results);
   }
   
@@ -215,7 +215,7 @@ res <- tryCatch(
   #last error check
   if(is.na(pvalue) || is.na(stat))
   {
-    pvalue = 1;
+    pvalue = log(1);
     stat = 0;
     flag = 1;
   }else{
@@ -248,7 +248,7 @@ error=function(cond) {
 #   stop();
   
   #error case (we are pretty sure that the only error case is when x,cs are highly correlated and the inversion of the matrix is not possible)
-  pvalue = 1;
+  pvalue = log(1);
   stat = 0;
   flag = 1;
   

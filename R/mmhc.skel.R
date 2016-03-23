@@ -66,6 +66,10 @@ mmhc.skel <- function(dataset, max_k = 3, threshold = 0.05, test = NULL, rob = F
   G2 <- G - t(G)
   G[ G2 != 0 ] <- 0
   diag(G) <- 0
+  
+  aa = rowSums(G)
+  info = summary(aa)
+  
   if (is.null( colnames(dataset) ) ) {
     colnames(G) <- rownames(G) <- paste("X", 1:n, sep = "")
   } else  colnames(G) <- rownames(G) <- colnames(dataset)
@@ -81,5 +85,5 @@ mmhc.skel <- function(dataset, max_k = 3, threshold = 0.05, test = NULL, rob = F
     }
   }
   
-  list(runtime = runtime, G = G)
+  list(runtime = runtime, info = info, G = G)
 }

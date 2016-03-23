@@ -2,7 +2,7 @@
 #### G^2 (and X^2) test of (un)conditional independence
 ####################
 
-cat.ci <- function(xi, yi, cs, dataset, type = NULL, rob = FALSE) {
+cat.ci <- function(xi, yi, cs, dataset, type = NULL, rob = FALSE, form = form, forma = forma) {
   ## the xi and yi are two numbers, 1 and 2 for example
   ## indicating the two variables whose conditional independence 
   ## will be tested
@@ -21,11 +21,12 @@ cat.ci <- function(xi, yi, cs, dataset, type = NULL, rob = FALSE) {
     dof <- as.numeric( a1$parameter )
     pval <- pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
     res <- c( as.numeric(stat), pval, dof )  
+
   } else {   ## There are conditioning variables
     dat <- cbind( dataset[, c(xi, yi, cs)] ) 
     pa <- ncol(dat)
     colnames(dat) <- paste("V", 1:pa, sep = "")
-    xnam <- paste("V", 3:pa, sep = "")
+    xnam <- colnames(dat)[3:pa]
     form <- as.formula( paste("~ V1 + V2 ", paste(xnam, collapse = "+"), sep = "+") )
     mod <- xtabs(form , dat)  ## creates all the contingency tables 
     forma <- as.formula(paste( paste("~", "V1*", paste(xnam, collapse= "*"),

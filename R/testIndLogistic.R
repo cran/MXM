@@ -82,7 +82,7 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, dataInfo=NULL , uni
   }
   
   #if the test cannot performed succesfully these are the returned values
-  pvalue = 1;
+  pvalue = log(1);
   stat = 0;
   flag = 0;
   
@@ -93,9 +93,9 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, dataInfo=NULL , uni
     if(hash == TRUE)#update hash objects
     {
       stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
-      pvalue_hash[[key]] <- 1;#.set(pvalue_hash , key , 1)
+      pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
     }
-    results <- list(pvalue = 1, stat = 0, flag = 1, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+    results <- list(pvalue = log(1), stat = 0, flag = 1, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
     return(results);
   }
   
@@ -121,14 +121,14 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, dataInfo=NULL , uni
 #   }
   
   #if x or target is constant then there is no point to perform the test
-  if(var(x) == 0 || var(target) == 0)
+  if(var(x) == 0 || var( as.numeric(target) )== 0)
   {
     if(hash == TRUE)#update hash objects
     {
       stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
-      pvalue_hash[[key]] <- 1;#.set(pvalue_hash , key , 1)
+      pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
     }
-    results <- list(pvalue = 1, stat = 0, flag = 1, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+    results <- list(pvalue = log(1), stat = 0, flag = 1, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
     return(results);
   }
   
@@ -155,9 +155,9 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, dataInfo=NULL , uni
         if(hash == TRUE)#update hash objects
         {
           stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
-          pvalue_hash[[key]] <- 1;#.set(pvalue_hash , key , 1)
+          pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
         }
-        results <- list(pvalue = 1, stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+        results <- list(pvalue = log(1), stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
         return(results);
       }
     }else{ #more than one var
@@ -168,9 +168,9 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, dataInfo=NULL , uni
           if(hash == TRUE)#update hash objects
           {
             stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
-            pvalue_hash[[key]] <- 1;#.set(pvalue_hash , key , 1)
+            pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
           }
-          results <- list(pvalue = 1, stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+          results <- list(pvalue = log(1), stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
           return(results);
         }
       }
@@ -246,8 +246,8 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, dataInfo=NULL , uni
       fit2 = glm(target ~ x, binomial)
       dev1 = fit2$null.deviance
       dev2 = fit2$deviance
-      d2 = length( coef(fit2) )
-      d1 = 1
+      p2 = length( coef(fit2) )
+      p1 = 1
     }else if(target_type == 2) #nominal-categorical
     {
       #Fitting multinomial Logistic regression
@@ -279,8 +279,8 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, dataInfo=NULL , uni
       pr = nrow(mod)
       dev1 = mod[pr - 1, 4]
       dev2 = mod[pr , 4]
-      d1 = mod[pr - 1, 3]
-      d2 = mod[pr , 3]
+      p1 = mod[pr - 1, 3]
+      p2 = mod[pr , 3]
     }
     else if(target_type == 2) #nominal-categorical
     {
@@ -314,8 +314,8 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, dataInfo=NULL , uni
   
   #calculate the p value and stat.
   stat = abs (dev1 - dev2) 
-  df = abs( p2 - p1 ) ## a bit stupid, but it works
-  pvalue = pchisq(stat, df, lower.tail = FALSE, log.p = TRUE); 
+  dof = abs( p2 - p1 ) ## a bit stupid, but it works
+  pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE); 
   flag = 1;
   
   #update hash objects
@@ -349,7 +349,7 @@ error=function(cond) {
 #     print(csIndex);
   
   #error case
-  pvalue = 1;
+  pvalue = log(1);
   stat = 0;
   flag = 0;
   

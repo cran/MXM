@@ -140,7 +140,7 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> and V
 %}
 
 \seealso{
-\code{\link{SES}, \link{CondIndTests}, \link{testIndFisher}, \link{testIndLogistic}, \link{gSquare}, \link{censIndLR}}
+\code{\link{SES}, \link{CondIndTests}, \link{testIndFisher}, \link{testIndLogistic}, \link{gSquare}, \link{censIndCR}}
 }
 
 \examples{

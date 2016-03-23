@@ -29,7 +29,7 @@ testIndReg = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariat
   #initialization
   
   #if the test cannot performed succesfully these are the returned values
-  pvalue = 1;
+  pvalue = log(1);
   stat = 0;
   flag = 0;
    if ( all(target>0 & target<1) ) ## are they proportions?
@@ -62,9 +62,9 @@ testIndReg = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariat
     if(hash == TRUE)#update hash objects
     {
       stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
-      pvalue_hash[[key]] <- 1;#.set(pvalue_hash , key , 1)
+      pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
     }
-    results <- list(pvalue = 1, stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+    results <- list(pvalue = log(1), stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
     return(results);
   }
   
@@ -115,9 +115,9 @@ testIndReg = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariat
         if(hash == TRUE)#update hash objects
         {
           stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
-          pvalue_hash[[key]] <- 1;#.set(pvalue_hash , key , 1)
+          pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
         }
-        results <- list(pvalue = 1, stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+        results <- list(pvalue = log(1), stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
         return(results);
       }
     }else{ #more than one var
@@ -128,9 +128,9 @@ testIndReg = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariat
           if(hash == TRUE)#update hash objects
           {
             stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
-            pvalue_hash[[key]] <- 1;#.set(pvalue_hash , key , 1)
+            pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
           }
-          results <- list(pvalue = 1, stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+          results <- list(pvalue = log(1), stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
           return(results);
         }
       }
@@ -143,9 +143,9 @@ testIndReg = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariat
     if(hash == TRUE)#update hash objects
     {
       stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
-      pvalue_hash[[key]] <- 1;#.set(pvalue_hash , key , 1)
+      pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
     }
-    results <- list(pvalue = 1, stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+    results <- list(pvalue = log(1), stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
     return(results);
   }
   
@@ -208,6 +208,7 @@ testIndReg = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariat
           stat = 2 * abs(lik1 - lik2)
           dof = abs( length( coef(fit1) ) - length( coef(fit2) ) )
           pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)   
+
       }else{
       fit2 = lm( target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ) )
       mod = anova(fit2)
@@ -225,7 +226,7 @@ testIndReg = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariat
   #last error check
   if(is.na(pvalue) || is.na(stat))
   {
-    pvalue = 1;
+    pvalue = log(1);
     stat = 0;
     flag = 0;
   }else{
@@ -258,7 +259,7 @@ error=function(cond) {
 #   stop();
   
   #error case
-  pvalue = 1;
+  pvalue = log(1);
   stat = 0;
   flag = 1;
   

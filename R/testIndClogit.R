@@ -1,12 +1,13 @@
-censIndLR = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariateModels=NULL, hash = FALSE, stat_hash=NULL, pvalue_hash=NULL,robust=FALSE){
+testIndClogit = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariateModels=NULL, hash = FALSE, stat_hash=NULL, pvalue_hash=NULL,robust=FALSE){
   # Conditional independence test based on the Log Likelihood ratio test
   
-  if(!survival::is.Surv(target))
+  if( class(target)!= "matrix" || ( class(target)== "matrix" & ncol(target)!=2 ) )
   {
-    stop('The survival test can not be performed without a Surv object target');
+    stop('The testIndClogit test can not be performed without a 2 column matrix target');
   }
   
-  csIndex = csIndex[-which(is.na(csIndex))]#csIndex[which(is.na(csIndex))] = 0;
+  #csIndex = csIndex[-which(is.na(csIndex))]#csIndex[which(is.na(csIndex))] = 0;
+  csIndex[which(is.na(csIndex))] = 0
   
   if(hash == TRUE)
   {
@@ -31,30 +32,27 @@ censIndLR = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariate
   #dataset = as.data.frame(dataset);
   #dataset = cbind(dataset,target[,1]);#dataset$timeToEvent = target[,1];#dataInfo$timeToEvent;
   
-  pvalue = 1;
+  pvalue = log(1);
   stat = 0;
   flag = 0;
   results <- list(pvalue = pvalue, stat = stat, flag = flag, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
-  cox_results = NULL;
-  cox_results_full = NULL;
+  clogit_results = NULL;
+  clogit_results_full = NULL;
   
   #timeIndex = dim(dataset)[2];
-  event = target[,2]#dataInfo$event;
+  id = target[, 2] #the patient id
   
   #retrieving the data
   x = dataset[ , xIndex];
-  timeToEvent = target[, 1];
+  case = as.logical(target[, 1]);  ## case control, 0 is the control
   
   #if no data, let's return
-  if (length(x) == 0 || length(timeToEvent) == 0){
+  if (length(x) == 0 || length(case) == 0){
     return(results);
   }
   
-  #if the censored indicator is empty, a dummy variable is created
-  numCases = dim(dataset)[1];
-  if (length(event)==0){
-    event = vector('numeric',numCases) + 1;
-  }
+  numCases = length(case);
+
   #if the conditioning set (cs) is empty, lets take it easy.
   if (is.na(csIndex) || length(csIndex) == 0 || csIndex == 0){
     
@@ -63,21 +61,21 @@ censIndLR = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariate
     
     #fitting the model
     tryCatch(
-      cox_results <- survival::coxph(target ~ x),
+      clogit_results <- survival::clogit(case ~ x + strata(id)),
       warning=function(w) {
         #Do nothing...
       }
     )
-    if (is.null(cox_results)){
+    if (is.null(clogit_results)){
       return(results);
     }
     
     #retrieve the p value and stat. 
     if ( is.factor(x) ) {
-     dof = nlevels(x) - 1   
+      dof = nlevels(x) - 1   
     } else dof = 1
     
-    stat = cox_results$score;
+    stat = 2 * abs( diff(clogit_results$loglik) )
     pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE);
     
     if(hash == TRUE)#update hash objects
@@ -90,46 +88,40 @@ censIndLR = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariate
     
   }else{
     
-    #perform the test with the cs
-    #tecs = dataset[ , c(csIndex)];
-    
-    #tecs = dataset[ ,c(timeIndex, csIndex)];
-    #names(tecs)[1] = 'timeToEvent';
-    #tecs$event = event; #it was without comment (warning LHS to a list)
-    #texcs = dataset[ , c(xIndex, csIndex)]; #texcs = dataset[ ,c(timeIndex, xIndex, csIndex)];
-    #names(texcs)[1] = 'timeToEvent';
-    #texcs$event = event; #it was without comment (warning LHS to a list)
-        
     tryCatch(
       
-      #fitting the model (without x)
-      cox_results <- survival::coxph (target ~ ., data = as.data.frame( dataset[ , c(csIndex)] ) ), 
-
+      # fitting the model  (without x)
+      clogit_results <- survival::clogit(case ~ . + strata(id), data = as.data.frame( dataset[ , c(csIndex)] ) ), 
+      
       warning=function(w) {
         #Do nothing
       }
     )
-    if (is.null(cox_results)){
+    if (is.null(clogit_results)){
       return(results);
     }   
     
     tryCatch(
       
       #fitting the full model
-      cox_results_full <- survival::coxph(target ~ ., data = as.data.frame(  dataset[ , c(xIndex, csIndex)] ) ),
+      clogit_results_full <- survival::clogit(case ~ . + strata(id), data = as.data.frame(  dataset[ , c(csIndex, xIndex)] ) ),
       
       warning=function(w) {
         #Do nothing
       }
     )
-    if (is.null(cox_results_full)){
+    if (is.null(clogit_results_full)){
       return(results);
     }
     
+    
     #retrieving the p value
-    res = anova(cox_results_full, cox_results)
-    stat = abs( res$Chisq[2] );
-    dF = abs( res$Df[2] );
+    #res = anova(cox_results_full, cox_results)
+    #stat = abs( res$Chisq[2] );
+    #dF = abs( res$Df[2] );
+    res = anova(clogit_results_full, clogit_results)
+    stat = res[2, 2]
+    dF = res[2, 3]
     pvalue = pchisq(stat, dF, lower.tail = FALSE, log.p = TRUE)
     
     if(hash == TRUE)#update hash objects

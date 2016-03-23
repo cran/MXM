@@ -9,7 +9,7 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
   ## dataset contains the data, it must be a matrix 
   ## alpha is the level of significance, set to 0.05 by default
   ## if graph is true, the graph will appear
-
+  
   alpha <- log(alpha)
   title <- deparse( substitute(dataset) )
 
@@ -23,28 +23,48 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
   k <- 0  ## initial size of the sperating set
   G <- matrix(2, n, n)  # 3 sep-set indicates a subset of variables which eliminate given edge  
   ## If an element has the number 2 it means there is connection, otherwiser it will have 0
-  diag(G) <- -100
+  diag(G) <-  -100
   durat <- proc.time()
 
-  R <- cor(dataset)
-  if (method == "pearson") {
-    stat <- abs( 0.5 * log( (1 + R) / (1 - R) ) * sqrt(nu - 3) )  ## absolute of the test statistic
-  } else if (method == "spearman") {
-    stat <- abs( 0.5 * log( (1 + R) / (1 - R) ) * sqrt(nu - 3) ) / 1.029563  ## absolute of the test statistic
+  if (n < 1000) {
+    R = cor(dataset)
+    
+  } else {
+    ## faster implementation when variables are a few thousands, could be almost twice as fast  
+    ## in addition this works even if the required memory is too big and cannot be allocated
+    ## In small dimensions, less than 1000 this will be slower than cor(dataset)
+    ## but sower in terms of a 1 second perhaps 
+    mat = t( dataset )
+    mat = mat - rowMeans(mat)
+    mat = mat / sqrt( rowSums(mat^2) )
+    R = tcrossprod( mat )
   }
-  pv <- pvalue <- log(2) + pt(stat, nu - 3, lower.tail = FALSE, log.p = TRUE)  ## logged p-values 
-  dof <- matrix(rep(nu - 3, n^2), ncol = n )
-  diag(dof) <- 0
-  stadf <- stat / dof
-  pv <- pvalue 
+   
+  R1 <- R[lower.tri(R)]
+     
+  if (method == "pearson") {
+    stat <- abs( 0.5 * log( (1 + R1) / (1 - R1) ) * sqrt(nu - 3) )  ## absolute of the test statistic
+  } else if (method == "spearman") {
+    stat <- abs( 0.5 * log( (1 + R1) / (1 - R1) ) * sqrt(nu - 3) ) / 1.029563  ## absolute of the test statistic
+  }
+  
+  ## the next functions use the lower triangular matrix of the correlation
+  pv <- stat2 <- diag(n)
+  stat2[lower.tri(stat2)] = stat
+  pv[lower.tri(pv)] <- log(2) + pt(stat, nu - 3, lower.tail = FALSE, log.p = TRUE)  ## logged p-values 
+  stat <- stat2 + t(stat2)
+  pv <- pv + t(pv)
+  diag(stat) <- diag(pv) <- 0
+  pvalue <- pv  
+  stadf <- stat / (nu - 3)
 
   #stat[ lower.tri(stat) ] <- 2
   pv[ lower.tri(pv) ] <- 2 
-  G[pvalue > alpha] <- 0   ## removes edges from non significantly related pairs
+  G[pvalue > alpha] <- 0   ## emoves edges from non significantly related pairs
   if ( is.null( colnames(dataset) ) ) {
     colnames(G) <- rownames(G) <- paste("X", 1:n, sep = "")
   } else colnames(G) <- rownames(G) <- colnames(dataset)
-  diag(pvalue) <- diag(pv) <- 0
+
   ina <- 1:n 
   sep <- list()
   n.tests <- NULL
@@ -64,13 +84,7 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
     final <- list(kappa = k, G = G) 
   } else {
 
-    ax <- ay <- list()
-    lx <- ly <- numeric(duo)
-    for ( i in 1:duo ) {
-      ax[[ i ]] <- ina[ G[ zeu[i, 1], ] == 2 ]  ;  lx[i] <- length( ax[[ i ]] )
-      ay[[ i ]] <- ina[ G[ zeu[i, 2], ] == 2 ]  ;  ly[i] <- length( ay[[ i ]] ) 
-    }
-    ell = max(lx, ly)
+    ell = 2
 
     ## Execute PC algorithm: main loop
 
@@ -206,7 +220,8 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
       n.tests[ k + 1 ] <- tes
 
     }  
-
+     
+	G <- G / 2  
     diag(G) <- 0
     durat <- proc.time() - durat
 
@@ -246,7 +261,10 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
   }  
   names(n.tests) <- paste("k=", 0:k, sep ="")
 
- if(graph == TRUE)
+  aa = rowSums(G)
+  info = summary(aa)
+  
+  if(graph == TRUE)
   {
     if(requireNamespace("Rgraphviz", quietly = TRUE, warn.conflicts = FALSE) == TRUE)
     {
@@ -257,6 +275,5 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
     }
   }
 
-  list(stat = stat, pvalue = pvalue, runtime = durat, kappa = k, n.tests = n.tests, G = G, sepset = sepset, title = title )
+  list(stat = stat, pvalue = pvalue, info = info, runtime = durat, kappa = k, n.tests = n.tests, G = G, sepset = sepset, title = title )
 }
-

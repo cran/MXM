@@ -14,14 +14,18 @@
 # test : the conditional independence test we are going to use. the available conditional independence tests so far in this 
 # implementation are:
 #   "testIndFisher" : Fisher conditional independence test for continous targets (or proportions) and continuous predictors only
+#   "testIndSpearman" : Fisher conditional independence test for continous targets (or proportions) and continuous predictors only (Spearman correlation is calculated first)
 #   "testIndReg" : Conditional independence test based on regression for continous targets (or proportions) and mixed predictors using the F test
 #   "testIndRQ" : Conditional Independence Test based on quantile (median) regression for numerical class variables and mixed predictors (F test)
 #   "testIndLogistic" : Conditional Independence Test based on logistic regression for binary,categorical or ordinal class variables and mixed predictors
 #   "testIndPois" : Conditional Independence Test based on Poisson regression for discrete class variables and mixed predictors (log-likelihood ratio test)
-#   "testIndNB" : Conditional Independence Test based on Negative Binomial regression for discrete class variables and mixed predictors (log-likelihood ratio test)
+#   "testIndSpeedglm" : Conditional Independence Test based on linear, binary logistic and poisson regression with mixed predictors (log-likelihood ratio test)
+#   "testIndZIP" : Conditional Independence Test based on zero inflated poisson regression for discrete class variables and mixed predictors (log-likelihood ratio test)
+#   "testIndNB" : Conditional Independence Test based on negative binomial regression for discrete class variables and mixed predictors (log-likelihood ratio test)
 #   "testIndBeta" : Conditional Independence Test based on beta regression for proportions and mixed predictors (log likelihood ratio test)
+#   "testIndMVreg" : Conditional Independence Test based on mu;ltivariate linear regression for Euclidean data and mixed predictors (log likelihood ratio test)
 #   "gSquare" : Conditional Independence test based on the G test of independence (log likelihood ratio  test)
-#   "censIndLR" : Conditional independence test for survival data based on the Log likelihood ratio test with mixed predictors
+#   "censIndCR" : Conditional independence test for survival data based on the Log likelihood ratio test with mixed predictors (Cox regression)
 # user_test : the user defined conditional independence test ( provide a closure type object )
 # hash : a boolean variable whuch indicates whether (TRUE) or not (FALSE) to use the hash-based implementation of the statistics of SES.
 # hashObject : a List with the hash objects (hash package) on which we have cached the generated statistics. 
@@ -217,7 +221,7 @@ SES = function(target , dataset , max_k = 3 , threshold = 0.05 , test = NULL , u
         test = "testIndMVreg"
       }
       
-      if ( all(target > 0) & all(rowSums(target) == 1) ) ## are they compositional data?
+      if ( min(target) > 0 & sum( rowSums(target) - 1 ) == 0 ) ## are they compositional data?
       { 
         target = log( target[, -1]/target[, 1] ) 
       }
@@ -239,6 +243,14 @@ SES = function(target , dataset , max_k = 3 , threshold = 0.05 , test = NULL , u
     #auto detect independence test in case of not defined by the user and the test is null or auto
     if(is.null(test) || test == "auto")
     {
+      
+        if ( length( unique(target) ) == 2 ) {
+          target = as.factor(target)
+        }
+      if ( class(target) == "matrix" ) {
+        test = "testIndMVreg"
+      }
+      
       #if target is a factor then use the Logistic test
       if("factor" %in% class(target))
       {
@@ -248,7 +260,7 @@ SES = function(target , dataset , max_k = 3 , threshold = 0.05 , test = NULL , u
           dataInfo$target_type = "ordinal";
           cat('\nTarget variable type: Ordinal')
         }else{
-          if(length(unique(target)) == 2)
+          if( length(unique(target)) == 2 )
           {
             dataInfo$target_type = "binary"
             cat('\nTarget variable type: Binomial')
@@ -257,16 +269,10 @@ SES = function(target , dataset , max_k = 3 , threshold = 0.05 , test = NULL , u
             cat('\nTarget variable type: Nominal')
           }
         }
-      }else if(class(target) == "numeric" || class(target) == "matrix"){
-        if(class(target) == "matrix")
-        {
-          if(dim(target)[2]!=1)
-          {
-            stop('Target can not be a matrix')
-          }
-        }
         
-        if(identical(floor(target),target) == TRUE)
+      }else if(class(target) == "numeric" || class(target) == "integer"){
+        
+        if(identical(floor(target), target) == TRUE & length(target) > 2 )
         {
           test = "testIndPois";
         }else{
@@ -284,8 +290,9 @@ SES = function(target , dataset , max_k = 3 , threshold = 0.05 , test = NULL , u
             }
           }
         }
+        
       }else if(survival::is.Surv(target) == TRUE){
-        test = "censIndLR";
+        test = "censIndCR";
       }else{
         stop('Target must be a factor, vector, matrix with at least 2 columns column or a Surv object');
       }
@@ -325,7 +332,7 @@ SES = function(target , dataset , max_k = 3 , threshold = 0.05 , test = NULL , u
     #cat("\nConditional independence test used: ");cat(test);cat("\n");
     
     #available conditional independence tests
-    av_tests = c("testIndFisher", "testIndSpearman", "testIndReg", "testIndRQ", "testIndBeta", "censIndLR", "testIndLogistic", "testIndPois", "testIndNB", "gSquare", "auto" , "testIndZIP" , "testIndMVreg", NULL);
+    av_tests = c("testIndFisher", "testIndSpearman", "testIndReg", "testIndRQ", "testIndBeta", "censIndCR","censIndWR", "testIndLogistic", "testIndPois", "testIndNB", "gSquare", "auto" , "testIndZIP" , "testIndSpeedglm", "testIndMVreg", NULL);
     
     ci_test = test
     #cat(test)
@@ -337,8 +344,8 @@ SES = function(target , dataset , max_k = 3 , threshold = 0.05 , test = NULL , u
       if(test == "testIndFisher")
       {
         #an einai posostiaio target
-        if ( all(target>0 & target<1) ){
-          target = log(target/(1-target)) ## logistic normal 
+        if ( min(target) > 0 & max(target) < 1 ) {
+          target = log( target/(1 - target) ) ## logistic normal 
         }
         
         if(class(dataset) == "data.frame")
@@ -353,7 +360,7 @@ SES = function(target , dataset , max_k = 3 , threshold = 0.05 , test = NULL , u
       else if(test == "testIndSpearman")
       {
         #an einai posostiaio target
-        if ( all( target>0 & target<1 ) ){
+        if ( min(target) > 0 & max(target) < 1 ) {
           target = log( target / (1 - target) ) ## logistic normal 
         }
         
@@ -376,7 +383,7 @@ SES = function(target , dataset , max_k = 3 , threshold = 0.05 , test = NULL , u
         }
         
         #an einai posostiaio target
-        if ( all(target>0 & target<1) ){
+        if ( min(target) > 0 & max(target) < 1 ) {
           target = log(target/(1-target)) ## logistic normal 
         }
         
@@ -384,7 +391,7 @@ SES = function(target , dataset , max_k = 3 , threshold = 0.05 , test = NULL , u
       }
       else if(test == "testIndMVreg")
       {
-        if ( all(target > 0) & all(rowSums(target) == 1) ) ## are they compositional data?
+      if ( min(target) > 0 & sum( rowSums(target) - 1 ) == 0 ) ## are they compositional data?
         { 
           target = log( target[, -1]/target[, 1] ) 
         }
@@ -433,6 +440,15 @@ SES = function(target , dataset , max_k = 3 , threshold = 0.05 , test = NULL , u
         }
         test = testIndPois;
       }
+      else if (test == "testIndSpeedglm") ## Poisson regression
+      {
+        #dataframe class for dataset is required
+        if(class(dataset) == "matrix"){
+          dataset = as.data.frame(dataset)
+          warning("Dataset was turned into a data.frame which is required for this test")
+        }
+        test = testIndSpeedglm;
+      }
       else if (test == "testIndNB") ## Negative binomial regression
       {
         #dataframe class for dataset is required
@@ -452,21 +468,34 @@ SES = function(target , dataset , max_k = 3 , threshold = 0.05 , test = NULL , u
         }
         test = testIndZIP;
       }
-      else if(test == "censIndLR")
+      else if(test == "censIndCR")
       {
         #dataframe class for dataset is required
         #if(class(dataset) == "matrix"){
         #  dataset = as.data.frame(dataset)
         #  warning("Dataset was turned into a data.frame which is required for this test")
         #}
-        test = censIndLR;
+        test = censIndCR;
         if(requireNamespace("survival", quietly = TRUE, warn.conflicts = FALSE)==FALSE)
         {
-          cat("The censIndLR requires the survival package. Please install it.");
+          cat("The censIndCR requires the survival package. Please install it.");
           return(NULL);
         }
       }
-
+      else if(test == "censIndWR")
+      {
+        #dataframe class for dataset is required
+        #if(class(dataset) == "matrix"){
+        #  dataset = as.data.frame(dataset)
+        #  warning("Dataset was turned into a data.frame which is required for this test")
+        #}
+        test = censIndWR;
+        if(requireNamespace("survival", quietly = TRUE, warn.conflicts = FALSE)==FALSE)
+        {
+          cat("The censIndWR requires the survival package. Please install it.");
+          return(NULL);
+        }
+      }
       else if(test == "testIndLogistic")
       {
         #dataframe class for dataset is required
@@ -544,24 +573,27 @@ InternalSES = function(target , dataset , max_k, threshold , test = NULL , equal
   
   if(is.loaded("fisher_uv") == TRUE && identical(test, testIndFisher) == TRUE && robust == FALSE)
   {
+    #print("FORTRAN UNIVARIATE")
     a = .Fortran("fisher_uv", R = as.integer(rows), C = as.integer(cols), y = target, dataset = dataset,cs_cols = as.integer(0), pvalues = as.double(numeric(cols)), stats = as.double(numeric(cols)), targetID = as.integer(targetID))
     univariateModels = NULL;
-    z = univariateModels$stat = a$stats;
+    z = 0.5*log( (1+a$stat)/(1-a$stat) );
     dof = rows - 3; #degrees of freedom
-    w = sqrt(dof) * z;
+    w = z * sqrt(dof)
+    univariateModels$stat = a$stats;
     univariateModels$pvalue = log(2) + pt(-abs(w), dof, log.p = TRUE) ;
+    #univariateModels$pvalue = log(a$pvalues);
     univariateModels$flag = numeric(cols) + 1;
     univariateModels$stat_hash = stat_hash;
     univariateModels$pvalue_hash = pvalue_hash;
     
-  } else if(is.loaded("fisher_uv") == TRUE && identical(test, testIndSpearman) == TRUE ) 
-  {
+  } else if(is.loaded("fisher_uv") == TRUE && identical(test, testIndSpearman) == TRUE ) {
     a = .Fortran("fisher_uv", R = as.integer(rows), C = as.integer(cols), y = target, dataset = dataset,cs_cols = as.integer(0), pvalues = as.double(numeric(cols)), stats = as.double(numeric(cols)), targetID = as.integer(targetID))
     univariateModels = NULL;
-    z = univariateModels$stat = a$stats;
+    z = 0.5*log( (1+a$stat)/(1-a$stat) );
     dof = rows - 3; #degrees of freedom
-    w = sqrt(dof) * univariateModels$stat / 1.029563; ## standard errot for Spearman
-    univariateModels$pvalue = log(2) + pt(-abs(w), dof, log.p = TRUE)  ;
+    w = z * sqrt(dof) / 1.029563
+    univariateModels$stat = a$stats 
+    univariateModels$pvalue = log(2) + pt(-abs(w), dof, log.p = TRUE);
     univariateModels$flag = numeric(cols) + 1;
     univariateModels$stat_hash = as.numeric(stat_hash);
     univariateModels$pvalue_hash = as.numeric(pvalue_hash);
@@ -616,6 +648,8 @@ InternalSES = function(target , dataset , max_k, threshold , test = NULL , equal
   selectedVars[selectedVar] = 1;
   selectedVarsOrder[selectedVar] = 1; #CHANGE
   
+  #print(paste("rep: ",0,", selected var: ",selectedVar,", pvalue = ",exp(pvalues[selectedVar])))
+  
   #lets check the first selected var
   #cat('First selected var: %d, p-value: %.6f\n', selectedVar, pvalues[selectedVar]);
   
@@ -633,6 +667,7 @@ InternalSES = function(target , dataset , max_k, threshold , test = NULL , equal
   #loop until there are not remaining vars
   loop = any(as.logical(remainingVars));
   
+  #rep = 1;
   while(loop)
   {
     #lets find the equivalences
@@ -658,6 +693,9 @@ InternalSES = function(target , dataset , max_k, threshold , test = NULL , equal
     #if the selected variable is associated with target , add it to the selected variables
     if(selectedPvalue <= threshold)
     {
+      #print(paste("rep: ",rep,", selected var: ",selectedVar,", pvalue = ",exp(selectedPvalue)))
+      #rep = rep + 1;
+      
       selectedVars[selectedVar] = 1;
       selectedVarsOrder[selectedVar] = max(selectedVarsOrder) + 1;
       remainingVars[selectedVar] = 0;

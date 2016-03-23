@@ -30,9 +30,9 @@ stat_hash=NULL, pvalue_hash=NULL,robust=FALSE) {
       if(hash == TRUE)#update hash objects
       {
         stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
-        pvalue_hash[[key]] <- 1;#.set(pvalue_hash , key , 1)
+        pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
       }
-      pvalue = 1;
+      pvalue = log(1);
       stat = 0;
       flag = 1;
       results <- list(pvalue = pvalue, stat = stat, flag = flag, stat_hash=stat_hash, pvalue_hash=pvalue_hash);

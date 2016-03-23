@@ -1,7 +1,7 @@
 # target: the target value
 # sesObject: the outcome of the ses
-# nisgnat: Number of signatures and generated models. It could be numeric from 1 to total number of signatures or "all" for all the 
-## signatures. Default is 1.
+# nisgnat: Number of ypografis and generated models. It could be numeric from 1 to total number of ypografis or "all" for all the 
+## ypografis. Default is 1.
 
 model = function(target, dataset, sesObject, nsignat = 1, test = NULL) {
   
@@ -39,184 +39,201 @@ model = function(target, dataset, sesObject, nsignat = 1, test = NULL) {
   } else ci_test = test 
 
   rob = sesObject@rob
+  
   if ( nsignat == 1 || ( nsignat > 1 & nrow(sesObject@signatures) == 1 ) ) {
-    signature = sesObject@selectedVars  
+    ypografi = sesObject@selectedVars  
   
    if ( ci_test == "testIndFisher" || ci_test == "testIndReg" ) {
-     if ( all(target > 0 & target < 1) ) {  ## are they proportions?
+     if ( min(target) > 0 & max(target) < 1 ) {  ## are they proportions?
        target = log( target/(1 - target) ) 
      }  
      if (rob == TRUE) {
-      mod = rlm( target ~ ., data = as.data.frame( dataset[, signature ] )  )
+      mod = rlm( target ~ ., data = as.data.frame( dataset[, ypografi ] )  )
       bic = BIC(mod)
      } else {
-      mod = lm( target ~ ., data = as.data.frame(dataset[, signature ]) )
+      mod = lm( target ~ ., data = as.data.frame(dataset[, ypografi ]) )
       bic = BIC(mod)
-     }
-    } else if (ci_test == "testIndRQ") {
+     }  
+   } else if (ci_test == "testIndRQ") {
        if ( all( target>0 & target<1 ) ) {  ## are they proportions?
          target = log( target/(1 - target) ) 
        }
-     mod = quantreg::rq( target ~., data = as.data.frame(dataset[, signature ])  )
+     mod = quantreg::rq( target ~., data = as.data.frame(dataset[, ypografi ])  )
      bic = BIC(mod)
     } else if ( ci_test == "testIndBeta" ) {
-      mod = betareg::betareg( target ~ ., data = as.data.frame(dataset[, signature ])  )
+      mod = betareg::betareg( target ~ ., data = as.data.frame(dataset[, ypografi ])  )
       bic = BIC(mod)
     } else if ( ci_test == "testIndPois ") {
-      mod = glm( target ~ ., data = as.data.frame(dataset[, signature ]) , poisson )
+      mod = glm( target ~ ., data = as.data.frame(dataset[, ypografi ]) , poisson )
       bic = BIC(mod)
     } else if ( ci_test == "testIndNB" ) {
-      mod = MASS::glm.nb( target ~ ., data = as.data.frame(dataset[, signature ])  )
+      mod = MASS::glm.nb( target ~ ., data = as.data.frame(dataset[, ypografi ])  )
       bic = BIC(mod)
     } else if ( ci_test == "testIndZIP" ) {
-      mod = pscl::zeroinfl( target ~. | ., data = as.data.frame( dataset[, signature] ) )
+      mod = pscl::zeroinfl( target ~. | ., data = as.data.frame( dataset[, ypografi] ) )
       bic = BIC(mod)
     } else if ( class(target) == "matrix" || ci_test == "testIndMVreg" ) {
        if ( all(target > 0 & target < 1) ) {  ## are they compositional data?
          target = log( target[, -1]/(target[, 1]) ) 
        } 
-      mod = lm( target ~., data = as.data.frame(dataset[, signature ]) )
+      mod = lm( target ~., data = as.data.frame(dataset[, ypografi ]) )
       bic = BIC(mod)
-    } else if (ci_test == "censIndLR") {
-      mod = survival::coxph( target ~ ., data = as.data.frame(dataset[, signature ]) )
+    } else if (ci_test == "censIndCR") {
+      mod = survival::coxph( target ~ ., data = as.data.frame(dataset[, ypografi ]) )
+      bic = BIC(mod)
+    } else if (ci_test == "censIndWR") {
+      mod = survival::survreg( target ~ ., data = as.data.frame(dataset[, ypografi ]) )
       bic = BIC(mod)
     } else if ( ci_test == "testIndLogistic" || ci_test == "gSquare" ) {
       if ( length(unique(target)) == 2 ) {
-        mod = glm( target ~., data = as.data.frame(dataset[, signature ]) , binomial ) 
+        mod = glm( target ~., data = as.data.frame(dataset[, ypografi ]) , binomial ) 
         bic = BIC(mod)
       } else if ( is.ordered(target) == FALSE ) { 
         target = as.factor( as.numeric( as.vector(target) ) )
-        mod = nnet::multinom( target ~., data = as.data.frame(dataset[, signature ]) , trace = FALSE )
+        mod = nnet::multinom( target ~., data = as.data.frame(dataset[, ypografi ]) , trace = FALSE )
         bic = BIC(mod)
       } else if ( is.ordered(target) == TRUE ) {
-        mod = ordinal::clm( target ~., data = as.data.frame(dataset[, signature ])  )
+        mod = ordinal::clm( target ~., data = as.data.frame(dataset[, ypografi ])  )
         bic = BIC(mod)
       }
     }
-    signature = c(signature, bic)
-    names(signature)[length(signature)] = "bic"
+    ypografi = c(ypografi, bic)
+    names(ypografi)[length(ypografi)] = "bic"
   } 
-  
-  if ( nsignat > 1 & nrow(sesObject@signatures) > 1 ) {
+
+    if ( nsignat > 1 & nrow(sesObject@signatures) > 1 ) {
+      
+      if ( nsignat > nrow(sesObject@signatures) ) {
+        nsignat = nrow(sesObject@signatures)
+      }
+    
     bic = numeric(nsignat)
-    signature = sesObject@signatures[1:nsignat, ] 
+    ypografi = sesObject@signatures[1:nsignat, ] 
+    ypografi = as.matrix(ypografi)
     mod = list()
+    
     for ( i in 1:nsignat ) {
      if ( ci_test == "testIndFisher" || ci_test == "testIndReg" ) {
-      if ( all(target > 0 & target < 1) ) {  ## are they proportions?
+      if ( min(target) > 0 & max(target) < 1 ) {  ## are they proportions?
        target = log( target/(1 - target) ) 
       }  
       if (rob == TRUE) {
-        mod[[ i ]] = rlm( target ~ ., data = as.data.frame( dataset[, signature[i, ] ] ) )
+        mod[[ i ]] = rlm( target ~ ., data = as.data.frame( dataset[, ypografi[i, ] ] ) )
         bic[i] = BIC( mod[[ i ]] )
       } else {
-        mod[[ i ]] = lm( target ~ ., data = as.data.frame( dataset[, signature[i, ] ] ) )
+        mod[[ i ]] = lm( target ~ ., data = as.data.frame( dataset[, ypografi[i, ] ] ) )
         bic[i] = BIC( mod[[ i ]] )
       }
      } else if (ci_test == "testIndRQ") {
         if ( all( target>0 & target<1 ) ) {  ## are they proportions?
          target = log( target/(1 - target) ) 
         }
-       mod[[ i ]] = quantreg::rq( target ~., data = as.data.frame( dataset[, signature[i, ] ] ) )
+       mod[[ i ]] = quantreg::rq( target ~., data = as.data.frame( dataset[, ypografi[i, ] ] ) )
        bic[i] = BIC( mod[[ i ]] )
      } else if ( ci_test == "testIndBeta" ) {
-       mod[[ i ]] = betareg::betareg( target ~ ., as.data.frame( dataset[, signature[i, ] ] ) )
+       mod[[ i ]] = betareg::betareg( target ~ ., as.data.frame( dataset[, ypografi[i, ] ] ) )
        bic[i] = BIC( mod[[ i ]] )
      } else if ( ci_test == "testIndPois ") {
-       mod[[ i ]] = glm( target ~ ., data = as.data.frame( dataset[, signature[i, ] ] ), poisson )
+       mod[[ i ]] = glm( target ~ ., data = as.data.frame( dataset[, ypografi[i, ] ] ), poisson )
        bic[i] = BIC( mod[[ i ]] )
      } else if ( ci_test == "testIndNB" ) {
-       mod[[ i ]] = MASS::glm.nb( target ~ ., data = as.data.frame( dataset[, signature[i, ] ] ) )
+       mod[[ i ]] = MASS::glm.nb( target ~ ., data = as.data.frame( dataset[, ypografi[i, ] ] ) )
        bic[i] = BIC( mod[[ i ]] )
      } else if ( ci_test == "testIndZIP" ) {
-       mod[[ i ]] = pscl::zeroinfl( target ~. | ., data = as.data.frame( dataset[, signature[i, ] ] ) )
+       mod[[ i ]] = pscl::zeroinfl( target ~. | ., data = as.data.frame( dataset[, ypografi[i, ] ] ) )
        bic = BIC(mod)
      } else if ( class(target) == "matrix" || ci_test == "testIndMVreg" ) {
        if ( all(target > 0 & target < 1) ) {  ## are they compositional data?
          target = log( target[, -1] / (target[, 1]) ) 
        } 
-       mod = lm( target ~.,  data = as.data.frame( dataset[, signature[i, ] ] ) )
+       mod = lm( target ~.,  data = as.data.frame( dataset[, ypografi[i, ] ] ) )
        bic[i] = BIC( mod[[ i ]] )
-     } else if (ci_test == "censIndLR") {
-       mod[[ i ]] = survival::coxph( target ~ ., data = as.data.frame( dataset[, signature[i, ] ] ) )
+     } else if (ci_test == "censIndCR") {
+       mod[[ i ]] = survival::coxph( target ~ ., data = as.data.frame( dataset[, ypografi[i, ] ] ) )
+       bic[i] = BIC( mod[[ i ]] )
+     } else if (ci_test == "censIndWR") {
+       mod[[ i ]] = survival::survreg( target ~ ., data = as.data.frame( dataset[, ypografi[i, ] ] ) )
        bic[i] = BIC( mod[[ i ]] )
      } else if ( ci_test == "testIndLogistic" || ci_test == "gSquare" ) {
        if ( length(unique(target)) == 2 ) {
-         mod[[ i ]] = glm( target ~., data = as.data.frame( dataset[, signature[i, ] ] ), binomial ) 
+         mod[[ i ]] = glm( target ~., data = as.data.frame( dataset[, ypografi[i, ] ] ), binomial ) 
          bic[i] = BIC( mod[[ i ]] )
        } else if ( is.ordered(target) == FALSE ) { 
          target = as.factor( as.numeric( as.vector(target) ) )
-         mod[[ i ]] = nnet::multinom( target ~., data = as.data.frame( dataset[, signature[i, ] ] ), trace = FALSE )
+         mod[[ i ]] = nnet::multinom( target ~., data = as.data.frame( dataset[, ypografi[i, ] ] ), trace = FALSE )
          bic[i] = BIC( mod[[ i ]] )
        } else if ( is.ordered(target) == TRUE ) {
-         mod[[ i ]] = ordinal::clm( target ~., data = as.data.frame( dataset[, signature[i, ] ] ) )
+         mod[[ i ]] = ordinal::clm( target ~., data = as.data.frame( dataset[, ypografi[i, ] ] ) )
          bic[i] = BIC( mod[[ i ]] )
        }
      }
     }
-    signature = cbind(signature, bic)
+    ypografi = cbind(ypografi, bic)
   }
    
-  if ( nsignat == "all" |  nsignat > nrow(sesObject@signatures) & nrow(sesObject@signatures) > 1  ) { 
-    signature = sesObject@signatures
-    bic = numeric( nrow(signature) )
+  if ( nsignat == "all" ) { 
+    ypografi = sesObject@signatures
+    bic = numeric( nrow(ypografi) )
     mod = list()
-    for ( i in 1:nrow(signature) ) {
+    for ( i in 1:nrow(ypografi) ) {
      if ( ci_test == "testIndFisher" || ci_test == "testIndReg" ) {
-      if ( all(target > 0 & target < 1) ) {  ## are they proportions?
+      if ( min(target) > 0 & max(target) < 1 ) {  ## are they proportions?
         target = log( target / (1 - target) ) 
       }  
       if (rob == TRUE) {
-        mod[[ i ]] = rlm( target ~ ., data = as.data.frame( dataset[, signature[i, ] ] ) )
+        mod[[ i ]] = rlm( target ~ ., data = as.data.frame( dataset[, ypografi[i, ] ] ) )
         bic[i] = BIC( mod[[ i ]] )
       } else {
-       mod[[ i ]] = lm( target ~ ., data = as.data.frame( dataset[, signature[i, ] ] ) )
+       mod[[ i ]] = lm( target ~ ., data = as.data.frame( dataset[, ypografi[i, ] ] ) )
        bic[i] = BIC( mod[[ i ]] )
       }
      } else if (ci_test == "testIndRQ") {
         if ( all( target > 0 & target < 1 ) ) {  ## are they proportions?
            target = log( target/(1 - target) ) 
         }
-       mod[[ i ]] = quantreg::rq( target ~., data = as.data.frame( dataset[, signature[i, ] ] ) )
+       mod[[ i ]] = quantreg::rq( target ~., data = as.data.frame( dataset[, ypografi[i, ] ] ) )
        bic[i] = BIC( mod[[ i ]] )
      } else if ( ci_test == "testIndBeta" ) {
-       mod[[ i ]] = betareg::betareg( target ~ ., data = as.data.frame( dataset[, signature[i, ] ] ) )
+       mod[[ i ]] = betareg::betareg( target ~ ., data = as.data.frame( dataset[, ypografi[i, ] ] ) )
        bic[i] = BIC( mod[[ i ]] )
      } else if ( ci_test == "testIndPois ") {
-       mod[[ i ]] = glm( target ~ ., data = as.data.frame( dataset[, signature[i, ] ] ), poisson )
+       mod[[ i ]] = glm( target ~ ., data = as.data.frame( dataset[, ypografi[i, ] ] ), poisson )
        bic[i] = BIC( mod[[ i ]] )
      } else if ( ci_test == "testIndNB" ) {
-       mod[[ i ]] = MASS::glm.nb( target ~ ., data = as.data.frame( dataset[, signature[i, ] ] ) )
+       mod[[ i ]] = MASS::glm.nb( target ~ ., data = as.data.frame( dataset[, ypografi[i, ] ] ) )
        bic[i] = BIC( mod[[ i ]] )
      } else if ( ci_test == "testIndZIP" ) {
-       mod[[ i ]] = pscl::zeroinfl( target ~. | ., data = as.data.frame( dataset[, signature[i, ] ] ) )
+       mod[[ i ]] = pscl::zeroinfl( target ~. | ., data = as.data.frame( dataset[, ypografi[i, ] ] ) )
        bic = BIC(mod)
      } else if (class(target) == "matrix" || ci_test == "testIndMVreg" ) {
        if ( all(target > 0 & target < 1) ) {  ## are they compositional data?
          target = log( target[, -1] / (target[, 1]) ) 
        } 
-       mod = lm( target ~., data = dataset[, signature] )
+       mod = lm( target ~., data = dataset[, ypografi] )
        bic[i] = BIC( mod[[ i ]] )
-     } else if (ci_test == "censIndLR") {
-       mod[[ i ]] = survival::coxph( target ~ ., data = as.data.frame( dataset[, signature[i, ] ] ) )
+     } else if (ci_test == "censIndCR") {
+       mod[[ i ]] = survival::coxph( target ~ ., data = as.data.frame( dataset[, ypografi[i, ] ] ) )
+       bic[i] = BIC( mod[[ i ]] )
+     } else if (ci_test == "censIndWR") {
+       mod[[ i ]] = survival::survreg( target ~ ., data = as.data.frame( dataset[, ypografi[i, ] ] ) )
        bic[i] = BIC( mod[[ i ]] )
      } else if ( ci_test == "testIndLogistic" || ci_test == "gSquare" ) {
        if ( length(unique(target)) == 2) {
-         mod[[ i ]] = glm( target ~., data = as.data.frame( dataset[, signature[i, ] ] ), binomial ) 
+         mod[[ i ]] = glm( target ~., data = as.data.frame( dataset[, ypografi[i, ] ] ), binomial ) 
          bic[i] = BIC( mod[[ i ]] )
        } else if ( is.ordered(target) == FALSE ) { 
          target = as.factor( as.numeric( as.vector(target) ) )
-         mod[[ i ]] = nnet::multinom( target ~., data = as.data.frame( dataset[, signature[i, ] ] ), trace = FALSE )
+         mod[[ i ]] = nnet::multinom( target ~., data = as.data.frame( dataset[, ypografi[i, ] ] ), trace = FALSE )
          bic[i] = BIC( mod[[ i ]] )
        } else if ( is.ordered(target) == TRUE ) {
-         mod[[ i ]] = ordinal::clm( target ~., data = as.data.frame( dataset[, signature[i, ] ] ) )
+         mod[[ i ]] = ordinal::clm( target ~., data = as.data.frame( dataset[, ypografi[i, ] ] ) )
          bic[i] = BIC( mod[[ i ]] )
        }
      }
     }
-    signature = cbind(signature, bic)
+    ypografi = cbind(ypografi, bic)
   } 
-  list(mod = mod, signature = signature)  
+  list(mod = mod, ypografi = ypografi)  
 }
   
  

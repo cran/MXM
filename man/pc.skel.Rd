@@ -11,6 +11,7 @@ The skeleton of a Bayesian network produced by the PC algorithm. No orientations
 
 \usage{
 pc.skel(dataset, method = "pearson", alpha = 0.05, rob = FALSE, graph = FALSE) 
+
 pc.con(dataset, method = "pearson", alpha = 0.05, graph = FALSE) 
 }
 
@@ -42,6 +43,7 @@ If two or more p-values are below the machine epsilon (.Machine$double.eps which
 In the case of the \eqn{G^2} test of independence we have incorporated a rule of thumb. I the number of samples is at least 5 times the number of the parameters to be estimated, the test is performed, otherwise, independence is not rejected (see Tsmardinos et al., 2006, pg. 43).
 
 The pc.con is a faster implementation of the PC algorithm but for continuous data only, without the robust option, unlike pc.skel which is more general and even for the continuous datasets slower. pc.con accepts only "pearson" and "spearman" as correlations. 
+If in addition, you have more than 1000 variables, a trick to calculate the correlation matrix is implemented which can reduce the time required by this first step by nearly 50%. 
 
 }
 
@@ -52,6 +54,9 @@ The test statistics of the univariate associations.
 }
 \item{pvalue}{
 The logarithm of the p-values of the univariate associations. 
+}
+\item{info}{
+Some summary statistics about the edges, minimum, maximum, mean, median number of edges.
 }
 \item{runtime}{
 The run time of the algorithm. A numeric vector. The first element is the user time, the second element is the system time and the third element is the elapsed time.

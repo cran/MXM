@@ -1,21 +1,17 @@
-testIndGLMM = function(target, reps = NULL, group, dataset, xIndex, csIndex, dataInfo=NULL , univariateModels=NULL ,
- hash = FALSE, stat_hash=NULL, pvalue_hash=NULL, target_type=0, slopes=FALSE)
+testIndSpeedglm = function(target, dataset, xIndex, csIndex, dataInfo=NULL , univariateModels=NULL,
+ hash = FALSE, stat_hash=NULL, pvalue_hash=NULL, target_type=0, robust = FALSE)
 {
-  #   TESTINDGLMM Conditional Independence Test based on generalised linear mixed models for normal, binary discrete or ordinal class variables
+  #   TESTINDSPEEDGLM Conditional independence test for large sample sized data (tens and hundreds of thousands) for normal, binary discrete or ordinal class variables
   #
   #   provides a p-value PVALUE for the null hypothesis: X independent by target
   #   given CS. The pvalue is calculated by comparing a logistic model based 
   #   on the conditioning set CS against a model containing both X and CS. 
   #   The comparison is performed through a chi-square test with one degree 
   #   of freedom on the difference between the deviances of the two models. 
-  #   TESTINDGLMM requires the following inputs:
+  #   TESTINDSPEEDGLM requires the following inputs:
   
   #   target: a vector containing the values of the target variable. 
-  #   target must be a vector with percentages, binay data, numerical values or integers
-  #      
-  #   reps: a vector with the time points (if available)
-  #      
-  #   group: a vector indicating the groupings of the subjects.       
+  #   target must be a vector with percentages, binay data, numerical values or integers  
   #
   #   dataset: a numeric data matrix containing the variables for performing
   #   the conditional independence test. They can be mixed variables, either continous or categorical
@@ -34,19 +30,10 @@ testIndGLMM = function(target, reps = NULL, group, dataset, xIndex, csIndex, dat
   #   this method returns: the pvalue PVALUE, the statistic STAT and a control variable FLAG.
   #   if FLAG == 1 then the test was performed succesfully 
   #
-  #
-  #   References:
-  #   [1] Vincenzo Lagani and Ioannis Tsamardinos (2010), Structure-based
-  #   Variable Selection for Survival Data, Bioinformatics 26(15):1887-1894. 
-  #
-  #   Copyright 2012 Vincenzo Lagani and Ioannis Tsamardinos
-  #   Revision: 1.0 Date: 18/05/2012
-  #   R Implementation by Giorgos Athineou (12/2013)
-  
   #initialization
   
   #cast factor into numeric vector
-  target = as.numeric(as.vector(target));
+  target = as.numeric( as.vector(target) );
   
   csIndex[which(is.na(csIndex))] = 0
   
@@ -68,7 +55,7 @@ testIndGLMM = function(target, reps = NULL, group, dataset, xIndex, csIndex, dat
   }
   
   #if the test cannot performed succesfully these are the returned values
-  pvalue = 1;
+  pvalue = log(1);
   stat = 0;
   flag = 0;
   
@@ -76,8 +63,6 @@ testIndGLMM = function(target, reps = NULL, group, dataset, xIndex, csIndex, dat
    { 
      target = log( target/(1-target) ) 
    }
-
-  oikogeneia = c('normal', 'binomial', 'poisson' )
 
   #if the xIndex is contained in csIndex, x does not bring any new
   #information with respect to cs
@@ -95,7 +80,7 @@ testIndGLMM = function(target, reps = NULL, group, dataset, xIndex, csIndex, dat
   #check input validity
   if(xIndex < 0 || csIndex < 0)
   {
-    message(paste("error in testIndGLMM : wrong input of xIndex or csIndex"))
+    message(paste("error in testIndSpeedglm : wrong input of xIndex or csIndex"))
     results <- list(pvalue = pvalue, stat = stat, flag = flag, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
     return(results);
   }
@@ -114,7 +99,7 @@ testIndGLMM = function(target, reps = NULL, group, dataset, xIndex, csIndex, dat
 #   }
   
   #if x or target is constant then there is no point to perform the test
-  if(var(x) == 0 || var(target) == 0)
+  if(var(x) == 0 || var( as.numeric(target) ) == 0)
   {
     if(hash == TRUE)#update hash objects
     {
@@ -137,7 +122,7 @@ testIndGLMM = function(target, reps = NULL, group, dataset, xIndex, csIndex, dat
     cs = NULL;
   }
   
-  #if x = any of the cs then pvalue = log(1)and flag = 1.
+  #if x = any of the cs then pvalue = log(1) and flag = 1.
   #That means that the x variable does not add more information to our model due to an exact copy of this in the cs, so it is independent from the target
   if(length(cs)!=0)
   {
@@ -172,9 +157,9 @@ testIndGLMM = function(target, reps = NULL, group, dataset, xIndex, csIndex, dat
   
   if(target_type == 0)
   {
-    if (length(unique(target)) == 2 |  "factor" %in% class(target) ) {
+    if (length(unique(target)) == 2 ||  "factor" %in% class(target) ) {
         dataInfo$target_type = "binary" 
-    } else if  (identical(floor(target), target) == TRUE) {
+    } else if (identical(floor(target), target) == TRUE) {
         dataInfo$target_type = "discrete"
     } else {
         dataInfo$target_type = "normal"
@@ -194,7 +179,7 @@ testIndGLMM = function(target, reps = NULL, group, dataset, xIndex, csIndex, dat
     target_type = floor(target_type);
     if(target_type < 1 || target_type > 3)
     {
-      message(paste("error in testIndGLMM : wrong input of target_type"))
+      message(paste("error in testIndSpeedglm : wrong input of target_type"))
       results <- list(pvalue = pvalue, stat = stat, flag = flag, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
       return(results);
     }
@@ -203,12 +188,14 @@ testIndGLMM = function(target, reps = NULL, group, dataset, xIndex, csIndex, dat
   #checking the length
   if (length(x) == 0 || length(target) == 0)
   {
-    message(paste("error in testIndGLMM : empty variable x or target"))
+    message(paste("error in testIndSpeedglm : empty variable x or target"))
     results <- list(pvalue = pvalue, stat = stat, flag = flag, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
     return(results);
   }
   n=length(target)  ## sample size
   #trycatch for dealing with errors
+  
+  
   res <- tryCatch(
 {
   #binomial or multinomial target?
@@ -226,7 +213,7 @@ testIndGLMM = function(target, reps = NULL, group, dataset, xIndex, csIndex, dat
   if(length(cs) == 0)
   {
     #if the univariate models have been already compute
-    if(!is.null(univariateModels))  {
+    if( !is.null(univariateModels) )  {
       pvalue = univariateModels$pvalue[[xIndex]];
       stat = univariateModels$stat[[xIndex]];
       flag = univariateModels$flag[[xIndex]];
@@ -234,74 +221,71 @@ testIndGLMM = function(target, reps = NULL, group, dataset, xIndex, csIndex, dat
       results <- list(pvalue = pvalue, stat = stat, flag = flag, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
       return(results);
     }
-   if ( is.null(reps) ) {
       if ( target_type == 1 ) {
-        fit2 = lme4::lmer( target ~ . -group + (1|group), data = as.data.frame( dataset[, xIndex] ), REML=FALSE )
+      fit2 = speedglm::speedlm( target ~ x, data = as.data.frame(x) )
+      suma = summary(fit2)[[ 13 ]]
+      stat = suma[1]
+      dof = suma[3]
+      pvalue = pf(stat, 1, dof, lower.tail = FALSE, log.p = TRUE)
+      flag = 1;
+
+      } else if (target_type == 2){
+        fit2 = speedglm::speedglm(target ~ x, data = as.data.frame(x), family = binomial(logit) )
+        dev1 = fit2$nulldev
+        dev2 = fit2$deviance
+        d2 = length(coef(fit2))
+        stat = abs( dev1 - dev2 )
+        pvalue = pchisq(stat, d2 - 1, lower.tail = FALSE, log.p = TRUE)
+        flag = 1;
+
       } else {
-        fit2 = lme4::glmer( target ~ . - group + (1|group), data = as.data.frame( dataset[, xIndex] ), REML=FALSE , family = oikogeneia[target_type] ) 
+        fit2 = speedglm::speedglm(target ~ x, data = as.data.frame(x), family = poisson(log) )
+        dev1 = fit2$nulldev
+        dev2 = fit2$deviance
+        d2 = length(coef(fit2))
+        stat = abs( dev1 - dev2 )
+        pvalue = pchisq(stat, d2 - 1, lower.tail = FALSE, log.p = TRUE)
+        flag = 1;
       }
-   } else {
-      reps = reps 
-      if ( slopes == TRUE ) {
-      if ( target_type == 1 ) {
-        fit2 = lme4::lmer( target ~ . - group + (reps|group), data = as.data.frame( cbind( reps, dataset[, xIndex] ) ), REML=FALSE ) 
-      } else {     
-        fit2 = lme4::glmer( target ~ . - group + (reps|group), data = as.data.frame( cbind( reps, dataset[, xIndex] ) ), REML=FALSE , family = oikogeneia[target_type] ) 
-      } 
-   }else{
-      reps = reps 
-     if ( target_type == 1 ) {
-          fit2 = lme4::lmer( target ~ . - group + (1|group), data = as.data.frame( cbind( reps, dataset[, xIndex] ) ), REML=FALSE )        
-        } else {
-          fit2 = lme4::glmer( target ~ . -group + (1|group), data = as.data.frame( cbind( reps, dataset[, xIndex] ) ), REML=FALSE , family = oikogeneia[target_type] )  
-        }
-      }
-   }
+  
   }else{
-    if ( is.null(reps) ) {
-      if ( target_type == 1 ) {
-        fit2 = lme4::lmer( target ~ . -group + (1|group), data = as.data.frame( cbind( dataset[, csIndex], dataset[, xIndex] ) ), REML=FALSE )  
-        ##fit1= lme4::lmer( target~ (1|group) + dataset[, csIndex], data = dataset[, c(csIndex, xIndex)], REML=FALSE )     
-        ##fit2 = lme4::lmer( target~. + (1|group) - group, data = dataset[, c(csIndex, xIndex)], REML=FALSE )     
+
+    if ( target_type == 1 ) {
+      fit1 = speedglm::speedlm( target ~ dataset[, csIndex], data = as.data.frame( dataset[, c(csIndex, xIndex)] ) )
+      fit2 = speedglm::speedlm( target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ) )
+      d1 = length( coef(fit1) ) 
+      d2 = length( coef(fit2) )
+      df1 = d2 - d1
+      df2 = n - d2
+      stat = ( (fit1$RSS - fit2$RSS)/df1 ) / ( fit2$RSS /df2 )
+      pvalue = pf(stat, df1, df2, lower.tail = FALSE, log.p = TRUE) 
+      flag = 1;
+
+      } else if (target_type == 2){
+        fit1 = speedglm::speedglm( target ~ dataset[, csIndex], data = as.data.frame( dataset[, c(xIndex, csIndex)] ), family = binomial(logit) )
+        fit2 = speedglm::speedglm( target ~ ., data = as.data.frame( dataset[, c(xIndex, csIndex)] ), family = binomial(logit) )
+        dev1 = fit1$deviance
+        dev2 = fit2$deviance
+        d1 = length( coef(fit1) )
+        d2 = length( coef(fit2) )
+        stat = abs( dev1 - dev2 )
+        pvalue = pchisq(stat, d2 - d1, lower.tail = FALSE, log.p = TRUE)
+        flag = 1;
+
       } else {
-        fit2 = lme4::glmer( target ~. -group + (1|group), data = as.data.frame( cbind( dataset[, csIndex], dataset[, xIndex] ) ), REML=FALSE , family = oikogeneia[target_type] ) 
-        ##fit1 = lme4::glmer( target~ (1|group) + dataset[, csIndex], data =  dataset[, c(csIndex, xIndex)], REML=FALSE, family = oikogeneia[target_type] )     
-        ##fit2 = lme4::glmer( target~. + (1|group) - group, data =  dataset[, c(csIndex, xIndex)], REML=FALSE, family = oikogeneia[target_type] )     
-        }
-      } else {
-      reps = reps 
-      if (slopes == TRUE ) {
-        if (target_type == 1) {
-          fit2 = lme4::lmer( target ~ . - group + (reps|group), data = as.data.frame( cbind(reps, dataset[, csIndex], dataset[, xIndex] ) ), REML=FALSE )
-          ##fit1 = lme4::lmer( target~ (reps|group) +dataset[, csIndex], data = dataset[, c(csIndex, xIndex)], REML=FALSE )     
-          ##fit2 = lme4::lmer( target~. + (reps|group) - group, data = dataset[, c(csIndex, xIndex)], REML=FALSE )     
-        } else {
-          fit2 = lme4::glmer( target ~. - group + (reps|group), data = as.data.frame( cbind(reps, dataset[, csIndex], dataset[, xIndex] ) ), REML=FALSE , family = oikogeneia[target_type])
-          ##fit1 = lme4::glmer( target~ reps + (reps|group) + dataset[, csIndex], data = dataset[, c(csIndex, xIndex)], REML=FALSE, family = oikogeneia[target_type] )     
-          ##fit2 = lme4::glmer( target~. + reps + (reps|group) - group, data = dataset[, c(csIndex, xIndex)], REML=FALSE, family = oikogeneia[target_type] )     
-        }
-       }else{
-       if (target_type == 1) {
-          fit2 = lme4::lmer( target ~. - group + (reps|group), data = as.data.frame( cbind(reps, dataset[, csIndex], dataset[, xIndex] ) ), REML=FALSE )
-          ##fit1 = lme4::lmer( target~  (1|group) + dataset[, csIndex], data = dataset[, c(csIndex, xIndex)], REML=FALSE )     
-          ##fit2 = lme4::lmer( target~.  + (1|group) - group, data = dataset[, c(csIndex, xIndex)], REML=FALSE )     
-        } else {
-          fit2 = lme4::glmer( target ~. - group + (reps|group), data = as.data.frame( cbind(reps, dataset[, csIndex], dataset[, xIndex] ) ), REML=FALSE , family = oikogeneia[target_type]) 
-          ##fit1 = lme4::glmer( target~ reps + (1|group) + dataset[, csIndex], data = dataset[, c(csIndex, xIndex)], REML=FALSE, family = oikogeneia[target_type] )     
-          ##fit2 = lme4::glmer( target~. + reps + (1|group) - group, data = dataset[, c(csIndex, xIndex)], REML=FALSE, family = oikogeneia[target_type] )     
-        }
-      }
-    }
+        fit1 = speedglm::speedglm( target ~ dataset[, csIndex], data = as.data.frame( dataset[, c(xIndex, csIndex)] ), family = poisson(log) )
+        fit2 = speedglm::speedglm( target ~ ., data = as.data.frame( dataset[, c(xIndex, csIndex)] ), family = poisson(log) )
+        dev1 = fit1$deviance
+        dev2 = fit2$deviance
+        d1 = length( coef(fit1) )
+        d2 = length( coef(fit2) )
+        stat = abs( dev1 - dev2 )
+        pvalue = pchisq(stat, d2 - d1, lower.tail = FALSE, log.p = TRUE)
+        flag = 1;
+      }   
+
   }
   
-  #calculate the p value and stat.
-  mod = anova(fit2)
-  v2 = as.numeric( summary(fit2)[[14]][5] )
-  pr = nrow(mod) 
-  v1 = mod[pr,1]
-  stat = mod[pr,4]   
-  pvalue = pf(stat, v1, v2, lower.tail = FALSE, log.p=TRUE)
-  flag = 1;
   #update hash objects
   if(hash == TRUE)
   {
@@ -322,7 +306,7 @@ testIndGLMM = function(target, reps = NULL, group, dataset, xIndex, csIndex, dat
   
 },
 error=function(cond) {
-  message(paste("error in try catch of the testIndGLMM test"))
+  message(paste("error in try catch of the testIndSpeedglm test"))
   message("Here's the original error message:")
   message(cond)
   
@@ -344,7 +328,7 @@ error=function(cond) {
 },
 #   warning=function(cond) {
 #     #do nothing, or
-#     message(paste("Warning in the testIndGLMM testL"))
+#     message(paste("Warning in the testIndSpeedglm testL"))
 #     message("Here's the original warning message:")
 #     message(cond)
 #   },
