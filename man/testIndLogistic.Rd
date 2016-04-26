@@ -27,7 +27,7 @@ hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, target_type = 0, robust = FA
   The indices of the variables to condition on.
 }
   \item{dataInfo}{
-  list object with information on the structure of the data. Default value is NULL.
+  A list object with information on the structure of the data. Default value is NULL.
 }
   \item{univariateModels}{
   Fast alternative to the hash object for univariate test. List with vectors "pvalues" (p-values), "stats" (statistics) and "flags" (flag = TRUE if the test was succesful) representing the univariate association of each variable with the target. Default value is NULL.
@@ -50,7 +50,7 @@ A numeric vector that represents the type of the target. Default value is 0. See
 }
 }
   \item{robust}{
-A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robustified version of the logistic regressions available here. Currently it is not available for these cases.
+A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robustified version of the logistic regressions available here. Currently it is available only for the binary logistic regression. The robust part is in the estimation of the parameters only. The significance test for the variables is not robust, unlike the linear models, where even this testing is robust. 
 }
 }
 
@@ -89,6 +89,8 @@ The current hash object used for the p-values. See argument stat_hash and detail
 }
 
 \references{
+Hampel F. R., Ronchetti E. M., Rousseeuw P. J., and Stahel W. A. (1986). Robust statistics: the approach based on influence functions. John Wiley & Sons. 
+
 Vincenzo Lagani, George Kortas and Ioannis Tsamardinos (2013), Biomarker signature identification in "omics" with multiclass outcome. Computational and Structural Biotechnology Journal, 6(7):1-7.
 
 McCullagh, Peter, and John A. Nelder. Generalized linear models.  CRC press, USA, 2nd edition, 1989.

@@ -11,6 +11,7 @@
 \alias{univariateScore}
 \alias{cat.ci}
 \alias{condi}
+\alias{condi.perm}
 \alias{InternalSES.temporal}
 \alias{InternalMMPC.temporal}
 \alias{IdentifyEquivalence.temporal}
@@ -40,6 +41,7 @@ Internal functions of Package \pkg{MXM}
 \item univariateScore( ... )
 \item cat.ci( ... )
 \item condi( ... )
+\item condi.perm( ... )
 \item InternalSES.temporal( ... )
 \item InternalMMPC.temporal( ... )
 \item IdentifyEquivalence.temporal( ... )
@@ -48,6 +50,7 @@ Internal functions of Package \pkg{MXM}
 \item max_min_assoc.temporal( ... )
 \item min_assoc.temporal( ... )
 \item univariateScore.temporal( ... )
+\item aovlmrob( ... )
 }
 }
 \details{

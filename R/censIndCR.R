@@ -6,7 +6,7 @@ censIndCR = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariate
     stop('The survival test can not be performed without a Surv object target');
   }
   
-  csIndex = csIndex[-which(is.na(csIndex))]#csIndex[which(is.na(csIndex))] = 0;
+  csIndex[which(is.na(csIndex))] = 0;
   if(hash == TRUE)
   {
     csIndex2 = csIndex[which(csIndex!=0)]

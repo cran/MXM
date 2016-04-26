@@ -34,7 +34,7 @@ target_type=0, slopes=FALSE)
   The indices of the variables to condition on.
 }
   \item{dataInfo}{
-  list object with information on the structure of the data. Default value is NULL.
+  A list object with information on the structure of the data. Default value is NULL.
 }
   \item{univariateModels}{
   Fast alternative to the hash object for univariate test. List with vectors "pvalues" (p-values), "stats" (statistics) and "flags" (flag = TRUE if the test was succesful) representing the univariate association of each variable with the target. Default value is NULL.

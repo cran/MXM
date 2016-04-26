@@ -15,6 +15,7 @@ hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, robust = FALSE)
 
 testIndSpearman(target, dataset, xIndex, csIndex,dataInfo = NULL,univariateModels = NULL,
 hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, robust = FALSE)
+
 }
 
 \arguments{
@@ -31,7 +32,7 @@ hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, robust = FALSE)
   The indices of the variables to condition on.
 }
   \item{dataInfo}{
-  list object with information on the structure of the data. Default value is NULL.
+  A list object with information on the structure of the data. Default value is NULL.
 }
   \item{univariateModels}{
   Fast alternative to the hash object for univariate test. List with vectors "pvalues" (p-values), "stats" (statistics) and "flags" (flag = TRUE if the test was succesful) representing the univariate association of each variable with the target. Default value is NULL.
@@ -46,9 +47,7 @@ A hash object (hash package required) which contains the cached generated statis
 A hash object (hash package required) which contains the cached generated p-values of a SES run in the current dataset, using the current test.
 }
   \item{robust}{
-A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robustified version of Fisher's correlation coefficient via M-estimation available from the "rlm" in MASS. Two regressions are fitted and the square root ot the absolute value of the beta coefficients is used to calculate the correlation coefficient (Shevlyakov and Smirnov, 2011). For the conditional correlation the correlation of the residuals of the two robust regressions is calcualted. For more ways of calculating the correlation coefficient see the references. It takes more time than non robust version but it is suggested in case of outliers. Default value is FALSE.
-
-In the case of testIndSpearman, this is not used, as Spearman correlation is robust by default.
+A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robustified version of Fisher's correlation coefficient via MM-estimation available from the \code{\link{lmRob}} in the package "robust". Two regressions are fitted and the square root ot the absolute value of the beta coefficients is used to calculate the correlation coefficient (Shevlyakov and Smirnov, 2011). For the conditional correlation the correlation of the residuals of the two robust regressions is calcualted. For more ways of calculating the correlation coefficient see the references. It takes more time than non robust version but it is suggested in case of outliers. Default value is FALSE. In the case of testIndSpearman, this is not used, as Spearman correlation is robust by default.
 }
 }
 
@@ -84,6 +83,8 @@ The current hash object used for the p-values. See argument stat_hash and detail
 }
 
 \references{
+Hampel F. R., Ronchetti E. M., Rousseeuw P. J., and Stahel W. A. (1986). Robust statistics: the approach based on influence functions. John Wiley & Sons. 
+
 Peter Spirtes, Clark Glymour, and Richard Scheines. Causation, Prediction, and Search. The MIT Press, Cambridge, MA, USA, second edition, January 2001.
 
 Lee Rodgers J., and Nicewander W.A. (1988). "Thirteen ways to look at the correlation coefficient." The American Statistician 42(1): 59-66.
@@ -110,7 +111,8 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> Vince
 dataset <- matrix(runif(1000 * 200, 1, 1000), nrow = 1000 )
 #the target feature is the last column of the dataset as a vector
 target <- dataset[, 200]
-results <- testIndFisher(target, dataset, xIndex = 44, csIndex = 100)
+res1 <- testIndFisher(target, dataset, xIndex = 44, csIndex = 100)
+res2 <- testIndSpearman(target, dataset, xIndex = 44, csIndex = 100)
 
 #require(gRbase)  #for faster computations in the internal functions
 #define class variable (here tha last column of the dataset)

@@ -35,7 +35,7 @@ hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, robust = FALSE)
   The indices of the variables to condition on.
 }
   \item{dataInfo}{
-  list object with information on the structure of the data. Default value is NULL.
+  A list object with information on the structure of the data. Default value is NULL.
 }
   \item{univariateModels}{
   Fast alternative to the hash object for univariate test. List with vectors "pvalues" (p-values), "stats" (statistics) and "flags" (flag = TRUE if the test was succesful) representing the univariate association of each variable with the target. Default value is NULL.
@@ -50,7 +50,7 @@ A hash object (hash package required) which contains the cached generated statis
 A hash object (hash package required) which contains the cached generated p-values of a SES run in the current dataset, using the current test.
 }
   \item{robust}{
-A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust version of the statistical test if it is available. It takes more time than non robust version but it is suggested in case of outliers. Default value is FALSE. This test does not have a robust version yet.
+A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust version of the statistical test if it is available. It takes more time than non robust version but it is suggested in case of outliers. Default value is FALSE. This option is currently offered only for the Poisson regression.
 }
 }
 
@@ -111,9 +111,9 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr>, Vinc
 \examples{
 
 #simulate a dataset with continuous data
-dataset <- matrix(runif(400 * 30, 1, 50), ncol = 50 ) 
+dataset <- matrix(runif(400 * 50, 1, 50), ncol = 50 ) 
 #the target feature is the last column of the dataset as a vector
-target <- rpois(200, 10)
+target <- rpois(400, 10)
 results <- testIndPois(target, dataset, xIndex = 24, csIndex = 10)
 results
 

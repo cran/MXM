@@ -6,9 +6,10 @@ mmhc.skel <- function(dataset, max_k = 3, threshold = 0.05, test = NULL, rob = F
   ## OR gSquare (default) for categorical data
   ## rob is for robust correlation
   ## nc is the number of cores to use, set to 1 by default
+  
   dataset <- as.matrix(dataset)
   n <- ncol(dataset)
-  G <- matrix( numeric( n^2 ), nrow = n )
+  G <- matrix(0, n, n )
   if (test == "testIndSpearman") {
     dataset <- apply(dataset, 2, rank)
     rob = FALSE 
@@ -67,8 +68,8 @@ mmhc.skel <- function(dataset, max_k = 3, threshold = 0.05, test = NULL, rob = F
   G[ G2 != 0 ] <- 0
   diag(G) <- 0
   
-  aa = rowSums(G)
-  info = summary(aa)
+  info <- summary( rowSums(G) )
+  density <- sum(G) / ( n * ( n - 1 ) )
   
   if (is.null( colnames(dataset) ) ) {
     colnames(G) <- rownames(G) <- paste("X", 1:n, sep = "")
@@ -85,5 +86,5 @@ mmhc.skel <- function(dataset, max_k = 3, threshold = 0.05, test = NULL, rob = F
     }
   }
   
-  list(runtime = runtime, info = info, G = G)
+  list(runtime = runtime, density = density, info = info, G = G)
 }

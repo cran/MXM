@@ -35,7 +35,7 @@ hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, robust = FALSE)
   The indices of the variables to condition on.
 }
   \item{dataInfo}{
-  list object with information on the structure of the data. Default value is NULL.
+  A list object with information on the structure of the data. Default value is NULL.
 }
   \item{univariateModels}{
   Fast alternative to the hash object for univariate test. List with vectors "pvalues" (p-values), "stats" (statistics) and "flags" (flag = TRUE if the test was succesful) representing the univariate association of each variable with the target. Default value is NULL.
@@ -50,8 +50,11 @@ A hash object (hash package required) which contains the cached generated statis
 A hash object (hash package required) which contains the cached generated p-values of a SES run in the current dataset, using the current test.
 }
   \item{robust}{
-A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust regression via M-estimation available from the "rlm" in MASS. It takes more time than non robust version but it is suggested in case of outliers. Default value is FALSE. This is only used in testIndReg. Quantile regression is robust by default and for multivariate regression this has not been incorporated yet.
+A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust regression via MM-estimation available from the command \code{\link{lmRob}} in the package "robust". A robust F test is also performed.It takes more time than non robust version but it is suggested in case of outliers. Default value is FALSE. This is only used in testIndReg. Quantile regression is robust by default and for multivariate regression this has not been incorporated yet.
 }
+%\item{fita}{
+%This argument is used in the SES or MMPC internally to spped up the computations in the first step (the univariate associations) of the algorithms. 
+%}
 }
 
 \details{
@@ -92,6 +95,8 @@ The current hash object used for the p-values. See argument stat_hash and detail
 \references{
 Draper, N.R. and Smith H. (1988). Applied regression analysis. New York, Wiley, 3rd edition.
 
+Hampel F. R., Ronchetti E. M., Rousseeuw P. J., and Stahel W. A. (1986). Robust statistics: the approach based on influence functions. John Wiley & Sons. 
+
 Koenker R.W. (2005). Quantile regression. New York, Cambridge University Press.
 
 Mardia, Kanti, John T. Kent and John M. Bibby. Multivariate analysis. Academic press, 1979.
@@ -120,7 +125,9 @@ dataset <- matrix(runif(500 * 100, 1, 100), ncol = 500 )
 #the target feature is the last column of the dataset as a vector
 target <- dataset[, 100]
 dataset <- dataset[, -100]
+
 testIndReg(target, dataset, xIndex = 44, csIndex = 50)
+testIndReg(target, dataset, xIndex = 44, csIndex = 50, robust = TRUE)
 testIndRQ(target, dataset, xIndex = 44, csIndex = 50)
 
 #require(gRbase)  #for faster computations in the internal functions

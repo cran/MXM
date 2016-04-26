@@ -26,37 +26,33 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
   diag(G) <-  -100
   durat <- proc.time()
 
-  if (n < 1000) {
-    R = cor(dataset)
-    
-  } else {
-    ## faster implementation when variables are a few thousands, could be almost twice as fast  
-    ## in addition this works even if the required memory is too big and cannot be allocated
-    ## In small dimensions, less than 1000 this will be slower than cor(dataset)
-    ## but sower in terms of a 1 second perhaps 
-    mat = t( dataset )
-    mat = mat - rowMeans(mat)
-    mat = mat / sqrt( rowSums(mat^2) )
-    R = tcrossprod( mat )
-  }
-   
+  ## faster implementation when variables are a few thousands, could be almost twice as fast  
+  ## in addition this works even if the required memory is too big and cannot be allocated
+  ## In small dimensions, less than 1000 this will be slower than cor(dataset)
+  ## but the difference is negligible
+  mat <- t( dataset )
+  mat <- mat - rowMeans(mat)
+  mat <- mat / sqrt( rowSums(mat^2) )
+  R <- tcrossprod( mat )
+ 
   R1 <- R[lower.tri(R)]
-     
+  
+  up <- sqrt( nu - 3 )   
   if (method == "pearson") {
-    stat <- abs( 0.5 * log( (1 + R1) / (1 - R1) ) * sqrt(nu - 3) )  ## absolute of the test statistic
+    stat <- abs( 0.5 * log( (1 + R1) / (1 - R1) ) * up )  ## absolute of the test statistic
   } else if (method == "spearman") {
-    stat <- abs( 0.5 * log( (1 + R1) / (1 - R1) ) * sqrt(nu - 3) ) / 1.029563  ## absolute of the test statistic
+    stat <- abs( 0.5 * log( (1 + R1) / (1 - R1) ) * up ) / 1.029563  ## absolute of the test statistic
   }
   
   ## the next functions use the lower triangular matrix of the correlation
   pv <- stat2 <- diag(n)
-  stat2[lower.tri(stat2)] = stat
+  stat2[lower.tri(stat2)] <- stat
   pv[lower.tri(pv)] <- log(2) + pt(stat, nu - 3, lower.tail = FALSE, log.p = TRUE)  ## logged p-values 
-  stat <- stat2 + t(stat2)
+  stata <- stat2 + t(stat2)
   pv <- pv + t(pv)
-  diag(stat) <- diag(pv) <- 0
+  diag(stata) <- diag(pv) <- 0
   pvalue <- pv  
-  stadf <- stat / (nu - 3)
+  stadf <- stata / (nu - 3)
 
   #stat[ lower.tri(stat) ] <- 2
   pv[ lower.tri(pv) ] <- 2 
@@ -70,7 +66,7 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
   n.tests <- NULL
   pval <- list()
   #### some more initial stuff 
-  dial <- which( pv <= alpha, arr.ind = T )
+  dial <- which( pv <= alpha, arr.ind = TRUE )
   zeu <- cbind( dial, stadf[ dial ], pv[ dial ] )  ## all significant pairs of variables
   zeu <- zeu[ order( - zeu[, 4], zeu[, 3] ), ] ## order of the pairs based on their strength
   if ( !is.matrix(zeu) )  zeu = matrix(zeu, nrow = 1)
@@ -220,8 +216,8 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
       n.tests[ k + 1 ] <- tes
 
     }  
-     
-	G <- G / 2  
+
+    G <- G / 2
     diag(G) <- 0
     durat <- proc.time() - durat
 
@@ -231,9 +227,12 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
     for ( l in 1:k ) { 
       if ( is.matrix(sep[[ l ]]) ) {
         if ( nrow(sep[[ l ]]) > 0) {  
-          colnames( sep[[ l ]] )[1:2] = c("X", "Y")
-          colnames( sep[[ l ]] )[ 2 + 1:l ] = paste("SepVar", 1:l)
-          colnames( sep[[ l ]] )[ c(l + 3):c(l + 4) ] = c("stat", "logged.p-value")
+          sepa = sep[[ l ]]
+          colnames( sepa )[1:2] = c("X", "Y")
+          colnames( sepa )[ 2 + 1:l ] = paste("SepVar", 1:l)
+          colnames( sepa )[ c(l + 3):c(l + 4) ] = c("stat", "logged.p-value")
+          sepa =  sepa[ order(sepa[, 1], sepa[, 2] ), ]
+          sep[[ l ]] = sepa
         }
       } else {
         if ( length(sep[[ l ]]) > 0) { 
@@ -261,10 +260,10 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
   }  
   names(n.tests) <- paste("k=", 0:k, sep ="")
 
-  aa = rowSums(G)
-  info = summary(aa)
+  info <- summary( rowSums(G) )
+  density <- sum(G) / ( n * ( n - 1 ) )
   
-  if(graph == TRUE)
+ if(graph == TRUE)
   {
     if(requireNamespace("Rgraphviz", quietly = TRUE, warn.conflicts = FALSE) == TRUE)
     {
@@ -275,5 +274,5 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
     }
   }
 
-  list(stat = stat, pvalue = pvalue, info = info, runtime = durat, kappa = k, n.tests = n.tests, G = G, sepset = sepset, title = title )
+  list(stat = stata, pvalue = pvalue, runtime = durat, kappa = k, n.tests = n.tests, density = density, info = info, G = G, sepset = sepset, title = title )
 }

@@ -31,7 +31,7 @@ hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, robust = FALSE)
   The indices of the variables to condition on.
 }
   \item{dataInfo}{
-  list object with information on the structure of the data. Default value is NULL.
+  A list object with information on the structure of the data. Default value is NULL.
 }
   \item{univariateModels}{
   Fast alternative to the hash object for univariate test. List with vectors "pvalues" (p-values), "stats" (statistics) and "flags" (flag = TRUE if the test was succesful) representing the univariate association of each variable with the target. Default value is NULL.
@@ -97,8 +97,7 @@ This test uses the functions coxph and Surv of the package survival and the func
 
 \examples{
 #create a survival simulated dataset
-dataset <- matrix(nrow = 1000 , ncol = 100)
-dataset <- apply(dataset, 1:2, function(i) runif(1, 1, 100))
+dataset <- matrix(runif(1000 * 100, 1, 100), nrow = 1000 , ncol = 100)
 dataset <- as.data.frame(dataset);
 timeToEvent <- numeric(1000)
 event <- numeric(1000)

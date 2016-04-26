@@ -10,7 +10,7 @@ The skeleton of a Bayesian network produced by the PC algorithm. No orientations
 }
 
 \usage{
-pc.skel(dataset, method = "pearson", alpha = 0.05, rob = FALSE, graph = FALSE) 
+pc.skel(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 1, graph = FALSE) 
 
 pc.con(dataset, method = "pearson", alpha = 0.05, graph = FALSE) 
 }
@@ -20,13 +20,16 @@ pc.con(dataset, method = "pearson", alpha = 0.05, graph = FALSE)
   A matrix with the variables. The user must know if they are continuous or if they are categorical. data.frame or matrix are both supported, as the dataset is converted into a matrix.   
 }
   \item{method}{
-If you have continuous data, you can either choose "pearson" or "spearman". If you have categorical data though, this must be "cat".
+If you have continuous data, you can choose either "pearson" or "spearman". If you have categorical data though, this must be "cat". 
 }
   \item{alpha}{
 The significance level ( suitable values in (0, 1) ) for assessing the p-values. Default value is 0.05.
 }
 \item{rob}{
 A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust version of the statistical test if it is available. It takes more time than a non robust version but it is suggested in case of outliers. Default value is FALSE. This will only be taken into account if method is "pearson". 
+}
+\item{R}{
+The number of permutations to be conducted. This is taken into consideration for the pc.skel only. The Pearson correlation coefficient is calculated and the p-value is assessed via permutations.
 }
 \item{graph}{
 Boolean that indicates whether or not to generate a plot with the graph. Package RgraphViz is required.
@@ -38,12 +41,11 @@ The PC algorithm as proposed by Spirtes et al. (2000) is implemented. The variab
 
 For example, for the pair (X, Y) there can be two coniditoning sets for example (Z1, Z2) and (W1, W2). All p-values and test statistics and degrees of freedom have been computed at the first step of the algorithm. Take the p-values between (Z1, Z2) and (X, Y) and between (Z1, Z2) and (X, Y). The conditioning set with the minimum p-value is used first. If the minimum p-values are the same, use the second lowest p-value. If the unlikely, but not impossible event of all p-values being the same, the test statistic divided by the degrees of freedom is used as a means of choosing which conditioning set is to be used first. 
 
-If two or more p-values are below the machine epsilon (.Machine$double.eps which is equal to 2.220446e-16), all of them are set to 0. To make the comparison or the ordering feasible we use the logarithm of the p-value. Hence, the logarithm of the p-values is always calcualte dand used.
+If two or more p-values are below the machine epsilon (.Machine$double.eps which is equal to 2.220446e-16), all of them are set to 0. To make the comparison or the ordering feasible we use the logarithm of the p-value. Hence, the logarithm of the p-values is always calculated and used.
 
-In the case of the \eqn{G^2} test of independence we have incorporated a rule of thumb. I the number of samples is at least 5 times the number of the parameters to be estimated, the test is performed, otherwise, independence is not rejected (see Tsmardinos et al., 2006, pg. 43).
+In the case of the \eqn{G^2} test of independence (for categorical data) we have incorporated a rule of thumb. I the number of samples is at least 5 times the number of the parameters to be estimated, the test is performed, otherwise, independence is not rejected (see Tsamardinos et al., 2006, pg. 43).
 
-The pc.con is a faster implementation of the PC algorithm but for continuous data only, without the robust option, unlike pc.skel which is more general and even for the continuous datasets slower. pc.con accepts only "pearson" and "spearman" as correlations. 
-If in addition, you have more than 1000 variables, a trick to calculate the correlation matrix is implemented which can reduce the time required by this first step by nearly 50%. 
+The pc.con is a faster implementation of the PC algorithm but for continuous data only, without the robust option, unlike pc.skel which is more general and even for the continuous datasets slower. pc.con accepts only "pearson" and "spearman" as correlations. If in addition, you have more than 1000 variables, a trick to calculate the correlation matrix is implemented which can reduce the time required by this first step by up to 50%. 
 
 }
 
@@ -63,6 +65,12 @@ The run time of the algorithm. A numeric vector. The first element is the user t
 }
 \item{kappa}{
 The maximum value of k, the maximum cardinality of the conditioning set at which the algorithm stopped.
+}
+\item{density}{
+The number of edges divided by the total possible number of edges, that is #edges / \eqn{n(n-1)/2}, where \eqn{n} is the number of variables.
+}
+\item{info}{
+Some summary statistics about the edges, minimum, maximum, mean, median number of edges.
 }
 \item{G}{
 The adjancency matrix. A value of 1 in G[i, j] appears in G[j, i] also, indicating that i and j have an edge between them.

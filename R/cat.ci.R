@@ -2,7 +2,7 @@
 #### G^2 (and X^2) test of (un)conditional independence
 ####################
 
-cat.ci <- function(xi, yi, cs, dataset, type = NULL, rob = FALSE, form = form, forma = forma) {
+cat.ci <- function(xi, yi, cs, dataset, type = NULL, rob = FALSE, R = 1) {
   ## the xi and yi are two numbers, 1 and 2 for example
   ## indicating the two variables whose conditional independence 
   ## will be tested
@@ -32,10 +32,12 @@ cat.ci <- function(xi, yi, cs, dataset, type = NULL, rob = FALSE, form = form, f
     forma <- as.formula(paste( paste("~", "V1*", paste(xnam, collapse= "*"),
     sep = ""), paste("V2*", paste(xnam, collapse = "*"), sep = ""), sep = "+" ) )
     b1 <- summary( MASS::loglm(forma, mod) )$tests[1, 1:2]  ## PLL model
+    
     if ( nrow(dat) > 5 * b1[2] ) {  ## condition to perform the test
       res <- as.numeric( c( b1[1], pchisq(b1[1], b1[2], lower.tail = FALSE, log.p = TRUE), b1[2] ) )
     } else  res <- c( 0, 0, 1 )  
   }
+  
   names(res) <- c("Chi-squared test", "logged p-value", "df")
   res
 }

@@ -263,14 +263,28 @@ cv.ses <- function(target, dataset, kfolds = 10, folds = NULL, alphas = NULL, ma
 #metric functions (use of ROCR package)
 #auc
 auc.mxm <- function(predictions, test_target){
-  predsObj <- prediction(predictions, test_target)
-  aucValue <- performance(predsObj, measure='auc')@y.values[[1]];
+  #predsObj <- prediction(predictions, test_target)
+  #aucValue <- performance(predsObj, measure='auc')@y.values[[1]];
+  test_target <- as.numeric( as.factor(test_target) )
+  ri <- rank(predictions)
+  up <- max(test_target)
+  n <- length(predictions)
+  n1 <- sum( test_target == up )
+  n0 <- n - n1
+  s1 <- sum( ri[test_target == up ] )
+  aucValue <- ( s1 - 0.5 * ( n1 * (n1 + 1) ) ) / (n0 * n1)
   return(aucValue);
 }
 
-#accuracy
+#accuracy (binary)
 acc.mxm <- function(predictions, test_target){
   accValue <- mean((predictions>0.5) == test_target)
+  return(accValue);
+}
+
+#accuracy
+acc_multinom.mxm <- function(predictions, test_target){
+  accValue <- mean( predictions == test_target )
   return(accValue);
 }
 
@@ -280,11 +294,26 @@ mse.mxm <- function(predictions, test_target){
   return(-mse);
 }
 
+#mean absolut error lower values indicate better performance so we multiply with -1 in order to have higher values for better performances
+ord_mae.mxm <- function(predictions, test_target){
+  mae <- mean(abs(as.numeric(predictions) - as.numeric(test_target)))
+  return(-mae);
+}
+
 #cindex
 ci.mxm <- function(predictions, test_target){
   #Hmisc package required
   
-  ci = 1 - rcorr.cens(predictions, test_target)[1];
+  ci = 1 - Hmisc::rcorr.cens(predictions, test_target)[1];
+  
+  return(ci);
+}
+
+#cindex for weibull regession
+ciwr.mxm <- function(predictions, test_target){
+  #Hmisc package required
+  
+  ci = Hmisc::rcorr.cens(predictions, test_target)[1];
   
   return(ci);
 }
@@ -395,9 +424,9 @@ ordinal.mxm <- function(train_target, sign_data, sign_test){
     sign_model <- clm( train_target ~ ., data = data.frame(x), trace = FALSE );
     x = sign_test
     # preds <- predict(sign_model, newdata=data.frame(sign_test))
-    preds <- predict( sign_model, newdata=data.frame(x) )$fits
+    preds <- predict( sign_model, newdata=data.frame(x) )$fit
     pred <- as.vector( apply(preds, 1, which.max) )
-    return(preds);
+    return(pred);
 #  }
 }
 
@@ -437,7 +466,7 @@ rq.mxm <- function(train_target, sign_data, sign_test){ ## used for univariate a
 #   }
 }
 
-rlm.mxm <- function(train_target, sign_data, sign_test){ ## used for univariate and multivariate target in classical regression
+lmrob.mxm <- function(train_target, sign_data, sign_test){ ## used for univariate and multivariate target in classical regression
   
 #   if(dim(sign_data)[2] == 1)
 #   {
@@ -446,8 +475,9 @@ rlm.mxm <- function(train_target, sign_data, sign_test){ ## used for univariate 
   
     #using this variable x to overcome the structure naming problems when we have just one variable as a sign_data. For more on this contact athineou ;)
     x = sign_data
-    # sign_model <- rlm( train_target ~ ., data = data.frame(sign_data) );
-    sign_model <- rlm( train_target ~ ., data = data.frame(x) );
+    # sign_model <- robust::lmRob( train_target ~ ., data = data.frame(sign_data) );
+    # sign_model <- robust::lmRob( train_target ~ ., data = data.frame(x) );
+    sign_model <- MASS::rlm( train_target ~ ., data = data.frame(x), maxit = 2000 );
     x = sign_test
     # preds <- predict( sign_model, newdata=data.frame(sign_test) )
     preds <- predict( sign_model, newdata=data.frame(x) )
@@ -484,6 +514,19 @@ coxph.mxm <- function(train_target, sign_data, sign_test){
   x = sign_test
   #preds <- predict(sign_model, newdata=data.frame(sign_test), type="risk")
   preds <- predict(sign_model, newdata=data.frame(x), type="risk")
+  
+  return(preds);
+}
+
+weibreg.mxm <- function(train_target, sign_data, sign_test){
+  
+  #using this variable x to overcome the structure naming problems when we have just one variable as a sign_data. For more on this contact athineou ;)
+  x = sign_data
+  #sign_model <- survreg(train_target~., data = data.frame(sign_data))
+  sign_model <- survreg(train_target~., data = data.frame(x))
+  x = sign_test
+  #preds <- predict(sign_model, newdata=data.frame(sign_test) )
+  preds <- predict(sign_model, newdata=data.frame(x) )
   
   return(preds);
 }

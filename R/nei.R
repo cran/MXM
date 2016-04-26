@@ -5,33 +5,54 @@
 ############################
 ############################
 
-nei <- function(G, ver, graph = TRUE) {
+nei <- function(G, node, graph = TRUE) {
   ## G is the adjacency matrix of an UN-DIRECTED graph
-  ## ver is a number between 1 and the number of nodes
+  ## node is either one number between 1 and the number of nodes
+  ## or more numbers, corresponding to two or more nodes
   ## it is a node whose neighbors you want to find
-  ## it can also be avector with more than one nodes
+  ## it can also be a vector with more than one nodes
+  
   if ( is.null( colnames(G) ) ) {
     p <- ncol(G)
-    colnames(G) <- paste("X", 1:p, sep = "")
-  }
-
-    geit <- list()
-    for (i in 1:length(ver)) {
-      geit[[ i ]] <- which( G[ver[i], ] == 2)
+    nama <- paste("X", 1:p, sep = "")
+  } else  nama <- colnames(G)
+   
+  n <- length(node)
+  if ( n == 1 ) {
+    ind = which( G[node, ] == 1 ) 
+    if ( length(ind) == 0 ) {
+      graph <- FALSE
+      geit <- paste( "The chosen node has no neighbours" );
+    } else {
+      ind <- as.vector( ind[ ind>0 ] )
+      geit <- c(node, ind)
+      names(geit) <- nama[ c(node, ind) ]
+      Gnei <- G[ geit, geit ]
     }
-    names(geit) <- colnames(G)[ver]
-    ind <- unique( c( ver, as.vector( unlist(geit) ) ) )
-    Gnei <- G[ind, ind]
 
-    if ( class(Gnei) == "numeric" ) {
-      graph = FALSE
-      geit <- paste("There are no neighbours of the chosen node(s)");
-    } 
+  } else if ( n == 2 ) { 
+    geit <- undir.path(G, node[1], node[2])
+    geit <- unique( geit[geit > 0] )
+    names(geit) <- nama[geit]
+    Gnei <- G[geit, geit]    
+
+  } else if ( n > 2 ) {
+    posa <- t( combn(node, 2) )
+    geit <- list()
+    for ( i in 1:nrow(posa) ) {
+      geiton <- undir.path(G, posa[i, 1], posa[i, 2])
+      geit[[ i ]] <- unique( geiton[geiton > 0] )
+    }
+    geit <- unlist(geit)   
+    geit <- unique( geit[geit > 0] )
+    Gnei <- G[geit, geit]
+    names(geit) <- nama[geit]
+  }
 
     if (graph == TRUE) {
       if(requireNamespace("Rgraphviz", quietly = TRUE, warn.conflicts = FALSE) == TRUE) {
         am.graph <- new("graphAM", adjMat = Gnei, edgemode = "undirected")
-        plot(am.graph, main = "Association network graph")
+        plot(am.graph, main = "Subgraph of association network")
       } else {
         warning('In order to plot the generated network, package Rgraphviz is required.')
       }

@@ -56,6 +56,9 @@ A list including:
 \item{runtime}{
 The run time of the algorithm. A numeric vector. The first element is the user time, the second element is the system time and the third element is the elapsed time.
 }
+\item{density}{
+The number of edges divided by the total possible number of edges, that is #edges / \eqn{n(n-1)/2}, where \eqn{n} is the number of variables.
+}
 \item{info}{
 Some summary statistics about the edges, minimum, maximum, mean, median number of edges.
 }

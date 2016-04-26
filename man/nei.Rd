@@ -9,14 +9,14 @@ Returns and plots, if asked, the node(s) and their neighbour(s) of one or more n
 }
 
 \usage{
-nei(G, ver, graph = TRUE)
+nei(G, node, graph = TRUE)
 }
 
 \arguments{
   \item{G}{
   The adjacency matrix as produced from \code{\link{mmhc.skel}} or any other algorithm. 
 }
-  \item{ver}{
+  \item{node}{
   A vector with one or more numbers indicating the seleted node(s) (or variable(s)). 
 }
   \item{graph}{
@@ -54,11 +54,14 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> and M
 
 \examples{
 # simulate a dataset with continuous data
-dataset <- matrix(runif(1000 * 50, 1, 100), nrow = 1000 ) 
-a <- mmhc.skel(dataset, max_k = 3, threshold = 0.05, test = "testIndFisher", 
-rob = FALSE, nc = 1) 
-nei(a$G, 2)
-nei(a$G, 2:4)
+set.seed(1234)
+dataset <- matrix(runif(1000 * 20, 1, 100), nrow = 1000 ) 
+G = pc.con(dataset)$G
+plota(G)
+dev.new()
+nei( G, c(3, 4) )
+dev.new()
+nei( G, c(1, 3) )
 }
 
 \keyword{ Network plot }

@@ -73,7 +73,7 @@ testIndSpearman = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univ
   if(xIndex < 0 || csIndex < 0)
   {
     message(paste("error in testIndSpearman : wrong input of xIndex or csIndex"))
-    results <- list(pvalue = pvalue, stat = stat, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+    results <- list(pvalue = pvalue, stat = 0, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
     return(results);
   }
   
@@ -101,7 +101,7 @@ testIndSpearman = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univ
   if (length(x) == 0 || length(target) == 0)
   {
     message(paste("error in testIndSpearman : empty variable x or target"))
-    results <- list(pvalue = pvalue, stat = stat, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+    results <- list(pvalue = pvalue, stat = 0, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
     return(results);
   }
   
@@ -169,7 +169,7 @@ res <- tryCatch(
       return(results);
     }
     #compute the correlation coefficient between x, target directly
-    
+    stat = cor(x, target);
   }else{
     #perform the test with the cs
 
@@ -214,7 +214,7 @@ res <- tryCatch(
   
   #testerrorcaseintrycatch(4);
   
-  results <- list(pvalue = pvalue, stat = stat, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+  results <- list(pvalue = pvalue, stat = abs(w), flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
   return(results);
   
 },
@@ -237,7 +237,7 @@ error=function(cond) {
   stat = 0;
   flag = 1;
   
-  results <- list(pvalue = pvalue, stat = stat, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+  results <- list(pvalue = pvalue, stat = 0, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
   return(results);
 },
 finally={}

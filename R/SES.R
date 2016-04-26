@@ -272,7 +272,7 @@ SES = function(target , dataset , max_k = 3 , threshold = 0.05 , test = NULL , u
         
       }else if(class(target) == "numeric" || class(target) == "integer"){
         
-        if(identical(floor(target), target) == TRUE & length(target) > 2 )
+        if( sum( floor(target) - target ) == 0 & length(target) > 2 )
         {
           test = "testIndPois";
         }else{
@@ -574,41 +574,40 @@ InternalSES = function(target , dataset , max_k, threshold , test = NULL , equal
   if(is.loaded("fisher_uv") == TRUE && identical(test, testIndFisher) == TRUE && robust == FALSE)
   {
     #print("FORTRAN UNIVARIATE")
-    a = .Fortran("fisher_uv", R = as.integer(rows), C = as.integer(cols), y = target, dataset = dataset,cs_cols = as.integer(0), pvalues = as.double(numeric(cols)), stats = as.double(numeric(cols)), targetID = as.integer(targetID))
+    a = .Fortran("fisher_uv", R = as.integer(rows), C = as.integer(cols), y = target, dataset = as.matrix(dataset), cs_cols = as.integer(0), pvalues = as.double(numeric(cols)), stats = as.double(numeric(cols)), targetID = as.integer(targetID))
     univariateModels = NULL;
     z = 0.5*log( (1+a$stat)/(1-a$stat) );
     dof = rows - 3; #degrees of freedom
     w = z * sqrt(dof)
-    univariateModels$stat = a$stats;
+    univariateModels$stat = abs(w);
     univariateModels$pvalue = log(2) + pt(-abs(w), dof, log.p = TRUE) ;
-    #univariateModels$pvalue = log(a$pvalues);
     univariateModels$flag = numeric(cols) + 1;
     univariateModels$stat_hash = stat_hash;
     univariateModels$pvalue_hash = pvalue_hash;
     
   } else if(is.loaded("fisher_uv") == TRUE && identical(test, testIndSpearman) == TRUE ) {
-    a = .Fortran("fisher_uv", R = as.integer(rows), C = as.integer(cols), y = target, dataset = dataset,cs_cols = as.integer(0), pvalues = as.double(numeric(cols)), stats = as.double(numeric(cols)), targetID = as.integer(targetID))
+    a = .Fortran("fisher_uv", R = as.integer(rows), C = as.integer(cols), y = target, dataset = as.matrix(dataset), cs_cols = as.integer(0), pvalues = as.double(numeric(cols)), stats = as.double(numeric(cols)), targetID = as.integer(targetID))
     univariateModels = NULL;
     z = 0.5*log( (1+a$stat)/(1-a$stat) );
     dof = rows - 3; #degrees of freedom
     w = z * sqrt(dof) / 1.029563
-    univariateModels$stat = a$stats 
+    univariateModels$stat = abs(w) 
     univariateModels$pvalue = log(2) + pt(-abs(w), dof, log.p = TRUE);
     univariateModels$flag = numeric(cols) + 1;
-    univariateModels$stat_hash = as.numeric(stat_hash);
-    univariateModels$pvalue_hash = as.numeric(pvalue_hash);
+    univariateModels$stat_hash = stat_hash;
+    univariateModels$pvalue_hash = pvalue_hash;
     
   } else{  
-    univariateModels = univariateScore(target , dataset , test, hash=hash, dataInfo, stat_hash=stat_hash, pvalue_hash=pvalue_hash, targetID, robust = robust, ncores = ncores);
+    univariateModels = univariateScore(target , dataset , test, dataInfo = dataInfo, hash=hash, stat_hash=stat_hash, pvalue_hash=pvalue_hash, targetID=targetID, robust=robust, ncores=ncores);
   }
   
-  pvalues = univariateModels$pvalue;
+  pvalues = univariateModels$pvalue;      
   stats = univariateModels$stat;
   flags = univariateModels$flag;
-  stat_hash = univariateModels$stat_hash;
-  pvalue_hash = univariateModels$pvalue_hash;
+#   stat_hash = univariateModels$stat_hash;
+#   pvalue_hash = univariateModels$pvalue_hash;
   #if we dont have any associations , return
-  if(min(pvalues , na.rm=TRUE) > threshold) #or min(pvalues, na.rm=TRUE)
+  if ( min(pvalues , na.rm=TRUE) > threshold ) 
   {
     cat('No associations!');
     
@@ -644,7 +643,8 @@ InternalSES = function(target , dataset , max_k, threshold , test = NULL , equal
   queues <- lapply(1:varsize , function(i){queues[[i]] = i;})
   
   #select the variable with the highest association
-  selectedVar = which(flags == 1 & stats == stats[[which.max(stats)]]);
+  #selectedVar = which(flags == 1 & stats == stats[[which.max(stats)]]);
+  selectedVar = which(flags == 1 & pvalues == pvalues[[which.min(pvalues)]]);
   selectedVars[selectedVar] = 1;
   selectedVarsOrder[selectedVar] = 1; #CHANGE
   
@@ -768,22 +768,22 @@ InternalSES = function(target , dataset , max_k, threshold , test = NULL , equal
 
 #univariate feature selection ( uncoditional independence )
 
-univariateScore = function(target , dataset , test, hash, dataInfo, stat_hash=stat_hash, pvalue_hash=pvalue_hash, targetID, robust=robust, ncores = ncores)
+univariateScore = function(target , dataset , test, dataInfo, hash, stat_hash, pvalue_hash, targetID, robust, ncores)
 {
   #how many tests
   nTests = ncol(dataset);
-  
   #data structure to be returned
   univariateModels = NULL;
   univariateModels$pvalue = numeric(nTests) 
   univariateModels$stat = numeric(nTests)
   univariateModels$flag = numeric(nTests) 
   #univariateModels$uniModelFit = rep(NA,nTests);
-  
+
   test_results = NULL;
   #for way to initialize the univariateModel
   #FOR LOOP IS FASTER THAN VAPPLY IN THIS CASE (try apply withm margin 2)
   if ( ncores == 1 | is.null(ncores) | ncores <= 0 ) {
+
     for(i in 1:nTests)
     {
       #arguments order for any CI test are fixed
@@ -795,7 +795,7 @@ univariateScore = function(target , dataset , test, hash, dataInfo, stat_hash=st
         univariateModels$stat_hash = test_results$stat_hash
         univariateModels$pvalue_hash = test_results$pvalue_hash      
       }else{
-        univariateModels$pvalue[[i]] = 1;
+        univariateModels$pvalue[[i]] = log(1);
         univariateModels$stat[[i]] = 0;
         univariateModels$flag[[i]] = 1;
       }
@@ -808,20 +808,18 @@ univariateScore = function(target , dataset , test, hash, dataInfo, stat_hash=st
     mod <- foreach(i = 1:nTests, .combine = rbind) %dopar% {
     ## arguments order for any CI test are fixed
       if (i != targetID) {
-        test_results = test(target, dataset, i, 0, dataInfo = dataInfo, hash = hash, stat_hash = stat_hash, pvalue_hash = pvalue_hash, robust = robust)
-        return( c(test_results$pvalue, test_results$stat, test_results$flag, test_results$stat_hash, test_results$pvalue_hash) )
+        test_results = test(target, dataset, i, 0, dataInfo = dataInfo, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, robust = robust)
+        return( c(test_results$pvalue, test_results$stat, test_results$flag) )
       } else{
-        return( c(1, 0, 1, test_results$stat_hash, test_results$pvalue_hash) )
+        return( c(log(1), 0, 1) )
       }
     }
     stopCluster(cl)
     univariateModels$pvalue = as.vector( mod[, 1] )
     univariateModels$stat = as.vector( mod[, 2] )
     univariateModels$flag = as.vector( mod[, 3] )
-    if ( ncol(mod) == 3 ) { 
-      univariateModels$stat_hash = NULL
-      univariateModels$pvalue_hash = NULL   
-    } 
+    univariateModels$stat_hash = NULL
+    univariateModels$pvalue_hash = NULL   
   }
    return(univariateModels);
 }
@@ -991,7 +989,7 @@ compare_p_values = function(pval, pval2, stat, stat2)
       pval2 = 0.0;
       return(FALSE);#(pval < pval2);
     }else{
-#       if (pval <= 2e-16 | pval2 <= 2e-16){
+#       if (pval == pval2 ){
 #         return(stat > stat2);
 #       }else{
           return(pval < pval2);

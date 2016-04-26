@@ -169,6 +169,7 @@ testIndBeta = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univaria
     return(results);
   }
   n=length(target)  ## sample size
+
   #trycatch for dealing with errors
   res <- tryCatch(
 {
@@ -197,7 +198,7 @@ testIndBeta = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univaria
       lik1 = as.numeric( logLik(fit1) )
       lik2 = as.numeric( logLik(fit2) )
       stat = 2 * abs(lik1 - lik2)
-      dof = abs( length( coef(fit1) ) - length( coef(fit2) ) )
+      dof = length( coef(fit2) ) - length( coef(fit1) )
       pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE) 
   
   #calculate the p value and stat.

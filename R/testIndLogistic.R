@@ -1,5 +1,5 @@
-testIndLogistic = function(target, dataset, xIndex, csIndex, dataInfo=NULL , univariateModels=NULL ,
- hash = FALSE,stat_hash=NULL, pvalue_hash=NULL, target_type=0, robust=FALSE)
+testIndLogistic = function(target, dataset, xIndex, csIndex, dataInfo = NULL , univariateModels = NULL ,
+ hash = FALSE,stat_hash = NULL, pvalue_hash = NULL, target_type = 0, robust = FALSE)
 {
   #   TESTINDLOGISTIC Conditional Independence Test based on logistic regression for binary,categorical or ordinal class variables
   #
@@ -241,13 +241,17 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, dataInfo=NULL , uni
     }
     
     if(target_type == 1) #binomial
-    {
-      #Fitting generalized Linear Models
-      fit2 = glm(target ~ x, binomial)
-      dev1 = fit2$null.deviance
-      dev2 = fit2$deviance
-      p2 = length( coef(fit2) )
-      p1 = 1
+    { 
+      if (robust == FALSE ) { 
+        #Fitting generalized Linear Models
+        fit2 = glm(target ~ x, binomial)
+      } else {
+        fit2 = robust::glmRob(target ~ x, binomial, maxit = 100)
+      }  
+        dev1 = fit2$null.deviance
+        dev2 = fit2$deviance
+        p2 = length( coef(fit2) )
+        p1 = 1
     }else if(target_type == 2) #nominal-categorical
     {
       #Fitting multinomial Logistic regression
@@ -274,7 +278,11 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, dataInfo=NULL , uni
     if(target_type == 1) #binomial
     {
       #Fitting generalized Linear Models
-      fit2 = glm(target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ), binomial)
+      if ( robust == FALSE ){
+        fit2 = glm(target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ), binomial)
+      } else {
+        fit2 = robust::glmRob(target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ), binomial, maxit = 100)
+      }
       mod = anova(fit2)
       pr = nrow(mod)
       dev1 = mod[pr - 1, 4]

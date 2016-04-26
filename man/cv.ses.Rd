@@ -2,10 +2,16 @@
 \alias{cv.ses}
 \alias{auc.mxm}
 \alias{acc.mxm}
+\alias{ord_mae.mxm}
 \alias{mse.mxm}
 \alias{ci.mxm}
+\alias{ciwr.mxm}
 \alias{glm.mxm}
 \alias{lm.mxm}
+\alias{rq.mxm}
+\alias{acc_multinom.mxm}
+\alias{lmrob.mxm}
+\alias{weibreg.mxm}
 \alias{coxph.mxm}
 \alias{poisdev.mxm}
 \alias{nbdev.mxm}
@@ -15,6 +21,7 @@
 \alias{multinom.mxm}
 \alias{ordinal.mxm}
 \alias{beta.mxm}
+
 \title{
 Cross-Validation for SES
 }
@@ -71,14 +78,15 @@ test_target: target variable actual values to be compared with the predictions.
 
 The output of a metric function is a single numeric value. \bold{Higher values indicate better performance}. Metric based on error measures should be modified accordingly (e.g., multiplying the error for -1)
 
-The Metric functions that are currently supported are:
+The metric functions that are currently supported are:
 \itemize{
   \item auc.mxm: "area under the receiver operator characteristic curve" metric, as provided in the package ROCR.
   \item acc.mxm: accuracy metric.
 	\item mse.mxm: -1 * (mean squared error), for robust and non robust linear regression and median (quantile) regression.
-	\item ci.mxm: concordance index as provided in the rcorr.cens function from the Hmisc package.
+	\item ci.mxm: 1 - concordance index as provided in the rcorr.cens function from the Hmisc package. This is to be used with the Cox proportional hazards model only.
+        \item ciwr.mxm concordance index as provided in the rcorr.cens function from the Hmisc package. This is to be used with the Weibull regression model only.
 	\item poisdev.mxm: Poisson regression deviance.
-	\item nbdev.mxm: Negative binomial regression deviance.
+	\item nbdev.mxm: Negative binomial regression deviance. 
 }
 Usage: metric(predictions, test_target)
 
@@ -95,13 +103,15 @@ The modelling functions that are currently supported are:
   \item glm.mxm: fits a glm for a binomial family (Classification task).
   \item lm.mxm: fits a linear model model (stats) for the regression task.
   \item coxph.mxm: fits a cox proportional hazards regression model for the survival task.
+  \item weibreg.mxm: fits a Weibull regression model for the survival task.
   \item rq.mxm: fits a quantile (median) regression model for the regression task.
   \item rlm.mxm: fits a robust linear model model for the regression task.
   \item pois.mxm: fits a poisson regression model model for the regression task.  
   \item nb.mxm: fits a negative binomial regression model model for the regression task.  
   \item multinom.mxm: fits a multinomial regression model model for the regression task.
   \item ordinal.mxm: fits an ordinal regression model model for the regression task.
-  \item beta.mxm: fits a beta regression model model for the regression task.  
+  \item beta.mxm: fits a beta regression model model for the regression task. The predicted values are transformed into \eqn{R} using
+        the logit transformation. This is so that the "mse.mxm" metric function can be used. In addition, this way the performance can be         compared with the regression scenario, where the logit is applied and then a regression model is employed. 
 
 
 }

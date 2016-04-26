@@ -27,7 +27,7 @@ hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, target_type = 0, robust = FA
   The indices of the variables to condition on.
 }
   \item{dataInfo}{
-  list object with information on the structure of the data. Default value is NULL.
+  A list object with information on the structure of the data. Default value is NULL.
 }
   \item{univariateModels}{
   Fast alternative to the hash object for univariate test. List with vectors "pvalues" (p-values), "stats" (statistics) and "flags" (flag = TRUE if the test was succesful) representing the univariate association of each variable with the target. Default value is NULL.
@@ -66,7 +66,7 @@ If hash = TRUE, testIndSpeedglm requires the arguments 'stat_hash' and 'pvalue_h
 
 Important: Use these arguments only with the same dataset that was used at initialization.
 
-This test is designed for large sample sized data, tens and hundreds of thousands and it works for linear, logistic and poisson regression. The classical \code{\link{lm}} and \code{\link{glm}} functions will use too much memory when many observations are available. The package "speedglm" handles such data more efficiently. You can try and see, in the first case the computer will jam, whereas in the second it will not. Hence, this test is to be used in these cases only. We have not set a threshold on the sample size, so that the algorithm decides whether to shift to speedglm or not, because this depends upon the user's computing fascilities. 
+This test is designed for large sample sized data, tens and hundreds of thousands and it works for linear, logistic and poisson regression. The classical \code{\link{lm}} and \code{\link{glm}} functions will use too much memory when many observations are available. The package "speedglm" handles such data more efficiently. You can try and see, in the first case the computer will jam, whereas in the second it will not. Hence, this test is to be used in these cases only. We have not set a threshold on the sample size, so that the algorithm decides whether to shift to speedglm or not, because this depends upon the user's computing fascilities. When there are up to \eqn{20,000} observations, the built-in function \code{\link{lm}} is faster, but when \eqn{n=30,000}, the \code{\link{speedlm}} is more than twice as fast. 
 
 For all the available conditional independence tests that are currently included on the package, please see "?CondIndTests".
 }

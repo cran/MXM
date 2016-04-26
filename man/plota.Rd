@@ -1,11 +1,11 @@
 \name{plota}
 \alias{plota}
 \title{
-Plot of an undirected graph
+Plot of an (un)directed graph
 }
 
 \description{
-Plot of an undirected graph.
+Plot of an (un)directed graph.
 }
 
 \usage{
@@ -14,16 +14,16 @@ plota(G)
 
 \arguments{
   \item{G}{
-  The adjacency matrix as produced from \code{\link{mmhc.skel}} or any other algorithm. Currently this only supports undirected graphs.
+  The adjacency matrix as produced from \code{\link{mmhc.skel}} or any other algorithm. This can correspond to an undirected, partially directed or a completely directed graph. 
 }
 }
 
 \details{
- This visualises an undirected graph.
+ This visualises the directed graph.
 }
 
 \value{
-The plot of the undirected graph.
+The plot of the directed graph.
 }
 
 \references{
@@ -52,4 +52,4 @@ plota(a$G)
 }
 
 \keyword{ Network plot }
-\keyword{ Undirected graph }
+\keyword{ Directed graph }

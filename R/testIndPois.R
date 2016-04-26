@@ -1,5 +1,5 @@
-testIndPois = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariateModels=NULL , hash = FALSE, stat_hash=NULL, 
- pvalue_hash=NULL,robust=FALSE) 
+testIndPois = function(target, dataset, xIndex, csIndex, dataInfo = NULL, univariateModels = NULL , hash = FALSE, stat_hash = NULL, 
+ pvalue_hash = NULL,robust = FALSE) 
   {
   # TESTINDPOIS Conditional Independence Test for discrete class variables 
   # PVALUE = TESTINDPOIS(Y, DATA, XINDEX, CSINDEX, DATAINFO)
@@ -154,18 +154,22 @@ testIndPois = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univaria
   if(length(cs) == 0)
   {
     #compute the relationship between x,target directly
-    fit2 = glm(target ~ x, poisson)
+    if (robust == FALSE) {
+      fit2 = glm(target ~ x, poisson)
+    } else{
+      fit2 = robust::glmRob(target ~ x, poisson, maxit = 100)
+    }  
     dev1 = fit2$null.deviance
     dev2 = fit2$deviance
     d2 = length( coef(fit2) )
     d1 = 1
+    
   }else{
-    #fit1 = glm(target ~., data = dataset[, csIndex], poisson)
-    #dev1 = fit1$deviance
-    #d1 = length( coef(fit1) )
-    fit2 = glm(target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ), poisson)
-    #dev2 = fit2$deviance
-    #d2 = length( coef(fit2) )
+    if ( robust == FALSE ) {
+      fit2 = glm(target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ), poisson)
+    } else {
+      fit2 = robust::glmRob(target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ), poisson, maxit = 100)
+    }
     mod = anova(fit2)
     pr = nrow(mod)
     dev1 = mod[pr - 1, 4]

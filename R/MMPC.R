@@ -1,10 +1,8 @@
-
-
 MMPC = function(target , dataset , max_k = 3 , threshold = 0.05 , test = NULL , user_test = NULL, hash=FALSE, hashObject=NULL, robust = FALSE, ncores = 1, backward = FALSE)
 {
   #get the log threshold
   threshold = log(threshold)
-  
+
   ##############################
   # initialization part of MMPC #
   ##############################
@@ -487,12 +485,13 @@ MMPC = function(target , dataset , max_k = 3 , threshold = 0.05 , test = NULL , 
     varsToIterate = results$selectedVars;
     varsOrder = results$selectedVarsOrder;
     met = 1:length(varsToIterate)
+
     if(length(varsToIterate) > 0)
     {
       for(i in 1:length(met))
       {
-        tar <- dataset[,varsToIterate[i]];
-        datas <- cbind(target, dataset[,-varsToIterate[i]])
+        tar <- dataset[, varsToIterate[i]];
+        datas <- cbind(target, dataset[, -varsToIterate[i]])
         res = InternalMMPC(tar, datas, max_k, threshold , test, equal_case, user_test, dataInfo, hash, varsize, stat_hash, pvalue_hash, targetID, faster, robust = robust, ncores = ncores);
         if(1 %in% res$selectedVars == FALSE){
           met[i] = 0;

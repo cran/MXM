@@ -1,5 +1,5 @@
-testIndFisher = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariateModels=NULL , hash = FALSE, stat_hash=NULL,
- pvalue_hash=NULL, robust=FALSE) 
+testIndFisher = function(target, dataset, xIndex, csIndex, dataInfo = NULL, univariateModels=NULL , hash = FALSE, stat_hash = NULL,
+ pvalue_hash = NULL, robust = FALSE) 
   {
   # TESTINDFISHER Fisher Conditional Independence Test for continous class variables
   # PVALUE = TESTINDFISHER(Y, DATA, XINDEX, CSINDEX, DATAINFO)
@@ -76,7 +76,7 @@ testIndFisher = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univar
   if(xIndex < 0 || csIndex < 0)
   {
     message(paste("error in testIndFisher : wrong input of xIndex or csIndex"))
-    results <- list(pvalue = pvalue, stat = stat, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+    results <- list(pvalue = pvalue, stat = 0, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
     return(results);
   }
   
@@ -104,7 +104,7 @@ testIndFisher = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univar
   if (length(x) == 0 || length(target) == 0)
   {
     message(paste("error in testIndFisher : empty variable x or target"))
-    results <- list(pvalue = pvalue, stat = stat, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+    results <- list(pvalue = pvalue, stat = 0, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
     return(results);
   }
   
@@ -173,8 +173,8 @@ res <- tryCatch(
     }
     #compute the correlation coefficient between x,target directly
     if (robust == TRUE) { ## robust correlation
-      b1 = coef( MASS::rlm(target ~ x, maxit = 2000) )[2]
-      b2 = coef( MASS::rlm(x ~ target, maxit = 2000) )[2]
+      b1 = coef( MASS::rlm(target ~ x, maxit = 2000 ) )[2]
+      b2 = coef( MASS::rlm(x ~ target, maxit = 2000 ) )[2]
       stat = sqrt( abs (b1 * b2) ) 
     }else{
       stat = cor(x, target);
@@ -183,8 +183,8 @@ res <- tryCatch(
     #perform the test with the cs
     
    if (robust == TRUE) { ## robust correlation
-     e1 = resid( MASS::rlm(target ~ dataset[, csIndex], maxit = 2000) ) 
-     e2 = resid( MASS::rlm(dataset[, xIndex] ~ dataset[, csIndex], maxit = 2000) ) 
+     e1 = resid( MASS::rlm( target ~., data = data.frame( dataset[, csIndex] ), maxit = 2000 ) ) 
+     e2 = resid( MASS::rlm( dataset[, xIndex] ~.,  data = data.frame( dataset[, csIndex] ), maxit = 2000 ) )
      stat = cor(e1,e2) 
    }else{
      tmpm = cbind(x, target, cs);
@@ -229,7 +229,7 @@ res <- tryCatch(
   
   #testerrorcaseintrycatch(4);
   
-  results <- list(pvalue = pvalue, stat = stat, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+  results <- list(pvalue = pvalue, stat = abs(w), flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
   return(results);
   
 },

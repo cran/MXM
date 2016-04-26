@@ -1,5 +1,5 @@
 
-pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, graph = FALSE) {
+pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 1, graph = FALSE) {
   ## dataset contains the data, it must be a matrix 
   ## type can be either "pearson" or "spearman" for continuous variables OR
   ## "cat" for categorical variables
@@ -18,9 +18,15 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, grap
   }
   
   if (method == "spearman" || method == "pearson") {
-    ci.test = condi 
-    type = method
-    rob = rob
+    if (R == 1) {    
+      ci.test = condi 
+      type = method
+      rob = rob
+      R = 1
+    } else if (R > 1) {
+      ci.test = condi.perm
+    }
+    
   } else {
     ci.test = cat.ci
     type = NULL
@@ -34,50 +40,69 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, grap
   ## If an element has the number 2 it means there is connection, otherwiser it will have 0
   diag(G) = -100
   durat = proc.time()
-
   if ( method == "pearson" || method == "spearman") {
-    if ( rob == FALSE ) {
-      r = cor(dataset)
-      if (type == "pearson") {
-        stat = abs( 0.5 * log( (1 + r) / (1 - r) ) * sqrt(m - 3) )  ## absolute of the test statistic
-      } else if (type == "spearman") {
-        stat = abs( 0.5 * log( (1 + r) / (1 - r) ) * sqrt(m - 3) ) / 1.029563  ## absolute of the test statistic
+    
+    if (R == 1) {
+      if ( rob == FALSE ) {
+        r = cor(dataset)
+        if (type == "pearson") {
+          stata = abs( 0.5 * log( (1 + r) / (1 - r) ) * sqrt(m - 3) )  ## absolute of the test statistic
+        } else if (type == "spearman") {
+          stata = abs( 0.5 * log( (1 + r) / (1 - r) ) * sqrt(m - 3) ) / 1.029563  ## absolute of the test statistic
+        }
+        pv = pvalue = log(2) + pt(stata, m - 3, lower.tail = FALSE, log.p = TRUE)  ## logged p-values 
+        dof = matrix(m - 3, n, n)
+        diag(stata) = diag(dof) = 0
+        stadf = stata / dof
+
+      } else {
+
+        stat = pv = matrix(0, n, n)
+        for ( i in 1:c(n - 1) ) {
+          for ( j in c(i + 1):n ) {
+            ro <- condi(i, j, 0, dataset, type = "pearson", rob = TRUE) 
+            stat[i, j] = ro[1]
+            pv[i, j] = ro[2]
+          }
+        }
+        pvalue = pv + t(pv)  ## p-values
+        stata = stat + t(stat)
+        dof = matrix(m - 3, n, n)
+        stadf = stata / dof
       }
-      pv = pvalue = log(2) + pt(stat, m - 3, lower.tail = FALSE, log.p = TRUE)  ## logged p-values 
-      dof = matrix(rep(m - 3, n^2), ncol = n )
-      diag(dof) = 0
-      stadf = stat / dof
-    } else {
+      
+    } else if (R > 1) {
       stat = pv = matrix(0, n, n)
       for ( i in 1:c(n - 1) ) {
         for ( j in c(i + 1):n ) {
-          ro <- condi(i, j, 0, dataset, type = "pearson", rob = TRUE) 
-          stat[i, j] = ro[1]
-          pv[i, j] = ro[2]
+          ro <- permcor(dataset[, c(i, j)], R = R) 
+          stat[i, j] = ro$result[1]
+          pv[i, j] = log( ro$result[2] )
         }
       }
       pvalue = pv + t(pv)  ## p-values
-      stat = stat + t(stat)
-      dof = dof + t(dof)  ## p-values
-      stadf = stat / dof
-    }
+      stata = stat + t(stat)
+      dof = matrix(m - 3, n, n)
+      stadf = stata / dof
+    }   
 
   } else { ## type = cat
     stat = pv = dof = matrix(0, n, n)
     for ( i in 1:c(n - 1) ) {
-        for ( j in c(i + 1):n ) {
-          ro <- cat.ci(i, j, 0, dataset) 
-          stat[i, j] = ro[1]
-          pv[i, j] = ro[2]
-          dof[i, j] = ro[3] 
-        }
+      for ( j in c(i + 1):n ) {
+        ro <- cat.ci(i, j, 0, dataset) 
+        stat[i, j] = ro[1]
+        pv[i, j] = ro[2]
+        dof[i, j] = ro[3] 
       }
+    }
     pvalue = pv + t(pv)  ## p-values
-    stat = stat + t(stat)
-    diag(stat) <- 0
+    stata = stat + t(stat)
+    diag(stata) <- 0
     dof = dof + t(dof)  ## p-values
-    stadf = stat / dof
-  } 
+    stadf = stata / dof
+  }
+    
   pv = pvalue 
 
   #stat[ lower.tri(stat) ] = 2
@@ -146,7 +171,7 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, grap
         if ( length(rem) > 0 ) {
           pam = list()
           for ( j in 1:length(rem) ) {
-            pam[[ j ]] = as.vector( which(sam == rem[j], arr.ind = T)[, 1] ) 
+            pam[[ j ]] = as.vector( which(sam == rem[j], arr.ind = TRUE)[, 1] ) 
           }
         }
 
@@ -173,7 +198,7 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, grap
         if ( nrow(sam) == 0 ) {
           G = G  
         } else {
-          a = ci.test( zeu[i, 1], zeu[i, 2], sam[1, 1:k], dataset, type = type, rob = rob )
+          a = ci.test( zeu[i, 1], zeu[i, 2], sam[1, 1:k], dataset, type = type, rob = rob, R = R )
           if ( a[2] > alpha ) {
             G[ zeu[i, 1], zeu[i, 2] ] = 0  ## remove the edge between two variables
             G[ zeu[i, 2], zeu[i, 1] ] = 0  ## remove the edge between two variables 
@@ -183,7 +208,7 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, grap
             m = 1
             while ( a[2] < alpha  &  m < nrow(sam) ) {
               m = m + 1
-              a = ci.test( zeu[i, 1], zeu[i, 2], sam[m, 1:k], dataset, type = type, rob = rob )
+              a = ci.test( zeu[i, 1], zeu[i, 2], sam[m, 1:k], dataset, type = type, rob = rob, R = R )
               tes = tes + 1
             }
             if (a[2] > alpha) {
@@ -218,8 +243,8 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, grap
       n.tests[ k + 1 ] = tes
 
     }
-    
-    G <- G / 2  
+
+    G <- G / 2
     diag(G) = 0
     durat = proc.time() - durat
 
@@ -228,9 +253,12 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, grap
     for ( l in 1:k ) { 
       if ( is.matrix(sep[[ l ]]) ) {
         if ( nrow(sep[[ l ]]) > 0) {  
-          colnames( sep[[ l ]] )[1:2] = c("X", "Y")
-          colnames( sep[[ l ]] )[ 2 + 1:l ] = paste("SepVar", 1:l)
-          colnames( sep[[ l ]] )[ c(l + 3):c(l + 4) ] = c("stat", "logged.p-value")
+          sepa = sep[[ l ]]
+          colnames( sepa )[1:2] = c("X", "Y")
+          colnames( sepa )[ 2 + 1:l ] = paste("SepVar", 1:l)
+          colnames( sepa )[ c(l + 3):c(l + 4) ] = c("stat", "logged.p-value")
+          sepa =  sepa[ order(sepa[, 1], sepa[, 2] ), ]
+          sep[[ l ]] = sepa
         }
       } else {
         if ( length(sep[[ l ]]) > 0) { 
@@ -257,11 +285,11 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, grap
     }
   }  
   names(n.tests) = paste("k=", 0:k, sep ="")
-
-  aa = rowSums(G)
-  info = summary(aa)
   
-  if(graph == TRUE)
+  info <- summary( rowSums(G) )
+  density <- sum(G) / ( n * ( n - 1 ) )
+  
+ if(graph == TRUE)
   {
     if(requireNamespace("Rgraphviz", quietly = TRUE, warn.conflicts = FALSE) == TRUE)
     {
@@ -272,5 +300,5 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, grap
     }
   }
 
-  list(stat = stat, pvalue = pvalue, info = info, runtime = durat, kappa = k, n.tests = n.tests, G = G, sepset = sepset, title = title )
+  list(stat = stata, pvalue = pvalue, runtime = durat, kappa = k, n.tests = n.tests, density = density, info = info, G = G, sepset = sepset, title = title )
 }

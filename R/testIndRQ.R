@@ -161,6 +161,7 @@ testIndRQ = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariate
   if(length(cs) == 0)
   {
     #compute the relationship between x,target directly
+    #fit1 = fita
     fit1 = quantreg::rq(target ~ 1)
     fit2 = quantreg::rq(target ~ x)
   }else{
