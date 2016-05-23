@@ -68,7 +68,7 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> and M
 
 \examples{
 # simulate a dataset with continuous data
-y = rdag(1000, 10, 0.3)
+y = rdag(1000, 15, 0.3)
 tru = y$G 
 x = y$x
 mod = pc.con(x)
@@ -78,6 +78,11 @@ b = pc.or(mod)
 plota(tru) 
 dev.new()
 plota(b$G)
+
+plota( dag2eg(tru) )  ## essential graph
+dev.new()
+plota(b$G)
+
 }
 
 \keyword{ pc algorithm }

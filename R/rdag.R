@@ -11,7 +11,7 @@ rdag <- function(n, p, s, a = 0, m, A = NULL, seed = FALSE) {
     if ( s > 1 || s < 0 )  s <- 0.5
     if ( a > 1 || a < 0 )  a <- 0
     if ( seed == TRUE )  set.seed(1234567)
-    A <- matrix( numeric(p^2), nrow = p )
+    A <- matrix( 0, p, p )
     nu <- 0.5 * p * (p - 1)
     A[ lower.tri(A) ] <- rbinom(nu, 1, s)
     A[ A == 1 ] <- runif( sum(A), 0.1, 1 )
@@ -22,7 +22,7 @@ rdag <- function(n, p, s, a = 0, m, A = NULL, seed = FALSE) {
    
   Ip <- diag(p)
   sigma <- solve( Ip - A )
-  sigma <- crossprod( sigma ) 
+  sigma <- tcrossprod( sigma ) 
   nout <- 0
   if ( seed == TRUE )  set.seed(1234567)
   
@@ -35,11 +35,11 @@ rdag <- function(n, p, s, a = 0, m, A = NULL, seed = FALSE) {
     x <- MASS::mvrnorm(n, numeric(p), sigma)
   }
   
-  B <- A
+  B <- t( A )
   B[ B > 0 ] <- 2
   ind <- which( t(B) == 2 )
   B[ind] <- 3
   
   colnames(x) <- paste("X", 1:p, sep = "")
-  list(nout = nout, G = t( B ), A = A, x = x)
+  list(nout = nout, G = B, A = A, x = x)
 }

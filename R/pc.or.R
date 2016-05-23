@@ -107,7 +107,7 @@ pc.or <- function(mod, graph = FALSE) {
     }
     
     ## second orientation rule: if there is an arrow and then an edge make it arrow
-    
+
     if ( sum( G == 2 ) > 0 & sum( G == 1 ) > 0 ) {
       
       tup <- which( G == 2, arr.ind = TRUE )
@@ -115,9 +115,12 @@ pc.or <- function(mod, graph = FALSE) {
       for (i in 1:nup) {
         can <- tup[i, 2] 
         geit <- which( G[can, ] == 1 )
-        geit <- geit[ which( G[geit, can] != 2 ) ]
-        G[can, geit] <- 2
-        G[geit, can] <- 3
+        if ( sum( G[can, ] == 3 ) == 0 ) {
+          po = which( G[tup[i, 1], geit] == 0 ) 
+          G[can, po] <- 2
+          G[po, can] <- 3
+        }
+        
       }
       
     } 
@@ -128,7 +131,7 @@ pc.or <- function(mod, graph = FALSE) {
       
       poia <- which( G == 1, arr.ind = TRUE ) 
       poia1 <- which( G == 1 )
-      poia2 <- which( t(G) == 2 )
+      poia2 <- which( G == 3 )
       GGG <- G
       GGG[poia1] <- NA
       GGG[poia2] <- NA
@@ -187,9 +190,12 @@ pc.or <- function(mod, graph = FALSE) {
       for (i in 1:nup) {
         can <- tup[i, 2] 
         geit <- which( G[can, ] == 1 )
-        geit <- geit[ which( G[geit, can] != 2 ) ]
-        G[can, geit] <- 2
-        G[geit, can] <- 3
+        if ( sum( G[can, ] == 3 ) == 0 ) {
+          po = which( G[tup[i, 1], geit] == 0 ) 
+          G[can, po] <- 2
+          G[po, can] <- 3
+        }
+        
       }
       
     } 
@@ -200,7 +206,7 @@ pc.or <- function(mod, graph = FALSE) {
       
       poia <- which( G == 1, arr.ind = TRUE ) 
       poia1 <- which( G == 1 )
-      poia2 <- which( t(G) == 2 )
+      poia2 <- which( G == 3 )
       GGG <- G
       GGG[poia1] <- NA
       GGG[poia2] <- NA
@@ -263,9 +269,12 @@ pc.or <- function(mod, graph = FALSE) {
         for (i in 1:nup) {
           can <- tup[i, 2] 
           geit <- which( G[can, ] == 1 )
-          geit <- geit[ which( G[geit, can] != 2 ) ]
-          G[can, geit] <- 2
-          G[geit, can] <- 3
+          if ( sum( G[can, ] == 3 ) == 0 ) {
+            po = which( G[tup[i, 1], geit] == 0 ) 
+            G[can, po] <- 2
+            G[po, can] <- 3
+          }
+          
         }
         
       } 
@@ -276,7 +285,7 @@ pc.or <- function(mod, graph = FALSE) {
         
         poia <- which( G == 1, arr.ind = TRUE ) 
         poia1 <- which( G == 1 )
-        poia2 <- which( t(G) == 2 )
+        poia2 <- which( G == 3 )
         GGG <- G
         GGG[poia1] <- NA
         GGG[poia2] <- NA

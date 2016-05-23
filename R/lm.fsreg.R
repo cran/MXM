@@ -336,7 +336,7 @@ lm.fsreg <- function(target, dataset, threshold = 0.05, stopping = "BIC", tol = 
               # stat[i] <- tab[k + 1, 2] 
               # pval[i] <- tab[k + 1, 3]
               # mata[i, ] <- c( pval[i], stat[i] ) 
-              ww <- rlm( target ~., data = as.data.frame( dataset[, c(sela, mat[ i, 1]) ] ), maxit = 2000 )
+              ww <- rlm( target ~., data = data.frame( dataset[, c(sela, mat[ i, 1]) ] ), maxit = 2000 )
               mata[i, ] = c( 2 * as.numeric( logLik(ww) ), length( coef(ww) ) )
             }
             stopCluster(cl)  

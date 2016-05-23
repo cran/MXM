@@ -20,6 +20,7 @@
 \alias{max_min_assoc.temporal}
 \alias{min_assoc.temporal}
 \alias{univariateScore.temporal}
+\alias{is.sepset}
 
 \alias{proc_time-class}
 
@@ -50,7 +51,8 @@ Internal functions of Package \pkg{MXM}
 \item max_min_assoc.temporal( ... )
 \item min_assoc.temporal( ... )
 \item univariateScore.temporal( ... )
-\item aovlmrob( ... )
+\item is.sepset( ... ) 
+
 }
 }
 \details{

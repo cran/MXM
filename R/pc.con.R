@@ -156,17 +156,19 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
           condR <- ( R[xyIdx, xyIdx] ) - as.matrix( R[xyIdx, csIdx] ) %*% 
           ( solve( as.matrix( R[csIdx, csIdx] ) , rbind( R[csIdx, xyIdx] ) ) )
           r <- abs( condR[1, 2] / sqrt( condR[1, 1] * condR[2, 2]) ) 
+          if (r > 1)  r <- 1
+          
           if (method == "pearson") {
              stat <- abs( 0.5 * log( (1 + r) / (1 - r) ) ) * pse ## absolute of the test statistic
           } else if (method == "spearman") {
             stat <- abs( 0.5 * log( (1 + r) / (1 - r) ) ) * sse  ## absolute of the test statistic
           }
           aa <-  log(2) + pt(stat, dofk, lower.tail = FALSE, log.p = TRUE) 
+          tes <- tes + 1 
           if ( aa > alpha ) {
             G[ zeu[i, 1], zeu[i, 2] ] = 0  ## remove the edge between two variables
             G[ zeu[i, 2], zeu[i, 1] ] = 0  ## remove the edge between two variables 
             met[i, ] <- c( sam[1, 1:k], stat, aa )
-            tes <- tes + 1 
           } else {
             m <- 1
             while ( aa < alpha  &  m < nrow(sam) ) {
@@ -209,6 +211,7 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
       } else {
         sep[[ k ]] <- cbind( zeu[id, 1:2], met[id, ] )
       }
+      
       zeu <- zeu[-id, ]  
       if ( class(zeu) != "matrix" ) {
         zeu <- matrix(zeu, ncol = 4)

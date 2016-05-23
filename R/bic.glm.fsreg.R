@@ -1,4 +1,4 @@
-bic.glm.fsreg <- function( target, dataset, robust = FALSE, tol = 0, ncores = 1, maxit = 100 ) {
+bic.glm.fsreg <- function( target, dataset, robust = FALSE, tol = 0, ncores = 1) {
 
   p <- ncol(dataset)  ## number of variables
   bico <- numeric( p )
@@ -25,25 +25,26 @@ bic.glm.fsreg <- function( target, dataset, robust = FALSE, tol = 0, ncores = 1,
     
     runtime <- proc.time()
 
-    if ( robust == FALSE ) {
+    #if ( robust == FALSE ) {
       ini = glm( target ~ 1, family = oiko )$deviance + log(n)  ## initial BIC
-    } else {
-      ini = robust::glmRob( target ~ 1, family = oiko, maxit = maxit )$deviance + log(n)  ## initial BIC
-    }
+    #} else {
+    #  ini = robust::glmRob( target ~ 1, family = oiko, maxit = maxit )$deviance + log(n)  ## initial BIC
+    #}
 
     if (ncores <= 1) {
-      if ( robust == FALSE ) {  ## Non robust
+      #if ( robust == FALSE ) {  ## Non robust
         for (i in 1:p) {
           mi <- glm( target ~ dataset[, i], family = oiko )
           bico[i] <- BIC( mi )
         }
 
-      } else {  ## Robust
-        for (i in 1:p) {
-          mi <- robust::glmRob( target ~ dataset[, i], family = oiko, maxit = maxit )
-          bico[i] <- mi$deviance + length( coef( mi ) ) * log(n)
-        }
-      }
+      # } else {  ## Robust
+      #   for (i in 1:p) {
+      #     mi <- robust::glmRob( target ~ dataset[, i], family = oiko, maxit = maxit )
+      #     bico[i] <- mi$deviance + length( coef( mi ) ) * log(n)
+      #   }
+      # }
+        
       mat <- cbind(1:p, bico)
 
       if( any( is.na(mat) ) ) {
@@ -51,7 +52,7 @@ bic.glm.fsreg <- function( target, dataset, robust = FALSE, tol = 0, ncores = 1,
       }
 
     } else {
-      if ( robust == FALSE ) {  ## Non robust
+      #if ( robust == FALSE ) {  ## Non robust
         cl <- makePSOCKcluster(ncores)
         registerDoParallel(cl)
         bico <- numeric(p)
@@ -61,16 +62,16 @@ bic.glm.fsreg <- function( target, dataset, robust = FALSE, tol = 0, ncores = 1,
         }
         stopCluster(cl)
 
-      } else {  ## Robust
-        cl <- makePSOCKcluster(ncores)
-        registerDoParallel(cl)
-        bico <- numeric(p)
-        mod <- foreach( i = 1:p, .combine = rbind, .export = "glmRob", .packages = "robust" ) %dopar% {
-          ww <- robust::glmRob( target ~ dataset[, i], family = oiko, maxit = maxit )
-          bico[i] <- ww$deviance + length( coef( ww ) ) * log(n)
-        }
-        stopCluster(cl)
-      }
+      # } else {  ## Robust
+      #   cl <- makePSOCKcluster(ncores)
+      #   registerDoParallel(cl)
+      #   bico <- numeric(p)
+      #   mod <- foreach( i = 1:p, .combine = rbind, .export = "glmRob", .packages = "robust" ) %dopar% {
+      #     ww <- robust::glmRob( target ~ dataset[, i], family = oiko, maxit = maxit )
+      #     bico[i] <- ww$deviance + length( coef( ww ) ) * log(n)
+      #   }
+      #   stopCluster(cl)
+      # }
 
       mat <- cbind(1:p, mod)
 
@@ -94,14 +95,14 @@ bic.glm.fsreg <- function( target, dataset, robust = FALSE, tol = 0, ncores = 1,
       }
       mat <- mat[ order( mat[, 2] ), ]
 
-      if ( robust == FALSE ) {
+      #if ( robust == FALSE ) {
         mi = glm( target ~ dataset[, sel], family = oiko )
         tool[1] <- BIC( mi )
-      } else {
-        mi = robust::glmRob( target ~ dataset[, sel], family = oiko, maxit = maxit )
-        tool[1] <- mi$deviance + length( coef( mi ) ) * log(n)
-        if ( is.na(tool[1]) )  tool[1] <- ini
-      }
+      #} else {
+      #  mi = robust::glmRob( target ~ dataset[, sel], family = oiko, maxit = maxit )
+      #  tool[1] <- mi$deviance + length( coef( mi ) ) * log(n)
+      #  if ( is.na(tool[1]) )  tool[1] <- ini
+      #}
 
       moda[[ 1 ]] <- mi
     }
@@ -120,24 +121,24 @@ bic.glm.fsreg <- function( target, dataset, robust = FALSE, tol = 0, ncores = 1,
 
       if ( ncores <= 1 ) {
         bico <- numeric( pn )
-        if ( robust == FALSE ) {  ## Non robust
+        #if ( robust == FALSE ) {  ## Non robust
           for ( i in 1:pn ) {
             ma <- glm( target ~., data = as.data.frame( dataset[, c(sel, mat[i, 1]) ] ), family = oiko )
             bico[i] <- BIC( ma )
           }
 
-        } else {  ## Robust
-          for ( i in 1:pn ) {
-            ma <- robust::glmRob( target ~., data = as.data.frame( dataset[, c(sel, mat[i, 1]) ] ), family = oiko, maxit = maxit )
-            bico[i] <- ma$deviance + length( coef( ma ) ) * log(n)
-          }
-        }
+        # } else {  ## Robust
+        #   for ( i in 1:pn ) {
+        #     ma <- robust::glmRob( target ~., data = as.data.frame( dataset[, c(sel, mat[i, 1]) ] ), family = oiko, maxit = maxit )
+        #     bico[i] <- ma$deviance + length( coef( ma ) ) * log(n)
+        #   }
+        # }
 
         mat[, 2] <- bico
 
       } else {
 
-        if ( robust == FALSE ) {  ## Non robust
+        #if ( robust == FALSE ) {  ## Non robust
           cl <- makePSOCKcluster(ncores)
           registerDoParallel(cl)
           bico <- numeric(pn)
@@ -148,17 +149,17 @@ bic.glm.fsreg <- function( target, dataset, robust = FALSE, tol = 0, ncores = 1,
 
           stopCluster(cl)
 
-        } else {  ## Robust
-          cl <- makePSOCKcluster(ncores)
-          registerDoParallel(cl)
-          bico <- numeric(pn)
-          mod <- foreach( i = 1:pn, .combine = rbind, .export = "glmRob", .packages = "robust" ) %dopar% {
-            ww <- glmRob( target ~ dataset[, sel ] + dataset[, mat[i, 1] ], family = oiko, maxit = maxit )
-            bico[i] <- ww$deviance + length( coef( ww ) ) * log(n)
-          }
-
-          stopCluster(cl)
-        }
+        # } else {  ## Robust
+        #   cl <- makePSOCKcluster(ncores)
+        #   registerDoParallel(cl)
+        #   bico <- numeric(pn)
+        #   mod <- foreach( i = 1:pn, .combine = rbind, .export = "glmRob", .packages = "robust" ) %dopar% {
+        #     ww <- glmRob( target ~ dataset[, sel ] + dataset[, mat[i, 1] ], family = oiko, maxit = maxit )
+        #     bico[i] <- ww$deviance + length( coef( ww ) ) * log(n)
+        #   }
+        # 
+        #   stopCluster(cl)
+        # }
 
         mat[, 2] <- mod
 
@@ -180,13 +181,14 @@ bic.glm.fsreg <- function( target, dataset, robust = FALSE, tol = 0, ncores = 1,
         }
         mat <- mat[ order( mat[, 2] ), ]
 
-        if ( robust == FALSE ) {
+        #if ( robust == FALSE ) {
           mi = glm( target ~., data =as.data.frame( dataset[, sela] ), family = oiko )
           tool[2] <- BIC( mi )
-        } else {
-          mi = robust::glmRob( target ~ ~., data =as.data.frame( dataset[, sela] ), family = oiko, maxit = maxit )
-          tool[2] <- mi$deviance + length( coef( mi ) ) * log(n)
-        }
+        #} else {
+        #  mi = robust::glmRob( target ~ ~., data =as.data.frame( dataset[, sela] ), family = oiko, maxit = maxit )
+        #  tool[2] <- mi$deviance + length( coef( mi ) ) * log(n)
+        #}
+          
         moda[[ 2 ]] <- mi
 
       }
@@ -210,21 +212,21 @@ bic.glm.fsreg <- function( target, dataset, robust = FALSE, tol = 0, ncores = 1,
         pn <- p - k + 1
 
         if (ncores <= 1) {
-          if ( robust == FALSE ) {  ## Non robust
+          #if ( robust == FALSE ) {  ## Non robust
             for ( i in 1:pn ) {
               ma <- ma <- glm( target ~., data = as.data.frame( dataset[, c(sela, mat[i, 1]) ] ), family = oiko )
               mat[i, 2] <- BIC( ma )
             }
 
-          } else {  ## Robust
-            for ( i in 1:pn ) {
-              ma <- robust::glmRob( target ~., data = as.data.frame( dataset[, c(sela, mat[i, 1]) ] ), family = oiko, maxit = maxit )
-              mat[i, 2] <- ma$deviance + length( coef( ma ) ) * log(n)
-            }
-          }
+          # } else {  ## Robust
+          #   for ( i in 1:pn ) {
+          #     ma <- robust::glmRob( target ~., data = as.data.frame( dataset[, c(sela, mat[i, 1]) ] ), family = oiko, maxit = maxit )
+          #     mat[i, 2] <- ma$deviance + length( coef( ma ) ) * log(n)
+          #   }
+          # }
 
         } else {
-          if ( robust == FALSE ) {  ## Non robust
+          #if ( robust == FALSE ) {  ## Non robust
             cl <- makePSOCKcluster(ncores)
             registerDoParallel(cl)
             bico <- numeric(pn)
@@ -235,17 +237,18 @@ bic.glm.fsreg <- function( target, dataset, robust = FALSE, tol = 0, ncores = 1,
 
            stopCluster(cl)
 
-          } else {  ## Robust
-            cl <- makePSOCKcluster(ncores)
-            registerDoParallel(cl)
-            bico <- numeric(pn)
-            mod <- foreach( i = 1:pn, .combine = rbind, .export = "glmRob", .packages = "robust" ) %dopar% {
-              ww <- glmRob( target ~., data = as.data.frame( dataset[, c(sela, mat[i, 1]) ] ), family = oiko, maxit = maxit )
-              bico[i] = ww$deviance + length( coef( ww ) ) * log(n)
-            }
-
-            stopCluster(cl)
-          }
+          # } else {  ## Robust
+          #   cl <- makePSOCKcluster(ncores)
+          #   registerDoParallel(cl)
+          #   bico <- numeric(pn)
+          #   mod <- foreach( i = 1:pn, .combine = rbind, .export = "glmRob", .packages = "robust" ) %dopar% {
+          #     ww <- glmRob( target ~., data = as.data.frame( dataset[, c(sela, mat[i, 1]) ] ), family = oiko, maxit = maxit )
+          #     bico[i] = ww$deviance + length( coef( ww ) ) * log(n)
+          #   }
+          # 
+          #   stopCluster(cl)
+          # }
+        
           mat[, 2] <- mod
 
         }
@@ -268,13 +271,14 @@ bic.glm.fsreg <- function( target, dataset, robust = FALSE, tol = 0, ncores = 1,
           }
           mat <- mat[ order( mat[, 2] ), ]
 
-          if ( robust == FALSE ) {
+          #if ( robust == FALSE ) {
             ma = glm( target ~., data =as.data.frame( dataset[, sela] ), family = oiko )
             tool[k] <- BIC( mi )
-          } else {
-            ma = robust::glmRob( target ~., data =as.data.frame( dataset[, sela] ), family = oiko, maxit = maxit )
-            tool[k] <- ma$deviance + length( coef( ma ) ) * log(n)
-          }
+          #} else {
+          #  ma = robust::glmRob( target ~., data =as.data.frame( dataset[, sela] ), family = oiko, maxit = maxit )
+          #  tool[k] <- ma$deviance + length( coef( ma ) ) * log(n)
+          #}
+            
           moda[[ k ]] <- ma
 
         }
@@ -389,7 +393,7 @@ bic.glm.fsreg <- function( target, dataset, robust = FALSE, tol = 0, ncores = 1,
           }
          } else {
            for (i in 1:pn) {
-             ma = MASS::rlm( target ~., data = as.data.frame( dataset[, c(sel, mat[i, 1]) ] ), maxit = 2000 )
+             ma = MASS::rlm( target ~., data = data.frame( dataset[, c(sel, mat[i, 1]) ] ), maxit = 2000 )
              mat[i, 2] <- BIC( ma )
            }
          }
@@ -411,7 +415,7 @@ bic.glm.fsreg <- function( target, dataset, robust = FALSE, tol = 0, ncores = 1,
           registerDoParallel(cl)
           bico <- numeric(pn)
           mod <- foreach( i = 1:pn, .combine = rbind, export = "rlm", .packages = "MASS" ) %dopar% {
-            ww <- rlm( target ~., data = as.data.frame( dataset[, c(sel, mat[i, 1]) ] ), maxit = 2000 )
+            ww <- rlm( target ~., data = data.frame( dataset[, c(sel, mat[i, 1]) ] ), maxit = 2000 )
             bico[i] <- BIC( ww )
           }
           stopCluster(cl)
@@ -471,7 +475,7 @@ bic.glm.fsreg <- function( target, dataset, robust = FALSE, tol = 0, ncores = 1,
 
            } else {
              for ( i in 1:pn ) {
-               ma <- MASS::rlm( target ~., data = as.data.frame( dataset[, c(sela, mat[i, 1]) ] ), maxit = 2000 )
+               ma <- MASS::rlm( target ~., data = data.frame( dataset[, c(sela, mat[i, 1]) ] ), maxit = 2000 )
                mat[i, 2] = BIC( ma )
              }
            }
@@ -492,7 +496,7 @@ bic.glm.fsreg <- function( target, dataset, robust = FALSE, tol = 0, ncores = 1,
              registerDoParallel(cl)
              bico <- numeric(pn)
              mod <- foreach( i = 1:p, .combine = rbind, export = "rlm", .packages = "MASS" ) %dopar% {
-               ww <- rlm( target ~., data = as.data.frame( dataset[, c(sela, mat[i, 1]) ] ), maxit = 2000 )
+               ww <- rlm( target ~., data = data.frame( dataset[, c(sela, mat[i, 1]) ] ), maxit = 2000 )
                bico[i] = BIC( ww )
              }
              stopCluster(cl)
@@ -514,7 +518,7 @@ bic.glm.fsreg <- function( target, dataset, robust = FALSE, tol = 0, ncores = 1,
              ma <- lm( target ~., data = as.data.frame( dataset[, c(sela, sel) ] )  )
              tool[k] <- BIC( ma )
             } else {
-              ma <- MASS::rlm( target ~., data = as.data.frame( dataset[, c(sela, sel) ] ), maxit = 2000 )
+              ma <- MASS::rlm( target ~., data = data.frame( dataset[, c(sela, sel) ] ), maxit = 2000 )
               tool[k] <- BIC( ma )
             }
 
@@ -553,15 +557,15 @@ bic.glm.fsreg <- function( target, dataset, robust = FALSE, tol = 0, ncores = 1,
            if ( robust == FALSE ) {
             models <- final <- lm( target ~., data = as.data.frame( xx ) )
            } else {
-             models <- final <- MASS::rlm( target ~., data = as.data.frame( xx ), maxit = 2000 )
+             models <- final <- MASS::rlm( target ~., data = data.frame( xx ), maxit = 2000 )
            }
 
         } else {
-          if ( robust == FALSE ) {
+          #if ( robust == FALSE ) {
             models <- final <- glm( target ~., data = as.data.frame( xx ), family = oiko )
-          } else {
-            models <- final <- robust::glmRob( target ~., data = as.data.frame( xx ), family = oiko, maxit = maxit )
-          }
+          #} else {
+          #  models <- final <- robust::glmRob( target ~., data = as.data.frame( xx ), family = oiko, maxit = maxit )
+          #}
         }
 
       } else {
@@ -570,17 +574,17 @@ bic.glm.fsreg <- function( target, dataset, robust = FALSE, tol = 0, ncores = 1,
              if ( robust == FALSE ) {
               models[[ i ]] <- lm( target ~., data = as.data.frame( xx[, 1:i] ) )
              } else {
-               models[[ i ]] <- MASS::rlm( target ~., data = as.data.frame( xx[, 1:i] ), maxit = 2000 )
+               models[[ i ]] <- MASS::rlm( target ~., data = data.frame( xx[, 1:i] ), maxit = 2000 )
              }
           }
 
         } else {
           for (i in 1:d) {
-            if ( robust == FALSE ) {
+            #if ( robust == FALSE ) {
               models[[ i ]] <- glm( target ~., data = as.data.frame( xx[, 1:i] ), family = oiko )
-            } else {
-              models[[ i ]] <- robust::glmRob( target ~., data = as.data.frame( xx[, 1:i] ), family = oiko, maxit = maxit )
-            }
+            #} else {
+            #  models[[ i ]] <- robust::glmRob( target ~., data = as.data.frame( xx[, 1:i] ), family = oiko, maxit = maxit )
+            #}
           }
         }
 

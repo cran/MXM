@@ -50,7 +50,7 @@ A hash object (hash package required) which contains the cached generated statis
 A hash object (hash package required) which contains the cached generated p-values of a SES run in the current dataset, using the current test.
 }
   \item{robust}{
-A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust regression via MM-estimation available from the command \code{\link{lmRob}} in the package "robust". A robust F test is also performed.It takes more time than non robust version but it is suggested in case of outliers. Default value is FALSE. This is only used in testIndReg. Quantile regression is robust by default and for multivariate regression this has not been incorporated yet.
+A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust regression via MM-estimation available from  \code{\link{rlm}} in the package "MASS". A robust F test is also performed.It takes more time than non robust version but it is suggested in case of outliers. Default value is FALSE. This is only used in testIndReg. Quantile regression is robust by default and for multivariate regression this has not been incorporated yet.
 }
 %\item{fita}{
 %This argument is used in the SES or MMPC internally to spped up the computations in the first step (the univariate associations) of the algorithms. 

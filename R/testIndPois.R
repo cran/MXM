@@ -154,22 +154,22 @@ testIndPois = function(target, dataset, xIndex, csIndex, dataInfo = NULL, univar
   if(length(cs) == 0)
   {
     #compute the relationship between x,target directly
-    if (robust == FALSE) {
+    #if (robust == FALSE) {
       fit2 = glm(target ~ x, poisson)
-    } else{
-      fit2 = robust::glmRob(target ~ x, poisson, maxit = 100)
-    }  
+    #} else{
+    #  fit2 = robust::glmRob(target ~ x, poisson, maxit = 100)
+    #}  
     dev1 = fit2$null.deviance
     dev2 = fit2$deviance
     d2 = length( coef(fit2) )
     d1 = 1
     
   }else{
-    if ( robust == FALSE ) {
+    #if ( robust == FALSE ) {
       fit2 = glm(target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ), poisson)
-    } else {
-      fit2 = robust::glmRob(target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ), poisson, maxit = 100)
-    }
+    #} else {
+    #  fit2 = robust::glmRob(target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ), poisson, maxit = 100)
+    #}
     mod = anova(fit2)
     pr = nrow(mod)
     dev1 = mod[pr - 1, 4]

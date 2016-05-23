@@ -116,11 +116,11 @@ reg.fit <- function(y, dataset, event = NULL, reps = NULL, group = NULL, slopes 
 
     ## binary logistic regression
   } else if ( model == "binary" ) {
-    if ( robust == FALSE ) {
+    #if ( robust == FALSE ) {
       mod <- glm(y ~ ., data = as.data.frame(x), binomial)
-    } else {
-      mod <- robust::glmRob(y ~ ., data = as.data.frame(x), binomial, maxit = 100)
-    }
+    #} else {
+    #  mod <- robust::glmRob(y ~ ., data = as.data.frame(x), binomial, maxit = 100)
+    #}
 
     ## multinomial logistic regression
   } else if ( model == "multinomial" ) {
@@ -132,11 +132,11 @@ reg.fit <- function(y, dataset, event = NULL, reps = NULL, group = NULL, slopes 
 
     ## poisson regression
   } else if ( model == "poisson" ) {
-    if ( robust == FALSE ) {
+    #if ( robust == FALSE ) {
       mod <- glm(y ~ ., data = as.data.frame(x), poisson)
-    } else {
-      mod <- robust::glmRob(y ~ ., data = as.data.frame(x), poisson, maxit = 100)
-    }
+    #} else {
+    #  mod <- robust::glmRob(y ~ ., data = as.data.frame(x), poisson, maxit = 100)
+    #}
  
     ## negative binomial regression
   } else if ( model == "negbin" ) {

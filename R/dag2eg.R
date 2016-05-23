@@ -22,9 +22,11 @@ dag2eg <- function(dag, type = NULL) {
           a <- which(eg == 2) 
           b <- which(eg == 1, arr.ind = TRUE)   
           b <- t( apply(b, 1, sort ) )         
-          b <- unique(b )
-          eg[cbind(b[, 2], b[, 1]) ] <- 3
-          eg[cbind(b[, 1], b[, 2]) ] <- 2
+          b <- unique( b )
+          if ( nrow(b) > 0 ) {  
+            eg[cbind(b[, 2], b[, 1]) ] <- 3
+            eg[cbind(b[, 1], b[, 2]) ] <- 2
+          }
           eg[ a ] <- 1
           essen <- eg
            

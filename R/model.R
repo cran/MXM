@@ -123,13 +123,13 @@ model = function(target, dataset, sesObject, nsignat = 1, test = NULL) {
       }  
       
     } else if ( ci_test == "testIndPois") {
-      if ( rob == TRUE ) {
-        mod <- robust::glmRob( target ~ ., data = as.data.frame(dataset[, ypografi ]) , poisson, maxit = 100 )
-        bic <- mod$deviance + length( coef(mod) ) * log( length(target) )
-      } else {
+      #if ( rob == TRUE ) {
+      #  mod <- robust::glmRob( target ~ ., data = as.data.frame(dataset[, ypografi ]) , poisson, maxit = 100 )
+      #  bic <- mod$deviance + length( coef(mod) ) * log( length(target) )
+      #} else {
         mod <- glm( target ~ ., data = as.data.frame(dataset[, ypografi ]) , poisson )
         bic <- BIC( mod )
-      }
+      #}
 
     } else if ( ci_test == "testIndNB" ) {
       mod = MASS::glm.nb( target ~ ., data = as.data.frame(dataset[, ypografi ])  )
@@ -156,13 +156,13 @@ model = function(target, dataset, sesObject, nsignat = 1, test = NULL) {
       
     } else if ( ci_test == "testIndLogistic" || ci_test == "gSquare" ) {
       if ( length(unique(target)) == 2 ) {
-        if ( rob == TRUE ) {
-          mod <- robust::glmRob( target ~ ., data = as.data.frame(dataset[, ypografi ]) , binomial, maxit = 100 )
-          bic <- mod$deviance + length( coef(mod) ) * log( length(target) )
-        } else { 
+        #if ( rob == TRUE ) {
+        #  mod <- robust::glmRob( target ~ ., data = as.data.frame(dataset[, ypografi ]) , binomial, maxit = 100 )
+        #  bic <- mod$deviance + length( coef(mod) ) * log( length(target) )
+        #} else { 
           mod = glm( target ~., data = as.data.frame(dataset[, ypografi ]) , binomial ) 
           bic = BIC(mod)
-        }
+        #}
 
       } else if ( is.ordered(target) == FALSE ) { 
         target = as.factor( as.numeric( as.vector(target) ) )
@@ -243,13 +243,13 @@ model = function(target, dataset, sesObject, nsignat = 1, test = NULL) {
        } 
        
      } else if ( ci_test == "testIndPois ") {
-       if ( rob == TRUE ) {
-         mod[[ i ]] = glm( target ~ ., data = as.data.frame( dataset[, ypografi[i, ] ] ), poisson, maxit = 100 )
-         bic[i] = mod[[ i ]]$deviance + length( coef(mod[[ i ]]) ) * log( length(target) )
-       } else {  
+       #if ( rob == TRUE ) {
+       #  mod[[ i ]] = glm( target ~ ., data = as.data.frame( dataset[, ypografi[i, ] ] ), poisson, maxit = 100 )
+       #  bic[i] = mod[[ i ]]$deviance + length( coef(mod[[ i ]]) ) * log( length(target) )
+       #} else {  
          mod[[ i ]] = glm( target ~ ., data = as.data.frame( dataset[, ypografi[i, ] ] ), poisson )
          bic[i] = BIC( mod[[ i ]] )
-       }
+       #}
 
      } else if ( ci_test == "testIndNB" ) {
        mod[[ i ]] = MASS::glm.nb( target ~ ., data = as.data.frame( dataset[, ypografi[i, ] ] ) )
@@ -276,13 +276,13 @@ model = function(target, dataset, sesObject, nsignat = 1, test = NULL) {
 
      } else if ( ci_test == "testIndLogistic" || ci_test == "gSquare" ) {
        if ( length(unique(target)) == 2 ) {
-        if ( rob == TRUE ) {
-          mod[[ i ]] <- robust::glmRob( target ~ ., data = as.data.frame(dataset[, ypografi[i, ] ]) , binomial, maxit = 100 )
-          bic[[ i ]] <- mod[[ i ]]$deviance + length( coef(mod[[ i ]]) ) * log( length(target) )
-        } else { 
+        #if ( rob == TRUE ) {
+        #  mod[[ i ]] <- robust::glmRob( target ~ ., data = as.data.frame(dataset[, ypografi[i, ] ]) , binomial, maxit = 100 )
+        #  bic[[ i ]] <- mod[[ i ]]$deviance + length( coef(mod[[ i ]]) ) * log( length(target) )
+        #} else { 
           mod[[ i ]] = glm( target ~., data = as.data.frame(dataset[, ypografi[i, ] ]) , binomial ) 
           bic[[ i ]] = BIC(mod[[ i ]])
-        }
+        #}
 
        } else if ( is.ordered(target) == FALSE ) { 
          target = as.factor( as.numeric( as.vector(target) ) )
@@ -390,13 +390,13 @@ model = function(target, dataset, sesObject, nsignat = 1, test = NULL) {
 
      } else if ( ci_test == "testIndLogistic" || ci_test == "gSquare" ) {
        if ( length(unique(target)) == 2) {
-        if ( rob == TRUE ) {
-          mod[[ i ]] <- robust::glmRob( target ~ ., data = as.data.frame(dataset[, ypografi[i, ] ]) , binomial, maxit = 100 )
-          bic[[ i ]] <- mod[[ i ]]$deviance + length( coef(mod[[ i ]]) ) * log( length(target) )
-        } else { 
+        #if ( rob == TRUE ) {
+        #  mod[[ i ]] <- robust::glmRob( target ~ ., data = as.data.frame(dataset[, ypografi[i, ] ]) , binomial, maxit = 100 )
+        #  bic[[ i ]] <- mod[[ i ]]$deviance + length( coef(mod[[ i ]]) ) * log( length(target) )
+        #} else { 
           mod[[ i ]] = glm( target ~., data = as.data.frame(dataset[, ypografi[i, ] ]) , binomial ) 
           bic[[ i ]] = BIC(mod[[ i ]])
-        }
+        #}
 
        } else if ( is.ordered(target) == FALSE ) { 
          target = as.factor( as.numeric( as.vector(target) ) )

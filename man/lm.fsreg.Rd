@@ -55,14 +55,14 @@ The output of the algorithm is S3 object including:
 \item{mat}{
 A matrix with the variables and their latest test statistics and p-values.
 }
-\\item{info}{
+\item{info}{
 A matrix with the selected variables, their p-values and test statistics. Each row corresponds to a model which contains the variables up to that line. The BIC in the last column is the BIC of that model.
 }
 \item{models}{
 The regression models, one at each step.
 }
 \item{final}{
-The final regressio model.
+The final regression model.
 }
 \item{runtime}{
 The run time of the algorithm. A numeric vector. The first element is the user time, the second element is the system time and the third element is the elapsed time.

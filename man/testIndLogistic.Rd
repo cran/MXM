@@ -50,7 +50,7 @@ A numeric vector that represents the type of the target. Default value is 0. See
 }
 }
   \item{robust}{
-A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robustified version of the logistic regressions available here. Currently it is available only for the binary logistic regression. The robust part is in the estimation of the parameters only. The significance test for the variables is not robust, unlike the linear models, where even this testing is robust. 
+A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robustified version of the logistic regressions available here. Currently it is not available.
 }
 }
 

@@ -10,7 +10,7 @@ Variable selection in regression models with forward selection
 
 \usage{
 fs.reg(target, dataset, threshold = 0.05, test = NULL, stopping = "BIC", tol = 2, 
-robust = FALSE, ncores = 1, maxit = 100 ) 
+robust = FALSE, ncores = 1 ) 
 }
 
 \arguments{
@@ -40,9 +40,9 @@ It takes more time than a non robust version but it is suggested in case of outl
 \item{ncores}{
 How many cores to use. This plays an important role if you have tens of thousands of variables or really large sample sizes and tens of thousands of variables and a regression based test which requires numerical optimisation. In other cammmb it will not make a difference in the overall time (in fact it can be slower). The parallel computation is used in the first step of the algorithm, where univariate associations are examined, those take place in parallel. We have seen a reduction in time of 50\% with 4 cores in comparison to 1 core. Note also, that the amount of reduction is not linear in the number of cores.
 }
-\item{maxit}{
-The maximum number of iterations required by the MM estimators in the robust binary or poisson regrression. This argument is taken into account only if the argument robust is set to TRUE.
-}
+%\item{maxit}{
+5The maximum number of iterations required by the MM estimators in the robust binary or poisson regrression. This argument is %taken into account only if the argument robust is set to TRUE.
+%}
 }
 
 \details{
@@ -61,14 +61,14 @@ The output of the algorithm is S3 object including:
 \item{mat}{
 A matrix with the variables and their latest test statistics and p-values.
 }
-\\item{info}{
+\item{info}{
 A matrix with the selected variables, their p-values and test statistics. Each row corresponds to a model which contains the variables up to that line. The BIC in the last column is the BIC of that model.
 }
 \item{models}{
 The regression models, one at each step.
 }
 \item{final}{
-The final regressio model.
+The final regression model.
 }
 \item{runtime}{
 The run time of the algorithm. A numeric vector. The first element is the user time, the second element is the system time and the third element is the elapsed time.

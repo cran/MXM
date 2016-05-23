@@ -1,4 +1,4 @@
-bic.fsreg <- function( target, dataset, test = NULL, robust = FALSE, tol = 0, ncores = 1, maxit = 100 ) {
+bic.fsreg <- function( target, dataset, test = NULL, robust = FALSE, tol = 0, ncores = 1 ) {
 
   p <- ncol(dataset)  ## number of variables
   bico <- numeric( p )
@@ -130,7 +130,7 @@ bic.fsreg <- function( target, dataset, test = NULL, robust = FALSE, tol = 0, nc
     
   if ( test == "binary" || test == "poisson" ||  ( test == "gaussian"  &  !is.matrix(target) ) ) {
    
-    result <- bic.glm.fsreg( target, dataset, robust = robust, tol = tol, ncores = ncores, maxit = maxit ) 
+    result <- bic.glm.fsreg( target, dataset, robust = robust, tol = tol, ncores = ncores ) 
 
   } else {
  

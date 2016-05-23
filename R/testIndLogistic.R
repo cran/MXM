@@ -242,12 +242,12 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, dataInfo = NULL , u
     
     if(target_type == 1) #binomial
     { 
-      if (robust == FALSE ) { 
+      #if (robust == FALSE ) { 
         #Fitting generalized Linear Models
         fit2 = glm(target ~ x, binomial)
-      } else {
-        fit2 = robust::glmRob(target ~ x, binomial, maxit = 100)
-      }  
+      #} else {
+      # fit2 = robust::glmRob(target ~ x, binomial, maxit = 100)
+      #}  
         dev1 = fit2$null.deviance
         dev2 = fit2$deviance
         p2 = length( coef(fit2) )
@@ -278,11 +278,11 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, dataInfo = NULL , u
     if(target_type == 1) #binomial
     {
       #Fitting generalized Linear Models
-      if ( robust == FALSE ){
+      #if ( robust == FALSE ){
         fit2 = glm(target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ), binomial)
-      } else {
-        fit2 = robust::glmRob(target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ), binomial, maxit = 100)
-      }
+      #} else {
+      #  fit2 = robust::glmRob(target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ), binomial, maxit = 100)
+      #}
       mod = anova(fit2)
       pr = nrow(mod)
       dev1 = mod[pr - 1, 4]

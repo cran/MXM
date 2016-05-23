@@ -63,9 +63,9 @@ ridgereg.cv <- function( target, dataset, K = 10, lambda = seq(0, 2, by = 0.1),
         xtest <- ( xtest - rep( mx, rep(rmat, p) ) ) %*% s ## standardize the newdata values 
         xx <- scale(xtrain)[1:(n - rmat), ]  ## standardize the independent variables
         sa <- svd(xx)
-        u <- sa$u   ;   d <- sa$d   ;   v <- sa$v
+        u <- t(sa$u)   ;   d <- sa$d   ;   v <- sa$v
         for (i in 1:mi) {
-          beta <- ( v %*% diag( d / ( d^2 + lambda[i] ) ) %*% t(u) ) %*% yy 
+          beta <- ( v %*% diag( d / ( d^2 + lambda[i] ) ) %*% u ) %*% yy 
           est <- xtest %*% beta + my 
           per[vim, i] <- mean( (ytest - est)^2 ) 
         }
@@ -91,9 +91,9 @@ ridgereg.cv <- function( target, dataset, K = 10, lambda = seq(0, 2, by = 0.1),
         xx <- scale(xtrain)[1:c(n - rmat), ]  ## standardize the independent variables
         xtest <- ( xtest - rep( mx, rep(rmat, p) ) ) %*% s ## standardize the newdata values 
         sa <- svd(xx)
-        u <- sa$u   ;   d <- sa$d   ;   v <- sa$v
+        u <- t(sa$u)   ;   d <- sa$d   ;   v <- sa$v
         for ( i in 1:mi ) {
-          beta <- ( v %*% diag( d / ( d^2 + lambda[i] ) ) %*% t(u) ) %*% yy 
+          beta <- ( v %*% diag( d / ( d^2 + lambda[i] ) ) %*% u ) %*% yy 
           est <- xtest %*% beta + my 
           pe[i] <- mean( (ytest - est)^2 )
         }

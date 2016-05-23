@@ -1,4 +1,4 @@
-fs.reg <- function(target, dataset, threshold = 0.05, test = NULL, stopping = "BIC", tol = 2, robust = FALSE, ncores = 1, maxit = 100 ) {
+fs.reg <- function(target, dataset, threshold = 0.05, test = NULL, stopping = "BIC", tol = 2, robust = FALSE, ncores = 1) {
   
   ## target can be Real valued (normal), binary (binomial) or counts (poisson)
   ## dataset is a matrix or a data.frame with the predictor variables
@@ -55,7 +55,6 @@ fs.reg <- function(target, dataset, threshold = 0.05, test = NULL, stopping = "B
   ##################################
   # target checking and initialize #
   ##################################
-  
   
   
   dataset <- as.data.frame(dataset)  ## just in case
@@ -139,7 +138,7 @@ fs.reg <- function(target, dataset, threshold = 0.05, test = NULL, stopping = "B
   
   if ( test == "binary" || test == "poisson" ) {
     
-    result <- glm.fsreg( target, dataset, threshold = exp(threshold), tol = tol, robust = robust, ncores = ncores, maxit = maxit ) 
+    result <- glm.fsreg( target, dataset, threshold = exp(threshold), tol = tol, robust = robust, ncores = ncores) 
     
   } else if ( test == "gaussian"  &  !is.matrix(target) ) {
     

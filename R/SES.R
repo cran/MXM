@@ -800,6 +800,7 @@ univariateScore = function(target , dataset , test, dataInfo, hash, stat_hash, p
         univariateModels$flag[[i]] = 1;
       }
     }
+
   } else {
    # require(doParallel, quietly = TRUE, warn.conflicts = FALSE)  
     cl <- makePSOCKcluster(ncores)

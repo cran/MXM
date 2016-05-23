@@ -10,7 +10,7 @@ Variable selection in generalised linear regression models with forward selectio
 }
 
 \usage{
-bic.glm.fsreg( target, dataset, robust = FALSE, tol = 0, ncores = 1, maxit = 100 ) 
+bic.glm.fsreg( target, dataset, robust = FALSE, tol = 0, ncores = 1 ) 
 }
 
 \arguments{
@@ -21,7 +21,7 @@ The class variable. It can be either a vector with binary data (binomial regress
 The dataset; provide either a data frame or a matrix (columns = variables, rows = samples). These can be continous and or categorical.
 }
 \item{robust}{
-A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust version of the statistical test if it is available. It takes more time than a non robust version but it is suggested in case of outliers. Default value is FALSE. 
+A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust version of the statistical test if it is available. It takes more time than a non robust version but it is suggested in case of outliers. Default value is FALSE and is currently supported only by linear regression 
 }
 \item{tol}{
 The difference bewtween two successive values of BIC. By default this is is set to 2. If for example, the BIC difference between two succesive models is less than 2, the process stops and the last variable, even though significant does not enter the model. 
@@ -29,9 +29,9 @@ The difference bewtween two successive values of BIC. By default this is is set 
 \item{ncores}{
 How many cores to use. This plays an important role if you have tens of thousands of variables or really large sample sizes and tens of thousands of variables and a regression based test which requires numerical optimisation. In other cammmb it will not make a difference in the overall time (in fact it can be slower). The parallel computation is used in the first step of the algorithm, where univariate associations are examined, those take place in parallel. We have seen a reduction in time of 50\% with 4 cores in comparison to 1 core. Note also, that the amount of reduction is not linear in the number of cores.
 }
-\item{maxit}{
-The maximum number of iterations required by the MM estimators in the robust binary or poisson regrression. This argument is taken into account only if the argument robust is set to TRUE.
-}
+%\item{maxit}{
+%The maximum number of iterations required by the MM estimators in the robust binary or poisson regrression. This argument is taken into %account only if the argument robust is set to TRUE.
+%}
 }
 
 \details{
@@ -43,7 +43,7 @@ The output of the algorithm is S3 object including:
 \item{mat}{
 A matrix with the variables and their latest test statistics and p-values.
 }
-\\item{info}{
+\item{info}{
 A matrix with the selected variables, their p-values and test statistics. Each row corresponds to a model which contains the variables up to that line. The BIC in the last column is the BIC of that model.
 }
 \item{models}{
@@ -65,7 +65,7 @@ The run time of the algorithm. A numeric vector. The first element is the user t
 \author{
 Michail Tsagris
 
-R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> Michail Tsagris <mtsagris@yahoo.gr>
+R implementation and documentation: Giorgos Aathineou <athineou@csd.uoc.gr> Michail Tsagris <mtsagris@yahoo.gr>
 }
 
 \seealso{

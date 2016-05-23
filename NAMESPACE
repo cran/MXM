@@ -39,7 +39,7 @@ importFrom("lme4", lmer, glmer)
 importFrom("speedglm", speedlm, speedglm)
 
 #robust glms
-importFrom("robust", glmRob)
+#importFrom("robust", glmRob, lmsreg)
 
 #cv.ses
 importFrom("Hmisc", rcorr.cens)
@@ -55,7 +55,7 @@ importFrom("stats", "chisq.test")
 #more
 importFrom("methods", "new", "as")
 importFrom("stats", "predict", "var", "pt", "pf", "binomial", "family", "predict.lm", "BIC", "logLik", "median", "poisson", "sd",
-             "xtabs", "fitted", "rbinom", "runif")
+             "xtabs", "fitted", "rbinom", "runif", "drop1")
 
 importFrom("grDevices", "dev.new")
   
@@ -80,8 +80,9 @@ export(SES, InternalSES, MMPC, InternalMMPC, SES.temporal, InternalSES.temporal,
        testIndRQ, testIndGLMM, testIndMVreg, testIndBeta, testIndNB, testIndClogit, testIndPois, testIndReg, 
        testIndSpearman, testIndZIP, testIndSpeedglm, cv.ses, auc.mxm, acc.mxm, acc_multinom.mxm, mse.mxm, ci.mxm, ciwr.mxm, 
        ord_mae.mxm, poisdev.mxm, nbdev.mxm, glm.mxm, lm.mxm, pois.mxm, nb.mxm, multinom.mxm, rq.mxm, lmrob.mxm, ordinal.mxm, 
-       coxph.mxm, beta.mxm, weibreg.mxm, ridge.reg, ridgereg.cv, ridge.plot, model, nei, plota, reg.fit, pc.or, undir.path, rdag, mb, mmmb, 
-       permcor, findAncestors, findDescendants, transitiveClosure, dag2eg, bic.fsreg, bic.glm.fsreg, fs.reg, glm.fsreg, lm.fsreg)
+       coxph.mxm, beta.mxm, weibreg.mxm, ridge.reg, ridgereg.cv, ridge.plot, model, nei, plota, reg.fit, pc.or, undir.path, rdag, 
+       mb, mmmb, permcor, findAncestors, findDescendants, transitiveClosure, dag2eg, bic.fsreg, bic.glm.fsreg, fs.reg, glm.fsreg, 
+       lm.fsreg, glm.bsreg)
 
 exportClasses("SESoutput")
 exportClasses("MMPCoutput")

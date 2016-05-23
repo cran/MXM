@@ -1,4 +1,4 @@
-glm.fsreg <- function(target, dataset, threshold = 0.05, tol = 2, robust = FALSE, ncores = 1, maxit = 100 ) {
+glm.fsreg <- function(target, dataset, threshold = 0.05, tol = 2, robust = FALSE, ncores = 1) {
   
   ## target can be Real valued (normal), binary (binomial) or counts (poisson)
   ## dataset is a matrix or a data.frame with the predictor variables
@@ -36,33 +36,33 @@ glm.fsreg <- function(target, dataset, threshold = 0.05, tol = 2, robust = FALSE
     runtime <- proc.time()
     
     devi = dof = numeric(p)
-    if ( robust == FALSE ) {
+    #if ( robust == FALSE ) {
       ini = glm( target ~ 1, family = oiko )$deviance  ## residual deviance
-    } else {
-      ini = robust::glmRob( target ~ 1, family = oiko, maxit = maxit )$deviance  ## residual deviance
-    }
+    #} else {
+    #  ini = robust::glmRob( target ~ 1, family = oiko, maxit = maxit )$deviance  ## residual deviance
+    #}
  
     if (ncores <= 1) {
-      if ( robust == FALSE ) {  ## Non robust
+      #if ( robust == FALSE ) {  ## Non robust
         for (i in 1:p) {
           mi <- glm( target ~ dataset[, i], family = oiko )
           devi[i] <- mi$deviance
           dof[i] = length( coef( mi ) ) 
         }
         
-      } else {  ## Robust
-        for (i in 1:p) { 
-          mi <- robust::glmRob( target ~ dataset[, i], family = oiko, maxit = maxit )
-          devi[i] <- mi$deviance
-          dof[i] = length( coef( mi ) )          
-        }
-      }
+      #} else {  ## Robust
+      #  for (i in 1:p) { 
+      #    mi <- robust::glmRob( target ~ dataset[, i], family = oiko, maxit = maxit )
+      #    devi[i] <- mi$deviance
+      #    dof[i] = length( coef( mi ) )          
+      #  }
+      #}
 
       stat = ini - devi
       pval = pchisq( stat, dof - 1, lower.tail = FALSE, log.p = TRUE )
 
     } else {
-      if ( robust == FALSE ) {  ## Non robust
+      #if ( robust == FALSE ) {  ## Non robust
         cl <- makePSOCKcluster(ncores)
         registerDoParallel(cl)
         mata <- matrix(0, p, 2)
@@ -72,18 +72,18 @@ glm.fsreg <- function(target, dataset, threshold = 0.05, tol = 2, robust = FALSE
         }
 
         stopCluster(cl)
-
-      } else {  ## Robust
-        cl <- makePSOCKcluster(ncores)
-        registerDoParallel(cl)
-        mata <- matrix(0, p, 2)
-        mod <- foreach( i = 1:p, .combine = rbind, .export = "glmRob", .packages = "robust" ) %dopar% {
-          ww <- glmRob( target ~ dataset[, i], family = oiko, maxit = maxit  )
-          mata[i, ] <- c( ww$deviance, length( coef( ww ) )  )
-        }
-
-        stopCluster(cl)
-      }
+ 
+#       } else {  ## Robust
+#         cl <- makePSOCKcluster(ncores)
+#         registerDoParallel(cl)
+#         mata <- matrix(0, p, 2)
+#         mod <- foreach( i = 1:p, .combine = rbind, .export = "glmRob", .packages = "robust" ) %dopar% {
+#           ww <- robust::glmRob( target ~ dataset[, i], family = oiko, maxit = maxit  )
+#           mata[i, ] <- c( ww$deviance, length( coef( ww ) )  )
+#         }
+# 
+#         stopCluster(cl)
+#       }
 
       stat = ini - mod[, 1]
       pval = pchisq( stat, mod[, 2] - 1, lower.tail = FALSE, log.p = TRUE )
@@ -106,13 +106,13 @@ glm.fsreg <- function(target, dataset, threshold = 0.05, tol = 2, robust = FALSE
       }
       mat <- mat[ order( mat[, 2] ), ]
 
-      if ( robust == FALSE ) {
+      #if ( robust == FALSE ) {
         mi <- glm( target ~ dataset[, sel], family = oiko )
         tool[1] <- BIC( mi )
-      } else {
-        mi <- robust::glmRob( target ~ dataset[, sel], family = oiko, maxit = maxit )
-        tool[1] <- mi$deviance + length( coef( mi ) ) * log(n)
-      }
+      #} else {
+      #  mi <- robust::glmRob( target ~ dataset[, sel], family = oiko, maxit = maxit )
+      #  tool[1] <- mi$deviance + length( coef( mi ) ) * log(n)
+      #}
       moda[[ 1 ]] <- mi
     }
 
@@ -130,26 +130,27 @@ glm.fsreg <- function(target, dataset, threshold = 0.05, tol = 2, robust = FALSE
 
       if ( ncores <= 1 ) {
         devi = dof = numeric(pn)
-        if ( robust == FALSE ) {  ## Non robust
+        #if ( robust == FALSE ) {  ## Non robust
           for ( i in 1:pn ) {
             ww <- glm( target ~., data = as.data.frame( dataset[, c(sela, mat[i, 1]) ] ), family = oiko )
             devi[i] <- ww$deviance
             dof[i] = length( coef( ww ) )          
           }
 
-        } else {  ## Robust
-          for ( i in 1:pn ) {
-            ww <- robust::glmRob( target ~., data = as.data.frame( dataset[, c(sela, mat[i, 1]) ] ), family = oiko, maxit = maxit )
-            devi[i] <- ww$deviance
-            dof[i] = length( coef( ww ) ) 
-          }   
-        }
+        # } else {  ## Robust
+        #   for ( i in 1:pn ) {
+        #     ww <- robust::glmRob( target ~., data = as.data.frame( dataset[, c(sela, mat[i, 1]) ] ), family = oiko, maxit = maxit )
+        #     devi[i] <- ww$deviance
+        #     dof[i] = length( coef( ww ) ) 
+        #   }   
+        # }
+        
         stat = ini - devi
         pval = pchisq( stat, dof - do, lower.tail = FALSE, log.p = TRUE )
 
       } else {
         
-        if ( robust == FALSE ) {  ## Non robust
+        #if ( robust == FALSE ) {  ## Non robust
           cl <- makePSOCKcluster(ncores)
           registerDoParallel(cl)
           mata = matrix(0, pn, 2)  
@@ -160,17 +161,17 @@ glm.fsreg <- function(target, dataset, threshold = 0.05, tol = 2, robust = FALSE
 
           stopCluster(cl)
 
-        } else {  ## Robust
-          cl <- makePSOCKcluster(ncores)
-          registerDoParallel(cl)
-          mata = matrix(0, pn, 2)  
-          mod <- foreach( i = 1:pn, .combine = rbind, .export = "glmRob", .packages = "robust" ) %dopar% {
-            ww <- glmRob( target ~., data = as.data.frame( dataset[, c(sela, mat[i, 1]) ] ), family = oiko, maxit = maxit )
-            mata[i, ] <- c( ww$deviance, length( coef( ww ) ) )
-          }
-
-          stopCluster(cl)
-        }
+        # } else {  ## Robust
+        #   cl <- makePSOCKcluster(ncores)
+        #   registerDoParallel(cl)
+        #   mata = matrix(0, pn, 2)  
+        #   mod <- foreach( i = 1:pn, .combine = rbind, .export = "glmRob", .packages = "robust" ) %dopar% {
+        #     ww <- robust::glmRob( target ~., data = as.data.frame( dataset[, c(sela, mat[i, 1]) ] ), family = oiko, maxit = maxit )
+        #     mata[i, ] <- c( ww$deviance, length( coef( ww ) ) )
+        #   }
+        # 
+        #   stopCluster(cl)
+        # }
 
         stat = ini - mod[, 1]
         pval = pchisq( stat, mod[, 2] - do, lower.tail = FALSE, log.p = TRUE )
@@ -183,13 +184,13 @@ glm.fsreg <- function(target, dataset, threshold = 0.05, tol = 2, robust = FALSE
       sel <- mat[ina, 1]    
       
       if ( mat[ina, 2] < threshold ) {
-        if ( robust == FALSE ) {
+        #if ( robust == FALSE ) {
           ma <- glm( target ~ dataset[, sela] + dataset[, sel], family = oiko )
           tool[k] <- BIC( ma )
-        } else {
-          ma <- robust::glmRob( target ~  dataset[, sela] + dataset[, sel], family = oiko, maxit = maxit )
-          tool[k] <- ma$deviance + length( coef( ma ) ) * log(n)
-        }
+        #} else {
+        #  ma <- robust::glmRob( target ~  dataset[, sela] + dataset[, sel], family = oiko, maxit = maxit )
+        #  tool[k] <- ma$deviance + length( coef( ma ) ) * log(n)
+        #}
 
         if ( tool[ k - 1 ] - tool[ k ] <= tol ) {
           info <- rbind(info, c( 1e300, 0, 0 ) )
@@ -228,26 +229,26 @@ glm.fsreg <- function(target, dataset, threshold = 0.05, tol = 2, robust = FALSE
         
         if (ncores <= 1) {  
           devi = dof = numeric(pn) 
-          if ( robust == FALSE ) {  ## Non robust
+          #if ( robust == FALSE ) {  ## Non robust
             for ( i in 1:pn ) {
               ma <- glm( target ~., data = as.data.frame( dataset[, c(sela, mat[i, 1] ) ] ), family = oiko )
               devi[i] <- ma$deviance
               dof[i] = length( coef( ma ) ) 
             }
 
-          } else {  ## Robust
-            for ( i in 1:pn ) {
-              ma <- robust::glmRob( target ~., data = as.data.frame( dataset[, c(sela, mat[i, 1]) ] ), family = oiko, maxit = maxit )
-              devi[i] <- ma$deviance
-              dof[i] = length( coef( ma ) ) 
-            }
-          }
+          # } else {  ## Robust
+          #   for ( i in 1:pn ) {
+          #     ma <- robust::glmRob( target ~., data = as.data.frame( dataset[, c(sela, mat[i, 1]) ] ), family = oiko, maxit = maxit )
+          #     devi[i] <- ma$deviance
+          #     dof[i] = length( coef( ma ) ) 
+          #   }
+          # }
 
           stat = ini - devi
           pval = pchisq( stat, dof - do, lower.tail = FALSE, log.p = TRUE )
 
         } else {
-          if ( robust == FALSE ) {  ## Non robust
+          #if ( robust == FALSE ) {  ## Non robust
             cl <- makePSOCKcluster(ncores)
             registerDoParallel(cl)
             devi = dof = numeric(pn)
@@ -259,17 +260,17 @@ glm.fsreg <- function(target, dataset, threshold = 0.05, tol = 2, robust = FALSE
 
            stopCluster(cl)
 
-          } else {  ## Robust
-            cl <- makePSOCKcluster(ncores)
-            registerDoParallel(cl)
-            mata = matrix(0, pn, 2)  
-            mod <- foreach( i = 1:pn, .combine = rbind, .export = "glmRob", .packages = "robust" ) %dopar% {
-              ww <- glmRob( target ~., data = as.data.frame( dataset[, c(sela, mat[i, 1]) ] ), family = oiko, maxit = maxit )
-              mata[i, ] <- c( ww$deviance, length( coef( ww ) ) )
-            }
-
-            stopCluster(cl)
-          }
+          # } else {  ## Robust
+          #   cl <- makePSOCKcluster(ncores)
+          #   registerDoParallel(cl)
+          #   mata = matrix(0, pn, 2)  
+          #   mod <- foreach( i = 1:pn, .combine = rbind, .export = "glmRob", .packages = "robust" ) %dopar% {
+          #     ww <- robust::glmRob( target ~., data = as.data.frame( dataset[, c(sela, mat[i, 1]) ] ), family = oiko, maxit = maxit )
+          #     mata[i, ] <- c( ww$deviance, length( coef( ww ) ) )
+          #   }
+          # 
+          #   stopCluster(cl)
+          # }
 
           stat = ini - mod[, 1]
           pval = pchisq( stat, mod[, 2] - do, lower.tail = FALSE, log.p = TRUE )
@@ -282,13 +283,13 @@ glm.fsreg <- function(target, dataset, threshold = 0.05, tol = 2, robust = FALSE
        sel <- mat[ina, 1]    
         
           if ( mat[ina, 2] < threshold ) {
-            if ( robust == FALSE ) {
+            #if ( robust == FALSE ) {
               ma <- glm( target ~., data = as.data.frame( dataset[, c(sela, sel) ] ), family = oiko )
               tool[k] <- BIC( ma )
-            } else {
-              ma <- robust::glmRob( target ~., data = as.data.frame( dataset[, c(sela, sel) ] ), family = oiko, maxit = maxit )
-              tool[k] <- ma$deviance + length( coef( ma ) ) * log(n)
-            } 
+            #} else {
+            #  ma <- robust::glmRob( target ~., data = as.data.frame( dataset[, c(sela, sel) ] ), family = oiko, maxit = maxit )
+            #  tool[k] <- ma$deviance + length( coef( ma ) ) * log(n)
+            #} 
             if ( tool[ k - 1 ] - tool[ k  ] < tol ) {
               info <- rbind(info, c( 1e300, 0, 0 ) )
               
@@ -329,19 +330,19 @@ glm.fsreg <- function(target, dataset, threshold = 0.05, tol = 2, robust = FALSE
         xx <- as.data.frame( dataset[, sela] )
         colnames(xx) <- paste("V", sela, sep = "") 
 
-          if ( robust == FALSE ) {
+          #if ( robust == FALSE ) {
             models[[ 1 ]] <- final <- glm( target ~., data = as.data.frame( xx ), family = oiko )
-          } else {
-            models[[ 1]] <- final <- robust::lmRob( target ~., data = as.data.frame( xx ), family = oiko, maxit = maxit )
-          }
+          #} else {
+          #  models[[ 1]] <- final <- robust::glmRob( target ~., data = as.data.frame( xx ), family = oiko, maxit = maxit )
+          #}
         
       } else {
         for (i in 1:d) {
-          if ( robust == FALSE ) {
+          #if ( robust == FALSE ) {
             models[[ i ]] <- glm( target ~., data = as.data.frame( xx[, 1:i] ), family = oiko )
-          } else { 
-            models[[ i ]] <- glmRob( target ~., data = as.data.frame( xx[, 1:i]), family = oiko, maxit = maxit )
-          }
+          #} else { 
+          #  models[[ i ]] <- robust::glmRob( target ~., data = as.data.frame( xx[, 1:i]), family = oiko, maxit = maxit )
+          #}
         }
       }
 
