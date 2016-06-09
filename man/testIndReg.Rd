@@ -119,9 +119,8 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.gr>, Vincenzo
 }
 
 \examples{
-
 #simulate a dataset with continuous data
-dataset <- matrix(runif(500 * 100, 1, 100), ncol = 500 )
+dataset <- matrix(runif(100 * 100, 1, 100), ncol = 100 )
 #the target feature is the last column of the dataset as a vector
 target <- dataset[, 100]
 dataset <- dataset[, -100]

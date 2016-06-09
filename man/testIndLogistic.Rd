@@ -113,7 +113,6 @@ This test uses the function multinom (package nnet) for multinomial logistic reg
 \examples{
 #require(gRbase) #for faster computations in the internal functions
 require(nnet)
-require(stats)
 require(ordinal)
 
 #simulate a dataset with categorical data 

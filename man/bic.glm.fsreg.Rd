@@ -10,7 +10,7 @@ Variable selection in generalised linear regression models with forward selectio
 }
 
 \usage{
-bic.glm.fsreg( target, dataset, robust = FALSE, tol = 0, ncores = 1 ) 
+bic.glm.fsreg( target, dataset, test = NULL, robust = FALSE, tol = 0, ncores = 1 ) 
 }
 
 \arguments{
@@ -19,6 +19,9 @@ The class variable. It can be either a vector with binary data (binomial regress
 }
 \item{dataset}{
 The dataset; provide either a data frame or a matrix (columns = variables, rows = samples). These can be continous and or categorical.
+}
+\item{test}{
+This can be either "gaussian" for a continuous (univariate and multivariate) target, "binary" for a binary target, "poisson" for counts or NULL (default value).
 }
 \item{robust}{
 A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust version of the statistical test if it is available. It takes more time than a non robust version but it is suggested in case of outliers. Default value is FALSE and is currently supported only by linear regression 

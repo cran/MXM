@@ -53,12 +53,18 @@ bic.fsreg <- function( target, dataset, test = NULL, robust = FALSE, tol = 0, nc
   if ( is.null(test) ) {
 
     ## linear regression 
-    if ( class(target) == "numeric" ) {
+    if ( class(target) == "numeric" || class(target) == "vector" ) {
+
+      ## percentages
+      if ( min( target ) > 0 & max( target ) < 1 )  {  ## are they percentages?
+        target <- log( target / (1 - target) ) 
+      }
       test <- "gaussian"  
+      
     }
     
     ## multivariate data
-    if ( class(target) == "matrix" ) {
+    if ( sum( class(target) == "matrix" ) > 0 ) {
       test <- "gaussian"
       a <- rowSums(target)
       if ( min( target ) > 0 & round( sd(a), 16 ) == 0 ) { ## are they compositional data?
@@ -66,18 +72,11 @@ bic.fsreg <- function( target, dataset, test = NULL, robust = FALSE, tol = 0, nc
       }
     }
     
-    ## percentages
-    if ( min( target ) > 0 & max( target ) < 1 )  {  ## are they percentages?
-      target <- log( target / (1 - target) ) 
-      test <- "gaussian"
-    }
-    
     ## surival data
-    if ( class(target) == "Surv" ) {
+    if ( sum( class(target) == "Surv" ) > 0 ) {
       test <- "Cox"
     }
 
-    
     ## binary data
     if ( length( unique(target) ) == 2 ) {
       test <- "binary"   
@@ -114,7 +113,7 @@ bic.fsreg <- function( target, dataset, test = NULL, robust = FALSE, tol = 0, nc
         test <- "binary"
         
         ## linear regression 
-      } else if ( sum( class(target) == "numeric" ) > 0 ) {
+      } else if ( sum( class(target) == "numeric" ) > 0  || sum( class(target) == "vector" ) > 0 ) {
         test <- "gaussian"  
       }
     } 
@@ -128,9 +127,9 @@ bic.fsreg <- function( target, dataset, test = NULL, robust = FALSE, tol = 0, nc
     ci_model = test
     #cat(test)
     
-  if ( test == "binary" || test == "poisson" ||  ( test == "gaussian"  &  !is.matrix(target) ) ) {
+  if ( test == "binary" || test == "poisson" ||  ( test == "gaussian"  &  !is.matrix(target) ) || ( test == "gaussian" ) ) {
    
-    result <- bic.glm.fsreg( target, dataset, robust = robust, tol = tol, ncores = ncores ) 
+    result <- bic.glm.fsreg( target, dataset, test = test, robust = robust, tol = tol, ncores = ncores ) 
 
   } else {
  

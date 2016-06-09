@@ -363,9 +363,9 @@ SES.temporal = function(target=NULL , reps = NULL , group, dataset=NULL , max_k 
   #call the main SES function after the checks and the initializations
   results = InternalSES.temporal(target, reps, group, dataset, max_k, threshold , test, equal_case, user_test, dataInfo, hash, varsize, stat_hash, pvalue_hash, targetID, faster, slopes, ncores);
   
-  SES.temporaloutput <-new("SES.temporaloutput", selectedVars = results$selectedVars, selectedVarsOrder=results$selectedVarsOrder, queues=results$queues, signatures=results$signatures, hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, max_k=results$max_k, threshold = results$threshold, runtime=results$runtime, test=ci_test, slope = results$slope);
+  SES.temporal.output <-new("SES.temporal.output", selectedVars = results$selectedVars, selectedVarsOrder=results$selectedVarsOrder, queues=results$queues, signatures=results$signatures, hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, max_k=results$max_k, threshold = results$threshold, runtime=results$runtime, test=ci_test, slope = results$slope);
   
-  return(SES.temporaloutput);
+  return(SES.temporal.output);
   
 }
 

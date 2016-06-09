@@ -1,4 +1,4 @@
-bic.glm.fsreg <- function( target, dataset, robust = FALSE, tol = 0, ncores = 1) {
+bic.glm.fsreg <- function( target, dataset, test = NULL, robust = FALSE, tol = 0, ncores = 1) {
 
   p <- ncol(dataset)  ## number of variables
   bico <- numeric( p )
@@ -15,7 +15,7 @@ bic.glm.fsreg <- function( target, dataset, robust = FALSE, tol = 0, ncores = 1)
   ## if it is binomial or poisson regression
   #########
 
-  if ( length( unique(target) ) == 2 || sum( round(target) - target ) == 0 ) {
+  if ( ( is.null(test) & length( unique(target) ) == 2 ) || ( is.null(test) & sum( round(target) - target ) == 0 ) || ( sum( test == "poisson") == 1 ) || ( sum( test == "binary") == 1 ) ) {
 
    if ( length( unique(target) ) == 2 ) {
       oiko <- "binomial"  ## binomial regression
@@ -290,16 +290,16 @@ bic.glm.fsreg <- function( target, dataset, robust = FALSE, tol = 0, ncores = 1)
     runtime <- proc.time() - runtime
 
 
-    ##############
-    ##############
+    #####################################################
+    #####################################################
     ##          ##
     ##          ##  else it is linear regression
     ##          ##
-    ##############
-    ##############
+    #####################################################
+    #####################################################
 
 
-  } else {
+  } else if ( ( sum( test == "gaussian") == 1 ) || ( is.null(test) & length( unique(target) ) > 2 ) || ( is.null(test) & sum( round(target) - target ) != 0) )  {
 
   
     runtime <- proc.time()
@@ -536,7 +536,6 @@ bic.glm.fsreg <- function( target, dataset, robust = FALSE, tol = 0, ncores = 1)
       }
     }
 
-    runtime <- proc.time() - runtime
   }
 
     d <- length(sela)
@@ -589,12 +588,15 @@ bic.glm.fsreg <- function( target, dataset, robust = FALSE, tol = 0, ncores = 1)
         }
 
         final <- summary( models[[ d ]] )
+        runtime <- proc.time() - runtime
+        
       }
 
       info <- info[1:d, ]
       if ( d == 1 )  info <- matrix(info, nrow = 1)
       colnames(info) <- c( "variables", "BIC" )
       rownames(info) <- info[, 1]
+    
     }
 
     list(mat = t(mat), info = info, models = models, final = final, runtime = runtime )

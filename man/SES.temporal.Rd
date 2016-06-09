@@ -28,8 +28,7 @@ The class variable. Provide a vector with continuous (normal), binary (binomial)
   A numeric vector containing the subjects or groups. It must be of the same legnth as target. 
 }
   \item{dataset}{
-The data-set; provide either a data frame or a matrix (columns = variables , rows = samples).
-Alternatively, provide an ExpressionSet (in which case rows are samples and columns are features, see bioconductor for details).
+The data-set; provide either a data frame or a matrix (columns = variables , rows = samples). Currently, only continuous datasets are supported. Alternatively, provide an ExpressionSet (in which case rows are samples and columns are features, see bioconductor for details).
 }
   \item{max_k}{
 The maximum conditioning set to use in the conditional indepedence test (see Details). Integer, default value is 3.
@@ -164,13 +163,13 @@ The only package required for the SES.temporal and MMPC.temporal algorithm opera
 }
 
 \examples{
-#require(gRbase) #for faster computations in the internal functions
-#require(lme4)
-#data(sleepstudy)
-#attach(sleepstudy)
-#x <- matrix(rnorm(180 * 100),ncol = 100) ## unrelated preidctor variables
-#m1 <- SES.temporal(Reaction, Days, Subject, x)
-#m2 <- MMPC.temporal(Reaction, Days, Subject, x)
+## require(gRbase) #for faster computations in the internal functions
+## require(lme4)
+## data(sleepstudy)
+## attach(sleepstudy)
+## x <- matrix(rnorm(180 * 100),ncol = 100) ## unrelated preidctor variables
+## m1 <- SES.temporal(Reaction, Days, Subject, x)
+## m2 <- MMPC.temporal(Reaction, Days, Subject, x)
 }
 
 \keyword{ SES }

@@ -111,20 +111,7 @@ R implementation and documentation: Vincenzo Lagani <vlagani@csd.uoc.gr>, Giorgo
 \examples{
 #require(gRbase) #for faster computations in the internal functions
 
-#simulate a dataset with categorical data 
-dataset <- matrix( sample(c(0, 1), 50 * 100000, replace = TRUE), ncol = 50)
-#initialize categorical target
-target <- dataset[, 50]
-#remove target from the dataset
-dataset <- dataset[, -50]
 
-#run the conditional independence test for the nominal class variable
-# check the runtimes between the two ways
-system.time( results <- testIndSpeedglm(target, dataset, xIndex = 44, csIndex = c(10, 20), 
-target_type = 2) )
-
-system.time( results <- testIndLogistic(target, dataset, xIndex = 44, csIndex = c(10, 20), 
-target_type = 2) )
 
 
 }

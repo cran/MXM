@@ -12,7 +12,17 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
   
   alpha <- log(alpha)
   title <- deparse( substitute(dataset) )
-
+  dataset <- as.matrix(dataset)
+  
+  #check for NA values in the dataset and replace them with the variable mean
+  if( any( is.na(dataset) ) == TRUE )
+  {
+    #dataset = as.matrix(dataset);
+    warning("The dataset contains missing values (NA) and they were replaced automatically by the variable (column) median (for numeric) or by the most frequent level (mode) if the variable is factor")
+      
+    dataset = apply( dataset, 2, function(x){ x[ which(is.na(x)) ] = median(x, na.rm = TRUE) } );
+  }
+  
   ### if you want to use Spearman, simply use Spearman on the ranks
   if (method == "spearman")  {
     dat <- apply(dataset, 2, rank)

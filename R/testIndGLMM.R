@@ -207,7 +207,7 @@ testIndGLMM = function(target, reps = NULL, group, dataset, xIndex, csIndex, dat
     results <- list(pvalue = pvalue, stat = stat, flag = flag, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
     return(results);
   }
-  n=length(target)  ## sample size
+  n = length(target)  ## sample size
   #trycatch for dealing with errors
   res <- tryCatch(
 {
@@ -222,7 +222,7 @@ testIndGLMM = function(target, reps = NULL, group, dataset, xIndex, csIndex, dat
      target_type = 1 
   }
   
-  #if the conditioning set (cs) is empty, we use the t-test on the coefficient of x.
+ #if the conditioning set (cs) is empty, we use the t-test on the coefficient of x.
   if(length(cs) == 0)
   {
     #if the univariate models have been already compute
@@ -236,35 +236,35 @@ testIndGLMM = function(target, reps = NULL, group, dataset, xIndex, csIndex, dat
     }
    if ( is.null(reps) ) {
       if ( target_type == 1 ) {
-        fit2 = lme4::lmer( target ~ . -group + (1|group), data = as.data.frame( dataset[, xIndex] ), REML=FALSE )
+        fit2 = lme4::lmer( target ~ (1|group) + dataset[, xIndex], REML=FALSE )
       } else {
-        fit2 = lme4::glmer( target ~ . - group + (1|group), data = as.data.frame( dataset[, xIndex] ), REML=FALSE , family = oikogeneia[target_type] ) 
+        fit2 = lme4::glmer( target ~ (1|group) + dataset[, xIndex], REML=FALSE , family = oikogeneia[target_type] ) 
       }
    } else {
       reps = reps 
       if ( slopes == TRUE ) {
       if ( target_type == 1 ) {
-        fit2 = lme4::lmer( target ~ . - group + (reps|group), data = as.data.frame( cbind( reps, dataset[, xIndex] ) ), REML=FALSE ) 
+        fit2 = lme4::lmer( target ~ reps + (reps|group) + dataset[, xIndex], REML=FALSE ) 
       } else {     
-        fit2 = lme4::glmer( target ~ . - group + (reps|group), data = as.data.frame( cbind( reps, dataset[, xIndex] ) ), REML=FALSE , family = oikogeneia[target_type] ) 
+        fit2 = lme4::glmer( target ~ reps + (reps|group) + dataset[, xIndex], REML=FALSE , family = oikogeneia[target_type] ) 
       } 
    }else{
       reps = reps 
      if ( target_type == 1 ) {
-          fit2 = lme4::lmer( target ~ . - group + (1|group), data = as.data.frame( cbind( reps, dataset[, xIndex] ) ), REML=FALSE )        
+          fit2 = lme4::lmer( target ~ reps + (1|group) + dataset[, xIndex], REML=FALSE )        
         } else {
-          fit2 = lme4::glmer( target ~ . -group + (1|group), data = as.data.frame( cbind( reps, dataset[, xIndex] ) ), REML=FALSE , family = oikogeneia[target_type] )  
+          fit2 = lme4::glmer( target ~ reps + (1|group) + dataset[, xIndex], REML=FALSE , family = oikogeneia[target_type] )  
         }
       }
    }
   }else{
     if ( is.null(reps) ) {
       if ( target_type == 1 ) {
-        fit2 = lme4::lmer( target ~ . -group + (1|group), data = as.data.frame( cbind( dataset[, csIndex], dataset[, xIndex] ) ), REML=FALSE )  
+        fit2 = lme4::lmer( target ~ (1|group) + dataset[, csIndex] + dataset[, xIndex], REML=FALSE )  
         ##fit1= lme4::lmer( target~ (1|group) + dataset[, csIndex], data = dataset[, c(csIndex, xIndex)], REML=FALSE )     
         ##fit2 = lme4::lmer( target~. + (1|group) - group, data = dataset[, c(csIndex, xIndex)], REML=FALSE )     
       } else {
-        fit2 = lme4::glmer( target ~. -group + (1|group), data = as.data.frame( cbind( dataset[, csIndex], dataset[, xIndex] ) ), REML=FALSE , family = oikogeneia[target_type] ) 
+        fit2 = lme4::glmer( target ~ (1|group) + dataset[, csIndex] + dataset[, xIndex], REML=FALSE , family = oikogeneia[target_type] ) 
         ##fit1 = lme4::glmer( target~ (1|group) + dataset[, csIndex], data =  dataset[, c(csIndex, xIndex)], REML=FALSE, family = oikogeneia[target_type] )     
         ##fit2 = lme4::glmer( target~. + (1|group) - group, data =  dataset[, c(csIndex, xIndex)], REML=FALSE, family = oikogeneia[target_type] )     
         }
@@ -272,28 +272,29 @@ testIndGLMM = function(target, reps = NULL, group, dataset, xIndex, csIndex, dat
       reps = reps 
       if (slopes == TRUE ) {
         if (target_type == 1) {
-          fit2 = lme4::lmer( target ~ . - group + (reps|group), data = as.data.frame( cbind(reps, dataset[, csIndex], dataset[, xIndex] ) ), REML=FALSE )
+          fit2 = lme4::lmer( target ~ reps + (reps|group) + dataset[, csIndex] + dataset[, xIndex], REML=FALSE )
           ##fit1 = lme4::lmer( target~ (reps|group) +dataset[, csIndex], data = dataset[, c(csIndex, xIndex)], REML=FALSE )     
           ##fit2 = lme4::lmer( target~. + (reps|group) - group, data = dataset[, c(csIndex, xIndex)], REML=FALSE )     
         } else {
-          fit2 = lme4::glmer( target ~. - group + (reps|group), data = as.data.frame( cbind(reps, dataset[, csIndex], dataset[, xIndex] ) ), REML=FALSE , family = oikogeneia[target_type])
+          fit2 = lme4::glmer( target ~ reps + (reps|group) + dataset[, csIndex] + dataset[, xIndex], REML=FALSE , family = oikogeneia[target_type])
           ##fit1 = lme4::glmer( target~ reps + (reps|group) + dataset[, csIndex], data = dataset[, c(csIndex, xIndex)], REML=FALSE, family = oikogeneia[target_type] )     
           ##fit2 = lme4::glmer( target~. + reps + (reps|group) - group, data = dataset[, c(csIndex, xIndex)], REML=FALSE, family = oikogeneia[target_type] )     
         }
        }else{
        if (target_type == 1) {
-          fit2 = lme4::lmer( target ~. - group + (reps|group), data = as.data.frame( cbind(reps, dataset[, csIndex], dataset[, xIndex] ) ), REML=FALSE )
+          fit2 = lme4::lmer( target ~ reps + (1|group) + dataset[, csIndex] + dataset[, xIndex], REML=FALSE )
           ##fit1 = lme4::lmer( target~  (1|group) + dataset[, csIndex], data = dataset[, c(csIndex, xIndex)], REML=FALSE )     
           ##fit2 = lme4::lmer( target~.  + (1|group) - group, data = dataset[, c(csIndex, xIndex)], REML=FALSE )     
         } else {
-          fit2 = lme4::glmer( target ~. - group + (reps|group), data = as.data.frame( cbind(reps, dataset[, csIndex], dataset[, xIndex] ) ), REML=FALSE , family = oikogeneia[target_type]) 
+          fit2 = lme4::glmer( target ~ reps + (1|group) + dataset[, csIndex] + dataset[, xIndex], REML=FALSE , family = oikogeneia[target_type]) 
           ##fit1 = lme4::glmer( target~ reps + (1|group) + dataset[, csIndex], data = dataset[, c(csIndex, xIndex)], REML=FALSE, family = oikogeneia[target_type] )     
           ##fit2 = lme4::glmer( target~. + reps + (1|group) - group, data = dataset[, c(csIndex, xIndex)], REML=FALSE, family = oikogeneia[target_type] )     
         }
       }
     }
   }
-  
+
+
   #calculate the p value and stat.
   mod = anova(fit2)
   v2 = as.numeric( summary(fit2)[[14]][5] )

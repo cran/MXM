@@ -1,4 +1,3 @@
-
 pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 1, graph = FALSE) {
   ## dataset contains the data, it must be a matrix 
   ## type can be either "pearson" or "spearman" for continuous variables OR
@@ -11,6 +10,35 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 
   alpha <- log(alpha)
   title <- deparse( substitute(dataset) )
 
+  #check for NA values in the dataset and replace them with the variable mean
+  if( any( is.na(dataset) ) == TRUE )
+  {
+    #dataset = as.matrix(dataset);
+    warning("The dataset contains missing values (NA) and they were replaced automatically by the variable (column) median (for numeric) or by the most frequent level (mode) if the variable is factor")
+    
+    if ( class(dataset) == "matrix" )
+    {
+      dataset = apply( dataset, 2, function(x){ x[ which(is.na(x)) ] = median(x, na.rm = TRUE) } );
+    } else {
+      for( i in 1:ncol(dataset) )
+      {
+        if ( any( is.na(dataset[, i]) ) )
+        {
+          xi = dataset[,i]
+          if( class(xi) == "numeric" )
+          {                    
+            xi[ which(is.na(xi)) ] = median(xi,na.rm = TRUE) 
+          } else if ( class(xi) == "factor" ) {
+            xi[ which(is.na(xi)) ] = levels(xi)[which.max(xi)]
+          }
+          
+          dataset[,i] = xi
+        }
+        
+      }
+    }
+  }
+  
   ### if you want to use Spearman, simply use Spearman on the ranks
   if (method == "spearman")  {
     dat = apply(dataset, 2, rank)

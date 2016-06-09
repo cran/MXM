@@ -49,7 +49,7 @@ As for the other tests, they share one thing in common. For all of them, two par
   Compositional data \tab Mixed \tab testIndMVreg \tab Multivariate linear regression \cr 
   (no zeros) \tab  \tab after multivariate \tab  \cr 
   \tab \tab logit transformation \tab \cr
-  Longitudinal	\tab Mixed \tab TestIndGLMM \tab (Generalised) linear \cr
+  Longitudinal	\tab Continuous \tab TestIndGLMM \tab (Generalised) linear \cr
    	\tab \tab \tab mixed models \cr
 }
 }

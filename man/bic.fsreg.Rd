@@ -79,7 +79,7 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> Micha
 }
 
 \seealso{
-\code{\link{glm.fsreg}, \link{lm.fsreg}, \link{bic.glm.fsreg}. \link{CondIndTests}, \link{MMPC}, \link{SES}}
+\code{\link{glm.fsreg}, \link{lm.fsreg}, \link{bic.glm.fsreg}, \link{CondIndTests}, \link{MMPC}, \link{SES}}
 }
 
 \examples{
@@ -92,7 +92,6 @@ dataset <- matrix( runif(1000 * 50, 1, 100), ncol = 50 )
 
 #define a simulated class variable 
 target <- 3 * dataset[, 10] + 2 * dataset[, 20] + 3 * dataset[, 30] + rnorm(1000, 0, 5)
-a <- bic.fsreg(target, dataset, test = NULL, robust = FALSE, tol = 2, ncores = 1 ) 
 }
 
 \keyword{ Markov Blanket }

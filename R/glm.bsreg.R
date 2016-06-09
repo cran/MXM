@@ -45,6 +45,10 @@ glm.bsreg = function(target, dataset, threshold = 0.05) {
     }	
   
 
+   ############ 
+   ###  Poisson or logistic regression
+   ############
+   
     if ( length( unique(target) ) == 2  || ( length( unique(target) ) > 2  &  sum( round(target) - target ) == 0 ) ) {
 
 	    tic <- proc.time()
@@ -119,7 +123,13 @@ glm.bsreg = function(target, dataset, threshold = 0.05) {
       
       runtime <- proc.time() - tic		
       res <- list(mat = mat, final = final, runtime = runtime ) 
+
+
+   ############ 
+   ###  Linear regression
+   ############
       
+
     } else { 
       
 	    tic <- proc.time()

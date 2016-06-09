@@ -285,9 +285,9 @@ MMPC.temporal = function(target , reps, group, dataset , max_k = 3 , threshold =
   #call the main MMPC.temporal function after the checks and the initializations
   results = InternalMMPC.temporal(target, reps, group, dataset, max_k, threshold , test, user_test, dataInfo, hash, varsize, stat_hash, pvalue_hash, targetID, faster, slopes = slopes, ncores = ncores);
   
-  MMPC.temporaloutput <-new("MMPC.temporaloutput", selectedVars = results$selectedVars, selectedVarsOrder=results$selectedVarsOrder, hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, max_k=results$max_k, threshold = results$threshold, runtime=results$runtime, test=ci_test, slope = slopes);
+  MMPC.temporal.output <-new("MMPC.temporal.output", selectedVars = results$selectedVars, selectedVarsOrder=results$selectedVarsOrder, hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, max_k=results$max_k, threshold = results$threshold, runtime=results$runtime, test=ci_test, slope = slopes);
   
-  return(MMPC.temporaloutput);
+  return(MMPC.temporal.output);
   
 }
 

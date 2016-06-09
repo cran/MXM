@@ -47,6 +47,7 @@ In the case of the \eqn{G^2} test of independence (for categorical data) we have
 
 The pc.con is a faster implementation of the PC algorithm but for continuous data only, without the robust option, unlike pc.skel which is more general and even for the continuous datasets slower. pc.con accepts only "pearson" and "spearman" as correlations. If in addition, you have more than 1000 variables, a trick to calculate the correlation matrix is implemented which can reduce the time required by this first step by up to 50%. 
 
+If there are missing values they are placed by their median in case of continuous data and by their mode (most frequent value) if they are categorical. 
 }
 
 \value{

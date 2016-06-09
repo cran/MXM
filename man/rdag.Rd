@@ -27,7 +27,8 @@ rdag(n, p, s, a = 0, m, A = NULL, seed = FALSE)
   A number in \eqn{(0, 1)}. The defines the percentage of outliers to be included in the simulated data. If \eqn{a=0}, no outliers are generated. 
 }
   \item{m}{
-  A vector equal to the number of nodes. This is the mean vector of the normal distribution from which the data are to be generated. This is used only when \eqn{a>0} so as to define the mena vector of the multivariate normal from which the outliers will be generated. 
+  A vector equal to the number of nodes. This is the mean vector of the normal distribution from which the data are to be generated. This is used only when \eqn{a>0} 
+ so as to define the mena vector of the multivariate normal from which the outliers will be generated. 
 }
   \item{A}{
 If you already have an an adjacency matrix in mind, plug it in here, otherwise, leave it NULL. 
@@ -38,7 +39,15 @@ If seed is TRUE, the simulated data will always be the same.
 }
 
 \details{
-In the case where no adjacency matrix is given, an \eqn{p \times p} matrix with zeros everywhere is created. Every element below the diagonal is is replaced by random values from a Bernoulli distribution with probability of success equal to s. This is the matrix B. Every value of 1 is replaced by a uniform value in \eqn{0.1, 1}. This final matrix is called A. The data are generated from a multivariate normal distribution with a zero mean vector and covariance matrix equal to \eqn{\left({\bf I}_p- A\right)^{-1}\left({\bf I}_p- A\right)}, where \eqn{{\bf I}_p} is the \eqn{p \times p} identiy matrix. If a is greater than zero, the outliers are generated from a multivariate normal with the same covariance matrix and mean vector the one specified by the user, the argument "m". The flexibility of the outliers is that you cna specifiy outliers in some variables only or in all of them. For example, m=c(0,0,5) introduces outliers in the third variable only, whereas m=c(5,5,5) introduces outliers in all variables. So, the user is free to decide on the type of outliers to include in the data.
+In the case where no adjacency matrix is given, an \eqn{p \times p} matrix with zeros everywhere is created. 
+very element below the diagonal is is replaced by random values from a Bernoulli distribution with probability of success equal to s. 
+This is the matrix B. Every value of 1 is replaced by a uniform value in \eqn{0.1, 1}. This final matrix is called A. 
+The data are generated from a multivariate normal distribution with a zero mean vector and covariance matrix equal to 
+\eqn{\left({\bf I}_p- A\right)^{-1}\left({\bf I}_p- A\right)}, where \eqn{{\bf I}_p} is the \eqn{p \times p} identiy matrix. 
+If a is greater than zero, the outliers are generated from a multivariate normal with the same covariance matrix and mean vector the one 
+specified by the user, the argument "m". The flexibility of the outliers is that you cna specifiy outliers in some variables only or in all of them. 
+For example, m=c(0,0,5) introduces outliers in the third variable only, whereas m=c(5,5,5) introduces outliers in all variables. 
+The user is free to decide on the type of outliers to include in the data.
 }
 
 
