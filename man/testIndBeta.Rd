@@ -1,4 +1,4 @@
-\name{testIndBeta}
+\name{conditional independence test for proportions/percentages}
 \alias{testIndBeta}
 \title{
 Beta regression conditional independence test for proportions/percentage class dependent variables and mixed predictors
@@ -93,18 +93,17 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr>, Vinc
 
 \examples{
 #simulate a dataset with continuous data
-dataset <- matrix(runif(200 * 80, 1, 1000), nrow = 200 ) 
+dataset <- matrix(runif(200 * 50, 1, 1000), nrow = 200 ) 
 #the target feature is the last column of the dataset as a vector
-target <- dataset[, 80]
-dataset <- dataset[, -80]
+target <- dataset[, 50]
+dataset <- dataset[, -50]
 target <- target / (max(target) + 2 )
 
-results <- testIndBeta(target, dataset, xIndex = 44, csIndex = 60)
+results <- testIndBeta(target, dataset, xIndex = 44, csIndex = 49)
 results
 
 #require(gRbase)  #for faster computations in the internal functions
-#define class variable (here tha last column of the dataset)
-target = 50;
+
 #run the SES algorithm using the testIndBeta conditional independence test
 sesObject <- SES(target, dataset, max_k = 3, threshold = 0.05, test = "testIndBeta");
 #print summary of the SES output

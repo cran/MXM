@@ -1,4 +1,4 @@
-\name{glm.bsreg}
+\name{Backward selection with generalised linear regression models}
 \alias{glm.bsreg}
 \title{
 Variable selection in generalised linear regression models with backward selection

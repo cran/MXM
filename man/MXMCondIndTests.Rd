@@ -1,7 +1,7 @@
-\name{CondIndTests}
+\name{CondInditional independence tests}
 \alias{CondIndTests}
 
-\title{ MXM Conditional Independence Tests }
+\title{ MXM Conditional independence tests }
 \description{
 
 Currently the \pkg{MXM} package supports numerous tests for different types of target (dependent) and predictor (independent) variables. The target variable can be of continuous, discrete, categorical and of survival type. As for the predictor variables, they can be continuous, categorical or mixed. 
@@ -26,10 +26,11 @@ As for the other tests, they share one thing in common. For all of them, two par
   Proportions \tab Mixed \tab testIndRQ \tab Median regression \cr 
   \tab \tab after logit transformation \tab \cr  
   Proportions \tab Mixed \tab testIndBeta \tab Beta regression \cr  
+  Success rates \tab Mixed \ testIndBinomi \tab Binomial regression \cr
   Discrete \tab	Mixed \tab testIndPois \tab Poisson regression \cr 
   Discrete \tab	Mixed \tab testIndZIP \tab Zero Inflated \cr 
    \tab	\tab  \tab Poisson regression \cr 
-  Numerical \tab Mixed \tab testIndNB \tab Negative binomial regression \cr 
+  Discrete \tab Mixed \tab testIndNB \tab Negative binomial regression \cr 
   Factor with two \tab Mixed \tab testIndLogistic \tab Binary logistic regression \cr
   levels or binary \tab \tab \tab \cr  
   Factor with more \tab Mixed \tab  testIndLogistic  \tab Multinomial logistic regression  \cr		 

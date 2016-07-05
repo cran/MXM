@@ -1,4 +1,4 @@
-MMPC.temporal = function(target , reps, group, dataset , max_k = 3 , threshold = 0.05 , test = NULL , user_test = NULL, hash=FALSE, hashObject=NULL, slopes = FALSE, ncores = 1)
+MMPC.temporal = function(target , reps, group, dataset , max_k = 3 , threshold = 0.05 , test = NULL , ini = NULL, user_test = NULL, hash=FALSE, hashObject=NULL, slopes = FALSE, ncores = 1)
 {
  #get the log threshold
   threshold = log(threshold)
@@ -283,9 +283,9 @@ MMPC.temporal = function(target , reps, group, dataset , max_k = 3 , threshold =
   }
 
   #call the main MMPC.temporal function after the checks and the initializations
-  results = InternalMMPC.temporal(target, reps, group, dataset, max_k, threshold , test, user_test, dataInfo, hash, varsize, stat_hash, pvalue_hash, targetID, faster, slopes = slopes, ncores = ncores);
+  results = InternalMMPC.temporal(target, reps, group, dataset, max_k, threshold , test, ini, user_test, dataInfo, hash, varsize, stat_hash, pvalue_hash, targetID, faster, slopes = slopes, ncores = ncores);
   
-  MMPC.temporal.output <-new("MMPC.temporal.output", selectedVars = results$selectedVars, selectedVarsOrder=results$selectedVarsOrder, hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, max_k=results$max_k, threshold = results$threshold, runtime=results$runtime, test=ci_test, slope = slopes);
+  MMPC.temporal.output <-new("MMPC.temporal.output", selectedVars = results$selectedVars, selectedVarsOrder=results$selectedVarsOrder, hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, univ = results$univ, max_k=results$max_k, threshold = results$threshold, runtime=results$runtime, test=ci_test, slope = slopes);
   
   return(MMPC.temporal.output);
   
@@ -293,7 +293,7 @@ MMPC.temporal = function(target , reps, group, dataset , max_k = 3 , threshold =
 
 #########################################################################################################
 
-InternalMMPC.temporal = function(target , reps, group, dataset , max_k, threshold , test = NULL , user_test = NULL , dataInfo = NULL , hash=FALSE, varsize, stat_hash, pvalue_hash, targetID, faster, slopes = slopes, ncores = ncores)
+  InternalMMPC.temporal = function(target , reps, group, dataset , max_k, threshold , test = NULL , ini, user_test = NULL , dataInfo = NULL , hash=FALSE, varsize, stat_hash, pvalue_hash, targetID, faster, slopes = slopes, ncores = ncores)
 {
   #get the current time
   runtime = proc.time();
@@ -305,8 +305,11 @@ InternalMMPC.temporal = function(target , reps, group, dataset , max_k, threshol
   
   #univariate feature selection test
   
-  univariateModels = univariateScore.temporal(target , reps, group, dataset , test, hash=hash, dataInfo, stat_hash=stat_hash, pvalue_hash=pvalue_hash, targetID, slopes = slopes, ncores = ncores);
-  
+  if ( is.null(ini) ) {
+    univariateModels = univariateScore.temporal(target , reps, group, dataset , test, hash=hash, dataInfo, stat_hash=stat_hash, pvalue_hash=pvalue_hash, targetID, slopes = slopes, ncores = ncores);
+  } else {
+    univariateModels = ini
+  }
   
   pvalues = univariateModels$pvalue;
   stats = univariateModels$stat;
@@ -325,9 +328,11 @@ InternalMMPC.temporal = function(target , reps, group, dataset , max_k, threshol
     class(results$selectedVarsOrder) = "numeric";
     results$hashObject = NULL;
     class(results$hashObject) = 'list';
+    class(results$univ) = 'list';
     
     results$pvalues = exp(pvalues);
     results$stats = stats;
+    results$univ = univariateModels
     results$max_k = max_k;
     results$threshold = exp(threshold);
     runtime = proc.time() - runtime;
@@ -411,9 +416,12 @@ InternalMMPC.temporal = function(target , reps, group, dataset , max_k, threshol
   hashObject$pvalue_hash = pvalue_hash;
   results$hashObject = hashObject;
   class(results$hashObject) = 'list';
+  class(results$univ) = 'list';
   
   results$pvalues = exp(pvalues);
   results$stats = stats;
+  results$univ = univariateModels
+  
   results$max_k = max_k;
   results$threshold = exp(threshold);
   

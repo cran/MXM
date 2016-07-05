@@ -1,7 +1,7 @@
-\name{testIndSpeedglm}
+\name{Conditional independence test for continuous, binary and count data with thousands of samples}
 \alias{testIndSpeedglm}
 \title{
-Conditional independence test for continuous, binary and discrete (counts) variables with thousands of observations.
+Conditional independence test for continuous, binary and discrete (counts) variables with thousands of observations
 }
 
 \description{
@@ -14,34 +14,34 @@ hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, target_type = 0, robust = FA
 }
 
 \arguments{
-  \item{target}{
-  A numeric vector containing the values of the target variable. It can be either continuous or percentages (values within 0 and 1), binary or discrete (counts). 
+\item{target}{
+A numeric vector containing the values of the target variable. It can be either continuous or percentages (values within 0 and 1), binary or discrete (counts). 
 }
-  \item{dataset}{
-  A numeric matrix or data frame, in case of categorical predictors (factors), containing the variables for performing the test. Rows as samples and columns as features.
+\item{dataset}{
+A numeric matrix or data frame, in case of categorical predictors (factors), containing the variables for performing the test. Rows as samples and columns as features.
 }
-  \item{xIndex}{
-  The index of the variable whose association with the target we want to test.
+\item{xIndex}{
+The index of the variable whose association with the target we want to test.
 }
-  \item{csIndex}{
-  The indices of the variables to condition on.
+\item{csIndex}{
+The indices of the variables to condition on.
 }
-  \item{dataInfo}{
-  A list object with information on the structure of the data. Default value is NULL.
+\item{dataInfo}{
+A list object with information on the structure of the data. Default value is NULL.
 }
-  \item{univariateModels}{
-  Fast alternative to the hash object for univariate test. List with vectors "pvalues" (p-values), "stats" (statistics) and "flags" (flag = TRUE if the test was succesful) representing the univariate association of each variable with the target. Default value is NULL.
+\item{univariateModels}{
+Fast alternative to the hash object for univariate test. List with vectors "pvalues" (p-values), "stats" (statistics) and "flags" (flag = TRUE if the test was succesful) representing the univariate association of each variable with the target. Default value is NULL.
 }
-  \item{hash}{
+\item{hash}{
 A boolean variable which indicates whether (TRUE) or not (FALSE) to use the hash-based implementation of the statistics of SES. Default value is FALSE. If TRUE you have to specify the stat_hash argument and the pvalue_hash argument.
 }
-  \item{stat_hash}{
+\item{stat_hash}{
 A hash object (hash package required) which contains the cached generated statistics of a SES run in the current dataset, using the current test.
 }
-  \item{pvalue_hash}{
+\item{pvalue_hash}{
 A hash object (hash package required) which contains the cached generated p-values of a SES run in the current dataset, using the current test.
 }
-  \item{target_type}{
+\item{target_type}{
 A numeric vector that represents the type of the target. Default value is 0. See details for more.
 \itemize{
 \item target_type = 1 (binary target)
@@ -49,7 +49,7 @@ A numeric vector that represents the type of the target. Default value is 0. See
 \item target_type = 3 (discrete target)
 }
 }
-  \item{robust}{
+\item{robust}{
 A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robustified version of the logistic regressions available here. Currently it is not available for these cases.
 }
 }
@@ -110,9 +110,11 @@ R implementation and documentation: Vincenzo Lagani <vlagani@csd.uoc.gr>, Giorgo
 
 \examples{
 #require(gRbase) #for faster computations in the internal functions
-
-
-
+dataset <- matrix(runif(40000 * 10, 1, 50), ncol = 10 ) 
+#the target feature is the last column of the dataset as a vector
+target <- rpois(40000, 10)
+system.time( testIndPois(target, dataset, xIndex = 1, csIndex = 2) )
+system.time( testIndSpeedglm(target, dataset, xIndex = 1, csIndex = 2) )
 
 }
 

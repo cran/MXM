@@ -68,7 +68,7 @@ fs.reg <- function(target, dataset, threshold = 0.05, test = NULL, stopping = "B
   if ( is.null(test) ) {
     
     ## multivariate data
-    if ( sum( class(target) == "matrix" ) > 0 ) {
+    if ( sum( class(target) == "matrix" ) == 1 ) {
       test <- "gaussian"
       a <- rowSums(target)
       if ( min( target ) > 0 & round( sd(a), 16 ) == 0 ) { ## are they compositional data?
@@ -83,7 +83,7 @@ fs.reg <- function(target, dataset, threshold = 0.05, test = NULL, stopping = "B
     }
     
     ## surival data
-    if ( sum( class(target) == "Surv" ) > 0 ) {
+    if ( sum( class(target) == "Surv" ) == 1 ) {
       test <- "Cox"
     }
     
@@ -132,7 +132,7 @@ fs.reg <- function(target, dataset, threshold = 0.05, test = NULL, stopping = "B
   }
   
   #available conditional independence tests
-  av_models = c("gaussian", "median", "beta", "Cox", "Weibull", "binary", "multinomial", "ordinal", "poisson", "nb", "zip", "speedglm");
+  av_models = c("gaussian", "beta", "Cox", "Weibull", "binary", "multinomial", "ordinal", "poisson", "nb", "zip", "speedglm");
   
   #cat(test)
   
@@ -150,12 +150,7 @@ fs.reg <- function(target, dataset, threshold = 0.05, test = NULL, stopping = "B
     test = match.arg(test , av_models ,TRUE);
     #convert to closure type
     
-    if ( test == "median" ) {
-      test = rq
-      robust = FALSE
-      stopping = "BIC"
-      
-    } else if ( test == "beta" ) {
+    if ( test == "beta" ) {
       test = betareg 
       robust = FALSE
       stopping = "BIC"

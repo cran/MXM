@@ -1,8 +1,7 @@
-\name{glm.fsreg}
+\name{Forward selection with generalised linear regression models}
 \alias{glm.fsreg}
 \title{
 Variable selection in generalised linear regression models with forward selection
-
 }
 
 \description{
@@ -10,7 +9,8 @@ Variable selection in generalised linear regression models with forward selectio
 }
 
 \usage{
-glm.fsreg(target, dataset, threshold = 0.05, tol = 2, robust = FALSE, ncores = 1 ) 
+glm.fsreg(target, dataset, ini = NULL, threshold = 0.05, tol = 2, robust = FALSE, 
+ncores = 1) 
 }
 
 \arguments{
@@ -20,8 +20,11 @@ The class variable. Provide either a string, an integer, a numeric value, a vect
 \item{dataset}{
 The dataset; provide either a data frame or a matrix (columns = variables, rows = samples). In either case, only two cases are avaialble, either all data are continuous, or categorical. 
 }
+\item{ini}{
+If you have a set of variables already start with this one. Currently this can only be a matrix with continuous variables. In such cases, the dataset must also contain continuous variables only. Otherwise leave it NULL. 
+}
 \item{threshold}{
-Threshold (suitable values in [0,1]) for asmmmbsing p-values significance. Default value is 0.05.
+Threshold (suitable values in [0,1]) for assessing the p-values significance. Default value is 0.05.
 }
 \item{tol}{
 The difference bewtween two successive values of the stopping rule. By default this is is set to 2. If for example, the BIC difference between two succesive models is less than 2, the process stops and the last variable, even though significant does not enter the model.
@@ -87,6 +90,7 @@ dataset <- matrix( runif(1000 * 50, 1, 100), ncol = 50 )
 target <- rpois(1000, 10)
 
 a <- glm.fsreg(target, dataset, threshold = 0.05, tol = 2, robust = FALSE, ncores = 1 ) 
+b <- MMPC(target, dataset, max_k = 3, threshold = 0.05, test = "testIndPois")
 }
 
 \keyword{ Markov Blanket }

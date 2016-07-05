@@ -73,7 +73,7 @@
 # generalised linear mixed models
 # #library(lme4)
 
-SES.temporal = function(target=NULL , reps = NULL , group, dataset=NULL , max_k = 3 , threshold = 0.05 , test = NULL , user_test = NULL, hash=FALSE, hashObject=NULL, slopes = FALSE, ncores = 1)
+SES.temporal = function(target=NULL , reps = NULL , group, dataset=NULL , max_k = 3 , threshold = 0.05 , test = NULL , ini = NULL, user_test = NULL, hash=FALSE, hashObject=NULL, slopes = FALSE, ncores = 1)
 {
 
   #get the log threshold
@@ -361,9 +361,9 @@ SES.temporal = function(target=NULL , reps = NULL , group, dataset=NULL , max_k 
   #######################################################################################
   
   #call the main SES function after the checks and the initializations
-  results = InternalSES.temporal(target, reps, group, dataset, max_k, threshold , test, equal_case, user_test, dataInfo, hash, varsize, stat_hash, pvalue_hash, targetID, faster, slopes, ncores);
+  results = InternalSES.temporal(target, reps, group, dataset, max_k, threshold , test, ini, equal_case, user_test, dataInfo, hash, varsize, stat_hash, pvalue_hash, targetID, faster, slopes, ncores);
   
-  SES.temporal.output <-new("SES.temporal.output", selectedVars = results$selectedVars, selectedVarsOrder=results$selectedVarsOrder, queues=results$queues, signatures=results$signatures, hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, max_k=results$max_k, threshold = results$threshold, runtime=results$runtime, test=ci_test, slope = results$slope);
+  SES.temporal.output <-new("SES.temporal.output", selectedVars = results$selectedVars, selectedVarsOrder=results$selectedVarsOrder, queues=results$queues, signatures=results$signatures, hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, univ = results$uni, max_k=results$max_k, threshold = results$threshold, runtime=results$runtime, test=ci_test, slope = results$slope);
   
   return(SES.temporal.output);
   
@@ -371,7 +371,7 @@ SES.temporal = function(target=NULL , reps = NULL , group, dataset=NULL , max_k 
 
 #########################################################################################################
 
-InternalSES.temporal = function(target , reps , group, dataset , max_k = 3 , threshold = 0.05 , test = NULL , equal_case = 3 , user_test = NULL , dataInfo = NULL , hash=FALSE, varsize, stat_hash, pvalue_hash, targetID, faster, slopes, ncores)
+InternalSES.temporal = function(target , reps , group, dataset , max_k = 3 , threshold = 0.05 , test = NULL , ini, equal_case = 3 , user_test = NULL , dataInfo = NULL , hash=FALSE, varsize, stat_hash, pvalue_hash, targetID, faster, slopes, ncores)
 {
   #get the current time
   runtime = proc.time();
@@ -379,9 +379,13 @@ InternalSES.temporal = function(target , reps , group, dataset , max_k = 3 , thr
   #######################################################################################
   
   #univariate feature selection test
-
-  univariateModels = univariateScore.temporal(target , reps, group, dataset , test, hash=hash, dataInfo, stat_hash=stat_hash, pvalue_hash=pvalue_hash, targetID, slopes = slopes, ncores = ncores);
-
+ 
+ if ( is.null(ini) ) {
+   univariateModels = univariateScore.temporal(target , reps, group, dataset , test, hash=hash, dataInfo, stat_hash=stat_hash, pvalue_hash=pvalue_hash, targetID, slopes = slopes, ncores = ncores);
+ } else {
+   univariateModels = ini
+ }
+  
   pvalues = univariateModels$pvalue;
   stats = univariateModels$stat;
   flags = univariateModels$flag;
@@ -403,9 +407,12 @@ InternalSES.temporal = function(target , reps , group, dataset , max_k = 3 , thr
     class(results$signatures) = 'matrix';
     results$hashObject = NULL;
     class(results$hashObject) = 'list';
+    class(results$univ) = 'list';
     
     results$pvalues = exp(pvalues);
     results$stats = stats;
+    results$univ = univariateModels;
+    
     results$max_k = max_k;
     results$threshold = exp(threshold);
     runtime = proc.time() - runtime;
@@ -524,6 +531,8 @@ InternalSES.temporal = function(target , reps , group, dataset , max_k = 3 , thr
   
   results$pvalues = exp(pvalues);
   results$stats = stats;
+  results$univ = univariateModels;
+  
 #   results$all_queues = all_queues;
 #   already known
 #   results$data = dataset;
@@ -540,6 +549,7 @@ InternalSES.temporal = function(target , reps , group, dataset , max_k = 3 , thr
   
   return(results);
 }
+
 
 #univariate feature selection ( uncoditional independence )
 

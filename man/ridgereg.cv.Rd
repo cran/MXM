@@ -1,4 +1,4 @@
-\name{ridgereg.cv}
+\name{Cross-validation for ridge regression}
 \alias{ridgereg.cv}
 \title{
 Cross validation for the ridge regression
@@ -62,9 +62,6 @@ If auto is FALSE the minimum bias corrected MSPE along with the estimate of bias
 \item{runtime}{
 The run time of the algorithm. A numeric vector. The first element is the user time, the second element is the system time and the third element is the elapsed time.
 }
-
-Bear in mind that the values can be extracted with the $ symbol, i.e. this is an S3 class output. 
-
 }
 
 \references{
@@ -81,9 +78,9 @@ Tibshirani R.J., and Tibshirani R. (2009). A bias correction for the minimum err
 R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> and Michail Tsagris <mtsagris@yahoo.gr>
 }
 
-%\note{
-%%  ~~further notes~~
-%}
+\note{
+The values can be extracted with the $ symbol, i.e. this is an S3 class output. 
+}
 
 \seealso{
 \code{ \link{ridge.reg} }
@@ -95,7 +92,7 @@ dataset <- matrix(runif(200 * 50, 1, 100), nrow = 200 )
 #the target feature is the last column of the dataset as a vector
 target <- dataset[, 50]
 a1 <- ridgereg.cv(target, dataset, auto = TRUE)
-a2 <- ridgereg.cv( target, dataset, K = 5, lambda = seq(0, 1, by = 0.2) )
+a2 <- ridgereg.cv( target, dataset, K = 10, lambda = seq(0, 1, by = 1) )
 }
 
 \keyword{ Ridge regression }

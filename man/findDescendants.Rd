@@ -1,4 +1,4 @@
-\name{findDescendants}
+\name{Descendants of a node in a directed graph}
 \alias{findDescendants}
 \title{
 Returns and plots, if asked, the descendants of a node (or variable)
@@ -66,7 +66,8 @@ tru = y$G
 x = y$x
 mod = pc.con(x)
 G = pc.or(mod)$G
-findDescendants(G, 1, graph = FALSE)
+plota(G)
+findDescendants(G, 4, graph = FALSE)
 }
 
 \keyword{ Network plot }

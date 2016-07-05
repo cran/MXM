@@ -1,34 +1,39 @@
-\name{model}
-\alias{model}
+\name{Regression models based on SES and MMPC outputs}
+\alias{ses.model}
+\alias{mmpc.model}
 \title{
-Regression model(s) obtained from SES 
+Regression model(s) obtained from SES or MMPC
 }
 
 \description{
-One or more regression models obtained from SES are returned. 
+One or more regression models obtained from SES or MMPC, are returned. 
 }
 
 \usage{
-model(target, dataset, sesObject, nsignat = 1, test = NULL)
+ses.model(target, dataset, sesObject, nsignat = 1, test = NULL)
+
+mmpc.model(target, dataset, mmpcObject, test = NULL)
 }
 
 \arguments{
-  \item{target}{
-  A numeric vector containing the values of the target variable. If the values are proportions or percentages, 
-  i.e. strictly within 0 and 1 they are mapped into R using log( target/(1 - target) ). It can also discrete data, binary data (as factor), nominal or ordinal data (as factor). In contrast to SES, no position of the target variable in the dataset is accepted. The target must be a numerical vector.
+\item{target}{
+A numeric vector containing the values of the target variable. If the values are proportions or percentages, 
+i.e. strictly within 0 and 1 they are mapped into R using log( target/(1 - target) ). It can also discrete data, binary data (as factor), nominal or ordinal data (as factor). In contrast to SES, no position of the target variable in the dataset is accepted. The target must be a numerical vector.
 }
-  \item{dataset}{
-  A numeric matrix containing the variables. Rows are samples and columns are features. If you have categorical variables, this should be a data frame.
+\item{dataset}{
+A numeric matrix containing the variables. Rows are samples and columns are features. If you have categorical variables, this should be a data frame.
 }
-  \item{sesObject}{
-  An object with the results of a SES run.
+\item{sesObject}{
+An object with the results of a SES run.
 }
-  \item{nsignat}{
-  How many signatures to use. If nsignat = 1 (default value) the first set of variables will be used for the model. If you want more, then specify the nubmer of signatures you want. 
-  If you want the models based on all signatures, specify "all". If you put a number which is higher than the number of signatures, all models will be returned.
+\item{mmpcObject}{
+An object with the results of an MMPC run.
 }
-  \item{test}{
-  If you know the test used in SES put it here, otherwise leave it NULL. It will take this information from the SEs object. If you used a robust version of a test (wherever possible), robust model(s) will be created.
+\item{nsignat}{
+How many signatures to use. If nsignat = 1 (default value) the first set of variables will be used for the model. If you want more, then specify the nubmer of signatures you want. If you want the models based on all signatures, specify "all". If you put a number which is higher than the number of signatures, all models will be returned.
+}
+\item{test}{
+If you know the test used in SES put it here, otherwise leave it NULL. It will take this information from the SEs object. If you used a robust version of a test (wherever possible), robust model(s) will be created.
 }
 }
 
@@ -71,7 +76,6 @@ Mardia K.V., Kent J.T. and Bibby J.M. (1979). Multivariate Analysis, Academic Pr
 Maronna R.D. Yohai M.V. (2006). Robust Statistics, Theory and Methods. Wiley.
 
 McCullagh P., and Nelder J.A. (1989). Generalized linear models.  CRC press, USA, 2nd edition.
-
 }
 
 \author{
@@ -84,18 +88,20 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> and M
 %%  ~~further notes~~
 %}
 \seealso{
-\code{ \link{SES}, \link{cv.ses} }
+\code{ \link{SES}, \link{MMPC}, \link{cv.ses}, \link{cv.mmpc} }
 }
 
 \examples{
 # simulate a dataset with continuous data
 dataset <- matrix(runif(1000 * 101, 1, 100), nrow = 1000 ) 
 #the target feature is the last column of the dataset as a vector
-target <- dataset[, 100]
-dataset <- dataset[, -100]
+target <- dataset[, 101]
+dataset <- dataset[, -101]
 sesObject <- SES(target , dataset , max_k=3 , threshold = 0.05);
-model(target, dataset, sesObject, nsignat = 1, test = NULL) 
-model(target, dataset, sesObject, nsignat = 40, test = NULL) 
+ses.model(target, dataset, sesObject, nsignat = 1, test = NULL) 
+ses.model(target, dataset, sesObject, nsignat = 40, test = NULL)
+mmpcObject <- MMPC(target , dataset , max_k=3 , threshold = 0.05);
+mmpc.model(target, dataset, mmpcObject, test = NULL) 
 }
 
 \keyword{ Regression modelling }

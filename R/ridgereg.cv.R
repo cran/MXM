@@ -5,8 +5,6 @@
 ### usage:  ridgereg.cv( target, dataset, K = 10, lambda = seq(0, 1, by = 0.01), 
 ### auto = FALSE, seed = FALSE, ncores = 1, mat = NULL )
 
-
-
 ridgereg.cv <- function( target, dataset, K = 10, lambda = seq(0, 2, by = 0.1), 
                         auto = FALSE, seed = FALSE, ncores = 1, mat = NULL ) {
   ## target is a dependent continuous variable or a matrix with continuous variables
@@ -34,6 +32,7 @@ ridgereg.cv <- function( target, dataset, K = 10, lambda = seq(0, 2, by = 0.1),
     plot(mod)
     lam <- lambda[ which.min(mod$GCV) ]
     runtime <- proc.time() - runtime
+    
   } else{
     if ( is.null(mat) ) { ## no folds were given by the user
       if (seed == TRUE)  set.seed(1234567) ## the folds will always be the same
@@ -47,59 +46,73 @@ ridgereg.cv <- function( target, dataset, K = 10, lambda = seq(0, 2, by = 0.1),
       rmat <- nrow(mat)
       
     if ( ncores == 1 ) {
+      
       runtime <- proc.time()
       mi <- length(lambda)
       per <- matrix( nrow = K, ncol = mi )
+      
       for (vim in 1:K) {
         ytest <- as.vector( target[ mat[, vim] ] )  ## test set dependent vars
         ytrain <- as.vector( target[ -mat[, vim] ] )  ## train set dependent vars
-        my <- mean(ytrain)
+        my <- sum(ytrain) / (n - rmat)
         xtrain <- as.matrix( dataset[ -mat[, vim], ] )  ## train set independent vars
         xtest <- as.matrix( dataset[ mat[, vim], ] )  ## test set independent vars
         mx <- colMeans(xtrain)
         yy <- ytrain - my  ## center the dependent variables
-        s <- apply(xtrain, 2, sd)
-        s <- diag(1/s)
-        xtest <- ( xtest - rep( mx, rep(rmat, p) ) ) %*% s ## standardize the newdata values 
-        xx <- scale(xtrain)[1:(n - rmat), ]  ## standardize the independent variables
+        s <- fastR::colVars(xtrain, std = TRUE)
+        xtest <- ( t(xtest) - mx ) / s ## standardize the newdata values 
+        xtest <- t(xtest)
+        
+        xx <- ( t(xtrain) - mx ) / s
+        xx <- t(xx)
         sa <- svd(xx)
-        u <- t(sa$u)   ;   d <- sa$d   ;   v <- sa$v
+        tu <- t(sa$u)    ;    d <- sa$d    ;    v <- sa$v
+        
         for (i in 1:mi) {
-          beta <- ( v %*% diag( d / ( d^2 + lambda[i] ) ) %*% u ) %*% yy 
-          est <- xtest %*% beta + my 
-          per[vim, i] <- mean( (ytest - est)^2 ) 
+          betas <- ( v %*% (tu * ( d / ( d^2 + lambda[i] ) ) ) ) %*% yy 
+          est <- xtest %*% betas + my 
+            per[vim, i] <- sum( (ytest - est)^2 ) / rmat
         }
+        
       }
+      
       runtime <- proc.time() - runtime
 
     } else {
+      
       runtime <- proc.time()
       cl <- makePSOCKcluster(ncores)
       registerDoParallel(cl)
       mi <- length(lambda)
       pe <- numeric(mi)
+	  
       per <- foreach(vim = 1:K, .combine = rbind) %dopar% {
         ytest <- as.vector( target[mat[, vim] ] )  ## test set dependent vars
         ytrain <- as.vector( target[-mat[, vim] ] )  ## train set dependent vars
-        my <- mean(ytrain)
+        my <- sum(ytrain) / (n - rmat)
         xtrain <- as.matrix( dataset[-mat[, vim], ] )  ## train set independent vars
         xtest <- as.matrix( dataset[mat[, vim], ] )  ## test set independent vars
         mx <- colMeans(xtrain)
         yy <- ytrain - my  ## center the dependent variables
-        s <- apply(xtrain, 2, sd)
-        s <- diag(1/s)
-        xx <- scale(xtrain)[1:c(n - rmat), ]  ## standardize the independent variables
-        xtest <- ( xtest - rep( mx, rep(rmat, p) ) ) %*% s ## standardize the newdata values 
+        s <- fastR::colVars(xtrain, std = TRUE)
+        
+        xx <- ( t(xtrain) - mx ) / s
+        xx <- t(xx)
+        xtest <- ( t(xtest) - mx ) / s ## standardize the newdata values   
+        xtest <- t(xtest)
+
         sa <- svd(xx)
-        u <- t(sa$u)   ;   d <- sa$d   ;   v <- sa$v
+        tu <- t(sa$u)    ;    d <- sa$d    ;    v <- sa$v
         for ( i in 1:mi ) {
-          beta <- ( v %*% diag( d / ( d^2 + lambda[i] ) ) %*% u ) %*% yy 
-          est <- xtest %*% beta + my 
-          pe[i] <- mean( (ytest - est)^2 )
+          betas <- ( v %*% ( tu *( d / ( d^2 + lambda[i] ) ) ) ) %*% yy 
+          est <- xtest %*% betas + my 
+          pe[i] <- sum( (ytest - est)^2 ) / rmat
         }
         return(pe)
       }
+	  
       stopCluster(cl)
+	  
       runtime <- proc.time() - runtime
     }
 
@@ -109,11 +122,14 @@ ridgereg.cv <- function( target, dataset, K = 10, lambda = seq(0, 2, by = 0.1),
     estb <- mean( bias )  ## TT estimate of bias
     names(mspe) <- lambda
     lam <- lambda[ which.min(mspe) ]
+    
     plot(lambda, mspe, xlab = expression(paste(lambda, " values")), ylab = "MSPE", type = "b")
     names(mspe) <- lambda
+    
     performance <- c( min(mspe) + estb, estb)
     names(performance) <- c("Estimated MSPE", "Estimated bias")
   }
+  
   list(mspe = mspe, lambda = lam, performance = performance, runtime = runtime)
 }
 

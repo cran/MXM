@@ -78,7 +78,7 @@
 # #hashObject
 # library(hash)
 
-SES = function(target , dataset , max_k = 3 , threshold = 0.05 , test = NULL , user_test = NULL, hash=FALSE, hashObject=NULL, robust = FALSE, ncores = 1)
+SES = function(target , dataset , max_k = 3 , threshold = 0.05 , test = NULL , ini = NULL, user_test = NULL, hash=FALSE, hashObject=NULL, robust = FALSE, ncores = 1)
 {
   #get the log threshold
   threshold = log(threshold)
@@ -128,9 +128,9 @@ SES = function(target , dataset , max_k = 3 , threshold = 0.05 , test = NULL , u
   
   if(!is.null(dataset))
   {
-    if(class(dataset) == "matrix")
+    if( sum( class(target) == "matrix") == 1 )
     {
-      if(class(target) == "Surv")
+      if( sum( class(target) == "Surv") == 1 )
       {
         stop('Invalid dataset class. For survival analysis provide a dataframe-class dataset');
       }
@@ -166,11 +166,11 @@ SES = function(target , dataset , max_k = 3 , threshold = 0.05 , test = NULL , u
     
     if(class(dataset) == "matrix")
     {
-      dataset = apply(dataset, 2, function(x){x[which(is.na(x))] = median(x,na.rm = TRUE)});
+      dataset = apply( dataset, 2, function(x){ x[ which(is.na(x)) ] = median(x, na.rm = TRUE) } );
     }else{
       for(i in 1:ncol(dataset))
       {
-        if(any(is.na(dataset[,i])))
+        if ( any( is.na(dataset[,i]) ) )
         {
           xi = dataset[,i]
           if(class(xi) == "numeric")
@@ -183,6 +183,7 @@ SES = function(target , dataset , max_k = 3 , threshold = 0.05 , test = NULL , u
         }
       }
     }
+    
   }
   
   ##################################
@@ -212,24 +213,23 @@ SES = function(target , dataset , max_k = 3 , threshold = 0.05 , test = NULL , u
     target <- dataset[ , targetID];
   }
   
-  if(class(target) == "matrix")
+
+  if( sum( class(target) == "matrix") == 1 )
   {
     if(ncol(target) >= 2 && class(target) != "Surv")
     {
-      if((is.null(test) || test == "auto") && (is.null(user_test)))
+      if( (is.null(test) || test == "auto") && (is.null(user_test)) )
       {
-        test = "testIndMVreg"
-      }
-      
+
       if ( min(target) > 0 & sum( rowSums(target) - 1 ) == 0 ) ## are they compositional data?
       { 
         target = log( target[, -1]/target[, 1] ) 
       }
-      if(is.null(user_test) && test!="testIndMVreg"){
         test = "testIndMVreg"
         warning("Multivariate target (ncol(target) >= 2) requires a multivariate test of conditional independence. The testIndMVreg was used. For a user-defined multivariate test, please provide one in the user_test argument.");
       }
     }
+    
   }
   
   ################################
@@ -247,7 +247,7 @@ SES = function(target , dataset , max_k = 3 , threshold = 0.05 , test = NULL , u
         if ( length( unique(target) ) == 2 ) {
           target = as.factor(target)
         }
-      if ( class(target) == "matrix" ) {
+      if ( sum( class(target) == "matrix") == 1 ) {
         test = "testIndMVreg"
       }
       
@@ -332,7 +332,7 @@ SES = function(target , dataset , max_k = 3 , threshold = 0.05 , test = NULL , u
     #cat("\nConditional independence test used: ");cat(test);cat("\n");
     
     #available conditional independence tests
-    av_tests = c("testIndFisher", "testIndSpearman", "testIndReg", "testIndRQ", "testIndBeta", "censIndCR","censIndWR", "testIndLogistic", "testIndPois", "testIndNB", "gSquare", "auto" , "testIndZIP" , "testIndSpeedglm", "testIndMVreg", NULL);
+    av_tests = c("testIndFisher", "testIndSpearman", "testIndReg", "testIndRQ", "testIndBeta", "censIndCR","censIndWR", "testIndClogit", "testIndLogistic", "testIndPois", "testIndNB", "testIndBinom", "gSquare", "auto" , "testIndZIP" , "testIndSpeedglm", "testIndMVreg", NULL);
     
     ci_test = test
     #cat(test)
@@ -496,6 +496,29 @@ SES = function(target , dataset , max_k = 3 , threshold = 0.05 , test = NULL , u
           return(NULL);
         }
       }
+      else if(test == "testIndClogit")
+      {
+        #dataframe class for dataset is required
+        #if(class(dataset) == "matrix"){
+        #  dataset = as.data.frame(dataset)
+        #  warning("Dataset was turned into a data.frame which is required for this test")
+        #}
+        test = testIndClogit;
+        if(requireNamespace("survival", quietly = TRUE, warn.conflicts = FALSE)==FALSE)
+        {
+          cat("The testIndClogit requires the survival package. Please install it.");
+          return(NULL);
+        }
+      }
+      else if(test == "testIndBinom")
+      {
+        #dataframe class for dataset is required
+        #if(class(dataset) == "matrix"){
+        #  dataset = as.data.frame(dataset)
+        #  warning("Dataset was turned into a data.frame which is required for this test")
+        #}
+        test = testIndBinom;
+      }
       else if(test == "testIndLogistic")
       {
         #dataframe class for dataset is required
@@ -549,9 +572,9 @@ SES = function(target , dataset , max_k = 3 , threshold = 0.05 , test = NULL , u
   }
   
   #call the main SES function after the checks and the initializations
-  results = InternalSES(target, dataset, max_k, threshold , test, equal_case, user_test, dataInfo, hash, varsize, stat_hash, pvalue_hash, targetID, faster, robust = robust, ncores = ncores);
+  results = InternalSES(target, dataset, max_k, threshold , test, ini, equal_case, user_test, dataInfo, hash, varsize, stat_hash, pvalue_hash, targetID, faster, robust = robust, ncores = ncores);
   
-  SESoutput <-new("SESoutput", selectedVars = results$selectedVars, selectedVarsOrder=results$selectedVarsOrder, queues=results$queues, signatures=results$signatures, hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, max_k=results$max_k, threshold = results$threshold, runtime=results$runtime, test=ci_test, rob = robust);
+  SESoutput <-new("SESoutput", selectedVars = results$selectedVars, selectedVarsOrder=results$selectedVarsOrder, queues=results$queues, signatures=results$signatures, hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, univ = results$univ, max_k=results$max_k, threshold = results$threshold, runtime=results$runtime, test=ci_test, rob = robust);
   
   return(SESoutput);
   
@@ -559,7 +582,7 @@ SES = function(target , dataset , max_k = 3 , threshold = 0.05 , test = NULL , u
 
 #########################################################################################################
 
-InternalSES = function(target , dataset , max_k, threshold , test = NULL , equal_case = 3 , user_test = NULL , dataInfo = NULL , hash=FALSE, varsize, stat_hash, pvalue_hash, targetID, faster, robust = robust, ncores = ncores)
+InternalSES = function(target , dataset , max_k, threshold , test = NULL , ini, equal_case = 3 , user_test = NULL , dataInfo = NULL , hash=FALSE, varsize, stat_hash, pvalue_hash, targetID, faster, robust = robust, ncores = ncores)
 {
   #get the current time
   runtime = proc.time();
@@ -571,36 +594,134 @@ InternalSES = function(target , dataset , max_k, threshold , test = NULL , equal
   ## if testIndSpearman is selected and the user has put robust =TRUE, the robust is not taken into consideration. 
   #univariate feature selection test
   
-  if(is.loaded("fisher_uv") == TRUE && identical(test, testIndFisher) == TRUE && robust == FALSE)
-  {
-    #print("FORTRAN UNIVARIATE")
-    a = .Fortran("fisher_uv", R = as.integer(rows), C = as.integer(cols), y = target, dataset = as.matrix(dataset), cs_cols = as.integer(0), pvalues = as.double(numeric(cols)), stats = as.double(numeric(cols)), targetID = as.integer(targetID))
-    univariateModels = NULL;
-    z = 0.5*log( (1+a$stat)/(1-a$stat) );
-    dof = rows - 3; #degrees of freedom
-    w = z * sqrt(dof)
-    univariateModels$stat = abs(w);
-    univariateModels$pvalue = log(2) + pt(-abs(w), dof, log.p = TRUE) ;
-    univariateModels$flag = numeric(cols) + 1;
-    univariateModels$stat_hash = stat_hash;
-    univariateModels$pvalue_hash = pvalue_hash;
+  if ( is.null(ini) ) { 
     
-  } else if(is.loaded("fisher_uv") == TRUE && identical(test, testIndSpearman) == TRUE ) {
-    a = .Fortran("fisher_uv", R = as.integer(rows), C = as.integer(cols), y = target, dataset = as.matrix(dataset), cs_cols = as.integer(0), pvalues = as.double(numeric(cols)), stats = as.double(numeric(cols)), targetID = as.integer(targetID))
-    univariateModels = NULL;
-    z = 0.5*log( (1+a$stat)/(1-a$stat) );
-    dof = rows - 3; #degrees of freedom
-    w = z * sqrt(dof) / 1.029563
-    univariateModels$stat = abs(w) 
-    univariateModels$pvalue = log(2) + pt(-abs(w), dof, log.p = TRUE);
-    univariateModels$flag = numeric(cols) + 1;
-    univariateModels$stat_hash = stat_hash;
-    univariateModels$pvalue_hash = pvalue_hash;
+    univariateModels = list()
     
-  } else{  
-    univariateModels = univariateScore(target , dataset , test, dataInfo = dataInfo, hash=hash, stat_hash=stat_hash, pvalue_hash=pvalue_hash, targetID=targetID, robust=robust, ncores=ncores);
-  }
-  
+    if ( identical(test, testIndFisher) == TRUE && robust == FALSE )  ## Pearson's correlation 
+    {
+      #print("FORTRAN UNIVARIATE")
+      a = as.vector( cor(target, dataset) )
+      univariateModels = NULL;
+      dof = rows - 3; #degrees of freedom
+      wa = 0.5 * log( (1 + a) / (1 - a) ) * sqrt(dof)
+      
+      if ( targetID != - 1 )  wa[ targetID ] = 0
+      
+      univariateModels$stat = abs(wa);
+      univariateModels$pvalue = log(2) + pt(-abs(wa), dof, log.p = TRUE) ;
+      univariateModels$flag = numeric(cols) + 1;
+      univariateModels$stat_hash = stat_hash;
+      univariateModels$pvalue_hash = pvalue_hash;
+      
+    } else if ( identical(test, testIndSpearman) == TRUE ) {  ## Spearman's correlation
+      a = as.vector( cor(target, dataset) )
+      univariateModels = NULL;
+      dof = rows - 3; #degrees of freedom
+      wa = 0.5 * log( (1 + a) / (1 - a) ) * sqrt(dof) / 1.029563
+      
+      if ( targetID != - 1 )  wa[ targetID ] = 0
+      
+      univariateModels$stat = abs(wa) 
+      univariateModels$pvalue = log(2) + pt(-abs(wa), dof, log.p = TRUE);
+      univariateModels$flag = numeric(cols) + 1;
+      univariateModels$stat_hash = stat_hash;
+      univariateModels$pvalue_hash = pvalue_hash;
+      
+    } else if ( identical(test, testIndBeta) == TRUE ) {  ## Beta regression
+      
+      fit1 = betareg::betareg(target ~ 1)
+      
+      lik2 = numeric(cols)
+      
+      for ( i in 1:cols ) {
+        
+        fit2 = betareg::betareg(target ~ dataset[, i] )
+        lik2[i] = as.numeric( logLik(fit2) )
+      }
+      
+      lik1 = as.numeric( logLik(fit1) )
+      stat = 2 * abs(lik1 - lik2)
+      dof = length( coef(fit2) ) - length( coef(fit1) )
+      
+      univariateModels$stat = stat
+      univariateModels$pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
+      univariateModels$flag = numeric(cols) + 1;
+      univariateModels$stat_hash = stat_hash;
+      univariateModels$pvalue_hash = pvalue_hash;
+      
+    } else if ( identical(test, testIndReg) == TRUE && robust == TRUE ) {  ## M (Robust) linear regression
+      
+      fit1 = MASS::rlm(target ~ 1)
+      lik2 = numeric(cols)
+      
+      for ( i in 1:cols ) {
+        
+        fit2 = MASS::rlm(target ~ dataset[, i] )
+        lik2[i] = as.numeric( logLik(fit2) )
+      }
+      
+      lik1 = as.numeric( logLik(fit1) )
+      stat = 2 * abs(lik1 - lik2)
+      dof = length( coef(fit2) ) - 1
+      
+      univariateModels$stat = stat
+      univariateModels$pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
+      univariateModels$flag = numeric(cols) + 1;
+      univariateModels$stat_hash = stat_hash;
+      univariateModels$pvalue_hash = pvalue_hash;
+      
+    } else if ( identical(test, testIndZIP) == TRUE ) {  ## Zero-inflated Poisson regression
+      
+      fit1 = pscl::zeroinfl(target ~ 1 | 1)
+      lik2 = numeric(cols)
+      
+      for ( i in 1:cols ) {
+        
+        fit2 = pscl::zeroinfl( target ~ dataset[, i] | 1 )
+        lik2[i] = as.numeric( logLik(fit2) )
+      }
+      
+      lik1 = as.numeric( logLik(fit1) )
+      stat = 2 * abs(lik1 - lik2)
+      dof = length( coef(fit2) ) - 2
+      
+      univariateModels$stat = stat
+      univariateModels$pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
+      univariateModels$flag = numeric(cols) + 1;
+      univariateModels$stat_hash = stat_hash;
+      univariateModels$pvalue_hash = pvalue_hash;
+      
+    } else if ( identical(test, testIndRQ) == TRUE ) {  ## Median (quantile) regression
+      
+      fit1 = quantreg::rq(target ~ 1)
+      stat = pval = numeric(cols)
+      
+      for ( i in 1:cols ) {
+        
+        fit2 = quantreg::rq(target ~ dataset[, i] )
+        mod = anova(fit1, fit2, test = "rank")
+        df1 = as.numeric( mod[[1]][1] )
+        df2 = as.numeric( mod[[1]][2] )
+        stat[i] = as.numeric( mod[[1]][3] )
+        pval[i] = pf(stat[i], df1, df2, lower.tail = FALSE, log.p = TRUE)
+        
+      }
+      
+      univariateModels$stat = stat
+      univariateModels$pvalue = pval
+      univariateModels$flag = numeric(cols) + 1;
+      univariateModels$stat_hash = stat_hash;
+      univariateModels$pvalue_hash = pvalue_hash;
+      
+    } else{  
+      univariateModels = univariateScore(target , dataset , test, dataInfo = dataInfo, hash=hash, stat_hash=stat_hash, pvalue_hash=pvalue_hash, targetID=targetID, robust=robust, ncores=ncores);
+    }
+    
+  } else {
+    univariateModels = ini
+  }   
+    
   pvalues = univariateModels$pvalue;      
   stats = univariateModels$stat;
   flags = univariateModels$flag;
@@ -622,9 +743,11 @@ InternalSES = function(target , dataset , max_k, threshold , test = NULL , equal
     class(results$signatures) = 'matrix';
     results$hashObject = NULL;
     class(results$hashObject) = 'list';
+    class(results$univ) = 'list';
     
     results$pvalues = exp(pvalues);
     results$stats = stats;
+    results$univ = univariateModels
     results$max_k = max_k;
     results$threshold = exp(threshold);
     runtime = proc.time() - runtime;
@@ -750,6 +873,8 @@ InternalSES = function(target , dataset , max_k, threshold , test = NULL , equal
   
   results$pvalues = exp(pvalues);
   results$stats = stats;
+  results$univ = univariateModels
+  
 #   results$all_queues = all_queues;
 #   already known
 #   results$data = dataset;
@@ -765,6 +890,8 @@ InternalSES = function(target , dataset , max_k, threshold , test = NULL , equal
   
   return(results);
 }
+
+
 
 #univariate feature selection ( uncoditional independence )
 

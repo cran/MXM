@@ -2,9 +2,9 @@
 \alias{SES}
 \alias{MMPC}
 \title{
-SES: Feature selection algorithm for identifying multiple minimal, statistically-equivalent and equally-predictive feature signatures.
+SES: Feature selection algorithm for identifying multiple minimal, statistically-equivalent and equally-predictive feature signatures
 
-MMPC: Feature selection algorithm for identifying minimal feature subsets.
+MMPC: Feature selection algorithm for identifying minimal feature subsets
 }
 
 \description{
@@ -12,10 +12,10 @@ SES algorithm follows a forward-backward filter approach for feature selection i
 }
 
 \usage{
-SES(target, dataset, max_k = 3, threshold = 0.05, test = NULL,
+SES(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini = NULL,
  user_test = NULL, hash = FALSE, hashObject = NULL, robust = FALSE, ncores = 1)
  
-MMPC(target, dataset, max_k = 3, threshold = 0.05, test = NULL,
+MMPC(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini = NULL, 
  user_test = NULL, hash = FALSE, hashObject = NULL, robust = FALSE, ncores = 1, 
  backward = FALSE)
 }
@@ -24,18 +24,21 @@ MMPC(target, dataset, max_k = 3, threshold = 0.05, test = NULL,
   \item{target}{
 The class variable. Provide either a string, an integer, a numeric value, a vector, a factor, an ordered factor or a Surv object. See also Details.
 }
-  \item{dataset}{
+\item{dataset}{
 The data-set; provide either a data frame or a matrix (columns = variables , rows = samples).
 Alternatively, provide an ExpressionSet (in which case rows are samples and columns are features, see bioconductor for details).
 }
-  \item{max_k}{
+\item{max_k}{
 The maximum conditioning set to use in the conditional indepedence test (see Details). Integer, default value is 3.
 }
-  \item{threshold}{
+\item{threshold}{
 Threshold (suitable values in [0,1]) for assessing p-values significance. Default value is 0.05.
 }
-  \item{test}{
+\item{test}{
 The conditional independence test to use. Default value is NULL. See also \code{\link{CondIndTests}}.
+}
+\item{ini}{
+This is a supposed to be a list. After running SES or MMPC with some hyper-parameters you might want to run SES again with different hyper-parameters. To avoid calculating the univariate associations (first step of SES and of MPPC) again, you can extract them from the first run of SES and plug them here. This can speed up the second run (and subequent runs of course) by 50\%. See the details and the argument "univ" in the output values. 
 }
   \item{user_test}{
 A user-defined conditional independence test (provide a closure type object). Default value is NULL. If this is defined, the "test" argument is ignored.
@@ -44,8 +47,8 @@ A user-defined conditional independence test (provide a closure type object). De
 A boolean variable which indicates whether (TRUE) or not (FALSE) to store the statistics calculated during SES execution in a hash-type object. Default value is FALSE. If TRUE a hashObject is produced.
 }
   \item{hashObject}{
-A List with the hash objects generated in a previous run of SES. 
-Each time SES runs with "hash=TRUE" it produces a list of hashObjects that can be re-used in order to speed up next runs of SES.
+A List with the hash objects generated in a previous run of SES or MMPC. 
+Each time SES runs with "hash=TRUE" it produces a list of hashObjects that can be re-used in order to speed up next runs of SES or MMPC.
 
 Important: the generated hashObjects should be used only when the same dataset is re-analyzed, possibly with different values of max_k and threshold.
 }
@@ -67,14 +70,13 @@ The SES function implements the Statistically Equivalent Signature (SES) algorit
 http://www.mensxmachina.org/publications/discovering-multiple-equivalent-biomarker-signatures/
 
 The MMPC function mplements the MMPC algorithm as presented in "Tsamardinos, Brown and Aliferis. The max-min hill-climbing Bayesian network
-structure learning algorithm"
-http://www.dsl-lab.org/supplements/mmhc_paper/paper_online.pdf
+structure learning algorithm" http://www.dsl-lab.org/supplements/mmhc_paper/paper_online.pdf
 
-For faster computations in the internal SES functions, install the suggested package "\bold{gRbase}".
+For faster computations in the internal SES functions, install the suggested package "\bold{gRbase}". In addition, the output value "univ" along with the output value "hashObject" can speed up the computations of subesequent runs of SES and MMPC. The first run with a specific pair of hyper-parameters (threshold and max_k) the univariate associations tests and the conditional independence tests (test statistic and logarithm of their corresponding p-values) are stored and returned. In the next run(s) with different pair(s) of hyper-parameters you can use this information to save time. With a few thousands of variables you will see the difference, which can be up to 50\%. For the non robust correlation based tests, the difference may not be significant though, because a Fortran code is used to extract the (unconditional) correlation coefficients. 
 
 The max_k option: the maximum size of the conditioning set to use in the conditioning independence test. Larger values provide more accurate results, at the cost of higher computational times. When the sample size is small (e.g., \eqn{<50} observations) the max_k parameter should be \eqn{ \leq 5}, otherwise the conditional independence test may not be able to provide reliable results.
 
-If the dataset contains missing (NA) values, they will automatically be replaced by the current variable (column) mean value with an appropriate warning to the user after the execution.
+If the dataset (predictor variables) contains missing (NA) values, they will automatically be replaced by the current variable (column) mean value with an appropriate warning to the user after the execution.
 
 If the target is a single integer value or a string, it has to corresponds to the column number or to the name of the target feature in the dataset. In any other case the target is a variable that is not contained in the dataset.
 
@@ -116,13 +118,16 @@ A list containing a list (queue) of equivalent features for each variable includ
 A matrix reporting all equivalent signatures (one signature for each row). Featured only in SES.
 }
 \item{hashObject}{
-The hashObject caching the statistic calculted in the current run.
+The hashObject caching the statistic calculated in the current run.
 }
 \item{pvalues}{
 For each feature included in the dataset, this vector reports the strength of its association with the target in the context of all other variables. Particularly, this vector reports the max p-values foudn when the association of each variable with the target is tested against different conditional sets. Lower values indicate higher association.
 }
 \item{stats}{
 The statistics corresponding to "pvalues" (higher values indicates higher association).
+}
+\item{univ}{
+This is a list with the univariate associations. The test statistics and their corresponding logged p-values, along with their flag (1 if the test was perfromed and 0 otherwise). This list is very important for subsequent runs of SES with different hyper-parameters. After running SES with some hyper-parameters you might want to run SES again with different hyper-parameters. To avoid calculating the univariate associations (first step of SES or MMPC) again, you can take this list from the first run of SES and plug it in the argument "ini" in the next run(s) of SES or MMPC. This can speed up the second run (and subequent runs of course) by 50\%. See the argument "univ" in the output values. 
 }
 \item{max_k}{
 The max_k option used in the current run.
@@ -149,8 +154,8 @@ Plots the generated pvalues (using barplot) of the current SESoutput object in c
 
 Argument mode can be either "all" or "partial" for the first 500 pvalues of the object.
 }
-
 }
+
 \references{
 I. Tsamardinos, V. Lagani and D. Pappas (2012). Discovering multiple, equivalent biomarker signatures. In proceedings of the 7th conference of the Hellenic Society for Computational Biology & Bioinformatics - HSCBB12.
 
@@ -204,15 +209,16 @@ dataset <- matrix(runif(1000 * 1000, 1, 100), ncol = 1000)
 target <- 3 * dataset[, 10] + 2 * dataset[, 200] + 3 * dataset[, 20] + rnorm(1000, 0, 5)
 
 #define some simulated equivalences
-dataset[, 15] <- dataset[,10] + rnorm(1000, 0, 2)
-dataset[, 10] <- dataset[ ,10] + rnorm(1000, 0, 2)
-dataset[, 250] <- dataset[,200] + rnorm(1000, 0, 2) 
-dataset[, 230] <- dataset[,200] + rnorm(1000, 0, 2)
+dataset[, 15] <- dataset[, 10] + rnorm(1000, 0, 2)
+dataset[, 10] <- dataset[ , 10] + rnorm(1000, 0, 2)
+dataset[, 250] <- dataset[, 200] + rnorm(1000, 0, 2) 
+dataset[, 230] <- dataset[, 200] + rnorm(1000, 0, 2)
 
 require("hash", quietly = TRUE) 
 #run the SES algorithm
 sesObject <- SES(target , dataset, max_k = 5, threshold = 0.05, test = "testIndFisher", 
 hash = TRUE, hashObject = NULL);
+
 #print summary of the SES output
 summary(sesObject);
 #plot the SES output
@@ -221,24 +227,30 @@ plot(sesObject, mode = "all");
 sesObject@queues
 #get the generated signatures
 sesObject@signatures;
-#get the run time
+
+# re-run the SES algorithm with the same or different configuration 
+# under the hash-based implementation of retrieving the statistics
+# in the SAME dataset (!important)
+hashObj <- sesObject@hashObject;
+sesObject2 <- SES(target, dataset, max_k = 2, threshold = 0.01, test = "testIndFisher", 
+hash = TRUE, hashObject = hashObj);
+
+sesObject3 <- SES(target, dataset, max_k = 2, threshold = 0.01, test = "testIndFisher", 
+ini = sesObject@univ, hash = TRUE, hashObject = hashObj);
+
+# retrieve the results: summary, plot, sesObject2@...)
+summary(sesObject2)
+# get the run time
 sesObject@runtime;
+sesObject2@runtime;
+sesObject3@runtime;
 
-#re-run the SES algorithm with the same or different configuration 
-#under the hash-based implementation of retrieving the statistics
-#in the SAME dataset (!important)
-#hashObj <- sesObject@hashObject;
-#sesObject2 <- SES(target, dataset, max_k = 2, threshold = 0.01, test = "testIndFisher", 
-#hash = TRUE, hashObject = hashObj);
-#retrieve the results: summary, plot, sesObject2@...)
-#summary(sesObject2)
-#get the run time
-#sesObject2@runtime;
 
-#MMPCObject <- MMPC(target , dataset , max_k=3 , threshold=0.05 , test="testIndFisher", 
-#hash = FALSE, hashObject=NULL);
-#MMPCObject@selectedVars
-#MMPCObject@runtime
+# MMPC algorithm 
+mmpcObject <- MMPC(target , dataset , max_k=3 , threshold=0.05 , test="testIndFisher", 
+hash = FALSE, hashObject=NULL);
+mmpcObject@selectedVars
+mmpcObject@runtime
 }
 
 \keyword{ SES }

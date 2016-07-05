@@ -1,4 +1,4 @@
-\name{Correlation based tests}
+\name{Correlation based conditonal independence tests}
 \alias{testIndFisher}
 \alias{testIndSpearman}
 \title{

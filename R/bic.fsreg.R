@@ -64,7 +64,7 @@ bic.fsreg <- function( target, dataset, test = NULL, robust = FALSE, tol = 0, nc
     }
     
     ## multivariate data
-    if ( sum( class(target) == "matrix" ) > 0 ) {
+    if ( sum( class(target) == "matrix" ) == 1 ) {
       test <- "gaussian"
       a <- rowSums(target)
       if ( min( target ) > 0 & round( sd(a), 16 ) == 0 ) { ## are they compositional data?
@@ -73,7 +73,7 @@ bic.fsreg <- function( target, dataset, test = NULL, robust = FALSE, tol = 0, nc
     }
     
     ## surival data
-    if ( sum( class(target) == "Surv" ) > 0 ) {
+    if ( sum( class(target) == "Surv" ) == 1 ) {
       test <- "Cox"
     }
 
@@ -136,11 +136,7 @@ bic.fsreg <- function( target, dataset, test = NULL, robust = FALSE, tol = 0, nc
     test = match.arg(test , av_models ,TRUE);
     #convert to closure type
     
-     if ( test == "median" ) {
-      test = rq
-      robust = FALSE
-    
-    } else if ( test == "beta" ) {
+    if ( test == "beta" ) {
       test = betareg 
       robust = FALSE
 
@@ -169,6 +165,8 @@ bic.fsreg <- function( target, dataset, test = NULL, robust = FALSE, tol = 0, nc
       robust = FALSE
     }
 
+    
+    
     runtime <- proc.time()
 
       ini = test( target ~ 1 )
@@ -254,7 +252,7 @@ bic.fsreg <- function( target, dataset, test = NULL, robust = FALSE, tol = 0, nc
         bico <- numeric(pn)
         mod <- foreach( i = 1:pn, .combine = rbind) %dopar% {
           ww <- test( target ~., data = as.data.frame( dataset[, c(sel, mat[i, 1]) ] ) )
-          bico[i] <-  - 2 * as.numeric( logLik(ma) ) + length( coef( ma ) ) * con
+          bico[i] <-  - 2 * as.numeric( logLik(ww) ) + length( coef( ww ) ) * con
         }
 
         stopCluster(cl)
@@ -286,7 +284,7 @@ bic.fsreg <- function( target, dataset, test = NULL, robust = FALSE, tol = 0, nc
       }
 
       if ( sum( info[2, ] -  c( -10, 1e300 ) ) == 0 ) {
-        info <- matrix( info[1, ], ncol = 3)
+        info <- matrix( info[1, ], ncol = 2)
       }
 
    }

@@ -1,4 +1,4 @@
-\name{dag2eg}
+\name{Transformation of a DAG into an essential graph}
 \alias{dag2eg}
 \title{
 Transforms a DAG into an essential graph

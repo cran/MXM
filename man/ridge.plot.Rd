@@ -1,4 +1,4 @@
-\name{ridge.plot}
+\name{Ridge regression coefficients plot}
 \alias{ridge.plot}
 \title{
 Ridge regression

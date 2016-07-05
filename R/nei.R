@@ -57,5 +57,6 @@ nei <- function(G, node, graph = TRUE) {
         warning('In order to plot the generated network, package Rgraphviz is required.')
       }
     }
+	
   geit
 }

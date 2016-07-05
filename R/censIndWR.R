@@ -7,6 +7,7 @@ censIndWR = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariate
   }
   
   csIndex[which(is.na(csIndex))] = 0;
+  
   if(hash == TRUE)
   {
     csIndex2 = csIndex[which(csIndex!=0)]

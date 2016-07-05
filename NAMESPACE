@@ -1,4 +1,4 @@
-useDynLib(MXM, .registration = TRUE)
+#useDynLib(MXM, .registration = TRUE)
 
 #testIndFisher
 importFrom("stats", coef, resid, cor)
@@ -67,6 +67,9 @@ importFrom("relations", relation, relation_incidence, transitive_closure)
 
 importFrom("ggm", essentialGraph )
 
+importFrom("fastR", colVars )
+
+
 import("doParallel")
 import("parallel")
 import("foreach")
@@ -78,11 +81,11 @@ import("foreach")
 export(SES, InternalSES, MMPC, InternalMMPC, SES.temporal, InternalSES.temporal, MMPC.temporal, 
        InternalMMPC.temporal, mmhc.skel, pc.skel, pc.con, censIndCR, censIndWR, gSquare, testIndFisher, testIndLogistic, 
        testIndRQ, testIndGLMM, testIndMVreg, testIndBeta, testIndNB, testIndClogit, testIndPois, testIndReg, 
-       testIndSpearman, testIndZIP, testIndSpeedglm, cv.ses, auc.mxm, acc.mxm, acc_multinom.mxm, mse.mxm, ci.mxm, ciwr.mxm, 
+       testIndSpearman, testIndZIP, testIndSpeedglm, testIndBinom, cv.ses, auc.mxm, acc.mxm, acc_multinom.mxm, mse.mxm, ci.mxm, ciwr.mxm, 
        ord_mae.mxm, poisdev.mxm, nbdev.mxm, glm.mxm, lm.mxm, pois.mxm, nb.mxm, multinom.mxm, rq.mxm, lmrob.mxm, ordinal.mxm, 
-       coxph.mxm, beta.mxm, weibreg.mxm, ridge.reg, ridgereg.cv, ridge.plot, model, nei, plota, reg.fit, pc.or, undir.path, rdag, 
+       coxph.mxm, beta.mxm, weibreg.mxm, ridge.reg, ridgereg.cv, ridge.plot, ses.model, mmpc.model, nei, plota, reg.fit, pc.or, undir.path, rdag, 
        mb, mmmb, permcor, findAncestors, findDescendants, transitiveClosure, dag2eg, bic.fsreg, bic.glm.fsreg, fs.reg, glm.fsreg, 
-       lm.fsreg, glm.bsreg, tc.plot)
+       lm.fsreg, glm.bsreg, tc.plot, cv.mmpc, mmpc.path, condi)
 
 exportClasses("SESoutput")
 exportClasses("MMPCoutput")

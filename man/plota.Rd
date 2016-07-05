@@ -1,4 +1,4 @@
-\name{plota}
+\name{Plot of an (un)directed graph}
 \alias{plota}
 \title{
 Plot of an (un)directed graph
@@ -40,7 +40,7 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> and M
 %%  ~~further notes~~
 %}
 \seealso{
-\code{ \link{mmhc.skel}, \link{nei}, \link{MMPC} }
+\code{ \link{mmhc.skel}, \link{nei}, \link{pc.skel}, \link{mb} }
 }
 
 \examples{

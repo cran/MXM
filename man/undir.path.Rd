@@ -1,7 +1,7 @@
-\name{undir.path}
+\name{Undirected path(s) between two nodes}
 \alias{undir.path}
 \title{
-Undirected path(s) between two nodes.
+Undirected path(s) between two nodes
 }
 
 \description{
@@ -13,13 +13,13 @@ undir.path(G, y, x)
 }
 
 \arguments{
-  \item{G}{
-  An adjacency matrix where G[i,j] = G[j, i] = 1 means there is an edge between nodes i and j. If G[i,j] = G[j, i] = 0 there is no edge between them.     
+\item{G}{
+An adjacency matrix where G[i,j] = G[j, i] = 1 means there is an edge between nodes i and j. If G[i,j] = G[j, i] = 0 there is no edge between them.     
 }
-  \item{y}{
+\item{y}{
 A numerical value indicating the first node, it has to be a number between 1 and the maximum number of variables.
 }
-  \item{x}{
+\item{x}{
 A numerical value indicating the second node, it has to be a number between 1 and the maximum number of variables. The order of the nodes does not make a difference.
 }
 }
@@ -54,6 +54,8 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> and M
 set.seed(1234)
 dataset <- matrix(runif(1000 * 20, 1, 100), nrow = 1000 ) 
 G = pc.con(dataset)$G
+library(Rgraphviz)
+plota(G)
 undir.path(G, 3, 4)
 undir.path(G, 1, 3)
 }

@@ -26,6 +26,7 @@ Objects can be created by calls of the form \code{new("SES.temporal.output", ...
     \item{\code{hashObject}:}{Object of class \code{"list"}}
     \item{\code{pvalues}:}{Object of class \code{"numeric"}}
     \item{\code{stats}:}{Object of class \code{"numeric"}}
+    \item{\code{univ}:}{Object of class \code{"list"}}
     \item{\code{max_k}:}{Object of class \code{"numeric"}}
     \item{\code{threshold}:}{Object of class \code{"numeric"}}
     \item{\code{runtime}:}{Object of class \code{"proc_time"}}

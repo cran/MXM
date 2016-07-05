@@ -1,6 +1,7 @@
 ## finds ancestors of some given node(s)
 
 findAncestors <- function(G, node, graph = FALSE) {
+
   n <- nrow(G) 
   dag <- matrix(0, n, n )
   dag[ G == 2 & t(G) == 3 ] <- 1
@@ -11,7 +12,9 @@ findAncestors <- function(G, node, graph = FALSE) {
   Ganc <- G[c(node, anc), c(node, anc)]
 
   if (graph == TRUE) {
+  
     if ( length(anc) > 0 ) {
+	
       if ( requireNamespace("Rgraphviz", quietly = TRUE, warn.conflicts = FALSE) == TRUE ) {
         Ganc[ Ganc != 2 ] <- 0
         g <- as( Ganc, "graphNEL" )
@@ -20,6 +23,8 @@ findAncestors <- function(G, node, graph = FALSE) {
         warning('In order to plot the generated network, package Rgraphviz is required.')
       }
     } 
+	
+	
   }
   
   list(isAnc = isAnc, Ganc = Ganc, anc = anc)   

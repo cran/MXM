@@ -1,7 +1,7 @@
-\name{gSquare}
+\name{G-square conditional independence test for discrete data}
 \alias{gSquare}
 \title{
-G square conditional independence test for discrete data
+G-square conditional independence test for discrete data
 }
 
 \description{

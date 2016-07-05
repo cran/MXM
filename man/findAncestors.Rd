@@ -1,4 +1,4 @@
-\name{findAncestors}
+\name{Ancestors of a node in a directed graph}
 \alias{findAncestors}
 \title{
 Returns and plots, if asked, the ancestors of a node (or variable)
@@ -66,6 +66,7 @@ tru = y$G
 x = y$x
 mod = pc.con(x)
 G = pc.or(mod)$G
+plota(G)
 findAncestors(G, 1, graph = FALSE)
 }
 

@@ -79,6 +79,7 @@ plota(tru)
 dev.new()
 plota(b$G)
 
+dev.off()
 plota( dag2eg(tru) )  ## essential graph
 dev.new()
 plota(b$G)

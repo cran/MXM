@@ -1,4 +1,4 @@
-\name{lm.fsreg}
+\name{Forward selection with linear regression models}
 \alias{lm.fsreg}
 \title{
 Variable selection in linear regression models with forward selection
@@ -10,7 +10,7 @@ Variable selection in linear regression models with forward selection
 }
 
 \usage{
-lm.fsreg(target, dataset, threshold = 0.05, stopping = "BIC", tol = 2, 
+lm.fsreg(target, dataset, ini = NULL, threshold = 0.05, stopping = "BIC", tol = 2, 
 robust = FALSE, ncores = 1)
 }
 
@@ -21,8 +21,11 @@ The class variable. Provide either a string, an integer, a numeric value, a vect
 \item{dataset}{
 The dataset; provide either a data frame or a matrix (columns = variables, rows = samples). In either case, only two cases are avaialble, either all data are continuous, or categorical. 
 }
+\item{ini}{
+If you have a set of variables already start with this one. Currently this can only be a matrix with continuous variables. In such cases, the dataset must also contain continuous variables only. Otherwise leave it NULL. 
+}
 \item{threshold}{
-Threshold (suitable values in [0,1]) for asmmmbsing p-values significance. Default value is 0.05.
+Threshold (suitable values in [0,1]) for assessing the p-values significance. Default value is 0.05.
 }
 \item{stopping}{
 The stopping rule. The BIC ("BIC") or the adjusted \eqn{R^2} ("adjrsq") can be used. 
@@ -96,7 +99,7 @@ dataset <- matrix( runif(1000 * 50, 1, 100), ncol = 50 )
 target <- 3 * dataset[, 10] + 2 * dataset[, 20] + 3 * dataset[, 30] + rnorm(1000, 0, 5)
 a <- lm.fsreg(target, dataset, threshold = 0.05, stopping = "BIC", tol = 2, 
 robust = FALSE, ncores = 1 ) 
-b=fs.reg(target, dataset, threshold = 0.05, test = NULL, stopping = "BIC", tol = 2, 
+b <- fs.reg(target, dataset, threshold = 0.05, test = NULL, stopping = "BIC", tol = 2, 
 robust = TRUE, ncores = 1 ) 
 }
 

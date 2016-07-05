@@ -8,6 +8,7 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 
   ## if graph is true, the graph will appear
 
   alpha <- log(alpha)
+  
   title <- deparse( substitute(dataset) )
 
   #check for NA values in the dataset and replace them with the variable mean
@@ -46,19 +47,15 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 
   }
   
   if (method == "spearman" || method == "pearson") {
-    if (R == 1) {    
       ci.test = condi 
       type = method
       rob = rob
-      R = 1
-    } else if (R > 1) {
-      ci.test = condi.perm
-    }
-    
+
   } else {
     ci.test = cat.ci
     type = NULL
     rob = FALSE
+    
   }
   
   n = ncol(dataset)
@@ -68,6 +65,7 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 
   ## If an element has the number 2 it means there is connection, otherwiser it will have 0
   diag(G) = -100
   durat = proc.time()
+  
   if ( method == "pearson" || method == "spearman") {
     
     if (R == 1) {
@@ -104,8 +102,8 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 
       for ( i in 1:c(n - 1) ) {
         for ( j in c(i + 1):n ) {
           ro <- permcor(dataset[, c(i, j)], R = R) 
-          stat[i, j] = ro$result[1]
-          pv[i, j] = log( ro$result[2] )
+          stat[i, j] = ro[1]
+          pv[i, j] = log( ro[2] )
         }
       }
       pvalue = pv + t(pv)  ## p-values
@@ -131,24 +129,27 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 
     stadf = stata / dof
   }
     
-  pv = pvalue 
+  pv = pvalue
 
   #stat[ lower.tri(stat) ] = 2
   pv[ lower.tri(pv) ] = 2 
   G[pvalue > alpha] <- 0   ## removes edges from non significantly related pairs
+  
   if ( is.null( colnames(dataset) ) ) {
     colnames(G) = rownames(G) = paste("X", 1:n, sep = "")
   } else colnames(G) = rownames(G) = colnames(dataset)
+  
   diag(pvalue) = diag(pv) = 0
   ina = 1:n 
   sep = list()
   n.tests = NULL
   pval = list()
+  
   #### some more initial stuff 
-   dial = which( pv <= alpha, arr.ind = T )
+   dial = which( pv <= alpha, arr.ind = TRUE )
    zeu = cbind( dial, stadf[ dial ], pv[ dial ] )  ## all significant pairs of variables
    zeu = zeu[ order( - zeu[, 4], zeu[, 3] ), ] ## order of the pairs based on their strength
-   if ( !is.matrix(zeu) ) zeu = matrix(zeu, nrow = 1)
+   if ( !is.matrix(zeu) )  zeu = matrix(zeu, nrow = 1)
    duo = nrow(zeu)  ## number of pairs to be checkd for conditional independence
    n.tests[1] = n * (n - 1) / 2
 
@@ -163,15 +164,16 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 
 
     ## Execute PC algorithm: main loop
 
-    while ( k < ell & nrow(zeu) > 0 )  {
+    while ( k < ell & duo > 0 )  {
       k = k + 1   ## size of the seperating set will change now
       tes = 0
-      met = matrix(nrow = nrow(zeu), ncol = k + 2)
-
+      met <- matrix(0, duo, k + 2)
+      
       for ( i in 1:nrow(zeu) ) {
 
         adjx = ina[ G[ zeu[i, 1], ] == 2 ]  ;  lx = length(adjx)  ## adjacents to x
         adjy = ina[ G[ zeu[i, 2], ] == 2 ]  ;  ly = length(adjy)  ## adjacents to y
+        
         if ( lx >= k )  {
           pvalx = pvalue[ zeu[i, 1], adjx ]
           infox = cbind( adjx, pvalx)
@@ -179,7 +181,8 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 
           if ( !is.matrix(infox) ) {
             samx = cbind( infox[1], infox[2] )
           } else  samx = cbind( t( combn(infox[, 1], k) ), t( combn(infox[, 2], k) ) )  ## factorial, all possible unordered pairs
-        } 
+        }
+        
         if ( ly >= k ) {
           pvaly = pvalue[ zeu[i, 2], adjy ]
           infoy = cbind(adjy, pvaly)
@@ -188,6 +191,7 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 
             samy = cbind( infoy[1], infoy[2] )
           } else  samy = cbind( t( combn(infoy[, 1], k) ), t( combn(infoy[, 2], k) ) )  ## factorial, all possible unordered pairs
         }
+        
         if ( !is.null(samx) ) sx = 1  else sx = 0
         if ( !is.null(samy) ) sy = 1  else sy = 0 
         sam = rbind( samx * sx, samy * sy ) 
@@ -195,6 +199,7 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 
         sam = unique(sam) 
         ## sam contains either the sets of k neighbours of X, or of Y or of both
         ## if the X and Y have common k neighbours, they are removed below
+        
         rem = intersect( zeu[i, 1:2], sam )
         if ( length(rem) > 0 ) {
           pam = list()
@@ -210,9 +215,11 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 
           sam = matrix( sam, nrow = 1 ) 
         } else if ( nrow(sam) == 0 ) {
           G = G 
+          
         } else { 
           if (k == 1) {
             sam = sam[ order( sam[, 2 ] ), ]
+            
           } else {
             an <- t( apply(sam[, -c(1:2)], 1, sort, decreasing = TRUE) )
             sam <- cbind(sam[, 1:2], an)
@@ -225,13 +232,16 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 
 
         if ( nrow(sam) == 0 ) {
           G = G  
+          
         } else {
+          
           a = ci.test( zeu[i, 1], zeu[i, 2], sam[1, 1:k], dataset, type = type, rob = rob, R = R )
           if ( a[2] > alpha ) {
             G[ zeu[i, 1], zeu[i, 2] ] = 0  ## remove the edge between two variables
             G[ zeu[i, 2], zeu[i, 1] ] = 0  ## remove the edge between two variables 
             met[i, ] = c( sam[1, 1:k], a[1:2] )
             tes = tes + 1 
+            
           } else {
             m = 1
             while ( a[2] < alpha  &  m < nrow(sam) ) {
@@ -239,20 +249,24 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 
               a = ci.test( zeu[i, 1], zeu[i, 2], sam[m, 1:k], dataset, type = type, rob = rob, R = R )
               tes = tes + 1
             }
+            
             if (a[2] > alpha) {
               G[ zeu[i, 1], zeu[i, 2] ] = 0  ## remove the edge between two variables
               G[ zeu[i, 2], zeu[i, 1] ] = 0  ## remove the edge between two variables
               met[i, ] = c( sam[m, 1:k], a[1:2] ) 
             }
+            
           }
+          
         }
 
         sam = samx = samy = NULL
 
       }  
         ax = ay = list()
-        lx = ly = numeric( nrow(zeu) )
-        for ( i in 1:nrow(zeu) ) {
+        lx = ly = numeric( duo )
+        
+        for ( i in 1:duo ) {
           ax[[ i ]] = ina[ G[ zeu[i, 1], ] == 2 ]  ;  lx[i] = length( ax[[ i ]] )
           ay[[ i ]] = ina[ G[ zeu[i, 2], ] == 2 ]  ;  ly[i] = length( ay[[ i ]] ) 
         }
@@ -264,10 +278,13 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 
       } else {
         sep[[ k ]] = cbind( zeu[id, 1:2], met[id, ] )
       }
+      
       zeu = zeu[-id, ]  
       if ( class(zeu) != "matrix" ) {
         zeu <- matrix(zeu, ncol = 4)
-      }
+      }  
+        duo <- nrow(zeu)
+      
       n.tests[ k + 1 ] = tes
 
     }
@@ -279,6 +296,7 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 
     ###### end of the algorithm
 
     for ( l in 1:k ) { 
+      
       if ( is.matrix(sep[[ l ]]) ) {
         if ( nrow(sep[[ l ]]) > 0) {  
           sepa = sep[[ l ]]
@@ -288,22 +306,27 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 
           sepa =  sepa[ order(sepa[, 1], sepa[, 2] ), ]
           sep[[ l ]] = sepa
         }
+        
       } else {
         if ( length(sep[[ l ]]) > 0) { 
           names( sep[[ l ]] )[1:2] = c("X", "Y")
           names( sep[[ l ]] )[ 2 + 1:l ] = paste("SepVar", 1:l)
           names( sep[[ l ]] )[ c(l + 3):c(l + 4) ] = c("stat", "logged.p-value")
         } 
+        
       }
+      
     }
-  
+    
   }  
 
   n.tests = n.tests[ n.tests>0 ]
   k = length(n.tests) - 1
   sepset = list()
+  
   if (k == 0) {
     sepset = NULL
+    
   } else {
     for ( l in 1:k ) {
       if ( is.matrix( sep[[ l ]] ) )  {
@@ -312,6 +335,7 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 
       } else sepset[[ l ]] = sep[[ l ]]    
     }
   }  
+  
   names(n.tests) = paste("k=", 0:k, sep ="")
   
   info <- summary( rowSums(G) )

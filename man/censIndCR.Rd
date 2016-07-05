@@ -1,4 +1,4 @@
-\name{Survival regression}
+\name{Conditional independence tests for survival data }
 \alias{censIndCR}
 \alias{censIndWR}
 \title{

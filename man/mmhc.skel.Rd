@@ -1,11 +1,11 @@
-\name{mmhc.skel}
+\name{Skeleton of the max-min hill-climbing (MMHC) algorithm}
 \alias{mmhc.skel}
 \title{
-The skeleton of a Bayesian network produced by MMHC
+The skeleton of a Bayesian network as produced by MMHC
 }
 
 \description{
-The skeleton of a Bayesian network produced by MMHC. No orientatinos are involved.
+The skeleton of a Bayesian network produced by MMHC. No orientations are involved.
 }
 
 \usage{
@@ -14,10 +14,10 @@ nc = 1, graph = FALSE)
 }
 
 \arguments{
-  \item{dataset}{
-  A matrix with the variables. The user must know if they are continuous or if they are categorical. data.frame or matrix are both supported, as the dataset is converted into a matrix.   
+\item{dataset}{
+A matrix with the variables. The user must know if they are continuous or if they are categorical. data.frame or matrix are both supported, as the dataset is converted into a matrix.   
 }
-  \item{max_k}{
+\item{max_k}{
 The maximum conditioning set to use in the conditional indepedence test (see Details of SES or MMPC). 
 }
   \item{threshold}{
@@ -88,12 +88,17 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> and M
 \examples{
 # simulate a dataset with continuous data
 dataset <- matrix(runif(1000 * 50, 1, 100), nrow = 1000 ) 
-a <- mmhc.skel(dataset, max_k = 3, threshold = 0.05, test = "testIndFisher", 
+a1 <- mmhc.skel(dataset, max_k = 3, threshold = 0.05, test = "testIndFisher", 
 rob = FALSE, nc = 1) 
-b <- mmhc.skel(dataset, max_k = 3, threshold = 0.05, test = "testIndSpearman", 
+a2 <- mmhc.skel(dataset, max_k = 3, threshold = 0.05, test = "testIndSpearman", 
 rob = FALSE, nc = 1)
-a$runtime ## 
-b$runtime ## check the diffrerences in the runtimes
+a3 <- pc.con(dataset)
+a4 <- pc.skel(dataset, R = 1) 
+## check the diffrerences in the runtimes
+a1$runtime  
+a2$runtime 
+a3$runtime 
+
 
 }
 

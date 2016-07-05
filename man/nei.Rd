@@ -1,4 +1,4 @@
-\name{nei}
+\name{Neighbours of nodes in an undirected graph}
 \alias{nei}
 \title{
 Returns and plots, if asked, the node(s) and their neighbour(s), if there are any.
@@ -13,19 +13,19 @@ nei(G, node, graph = TRUE)
 }
 
 \arguments{
-  \item{G}{
-  The adjacency matrix as produced from \code{\link{mmhc.skel}} or any other algorithm. 
+\item{G}{
+The adjacency matrix of an undirected graph as produced by \code{\link{mmhc.skel}}, \code{\link{pc.skel}} or any other algorithm. 
 }
-  \item{node}{
-  A vector with one or more numbers indicating the seleted node(s) (or variable(s)). 
+\item{node}{
+A vector with one or more numbers indicating the seleted node(s) (or variable(s)). 
 }
-  \item{graph}{
-  A boolean variable. If TRUE the relevane graph will appear (if there are neighbours). 
+\item{graph}{
+A boolean variable. If TRUE the relevane graph will appear (if there are neighbours). 
 }
 }
 
 \details{
- This is a way to see the network for some given nodes. It is useful if you have many nodes and the whole network is a bit difficult to see clearly. 
+This is a way to see the network for some given nodes. It is useful if you have many nodes and the whole network is a bit difficult to see clearly. 
 }
 
 \value{

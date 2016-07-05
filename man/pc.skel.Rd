@@ -29,10 +29,10 @@ The significance level ( suitable values in (0, 1) ) for assessing the p-values.
 A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust version of the statistical test if it is available. It takes more time than a non robust version but it is suggested in case of outliers. Default value is FALSE. This will only be taken into account if method is "pearson". 
 }
 \item{R}{
-The number of permutations to be conducted. This is taken into consideration for the pc.skel only. The Pearson correlation coefficient is calculated and the p-value is assessed via permutations.
+The number of permutations to be conducted. This is taken into consideration for the "pc.skel" only. The Pearson correlation coefficient is calculated and the p-value is assessed via permutations.
 }
 \item{graph}{
-Boolean that indicates whether or not to generate a plot with the graph. Package RgraphViz is required.
+Boolean that indicates whether or not to generate a plot with the graph. Package "RgraphViz" is required.
 }
 }
 
@@ -111,7 +111,7 @@ b <- pc.skel( dataset, method = "pearson", alpha = 0.05 )
 b2 <- pc.con( dataset, method = "pearson" ) 
 a$runtime ## 
 b$runtime ## 
-b2$rntime ## check the diffrerences in the runtimes
+b2$runtime ## check the diffrerences in the runtimes
 }
 
 \keyword{ pc algorithm }

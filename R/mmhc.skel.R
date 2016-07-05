@@ -15,57 +15,61 @@ mmhc.skel <- function(dataset, max_k = 3, threshold = 0.05, test = NULL, rob = F
     rob = FALSE 
   }
   
-  if (nc == 1 || nc < 1 || is.null(nc) ) {
-    if (fast == TRUE) {   
-      pa <- proc.time()
-      a <- MMPC(1, dataset, max_k = max_k, test = test, threshold = threshold, robust = rob)
-      sel <- a@selectedVars
-      G[1, sel] <- 1 
-    
-      for ( i in 2:n ) {
-        ina <- 1:n
-        che <- which( G[ 1:c(i - 1), i ] == 0 ) 
-        ina[c(i, che)] <- 0   ;  ina <- ina[ina>0]
-        a <- MMPC(dataset[, i], as.matrix(dataset[, -c(i, che)]), max_k = max_k, test = test, threshold = threshold, robust = rob)
-        if ( !is.null(a) ) {
-          sel <- a@selectedVars
-          sela <- ina[sel]
-          G[i, sela] <- 1 
-        }  else {
-           G[i, ] <- 0
-        }
-      }
-      runtime <- proc.time() - pa
+   if (fast == TRUE) {  
       
-    } else {
-      pa <- proc.time()
-      for (i in 1:n) {
-        a <- MMPC(i, dataset, max_k = max_k, test = test, threshold = threshold, robust = rob)
-        sel <- a@selectedVars
-        G[i, sel] <- 1 
-      } 
-      runtime <- proc.time() - pa
-    }
-  }  else {
+     pa <- proc.time()
+     a <- MMPC(1, dataset, max_k = max_k, test = test, threshold = threshold, robust = rob)
+     sel <- a@selectedVars
+     G[1, sel] <- 1 
+    
+     for ( i in 2:n ) {
+       ina <- 1:n
+       che <- which( G[ 1:c(i - 1), i ] == 0 ) 
+       ina[c(i, che)] <- 0   ;  ina <- ina[ina>0]
+       a <- MMPC(dataset[, i], as.matrix(dataset[, -c(i, che)]), max_k = max_k, test = test, threshold = threshold, robust = rob)
+       if ( !is.null(a) ) {
+         sel <- a@selectedVars
+         sela <- ina[sel]
+         G[i, sela] <- 1 
+       }  else {
+          G[i, ] <- 0
+       }
+     }
+     runtime <- proc.time() - pa
+      
+   } else {
+      
+     if (nc == 1 || nc < 1 || is.null(nc) ) {
+        
+       pa <- proc.time()
+       for (i in 1:n) {
+         a <- MMPC(i, dataset, max_k = max_k, test = test, threshold = threshold, robust = rob)
+         sel <- a@selectedVars
+         G[i, sel] <- 1 
+       } 
+       runtime <- proc.time() - pa
+    
+     }  else {
    
-    pa <- proc.time() 
-    cl <- makePSOCKcluster(nc)
-    registerDoParallel(cl)
-    sel <- numeric(n)
-    mod <- foreach(i = 1:n, .combine = rbind, .export = c("MMPC") ) %dopar% {
-      ## arguments order for any CI test are fixed
-      sel <- numeric(n)
-      a <- MMPC(i, dataset, max_k = max_k, test = test, threshold = threshold, robust = rob)
-      sel[a@selectedVars] <- 1
-      return(sel)
+        pa <- proc.time() 
+        cl <- makePSOCKcluster(nc)
+        registerDoParallel(cl)
+        sel <- numeric(n)
+        mod <- foreach(i = 1:n, .combine = rbind, .export = c("MMPC") ) %dopar% {
+          ## arguments order for any CI test are fixed
+          sel <- numeric(n)
+          a <- MMPC(i, dataset, max_k = max_k, test = test, threshold = threshold, robust = rob)
+          sel[a@selectedVars] <- 1
+          return(sel)
+        }
+        
+       stopCluster(cl)
+       G <- as.matrix(mod)
+       runtime <- proc.time() - pa
     }
-    stopCluster(cl)
-    G <- as.matrix(mod)
-    runtime <- proc.time() - pa
+   
   }
-   
-  G2 <- G - t(G)
-  G[ G2 != 0 ] <- 0
+  
   diag(G) <- 0
   
   info <- summary( rowSums(G) )

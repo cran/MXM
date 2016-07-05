@@ -6,8 +6,7 @@ testIndClogit = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univar
     stop('The testIndClogit test can not be performed without a 2 column matrix target');
   }
   
-  #csIndex = csIndex[-which(is.na(csIndex))]#csIndex[which(is.na(csIndex))] = 0;
-  csIndex[which(is.na(csIndex))] = 0
+  csIndex[which(is.na(csIndex))] = 0;
   
   if(hash == TRUE)
   {

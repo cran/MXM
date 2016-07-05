@@ -7,23 +7,32 @@ mmmb = function(target, dataset , max_k = 3 , threshold = 0.05 , test = "testInd
    pvalue_hash  = mmpcobject@hashObject$pvalue_hash
    varsToIterate = mmpcobject@selectedVars;
    met = 1:length(varsToIterate)
+   d = ncol(dataset) 
    
    lista = list()
+   
    if ( length(varsToIterate) > 0 ) {
-     for( i in 1:length(met) ) {
+     
+     for ( i in 1:length(met) ) {
+       
         tar <- dataset[ , varsToIterate[i] ];
-        datas <- cbind( target, dataset[, -varsToIterate[i] ] )
+        datas <- cbind( dataset[, -varsToIterate[i] ], target)
         res = MMPC(tar, datas, max_k = 3, threshold = threshold, test = test , user_test = user_test, hash = FALSE, robust = robust, ncores = 1, backward = FALSE) 
-
-        lista[[ i ]] = res@selectedVars
+        poies = sort( res@selectedVars )
         
-        if (hold == FALSE ) {
-          if ( 1 %in% res@selectedVars == FALSE ) {
+        if ( hold == FALSE ) {
+          if ( d %in% poies == FALSE ) {
             met[i] = 0;
           }
         }
         
+        poies = poies[ - which( poies == d ) ]
+        poies[ poies >= varsToIterate[i] ] = poies[ poies >= varsToIterate[i] ] + 1
+        lista[[ i ]] = poies
+        
+
      }
+     
    }
   
    pct = varsToIterate[met]
@@ -134,5 +143,7 @@ mmmb = function(target, dataset , max_k = 3 , threshold = 0.05 , test = "testInd
   }   
   
   runtime = proc.time() - durat   
-  list( mb = mmpcobject@selectedVars[met], ci_test = ci_test, runtime = runtime )
+  
+  list( mb = sort( c(mmpcobject@selectedVars[met], lista[ina]) ), ci_test = ci_test, runtime = runtime )
+  
 }

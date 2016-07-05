@@ -1,12 +1,13 @@
-\name{reg.fit}
+\name{GEneric regression models}
 \alias{reg.fit}
 \title{
 Regression modelling
 }
 
 \description{
-Generic regression modelling function
+Generic regression modelling function.
 }
+
 \usage{
 reg.fit(y, dataset, event = NULL, reps = NULL, group = NULL, slopes = FALSE, 
 reml = FALSE, model = NULL, robust = FALSE, xnew = NULL)
@@ -38,9 +39,7 @@ This is for the longitudinal or grouped data only, TRUE or FALSE. If TRUE, REML 
 }
 \item{model}{
 The type of model you want to use. It can be specified by the user or left NULL, if other correct arguments have been passed. 
-Poissible values (apart from NULL) are: "gaussian" (default), "binary", "multinomial", "poisson", "ordinal", "Cox", "weibull", "zip0", "zipx", "beta", "median", "negbin", "longitudinal" and "grouped".
- The "zip0" means that the zero part is constant, the variables are not associated with the excessive zeros. This is done with "zipx". 
-The value "grouped" refers to grouped data, but this does not have to be given if the argument "group" is given, but not the argument "reps.
+Poissible values (apart from NULL) are: "gaussian" (default), "binary", "multinomial", "poisson", "ordinal", "Cox", "weibull", "zip0", "zipx", "beta", "median", "negbin", "longitudinal" and "grouped".  The "zip0" means that the zero part is constant, the variables are not associated with the excessive zeros. This is done with "zipx". The value "grouped" refers to grouped data, but this does not have to be given if the argument "group" is given, but not the argument "reps.
 }
 \item{robust}{
 A boolean variable. If TRUE robust models will be returned. Currently this is supported by models "gaussian", "poisson" and "binary".
@@ -48,7 +47,6 @@ A boolean variable. If TRUE robust models will be returned. Currently this is su
 \item{xnew}{
 If you have new data whose target values you want to predict put it here, otherwise leave it blank.
 }
-
 }
 
 \details{
@@ -80,7 +78,7 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> and M
 %}
 
 \seealso{
-\code{ \link{ridge.reg}, \link{model} }
+\code{ \link{ridge.reg}, \link{ses.model}, \link{mmpc.model} }
 }
 
 \examples{
@@ -92,4 +90,4 @@ dataset <- dataset[, -1]
 a <- reg.fit(target, dataset)
 }
 
-\keyword{ Ridge regression }
+\keyword{ Regression model }

@@ -1,7 +1,7 @@
-\name{rdag}
+\name{Data simulation from a DAG}
 \alias{rdag}
 \title{
-G square conditional independence test for discrete data
+Simulation of data from DAG (directed acyclic graph)
 }
 
 \description{
@@ -79,7 +79,7 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr>
 %}
 
 \seealso{
-\code{\link{SES}, \link{testIndFisher}, \link{testIndLogistic}, \link{censIndCR}, \link{CondIndTests}}
+\code{\link{pc.skel}, \link{pc.or}, \link{mmhc.skel} }
 }
 
 \examples{

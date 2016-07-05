@@ -1,4 +1,4 @@
-\name{tc.plot}
+\name{Plot of longitudinal data}
 \alias{tc.plot}
 \title{
 Plot of longitudinal data

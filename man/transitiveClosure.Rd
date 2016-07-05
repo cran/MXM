@@ -1,7 +1,7 @@
-\name{transitiveClosure}
+\name{Transitive closure of an adjacency matrix}
 \alias{transitiveClosure}
 \title{
-Returns the transitive closure of a graph.
+Returns the transitive closure of an adjacency matrix
 }
 
 \description{
@@ -13,14 +13,14 @@ transitiveClosure(amat)
 }
 
 \arguments{
-  \item{amat}{
-  The adjacency matrix of a graph. 
+\item{amat}{
+The adjacency matrix of a graph. 
 }
 }
 
 \details{
 A function that computes the transitive closure of a graph. The transitive closure C(G) of a graph is a graph which contains an edge between nodes u and v whenever there is a directed path from u to v (Skiena 1990, p. 203).
-from: http://mathworld.wolfram.com/TransitiveClosure.html
+http://mathworld.wolfram.com/TransitiveClosure.html
 }
 
 \value{

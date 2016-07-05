@@ -22,7 +22,7 @@ The number of permutations to be conducted; set to 999 by default.
 }
 
 \details{
-This is a computational non parametric correlation coefficient test and is advised to be used when a small sample size is available. This is internally called by \code{\link{condi.perm}}.
+This is a computational non parametric correlation coefficient test and is advised to be used when a small sample size is available.
 }
 
 \value{

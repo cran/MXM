@@ -1,12 +1,12 @@
-\name{bic.glm.fsreg}
+\name{BIC based forward selection with generalised linear models}
 \alias{bic.glm.fsreg}
 \title{
-Variable selection in generalised linear regression models with forward selection
+Variable selection in generalised linear models with forward selection based on BIC
 
 }
 
 \description{
-Variable selection in generalised linear regression models with forward selection
+Variable selection in generalised linear models with forward selection based on BIC
 }
 
 \usage{
@@ -38,7 +38,7 @@ How many cores to use. This plays an important role if you have tens of thousand
 }
 
 \details{
-Forward selection via the BIC is implemented. A variable which results in a reduction of BIC will be included, until the reduction is less than the specified (by the user) value can be achieved.
+Forward selection via the BIC is implemented. A variable which results in a reduction of BIC will be included, until the reduction is below a threshold set by the user (argument "tol").
 }
 
 \value{

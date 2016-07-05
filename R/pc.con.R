@@ -11,6 +11,7 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
   ## if graph is true, the graph will appear
   
   alpha <- log(alpha)
+  
   title <- deparse( substitute(dataset) )
   dataset <- as.matrix(dataset)
   
@@ -76,16 +77,17 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
   n.tests <- NULL
   pval <- list()
   #### some more initial stuff 
+  
   dial <- which( pv <= alpha, arr.ind = TRUE )
   zeu <- cbind( dial, stadf[ dial ], pv[ dial ] )  ## all significant pairs of variables
   zeu <- zeu[ order( - zeu[, 4], zeu[, 3] ), ] ## order of the pairs based on their strength
-  if ( !is.matrix(zeu) )  zeu = matrix(zeu, nrow = 1)
+  if ( !is.matrix(zeu) )   zeu <- matrix(zeu, nrow = 1)
   duo <- nrow(zeu)  ## number of pairs to be checkd for conditional independence
   n.tests[1] <- n * (n - 1) / 2
 
   #### main search
 
-  if (duo == 0) {
+  if ( duo == 0 ) {
     diag(G) <- 0
     final <- list(kappa = k, G = G) 
   } else {
@@ -94,43 +96,58 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
 
     ## Execute PC algorithm: main loop
 
-    while ( k < ell & nrow(zeu) > 0 )  {
+    while ( k < ell & duo > 0 )  {
       k <- k + 1   ## size of the seperating set will change now
       tes <- 0
-      met <- matrix(nrow = nrow(zeu), ncol = k + 2)
+      met <- matrix(0, duo, k + 2)
+      
+      dofk <- nu - k - 3
 
+      if ( method == "pearson" ) {
+        cor.se <-  sqrt(dofk)   
+      } else if (method == "spearman") {
+        cor.se <- sqrt(dofk) / 1.029563
+      }
+      
       for ( i in 1:nrow(zeu) ) {
 
-        adjx <- ina[ G[ zeu[i, 1], ] == 2 ]  ;  lx <- length(adjx)  ## adjacents to x
-        adjy <- ina[ G[ zeu[i, 2], ] == 2 ]  ;  ly <- length(adjy)  ## adjacents to y
+        xyIdx <- zeu[i, 1:2]
+        
+        adjx <- ina[ G[ xyIdx[ 1 ], ] == 2 ]   ;   lx <- length(adjx)  ## adjacents to x
+        adjy <- ina[ G[ xyIdx[ 2 ], ] == 2 ]   ;   ly <- length(adjy)  ## adjacents to y
+        
         if ( lx >= k )  {
-          pvalx <- pvalue[ zeu[i, 1], adjx ]
+          pvalx <- pvalue[ xyIdx[ 1 ], adjx ]
           infox <- cbind( adjx, pvalx)
           infox <- infox[ order( - pvalx ), ]
           if ( !is.matrix(infox) ) {
             samx <- cbind( infox[1], infox[2] )
           } else  samx <- cbind( t( combn(infox[, 1], k) ), t( combn(infox[, 2], k) ) )  ## factorial, all possible unordered pairs
         } 
+        
         if ( ly >= k ) {
-          pvaly <- pvalue[ zeu[i, 2], adjy ]
+          pvaly <- pvalue[ xyIdx[ 2 ], adjy ]
           infoy <- cbind(adjy, pvaly)
           infoy <- infoy[ order( - pvaly ), ]
           if ( !is.matrix(infoy) ) {
             samy <- cbind( infoy[1], infoy[2] )
           } else  samy <- cbind( t( combn(infoy[, 1], k) ), t( combn(infoy[, 2], k) ) )  ## factorial, all possible unordered pairs
         }
-        if ( !is.null(samx) ) sx <- 1  else sx <- 0
-        if ( !is.null(samy) ) sy <- 1  else sy <- 0 
+        
+        if ( !is.null(samx) )  sx <- 1   else sx <- 0
+        if ( !is.null(samy) )  sy <- 1   else sy <- 0 
         sam <- rbind( samx * sx, samy * sy ) 
         sam <- as.matrix(sam)
         sam <- unique(sam) 
+        
         ## sam contains either the sets of k neighbours of X, or of Y or of both
         ## if the X and Y have common k neighbours, they are removed below
-        rem <- intersect( zeu[i, 1:2], sam )
+        
+        rem <- intersect( xyIdx, sam )
         if ( length(rem) > 0 ) {
           pam <- list()
           for ( j in 1:length(rem) ) {
-            pam[[ j ]] <- as.vector( which(sam == rem[j], arr.ind = T)[, 1] ) 
+            pam[[ j ]] <- as.vector( which( sam == rem[j], arr.ind = TRUE )[, 1] ) 
           }
         }
 
@@ -141,9 +158,11 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
           sam <- matrix( sam, nrow = 1 ) 
         } else if ( nrow(sam) == 0 ) {
           G <- G 
+          
         } else { 
           if (k == 1) {
             sam <- sam[ order( sam[, 2 ] ), ]
+            
           } else {
             an <- t( apply(sam[, -c(1:2)], 1, sort, decreasing = TRUE) )
             sam <- cbind(sam[, 1:2], an)
@@ -156,51 +175,52 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
 
         if ( nrow(sam) == 0 ) {
           G <- G  
+          
         } else {
        
-          xyIdx <- zeu[i, 1:2]
           csIdx <- sam[1, 1:k]  
-          dofk <- nu - k - 3
-          pse <- sqrt(nu - k - 3)
-          sse <- sqrt(nu - k - 3) / 1.029563
-          condR <- ( R[xyIdx, xyIdx] ) - as.matrix( R[xyIdx, csIdx] ) %*% 
+          Rsel <- R[xyIdx, xyIdx]
+          
+          condR <- Rsel - as.matrix( R[xyIdx, csIdx] ) %*% 
           ( solve( as.matrix( R[csIdx, csIdx] ) , rbind( R[csIdx, xyIdx] ) ) )
+          
           r <- abs( condR[1, 2] / sqrt( condR[1, 1] * condR[2, 2]) ) 
           if (r > 1)  r <- 1
           
-          if (method == "pearson") {
-             stat <- abs( 0.5 * log( (1 + r) / (1 - r) ) ) * pse ## absolute of the test statistic
-          } else if (method == "spearman") {
-            stat <- abs( 0.5 * log( (1 + r) / (1 - r) ) ) * sse  ## absolute of the test statistic
-          }
+          stat <- abs( 0.5 * log( (1 + r) / (1 - r) ) ) * cor.se ## absolute of the test statistic
+
           aa <-  log(2) + pt(stat, dofk, lower.tail = FALSE, log.p = TRUE) 
           tes <- tes + 1 
+          
           if ( aa > alpha ) {
-            G[ zeu[i, 1], zeu[i, 2] ] = 0  ## remove the edge between two variables
-            G[ zeu[i, 2], zeu[i, 1] ] = 0  ## remove the edge between two variables 
+            G[ xyIdx[ 1 ], xyIdx[ 2 ] ] = 0  ## remove the edge between two variables
+            G[ xyIdx[ 2 ], xyIdx[ 1 ] ] = 0  ## remove the edge between two variables 
             met[i, ] <- c( sam[1, 1:k], stat, aa )
+            
           } else {
             m <- 1
             while ( aa < alpha  &  m < nrow(sam) ) {
               m <- m + 1
-              xyIdx <- zeu[i, 1:2]
+
               csIdx <- sam[m, 1:k]
-              condR <- ( R[xyIdx, xyIdx] ) - as.matrix( R[xyIdx, csIdx] ) %*% 
+              condR <- Rsel - as.matrix( R[xyIdx, csIdx] ) %*% 
               ( solve( as.matrix( R[csIdx, csIdx] ) , rbind( R[csIdx, xyIdx] ) ) )
+              
               r <- abs( condR[1, 2] / sqrt( condR[1, 1] * condR[2, 2]) )
-              if (method == "pearson") {
-                stat <- abs( 0.5 * log( (1 + r) / (1 - r) ) ) * pse  ## absolute of the test statistic
-              } else if (method == "spearman") {
-                stat <- abs( 0.5 * log( (1 + r) / (1 - r) ) ) * sse  ## absolute of the test statistic
-              } 
+              if (r > 1)  r <- 1
+              
+              stat <- abs( 0.5 * log( (1 + r) / (1 - r) ) ) * cor.se  ## absolute of the test statistic
+
               aa <-  log(2) + pt(stat, dofk, lower.tail = FALSE, log.p = TRUE) 
               tes <- tes + 1
             }
+            
             if (aa > alpha) {
-              G[ zeu[i, 1], zeu[i, 2] ] <- 0  ## remove the edge between two variables
-              G[ zeu[i, 2], zeu[i, 1] ] <- 0  ## remove the edge between two variables
-              met[i, ] <- c( sam[m, 1:k], stat, aa ) 
+              G[ xyIdx[ 1 ], xyIdx[ 2 ] ] <- 0  ## remove the edge between two variables
+              G[ xyIdx[ 2 ], xyIdx[ 1 ] ] <- 0  ## remove the edge between two variables
+              met[i, ] <- c( csIdx, stat, aa ) 
             }
+            
           }
         }
 
@@ -208,14 +228,16 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
       }  
 
         ax <- ay <- list()
-        lx <- ly <- numeric( nrow(zeu) )
-        for ( i in 1:nrow(zeu) ) {
-          ax[[ i ]] <- ina[ G[ zeu[i, 1], ] == 2 ]  ;  lx[i] <- length( ax[[ i ]] )
-          ay[[ i ]] <- ina[ G[ zeu[i, 2], ] == 2 ]  ;  ly[i] <- length( ay[[ i ]] ) 
+        lx <- ly <- numeric( duo )
+        
+        for ( i in 1:duo ) {
+          ax[[ i ]] <- ina[ G[ xyIdx[ 1 ], ] == 2 ]   ;   lx[i] <- length( ax[[ i ]] )
+          ay[[ i ]] <- ina[ G[ xyIdx[ 2 ], ] == 2 ]   ;   ly[i] <- length( ay[[ i ]] ) 
         }
 
       ell <- max(lx, ly)
       id <- which( rowSums(met) > 0 )
+      
       if (length(id) == 1) {
          sep[[ k ]] <- c( zeu[id, 1:2], met[id, ] )
       } else {
@@ -225,7 +247,9 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
       zeu <- zeu[-id, ]  
       if ( class(zeu) != "matrix" ) {
         zeu <- matrix(zeu, ncol = 4)
-      }
+      }  
+      duo <- nrow(zeu)
+        
       n.tests[ k + 1 ] <- tes
 
     }  
@@ -238,6 +262,7 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
 
   
     for ( l in 1:k ) { 
+      
       if ( is.matrix(sep[[ l ]]) ) {
         if ( nrow(sep[[ l ]]) > 0) {  
           sepa = sep[[ l ]]
@@ -247,6 +272,7 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
           sepa =  sepa[ order(sepa[, 1], sepa[, 2] ), ]
           sep[[ l ]] = sepa
         }
+        
       } else {
         if ( length(sep[[ l ]]) > 0) { 
           names( sep[[ l ]] )[1:2] = c("X", "Y")
@@ -254,6 +280,7 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
           names( sep[[ l ]] )[ c(l + 3):c(l + 4) ] = c("stat", "logged.p-value")
         } 
       }
+      
     } 
  
   }
@@ -261,16 +288,21 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
   n.tests <- n.tests[ n.tests>0 ]
   k <- length(n.tests) - 1
   sepset <- list()
+  
   if (k == 0) {
     sepset <- NULL
+    
   } else {
+    
     for ( l in 1:k ) {
       if ( is.matrix( sep[[ l ]] ) )  {
         nu <- nrow( sep[[ l ]] )
         if ( nu > 0 ) sepset[[ l ]] = sep[[ l ]][1:nu, ]
       } else sepset[[ l ]] = sep[[ l ]]    
     }
+    
   }  
+  
   names(n.tests) <- paste("k=", 0:k, sep ="")
 
   info <- summary( rowSums(G) )

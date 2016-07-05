@@ -1,4 +1,4 @@
-\name{Count data regression models}
+\name{Conditional independence tests for count data }
 \alias{testIndPois}
 \alias{testIndZIP}
 \alias{testIndNB}

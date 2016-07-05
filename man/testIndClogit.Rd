@@ -1,4 +1,4 @@
-\name{testIndClogit}
+\name{Conditional independence test for case control data}
 \alias{testIndClogit}
 \title{
 Conditional independence test based on conditional logistic regression for case control studies 
@@ -14,34 +14,34 @@ hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, robust = FALSE)
 }
 
 \arguments{
-  \item{target}{
-  A matrix with two columns, the first one must be 0 and 1, standing for 0 = control and 1 = case. The second column is the id of the patients. A numerical variable, for example c(1,2,3,4,5,6,7,1,2,3,4,5,6,7). 
+\item{target}{
+A matrix with two columns, the first one must be 0 and 1, standing for 0 = control and 1 = case. The second column is the id of the patients. A numerical variable, for example c(1,2,3,4,5,6,7,1,2,3,4,5,6,7). 
 }
-  \item{dataset}{
-  A numeric matrix or a data.frame in case of categorical predictors (factors), containing the variables for performing the test. Rows as samples and columns as features.
+\item{dataset}{
+A numeric matrix or a data.frame in case of categorical predictors (factors), containing the variables for performing the test. Rows as samples and columns as features.
 }
-  \item{xIndex}{
-  The index of the variable whose association with the target we want to test.
+\item{xIndex}{
+The index of the variable whose association with the target we want to test.
 }
-  \item{csIndex}{
-  The indices of the variables to condition on.
+\item{csIndex}{
+The indices of the variables to condition on.
 }
-  \item{dataInfo}{
-  A list object with information on the structure of the data. Default value is NULL.
+\item{dataInfo}{
+A list object with information on the structure of the data. Default value is NULL.
 }
-  \item{univariateModels}{
-  Fast alternative to the hash object for univariate test. List with vectors "pvalues" (p-values), "stats" (statistics) and "flags" (flag = TRUE if the test was succesful) representing the univariate association of each variable with the target. Default value is NULL.
+\item{univariateModels}{
+Fast alternative to the hash object for univariate test. List with vectors "pvalues" (p-values), "stats" (statistics) and "flags" (flag = TRUE if the test was succesful) representing the univariate association of each variable with the target. Default value is NULL.
 }
-  \item{hash}{
+\item{hash}{
 A boolean variable which indicates whether (TRUE) or not (FALSE) to use tha hash-based implementation of the statistics of SES. Default value is FALSE. If TRUE you have to specify the stat_hash argument and the pvalue_hash argument.
 }
-  \item{stat_hash}{
+\item{stat_hash}{
 A hash object (hash package required) which contains the cached generated statistics of a SES run in the current dataset, using the current test.
 }
-  \item{pvalue_hash}{
+\item{pvalue_hash}{
 A hash object (hash package required) which contains the cached generated p-values of a SES run in the current dataset, using the current test.
 }
-  \item{robust}{
+\item{robust}{
 A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robustified version of Beta regression. Currently it is not available for this test.
 }
 }
@@ -108,11 +108,12 @@ results
 #require(gRbase)  #for faster computations in the internal functions
 
 #run the SES algorithm using the testIndClogit conditional independence test
-sesObject <- SES(target, dataset, max_k = 3, threshold = 0.05, test = "testIndClogit");
+a1<- SES(target, dataset, max_k = 3, threshold = 0.05, test = "testIndClogit");
+a2<- MMPC(target, dataset, max_k = 3, threshold = 0.05, test = "testIndClogit");
 #print summary of the SES output
-summary(sesObject);
+summary(a1);
 #plot the SES output
-plot(sesObject, mode = "all");
+plot(a1, mode = "all");
 }
 
 \keyword{ Conditional logistic regression}

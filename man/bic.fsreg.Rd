@@ -1,4 +1,4 @@
-\name{bic.fsreg}
+\name{BIC based forward selection}
 \alias{bic.fsreg}
 \title{
 Variable selection in regression models with forward selection using BIC
@@ -21,7 +21,7 @@ The dataset; provide either a data frame or a matrix (columns = variables, rows 
 }
 \item{test}{
 The regression model to use. Available options are 
-"gaussian" for normal linear regression, "median" for median (or quantile) regression, "beta" for beta regression, "Cox" for Cox proportional hazards, "Weibull" for Weibull regression, "binary" for binomial regression, "multinomial" for multinomial regression, "ordinal" for ordinal regression, "poisson" for poisson regression, "nb" for negative binomial regression, "zip" for zero inflated poisson regression and "speedglm" for linear, binary or poisson regression with large datasets (tens of thousands of observations).
+"gaussian" for normal linear regression, "beta" for beta regression, "Cox" for Cox proportional hazards, "Weibull" for Weibull regression, "binary" for binomial regression, "multinomial" for multinomial regression, "ordinal" for ordinal regression, "poisson" for poisson regression, "nb" for negative binomial regression, "zip" for zero inflated poisson regression and "speedglm" for linear, binary or poisson regression with large datasets (tens of thousands of observations).
 }
 \item{robust}{
 A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust version of the statistical test if it is available. It takes more time than a non robust version but it is suggested in case of outliers. Default value is FALSE.
@@ -32,9 +32,6 @@ The difference bewtween two successive values of the stopping rule. By default t
 \item{ncores}{
 How many cores to use. This plays an important role if you have tens of thousands of variables or really large sample sizes and tens of thousands of variables and a regression based test which requires numerical optimisation. In other cammmb it will not make a difference in the overall time (in fact it can be slower). The parallel computation is used in the first step of the algorithm, where univariate associations are examined, those take place in parallel. We have seen a reduction in time of 50\% with 4 cores in comparison to 1 core. Note also, that the amount of reduction is not linear in the number of cores.
 }
-%\item{maxit}{
-%The maximum number of iterations required by the MM estimators in the robust binary or poisson regrression. This argument is %taken into account only if the argument robust is set to TRUE.
-%}
 }
 
 \details{
@@ -92,6 +89,14 @@ dataset <- matrix( runif(1000 * 50, 1, 100), ncol = 50 )
 
 #define a simulated class variable 
 target <- 3 * dataset[, 10] + 2 * dataset[, 20] + 3 * dataset[, 30] + rnorm(1000, 0, 5)
+a1 <- bic.fsreg(target, dataset, robust = FALSE, tol = 2, ncores = 1 ) 
+a2 <- bic.fsreg(target, dataset, robust = TRUE, tol = 2, ncores = 1 ) 
+a3 <- MMPC(target, dataset, robust= FALSE, ncores = 1)
+
+target <- round(target)
+b1 <- bic.fsreg(target, dataset, robust = FALSE, tol = 2, ncores = 1 ) 
+b2 <- bic.fsreg(target, dataset, robust = TRUE, tol = 2, ncores = 1 ) 
+#b3 <- MMPC(target, dataset, robust= FALSE, ncores = 1)
 }
 
 \keyword{ Markov Blanket }

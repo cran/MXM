@@ -23,10 +23,10 @@ bic.glm.fsreg <- function( target, dataset, test = NULL, robust = FALSE, tol = 0
       oiko <- "poisson"  ## poisson regression
     }
     
-    runtime <- proc.time()
+    durat <- proc.time()
 
     #if ( robust == FALSE ) {
-      ini = glm( target ~ 1, family = oiko )$deviance + log(n)  ## initial BIC
+      ini = BIC( glm( target ~ 1, family = oiko ) )   ## initial BIC
     #} else {
     #  ini = robust::glmRob( target ~ 1, family = oiko, maxit = maxit )$deviance + log(n)  ## initial BIC
     #}
@@ -194,7 +194,7 @@ bic.glm.fsreg <- function( target, dataset, test = NULL, robust = FALSE, tol = 0
       }
 
      if ( sum( info[2, ] -  c( -10, 1e300 ) ) == 0 ) {
-       info <- matrix( info[1, ], ncol = 3)
+       info <- matrix( info[1, ], ncol = 2)
      }
 
    }
@@ -287,7 +287,7 @@ bic.glm.fsreg <- function( target, dataset, test = NULL, robust = FALSE, tol = 0
 
     }
 
-    runtime <- proc.time() - runtime
+    duration <- proc.time() - durat
 
 
     #####################################################
@@ -302,14 +302,14 @@ bic.glm.fsreg <- function( target, dataset, test = NULL, robust = FALSE, tol = 0
   } else if ( ( sum( test == "gaussian") == 1 ) || ( is.null(test) & length( unique(target) ) > 2 ) || ( is.null(test) & sum( round(target) - target ) != 0) )  {
 
   
-    runtime <- proc.time()
+    durat <- proc.time()
 
       if ( robust == FALSE ) {  ## Non robust
         mi = lm( target ~ 1 )
         ini <- BIC( mi )
 
       } else {  ## Robust
-         mi = MASS::rlm( target ~ dataset[, i], maxit = 2000 )
+         mi = MASS::rlm( target ~ 1, maxit = 2000 )
          ini = BIC(mi)
       }
 
@@ -536,6 +536,8 @@ bic.glm.fsreg <- function( target, dataset, test = NULL, robust = FALSE, tol = 0
       }
     }
 
+    duration <- proc.time() - durat
+    
   }
 
     d <- length(sela)
@@ -588,7 +590,6 @@ bic.glm.fsreg <- function( target, dataset, test = NULL, robust = FALSE, tol = 0
         }
 
         final <- summary( models[[ d ]] )
-        runtime <- proc.time() - runtime
         
       }
 
@@ -599,6 +600,6 @@ bic.glm.fsreg <- function( target, dataset, test = NULL, robust = FALSE, tol = 0
     
     }
 
-    list(mat = t(mat), info = info, models = models, final = final, runtime = runtime )
+    list(mat = t(mat), info = info, models = models, final = final, runtime = duration)
 
 }

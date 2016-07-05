@@ -1,4 +1,4 @@
-\name{fs.reg}
+\name{Forward selection}
 \alias{fs.reg}
 \title{
 Variable selection in regression models with forward selection
@@ -25,7 +25,7 @@ Threshold (suitable values in [0,1]) for asmmmbsing p-values significance. Defau
 }
 \item{test}{
 The regression model to use. Available options are 
-"gaussian" for normal linear regression, "median" for median (or quantile) regression, "beta" for beta regression, "Cox" for Cox proportional hazards, "Weibull" for Weibull regression, "binary" for binomial regression, "multinomial" for multinomial regression, "ordinal" for ordinal regression, "poisson" for poisson regression, "nb" for negative binomial regression, "zip" for zero inflated poisson regression and "speedglm" for linear, binary or poisson regression with large datasets (tens of thousands of observations).
+"gaussian" for normal linear regression, "beta" for beta regression, "Cox" for Cox proportional hazards, "Weibull" for Weibull regression, "binary" for binomial regression, "multinomial" for multinomial regression, "ordinal" for ordinal regression, "poisson" for poisson regression, "nb" for negative binomial regression, "zip" for zero inflated poisson regression and "speedglm" for linear, binary or poisson regression with large datasets (tens of thousands of observations).
 }
 \item{stopping}{
 The stopping rule. The BIC is always used for all methods. If you have linear regression though you can change this to "adjrsq" and in this case the adjusted R qaured is used.
@@ -101,9 +101,20 @@ dataset <- matrix( runif(1000 * 20, 1, 100), ncol = 20 )
 #define a simulated class variable 
 target <- rpois(1000, 10)
 
-a <- fs.reg(target, dataset, threshold = 0.05, test = NULL, stopping = "BIC", tol = 2, 
+a1 <- fs.reg(target, dataset, threshold = 0.05, test = NULL, stopping = "BIC", tol = 2, 
 robust = FALSE, ncores = 1 ) 
-b <- SES(target, dataset)
+a2 <- MMPC(target, dataset)
+
+a3 <- fs.reg(target, dataset, threshold = 0.05, test = NULL, stopping = "BIC", tol = 2, 
+robust = TRUE, ncores = 1 ) 
+a4 <- MMPC(target, dataset, test="testIndReg", robust= TRUE)
+
+target <- rbinom(1000, 1,0.6)
+b1 <- fs.reg(target, dataset, threshold = 0.05, test = NULL, stopping = "BIC", tol = 2, 
+robust = FALSE, ncores = 1 ) 
+b2 <- MMPC(target, dataset)
+
+
 }
 
 \keyword{ Markov Blanket }

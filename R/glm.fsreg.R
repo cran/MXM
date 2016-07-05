@@ -1,4 +1,4 @@
-glm.fsreg <- function(target, dataset, threshold = 0.05, tol = 2, robust = FALSE, ncores = 1) {
+glm.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, tol = 2, robust = FALSE, ncores = 1) {
   
   ## target can be Real valued (normal), binary (binomial) or counts (poisson)
   ## dataset is a matrix or a data.frame with the predictor variables
@@ -12,6 +12,15 @@ glm.fsreg <- function(target, dataset, threshold = 0.05, tol = 2, robust = FALSE
   ## If BIC is used as a way to proceed, the tol is 0.
   ## robust is for robust modelling. TRUE or FALSE
   ## ncores is for parallel processing 
+  
+  ###### If there is an initial set of variables do this function
+  
+  if ( !is.null(ini) ) {
+    result <- glm.fsreg_2(target, dataset, iniset = ini, threshold = threshold, tol = tol, robust = FALSE, ncores = ncores) 
+    
+  } else {  ## else do the classical forward regression
+    
+    
   
   threshold <- log(threshold)  ## log of the significance level
   
@@ -355,9 +364,12 @@ glm.fsreg <- function(target, dataset, threshold = 0.05, tol = 2, robust = FALSE
       rownames(info) <- info[, 1]
     }
 
+  
+    result = list(mat = t(mat), info = info, models = models, final = final, runtime = runtime ) 
     
-
-    list(mat = t(mat), info = info, models = models, final = final, runtime = runtime ) 
+  }
+  
+  result
     
 }    
   

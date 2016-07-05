@@ -37,7 +37,7 @@ testIndFisher = function(target, dataset, xIndex, csIndex, dataInfo = NULL, univ
   flag = 0;
    if ( all(target>0 & target<1) ) ## are they proportions?
    { 
-     target = log( target/(1-target) ) 
+     target = log( target/(1 - target) ) 
    }
   n = length( target )
   csIndex[which(is.na(csIndex))] = 0;
@@ -155,7 +155,7 @@ testIndFisher = function(target, dataset, xIndex, csIndex, dataInfo = NULL, univ
   
   #remove constant columns of cs
   cs = as.matrix(cs)
-  cs = cs[,apply(cs, 2, var, na.rm=TRUE) != 0]
+  cs = cs[, apply(cs, 2, var, na.rm=TRUE) != 0]
   
 #trycatch for dealing with errors
 res <- tryCatch(

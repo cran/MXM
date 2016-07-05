@@ -1,4 +1,13 @@
-lm.fsreg <- function(target, dataset, threshold = 0.05, stopping = "BIC", tol = 2, robust = FALSE, ncores = 1 ) {
+lm.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, stopping = "BIC", tol = 2, robust = FALSE, ncores = 1 ) {
+  
+  
+  ###### If there is an initia set of variables do this function
+  
+  if ( !is.null(ini) ) {
+    result <- lm.fsreg_2(target, dataset, iniset = ini, threshold = threshold, stopping = stopping, tol = tol, robust = robust, ncores = ncores) 
+      
+  } else {  ## else do the classical forward regression
+    
   
   threshold = log(threshold)
 
@@ -19,7 +28,7 @@ lm.fsreg <- function(target, dataset, threshold = 0.05, stopping = "BIC", tol = 
          ww = lm( target ~ dataset[, i] )
          tab = anova(ww)
          stat[i] = tab[1, 4] 
-         df1 = tab[1, 1]   ;  df2 = tab[2, 1]
+         df1 = tab[1, 1]    ;   df2 = tab[2, 1]
          pval[i] = pf( stat[i], df1, df2, lower.tail = FALSE, log.p = TRUE )
        }
       mat <- cbind(1:p, pval, stat)
@@ -126,7 +135,7 @@ lm.fsreg <- function(target, dataset, threshold = 0.05, stopping = "BIC", tol = 
 
     if ( info[k, 2] < threshold  &  nrow(mat) > 0 ) {
       
-      k <- 2
+      k <- k + 1
       pn <- p - k + 1   
       
       if ( ncores <= 1 ) {
@@ -431,7 +440,6 @@ lm.fsreg <- function(target, dataset, threshold = 0.05, stopping = "BIC", tol = 
 
       if ( d == 1 ) {
  
-        models <- NULL
         xx <- as.data.frame( dataset[, sela] )
         colnames(xx) <- paste("V", sela, sep = "") 
 
@@ -463,6 +471,11 @@ lm.fsreg <- function(target, dataset, threshold = 0.05, stopping = "BIC", tol = 
       rownames(info) <- info[, 1]
     }
 
-    list(mat = t(mat), info = info, models = models, final = final, runtime = runtime ) 
+    result <- list(mat = t(mat), info = info, models = models, final = final, runtime = runtime ) 
+    
+  }  
+  
+  result
+    
 }
   

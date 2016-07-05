@@ -106,6 +106,7 @@ pc.or <- function(mod, graph = FALSE) {
       }
     }
     
+
     ## second orientation rule: if there is an arrow and then an edge make it arrow
 
     if ( sum( G == 2 ) > 0 & sum( G == 1 ) > 0 ) {
@@ -125,6 +126,7 @@ pc.or <- function(mod, graph = FALSE) {
       
     } 
     
+
     ## third orientation rule: if there is a directed path connect the beginning with the end
     
     if ( sum( G == 2 ) > 0 & sum( G == 1 ) > 0 ) {
@@ -148,6 +150,7 @@ pc.or <- function(mod, graph = FALSE) {
       
     } 
     
+
     ### 4th rule, the complicated one with v structures
     
     if ( sum( G == 2 ) > 0 & sum( G == 1 ) > 0 ) {

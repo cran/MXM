@@ -20,6 +20,7 @@
 
 cv.ses <- function(target, dataset, kfolds = 10, folds = NULL, alphas = NULL, max_ks = NULL, task = NULL, metric = NULL, modeler = NULL, ses_test = NULL)
 {
+  
   if(is.null(alphas))
   {
     alphas <- c(0.1, 0.05, 0.01)
@@ -50,9 +51,9 @@ cv.ses <- function(target, dataset, kfolds = 10, folds = NULL, alphas = NULL, ma
     }
   }
   
-  if(is.null(folds))
+  if ( is.null(folds) )
   {
-    folds = generateCVRuns(target, ntimes = 1, nfold = kfolds, leaveOneOut = FALSE, stratified = TRUE)
+    folds = TunePareto::generateCVRuns(target, ntimes = 1, nfold = kfolds, leaveOneOut = FALSE, stratified = TRUE)
   }else{
     kfolds <- length(folds[[1]]);
   }
@@ -60,7 +61,7 @@ cv.ses <- function(target, dataset, kfolds = 10, folds = NULL, alphas = NULL, ma
   if(is.null(task)){
     stop("Please provide a valid task argument 'C'-classification, 'R'-regression, 'S'-survival.")
     #to do: select automatically the appropriate task due to the data, target
-  }else if(task == 'C'){
+  }else if (task == 'C'){
     
     #Classification task (logistic regression)
     if (is.null(metric)){
@@ -130,12 +131,15 @@ cv.ses <- function(target, dataset, kfolds = 10, folds = NULL, alphas = NULL, ma
   nSESConfs = length(SES_configurations)
   #merging SES configuration lists and create the general cv results list
   conf_ses <- vector("list" , nSESConfs)
+  
   for(i in 1:nSESConfs){
     conf_ses[[i]]$configuration <- SES_configurations[[i]]
     conf_ses[[i]]$preds <- vector('list', kfolds)
     conf_ses[[i]]$performances <- vector('numeric', kfolds)
     conf_ses[[i]]$signatures <- vector('list', kfolds)
   }
+  
+  tic <- proc.time()
   
   for(k in 1:kfolds){
     #print(paste('CV: Fold', k, 'of', kfolds));
@@ -153,6 +157,7 @@ cv.ses <- function(target, dataset, kfolds = 10, folds = NULL, alphas = NULL, ma
     
     #SES hashmap
     SESHashMap = NULL;
+    sesini = NULL
     
     #for each conf of SES
     for(ses_conf_id in 1:nSESConfs){
@@ -162,9 +167,10 @@ cv.ses <- function(target, dataset, kfolds = 10, folds = NULL, alphas = NULL, ma
       max_k <- SES_configurations[[ses_conf_id]]$max_k;
       
       #running SES
-      results <- MXM::SES(train_target, train_set, max_k, threshold, test = test, hash <- TRUE, hashObject = SESHashMap)
+      results <- SES(train_target, train_set, max_k, threshold, test = test, ini = sesini, hash = TRUE, hashObject = SESHashMap)
       #results <- MXM::SES(train_target, train_set, max_k, threshold, user_test = testIndFisher2, hash <- TRUE, hashObject = SESHashMap)
       
+      sesini <- results@univ
       SESHashMap <- results@hashObject;
       signatures <- results@signatures;
 
@@ -177,12 +183,17 @@ cv.ses <- function(target, dataset, kfolds = 10, folds = NULL, alphas = NULL, ma
       sign_data <- as.matrix(train_set[ ,curr_sign])
       sign_test <- as.matrix(test_set[ ,curr_sign]);
       
-      if(dim(signatures)[1] >= 1 && length(results@selectedVars) > 0)
+      if ( dim(signatures)[1] >= 1 && length(results@selectedVars ) > 0 )
       {
         #generate a model due to the task and find the performance
         #logistic model for a classification task, linear model for the regression task and a cox model for the survival task
         
         preds<-modelerFunction(train_target, sign_data, sign_test)
+        
+      } else {
+        
+        preds <- modelerFunction(train_target, rep(1, nrow(sign_data)), rep(1, nrow(sign_test)))
+      } 
         
         if(is.null(preds))
         {
@@ -194,11 +205,7 @@ cv.ses <- function(target, dataset, kfolds = 10, folds = NULL, alphas = NULL, ma
           conf_ses[[ses_conf_id]]$preds[[k]] <- preds
           conf_ses[[ses_conf_id]]$performances[k] <- performance
         }
-      }else{
-        conf_ses[[ses_conf_id]]$preds[[k]] <- NULL
-        conf_ses[[ses_conf_id]]$performances[k] <- NA
-      }
-      
+  
     }
     
     #clear the hashmap and garbages
@@ -217,10 +224,11 @@ cv.ses <- function(target, dataset, kfolds = 10, folds = NULL, alphas = NULL, ma
   #finding the best performance for the metric  
   index = 1;
   best_perf = mean(conf_ses[[1]]$performances, na.rm = TRUE);
+  
   for(i in 2:length(conf_ses)){
     averagePerf <- mean(conf_ses[[i]]$performances, na.rm = TRUE);
-    if(is.na(averagePerf) == FALSE && is.na(best_perf) == FALSE){
-      if(averagePerf < best_perf){
+    if ( is.na(averagePerf) == FALSE && is.na(best_perf) == FALSE ){
+      if( averagePerf < best_perf ){
         best_perf <- averagePerf;
         index <- i;
       }
@@ -242,14 +250,20 @@ cv.ses <- function(target, dataset, kfolds = 10, folds = NULL, alphas = NULL, ma
   }
   
   opti <- rowMeans(mat)
-  bestpar <- which.min(opti)
-  estb <- mean( min(opti) - colMeans(mat) )
+  bestpar <- which.max(opti)
+  estb <- mean( max(opti) - colMeans(mat) )
   
-  best_model$BC_best_perf <- best_model$best_performance + estb
+  best_model$best_performance <- max( opti )
+  best_model$BC_best_perf <- best_model$best_performance - estb
   
+  best_model$runtime <- proc.time() - tic 
+    
   return(best_model)
   
 }
+
+
+
 
 #metric functions
 #input
@@ -278,25 +292,25 @@ auc.mxm <- function(predictions, test_target){
 
 #accuracy (binary)
 acc.mxm <- function(predictions, test_target){
-  accValue <- mean((predictions>0.5) == test_target)
+  accValue <- sum( (predictions>0.5) == test_target ) / length(test_target)
   return(accValue);
 }
 
 #accuracy
 acc_multinom.mxm <- function(predictions, test_target){
-  accValue <- mean( predictions == test_target )
+  accValue <- sum( predictions == test_target ) / length(test_target)
   return(accValue);
 }
 
 #mse lower values indicate better performance so we multiply with -1 in order to have higher values for better performances
 mse.mxm <- function(predictions, test_target){
-  mse <- mean((predictions - test_target)^2)
+  mse <- sum( (predictions - test_target)^2 ) / length(test_target)
   return(-mse);
 }
 
 #mean absolut error lower values indicate better performance so we multiply with -1 in order to have higher values for better performances
 ord_mae.mxm <- function(predictions, test_target){
-  mae <- mean(abs(as.numeric(predictions) - as.numeric(test_target)))
+  mae <- sum( abs(as.numeric(predictions) - as.numeric(test_target)) ) / length(test_target)
   return(-mae);
 }
 
@@ -325,7 +339,7 @@ poisdev.mxm <- function(predictions, test_target) {
 
 #Negative binomial deviance. Lower values indicate better performance so we multiply with -1 in order to have higher values for better performances
 nbdev.mxm <- function(predictions, test_target, theta) {
-  dev = 2 * sum( test_target * log(test_target / predictions), na.rm = T ) -
+  dev = 2 * sum( test_target * log(test_target / predictions), na.rm = TRUE ) -
   2 * sum( ( test_target + theta ) * log( (test_target + theta) / (predictions + theta) ) )
   return( - dev  )
 }  
@@ -387,7 +401,7 @@ nb.mxm <- function(train_target, sign_data, sign_test){
     #using this variable x to overcome the structure naming problems when we have just one variable as a sign_data. For more on this contact athineou ;)
     x = sign_data
     # sign_model <- glm.nb(train_target ~ ., data = data.frame(sign_data));
-    sign_model <- glm.nb( train_target ~ ., data = data.frame(x) );
+    sign_model <- MASS::glm.nb( train_target ~ ., data = data.frame(x) );
     x = sign_test
     # preds <- predict(sign_model, newdata=data.frame(sign_test), type = 'response')
     preds <- predict( sign_model, newdata=data.frame(x), type = 'response' )
@@ -404,7 +418,7 @@ multinom.mxm <- function(train_target, sign_data, sign_test){
     #using this variable x to overcome the structure naming problems when we have just one variable as a sign_data. For more on this contact athineou ;)
     x = sign_data
     # sign_model <- multinom(train_target ~ ., data = data.frame(sign_data), trace = FALSE);
-    sign_model <- multinom( train_target ~ ., data = data.frame(x), trace = FALSE );
+    sign_model <- nnet::multinom( train_target ~ ., data = data.frame(x), trace = FALSE );
     x = sign_test
     # preds <- predict(sign_model, newdata=data.frame(sign_test) )
     preds <- predict( sign_model, newdata=data.frame(x) )
@@ -421,7 +435,7 @@ ordinal.mxm <- function(train_target, sign_data, sign_test){
     #using this variable x to overcome the structure naming problems when we have just one variable as a sign_data. For more on this contact athineou ;)
     x = sign_data
     # sign_model <- clm(train_target ~ ., data = data.frame(sign_data), trace = FALSE);
-    sign_model <- clm( train_target ~ ., data = data.frame(x), trace = FALSE );
+    sign_model <- ordinal::clm( train_target ~ ., data = data.frame(x), trace = FALSE );
     x = sign_test
     # preds <- predict(sign_model, newdata=data.frame(sign_test))
     preds <- predict( sign_model, newdata=data.frame(x) )$fit
@@ -458,7 +472,7 @@ rq.mxm <- function(train_target, sign_data, sign_test){ ## used for univariate a
     #using this variable x to overcome the structure naming problems when we have just one variable as a sign_data. For more on this contact athineou ;)
     x = sign_data
     # sign_model <- rq(train_target ~ ., data = data.frame(sign_data) );
-    sign_model <- rq( train_target ~ ., data = data.frame(x));
+    sign_model <- quantreg::rq( train_target ~ ., data = data.frame(x));
     x = sign_test
     # preds <- predict(sign_model, newdata=data.frame(sign_test) )
     preds <- predict( sign_model, newdata=data.frame(x) )
@@ -495,7 +509,7 @@ beta.mxm <- function(train_target, sign_data, sign_test){ ## used for univariate
     #using this variable x to overcome the structure naming problems when we have just one variable as a sign_data. For more on this contact athineou ;)
     x = sign_data
     # sign_model <- betareg( train_target ~ ., data = data.frame(sign_data) );
-    sign_model <- betareg( train_target ~ ., data = data.frame(x) );
+    sign_model <- betareg::betareg( train_target ~ ., data = data.frame(x) );
     x = sign_test
     # preds <- predict( sign_model, newdata=data.frame(sign_test) )
     preds <- predict( sign_model, newdata=data.frame(x) )
@@ -510,7 +524,7 @@ coxph.mxm <- function(train_target, sign_data, sign_test){
   #using this variable x to overcome the structure naming problems when we have just one variable as a sign_data. For more on this contact athineou ;)
   x = sign_data
   #sign_model <- coxph(train_target~., data = data.frame(sign_data))
-  sign_model <- coxph(train_target~., data = data.frame(x))
+  sign_model <- survival::coxph(train_target~., data = data.frame(x))
   x = sign_test
   #preds <- predict(sign_model, newdata=data.frame(sign_test), type="risk")
   preds <- predict(sign_model, newdata=data.frame(x), type="risk")
@@ -523,7 +537,7 @@ weibreg.mxm <- function(train_target, sign_data, sign_test){
   #using this variable x to overcome the structure naming problems when we have just one variable as a sign_data. For more on this contact athineou ;)
   x = sign_data
   #sign_model <- survreg(train_target~., data = data.frame(sign_data))
-  sign_model <- survreg(train_target~., data = data.frame(x))
+  sign_model <- survival::survreg(train_target~., data = data.frame(x))
   x = sign_test
   #preds <- predict(sign_model, newdata=data.frame(sign_test) )
   preds <- predict(sign_model, newdata=data.frame(x) )

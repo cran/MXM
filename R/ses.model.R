@@ -3,7 +3,7 @@
 # nisgnat: Number of ypografis and generated models. It could be numeric from 1 to total number of ypografis or "all" for all the 
 ## ypografis. Default is 1.
 
-model = function(target, dataset, sesObject, nsignat = 1, test = NULL) {
+ses.model = function(target, dataset, sesObject, nsignat = 1, test = NULL) {
   
   if ( sum( is.na(sesObject@signatures) ) > 0 ) {
     mod = paste("No associations were found, hence no model is produced.")
@@ -139,7 +139,7 @@ model = function(target, dataset, sesObject, nsignat = 1, test = NULL) {
       mod = pscl::zeroinfl( target ~. | ., data = as.data.frame( dataset[, ypografi] ) )
       bic = BIC(mod)
       
-    } else if ( class(target) == "matrix" || ci_test == "testIndMVreg" ) {
+    } else if ( class(target) == "matrix"  &  ci_test == "testIndMVreg" ) {
        if ( all(target > 0 & target < 1) ) {  ## are they compositional data?
          target = log( target[, -1]/(target[, 1]) ) 
        } 
@@ -152,6 +152,12 @@ model = function(target, dataset, sesObject, nsignat = 1, test = NULL) {
       
     } else if (ci_test == "censIndWR") {
       mod = survival::survreg( target ~ ., data = as.data.frame(dataset[, ypografi ]) )
+      bic = BIC(mod)
+      
+    } else if (ci_test == "testIndClogit") {
+      case = as.logical(target[, 1]);  
+      id = target[, 2]
+      mod = survival::clogit(case ~ . + strata(id), data = as.data.frame( dataset[ , ypografi] ) )
       bic = BIC(mod)
       
     } else if ( ci_test == "testIndLogistic" || ci_test == "gSquare" ) {
@@ -187,7 +193,13 @@ model = function(target, dataset, sesObject, nsignat = 1, test = NULL) {
     #   names(mat1) = paste("+", nama, sep = "")
     #   names(mat2) = paste("-", nama, sep = "")
     # } 
-     
+    
+    if ( is.null( colnames(dataset) ) ) {
+      names(ypografi) = paste("Var", ypografi, sep = " ")
+    } else {
+      names(ypografi) = colnames(dataset)[ypografi]
+    }
+    
     ypografi = c(ypografi, bic)
     names(ypografi)[length(ypografi)] = "bic"
     
@@ -273,7 +285,13 @@ model = function(target, dataset, sesObject, nsignat = 1, test = NULL) {
      } else if (ci_test == "censIndWR") {
        mod[[ i ]] = survival::survreg( target ~ ., data = as.data.frame( dataset[, ypografi[i, ] ] ) )
        bic[i] = BIC( mod[[ i ]] )
-
+       
+     } else if (ci_test == "testIndClogit") {
+       case = as.logical(target[, 1]);  
+       id = target[, 2]
+       mod[[ i ]] = survival::clogit(case ~ . + strata(id), data = as.data.frame( dataset[ , ypografi[i, ] ] ) )
+       bic[i] = BIC( mod[[ i ]] )
+       
      } else if ( ci_test == "testIndLogistic" || ci_test == "gSquare" ) {
        if ( length(unique(target)) == 2 ) {
         #if ( rob == TRUE ) {
@@ -386,6 +404,12 @@ model = function(target, dataset, sesObject, nsignat = 1, test = NULL) {
 
      } else if (ci_test == "censIndWR") {
        mod[[ i ]] = survival::survreg( target ~ ., data = as.data.frame( dataset[, ypografi[i, ] ] ) )
+       bic[i] = BIC( mod[[ i ]] )
+       
+     } else if (ci_test == "testIndClogit") {
+       case = as.logical(target[, 1]);  
+       id = target[, 2]
+       mod[[ i ]] = survival::clogit(case ~ . + strata(id), data = as.data.frame( dataset[ , ypografi[i, ] ] ) )
        bic[i] = BIC( mod[[ i ]] )
 
      } else if ( ci_test == "testIndLogistic" || ci_test == "gSquare" ) {

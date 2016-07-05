@@ -1,4 +1,4 @@
-\name{testIndLogistic}
+\name{Conditional independence test for binary, categorical or ordinal data}
 \alias{testIndLogistic}
 \title{
 Conditional independence test for binary, categorical or ordinal class variables

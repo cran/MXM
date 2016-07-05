@@ -10,8 +10,6 @@
 \alias{nchoosekm}
 \alias{univariateScore}
 \alias{cat.ci}
-\alias{condi}
-\alias{condi.perm}
 \alias{InternalSES.temporal}
 \alias{InternalMMPC.temporal}
 \alias{IdentifyEquivalence.temporal}
@@ -21,6 +19,8 @@
 \alias{min_assoc.temporal}
 \alias{univariateScore.temporal}
 \alias{is.sepset}
+\alias{lm.fsreg_2}
+\alias{glm.fsreg_2}
 
 \alias{proc_time-class}
 
@@ -52,6 +52,8 @@ Internal functions of Package \pkg{MXM}
 \item min_assoc.temporal( ... )
 \item univariateScore.temporal( ... )
 \item is.sepset( ... ) 
+\item lm.fsreg_2( ... )
+\item glm.fsreg_2( ... )
 
 }
 }

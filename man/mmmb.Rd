@@ -1,12 +1,11 @@
-\name{mmmb}
+\name{The max-min Markov blanket algorithm}
 \alias{mmmb}
 \title{
-mmmb: Feature selection algorithm for identifying multiple minimal, statistically-equivalent and equally-predictive feature signatures.
-
+Max-min Markov blanket algorithm
 }
 
 \description{
-The mmmb algorithm follows a forward-backward filter approach for feature selection in order to provide a minimal, highly-predictive, feature subset of a high dimensional dataset. See also Details. 
+The MMMB algorithm follows a forward-backward filter approach for feature selection in order to provide a minimal, highly-predictive, feature subset of a high dimensional dataset. See also Details. 
 }
 
 \usage{
@@ -15,18 +14,18 @@ user_test = NULL, robust = FALSE, ncores = 1, hold = FALSE)
 }
 
 \arguments{
-  \item{target}{
+\item{target}{
 The class variable. Provide either a string, an integer, a numeric value, a vector, a factor, an ordered factor or a Surv object. See also Details.
 }
-  \item{dataset}{
+\item{dataset}{
 The dataset; provide either a data frame or a matrix (columns = variables, rows = samples). In either case, only two cases are avaialble, either all data are continuous, or categorical. 
 
 }
-  \item{max_k}{
+\item{max_k}{
 The maximum conditioning set to use in the conditional indepedence test (see Details). Integer, default value is 3.
 }
   \item{threshold}{
-Threshold (suitable values in [0,1]) for asmmmbsing p-values significance. Default value is 0.05.
+Threshold (suitable values in [0,1]) for assessing the p-values. Default value is 0.05.
 }
   \item{test}{
 The conditional independence test to use. Default value is "testIndFisher". See also \code{link{CondIndTests}}.

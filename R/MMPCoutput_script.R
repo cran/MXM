@@ -11,8 +11,8 @@
 setOldClass('proc_time')
 
 setClass(Class='MMPCoutput', 
-         slots=list(selectedVars='numeric', selectedVarsOrder='numeric', hashObject='list', pvalues='numeric', stats='numeric', max_k='numeric', threshold='numeric', runtime='proc_time', test='character', rob='logical'), 
-         prototype=list(selectedVars=NULL, selectedVarsOrder=NULL, hashObject=NULL, pvalues=NULL, stats=NULL, max_k=NULL, threshold=NULL, runtime=NULL, test=NULL, rob=NULL));
+         slots=list(selectedVars='numeric', selectedVarsOrder='numeric', hashObject='list', pvalues='numeric', stats='numeric', univ='list', max_k='numeric', threshold='numeric', runtime='proc_time', test='character', rob='logical'), 
+         prototype=list(selectedVars=NULL, selectedVarsOrder=NULL, hashObject=NULL, pvalues=NULL, stats=NULL, univ=NULL, max_k=NULL, threshold=NULL, runtime=NULL, test=NULL, rob=NULL));
 
 setMethod("summary", signature(object="MMPCoutput"), 
           function(object){
@@ -31,6 +31,8 @@ setMethod("summary", signature(object="MMPCoutput"),
               print(base::summary(x@pvalues));
               cat("\nSummary of the generated stats matrix:\n")
               print(base::summary(x@stats));
+              cat("\nUnivariate associations:\n")
+              print(x@univ)
               cat("\nmax_k option: ")
               cat(x@max_k);
               cat("\nthreshold option: ")
@@ -54,6 +56,8 @@ setMethod("summary", signature(object="MMPCoutput"),
               print(base::summary(x@pvalues));
               cat("\nSummary of the generated stats matrix:\n")
               print(base::summary(x@stats));
+              cat("\nUnivariate associations:\n")
+              print(x@univ)
               cat("\nmax_k option: ")
               print(x@max_k);
               cat("\nthreshold option: ")

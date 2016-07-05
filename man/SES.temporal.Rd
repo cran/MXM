@@ -1,9 +1,9 @@
-\name{Constraint based feature selection algorithms for longitudinal data}
+\name{Constraint based feature selection algorithms for longitudinal and clustered data}
 \alias{SES.temporal}
 \alias{MMPC.temporal}
 \title{
-SES.temporal: Feature selection algorithm for identifying multiple minimal, statistically-equivalent and equally-predictive feature signatures.
-MMPC.temporal: Feature selection algorithm for identifying minimal feature subsets.
+SES.temporal: Feature selection algorithm for identifying multiple minimal, statistically-equivalent and equally-predictive feature signatures
+MMPC.temporal: Feature selection algorithm for identifying minimal feature subsets
 }
 
 \description{
@@ -11,10 +11,13 @@ SES.temporal algorithm follows a forward-backward filter approach for feature se
 }
 
 \usage{
-SES.temporal(target, reps, group, dataset, max_k = 3, threshold = 0.05, test = NULL,
- user_test = NULL, hash = FALSE, hashObject = NULL, slopes = FALSE, ncores = 1)
-MMPC.temporal(target, reps, group, dataset, max_k = 3, threshold = 0.05, test = NULL,
- user_test = NULL, hash = FALSE, hashObject = NULL, slopes = FALSE, ncores = 1)
+SES.temporal(target, reps, group, dataset, max_k = 3, threshold = 0.05, 
+test = NULL, ini = NULL, user_test = NULL, hash = FALSE, hashObject = NULL, 
+slopes = FALSE, ncores = 1)
+
+MMPC.temporal(target, reps, group, dataset, max_k = 3, threshold = 0.05, 
+test = NULL, ini = NULL, user_test = NULL, hash = FALSE, hashObject = NULL, 
+slopes = FALSE, ncores = 1)
 }
 
 \arguments{
@@ -38,6 +41,9 @@ Threshold (suitable values in [0, 1]) for assessing p-values significance. Defau
 }
   \item{test}{
 The conditional independence test to use. Default value is NULL. Currently, the only available conditional independence test is the \code{\link{testIndGLMM}}, which fits linear mixed models. 
+}
+\item{ini}{
+This is a supposed to be a list. After running SES or MMPC with some hyper-parameters you might want to run SES again with different hyper-parameters. To avoid calculating the univariate associations (first step of SES and of MPPC) again, you can extract them from the first run of SES and plug them here. This can speed up the second run (and subequent runs of course) by 50\%. See the details and the argument "univ" in the output values. 
 }
   \item{user_test}{
 A user-defined conditional independence test (provide a closure type object). Default value is NULL. If this is defined, the "test" argument is ignored.
@@ -66,11 +72,9 @@ The SES.temporal function implements the Statistically Equivalent Signature (SES
 http://www.mensxmachina.org/publications/discovering-multiple-equivalent-biomarker-signatures/
 
 The MMPC function mplements the MMPC algorithm as presented in "Tsamardinos, Brown and Aliferis. The max-min hill-climbing Bayesian network
-structure learning algorithm" adapted to longitudinal data. 
+structure learning algorithm" adapted to longitudinal data. http://www.dsl-lab.org/supplements/mmhc_paper/paper_online.pdf
 
-http://www.dsl-lab.org/supplements/mmhc_paper/paper_online.pdf
-
-For faster computations in the internal SES functions, install the suggested package "\bold{gRbase}".
+For faster computations in the internal SES functions, install the suggested package "\bold{gRbase}". In addition, the output value "univ" along with the output value "hashObject" can speed up the computations of subesequent runs of SES and MMPC. The first run with a specific pair of hyper-parameters (threshold and max_k) the univariate associations tests and the conditional independence tests (test statistic and logarithm of their corresponding p-values) are stored and returned. In the next run(s) with different pair(s) of hyper-parameters you can use this information to save time. With a few thousands of variables you will see the difference, which can be up to 50\%. 
 
 The max_k option: the maximum size of the conditioning set to use in the conditioning independence test. Larger values provide more accurate results, at the cost of higher computational times. When the sample size is small (e.g., \eqn{<50} observations) the max_k parameter should be \eqn{\leq 5}, otherwise the conditional independence test may not be able to provide reliable results.
 
@@ -114,6 +118,9 @@ For each feature included in the dataset, this vector reports the strength of it
 \item{stats}{
 The statistics corresponding to "pvalues" (higher values indicates higher association).
 }
+\item{univ}{
+This is a list with the univariate associations. The test statistics and their corresponding logge p-values, along with their flag (1 if the test was perfromed and 0 otherwise). This list is very important for subsequent runs of SES with different hyper-parameters. After running SES with some hyper-parameters you might want to run SES again with different hyper-parameters. To avoid calculating the univariate associations (first step of SES or MMPC) again, you can take this list from the first run of SES and plug it in the argument "ini" in the next run(s) of SES or MMPC. This can speed up the second run (and subequent runs of course) by 50\%. See the argument "univ" in the output values. 
+}
 \item{max_k}{
 The max_k option used in the current run.
 }
@@ -135,16 +142,16 @@ Summary view of the SES.temporal.output object.
 Plots the generated pvalues (using barplot) of the current SESoutput object in comparison to the threshold.
 Argument mode can be either "all" or "partial" for the first 500 pvalues of the object.
 }
-
 }
+
 \references{
 I. Tsamardinos, V. Lagani and D. Pappas (2012). Discovering multiple, equivalent biomarker signatures. In proceedings of the 7th conference of the Hellenic Society for Computational Biology & Bioinformatics - HSCBB12.
 
 Tsamardinos, Brown and Aliferis (2006). The max-min hill-climbing Bayesian network structure learning algorithm. Machine learning, 65(1), 31-78.
 
-I. Tsamardinos, M. and V. Lagani (2015). Feature selection for longitudinal data. Proceedings of the 10th conference of the Hellenic Society for Computational Biology & Bioinformatics (HSCBB15)
+I. Tsamardinos, M. Tsagris and V. Lagani (2015). Feature selection for longitudinal data. Proceedings of the 10th conference of the Hellenic Society for Computational Biology & Bioinformatics (HSCBB15)
 
-Pinheiro J., and D. Bates. Mixed-effects models in S and S-PLUS. Springer Science \& Business Media, 2006.
+Pinheiro J. and D. Bates. Mixed-effects models in S and S-PLUS. Springer Science \& Business Media, 2006.
 }
 
 \author{
@@ -155,7 +162,7 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> Vince
 
 \note{
 The only package required for the SES.temporal and MMPC.temporal algorithm operations is the \bold{lme4} and the 
-\bold{doParallel} for parallel computations
+\bold{doParallel} for parallel computations.
 }
 
 \seealso{

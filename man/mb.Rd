@@ -1,7 +1,7 @@
-\name{mb}
+\name{Markov Blanket of a node in a directed graph}
 \alias{mb}
 \title{
-Returns and plots, if asked, the Markov blanket of a node (or variable).
+Returns and plots, if asked, the Markov blanket of a node (or variable)
 }
 
 \description{
@@ -13,14 +13,14 @@ mb(G, node, graph = FALSE)
 }
 
 \arguments{
-  \item{G}{
-  The graph matrix as produced from \code{\link{pc.or}} or any other algorithm which produces directed graphs. 
+\item{G}{
+The graph matrix as produced from \code{\link{pc.or}} or any other algorithm which produces directed graphs. 
 }
-  \item{node}{
-  A vector with one or more numbers indicating the seleted node(s) (or variable(s)). 
+\item{node}{
+A vector with one or more numbers indicating the seleted node(s) (or variable(s)). 
 }
-  \item{graph}{
-  A boolean variable. If TRUE the relevant graph will appear (if the Markov blanket is the non emty set). 
+\item{graph}{
+A boolean variable. If TRUE the relevant graph will appear (if the Markov blanket is the non emty set). 
 }
 }
 
@@ -73,7 +73,9 @@ tru = y$G
 x = y$x
 mod = pc.con(x)
 G = pc.or(mod)$G
-mb(G, 1, graph = FALSE)
+plota(G)
+dev.new()
+mb(G, 8, graph = TRUE)
 }
 
 \keyword{ Network plot }
