@@ -15,7 +15,7 @@ testIndBinom(target, dataset, xIndex, csIndex, dataInfo = NULL, univariateModels
 
 \arguments{
 \item{target}{
-A matrix with two two columns, the first one is the percentages, the sccess rates, the cases divided by the totals and the second one is the totals.
+A matrix with two two columns, the first one is the number of successes, the cases (integer) and the second one is the totals (integers).
 }
 \item{dataset}{
 A numeric matrix or data frame, in case of categorical predictors (factors), containing the variables for performing the test. Rows as samples and columns as features.

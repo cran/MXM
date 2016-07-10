@@ -26,7 +26,7 @@ As for the other tests, they share one thing in common. For all of them, two par
   Proportions \tab Mixed \tab testIndRQ \tab Median regression \cr 
   \tab \tab after logit transformation \tab \cr  
   Proportions \tab Mixed \tab testIndBeta \tab Beta regression \cr  
-  Success rates \tab Mixed \ testIndBinomi \tab Binomial regression \cr
+  Successes \& totals \tab Mixed \ testIndBinom \tab Binomial regression \cr
   Discrete \tab	Mixed \tab testIndPois \tab Poisson regression \cr 
   Discrete \tab	Mixed \tab testIndZIP \tab Zero Inflated \cr 
    \tab	\tab  \tab Poisson regression \cr 
@@ -80,6 +80,8 @@ As for the other tests, they share one thing in common. For all of them, two par
     \item \bold{testIndLogistic} (Un-ordered multinomial). If the target has more than two outcomes, but it is of nominal type, there is no ordering of the outcomes, multinomial logistic regression will be employed. Again, this regression is suitable for classification purposes as well and it to allows for categorical predictor variables.
     
     \item \bold{testIndLogistic} (Ordered multinomial). This is a special case of multinomial regression, in which case the outcomes have an ordering, such as \bold{not satisfied}, \bold{neutral}, \bold{satisfied}. The appropriate method is ordinal logistic regression. 
+    
+    \item \bold{testIndBinom}. When the target variable is a matrix of two columns, where the first one is the number of successes and the second one is the number of trials, binomial regression is to be used. 
     
     \item \bold{testIndSpeedglm}. If you have a few tens of thousands of observations, the default functions for linear, binary logistic and poisson regression will be slow causing the computer to jamm. For this reason, memory efficient handling regressions should be used.
     
@@ -141,7 +143,6 @@ Pinheiro J., and D. Bates. Mixed-effects models in S and S-PLUS. Springer Scienc
 
 Spirtes P.,  Glymour C. and Scheines R. (2001). Causation, Prediction, and Search. The MIT Press, Cambridge, MA, USA, 3nd edition.
 
-Tsamardinos I., Lagani V. and Pappas D. (2012). Discovering multiple, equivalent biomarker signatures. In proceedings of the 7th conference of the Hellenic Society for Computational Biology & Bioinformatics - HSCBB12.
 }
 
 \author{

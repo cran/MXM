@@ -18,8 +18,17 @@
 #best_performance: numeric, the best average performance
 #best_configuration: the best configuration of mmpc (a list with the slots id, a, max_k)
 
-cv.mmpc <- function(target, dataset, kfolds = 10, folds = NULL, alphas = NULL, max_ks = NULL, task = NULL, metric = NULL, modeler = NULL, mmpc_test = NULL)
+cv.mmpc <- function(target, dataset, kfolds = 10, folds = NULL, alphas = NULL, max_ks = NULL, task = NULL, metric = NULL, modeler = NULL, mmpc_test = NULL, ncores = 1) 
 {
+  
+  
+  if ( ncores > 1 ) {  ## multi-threaded task
+    result = cvmmpc.par(target, dataset, kfolds = kfolds, folds = folds, alphas = alphas, max_ks = max_ks, task = task, metric = metric, modeler = modeler, mmpc_test = mmpc_test, ncores = ncores)
+    
+    
+  } else { ## one core task
+    
+    
   
   if(is.null(alphas))
   {
@@ -245,11 +254,8 @@ cv.mmpc <- function(target, dataset, kfolds = 10, folds = NULL, alphas = NULL, m
   best_model <- NULL
   best_model$cv_results_all <- conf_mmpc;
   best_model$best_performance <- best_perf
-  best_model$best_configuration = conf_mmpc[[index]]$configuration
-  
-  
+
   #TT
-  res <- array( dim = c( length(alphas), length(max_ks), kfolds ) )
   mat <- matrix(nrow = length(best_model[[ 1 ]]), ncol = kfolds)
   
   for ( i in 1:nrow(mat) ) {
@@ -258,16 +264,34 @@ cv.mmpc <- function(target, dataset, kfolds = 10, folds = NULL, alphas = NULL, m
   
   opti <- rowMeans(mat)
   bestpar <- which.max(opti)
-  estb <- mean( max(opti) - colMeans(mat) )
+  estb <- abs( sum( mat[bestpar, ] - apply(mat, 2, max) ) / kfolds )
   
+  best_model$best_configuration = conf_mmpc[[bestpar]]$configuration
   best_model$best_performance <- max( opti )
   best_model$BC_best_perf <- best_model$best_performance - estb
   
   best_model$runtime <- proc.time() - tic 
   
-  return(best_model)
+  result = best_model
+  
+ }
+  
+ result 
   
 }
+
+
+
+
+
+
+  
+  
+  
+
+
+
+
 
 
 
@@ -317,7 +341,7 @@ mse.mxm <- function(predictions, test_target){
 
 #mean absolut error lower values indicate better performance so we multiply with -1 in order to have higher values for better performances
 ord_mae.mxm <- function(predictions, test_target){
-  mae <- sum( abs(as.numeric(predictions) - as.numeric(test_target)) ) / legnth(test_target)
+  mae <- sum( abs(as.numeric(predictions) - as.numeric(test_target)) ) / length(test_target)
   return(-mae);
 }
 

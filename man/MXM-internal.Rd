@@ -21,6 +21,9 @@
 \alias{is.sepset}
 \alias{lm.fsreg_2}
 \alias{glm.fsreg_2}
+\alias{cvses.par}
+\alias{cvmmpc.par}
+
 
 \alias{proc_time-class}
 
@@ -54,6 +57,8 @@ Internal functions of Package \pkg{MXM}
 \item is.sepset( ... ) 
 \item lm.fsreg_2( ... )
 \item glm.fsreg_2( ... )
+\item cvses.par( ... )
+\item cvmmpc.par( ... )
 
 }
 }

@@ -13,8 +13,8 @@ This is an R package that currently implements feature selection methods for ide
 \tabular{ll}{
 Package: \tab MXM\cr
 Type: \tab Package\cr
-Version: \tab 0.9.2\cr
-Date: \tab 2016-07-04\cr
+Version: \tab 0.9.3\cr
+Date: \tab 2016-07-10\cr
 License: \tab GPL-2\cr
 }
 }
@@ -28,7 +28,11 @@ Giorgos Athineou <athineou@csd.uoc.gr>, Vincenzo Lagani <vlagani@csd.uoc.gr>, Mi
 }
 
 \references{
+Tsamardinos, Brown and Aliferis (2006). The max-min hill-climbing Bayesian network structure learning algorithm. Machine learning, 65(1), 31-78.
+
 I. Tsamardinos, V. Lagani and D. Pappas (2012) Discovering multiple, equivalent biomarker signatures. In proceedings of the 7th conference of the Hellenic Society for Computational Biology & Bioinformatics - HSCBB12.
+
+Tsamardinos I., Aliferis C. F. and Statnikov, A. (2003). Time and sample efficient discovery of Markov blankets and direct causal relations. In Proceedings of the 9th ACM SIGKDD international conference on Knowledge discovery and data mining (pp. 673-678). 
 }
 
 \keyword{ SES }

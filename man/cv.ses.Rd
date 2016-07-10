@@ -32,10 +32,11 @@ The function performs a k-fold cross-validation for identifying the best values 
 
 \usage{
 cv.ses(target, dataset, kfolds = 10, folds = NULL, alphas = NULL, max_ks = NULL,
-task = NULL, metric = NULL, modeler = NULL, ses_test = NULL)
+task = NULL, metric = NULL, modeler = NULL, ses_test = NULL, ncores = 1)
 
 cv.mmpc(target, dataset, kfolds = 10, folds = NULL, alphas = NULL, max_ks = NULL,
-task = NULL, metric = NULL, modeler = NULL, mmpc_test = NULL)
+task = NULL, metric = NULL, modeler = NULL, mmpc_test = NULL, ncores = 1)
+
 }
 
 \arguments{
@@ -74,6 +75,9 @@ task = NULL, metric = NULL, modeler = NULL, mmpc_test = NULL)
 }
 \item{mmpc_test}{
 A function object that defines the conditional independence test used in the MMPC function (see also SES help page). If NULL, testIndFisher, testIndLogistic and censIndLR are used for classification, regression and survival analysis tasks, respectively.
+}
+\item{ncores}{
+This argument is valid only if you have a multi-threaded machine. 
 }
 }
 
@@ -125,14 +129,14 @@ The modelling functions that are currently supported are:
 }
 Usage: modeler(train_target, sign_data, sign_test)
 
-Note that the Tibshirani and Tibshirani (2009) bias correction method is applied. The procedure will be more automated in the future and more functions will be added. 
+Note that the Tibshirani and Tibshirani (2009) bias correction method is applied. The procedure will be more automated in the future and more functions will be added. The multithreaded functions have been tested and no error has been detected. However, if you spot any suspicious results please let us know. 
 
 }
 
 \value{
 A list including:
 \item{cv_results_all}{
-A list with predictions, performances and signatures for each fold and each SES or MMPC configuration (e.g cv_results_all[[3]]$performances[1] indicates the performance of the 1st fold with the 3d configuration of SES or MMPC).
+A list with predictions, performances and signatures for each fold and each SES or MMPC configuration (e.g cv_results_all[[3]]$performances[1] indicates the performance of the 1st fold with the 3d configuration of SES or MMPC). In the case of the multi-threaded functions (cvses.par and cvmmpc.par) this is a list with a matrix. The rows correspond to the folds and the columns to the configurations (pairs of threshold and max_k).
 }
 \item{best_performance}{
 A numeric value that represents the best average performance.

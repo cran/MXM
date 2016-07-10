@@ -146,6 +146,11 @@ ses.model = function(target, dataset, sesObject, nsignat = 1, test = NULL) {
       mod = lm( target ~., data = as.data.frame(dataset[, ypografi ]) )
       bic = BIC(mod)
       
+    } else if ( class(target) == "matrix"  &  ci_test == "testIndBinom" ) {
+
+      mod = glm( target[, 1] /target[, 2] ~., data = as.data.frame(dataset[, ypografi ]), weights = target[, 2], family = binomial )
+      bic = BIC(mod)
+      
     } else if (ci_test == "censIndCR") {
       mod = survival::coxph( target ~ ., data = as.data.frame(dataset[, ypografi ]) )
       bic = BIC(mod)
@@ -269,14 +274,19 @@ ses.model = function(target, dataset, sesObject, nsignat = 1, test = NULL) {
 
      } else if ( ci_test == "testIndZIP" ) {
        mod[[ i ]] = pscl::zeroinfl( target ~. | ., data = as.data.frame( dataset[, ypografi[i, ] ] ) )
-       bic = BIC(mod[[ i ]])
+       bic[i] = BIC(mod[[ i ]])
 
      } else if ( class(target) == "matrix" || ci_test == "testIndMVreg" ) {
        if ( all(target > 0 & target < 1) ) {  ## are they compositional data?
          target = log( target[, -1] / (target[, 1]) ) 
        } 
-       mod = lm( target ~.,  data = as.data.frame( dataset[, ypografi[i, ] ] ) )
+       mod[[ i ]] = lm( target ~.,  data = as.data.frame( dataset[, ypografi[i, ] ] ) )
        bic[i] = BIC( mod[[ i ]] )
+       
+     } else if ( class(target) == "matrix"  &  ci_test == "testIndBinom" ) {
+       
+       mod[[ i ]] = glm( target[, 1] /target[, 2] ~., data = as.data.frame(dataset[, ypografi[i, ] ]), weights = target[, 2], family = binomial )
+       bic[i] = BIC(mod[[ i ]])
 
      } else if (ci_test == "censIndCR") {
        mod[[ i ]] = survival::coxph( target ~ ., data = as.data.frame( dataset[, ypografi[i, ] ] ) )
@@ -395,9 +405,14 @@ ses.model = function(target, dataset, sesObject, nsignat = 1, test = NULL) {
        if ( all(target > 0 & target < 1) ) {  ## are they compositional data?
          target = log( target[, -1] / (target[, 1]) ) 
        } 
-       mod = lm( target ~., data = dataset[, ypografi] )
+       mod[[ i ]] = lm( target ~., data = dataset[, ypografi] )
        bic[i] = BIC( mod[[ i ]] )
-
+       
+     } else if ( class(target) == "matrix"  &  ci_test == "testIndBinom" ) {
+       
+       mod[[ i ]] = glm( target[, 1] /target[, 2] ~., data = as.data.frame(dataset[, ypografi[i, ] ]), weights = target[, 2], family = binomial )
+       bic[i] = BIC(mod[[ i ]])
+       
      } else if (ci_test == "censIndCR") {
        mod[[ i ]] = survival::coxph( target ~ ., data = as.data.frame( dataset[, ypografi[i, ] ] ) )
        bic[i] = BIC( mod[[ i ]] )

@@ -158,7 +158,7 @@ testIndBinom = function(target, dataset, xIndex, csIndex, dataInfo = NULL, univa
       {
         #compute the relationship between x,target directly
         #if (robust == FALSE) {
-        fit2 = glm(y ~ x, binomial, weights = wei)
+        fit2 = glm(y / wei ~ x, binomial, weights = wei)
         #} else{
         #  fit2 = robust::glmRob(target ~ x, poisson, maxit = 100)
         #}  
@@ -169,7 +169,7 @@ testIndBinom = function(target, dataset, xIndex, csIndex, dataInfo = NULL, univa
         
       }else{
         #if ( robust == FALSE ) {
-        fit2 = glm( y ~., weights = wei, data = as.data.frame( dataset[, c(csIndex, xIndex)] ), binomial )
+        fit2 = glm( y / wei ~., weights = wei, data = as.data.frame( dataset[, c(csIndex, xIndex)] ), binomial )
         #} else {
         #  fit2 = robust::glmRob(target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ), poisson, maxit = 100)
         #}

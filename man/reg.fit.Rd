@@ -1,4 +1,4 @@
-\name{GEneric regression models}
+\name{Regression models fitting}
 \alias{reg.fit}
 \title{
 Regression modelling

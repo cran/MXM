@@ -22,7 +22,7 @@ ridge.reg <- function(target, dataset, lambda, B = 1, newdata = NULL) {
   p <- ncol(dataset)  ## dimensionality of dataset
   my <- sum(target) / n
   yy <- target - my  ## center the dependent variables
-  s <- fastR::colVars(dataset, std = TRUE)
+  s <- Rfast::colVars(dataset, std = TRUE)
   mx <- colMeans(dataset)
   xx <- ( t(dataset) - mx ) / s
   xx <- t(xx)
@@ -44,7 +44,7 @@ ridge.reg <- function(target, dataset, lambda, B = 1, newdata = NULL) {
        yb <- yy[id]     ;     xb <- xx[id, ]
        be[i, ] <- solve( crossprod(xb) + lamip, crossprod(xb, yb) )
     }
-    seb <- fastR::colVars(be, std = TRUE) ## bootstrap standard errors of betas
+    seb <- Rfast::colVars(be, std = TRUE) ## bootstrap standard errors of betas
   } 
   
   be <- as.vector(betas)

@@ -1,4 +1,4 @@
-\name{ conditional independence test for longitudinal and clustered data}
+\name{Conditional independence test for longitudinal and clustered data}
 \alias{testIndGLMM}
 \title{
 Linear mixed models conditional independence test for longitudinal class variables

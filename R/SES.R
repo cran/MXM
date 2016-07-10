@@ -600,9 +600,8 @@ InternalSES = function(target , dataset , max_k, threshold , test = NULL , ini, 
     
     if ( identical(test, testIndFisher) == TRUE && robust == FALSE )  ## Pearson's correlation 
     {
-      #print("FORTRAN UNIVARIATE")
       a = as.vector( cor(target, dataset) )
-      univariateModels = NULL;
+      univariateModels = list();
       dof = rows - 3; #degrees of freedom
       wa = 0.5 * log( (1 + a) / (1 - a) ) * sqrt(dof)
       
@@ -616,7 +615,7 @@ InternalSES = function(target , dataset , max_k, threshold , test = NULL , ini, 
       
     } else if ( identical(test, testIndSpearman) == TRUE ) {  ## Spearman's correlation
       a = as.vector( cor(target, dataset) )
-      univariateModels = NULL;
+      univariateModels = list();
       dof = rows - 3; #degrees of freedom
       wa = 0.5 * log( (1 + a) / (1 - a) ) * sqrt(dof) / 1.029563
       
@@ -628,91 +627,373 @@ InternalSES = function(target , dataset , max_k, threshold , test = NULL , ini, 
       univariateModels$stat_hash = stat_hash;
       univariateModels$pvalue_hash = pvalue_hash;
       
+      
     } else if ( identical(test, testIndBeta) == TRUE ) {  ## Beta regression
       
+      univariateModels = list();
       fit1 = betareg::betareg(target ~ 1)
-      
       lik2 = numeric(cols)
+      dof = numeric(cols)
       
-      for ( i in 1:cols ) {
+      if ( ncores <= 1 | is.null(ncores) ) {
         
-        fit2 = betareg::betareg(target ~ dataset[, i] )
-        lik2[i] = as.numeric( logLik(fit2) )
+        for ( i in 1:cols ) {
+          
+          if (i != targetID){
+            
+            fit2 = betareg::betareg(target ~ dataset[, i] )
+            lik2[i] = as.numeric( logLik(fit2) )
+            dof[i] = length( coef(fit2) ) - 2
+          } else {
+            lik2[i] = lik1
+          }   
+        }
+        
+        
+        lik1 = as.numeric( logLik(fit1) )
+        stat = as.vector( 2 * abs(lik1 - lik2) )
+        
+        univariateModels$stat = stat
+        univariateModels$pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
+        univariateModels$flag = numeric(cols) + 1;
+        univariateModels$stat_hash = stat_hash;
+        univariateModels$pvalue_hash = pvalue_hash;
+        
+      } else {
+        
+        cl <- makePSOCKcluster(ncores)
+        registerDoParallel(cl)
+        mod <- foreach(i = 1:cols, .combine = rbind, .packages = "betareg") %dopar% {
+          ## arguments order for any CI test are fixed
+          if ( i != targetID ) {
+            fit2 = betareg(target ~ dataset[, i] )
+            lik2 = as.numeric( logLik(fit2) )
+            
+            return( c(lik2, length( coef(fit2) ) ) )
+          } else{
+            return( c(0, 0) )
+          }
+        }
+        stopCluster(cl)
+        
+        lik1 = as.numeric( logLik(fit1) )
+        stat = as.vector( 2 * abs(lik1 - mod[, 1]) )
+        dof = as.vector( mod[, 2] ) - 2 
+        
+        univariateModels$stat = stat
+        univariateModels$pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
+        univariateModels$flag = numeric(cols) + 1
+        univariateModels$stat_hash = NULL
+        univariateModels$pvalue_hash = NULL   
       }
-      
-      lik1 = as.numeric( logLik(fit1) )
-      stat = 2 * abs(lik1 - lik2)
-      dof = length( coef(fit2) ) - length( coef(fit1) )
-      
-      univariateModels$stat = stat
-      univariateModels$pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
-      univariateModels$flag = numeric(cols) + 1;
-      univariateModels$stat_hash = stat_hash;
-      univariateModels$pvalue_hash = pvalue_hash;
       
     } else if ( identical(test, testIndReg) == TRUE && robust == TRUE ) {  ## M (Robust) linear regression
       
+      univariateModels = list();
       fit1 = MASS::rlm(target ~ 1)
       lik2 = numeric(cols)
+      dof = numeric(cols)
       
-      for ( i in 1:cols ) {
+      if ( ncores <= 1 | is.null(ncores) ) {
         
-        fit2 = MASS::rlm(target ~ dataset[, i] )
-        lik2[i] = as.numeric( logLik(fit2) )
+        for ( i in 1:cols ) {
+          
+          if ( i != targetID ) {
+            
+            fit2 = MASS::rlm(target ~ dataset[, i] )
+            lik2[i] = as.numeric( logLik(fit2) )
+            dof[i] = length( coef(fit2) ) - 1
+          } else {
+            lik2[i] = lik1
+          }
+          
+        } 
+        
+        lik1 = as.numeric( logLik(fit1) )
+        stat = 2 * abs(lik1 - lik2)
+        
+        univariateModels$stat = stat
+        univariateModels$pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
+        univariateModels$flag = numeric(cols) + 1;
+        univariateModels$stat_hash = stat_hash;
+        univariateModels$pvalue_hash = pvalue_hash;
+        
+      } else {
+        
+        cl <- makePSOCKcluster(ncores)
+        registerDoParallel(cl)
+        mod <- foreach(i = 1:cols, .combine = rbind, .packages = "MASS") %dopar% {
+          
+          if ( i != targetID ) {
+            fit2 = rlm(target ~ dataset[, i] )
+            lik2 = as.numeric( logLik(fit2) )
+            
+            return( c(lik2, length( coef(fit2) ) ) )
+          } else{
+            return( c(0, 0) )
+          }
+          
+        }
+        stopCluster(cl)
+        
+        lik1 = as.numeric( logLik(fit1) )
+        stat = as.vector( 2 * abs(lik1 - mod[, 1]) )
+        dof = as.vector( mod[, 2] ) - 1 
+        
+        univariateModels$stat = stat
+        univariateModels$pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
+        univariateModels$flag = numeric(cols) + 1
+        univariateModels$stat_hash = NULL
+        univariateModels$pvalue_hash = NULL   
+      }   
+      
+      
+    } else if ( identical(test, testIndLogistic) == TRUE  &&  is.ordered(target) == TRUE  ) {  ## 
+      
+      lik2 = numeric(cols)
+      dof = numeric(cols)
+      univariateModels = list();
+      
+      fit1 = ordinal::clm(target ~ 1)
+      df1 = length( coef(fit1) )
+      
+      if ( ncores <= 1 | is.null(ncores) ) {
+        
+        for ( i in 1:cols ) {
+          
+          if (i != targetID){
+            
+            mat <- model.matrix(target ~ dataset[, i] )
+            x <- as.matrix( mat[1:rows, ] )
+            
+            fit2 = ordinal::clm.fit(target, x)
+            lik2[i] = as.numeric( fit2$logLik )
+            dof[i] = length( coef(fit2) ) - df1
+          } else {
+            lik2[i] = lik1
+          }   
+        }
+        
+        
+        lik1 = as.numeric( fit1$logLik )
+        stat = as.vector( 2 * abs(lik1 - lik2) )
+        
+        univariateModels$stat = stat
+        univariateModels$pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
+        univariateModels$flag = numeric(cols) + 1;
+        univariateModels$stat_hash = stat_hash;
+        univariateModels$pvalue_hash = pvalue_hash;
+        
+      } else {
+        
+        cl <- makePSOCKcluster(ncores)
+        registerDoParallel(cl)
+        mod <- foreach(i = 1:cols, .combine = rbind, .packages = "ordinal") %dopar% {
+          ## arguments order for any CI test are fixed
+          if ( i != targetID ) {
+            mat <- model.matrix(target ~ dataset[, i] )
+            x <- as.matrix( mat[1:rows, ] )
+            
+            fit2 = ordinal::clm.fit(target, x)
+            lik2 = as.numeric( fit2$logLik )
+            
+            return( c(lik2, length( coef(fit2) ) ) )
+          } else{
+            return( c(0, 0) )
+          }
+        }
+        stopCluster(cl)
+        
+        lik1 = as.numeric( logLik(fit1) )
+        stat = as.vector( 2 * abs(lik1 - mod[, 1]) )
+        dof = as.vector( mod[, 2] ) - df1 
+        
+        univariateModels$stat = stat
+        univariateModels$pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
+        univariateModels$flag = numeric(cols) + 1
+        univariateModels$stat_hash = NULL
+        univariateModels$pvalue_hash = NULL   
       }
       
-      lik1 = as.numeric( logLik(fit1) )
-      stat = 2 * abs(lik1 - lik2)
-      dof = length( coef(fit2) ) - 1
+    } else if ( identical(test, testIndLogistic) == TRUE  &&  length( unique(target) ) > 2  ) {  ## 
       
-      univariateModels$stat = stat
-      univariateModels$pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
-      univariateModels$flag = numeric(cols) + 1;
-      univariateModels$stat_hash = stat_hash;
-      univariateModels$pvalue_hash = pvalue_hash;
+      target = as.factor( as.numeric( as.vector(target) ) );
+      
+      lik2 = numeric(cols)
+      dof = numeric(cols)
+      fit1 = nnet::multinom(target ~ 1, trace = FALSE)
+      df1 = length( coef(fit1) )
+      
+      if ( ncores <= 1 | is.null(ncores) ) {
+        
+        for ( i in 1:cols ) {
+          
+          if (i != targetID){
+            
+            fit2 = nnet::multinom(target ~ dataset[, i], trace = FALSE )
+            lik2[i] = as.numeric( logLik(fit2) )
+            dof[i] = length( coef(fit2) ) - df1
+          } else {
+            lik2[i] = lik1
+          }   
+        }
+        
+        
+        lik1 = as.numeric( logLik(fit1) )
+        stat = as.vector( 2 * abs(lik1 - lik2) )
+        
+        univariateModels$stat = stat
+        univariateModels$pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
+        univariateModels$flag = numeric(cols) + 1;
+        univariateModels$stat_hash = stat_hash;
+        univariateModels$pvalue_hash = pvalue_hash;
+        
+      } else {
+        
+        cl <- makePSOCKcluster(ncores)
+        registerDoParallel(cl)
+        mod <- foreach(i = 1:cols, .combine = rbind, .packages = "nnet") %dopar% {
+          ## arguments order for any CI test are fixed
+          if ( i != targetID ) {
+            
+            
+            fit2 = nnet::multinom(target ~ dataset[, i])
+            lik2 = as.numeric( logLik(fit2 ) )
+            
+            return( c(lik2, length( coef(fit2) ) ) )
+          } else{
+            return( c(0, 0) )
+          }
+        }
+        stopCluster(cl)
+        
+        lik1 = as.numeric( logLik(fit1) )
+        stat = as.vector( 2 * abs(lik1 - mod[, 1]) )
+        dof = as.vector( mod[, 2] ) - df1 
+        
+        univariateModels$stat = stat
+        univariateModels$pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
+        univariateModels$flag = numeric(cols) + 1
+        univariateModels$stat_hash = NULL
+        univariateModels$pvalue_hash = NULL   
+      }
+      
       
     } else if ( identical(test, testIndZIP) == TRUE ) {  ## Zero-inflated Poisson regression
       
+      univariateModels = list();
       fit1 = pscl::zeroinfl(target ~ 1 | 1)
       lik2 = numeric(cols)
+      dof = numeric(cols)
       
-      for ( i in 1:cols ) {
+      if ( ncores <= 1 | is.null(ncores) ) {
         
-        fit2 = pscl::zeroinfl( target ~ dataset[, i] | 1 )
-        lik2[i] = as.numeric( logLik(fit2) )
+        for ( i in 1:cols ) {
+          
+          if ( i != targetID ) {
+            fit2 = pscl::zeroinfl( target ~ dataset[, i] | 1 )
+            lik2[i] = as.numeric( logLik(fit2) )
+            dof[i] = length( coef(fit2) ) - 2
+          } else {
+            lik2[i] = lik1
+          }
+        }
+        
+        lik1 = as.numeric( logLik(fit1) )
+        stat = 2 * abs(lik1 - lik2)
+        
+        univariateModels$stat = stat
+        univariateModels$pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
+        univariateModels$flag = numeric(cols) + 1;
+        univariateModels$stat_hash = stat_hash;
+        univariateModels$pvalue_hash = pvalue_hash;
+        
+      } else {
+        cl <- makePSOCKcluster(ncores)
+        registerDoParallel(cl)
+        mod <- foreach(i = 1:cols, .combine = rbind, .packages = "pscl") %dopar% {
+          
+          if ( i != targetID ) {
+            fit2 = pscl::zeroinfl( target ~ dataset[, i] | 1 )
+            lik2 = as.numeric( logLik(fit2) )
+            
+            return( c(lik2, length( coef(fit2) ) ) )
+          } else{
+            return( c(0, 0) )
+          }
+          
+        }
+        stopCluster(cl)
+        
+        lik1 = as.numeric( logLik(fit1) )
+        stat = as.vector( 2 * abs(lik1 - mod[, 1]) )
+        dof = as.vector( mod[, 2] ) - 2 
+        
+        univariateModels$stat = stat
+        univariateModels$pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
+        univariateModels$flag = numeric(cols) + 1
+        univariateModels$stat_hash = NULL
+        univariateModels$pvalue_hash = NULL   
       }
-      
-      lik1 = as.numeric( logLik(fit1) )
-      stat = 2 * abs(lik1 - lik2)
-      dof = length( coef(fit2) ) - 2
-      
-      univariateModels$stat = stat
-      univariateModels$pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
-      univariateModels$flag = numeric(cols) + 1;
-      univariateModels$stat_hash = stat_hash;
-      univariateModels$pvalue_hash = pvalue_hash;
       
     } else if ( identical(test, testIndRQ) == TRUE ) {  ## Median (quantile) regression
       
+      univariateModels = list();
       fit1 = quantreg::rq(target ~ 1)
       stat = pval = numeric(cols)
       
-      for ( i in 1:cols ) {
+      if ( ncores <= 1 | is.null(ncores) ) {
         
-        fit2 = quantreg::rq(target ~ dataset[, i] )
-        mod = anova(fit1, fit2, test = "rank")
-        df1 = as.numeric( mod[[1]][1] )
-        df2 = as.numeric( mod[[1]][2] )
-        stat[i] = as.numeric( mod[[1]][3] )
-        pval[i] = pf(stat[i], df1, df2, lower.tail = FALSE, log.p = TRUE)
+        for ( i in 1:cols ) {
+          
+          if (i != targetID) {
+            
+            fit2 = quantreg::rq(target ~ dataset[, i] )
+            ww = anova(fit1, fit2, test = "rank")
+            df1 = as.numeric( ww[[1]][1] )
+            df2 = as.numeric( ww[[1]][2] )
+            stat[i] = as.numeric( ww[[1]][3] )
+            pval[i] = pf(stat[i], df1, df2, lower.tail = FALSE, log.p = TRUE)
+          } else {
+            pval[i] = log(1);
+            stat[[i]] = 0;
+          }
+        }
         
+        univariateModels$stat = stat
+        univariateModels$pvalue = pval
+        univariateModels$flag = numeric(cols) + 1;
+        univariateModels$stat_hash = stat_hash;
+        univariateModels$pvalue_hash = pvalue_hash;
+        
+      } else {
+        cl <- makePSOCKcluster(ncores)
+        registerDoParallel(cl)
+        mod <- foreach(i = 1:cols, .combine = rbind, .packages = "quantreg") %dopar% {
+          
+          if (i != targetID) {
+            fit2 = quantreg::rq(target ~ dataset[, i] )
+            ww = anova(fit1, fit2, test = "rank")
+            df1 = as.numeric( ww[[1]][1] )
+            df2 = as.numeric( ww[[1]][2] )
+            stat = as.numeric( ww[[1]][3] )
+            pval = pf(stat, df1, df2, lower.tail = FALSE, log.p = TRUE)
+            
+            return( c(stat, pval ) )
+          } else{
+            return( c(0, 0) )
+          }
+          
+        }
+        stopCluster(cl)
+        
+        
+        univariateModels$stat = as.vector( mod[, 1] )
+        univariateModels$pvalue = as.vector( mod[, 2] )
+        univariateModels$flag = numeric(cols) + 1
+        univariateModels$stat_hash = NULL
+        univariateModels$pvalue_hash = NULL   
       }
-      
-      univariateModels$stat = stat
-      univariateModels$pvalue = pval
-      univariateModels$flag = numeric(cols) + 1;
-      univariateModels$stat_hash = stat_hash;
-      univariateModels$pvalue_hash = pvalue_hash;
       
     } else{  
       univariateModels = univariateScore(target , dataset , test, dataInfo = dataInfo, hash=hash, stat_hash=stat_hash, pvalue_hash=pvalue_hash, targetID=targetID, robust=robust, ncores=ncores);
@@ -720,8 +1001,9 @@ InternalSES = function(target , dataset , max_k, threshold , test = NULL , ini, 
     
   } else {
     univariateModels = ini
-  }   
+  } 
     
+  
   pvalues = univariateModels$pvalue;      
   stats = univariateModels$stat;
   flags = univariateModels$flag;

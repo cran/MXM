@@ -55,7 +55,7 @@ importFrom("stats", "chisq.test")
 #more
 importFrom("methods", "new", "as")
 importFrom("stats", "predict", "var", "pt", "pf", "binomial", "family", "predict.lm", "BIC", "logLik", "median", "poisson", "sd",
-             "xtabs", "fitted", "rbinom", "runif", "drop1")
+             "xtabs", "fitted", "rbinom", "runif", "drop1", "weights")
 
 importFrom("grDevices", "dev.new")
   
@@ -67,7 +67,7 @@ importFrom("relations", relation, relation_incidence, transitive_closure)
 
 importFrom("ggm", essentialGraph )
 
-importFrom("fastR", colVars )
+importFrom("Rfast", colVars )
 
 
 import("doParallel")
@@ -85,7 +85,7 @@ export(SES, InternalSES, MMPC, InternalMMPC, SES.temporal, InternalSES.temporal,
        ord_mae.mxm, poisdev.mxm, nbdev.mxm, glm.mxm, lm.mxm, pois.mxm, nb.mxm, multinom.mxm, rq.mxm, lmrob.mxm, ordinal.mxm, 
        coxph.mxm, beta.mxm, weibreg.mxm, ridge.reg, ridgereg.cv, ridge.plot, ses.model, mmpc.model, nei, plota, reg.fit, pc.or, undir.path, rdag, 
        mb, mmmb, permcor, findAncestors, findDescendants, transitiveClosure, dag2eg, bic.fsreg, bic.glm.fsreg, fs.reg, glm.fsreg, 
-       lm.fsreg, glm.bsreg, tc.plot, cv.mmpc, mmpc.path, condi)
+       lm.fsreg, glm.bsreg, tc.plot, cv.mmpc, mmpc.path, condi, partialcor)
 
 exportClasses("SESoutput")
 exportClasses("MMPCoutput")

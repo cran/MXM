@@ -5,6 +5,7 @@
 
 reg.fit <- function(y, dataset, event = NULL, reps = NULL, group = NULL, slopes = FALSE, 
                     reml = FALSE, model = NULL, robust = FALSE, xnew = NULL) {
+  
   ## possible models are "gaussian" (default), "binary", "multinomial", "poisson",
   ## "ordinal", "Cox", "Weibull", "zip0", "zipx", "beta", "median", "negbin",
   ## "longitudinal" or "grouped".
@@ -29,12 +30,12 @@ reg.fit <- function(y, dataset, event = NULL, reps = NULL, group = NULL, slopes 
   if ( is.null(model) ) {
 
     ## linear regression 
-    if ( class(y) == "numeric" & is.null(event) & is.null(reps) & is.null(group) ) {
+    if ( sum( class(y) == "numeric" ) == 1 & is.null(event) & is.null(reps) & is.null(group) ) {
       model <- "gaussian"  
     }
     
     ## multivariate data
-    if ( class(y) == "matrix" ) {
+    if ( sum( class(y) == "matrix") == 1 ) {
       a <- rowSums(y)
       if ( min(y) > 0 & round( sd(a), 16 ) == 0 )  ## are they compositional data?
         y <- log(y[, -1] / y[, 1])
@@ -89,7 +90,7 @@ reg.fit <- function(y, dataset, event = NULL, reps = NULL, group = NULL, slopes 
     }
     
     ## count data
-    if ( is.vector(y) &  sum( floor(y) - y ) == 0 & length(y) > 2 ) {
+    if ( sum( is.vector(y) ) == 1 &  sum( floor(y) - y ) == 0 & length(y) > 2 ) {
       model <- "poisson"
     }
   
@@ -110,6 +111,9 @@ reg.fit <- function(y, dataset, event = NULL, reps = NULL, group = NULL, slopes 
   } else if ( model == "gaussian" & class(y) == "matrix" ) {
        mod <- lm(y ~ ., data = as.data.frame(x) )
  
+  } else if ( model == "binomial" & class(y) == "matrix" ) {
+    mod <- glm(y[, 1] / y[, 2] ~ ., data = as.data.frame(x), weights = y[, 2], family = binomial )
+    
     ## median (quantile) regression 
   } else if ( model == "median" ) {
     mod <- quantreg::rq(y ~ ., data = as.data.frame(x) ) 

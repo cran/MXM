@@ -18,8 +18,17 @@
 #best_performance: numeric, the best average performance
 #best_configuration: the best configuration of SES (a list with the slots id, a, max_k)
 
-cv.ses <- function(target, dataset, kfolds = 10, folds = NULL, alphas = NULL, max_ks = NULL, task = NULL, metric = NULL, modeler = NULL, ses_test = NULL)
+cv.ses <- function(target, dataset, kfolds = 10, folds = NULL, alphas = NULL, max_ks = NULL, task = NULL, metric = NULL, modeler = NULL, ses_test = NULL, ncores = 1)
 {
+  
+  
+  if ( ncores > 1 ) {  ## multi-threaded task
+    result = cvses.par(target, dataset, kfolds = kfolds, folds = folds, alphas = alphas, max_ks = max_ks, task = task, metric = metric, modeler = modeler, ses_test = ses_test, ncores = ncores)
+
+    
+  } else { ## one core task
+
+      
   
   if(is.null(alphas))
   {
@@ -239,10 +248,8 @@ cv.ses <- function(target, dataset, kfolds = 10, folds = NULL, alphas = NULL, ma
   best_model <- NULL
   best_model$cv_results_all <- conf_ses;
   best_model$best_performance <- best_perf
-  best_model$best_configuration = conf_ses[[index]]$configuration
   
   #TT
-  res <- array( dim = c( length(alphas), length(max_ks), kfolds ) )
   mat <- matrix(nrow = length(best_model[[ 1 ]]), ncol = kfolds)
   
   for ( i in 1:nrow(mat) ) {
@@ -251,16 +258,39 @@ cv.ses <- function(target, dataset, kfolds = 10, folds = NULL, alphas = NULL, ma
   
   opti <- rowMeans(mat)
   bestpar <- which.max(opti)
-  estb <- mean( max(opti) - colMeans(mat) )
+  estb <- abs( sum( mat[bestpar, ] - apply(mat, 2, max) ) / kfolds )
   
-  best_model$best_performance <- max( opti )
+  best_model$best_configuration = conf_ses[[bestpar]]$configuration
+    best_model$best_performance <- max( opti )
   best_model$BC_best_perf <- best_model$best_performance - estb
   
   best_model$runtime <- proc.time() - tic 
     
-  return(best_model)
+  result = best_model
   
 }
+
+result
+  
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -345,6 +375,19 @@ nbdev.mxm <- function(predictions, test_target, theta) {
 }  
 
 
+#Binomial deviance. Lower values indicate better performance so we multiply with -1 in order to have higher values for better performances
+poisdev.mxm <- function(predictions, test_target) {
+  return(- 2 * sum( test_target * log(test_target / predictions) ) )
+}
+
+# binomdev.mxm <- function(predictions, test_target) {
+#   
+#  ya = test_target[, 1]     ;    N = test_target[, 2]
+#  yb = N - ya   
+#  esta = predictions     ;    estb = N - esta
+#  rerurn( - 2 * sum( ya * log(ya / est), na.rm = TRUE ) - 2 * sum( yb * log(yb / estb), na.rm = TRUE ) )
+# }
+
 #Modeling Functions
 
 #input
@@ -355,6 +398,8 @@ nbdev.mxm <- function(predictions, test_target, theta) {
 #output
 #preds
 
+
+## binary logistic regression
 glm.mxm <- function(train_target, sign_data, sign_test){
 #   if(dim(sign_data)[2] == 1)
 #   {
@@ -374,6 +419,7 @@ glm.mxm <- function(train_target, sign_data, sign_test){
 #  }
 }
 
+## poisson regression
 pois.mxm <- function(train_target, sign_data, sign_test){
 #   if(dim(sign_data)[2] == 1)
 #   {
@@ -391,7 +437,27 @@ pois.mxm <- function(train_target, sign_data, sign_test){
 #  }
 }
 
+## binomial regression
+# binom.mxm <-  function(train_target, sign_data, sign_test){
+#   #   if(dim(sign_data)[2] == 1)
+#   #   {
+#   #     return(NULL);
+#   #   }else{
+#   
+#   #using this variable x to overcome the structure naming problems when we have just one variable as a sign_data. For more on this contact athineou ;)
+#   x = sign_data
+#   y1 = train_target[, 1]
+#   N1 = train_target[, 2]
+#   # sign_model <- glm(train_target ~ ., data = data.frame(sign_data), family = poisson);
+#   sign_model <- glm( y1 / N1 ~ ., data = data.frame(x), weights = N1, family = binomial );
+#   x = sign_test
+#   # preds <- predict(sign_model, newdata=data.frame(sign_test), type = 'response')
+#   preds <- predict( sign_model, newdata = data.frame(x), type = 'response' ) * N1 
+#   return(preds);
+#   #  }
+# }
 
+## negative binomial regression
 nb.mxm <- function(train_target, sign_data, sign_test){
 #   if(dim(sign_data)[2] == 1)
 #   {
@@ -409,6 +475,7 @@ nb.mxm <- function(train_target, sign_data, sign_test){
 #  }
 }
 
+## multinomial regression
 multinom.mxm <- function(train_target, sign_data, sign_test){
 #   if(dim(sign_data)[2] == 1)
 #   {
@@ -426,6 +493,7 @@ multinom.mxm <- function(train_target, sign_data, sign_test){
 #  }
 }
 
+## oridnal regression
 ordinal.mxm <- function(train_target, sign_data, sign_test){
 #   if(dim(sign_data)[2] == 1)
 #   {
@@ -444,6 +512,7 @@ ordinal.mxm <- function(train_target, sign_data, sign_test){
 #  }
 }
 
+## linear regression
 lm.mxm <- function(train_target, sign_data, sign_test){ ## used for univariate and multivariate target in classical regression
   
 #   if(dim(sign_data)[2] == 1)
@@ -462,6 +531,7 @@ lm.mxm <- function(train_target, sign_data, sign_test){ ## used for univariate a
 #   }
 }
 
+## quantile (median) regression
 rq.mxm <- function(train_target, sign_data, sign_test){ ## used for univariate and multivariate target in classical regression
   
 #   if(dim(sign_data)[2] == 1)
@@ -480,6 +550,7 @@ rq.mxm <- function(train_target, sign_data, sign_test){ ## used for univariate a
 #   }
 }
 
+## robust linear regression
 lmrob.mxm <- function(train_target, sign_data, sign_test){ ## used for univariate and multivariate target in classical regression
   
 #   if(dim(sign_data)[2] == 1)
@@ -499,6 +570,7 @@ lmrob.mxm <- function(train_target, sign_data, sign_test){ ## used for univariat
 #   }
 }
 
+## beta regression
 beta.mxm <- function(train_target, sign_data, sign_test){ ## used for univariate and multivariate target in classical regression
   
 #   if(dim(sign_data)[2] == 1)
@@ -518,7 +590,7 @@ beta.mxm <- function(train_target, sign_data, sign_test){ ## used for univariate
 #   }
 }
 
-
+## cox regression
 coxph.mxm <- function(train_target, sign_data, sign_test){
   
   #using this variable x to overcome the structure naming problems when we have just one variable as a sign_data. For more on this contact athineou ;)
@@ -532,6 +604,7 @@ coxph.mxm <- function(train_target, sign_data, sign_test){
   return(preds);
 }
 
+## weibull regression
 weibreg.mxm <- function(train_target, sign_data, sign_test){
   
   #using this variable x to overcome the structure naming problems when we have just one variable as a sign_data. For more on this contact athineou ;)

@@ -299,8 +299,8 @@ testIndGLMM = function(target, reps = NULL, group, dataset, xIndex, csIndex, dat
   mod = anova(fit2)
   v2 = as.numeric( summary(fit2)[[14]][5] )
   pr = nrow(mod) 
-  v1 = mod[pr,1]
-  stat = mod[pr,4]   
+  v1 = mod[pr, 1]
+  stat = mod[pr, 4]   
   pvalue = pf(stat, v1, v2, lower.tail = FALSE, log.p=TRUE)
   flag = 1;
   #update hash objects

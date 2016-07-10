@@ -1,4 +1,4 @@
-\name{conditional independence test for proportions/percentages}
+\name{Conditional independence test for proportions/percentages}
 \alias{testIndBeta}
 \title{
 Beta regression conditional independence test for proportions/percentage class dependent variables and mixed predictors

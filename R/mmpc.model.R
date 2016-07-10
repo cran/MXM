@@ -147,6 +147,11 @@ mmpc.model = function(target, dataset, mmpcObject, test = NULL) {
       mod = lm( target ~., data = as.data.frame(dataset[, ypografi ]) )
       bic = BIC(mod)
       
+    } else if ( class(target) == "matrix"  &  ci_test == "testIndBinom" ) {
+      
+      mod = glm( target[, 1] /target[, 2] ~., data = as.data.frame(dataset[, ypografi ]), weights = target[, 2], family = binomial )
+      bic = BIC(mod)
+      
     } else if (ci_test == "censIndCR") {
       mod = survival::coxph( target ~ ., data = as.data.frame(dataset[, ypografi ]) )
       bic = BIC(mod)

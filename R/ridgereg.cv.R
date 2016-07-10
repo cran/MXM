@@ -59,7 +59,7 @@ ridgereg.cv <- function( target, dataset, K = 10, lambda = seq(0, 2, by = 0.1),
         xtest <- as.matrix( dataset[ mat[, vim], ] )  ## test set independent vars
         mx <- colMeans(xtrain)
         yy <- ytrain - my  ## center the dependent variables
-        s <- fastR::colVars(xtrain, std = TRUE)
+        s <- Rfast::colVars(xtrain, std = TRUE)
         xtest <- ( t(xtest) - mx ) / s ## standardize the newdata values 
         xtest <- t(xtest)
         
@@ -94,7 +94,7 @@ ridgereg.cv <- function( target, dataset, K = 10, lambda = seq(0, 2, by = 0.1),
         xtest <- as.matrix( dataset[mat[, vim], ] )  ## test set independent vars
         mx <- colMeans(xtrain)
         yy <- ytrain - my  ## center the dependent variables
-        s <- fastR::colVars(xtrain, std = TRUE)
+        s <- Rfast::colVars(xtrain, std = TRUE)
         
         xx <- ( t(xtrain) - mx ) / s
         xx <- t(xx)

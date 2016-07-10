@@ -23,7 +23,7 @@ ridge.plot <- function(target, dataset, lambda = seq(0, 5, by = 0.1) ) {
   be <- matrix(nrow = p, ncol = R)
   yy <- y - sum(y) / n  ## center the dependent variables
   mx <- colMeans(x)
-  s <- fastR::colVars(x)
+  s <- Rfast::colVars(x)
   xx <- ( t(x) - mx ) / s
   xx <- t(xx)   ## standardize the independent variables
   
