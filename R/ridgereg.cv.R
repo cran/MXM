@@ -57,9 +57,9 @@ ridgereg.cv <- function( target, dataset, K = 10, lambda = seq(0, 2, by = 0.1),
         my <- sum(ytrain) / (n - rmat)
         xtrain <- as.matrix( dataset[ -mat[, vim], ] )  ## train set independent vars
         xtest <- as.matrix( dataset[ mat[, vim], ] )  ## test set independent vars
-        mx <- colMeans(xtrain)
+        mx <- as.vector( Rfast::colmeans(xtrain) )
         yy <- ytrain - my  ## center the dependent variables
-        s <- Rfast::colVars(xtrain, std = TRUE)
+        s <- Rfast::colVars(xtrain, std = TRUE) 
         xtest <- ( t(xtest) - mx ) / s ## standardize the newdata values 
         xtest <- t(xtest)
         
@@ -92,9 +92,9 @@ ridgereg.cv <- function( target, dataset, K = 10, lambda = seq(0, 2, by = 0.1),
         my <- sum(ytrain) / (n - rmat)
         xtrain <- as.matrix( dataset[-mat[, vim], ] )  ## train set independent vars
         xtest <- as.matrix( dataset[mat[, vim], ] )  ## test set independent vars
-        mx <- colMeans(xtrain)
+        mx <- as.vector( Rfast::colmeans(xtrain) )
         yy <- ytrain - my  ## center the dependent variables
-        s <- Rfast::colVars(xtrain, std = TRUE)
+        s <- Rfast::colVars(xtrain, std = TRUE) 
         
         xx <- ( t(xtrain) - mx ) / s
         xx <- t(xx)
@@ -117,7 +117,7 @@ ridgereg.cv <- function( target, dataset, K = 10, lambda = seq(0, 2, by = 0.1),
     }
 
     per <- as.matrix(per)
-    mspe <- colMeans(per)
+    mspe <- as.vector( Rfast::colmeans(per) )
     bias <- per[ , which.min(mspe)] - apply(per, 1, min)  ## TT estimate of bias
     estb <- mean( bias )  ## TT estimate of bias
     names(mspe) <- lambda

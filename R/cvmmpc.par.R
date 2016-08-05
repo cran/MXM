@@ -260,7 +260,7 @@ cvmmpc.par <- function(target, dataset, kfolds = 10, folds = NULL, alphas = NULL
     }
     colnames(mat) = vale
     
-    opti <- colMeans(mat)
+    opti <- as.vector( Rfast::colmeans(mat) )
     bestpar <- which.max(opti)
     estb <- abs( mean( mat[, bestpar] - apply(mat, 1, max) ) )
     

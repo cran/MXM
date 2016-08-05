@@ -1,4 +1,4 @@
-tc.plot <- function(target, tp, id, type = "l", ylab = "Values", xlab = "Time points",
+tc.plot = function(target, tp, id, type = "l", ylab = "Values", xlab = "Time points",
            col = 2, lwd = 1, lty = 2, pch = 1) {
   
   x <- as.numeric( unique(id) )
@@ -8,14 +8,14 @@ tc.plot <- function(target, tp, id, type = "l", ylab = "Values", xlab = "Time po
 
   if ( type == "l" ) {
     plot(tp, target[ x == 1 ], type= 'l', col = col, lwd = lwd, lty = lty, 
-    xaxt = "n", ylim = c( min(target), max(target) ), ylab = ylab )
+    xaxt = "n", ylim = c( min(target), max(target) ), ylab = ylab, xlab = xlab )
     for (i in 2:n) {
       lines(tp, target[x == i], col = col, lwd = lwd, lty = lty)  
     }
 
   } else {
     plot(tp, target[ x == 1 ], type= 'b', col = col, lwd = lwd, lty = lty, 
-    xaxt = "n", ylim = c( min(target), max(target) ), ylab = ylab )
+    xaxt = "n", ylim = c( min(target), max(target) ), ylab = ylab, xlab = xlab )
     for (i in 2:n) {
       points(tp, target[x == i])  
       lines(tp, target[x == i], col = col, lwd = lwd, lty = lty)  
@@ -26,4 +26,4 @@ tc.plot <- function(target, tp, id, type = "l", ylab = "Values", xlab = "Time po
 
   axis(1, at = tp, labels = tp, col.axis = "red")
  
-}        
+}

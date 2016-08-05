@@ -157,6 +157,8 @@ testIndFisher = function(target, dataset, xIndex, csIndex, dataInfo = NULL, univ
   cs = as.matrix(cs)
   cs = cs[, apply(cs, 2, var, na.rm=TRUE) != 0]
   
+  
+  
 #trycatch for dealing with errors
 res <- tryCatch(
 {

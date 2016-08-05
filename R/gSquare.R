@@ -60,9 +60,12 @@ stat_hash=NULL, pvalue_hash=NULL,robust=FALSE) {
       return(results);
     }
   }
-  p <- ncol(dataset) + 1
+  
+  zz = cbind(target, dataset)
+  dc <- as.numeric( apply(zz, 2, function(x) { length(unique(x)) } ) )
+  
   #levels for each variable
-   mod <- cat.ci(p, xIndex, csIndex, cbind(dataset, target) )
+   mod <- cat.ci(1, xIndex, csIndex, zz, type = dc )
      stat <- mod[1]
      pvalue <- mod[2]
   flag = 1;

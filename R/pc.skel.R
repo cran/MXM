@@ -10,30 +10,28 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 
   alpha <- log(alpha)
   
   title <- deparse( substitute(dataset) )
+  
+  if ( !is.matrix(dataset) )   dataset = as.matrix(dataset);
 
   #check for NA values in the dataset and replace them with the variable mean
   if( any( is.na(dataset) ) == TRUE )
   {
-    #dataset = as.matrix(dataset);
     warning("The dataset contains missing values (NA) and they were replaced automatically by the variable (column) median (for numeric) or by the most frequent level (mode) if the variable is factor")
     
-    if ( class(dataset) == "matrix" )
+    if ( method == "pearson" || method == "spearman" )
     {
       dataset = apply( dataset, 2, function(x){ x[ which(is.na(x)) ] = median(x, na.rm = TRUE) } );
-    } else {
+    } else if ( method == "cat" ) {
       for( i in 1:ncol(dataset) )
       {
         if ( any( is.na(dataset[, i]) ) )
         {
-          xi = dataset[,i]
-          if( class(xi) == "numeric" )
-          {                    
-            xi[ which(is.na(xi)) ] = median(xi,na.rm = TRUE) 
-          } else if ( class(xi) == "factor" ) {
-            xi[ which(is.na(xi)) ] = levels(xi)[which.max(xi)]
-          }
-          
-          dataset[,i] = xi
+          xi = dataset[, i]
+          poio = which.max( as.vector( table(xi) ) )
+                
+          xi[ which(is.na(xi)) ] = sort( unique(xi) )[poio]
+
+          dataset[, i] = xi
         }
         
       }
@@ -53,7 +51,8 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 
 
   } else {
     ci.test = cat.ci
-    type = NULL
+    dc <- as.numeric( apply(dataset, 2, function(x) { length(unique(x)) } ) )
+    type = dc
     rob = FALSE
     
   }
@@ -113,19 +112,21 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 
     }   
 
   } else { ## type = cat
+
     stat = pv = dof = matrix(0, n, n)
-    for ( i in 1:c(n - 1) ) {
-      for ( j in c(i + 1):n ) {
-        ro <- cat.ci(i, j, 0, dataset) 
-        stat[i, j] = ro[1]
-        pv[i, j] = ro[2]
-        dof[i, j] = ro[3] 
-      }
-    }
-    pvalue = pv + t(pv)  ## p-values
-    stata = stat + t(stat)
+
+    a <- Rfast::g2Test_univariate(dataset, dc)
+    pva <- pchisq(a$statistic, a$df, lower.tail = FALSE, log.p = TRUE)
+
+    stat[ cbind(a$x, a$y) ] <- a$statistic
+    stata <- stat + t(stat)
     diag(stata) <- 0
-    dof = dof + t(dof)  ## p-values
+
+    pv[ cbind(a$x, a$y) ] <- pva
+    pvalue <- pv + t(pv)
+
+    dof[ cbind(a$x, a$y) ] <- a$df
+    dof = dof + t(dof)  
     stadf = stata / dof
   }
     

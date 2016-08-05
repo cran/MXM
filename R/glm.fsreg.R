@@ -378,14 +378,20 @@ glm.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, tol = 2, ro
       
       
       if ( length( unique(target) ) == 2 ) {
-      oiko <- "binomial"  ## binomial regression
-    } else {
-      oiko <- "poisson"  ## poisson regression
-    } 
+        
+        if ( is.factor(target) ) {
+          target <- as.numeric(target) - 1
+        }
+                
+        oiko <- "binomial"  ## binomial regression
+      } else {
+        oiko <- "poisson"  ## poisson regression
+      } 
 
     runtime <- proc.time()
     
-    devi = dof = numeric(p)
+    devi = numeric(p)
+    dof = devi + 2
     #if ( robust == FALSE ) {
       ini = glm( target ~ 1, family = oiko )$deviance  ## residual deviance
     #} else {
@@ -394,12 +400,34 @@ glm.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, tol = 2, ro
  
     if (ncores <= 1) {
       #if ( robust == FALSE ) {  ## Non robust
-        for (i in 1:p) {
-          mi <- glm( target ~ dataset[, i], family = oiko )
-          devi[i] <- mi$deviance
-          dof[i] = length( coef( mi ) ) 
-        }
+      
+      if ( is.matrix(dataset) ) {
+         mod <- Rfast::univglms( target, dataset, oiko, logged = TRUE )
+         stat = mod[, 1]
+         pval = mod[, 2]
+         
+      } else {
         
+        if ( sum(vapply(dataset,is.factor,TRUE) ) == 0 ) {
+          mod <- Rfast::univglms( target, dataset, oiko, logged = TRUE )
+          stat = mod[, 1]
+          pval = mod[, 2]
+          
+        } else {
+          
+          for (i in 1:p) {
+            mi <- glm( target ~ dataset[, i], family = oiko )
+            devi[i] <- mi$deviance
+            dof[i] = length( coef( mi ) ) 
+          }
+          
+          stat = ini - devi
+          pval = pchisq( stat, dof - 1, lower.tail = FALSE, log.p = TRUE )
+          
+        } 
+        
+      }
+      
       #} else {  ## Robust
       #  for (i in 1:p) { 
       #    mi <- robust::glmRob( target ~ dataset[, i], family = oiko, maxit = maxit )
@@ -408,8 +436,6 @@ glm.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, tol = 2, ro
       #  }
       #}
 
-      stat = ini - devi
-      pval = pchisq( stat, dof - 1, lower.tail = FALSE, log.p = TRUE )
 
     } else {
       #if ( robust == FALSE ) {  ## Non robust

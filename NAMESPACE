@@ -59,7 +59,7 @@ importFrom("stats", "predict", "var", "pt", "pf", "binomial", "family", "predict
 
 importFrom("grDevices", "dev.new")
   
-importFrom("graphics", barplot, grid, lines, legend, axis, plot, points)
+importFrom("graphics", barplot, grid, lines, legend, axis, plot, points, abline)
 
 importFrom("e1071", allShortestPaths, extractPath )
 
@@ -67,7 +67,7 @@ importFrom("relations", relation, relation_incidence, transitive_closure)
 
 importFrom("ggm", essentialGraph )
 
-importFrom("Rfast", colVars )
+importFrom("Rfast", colVars, univglms, colmeans, g2Test_univariate, g2Test)
 
 
 import("doParallel")
@@ -85,7 +85,7 @@ export(SES, InternalSES, MMPC, InternalMMPC, SES.temporal, InternalSES.temporal,
        ord_mae.mxm, poisdev.mxm, nbdev.mxm, glm.mxm, lm.mxm, pois.mxm, nb.mxm, multinom.mxm, rq.mxm, lmrob.mxm, ordinal.mxm, 
        coxph.mxm, beta.mxm, weibreg.mxm, ridge.reg, ridgereg.cv, ridge.plot, ses.model, mmpc.model, nei, plota, reg.fit, pc.or, undir.path, rdag, 
        mb, mmmb, permcor, findAncestors, findDescendants, transitiveClosure, dag2eg, bic.fsreg, bic.glm.fsreg, fs.reg, glm.fsreg, 
-       lm.fsreg, glm.bsreg, tc.plot, cv.mmpc, mmpc.path, condi, partialcor)
+       lm.fsreg, glm.bsreg, tc.plot, cv.mmpc, mmpc.path, condi, partialcor, auc)
 
 exportClasses("SESoutput")
 exportClasses("MMPCoutput")

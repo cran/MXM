@@ -13,8 +13,8 @@ This is an R package that currently implements feature selection methods for ide
 \tabular{ll}{
 Package: \tab MXM\cr
 Type: \tab Package\cr
-Version: \tab 0.9.3\cr
-Date: \tab 2016-07-10\cr
+Version: \tab 0.9.4\cr
+Date: \tab 2016-08-03\cr
 License: \tab GPL-2\cr
 }
 }

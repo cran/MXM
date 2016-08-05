@@ -32,10 +32,7 @@ testIndSpearman = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univ
   pvalue = log(1);
   stat = 0;
   flag = 0;
-   if ( min(target)>0 & max(target)<1 ) ## are they proportions?
-   { 
-     target = log( target/(1-target) ) 
-   }
+  
   n = length( target )
   csIndex[which(is.na(csIndex))] = 0;
   
@@ -187,11 +184,11 @@ res <- tryCatch(
   #lets calculate the p-value
   
   #comparing against the Student's t distribution
-  z = 0.5*log( (1+stat)/(1-stat) );
+  z = 0.5 * log( (1 + stat)/(1 - stat) );
   dof = n - ncol(as.matrix(cs)) - 3; #degrees of freedom
-  w = sqrt(dof) * z / 1.029563 ; ## standard errot for Spearman
+  w = sqrt(dof) * abs(z) / 1.029563 ; ## Spearman test statistic
   
-  pvalue = log(2) + pt(-abs(w), dof, log.p = TRUE) ;  # ?dt for documentation
+  pvalue = log(2) + pt(-w, dof, log.p = TRUE) ;  # ?dt for documentation
   #or alternatively we can calculate the p-value by comparing against the normal distribution
   #pvalue = 2 * pnorm(-abs(w));  ### 
   

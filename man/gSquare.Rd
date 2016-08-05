@@ -104,11 +104,11 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr>
 
 \examples{
 #simulate a dataset with binary data
-dataset <- matrix(rbinom(100 * 101, 1, 0.6), ncol = 101)
+dataset <- matrix(rbinom(500 * 51, 1, 0.6), ncol = 51)
 #initialize binary target
-target <- dataset[, 101]
+target <- dataset[, 51]
 #remove target from the dataset
-dataset <- dataset[, -101]
+dataset <- dataset[, -51]
 
 #run the gSquare conditional independence test for the binary class variable
 results <- gSquare(target, dataset, xIndex = 44, csIndex = c(10,20) )

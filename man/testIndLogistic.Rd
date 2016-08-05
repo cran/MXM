@@ -171,7 +171,7 @@ dataset_b <- dataset_b[, -50]
   
   #run the SES algorithm using the testIndLogistic conditional independence test
   #for the binary class variable
-  sesObject <- SES(factor(target_b), dataset_m, max_k = 3, threshold = 0.05, 
+  sesObject <- SES(target_b, dataset_b, max_k = 3, threshold = 0.05, 
   test = "testIndLogistic");
   #print summary of the SES output
   summary(sesObject);

@@ -351,7 +351,7 @@ SES = function(target , dataset , max_k = 3 , threshold = 0.05 , test = NULL , i
         if(class(dataset) == "data.frame")
         {
           if(any(sapply(dataset, is.factor))){
-            warning("Dataset contains categorical variables (factors). A regression model is advised to be used instead.")
+            warning("Dataset may contain categorical variables (factors). A regression model is advised to be used instead.")
           }
         }
             
@@ -366,8 +366,8 @@ SES = function(target , dataset , max_k = 3 , threshold = 0.05 , test = NULL , i
         
         if(class(dataset) == "data.frame")
         {
-          if(any(sapply(dataset, is.factor))){
-            warning("Dataset contains categorical variables (factors). A regression model is advised to be used instead.")
+          if(any(sapply(dataset, is.factor))){   # change with Rfast
+            warning("Dataset may contain categorical variables (factors). A regression model is advised to be used instead.")
           }
         }
         target = rank(target)
@@ -377,10 +377,10 @@ SES = function(target , dataset , max_k = 3 , threshold = 0.05 , test = NULL , i
       else if (test == "testIndReg") ## It uses the F test
       {
         #dataframe class for dataset is required
-        if(class(dataset) == "matrix"){
-          dataset = as.data.frame(dataset)
-          warning("Dataset was turned into a data.frame which is required for this test")
-        }
+        # if(class(dataset) == "matrix"){
+        #   dataset = as.data.frame(dataset)
+        #   warning("Dataset was turned into a data.frame which is required for this test")
+        # }
         
         #an einai posostiaio target
         if ( min(target) > 0 & max(target) < 1 ) {
@@ -400,10 +400,10 @@ SES = function(target , dataset , max_k = 3 , threshold = 0.05 , test = NULL , i
       else if(test == "testIndBeta") ## beta regression for proportions
       {
         #dataframe class for dataset is required
-        if(class(dataset) == "matrix"){
-          dataset = as.data.frame(dataset)
-          warning("Dataset was turned into a data.frame which is required for this test")
-        }
+        # if(class(dataset) == "matrix"){
+        #   dataset = as.data.frame(dataset)
+        #   warning("Dataset was turned into a data.frame which is required for this test")
+        # }
         test = testIndBeta;
         if(requireNamespace("betareg", quietly = TRUE, warn.conflicts = FALSE)==FALSE)
         {
@@ -413,12 +413,6 @@ SES = function(target , dataset , max_k = 3 , threshold = 0.05 , test = NULL , i
       }
       else if(test == "testIndRQ") ## beta regression for proportions
       {
-        #dataframe class for dataset is required
-        if(class(dataset) == "matrix"){
-          dataset = as.data.frame(dataset)
-          warning("Dataset was turned into a data.frame which is required for this test")
-        }
-        
         #an einai posostiaio target
         if ( all( target>0 & target<1 ) ){
           target = log( target/(1 - target) ) ## logistic normal 
@@ -433,48 +427,29 @@ SES = function(target , dataset , max_k = 3 , threshold = 0.05 , test = NULL , i
       }
       else if (test == "testIndPois") ## Poisson regression
       {
-        #dataframe class for dataset is required
-        if(class(dataset) == "matrix"){
-          dataset = as.data.frame(dataset)
-          warning("Dataset was turned into a data.frame which is required for this test")
-        }
+
         test = testIndPois;
       }
       else if (test == "testIndSpeedglm") ## Poisson regression
       {
-        #dataframe class for dataset is required
-        if(class(dataset) == "matrix"){
-          dataset = as.data.frame(dataset)
-          warning("Dataset was turned into a data.frame which is required for this test")
-        }
+
         test = testIndSpeedglm;
       }
       else if (test == "testIndNB") ## Negative binomial regression
       {
-        #dataframe class for dataset is required
-        if(class(dataset) == "matrix"){
-          dataset = as.data.frame(dataset)
-          warning("Dataset was turned into a data.frame which is required for this test")
-        }
+
         
         test = testIndNB;
       }
       else if (test == "testIndZIP") ## Poisson regression
       {
         #dataframe class for dataset is required
-        if(class(dataset) == "matrix"){
-          dataset = as.data.frame(dataset)
-          warning("Dataset was turned into a data.frame which is required for this test")
-        }
+
         test = testIndZIP;
       }
       else if(test == "censIndCR")
       {
-        #dataframe class for dataset is required
-        #if(class(dataset) == "matrix"){
-        #  dataset = as.data.frame(dataset)
-        #  warning("Dataset was turned into a data.frame which is required for this test")
-        #}
+
         test = censIndCR;
         if(requireNamespace("survival", quietly = TRUE, warn.conflicts = FALSE)==FALSE)
         {
@@ -484,11 +459,7 @@ SES = function(target , dataset , max_k = 3 , threshold = 0.05 , test = NULL , i
       }
       else if(test == "censIndWR")
       {
-        #dataframe class for dataset is required
-        #if(class(dataset) == "matrix"){
-        #  dataset = as.data.frame(dataset)
-        #  warning("Dataset was turned into a data.frame which is required for this test")
-        #}
+
         test = censIndWR;
         if(requireNamespace("survival", quietly = TRUE, warn.conflicts = FALSE)==FALSE)
         {
@@ -498,11 +469,7 @@ SES = function(target , dataset , max_k = 3 , threshold = 0.05 , test = NULL , i
       }
       else if(test == "testIndClogit")
       {
-        #dataframe class for dataset is required
-        #if(class(dataset) == "matrix"){
-        #  dataset = as.data.frame(dataset)
-        #  warning("Dataset was turned into a data.frame which is required for this test")
-        #}
+
         test = testIndClogit;
         if(requireNamespace("survival", quietly = TRUE, warn.conflicts = FALSE)==FALSE)
         {
@@ -512,20 +479,13 @@ SES = function(target , dataset , max_k = 3 , threshold = 0.05 , test = NULL , i
       }
       else if(test == "testIndBinom")
       {
-        #dataframe class for dataset is required
-        #if(class(dataset) == "matrix"){
-        #  dataset = as.data.frame(dataset)
-        #  warning("Dataset was turned into a data.frame which is required for this test")
-        #}
+
         test = testIndBinom;
       }
       else if(test == "testIndLogistic")
       {
         #dataframe class for dataset is required
-        if(class(dataset) == "matrix"){
-          dataset = as.data.frame(dataset)
-          warning("Dataset was turned into a data.frame which is required for this test")
-        }
+
         test = testIndLogistic;
       }
       else if(test == "gSquare")
@@ -747,7 +707,28 @@ InternalSES = function(target , dataset , max_k, threshold , test = NULL , ini, 
         univariateModels$pvalue_hash = NULL   
       }   
       
+    } else if ( identical(test, testIndReg) == TRUE && robust == FALSE  && is.matrix(dataset) ) {  ## linear regression
       
+        mod = Rfast::univglms(target, dataset, logged = TRUE) 
+        univariateModels$stat = mod[, 1]
+        univariateModels$pvalue = mod[, 2]
+        univariateModels$flag = numeric(cols) + 1;
+        univariateModels$stat_hash = stat_hash;
+        univariateModels$pvalue_hash = pvalue_hash;
+
+    } else if ( identical(test, testIndSpeedglm) == TRUE  &&  is.matrix(dataset) ) {  ## linear regression
+      
+        if ( is.factor(target) ) {
+          target <- as.numeric(target) - 1
+        }
+
+        mod = Rfast::univglms(target, dataset, logged = TRUE) 
+        univariateModels$stat = mod[, 1]
+        univariateModels$pvalue = mod[, 2]
+        univariateModels$flag = numeric(cols) + 1;
+        univariateModels$stat_hash = stat_hash;
+        univariateModels$pvalue_hash = pvalue_hash;
+
     } else if ( identical(test, testIndLogistic) == TRUE  &&  is.ordered(target) == TRUE  ) {  ## 
       
       lik2 = numeric(cols)
@@ -878,6 +859,28 @@ InternalSES = function(target , dataset , max_k, threshold , test = NULL , ini, 
         univariateModels$pvalue_hash = NULL   
       }
       
+    } else if ( identical(test, testIndLogistic) == TRUE  &&  length( unique(target) ) == 2  && is.matrix(dataset) ) {  ## 
+    
+        if ( is.factor(target) ) {
+          target <- as.numeric(target) - 1
+        }
+        mod = Rfast::univglms(target, dataset, "binomial", logged = TRUE)
+      
+        univariateModels$stat = mod[, 1]
+        univariateModels$pvalue = mod[, 2]
+        univariateModels$flag = numeric(cols) + 1;
+        univariateModels$stat_hash = stat_hash;
+        univariateModels$pvalue_hash = pvalue_hash;
+        
+    } else if ( identical(test, testIndPois) == TRUE  && is.matrix(dataset) ) {  ## 
+      
+      mod = Rfast::univglms(target, dataset, "poisson", logged = TRUE)
+      
+      univariateModels$stat = mod[, 1]
+      univariateModels$pvalue = mod[, 2]
+      univariateModels$flag = numeric(cols) + 1;
+      univariateModels$stat_hash = stat_hash;
+      univariateModels$pvalue_hash = pvalue_hash;
       
     } else if ( identical(test, testIndZIP) == TRUE ) {  ## Zero-inflated Poisson regression
       
@@ -956,7 +959,7 @@ InternalSES = function(target , dataset , max_k, threshold , test = NULL , ini, 
             pval[i] = pf(stat[i], df1, df2, lower.tail = FALSE, log.p = TRUE)
           } else {
             pval[i] = log(1);
-            stat[[i]] = 0;
+            stat[i] = 0;
           }
         }
         
@@ -1172,6 +1175,9 @@ InternalSES = function(target , dataset , max_k, threshold , test = NULL , ini, 
   
   return(results);
 }
+
+
+
 
 
 

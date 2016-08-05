@@ -12,7 +12,7 @@ ridge.plot <- function(target, dataset, lambda = seq(0, 5, by = 0.1) ) {
   y <- as.vector(target)
   x <- as.matrix(dataset)
   
-  if ( all( y > 0 & y< 1 ) ){
+  if ( all( y > 0 & y < 1 ) ){
     y <- log(y / ( 1 - y) ) ## logistic normal
   }
 
@@ -22,8 +22,8 @@ ridge.plot <- function(target, dataset, lambda = seq(0, 5, by = 0.1) ) {
   R <- length(lambda)
   be <- matrix(nrow = p, ncol = R)
   yy <- y - sum(y) / n  ## center the dependent variables
-  mx <- colMeans(x)
-  s <- Rfast::colVars(x)
+  mx <- as.vector( Rfast::colmeans(x) )
+  s <- Rfast::colVars(x) 
   xx <- ( t(x) - mx ) / s
   xx <- t(xx)   ## standardize the independent variables
   

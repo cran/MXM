@@ -22,8 +22,8 @@ ridge.reg <- function(target, dataset, lambda, B = 1, newdata = NULL) {
   p <- ncol(dataset)  ## dimensionality of dataset
   my <- sum(target) / n
   yy <- target - my  ## center the dependent variables
-  s <- Rfast::colVars(dataset, std = TRUE)
-  mx <- colMeans(dataset)
+  s <- Rfast::colVars(dataset, std = TRUE) 
+  mx <- as.vector( Rfast::colmeans(dataset) )
   xx <- ( t(dataset) - mx ) / s
   xx <- t(xx)
 

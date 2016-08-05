@@ -24,14 +24,29 @@ lm.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, stopping = "
     
     if (ncores <= 1) {
      if ( robust == FALSE ) {  ## Non robust
-       for (i in 1:p) {
-         ww = lm( target ~ dataset[, i] )
-         tab = anova(ww)
-         stat[i] = tab[1, 4] 
-         df1 = tab[1, 1]    ;   df2 = tab[2, 1]
-         pval[i] = pf( stat[i], df1, df2, lower.tail = FALSE, log.p = TRUE )
+       
+       if ( is.matrix(dataset) ) {
+         mat <- Rfast::univglms( target, dataset, logged = TRUE ) 
+         mat <- cbind(1:p, mat[, 2], mat[, 1])
+       
+       } else {
+         
+         if ( sum(vapply(dataset,is.factor,TRUE) ) == 0 ) {
+         mat <- Rfast::univglms( target, dataset, logged = TRUE )
+         mat <- cbind(1:p, mat[, 2], mat[, 1])
+         
+       } else {
+         for (i in 1:p) {
+           ww = lm( target ~ dataset[, i] )
+           tab = anova(ww)
+           stat[i] = tab[1, 4] 
+           df1 = tab[1, 1]    ;   df2 = tab[2, 1]
+           pval[i] = pf( stat[i], df1, df2, lower.tail = FALSE, log.p = TRUE )
+         }
+         mat <- cbind(1:p, pval, stat)
        }
-      mat <- cbind(1:p, pval, stat)
+      
+      }   
        
      } else {  ## Robust
        for (i in 1:p) {
