@@ -10,7 +10,7 @@ mmhc.skel <- function(dataset, max_k = 3, threshold = 0.05, test = NULL, rob = F
   dataset <- as.matrix(dataset)
   n <- ncol(dataset)
   G <- matrix(0, n, n )
-  if (test == "testIndSpearman") {
+  if ( test == "testIndSpearman" ) {
     dataset <- apply(dataset, 2, rank)
     rob = FALSE 
   }
@@ -72,8 +72,11 @@ mmhc.skel <- function(dataset, max_k = 3, threshold = 0.05, test = NULL, rob = F
   
   diag(G) <- 0
   
-  info <- summary( rowSums(G) )
-  density <- sum(G) / ( n * ( n - 1 ) )
+  a <- which( G == 1 & t(G) == 1 ) 
+  G[ -a ] <- 0
+  
+  info <- summary( Rfast::rowsums(G) )
+  density <- sum(G) / n / ( n - 1 ) 
   
   if (is.null( colnames(dataset) ) ) {
     colnames(G) <- rownames(G) <- paste("X", 1:n, sep = "")

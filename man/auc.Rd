@@ -70,8 +70,8 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> and M
 
 \examples{
 # simulate a dataset with continuous data
-g = rbinom(150, 1, 0.6)
-f = rnorm(150)
+g <- rbinom(150, 1, 0.6)
+f <- rnorm(150)
 auc(g, f, roc = TRUE)
 }
 

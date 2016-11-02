@@ -9,8 +9,9 @@ The main task of this test is to provide a p-value PVALUE for the null hypothesi
 }
 
 \usage{
-testIndBeta(target, dataset, xIndex, csIndex, dataInfo = NULL, univariateModels = NULL, 
-hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, robust = FALSE)
+testIndBeta(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
+robust = FALSE)
 }
 
 \arguments{
@@ -25,6 +26,9 @@ hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, robust = FALSE)
 }
   \item{csIndex}{
   The indices of the variables to condition on.
+}
+  \item{wei}{
+  A vector of weights to be used for weighted regression. The default value is NULL. 
 }
   \item{dataInfo}{
   A list object with information on the structure of the data. Default value is NULL.
@@ -102,14 +106,12 @@ target <- target / (max(target) + 2 )
 results <- testIndBeta(target, dataset, xIndex = 44, csIndex = 49)
 results
 
-#require(gRbase)  #for faster computations in the internal functions
-
 #run the SES algorithm using the testIndBeta conditional independence test
 sesObject <- SES(target, dataset, max_k = 3, threshold = 0.05, test = "testIndBeta");
 #print summary of the SES output
 summary(sesObject);
 #plot the SES output
-plot(sesObject, mode = "all");
+# plot(sesObject, mode = "all");
 }
 
 \keyword{Beta regression}

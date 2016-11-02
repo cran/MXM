@@ -1,4 +1,4 @@
-testIndRQ = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariateModels=NULL , hash = FALSE, stat_hash=NULL, 
+testIndRQ = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL, univariateModels=NULL , hash = FALSE, stat_hash=NULL, 
  pvalue_hash=NULL,robust=FALSE) 
   {
   # TESTINDRQ Conditional Independence Test for numerical class variables 
@@ -139,7 +139,7 @@ testIndRQ = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariate
   }
   
   #if x or target is constant then there is no point to perform the test
-  if(var(x) == 0 || var(target) == 0)
+  if ( var( as.numeric(x) ) == 0 || var(target) == 0 )
   {
     if(hash == TRUE)#update hash objects
     {
@@ -162,8 +162,8 @@ testIndRQ = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariate
   {
     #compute the relationship between x,target directly
     #fit1 = fita
-    fit1 = quantreg::rq(target ~ 1)
-    fit2 = quantreg::rq(target ~ x)
+    fit1 = quantreg::rq(target ~ 1, weights = wei)
+    fit2 = quantreg::rq(target ~ x, weights = wei)
   }else{
     
    # if(length(csIndex) == 1){
@@ -178,8 +178,8 @@ testIndRQ = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariate
     ff1 = as.formula(paste("target ~ ",paste("dataset[,",csIndex[1:kapa],"]",sep="",collapse="+"), sep=""))
     ff2 = as.formula(paste(paste("target ~ ",paste("dataset[,",csIndex[1:kapa],"]",sep="",collapse="+"), sep="") , "+dataset[,",xIndex,"]", sep = ""))
   
-    fit1 = quantreg::rq( ff1 )
-    fit2 = quantreg::rq( ff2 )
+    fit1 = quantreg::rq( ff1, weights = wei )
+    fit2 = quantreg::rq( ff2, weights= wei )
   }
   
     mod = anova(fit1,fit2, test = "rank")

@@ -2,9 +2,10 @@
 \alias{testIndReg}
 \alias{testIndRQ}
 \alias{testIndMVreg}
+\alias{testIndIGreg}
 
 \title{
-Linear regression conditional independence test for continous univariate and multivariate response variables
+Linear (and non-linear) regression conditional independence test for continous univariate and multivariate response variables
 }
 
 \description{
@@ -12,14 +13,21 @@ The main task of this test is to provide a p-value PVALUE for the null hypothesi
 }
 
 \usage{
-testIndReg(target, dataset, xIndex, csIndex, dataInfo = NULL, univariateModels = NULL, 
-hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, robust = FALSE)
+testIndReg(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
+robust = FALSE)
 
-testIndRQ(target, dataset, xIndex, csIndex, dataInfo = NULL, univariateModels = NULL, 
-hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, robust = FALSE)
+testIndRQ(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
+robust = FALSE)
 
-testIndMVreg(target, dataset, xIndex, csIndex, dataInfo = NULL, univariateModels = NULL, 
-hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, robust = FALSE)
+testIndMVreg(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
+robust = FALSE)
+
+testIndIGreg(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
+robust = FALSE)
 }
 
 \arguments{
@@ -34,6 +42,9 @@ hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, robust = FALSE)
 }
   \item{csIndex}{
   The indices of the variables to condition on.
+}
+  \item{wei}{
+  A vector of weights to be used for weighted regression. The default value is NULL. We suggest not to use weights if you choose testIndReg and robust = TRUE (robust regression via M estimation)
 }
   \item{dataInfo}{
   A list object with information on the structure of the data. Default value is NULL.
@@ -66,7 +77,7 @@ TestIndRQ offers quantile (median) regression as a robust alternative to linear 
 
 In both cases, if the dependent variable consists of proportions (values between 0 and 1) the logit transformation is applied and the tests are applied then. 
 
-testIndMVreg is for multivariate continuous response variables. Compositional data are positive multivariate data and each vector (observation) sums to the same constant, usually taken 1 for convenience. A check is performed and if such data are found, the additive log-ratio (multivariate logit) transformation (Aitchison, 1986) is applied beforehand. Zeros are not allowed. 
+testIndMVreg is for multivariate continuous response variables. Compositional data are positive multivariate data and each vector (observation) sums to the same constant, usually taken 1 for convenience. A check is performed and if such data are found, the additive log-ratio (multivariate logit) transformation (Aitchison, 1986) is applied beforehand. Zeros are not allowed. TestIndIGreg is for non negative data. It fits an inverse gaussian distribution with a log link. Or you cound see it as a non linear Gaussian model where the conditional mean is related with the covariate(s) via an exponential function. 
 
 For all the available conditional independence tests that are currently included on the package, please see "?CondIndTests".
 }
@@ -126,8 +137,8 @@ dataset <- dataset[, -100]
 testIndReg(target, dataset, xIndex = 44, csIndex = 50)
 testIndReg(target, dataset, xIndex = 44, csIndex = 50, robust = TRUE)
 testIndRQ(target, dataset, xIndex = 44, csIndex = 50)
+testIndIGreg(target, dataset, xIndex = 44, csIndex = 50)
 
-#require(gRbase)  #for faster computations in the internal functions
 #define class variable (here tha last column of the dataset)
 #run the SES algorithm using the testIndReg conditional independence test
 sesObject <- SES(target, dataset, max_k = 3, threshold = 0.05, test = "testIndReg");
@@ -136,10 +147,10 @@ sesObject2 <- SES(target, dataset, max_k = 3, threshold = 0.05, test = "testIndR
 
 summary(sesObject);
 summary(sesObject2);
-#plot the SES output
-plot(sesObject, mode = "all");
+# plot the SES output
+# plot(sesObject, mode = "all");
 
 }
 
-\keyword{ Linear regression Test}
+\keyword{ Linear regression test}
 \keyword{ Conditional independence test }

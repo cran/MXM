@@ -1,4 +1,4 @@
-testIndPois = function(target, dataset, xIndex, csIndex, dataInfo = NULL, univariateModels = NULL , hash = FALSE, stat_hash = NULL, 
+testIndPois = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, univariateModels = NULL , hash = FALSE, stat_hash = NULL, 
  pvalue_hash = NULL,robust = FALSE) 
   {
   # TESTINDPOIS Conditional Independence Test for discrete class variables 
@@ -132,7 +132,7 @@ testIndPois = function(target, dataset, xIndex, csIndex, dataInfo = NULL, univar
   }
   
   #if x or target is constant then there is no point to perform the test
-  if(var(x) == 0 || var(target) == 0)
+  if( var( as.numeric(x) ) == 0 || var(target) == 0)
   {
     if(hash == TRUE)#update hash objects
     {
@@ -155,7 +155,7 @@ testIndPois = function(target, dataset, xIndex, csIndex, dataInfo = NULL, univar
   {
     #compute the relationship between x,target directly
     #if (robust == FALSE) {
-      fit2 = glm(target ~ x, poisson)
+      fit2 = glm(target ~ x, poisson, weights = wei)
     #} else{
     #  fit2 = robust::glmRob(target ~ x, poisson, maxit = 100)
     #}  
@@ -166,7 +166,7 @@ testIndPois = function(target, dataset, xIndex, csIndex, dataInfo = NULL, univar
     
   }else{
     #if ( robust == FALSE ) {
-      fit2 = glm(target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ), poisson)
+      fit2 = glm(target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ), poisson, weights = wei)
     #} else {
     #  fit2 = robust::glmRob(target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ), poisson, maxit = 100)
     #}

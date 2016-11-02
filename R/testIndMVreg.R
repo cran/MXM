@@ -1,4 +1,4 @@
-testIndMVreg = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariateModels=NULL , hash = FALSE, stat_hash=NULL, 
+testIndMVreg = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL, univariateModels=NULL , hash = FALSE, stat_hash=NULL, 
  pvalue_hash=NULL, robust=FALSE)
   {
   # TESTINDMVREG Conditional Independence Test for multivariate continous class variables 
@@ -140,7 +140,7 @@ testIndMVreg = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univari
   }
   
   #if x or target is constant then there is no point to perform the test
-  if(var(x) == 0 || det( var(target) ) == 0)
+  if( var( as.numeric(x) ) == 0 || det( var(target) ) == 0)
   {
     if(hash == TRUE)#update hash objects
     {
@@ -170,9 +170,9 @@ testIndMVreg = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univari
       return(results);
     }
     #compute the relationship between x,target directly
-      fit2 = lm(target ~ x)
+      fit2 = lm(target ~ x, weights = wei)
     } else {
-      fit2 = lm(target ~., data = as.data.frame(dataset[ , c(csIndex, xIndex)] ) )  
+      fit2 = lm(target ~., data = as.data.frame(dataset[ , c(csIndex, xIndex)] ), weights = wei )  
     }
     mod = anova( fit2 ) 
     pr = nrow( mod ) - 1

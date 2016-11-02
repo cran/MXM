@@ -1,4 +1,4 @@
-testIndLogistic = function(target, dataset, xIndex, csIndex, dataInfo = NULL , univariateModels = NULL ,
+testIndLogistic = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL , univariateModels = NULL ,
  hash = FALSE,stat_hash = NULL, pvalue_hash = NULL, target_type = 0, robust = FALSE)
 {
   #   TESTINDLOGISTIC Conditional Independence Test based on logistic regression for binary,categorical or ordinal class variables
@@ -121,7 +121,7 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, dataInfo = NULL , u
 #   }
   
   #if x or target is constant then there is no point to perform the test
-  if(var(x) == 0 || var( as.numeric(target) )== 0)
+  if( var( as.numeric(x) ) == 0 || var( as.numeric(target) )== 0 )
   {
     if(hash == TRUE)#update hash objects
     {
@@ -244,7 +244,7 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, dataInfo = NULL , u
     { 
       #if (robust == FALSE ) { 
         #Fitting generalized Linear Models
-        fit2 = glm(target ~ x, binomial)
+        fit2 = glm(target ~ x, binomial, weights = wei)
       #} else {
       # fit2 = robust::glmRob(target ~ x, binomial, maxit = 100)
       #}  
@@ -255,8 +255,8 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, dataInfo = NULL , u
     }else if(target_type == 2) #nominal-categorical
     {
       #Fitting multinomial Logistic regression
-      fit1 <- nnet::multinom(target ~ 1, trace = FALSE)
-      fit2 <- nnet::multinom(target ~ x, trace = FALSE)
+      fit1 <- nnet::multinom(target ~ 1, trace = FALSE, weights = wei)
+      fit2 <- nnet::multinom(target ~ x, trace = FALSE, weights = wei)
       dev1 = fit1$deviance
       dev2 = fit2$deviance
       p1 = yCounts - 1
@@ -266,8 +266,8 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, dataInfo = NULL , u
     else if(target_type == 3) #ordinal
     {
       #Fitting ordinal Logistic regression
-      fit1 <- ordinal::clm(target ~ 1 )
-      fit2 <- ordinal::clm(target ~ x )
+      fit1 <- ordinal::clm(target ~ 1, weights = wei )
+      fit2 <- ordinal::clm(target ~ x, weights = wei )
       dev1 = 2 * fit1$logLik
       dev2 = 2 * fit2$logLik
       p1 = yCounts - 1
@@ -279,7 +279,7 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, dataInfo = NULL , u
     {
       #Fitting generalized Linear Models
       #if ( robust == FALSE ){
-        fit2 = glm(target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ), binomial)
+        fit2 = glm(target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ), binomial, weights = wei)
       #} else {
       #  fit2 = robust::glmRob(target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ), binomial, maxit = 100)
       #}
@@ -294,12 +294,12 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, dataInfo = NULL , u
     {
       #Fitting multinomial Logistic regression
       if(length(csIndex) == 1){
-        fit1 = nnet::multinom( target ~ dataset[, csIndex], data = as.data.frame( dataset[,c(csIndex, xIndex)] ), trace = FALSE)
+        fit1 = nnet::multinom( target ~ dataset[, csIndex], data = as.data.frame( dataset[,c(csIndex, xIndex)] ), trace = FALSE, weights = wei)
       }else{
-        fit1 = nnet::multinom( target ~., data = as.data.frame( dataset[, csIndex] ), trace = FALSE)
+        fit1 = nnet::multinom( target ~., data = as.data.frame( dataset[, csIndex] ), trace = FALSE, weights = wei)
       }
       dev1 = deviance(fit1)
-      fit2 <- nnet::multinom(target ~.,  data = as.data.frame( dataset[, c(xIndex, csIndex)] ), trace = FALSE)
+      fit2 <- nnet::multinom(target ~.,  data = as.data.frame( dataset[, c(xIndex, csIndex)] ), trace = FALSE, weights = wei)
       dev2 = deviance(fit2)
       p1 = length(coef(fit1))
       p2 = length(coef(fit2))
@@ -308,12 +308,12 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, dataInfo = NULL , u
     {
       #Fitting ordinal Logistic regression
       if(length(csIndex) == 1){
-        fit1 = ordinal::clm( target ~ dataset[, csIndex], data = as.data.frame( dataset[,c(csIndex, xIndex)] ) )
+        fit1 = ordinal::clm( target ~ dataset[, csIndex], data = as.data.frame( dataset[,c(csIndex, xIndex)] ), weights = wei )
       }else{
-        fit1 = ordinal::clm( target ~., data = as.data.frame( dataset[, csIndex] ) )
+        fit1 = ordinal::clm( target ~., data = as.data.frame( dataset[, csIndex] ), weights = wei )
       }
       dev1 = 2*fit1$logLik
-      fit2 <- ordinal::clm(target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ) )
+      fit2 <- ordinal::clm(target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ), weights = wei )
       dev2 = 2*fit2$logLik
       p1 = length(coef(fit1))
       p2 = length(coef(fit2))

@@ -5,6 +5,7 @@ dag2eg <- function(dag, type = NULL) {
     essential <- paste("This matrix is not square")
     
   } else {
+
     if ( sum( dag >= 2 ) > 0 ) {
       typos = 1  
       g3 <- which( dag == 3 )
@@ -13,15 +14,17 @@ dag2eg <- function(dag, type = NULL) {
       dag[g2] <- 1
     } else  typos = 2
     
-      essential <- ggm::essentialGraph(dag)
-
+     ## essential <- ggm::essentialGraph(dag)
+      essential <- dag_to_eg(dag)$eg 
+      essential[ essential == 2 ] <- 1
+ 
       if ( is.null(type) ) {
         
         if ( typos == 1 ) { 
           eg <- essential + t(essential)
           a <- which(eg == 2) 
           b <- which(eg == 1, arr.ind = TRUE)   
-          b <- t( apply(b, 1, sort ) )         
+          b <- t( Rfast::sort_mat( t(b) ) )   ## t( apply(b, 1, sort ) )         
           b <- unique( b )
           if ( nrow(b) > 0 ) {  
             eg[cbind(b[, 2], b[, 1]) ] <- 3

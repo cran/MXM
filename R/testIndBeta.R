@@ -1,4 +1,4 @@
-testIndBeta = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariateModels=NULL, hash = FALSE, stat_hash=NULL, pvalue_hash=NULL,robust=FALSE)
+testIndBeta = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL, univariateModels=NULL, hash = FALSE, stat_hash=NULL, pvalue_hash=NULL,robust=FALSE)
 {
   #   TESTINDBETA Conditional Independence Test based on beta regression for proportions
   #
@@ -105,7 +105,7 @@ testIndBeta = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univaria
 #   }
   
   #if x or target is constant then there is no point to perform the test
-  if(var(x) == 0 || var(target) == 0)
+  if( var( as.numeric(x) ) == 0 || var(target) == 0)
   {
     if(hash == TRUE)#update hash objects
     {
@@ -192,8 +192,8 @@ testIndBeta = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univaria
   }else{
       #Fitting beta regressions
 
-      fit1 = betareg::betareg( target ~., data = as.data.frame( dataset[, csIndex] ) )
-      fit2 = betareg::betareg(target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ) )  ;
+      fit1 = betareg::betareg( target ~., data = as.data.frame( dataset[, csIndex] ), weights = wei )
+      fit2 = betareg::betareg(target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ), weights = wei )  ;
   }
       lik1 = as.numeric( logLik(fit1) )
       lik2 = as.numeric( logLik(fit2) )

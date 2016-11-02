@@ -4,10 +4,10 @@
 ##########
 
 reg.fit <- function(y, dataset, event = NULL, reps = NULL, group = NULL, slopes = FALSE, 
-                    reml = FALSE, model = NULL, robust = FALSE, xnew = NULL) {
+                    reml = FALSE, model = NULL, robust = FALSE, wei = NULL, xnew = NULL) {
   
-  ## possible models are "gaussian" (default), "binary", "multinomial", "poisson",
-  ## "ordinal", "Cox", "Weibull", "zip0", "zipx", "beta", "median", "negbin",
+  ## possible models are "gaussian" (default), "binary", "binomial", "multinomial", "poisson",
+  ## "ordinal", "Cox", "Weibull", "exponential", "zip0", "zipx", "beta", "median", "negbin",
   ## "longitudinal" or "grouped".
   ## robust is either TRUE or FALSE
   ## y is the target variable, can be a numerical variable, a matrix, a factor, ordinal factor, percentages, or time to event
@@ -30,7 +30,7 @@ reg.fit <- function(y, dataset, event = NULL, reps = NULL, group = NULL, slopes 
   if ( is.null(model) ) {
 
     ## linear regression 
-    if ( sum( class(y) == "numeric" ) == 1 & is.null(event) & is.null(reps) & is.null(group) ) {
+    if ( sum( class(y) == "numeric" ) == 1 & is.null(event) & is.null(reps)  &  is.null(group) ) {
       model <- "gaussian"  
     }
     
@@ -90,121 +90,125 @@ reg.fit <- function(y, dataset, event = NULL, reps = NULL, group = NULL, slopes 
     }
     
     ## count data
-    if ( sum( is.vector(y) ) == 1 &  sum( floor(y) - y ) == 0 & length(y) > 2 ) {
-      model <- "poisson"
+    if ( sum( is.vector(y) ) == 1 ) { 
+      if  ( sum( floor(y) - y ) == 0 & length(y) > 2 )   model <- "poisson"
     }
   
   }
 
   ##### model checking
  
-     ## univariate or multivariate gaussian model
-  if ( model == "gaussian" & class(y) != "matrix" ) {
+     ## univariate gaussian model
+  if ( model == "gaussian"  &  is.vector(y) ) {
      if ( robust == FALSE ) {
-       mod <- lm(y ~ ., data = as.data.frame(x) )
+       mod <- lm(y ~ ., data = as.data.frame(x), weights = wei )
      } else {
        # cont = robust::lmRob.control(mxr = 2000, mxf = 2000, mxs = 2000 )
        # mod <- robust::lmRob(y ~ ., data = as.data.frame(x), control = cont) 
-       mod <- MASS::rlm(y ~., data=as.data.frame(x), maxit = 2000)
+       mod <- MASS::rlm(y ~., data=as.data.frame(x), maxit = 2000, weights = wei)
      }
 
-  } else if ( model == "gaussian" & class(y) == "matrix" ) {
+  } else if ( model == "gaussian"  &  sum( class(y) == "matrix" ) == 1 ) {
        mod <- lm(y ~ ., data = as.data.frame(x) )
  
-  } else if ( model == "binomial" & class(y) == "matrix" ) {
+  } else if ( model == "binomial" &  sum( class(y) == "matrix" ) == 1 ) {
     mod <- glm(y[, 1] / y[, 2] ~ ., data = as.data.frame(x), weights = y[, 2], family = binomial )
     
     ## median (quantile) regression 
   } else if ( model == "median" ) {
-    mod <- quantreg::rq(y ~ ., data = as.data.frame(x) ) 
+    mod <- quantreg::rq(y ~ ., data = as.data.frame(x), weights = wei ) 
 
     ## binary logistic regression
   } else if ( model == "binary" ) {
     #if ( robust == FALSE ) {
-      mod <- glm(y ~ ., data = as.data.frame(x), binomial)
+      mod <- glm(y ~ ., data = as.data.frame(x), binomial, weights = wei)
     #} else {
     #  mod <- robust::glmRob(y ~ ., data = as.data.frame(x), binomial, maxit = 100)
     #}
 
     ## multinomial logistic regression
   } else if ( model == "multinomial" ) {
-    mod <- nnet::multinom(y ~ ., data = as.data.frame(x), trace = FALSE)
+    mod <- nnet::multinom(y ~ ., data = as.data.frame(x), trace = FALSE, weights = wei)
 
     ## ordinal logistic regression
   } else if ( model == "ordinal" ) {
-    mod <- ordinal::clm(target ~ ., data = as.data.frame(x) )
+    mod <- ordinal::clm(target ~ ., data = as.data.frame(x), weights = wei )
 
     ## poisson regression
   } else if ( model == "poisson" ) {
     #if ( robust == FALSE ) {
-      mod <- glm(y ~ ., data = as.data.frame(x), poisson)
+      mod <- glm(y ~ ., data = as.data.frame(x), poisson, weights = wei)
     #} else {
     #  mod <- robust::glmRob(y ~ ., data = as.data.frame(x), poisson, maxit = 100)
     #}
  
     ## negative binomial regression
   } else if ( model == "negbin" ) {
-    mod <- MASS::glm.nb(y ~ ., data = as.data.frame(x) )
+    mod <- MASS::glm.nb(y ~ ., data = as.data.frame(x), weights = wei )
 
     ## zero inflated poisson regression with constant zero part
   } else if ( model == "zip0" ) {
-    mod <- pscl::zeroinfl( y ~ .| 1, data = as.data.frame(x) )
+    mod <- pscl::zeroinfl( y ~ .| 1, data = as.data.frame(x), weights = wei )
 
     ## zero inflated poisson regression with variable zero part
   } else if ( model == "zipx" ) {
-    mod <- pscl::zeroinfl( y ~ . | ., data = as.data.frame(x) )
+    mod <- pscl::zeroinfl( y ~ . | ., data = as.data.frame(x), weights = wei )
 
     ## beta regression
   } else if ( model == "beta" ) {
-    mod <- betareg::betareg(y ~ ., data = as.data.frame(x) )
+    mod <- betareg::betareg(y ~ ., data = as.data.frame(x), weights = wei )
   
     ## Cox proportional hazards
   } else if ( model == "Cox" ) {
-    model <- survival::coxph(target ~ ., data = as.data.frame(x) )
+    model <- survival::coxph(target ~ ., data = as.data.frame(x), weights = wei )
 
     ## Weibull regression
   } else if ( model == "Weibull" ) {
-    model <- survival::survreg(target ~ ., data = as.data.frame(x) )
+    model <- survival::survreg(target ~ ., data = as.data.frame(x), weights = wei )
+
+    ## Exponential regression
+  } else if ( model == "Exponential" ) {
+    model <- survival::survreg(target ~ ., data = as.data.frame(x), weights = wei, dist = "exponential" )
 
     ## (generalised) linear mixed models for longitudinal data
   } else if ( model == "longitudinal" ) {
     if ( length( unique(y) ) != 2 ) {
       if (slopes == TRUE ) {
-        mod <- lme4::lmer( target ~ . -group + (reps|group), REML = reml, data = as.data.frame( cbind(reps, x) ) ) 
+        mod <- lme4::lmer( target ~ . -group + (reps|group), REML = reml, data = as.data.frame( cbind(reps, x) ), weights = wei ) 
       } else {
-        mod <- lme4::lmer( target ~ . -group + (1|group), REML = reml, data = as.data.frame( cbind(reps, x) ) )
+        mod <- lme4::lmer( target ~ . -group + (1|group), REML = reml, data = as.data.frame( cbind(reps, x) ), weights = wei )
       }
     }
 
     if ( sum( round(y) - y ) != 0 ) {
       if (slopes == TRUE ) {
-        mod <- lme4::glmer( target ~ . - group + (reps|group), REML = reml, family = poisson,  data = ( cbind(reps, x) ) ) 
+        mod <- lme4::glmer( target ~ . - group + (reps|group), REML = reml, family = poisson,  data = ( cbind(reps, x) ), weights = wei ) 
       } else {
-        mod <- lme4::glmer( target ~ . -group  + (1|group), REML = reml, family = poisson, data = ( cbind(reps, x) ) )
+        mod <- lme4::glmer( target ~ . -group  + (1|group), REML = reml, family = poisson, data = ( cbind(reps, x) ), weights = wei )
       }
     }
 
     if ( length( unique(y) ) == 2 ) {
       y <- as.vector(y)   
       if (slopes == TRUE ) {
-        mod <- lme4::glmer( target ~ . - group + (reps|group), REML = reml, family = binomial, data = as.data.frame( cbind(reps, x) ) ) 
+        mod <- lme4::glmer( target ~ . - group + (reps|group), REML = reml, family = binomial, data = as.data.frame( cbind(reps, x) ), weights = wei ) 
       } else {
-        mod <- lme4::glmer( target ~ . -group + (1|group), REML = reml, family = binomial, data = as.data.frame( cbind(reps, x) ) )
+        mod <- lme4::glmer( target ~ . -group + (1|group), REML = reml, family = binomial, data = as.data.frame( cbind(reps, x) ), weights = wei )
       }
     }
 
     ## (generalised) linear mixed models for grouped data
   } else if ( model == "grouped" ) {
     if ( sum( round(y) - y ) != 0 & length( unique(y) ) != 2 ) {
-      mod <- lme4::lmer( target ~ . -group + (1|group), REML = reml, data = as.data.frame(x) )
+      mod <- lme4::lmer( target ~ . -group + (1|group), REML = reml, data = as.data.frame(x), weights = wei )
     }
 
     if ( sum( round(y) - y ) != 0 ) {
-      mod <- lme4::glmer( target ~ . -group + (1|group), REML = reml, family = poisson, data = as.data.frame(x) )
+      mod <- lme4::glmer( target ~ . -group + (1|group), REML = reml, family = poisson, data = as.data.frame(x), weights = wei )
     }
 
     if ( length( unique(y) ) == 2 ) {
-      mod <- lme4::glmer( target ~ . -group + (1|group), REML = reml, family = binomial, data = as.data.frame(x) )
+      mod <- lme4::glmer( target ~ . -group + (1|group), REML = reml, family = binomial, data = as.data.frame(x), weights = wei )
     }
   }
   

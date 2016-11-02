@@ -1,4 +1,4 @@
-testIndZIP = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariateModels=NULL , hash = FALSE, stat_hash=NULL, 
+testIndZIP = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL, univariateModels=NULL , hash = FALSE, stat_hash=NULL, 
                        pvalue_hash=NULL,robust=FALSE) 
 {
   # testIndZIP Conditional Independence Test for discrete class variables 
@@ -128,7 +128,7 @@ testIndZIP = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariat
   }
   
   #if x or target is constant then there is no point to perform the test
-  if(var(x) == 0 || var(target) == 0)
+  if( var( as.numeric(x) ) == 0 || var(target) == 0 )
   {
     if(hash == TRUE)#update hash objects
     {
@@ -150,8 +150,8 @@ testIndZIP = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariat
       if(length(cs) == 0)
       {
         #compute the relationship between x,target directly
-        fit1 = pscl::zeroinfl(target ~ 1 | 1)
-        fit2 = pscl::zeroinfl(target ~ x | 1 )
+        fit1 = pscl::zeroinfl(target ~ 1 | 1, weights = wei)
+        fit2 = pscl::zeroinfl(target ~ x | 1, weights = wei )
         lik1 = as.numeric( logLik(fit1) )
         lik2 = as.numeric( logLik(fit2) )
         stat = 2 * abs( lik1 - lik2 )
@@ -160,8 +160,8 @@ testIndZIP = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariat
         flag = 1;
 
       } else {
-        fit1 = pscl::zeroinfl( target ~. | 1, data = as.data.frame( dataset[, csIndex] ) )
-        fit2 = pscl::zeroinfl( target ~. | 1, data = as.data.frame( dataset[, c(csIndex, xIndex)] ) )
+        fit1 = pscl::zeroinfl( target ~. | 1, weights = wei, data = as.data.frame( dataset[, csIndex] ) )
+        fit2 = pscl::zeroinfl( target ~. | 1, weights = wei, data = as.data.frame( dataset[, c(csIndex, xIndex)] ) )
         lik1 = as.numeric( logLik(fit1) )
         lik2 = as.numeric( logLik(fit2) )
         stat = 2 * abs( lik1 - lik2 )

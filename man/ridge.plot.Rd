@@ -53,10 +53,10 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr>, Vinc
 
 \examples{
 #simulate a dataset with continuous data
-dataset <- matrix(runif(300 * 50, 1, 50), nrow = 300 ) 
+dataset <- matrix(runif(300 * 20, 1, 20), nrow = 300 ) 
 #the target feature is the last column of the dataset as a vector
-target <- dataset[, 50]
-dataset <- dataset[, -50]
+target <- dataset[, 20]
+dataset <- dataset[, -20]
 ridge.plot(target, dataset)
 }
 

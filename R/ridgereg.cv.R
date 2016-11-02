@@ -28,12 +28,10 @@ ridgereg.cv <- function( target, dataset, K = 10, lambda = seq(0, 2, by = 0.1),
     mod <- MASS::lm.ridge( target ~ dataset, lambda = lambda ) 
     gcv <- min(mod$GCV)
     plot(lambda, mod$GCV, type = "b", xlab = expression(paste(lambda, " values")), ylab = "GCV")
-    dev.new()
-    plot(mod)
     lam <- lambda[ which.min(mod$GCV) ]
     runtime <- proc.time() - runtime
-    
-  } else{
+
+  } else {
     if ( is.null(mat) ) { ## no folds were given by the user
       if (seed == TRUE)  set.seed(1234567) ## the folds will always be the same
       nu <- sample(1:n, min( n, round(n / K) * K ) )

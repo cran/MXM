@@ -21,7 +21,7 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
     #dataset = as.matrix(dataset);
     warning("The dataset contains missing values (NA) and they were replaced automatically by the variable (column) median (for numeric) or by the most frequent level (mode) if the variable is factor")
       
-    dataset = apply( dataset, 2, function(x){ x[ which(is.na(x)) ] = median(x, na.rm = TRUE) } );
+    dataset = apply( dataset, 2, function(x){ x[ which(is.na(x)) ] = median(x, na.rm = TRUE) ; return(x) } );
   }
   
   ### if you want to use Spearman, simply use Spearman on the ranks
@@ -41,8 +41,7 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
   ## in addition this works even if the required memory is too big and cannot be allocated
   ## In small dimensions, less than 1000 this will be slower than cor(dataset)
   ## but the difference is negligible
-  mat <- t( dataset )
-  mat <- mat - rowMeans(mat)
+  mat <- t(dataset) - colMeans(dataset)
   mat <- mat / sqrt( rowSums(mat^2) )
   R <- tcrossprod( mat )
  
@@ -96,7 +95,7 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
 
     ## Execute PC algorithm: main loop
 
-    while ( k < ell & duo > 0 )  {
+    while ( k < ell  &  duo > 0 )  {
       k <- k + 1   ## size of the seperating set will change now
       tes <- 0
       met <- matrix(0, duo, k + 2)
@@ -122,7 +121,7 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
           infox <- infox[ order( - pvalx ), ]
           if ( !is.matrix(infox) ) {
             samx <- cbind( infox[1], infox[2] )
-          } else  samx <- cbind( t( combn(infox[, 1], k) ), t( combn(infox[, 2], k) ) )  ## factorial, all possible unordered pairs
+          } else  samx <- cbind( t( combn(infox[, 1], k) ), t( combn(infox[, 2], k) ) )   ## factorial, all possible unordered pairs
         } 
         
         if ( ly >= k ) {
@@ -137,7 +136,6 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
         if ( !is.null(samx) )  sx <- 1   else sx <- 0
         if ( !is.null(samy) )  sy <- 1   else sy <- 0 
         sam <- rbind( samx * sx, samy * sy ) 
-        sam <- as.matrix(sam)
         sam <- unique(sam) 
         
         ## sam contains either the sets of k neighbours of X, or of Y or of both
@@ -160,7 +158,7 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
           G <- G 
           
         } else { 
-          if (k == 1) {
+          if ( k == 1 ) {
             sam <- sam[ order( sam[, 2 ] ), ]
             
           } else {
@@ -248,6 +246,7 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
       if ( class(zeu) != "matrix" ) {
         zeu <- matrix(zeu, ncol = 4)
       }  
+      
       duo <- nrow(zeu)
         
       n.tests[ k + 1 ] <- tes
@@ -306,7 +305,7 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
   names(n.tests) <- paste("k=", 0:k, sep ="")
 
   info <- summary( rowSums(G) )
-  density <- sum(G) / ( n * ( n - 1 ) )
+  density <- sum(G) /  n / ( n - 1 ) 
   
  if(graph == TRUE)
   {

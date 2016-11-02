@@ -1,4 +1,4 @@
-testIndNB = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariateModels=NULL , hash = FALSE, stat_hash=NULL, 
+testIndNB = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL, univariateModels=NULL , hash = FALSE, stat_hash=NULL, 
  pvalue_hash=NULL,robust=FALSE) 
   {
   # TESTINDNB Conditional Independence Test for discrete class variables 
@@ -132,7 +132,7 @@ testIndNB = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariate
   }
   
   #if x or target is constant then there is no point to perform the test
-  if(var(x) == 0 || var(target) == 0)
+  if( var( as.numeric(x) ) == 0 || var(target) == 0)
   {
     if(hash == TRUE)#update hash objects
     {
@@ -154,7 +154,7 @@ testIndNB = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariate
   if(length(cs) == 0)
   {
     #compute the relationship between x,target directly
-    fit2 = MASS::glm.nb( target ~ x )
+    fit2 = MASS::glm.nb( target ~ x, weights = wei )
     dev1 = fit2$null.deviance
     dev2 = fit2$deviance
     d1 = 1
@@ -162,14 +162,14 @@ testIndNB = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariate
   }else{
     
     if(length(csIndex) == 1){
-      fit1 = MASS::glm.nb( target ~ dataset[, csIndex], data = as.data.frame( dataset[,c(csIndex, xIndex)] ) )
+      fit1 = MASS::glm.nb( target ~ dataset[, csIndex], data = as.data.frame( dataset[,c(csIndex, xIndex)] ), weights = wei )
     }else{
-      fit1 = MASS::glm.nb( target ~., data = as.data.frame( dataset[, csIndex] ) )
+      fit1 = MASS::glm.nb( target ~., data = as.data.frame( dataset[, csIndex] ), weights = wei )
     }
     
-    fit2 = MASS::glm.nb( target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ) )  
+    fit2 = MASS::glm.nb( target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ), weights = wei )  
     if ( is.null(fit2) ) { 
-      fit2 = MASS::glm.nb( target ~., data = as.data.frame( dataset[, c(xIndex, csIndex)] ) ) 
+      fit2 = MASS::glm.nb( target ~., data = as.data.frame( dataset[, c(xIndex, csIndex)] ), weights = wei ) 
     }
     dev1 = fit1$deviance
     dev2 = fit2$deviance

@@ -29,7 +29,7 @@ The algorithm finds all the nodes between the tow nodes. It finds all paths betw
 }
 
 \value{
-A vector with the two nodes and all nodes between them. 
+A vector with the two nodes and all nodes between them in the case of connecting nodes. Otherwise, a matrix with the neighbours of each node.
 }
 
 \references{
@@ -54,7 +54,7 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> and M
 set.seed(1234)
 dataset <- matrix(runif(1000 * 20, 1, 100), nrow = 1000 ) 
 G = pc.con(dataset)$G
-library(Rgraphviz)
+library(Rgraphviz)  ## requires this library from bioconductor
 plota(G)
 undir.path(G, 3, 4)
 undir.path(G, 1, 3)

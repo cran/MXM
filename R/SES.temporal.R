@@ -64,8 +64,6 @@
 
 # Packages required for SES
 # 
-# packages for combnPrim (combn in C)
-# library(gRbase)
 # 
 # #hashObject
 # library(hash)
@@ -73,7 +71,7 @@
 # generalised linear mixed models
 # #library(lme4)
 
-SES.temporal = function(target=NULL , reps = NULL , group, dataset=NULL , max_k = 3 , threshold = 0.05 , test = NULL , ini = NULL, user_test = NULL, hash=FALSE, hashObject=NULL, slopes = FALSE, ncores = 1)
+SES.temporal = function(target, reps = NULL, group, dataset, max_k = 3 , threshold = 0.05 , test = NULL , ini = NULL, wei = NULL, user_test = NULL, hash=FALSE, hashObject=NULL, slopes = FALSE, ncores = 1)
 {
 
   #get the log threshold
@@ -83,15 +81,6 @@ SES.temporal = function(target=NULL , reps = NULL , group, dataset=NULL , max_k 
   # initialization part of SES #
   ##############################
 
-  faster = 0;
-  #assign("gRbaseON",0,envir = .GlobalEnv)
-  options(warn=-1)
-  if(requireNamespace("gRbase", quietly = TRUE, warn.conflicts = FALSE) == TRUE)
-  {
-    #assign("gRbaseON",1,envir = .GlobalEnv)
-    faster = 1;
-  }
-  options(warn=0);
 
   equal_case = 3;
   stat_hash = NULL;
@@ -125,17 +114,19 @@ SES.temporal = function(target=NULL , reps = NULL , group, dataset=NULL , max_k 
   
   if(!is.null(dataset))
   {
+  
     #check if dataset is an ExpressionSet object of Biobase package
-    if(class(dataset) == "ExpressionSet")
-    {
-      #get the elements (numeric matrix) of the current ExpressionSet object.
-      dataset = Biobase::exprs(dataset);
-      dataset = t(dataset); #take the features as columns and the samples as rows
-    } else if ( class(dataset) == "matrix" | class(dataset) == "data.frame" ){
-      target = target 
-    } else {
-      stop('Invalid dataset class. It must be either a matrix, a dataframe or an ExpressionSet');
-    }
+    #if(class(dataset) == "ExpressionSet")
+    #{
+    #  #get the elements (numeric matrix) of the current ExpressionSet object.
+    #  dataset = Biobase::exprs(dataset);
+    #  dataset = t(dataset); #take the features as columns and the samples as rows
+    #} else if ( class(dataset) == "matrix" | class(dataset) == "data.frame" ){
+    #  target = target 
+    #} else {
+    #  stop('Invalid dataset class. It must be either a matrix, a dataframe or an ExpressionSet');
+    #}
+
   }
     if(is.null(dataset) || is.null(target) )
     {
@@ -159,7 +150,7 @@ SES.temporal = function(target=NULL , reps = NULL , group, dataset=NULL , max_k 
   targetID = -1;
   
   #check if the target is a string
-  if (is.character(target) && length(target) == 1){
+  if (is.character(target) & length(target) == 1){
     findingTarget <- target == colnames(dataset);#findingTarget <- target %in% colnames(dataset);
     if(!sum(findingTarget)==1){
       warning('Target name not in colnames or it appears multiple times');
@@ -170,7 +161,7 @@ SES.temporal = function(target=NULL , reps = NULL , group, dataset=NULL , max_k 
   }
   
   #checking if target is a single number
-  if (is.numeric(target) && length(target) == 1){
+  if (is.numeric(target) & length(target) == 1){
     if(target > dim(dataset)[2]){
       warning('Target index larger than the number of variables');
       return(NULL);
@@ -361,7 +352,7 @@ SES.temporal = function(target=NULL , reps = NULL , group, dataset=NULL , max_k 
   #######################################################################################
   
   #call the main SES function after the checks and the initializations
-  results = InternalSES.temporal(target, reps, group, dataset, max_k, threshold , test, ini, equal_case, user_test, dataInfo, hash, varsize, stat_hash, pvalue_hash, targetID, faster, slopes, ncores);
+  results = InternalSES.temporal(target, reps, group, dataset, max_k, threshold , test, ini, wei, equal_case, user_test, dataInfo, hash, varsize, stat_hash, pvalue_hash, targetID, slopes, ncores);
   
   SES.temporal.output <-new("SES.temporal.output", selectedVars = results$selectedVars, selectedVarsOrder=results$selectedVarsOrder, queues=results$queues, signatures=results$signatures, hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, univ = results$uni, max_k=results$max_k, threshold = results$threshold, runtime=results$runtime, test=ci_test, slope = results$slope);
   
@@ -371,7 +362,7 @@ SES.temporal = function(target=NULL , reps = NULL , group, dataset=NULL , max_k 
 
 #########################################################################################################
 
-InternalSES.temporal = function(target , reps , group, dataset , max_k = 3 , threshold = 0.05 , test = NULL , ini, equal_case = 3 , user_test = NULL , dataInfo = NULL , hash=FALSE, varsize, stat_hash, pvalue_hash, targetID, faster, slopes, ncores)
+InternalSES.temporal = function(target , reps , group, dataset , max_k = 3 , threshold = 0.05 , test = NULL , ini, wei = NULL, equal_case = 3 , user_test = NULL , dataInfo = NULL , hash=FALSE, varsize, stat_hash, pvalue_hash, targetID, slopes, ncores)
 {
   #get the current time
   runtime = proc.time();
@@ -381,7 +372,7 @@ InternalSES.temporal = function(target , reps , group, dataset , max_k = 3 , thr
   #univariate feature selection test
  
  if ( is.null(ini) ) {
-   univariateModels = univariateScore.temporal(target , reps, group, dataset , test, hash=hash, dataInfo, stat_hash=stat_hash, pvalue_hash=pvalue_hash, targetID, slopes = slopes, ncores = ncores);
+   univariateModels = univariateScore.temporal(target , reps, group, dataset , test, wei = wei, hash=hash, dataInfo, stat_hash=stat_hash, pvalue_hash=pvalue_hash, targetID, slopes = slopes, ncores = ncores);
  } else {
    univariateModels = ini
  }
@@ -455,7 +446,7 @@ InternalSES.temporal = function(target , reps , group, dataset , max_k = 3 , thr
   while(loop)
   {
     #lets find the equivalences
-    IdEq_results <- IdentifyEquivalence.temporal(equal_case , queues , target , reps, group, dataset , test , threshold , max_k , selectedVars , pvalues , stats , remainingVars , univariateModels, selectedVarsOrder, hash=hash, dataInfo, stat_hash=stat_hash, pvalue_hash=pvalue_hash, faster, slopes = slopes);
+    IdEq_results <- IdentifyEquivalence.temporal(equal_case , queues , target , reps, group, dataset , test , wei, threshold , max_k , selectedVars , pvalues , stats , remainingVars , univariateModels, selectedVarsOrder, hash=hash, dataInfo, stat_hash=stat_hash, pvalue_hash=pvalue_hash, slopes = slopes);
     queues = IdEq_results$queues;
     selectedVars = IdEq_results$selectedVars;
     remainingVars = IdEq_results$remainingVars;
@@ -465,7 +456,7 @@ InternalSES.temporal = function(target , reps , group, dataset , max_k = 3 , thr
     pvalue_hash=IdEq_results$pvalue_hash;
     
     #lets find the variable with the max min association
-    max_min_results = max_min_assoc.temporal(target, reps, group, dataset , test , threshold , max_k , selectedVars , pvalues , stats , remainingVars , univariateModels, selectedVarsOrder, hash=hash, dataInfo, stat_hash=stat_hash, pvalue_hash=pvalue_hash, faster, slopes = slopes);
+    max_min_results = max_min_assoc.temporal(target, reps, group, dataset , test , wei, threshold , max_k , selectedVars , pvalues , stats , remainingVars , univariateModels, selectedVarsOrder, hash=hash, dataInfo, stat_hash=stat_hash, pvalue_hash=pvalue_hash, slopes = slopes);
     selectedVar = max_min_results$selected_var;
     selectedPvalue = max_min_results$selected_pvalue;
     remainingVars = max_min_results$remainingVars;
@@ -486,7 +477,7 @@ InternalSES.temporal = function(target , reps , group, dataset , max_k = 3 , thr
   }
   
   #lets find the variables to be discarded
-  IdEq_results <- IdentifyEquivalence.temporal(equal_case , queues , target , reps, group, dataset , test , threshold , max_k , selectedVars , pvalues , stats , remainingVars , univariateModels, selectedVarsOrder, hash=hash, dataInfo, stat_hash=stat_hash, pvalue_hash=pvalue_hash, faster, slopes = slopes);
+  IdEq_results <- IdentifyEquivalence.temporal(equal_case , queues , target , reps, group, dataset , test , wei, threshold , max_k , selectedVars , pvalues , stats , remainingVars , univariateModels, selectedVarsOrder, hash=hash, dataInfo, stat_hash=stat_hash, pvalue_hash=pvalue_hash, slopes = slopes);
   queues = IdEq_results$queues;
   selectedVars = IdEq_results$selectedVars;
   pvalues = IdEq_results$pvalues;
@@ -553,7 +544,7 @@ InternalSES.temporal = function(target , reps , group, dataset , max_k = 3 , thr
 
 #univariate feature selection ( uncoditional independence )
 
-univariateScore.temporal = function(target , reps, group, dataset , test, hash, dataInfo, stat_hash=stat_hash, pvalue_hash=pvalue_hash, targetID, slopes, ncores)
+univariateScore.temporal = function(target , reps, group, dataset , test, wei, hash, dataInfo, stat_hash=stat_hash, pvalue_hash=pvalue_hash, targetID, slopes, ncores)
 {
   #how many tests
   nTests = ncol(dataset);
@@ -574,7 +565,7 @@ univariateScore.temporal = function(target , reps, group, dataset , test, hash, 
     {
       #arguments order for any CI test are fixed
       if (i != targetID){
-        test_results = test(target , reps, group, dataset , i, 0 , dataInfo=dataInfo, hash=hash, stat_hash=stat_hash, pvalue_hash=pvalue_hash, slopes = slopes)
+        test_results = test(target , reps, group, dataset , i, 0 , wei = wei, dataInfo=dataInfo, hash=hash, stat_hash=stat_hash, pvalue_hash=pvalue_hash, slopes = slopes)
         univariateModels$pvalue[[i]] = test_results$pvalue;
         univariateModels$stat[[i]] = test_results$stat;
         univariateModels$flag[[i]] = test_results$flag;
@@ -596,7 +587,7 @@ univariateScore.temporal = function(target , reps, group, dataset , test, hash, 
     mod <- foreach(i = 1:nTests, .combine = rbind, .export = "lmer", .packages = "lme4") %dopar% {
       ## arguments order for any CI test are fixed
       if (i != targetID) {
-        test_results = test(target , reps, group, dataset , i, 0 , dataInfo=dataInfo, slopes = slopes)
+        test_results = test(target , reps, group, dataset , i, 0 , wei = wei, dataInfo=dataInfo, slopes = slopes)
         return( c(test_results$pvalue, test_results$stat, test_results$flag, test_results$stat_hash, test_results$pvalue_hash) )
       } else{
         return( c(1, 0, 1, test_results$stat_hash, test_results$pvalue_hash) )
@@ -617,28 +608,8 @@ univariateScore.temporal = function(target , reps, group, dataset , test, hash, 
 
 #########################################################################################################
 
-#just like matlab's nchoosek but with transposed result
-#Its a slightly different from combn() 
-#(ex. (nchoosekm(4,2) != nchoosekm(1:4,2) like nchoosek in matlab , combn(4,2) == combn(1:4,2)))
-nchoosekm = function(cs , k, faster) #i can also pass the compFun arg for selecting
-{ 
-  if(length(cs) == 1) #if not vector
-  {
-    res = choose(cs , k); #or nchoosek
-  }else{
-    if(faster == 1)
-    {
-      res = gRbase::combnPrim(cs,k); #combs(as.vector(cs),k); #combnPrim
-    }else
-    {
-      res = combn(cs,k);
-    }
 
-  }
-  return(res);
-}
-
-IdentifyEquivalence.temporal = function(equal_case , queues , target , reps, group, dataset , test , threshold , max_k , selectedVars , pvalues , stats , remainingVars , univariateModels, selectedVarsOrder, hash, dataInfo, stat_hash, pvalue_hash, faster, slopes = slopes)
+IdentifyEquivalence.temporal = function(equal_case , queues , target , reps, group, dataset , test , wei, threshold , max_k , selectedVars , pvalues , stats , remainingVars , univariateModels, selectedVarsOrder, hash, dataInfo, stat_hash, pvalue_hash, slopes = slopes)
 { 
   varsToBeConsidered = which(selectedVars==1 | remainingVars==1); #CHANGE
   lastvar = which(selectedVarsOrder == max(selectedVarsOrder))[1]; #CHANGE
@@ -668,7 +639,7 @@ IdentifyEquivalence.temporal = function(equal_case , queues , target , reps, gro
       {
         subsetcsk = as.matrix(lastvar); #CHANGE
       }else{
-        subsetcsk = as.matrix(nchoosekm(tempCS,klimit-1,faster)); #CHANGE
+        subsetcsk = t( Rfast::comb_n(tempCS, klimit-1) ) 
         numSubsets = dim(subsetcsk)[2]; #CHANGE
         subsetcsk = rbind(subsetcsk, lastvar*rep(1,numSubsets));#CHANGE
       }
@@ -676,15 +647,13 @@ IdentifyEquivalence.temporal = function(equal_case , queues , target , reps, gro
       #flag to get out from the outermost loop
       breakFlag = FALSE;
       
-      #or combs or nchoosekm
-      #subsetcsk = as.matrix(nchoosekm(cs,klimit));
       
       for(i in 1:ncol(subsetcsk))
       {
         z = subsetcsk[,i];
         z = t(t(z));
         
-        cur_results = test(target , reps, group, dataset , cvar, z , dataInfo=dataInfo, univariateModels, hash = hash, stat_hash, pvalue_hash, slopes = slopes);
+        cur_results = test(target , reps, group, dataset , cvar, z , wei = wei, dataInfo=dataInfo, univariateModels, hash = hash, stat_hash, pvalue_hash, slopes = slopes);
         stat_hash = cur_results$stat_hash;
         pvalue_hash = cur_results$pvalue_hash;
         
@@ -699,11 +668,11 @@ IdentifyEquivalence.temporal = function(equal_case , queues , target , reps, gro
         #then let's throw away var; moreover, we also look for
         #equivalent variables. Note that we stop after the first 
         #z such that pvalue_{var, y | z} > threshold
-        if(cur_results$flag && cur_results$pvalue > threshold)
+        if(cur_results$flag & cur_results$pvalue > threshold)
         {
           remainingVars[[cvar]] = 0;
           selectedVars[[cvar]] = 0;
-          queues = identifyTheEquivalent.temporal(equal_case , queues , target , reps, group, dataset , cvar , z , test , threshold , univariateModels , pvalues, hash, dataInfo, stat_hash, pvalue_hash, slopes = slopes);
+          queues = identifyTheEquivalent.temporal(equal_case , queues , target , reps, group, dataset , cvar , z , test , wei, threshold , univariateModels , pvalues, hash, dataInfo, stat_hash, pvalue_hash, slopes = slopes);
           breakFlag = TRUE;
           break;
         }
@@ -723,7 +692,7 @@ IdentifyEquivalence.temporal = function(equal_case , queues , target , reps, gro
 
 #########################################################################################################
 
-identifyTheEquivalent.temporal = function(equal_case , queues , target , reps, group, dataset , cvar , z , test , threshold , univariateModels , pvalues, hash, dataInfo, stat_hash, pvalue_hash, slopes = slopes)
+identifyTheEquivalent.temporal = function(equal_case , queues , target , reps, group, dataset , cvar , z , test , wei, threshold , univariateModels , pvalues, hash, dataInfo, stat_hash, pvalue_hash, slopes = slopes)
 {
   z = t(z);
   
@@ -737,7 +706,7 @@ identifyTheEquivalent.temporal = function(equal_case , queues , target , reps, g
     w = t(t(w));
     zPrime = c(setdiff(z , w) , cvar);
     
-    cur_results = test(target , reps, group, dataset , w, zPrime , dataInfo=dataInfo, univariateModels, hash = hash, stat_hash, pvalue_hash, slopes = slopes);
+    cur_results = test(target , reps, group, dataset , w, zPrime , wei = wei, dataInfo=dataInfo, univariateModels, hash = hash, stat_hash, pvalue_hash, slopes = slopes);
     
     if(cur_results$flag & (cur_results$pvalue > threshold))
     {  
@@ -750,13 +719,13 @@ identifyTheEquivalent.temporal = function(equal_case , queues , target , reps, g
   return(queues);
 }
 
-apply_ideq.temporal = function(i , queues , target , reps, group, dataset , cvar , z , test , threshold , univariateModels, hash, dataInfo, stat_hash, pvalue_hash, slopes = slopes)
+apply_ideq.temporal = function(i , queues , target , reps, group, dataset , cvar , z , test , wei, threshold , univariateModels, hash, dataInfo, stat_hash, pvalue_hash, slopes = slopes)
 {
   w = z[,i];
   w = t(t(w));
   zPrime = c(setdiff(z , w) , cvar);
   
-  cur_results = test(target , reps, group, dataset , w, zPrime , dataInfo=dataInfo, univariateModels, hash = hash, stat_hash, pvalue_hash, slopes = slopes);
+  cur_results = test(target , reps, group, dataset , w, zPrime , wei = wei, dataInfo=dataInfo, univariateModels, hash = hash, stat_hash, pvalue_hash, slopes = slopes);
   
   if(cur_results$flag & (cur_results$pvalue > threshold))
   {
@@ -769,29 +738,8 @@ apply_ideq.temporal = function(i , queues , target , reps, group, dataset , cvar
 
 #########################################################################################################
 
-compare_p_values = function(pval, pval2, stat, stat2)
-{
-  if(length(pval) == 0 | length(pval2) == 0 | length(stat) == 0 | length(stat2) ==0)
-  {
-    return(FALSE);
-  }else{
-    if(is.na(pval2)==TRUE | is.na(stat2)==TRUE | is.na(pval)==TRUE | is.na(stat)==TRUE)
-    {
-      pval2 = 0.0;
-      return(FALSE);#(pval < pval2);
-    }else{
-      if (pval <= 2e-16 | pval2 <= 2e-16){
-        return(stat > stat2);
-      }else{
-        return(pval < pval2);
-      }
-    }
-  }
-}
 
-#########################################################################################################
-
-max_min_assoc.temporal = function(target, reps, group, dataset , test , threshold , max_k , selectedVars , pvalues , stats , remainingVars , univariateModels, selectedVarsOrder, hash, dataInfo, stat_hash, pvalue_hash, faster, slopes = slopes)
+max_min_assoc.temporal = function(target, reps, group, dataset , test , wei, threshold , max_k , selectedVars , pvalues , stats , remainingVars , univariateModels, selectedVarsOrder, hash, dataInfo, stat_hash, pvalue_hash, slopes = slopes)
 {
   #Initialize
   selected_var = -1;
@@ -801,7 +749,7 @@ max_min_assoc.temporal = function(target, reps, group, dataset , test , threshol
   varsToIterate = which(remainingVars==1);
   for(cvar in varsToIterate)
   {
-    mma_res = min_assoc.temporal(target, reps, group, dataset , test , max_k , cvar , selectedVars , pvalues , stats , univariateModels , selectedVarsOrder, hash, dataInfo, stat_hash, pvalue_hash, faster, slopes = slopes);
+    mma_res = min_assoc.temporal(target, reps, group, dataset , test , max_k , cvar , wei, selectedVars , pvalues , stats , univariateModels , selectedVarsOrder, hash, dataInfo, stat_hash, pvalue_hash, slopes = slopes);
     pvalues = mma_res$pvalues;
     stats = mma_res$stats;
     stat_hash = mma_res$stat_hash;
@@ -826,7 +774,7 @@ max_min_assoc.temporal = function(target, reps, group, dataset , test , threshol
 
 #########################################################################################################
 
-min_assoc.temporal = function(target , reps, group, dataset , test ,  max_k , cvar , selectedVars , pvalues , stats , univariateModels , selectedVarsOrder, hash, dataInfo, stat_hash, pvalue_hash, faster, slopes = slopes)
+min_assoc.temporal = function(target , reps, group, dataset , test ,  max_k , cvar , wei, selectedVars , pvalues , stats , univariateModels , selectedVarsOrder, hash, dataInfo, stat_hash, pvalue_hash, slopes = slopes)
 {
   #initialization
   #baseline values
@@ -850,21 +798,18 @@ min_assoc.temporal = function(target , reps, group, dataset , test ,  max_k , cv
     {
       subsetcsk = as.matrix(lastvar); #CHANGE
     }else{
-      subsetcsk = as.matrix(nchoosekm(tempCS,ck-1,faster)); #CHANGE
+      subsetcsk = t( Rfast::comb_n(tempCS, ck-1) )
       numSubsets = dim(subsetcsk)[2]; #CHANGE
       subsetcsk = rbind(subsetcsk, lastvar*rep(1,numSubsets)); #CHANGE
     }
     
-    #or combs or nchoosekm
-    #subsetcsk = as.matrix(nchoosekm(1:length(selectedVars),ck));
-    
-    #subsetcsk = t(subsetcsk);
+
     for(i in 1:ncol(subsetcsk))
     {
       s = subsetcsk[,i];
       s = t(t(s));
       
-      cur_results = test(target, reps, group, dataset , cvar, s , dataInfo=dataInfo, univariateModels, hash = hash, stat_hash, pvalue_hash, slopes = slopes);
+      cur_results = test(target, reps, group, dataset , cvar, s , wei = wei, dataInfo=dataInfo, univariateModels, hash = hash, stat_hash, pvalue_hash, slopes = slopes);
       stat_hash = cur_results$stat_hash;
       pvalue_hash = cur_results$pvalue_hash;
       

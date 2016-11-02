@@ -1,4 +1,4 @@
-testIndReg = function(target, dataset, xIndex, csIndex, dataInfo = NULL, univariateModels=NULL , hash = FALSE, stat_hash = NULL, 
+testIndReg = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, univariateModels=NULL , hash = FALSE, stat_hash = NULL, 
  pvalue_hash = NULL, robust=FALSE) 
   {
   # TESTINDREG Conditional Independence Test for continous class variables 
@@ -138,7 +138,7 @@ testIndReg = function(target, dataset, xIndex, csIndex, dataInfo = NULL, univari
   }
   
   #if x or target is constant then there is no point to perform the test
-  if(var(x) == 0 || var(target) == 0)
+  if( var( as.numeric(x) ) == 0 || var(target) == 0 )
   {
     if(hash == TRUE)#update hash objects
     {
@@ -169,12 +169,8 @@ testIndReg = function(target, dataset, xIndex, csIndex, dataInfo = NULL, univari
     }
     if (robust == TRUE) { ## robust estimation
 
-      # cont = robust::lmRob.control(mxr = 2000, mxf = 2000, mxs = 2000 )  ## only used in robust linear regression
-
-      # fit2 = robust::lmRob( target ~ x, control = cont )
-      # mod = aovlmrob(fit2)
-       fit1 = MASS::rlm(target ~ 1)
-       fit2 = MASS::rlm(target ~ x)
+       fit1 = MASS::rlm(target ~ 1, weights = wei)
+       fit2 = MASS::rlm(target ~ x, weights = wei)
        lik1 = as.numeric( logLik(fit1) )
        lik2 = as.numeric( logLik(fit2) )
        stat = 2 * abs(lik1 - lik2)
@@ -182,41 +178,30 @@ testIndReg = function(target, dataset, xIndex, csIndex, dataInfo = NULL, univari
        pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
       
     }else{
-      #compute the relationship between x,target directly
-      #fit2 = lm(target ~ x) 
-      #mod = anova(fit2)
-      #stat = as.numeric( mod[1, 4] )
-      #pr = nrow(mod) - 1
-      #df1 = mod[pr, 1]
-      #df2 = mod[pr + 1, 1]
-      #pvalue = pf(stat, df1, df2, lower.tail = FALSE, log.p = TRUE)  
       s0 = var(target) * (n - 1)
       mat = model.matrix(target~ ., as.data.frame(x) )
       mat = mat[1:n, ]
-      fit2 = lm.fit(mat, target)
+	    if ( !is.null(wei) ) {
+	      fit2 = lm.wfit(mat, target, w = wei)
+	    } else   fit2 = lm.fit(mat, target)
       s1 = sum( fit2$residuals^2 )
       dof = fit2$df.residual
       stat = ( ( s0 - s1 ) / (n - 1 - dof ) ) / (s1 / dof)
       pvalue = pf(stat, 1, dof, lower.tail = FALSE, log.p = TRUE)
-      
     } 
+    
   }else{
         if (robust == TRUE ){ ##robust estimation
-          # fit2 = robust::lmRob( target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ), control = cont )
-          # mod = aovlmrob(fit2)
-          # pr = nrow(mod) - 1
-          # stat = as.numeric( mod[pr, 2] )  
-          # pvalue = mod[pr, 3]
-          fit1 = MASS::rlm(target ~ ., data = as.data.frame(dataset[,  csIndex]), maxit = 2000 )
-          fit2 = MASS::rlm(target ~ ., data = as.data.frame(dataset[, c(csIndex, xIndex)]), maxit = 2000 )
+          fit1 = MASS::rlm(target ~ ., data = as.data.frame(dataset[,  csIndex]), maxit = 2000, weights = wei )
+          fit2 = MASS::rlm(target ~ ., data = as.data.frame(dataset[, c(csIndex, xIndex)]), maxit = 2000, weights = wei )
           lik1 = as.numeric( logLik(fit1) )
           lik2 = as.numeric( logLik(fit2) )
           stat = 2 * abs(lik1 - lik2)
           dof = abs( length( coef(fit1) ) - length( coef(fit2) ) )
           pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
 
-      }else{
-      fit2 = lm( target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ) )
+      } else {
+      fit2 = lm( target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ), weights = wei )
       mod = anova(fit2)
       pr = nrow(mod) - 1
       stat = as.numeric(mod[pr, 4] )  

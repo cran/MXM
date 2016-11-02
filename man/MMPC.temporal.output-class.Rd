@@ -7,7 +7,6 @@
 \alias{summary,MMPC.temporal.output-method}
 \alias{plot,MMPC.temporal.output,ANY-method}
 
-
 \title{Class \code{"MMPC.temporal.output"}}
 
 \description{

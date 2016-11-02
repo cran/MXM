@@ -83,12 +83,12 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr>
 }
 
 \examples{
-y = rdag(100, 20, 0.2)
-x = y$x
-tru = y$G 
+y <- rdag(100, 20, 0.2)
+x <- y$x
+tru <- y$G 
 
-mod = pc.con(x)
-b = pc.or(mod)
+mod <- pc.con(x)
+b <- pc.or(mod)
 plota(tru) 
 dev.new()
 plota(b$G)

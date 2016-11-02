@@ -1,4 +1,4 @@
-fs.reg <- function(target, dataset, threshold = 0.05, test = NULL, stopping = "BIC", tol = 2, robust = FALSE, ncores = 1) {
+fs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, user_test = NULL, stopping = "BIC", tol = 2, robust = FALSE, ncores = 1) {
   
   ## target can be Real valued (normal), binary (binomial) or counts (poisson)
   ## dataset is a matrix or a data.frame with the predictor variables
@@ -20,36 +20,39 @@ fs.reg <- function(target, dataset, threshold = 0.05, test = NULL, stopping = "B
   moda <- list()
   k <- 1   ## counter
   n <- length(target)  ## sample size
-  tool <- numeric( length( min(n, p) ) )
-  info <- matrix( 0, ncol = 2 )
-  result = NULL
-  con = log(n)
+  tool <- numeric( min(n, p) )
+  result <- NULL
+  con <- log(n)
+  sela <- NULL
   
   #check for NA values in the dataset and replace them with the variable median or the mode
   if(any(is.na(dataset)) == TRUE)
   {
+
+  
     #dataset = as.matrix(dataset);
     warning("The dataset contains missing values (NA) and they were replaced automatically by the variable (column) median (for numeric) or by the most frequent level (mode) if the variable is factor")
     
-    if(class(dataset) == "matrix")
-    {
-      dataset = apply( dataset, 2, function(x){ x[ which(is.na(x)) ] = median(x,na.rm = TRUE) } );
+    if (class(dataset) == "matrix")  {
+    
+       dataset = apply( dataset, 2, function(x){ x[which(is.na(x))] = median(x, na.rm = TRUE) ; return(x) } ) 
+              
     }else{
-      for(i in 1:ncol(dataset))
+	
+    poia <- which( is.na(dataset), arr.ind = TRUE )[2]
+ 	for( i in poia )
       {
-        if ( any( is.na(dataset[, i]) ) )
-        {
-          xi = dataset[,i]
+          xi = dataset[, i]
           if(class(xi) == "numeric")
           {                    
-            xi[ which(is.na(xi)) ] = median(xi,na.rm = TRUE) 
-          } else if( class(xi) == "factor" ){
-            xi[ which(is.na(xi)) ] = levels(xi)[ which.max(xi) ]
+            xi[ which( is.na(xi) ) ] = median(xi, na.rm = TRUE) 
+          } else if ( class(xi) == "factor" ) {
+            xi[ which( is.na(xi) ) ] = levels(xi)[ which.max( as.vector( table(xi) ) )]
           }
           dataset[, i] = xi
         }
-      }
     }
+    
   }
   
   ##################################
@@ -57,144 +60,140 @@ fs.reg <- function(target, dataset, threshold = 0.05, test = NULL, stopping = "B
   ##################################
   
   
-  dataset <- as.data.frame(dataset)  ## just in case
   if ( is.null( colnames(dataset) ) )  {  ## checks for column names
-    colnames(x) <- paste("X", 1:p, sep = "")
+    colnames(dataset) <- paste("X", 1:p, sep = "")
   }	
   
   ## dependent (target) variable checking if no test was given, 
   ## but other arguments are given. For some cases, these are default cases
   
-  if ( is.null(test) ) {
-    
-    ## multivariate data
-    if ( sum( class(target) == "matrix" ) == 1 ) {
-      test <- "gaussian"
-      a <- rowSums(target)
-      if ( min( target ) > 0 & round( sd(a), 16 ) == 0 ) { ## are they compositional data?
-        target <- log( target[, -1] / target[, 1] )
-      }
-    }
+  if ( is.null(test) & is.null(user_test) ) {
     
     ## percentages
     if ( min( target ) > 0 & max( target ) < 1 )  {  ## are they percentages?
       target <- log( target / (1 - target) ) 
-      test <- "gaussian"
+      ci_test <- test <- "testIndReg"
     }
     
     ## surival data
     if ( sum( class(target) == "Surv" ) == 1 ) {
-      test <- "Cox"
-    }
-    
-    ## binary data
-    if ( length( unique(target) ) == 2 ) {
-      test <- "binary"   
+      ci_test <- test <- "censIndCR"
     }
     
     ## ordinal, multinomial or perhaps binary data
-    if ( is.factor(target) ) {
-      if ( !is.ordered(target) ) {
-        if ( length(unique(target) ) == 2 ) {
-          target <- as.vector(target)
-          test <- "binary"
-        } else {
-          test <- "multinomial"
-        }  
-        
-      } else {
-        if ( length(unique(target) ) == 2 ) {
-          target <- as.vector(target)
-          test <- "binary"
-        } else {
-          test <- "ordinal"    
-        }
-      }
+    if ( is.factor(target) ||  is.ordered(target) || length( unique(target) ) == 2 ) {
+      ci_test <- test <- "testIndLogistic"
     }
     
     ## count data
     if ( is.vector(target) ) {
       
       if ( length( unique(target) ) > 2  &  sum( round(target) - target ) == 0 ) {
-        test <- "poisson"
+        ci_test <- test <- "testIndPois"
     
         ## binomial regression 
       
       } else if ( length( unique(target) ) == 2 ) {
-        test <- "binary"
+        ci_test <- test <- "testIndLogistic"
 
         ## linear regression 
       } else if ( sum( class(target) == "numeric" ) > 0 ) {
-        test <- "gaussian"  
+        ci_test <- test <- "testIndReg"  
       }
     }  
     
   }
   
   #available conditional independence tests
-  av_models = c("gaussian", "beta", "Cox", "Weibull", "binary", "multinomial", "ordinal", "poisson", "nb", "zip", "speedglm");
+  av_models = c("testIndReg", "testIndBinom", "testIndBeta", "censIndCR", "testIndRQ", "censIndWR", "testIndLogistic", "testIndPois", "testIndNB", "testIndZIP", "testIndSpeedglm");
   
+  ci_test <- test
   #cat(test)
   
-  if ( test == "binary" || test == "poisson" ) {
+  if ( ( test == "testIndLogistic" & ( length( unique(target) ) == 2 ) )  ||  test == "testIndBinom"  || test == "testIndPois"  ||  ( sum( round(target) - target ) == 0  &  length(target) > 2 )  ) {
     
-    result <- glm.fsreg( target, dataset, threshold = exp(threshold), tol = tol, robust = robust, ncores = ncores) 
+    result <- glm.fsreg( target, dataset, wei = wei, threshold = exp(threshold), tol = tol, robust = robust, ncores = ncores) 
     
-  } else if ( test == "gaussian"  &  !is.matrix(target) ) {
+  } else if ( test == "testIndReg"  &  !is.matrix(target) ) {
     
-    result <- lm.fsreg( target, dataset, threshold = exp(threshold), stopping = stopping, tol = tol, robust = robust, ncores = ncores ) 
+    result <- lm.fsreg( target, dataset, wei = wei, threshold = exp(threshold), stopping = stopping, tol = tol, robust = robust, ncores = ncores ) 
+  
+
+  } else if ( test == "testIndSpeedglm" ) {
     
+    if ( length( unique(target) ) == 2  ||  ( sum( round(target) - target ) == 0  &  length(target) > 2 ) ) { 
+       result <- glm.fsreg( target, dataset, wei = wei, threshold = exp(threshold), tol = tol, heavy = TRUE, robust = robust, ncores = ncores) 
+    
+    } else  result <- lm.fsreg( target, dataset, wei = wei, threshold = exp(threshold), stopping = stopping, tol = tol, heavy = TRUE, robust = robust, ncores = ncores ) 
+
     
   } else {
     
-    test = match.arg(test , av_models ,TRUE);
+    test = match.arg(test, av_models, TRUE);
     #convert to closure type
     
-    if ( test == "beta" ) {
-      test = betareg 
+    if ( test == "testIndBeta" ) {
+      ci_test <- test 
+      test = betareg::betareg 
       robust = FALSE
       stopping = "BIC"
       
-    } else if ( test == "Cox" ) {
-      test = coxph 
+    } else if ( test == "censIndCR" ) {
+      ci_test <- test
+      test = survival::coxph 
       robust = FALSE
       stopping = "BIC"
       
-    } else if ( test == "multinomial" ) {
-      test = multinom 
+    } else if ( test == "testIndLogistic" ) {
+	  
+      ci_test <- test
+      
+	    if ( is.ordered(target) )  {
+        test = ordinal::clm
+        robust = FALSE
+        stopping = "BIC"
+      } else {
+        test = nnet::multinom
+        robust = FALSE
+        stopping = "BIC"
+      }
+	  
+    } else if ( test == "testIndNB" ) {
+      ci_test <- test
+      test = MASS::glm.nb
+      robust = FALSE
+      stopping = "BIC"
+
+    } else if ( test == "testIndRQ" ) {
+      ci_test <- test
+      test = quantreg::rq
       robust = FALSE
       stopping = "BIC"
       
-    } else if ( test == "ordinal" ) {
-      test = clm 
+    } else if ( test == "testIndZIP" ) {
+      ci_test <- test
+      test = pscl::zeroinfl 
       robust = FALSE
       stopping = "BIC"
-      
-    } else if ( test == "neg.bin" ) {
-      test = glm.nb
-      robust = FALSE
-      stopping = "BIC"
-      
-    } else if ( test == "zip" ) {
-      test = zeroinfl 
-      robust = FALSE
-      stopping = "BIC"
-      
-    } else if ( test == "gaussian"  &  is.matrix(target) ) {
-      test = lm 
-      robust = FALSE
-    }
     
+    } 
+    
+	
+    if ( !is.null(user_test) )  {
+	  test = user_test 
+	  ci_test <- "user_test"
+	}  
+    	  
     
     runtime <- proc.time()
     
     devi = dof = numeric(p)
-    ini = test( target ~ 1 ) 
+    ini = test( target ~ 1, weights = wei ) 
     ini =  2 * as.numeric( logLik(ini) )  ## initial 
     
     if (ncores <= 1) {
       for (i in 1:p) {
-        mi <- test( target ~ dataset[, i] )
+        mi <- test( target ~ dataset[, i], weights = wei )
         devi[i] <-  2 * as.numeric( logLik(mi) )
         dof[i] = length( coef( mi ) ) 
       }
@@ -206,8 +205,8 @@ fs.reg <- function(target, dataset, threshold = 0.05, test = NULL, stopping = "B
       cl <- makePSOCKcluster(ncores)
       registerDoParallel(cl)
       mata <- matrix(0, p, 2)
-      mod <- foreach( i = 1:p, .combine = rbind) %dopar% {
-        ww <- test( target ~ dataset[, i] )
+      mod <- foreach( i = 1:p, .combine = rbind, .packages = c("MASS", "betareg", "quantreg", "nnet", "survival", "ordinal", "pscl") ) %dopar% {
+        ww <- test( target ~ dataset[, i], weights = wei )
         mata[i, ] <- c( 2 * as.numeric( logLik(ww) ), length( coef( ww ) )  )
       }
       
@@ -224,19 +223,17 @@ fs.reg <- function(target, dataset, threshold = 0.05, test = NULL, stopping = "B
     
     sel <- which.min(pval)
     info <- matrix( numeric(3), ncol = 3 )
-    sela <- sel
-    
+
     if ( mat[sel, 2] < threshold ) {
       info[1, ] <- mat[sel, ]
       mat <- mat[-sel, ] 
-      if ( !is.matrix(mat) ) {
-        mat <- matrix(mat, ncol = 3) 
-      }
+      if ( !is.matrix(mat) )  mat <- matrix(mat, ncol = 3) 
       mat <- mat[ order( mat[, 2] ), ]
-      
-      mi <- test( target ~ dataset[, sel] )
-      tool[1] <-  - 2 * as.numeric( logLik(mi) ) + length( coef(mi) ) * con
-      
+      sela <- sel
+      mi <- test( target ~ dataset[, sel], weights = wei )
+      la <- logLik(mi)
+      tool[1] <-  - 2 * as.numeric( la ) +  attr(la, "df") * con
+    
       moda[[ 1 ]] <- mi
     }
     
@@ -255,7 +252,7 @@ fs.reg <- function(target, dataset, threshold = 0.05, test = NULL, stopping = "B
       if ( ncores <= 1 ) {
         devi = dof = numeric(pn)
         for ( i in 1:pn ) {
-          ww <- test( target ~., data = as.data.frame( dataset[, c(sela, mat[i, 1]) ] ) )
+          ww <- test( target ~., data = as.data.frame( dataset[, c(sela, mat[i, 1]) ] ), weights = wei )
           devi[i] <-  2 * as.numeric( logLik(ww) )
           dof[i] = length( coef( ww ) )          
         }
@@ -268,8 +265,8 @@ fs.reg <- function(target, dataset, threshold = 0.05, test = NULL, stopping = "B
         cl <- makePSOCKcluster(ncores)
         registerDoParallel(cl)
         mata = matrix(0, pn, 2)  
-        mod <- foreach( i = 1:pn, .combine = rbind) %dopar% {
-          ww <- test( target ~., data = as.data.frame( dataset[, c(sela, mat[i, 1]) ] ) )
+        mod <- foreach( i = 1:pn, .combine = rbind, .packages = c("MASS", "betareg", "quantreg", "nnet", "survival", "ordinal", "pscl") ) %dopar% {
+          ww <- test( target ~., data = as.data.frame( dataset[, c(sela, mat[i, 1]) ] ), weights = wei )
           mata[i, ] <- c( 2 * as.numeric( logLik(ww) ), length( coef( ww ) )  )
         }
         
@@ -288,29 +285,23 @@ fs.reg <- function(target, dataset, threshold = 0.05, test = NULL, stopping = "B
     sel <- mat[ina, 1]    
     
     if ( mat[ina, 2] < threshold ) {
-      ma <- test( target ~ dataset[, sela] + dataset[, sel] )
-      tool[2] <-  - 2 * as.numeric( logLik(ma) ) + length( coef(ma) ) * con
-      
+      ma <- test( target ~ dataset[, sela] + dataset[, sel], weights = wei )
+      la <- logLik(ma)
+      tool[2]  - 2 * as.numeric( la ) +  attr(la, "df") * con
       
       if ( tool[ 1 ] - tool[ 2 ] <= tol ) {
-        info <- rbind(info, c( 1e300, 0, 0 ) )
+        info <- info
         
       } else { 
         info <- rbind(info, c( mat[ina, ] ) )
         sela <- info[, 1]
         mat <- mat[-ina , ] 
-        if ( !is.matrix(mat) ) {
-          mat <- matrix(mat, ncol = 3) 
-        }
+        if ( !is.matrix(mat) )    mat <- matrix(mat, ncol = 3) 
         mat <- mat[ order( mat[, 2] ), ]
-        
         moda[[ 2 ]] <- ma
       }
       
-    } else {
-      info <- rbind(info, c( 1e300, 0, 0 ) )
-    }
-    
+    } else  info <- info
   
   ############
   ###       k greater than 2
@@ -318,7 +309,7 @@ fs.reg <- function(target, dataset, threshold = 0.05, test = NULL, stopping = "B
   
   
   if ( nrow(info) > 1  &  nrow(mat) > 0 ) {
-    while ( ( info[k, 2] < threshold ) &  ( k < n ) & ( tool[ k - 1 ] - tool[ k ] > tol ) & ( nrow(mat) > 0 ) )  {
+    while ( ( info[k, 2] < threshold )  &  ( k < n )  &  ( tool[ k - 1 ] - tool[ k ] > tol )  &  nrow(mat) > 0 )  {
       
       ini =  2 * as.numeric( logLik( moda[[ k ]] ) ) 
       do = length( coef( moda[[ k ]]  ) ) 
@@ -329,7 +320,7 @@ fs.reg <- function(target, dataset, threshold = 0.05, test = NULL, stopping = "B
       if (ncores <= 1) {  
         devi = dof = numeric(pn) 
         for ( i in 1:pn ) {
-          ma <- test( target ~., data = as.data.frame( dataset[, c(sela, mat[i, 1] ) ] ) )
+          ma <- test( target ~., data = as.data.frame( dataset[, c(sela, mat[i, 1] ) ] ), weights = wei )
           devi[i] <-  2 * as.numeric( logLik(ma) ) 
           dof[i] = length( coef( ma ) ) 
         }
@@ -341,8 +332,8 @@ fs.reg <- function(target, dataset, threshold = 0.05, test = NULL, stopping = "B
           cl <- makePSOCKcluster(ncores)
           registerDoParallel(cl)
           mata = matrix(0, pn, 2)  
-          mod <- foreach( i = 1:pn, .combine = rbind) %dopar% {
-            ww <- test( target ~., data = as.data.frame( dataset[, c(sela, mat[i, 1]) ] ) )
+          mod <- foreach( i = 1:pn, .combine = rbind, .packages = c("MASS", "betareg", "quantreg", "nnet", "survival", "ordinal", "pscl") ) %dopar% {
+            ww <- test( target ~., data = as.data.frame( dataset[, c(sela, mat[i, 1]) ] ), weights = wei )
             mata[i, ] <- c( 2 * as.numeric( logLik(ww) ), length( coef( ww ) )  )
           }
           
@@ -359,8 +350,10 @@ fs.reg <- function(target, dataset, threshold = 0.05, test = NULL, stopping = "B
         sel <- mat[ina, 1]    
         
         if ( mat[ina, 2] < threshold ) {
-            ma <- test( target ~., data = as.data.frame( dataset[, c(sela, sel) ] ) )
-            tool[k] <-  - 2 * as.numeric( logLik(ma) ) + length( coef(ma) ) * con
+            ma <- test( target ~., data = as.data.frame( dataset[, c(sela, sel) ] ), weights = wei )
+            la <- logLik(ma)
+            tool[k]  - 2 * as.numeric( la ) +  attr(la, "df") * con
+    
  
           if ( tool[ k - 1 ] - tool[ k  ] < tol ) {
             info <- rbind(info, c( 1e300, 0, 0 ) )
@@ -402,12 +395,12 @@ fs.reg <- function(target, dataset, threshold = 0.05, test = NULL, stopping = "B
         xx <- as.data.frame( dataset[, sela] )
         colnames(xx) <- paste("V", sela, sep = "") 
         
-        models[[ 1 ]] <- test( target ~., data = data.frame( xx ) )
+        models[[ 1 ]] <- test( target ~., data = data.frame( xx ), weights = wei )
 
         
       } else {
         for (i in 1:d) {
-          models[[ i ]] <- test( target ~., data = data.frame( xx[, 1:i] ) )
+          models[[ i ]] <- test( target ~., data = data.frame( xx[, 1:i] ), weights = wei )
         }
       }
       
@@ -420,7 +413,7 @@ fs.reg <- function(target, dataset, threshold = 0.05, test = NULL, stopping = "B
       rownames(info) <- info[, 1]
     }
     
-    result = list(mat = t(mat), info = info, models = models, final = final, runtime = runtime ) 
+    result = list(mat = t(mat), info = info, models = models, final = final, ci_test = ci_test, runtime = runtime ) 
     
   }         
   

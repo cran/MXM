@@ -76,6 +76,6 @@ condi(ind1 = 1, ind2 = 2, cs = 3, dataset, R = 1)
 condi(ind1 = 1, ind2 = 2, cs = 3, dataset, R = 999)
 }
 
-\keyword{ Fisher's Test}
-\keyword{ Conditional Independence Test }
-\keyword{ Permutation based p-value }
+\keyword{ Fisher's test}
+\keyword{ conditional independence test }
+\keyword{ permutation based p-value }

@@ -11,12 +11,12 @@ SES.temporal algorithm follows a forward-backward filter approach for feature se
 }
 
 \usage{
-SES.temporal(target, reps, group, dataset, max_k = 3, threshold = 0.05, 
-test = NULL, ini = NULL, user_test = NULL, hash = FALSE, hashObject = NULL, 
+SES.temporal(target, reps = NULL, group, dataset, max_k = 3, threshold = 0.05, 
+test = NULL, ini = NULL, wei = NULL, user_test = NULL, hash = FALSE, hashObject = NULL, 
 slopes = FALSE, ncores = 1)
 
-MMPC.temporal(target, reps, group, dataset, max_k = 3, threshold = 0.05, 
-test = NULL, ini = NULL, user_test = NULL, hash = FALSE, hashObject = NULL, 
+MMPC.temporal(target, reps = NULL, group, dataset, max_k = 3, threshold = 0.05, 
+test = NULL, ini = NULL, wei = NULL, user_test = NULL, hash = FALSE, hashObject = NULL, 
 slopes = FALSE, ncores = 1)
 }
 
@@ -42,8 +42,11 @@ Threshold (suitable values in [0, 1]) for assessing p-values significance. Defau
   \item{test}{
 The conditional independence test to use. Default value is NULL. Currently, the only available conditional independence test is the \code{\link{testIndGLMM}}, which fits linear mixed models. 
 }
-\item{ini}{
+  \item{ini}{
 This is a supposed to be a list. After running SES or MMPC with some hyper-parameters you might want to run SES again with different hyper-parameters. To avoid calculating the univariate associations (first step of SES and of MPPC) again, you can extract them from the first run of SES and plug them here. This can speed up the second run (and subequent runs of course) by 50\%. See the details and the argument "univ" in the output values. 
+}
+ \item{wei}{
+A vector of weights to be used for weighted regression. The default value is NULL. 
 }
   \item{user_test}{
 A user-defined conditional independence test (provide a closure type object). Default value is NULL. If this is defined, the "test" argument is ignored.
@@ -170,7 +173,6 @@ The only package required for the SES.temporal and MMPC.temporal algorithm opera
 }
 
 \examples{
-## require(gRbase) #for faster computations in the internal functions
 ## require(lme4)
 ## data(sleepstudy)
 ## attach(sleepstudy)

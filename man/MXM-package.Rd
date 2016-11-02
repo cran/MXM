@@ -13,18 +13,18 @@ This is an R package that currently implements feature selection methods for ide
 \tabular{ll}{
 Package: \tab MXM\cr
 Type: \tab Package\cr
-Version: \tab 0.9.4\cr
-Date: \tab 2016-08-03\cr
+Version: \tab 0.9.5\cr
+Date: \tab 2016-10-31\cr
 License: \tab GPL-2\cr
 }
 }
 
 \author{
-Giorgos Athineou <athineou@csd.uoc.gr>, Vincenzo Lagani <vlagani@csd.uoc.gr>, Michail Tsagris <mtsagris@yahoo.gr>, Giorgos Borboudakis <borbudak@csd.uoc.gr>, Ioannis Tsamardinos <tsamard@csd.uoc.gr>, Anna Roumpelaki <anna.roumpelaki@gmail.com>
+Giorgos Athineou <athineou@csd.uoc.gr>, Vincenzo Lagani <vlagani@csd.uoc.gr>, Michail Tsagris <mtsagris@csd.uoc.gr>, Giorgos Borboudakis <borbudak@csd.uoc.gr>, Ioannis Tsamardinos <tsamard@csd.uoc.gr>, Anna Roumpelaki <anna.roumpelaki@gmail.com>
 }
 
 \section{Maintainers }{
-Giorgos Athineou <athineou@csd.uoc.gr>, Vincenzo Lagani <vlagani@csd.uoc.gr>, Michail Tsagris <mtsagris@yahoo.gr>
+Giorgos Athineou <athineou@csd.uoc.gr>, Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 
 \references{
@@ -40,6 +40,6 @@ Tsamardinos I., Aliferis C. F. and Statnikov, A. (2003). Time and sample efficie
 \keyword{ Feature Selection }
 
 \seealso{
-\code{\link{SES},\link{censIndCR},\link{testIndFisher}, \link{testIndLogistic}, \link{gSquare}, \link{censIndWR}}
+\code{\link{SES}, \link{MMPC}, \link{censIndCR},\link{testIndFisher}, \link{testIndLogistic}, \link{gSquare}, \link{testIndRQ}}
 }
 

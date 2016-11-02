@@ -1,6 +1,7 @@
 \name{Conditional independence tests for survival data }
 \alias{censIndCR}
 \alias{censIndWR}
+\alias{censIndER}
 \title{
 Conditional independence test for survival data 
 }
@@ -10,11 +11,17 @@ The main task of this test is to provide a p-value PVALUE for the null hypothesi
 }
 
 \usage{
-censIndCR(target, dataset, xIndex, csIndex, dataInfo = NULL, univariateModels = NULL, 
-hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, robust = FALSE)
+censIndCR(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
+robust = FALSE)
 
-censIndWR(target, dataset, xIndex, csIndex, dataInfo = NULL, univariateModels = NULL, 
-hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, robust = FALSE)
+censIndWR(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
+robust = FALSE)
+
+censIndER(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
+robust = FALSE)
 }
 
 \arguments{
@@ -29,6 +36,9 @@ hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, robust = FALSE)
 }
   \item{csIndex}{
   The indices of the variables to condition on.
+}
+  \item{wei}{
+  A vector of weights to be used for weighted regression. The default value is NULL. 
 }
   \item{dataInfo}{
   A list object with information on the structure of the data. Default value is NULL.
@@ -51,7 +61,12 @@ A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust
 }
 
 \details{
-If hash = TRUE, censIndCR and censIndWR require the arguments 'stat_hash' and 'pvalue_hash' for the hash-based implementation of the statistic test. These hash Objects are produced or updated by each run of SES (if hash == TRUE) and they can be reused in order to speed up next runs of the current statistic test. If "SESoutput" is the output of a SES run, then these objects can be retrieved by SESoutput@hashObject$stat_hash and the SESoutput@hashObject$pvalue_hash.
+The censIndCR implies the Cox (semiparametric) regression, the censIndWR the Weibull (parametric) regression and the censIndER the exponential (parametric) regression, 
+which is a special case of the Weibull regression (when shape parameter is 1). 
+
+If hash = TRUE, censIndCR, censIndWR and censIndER require the arguments 'stat_hash' and 'pvalue_hash' for the hash-based implementation of the statistic test. 
+These hash Objects are produced or updated by each run of SES (if hash == TRUE) and they can be reused in order to speed up next runs of the current statistic test. 
+If "SESoutput" is the output of a SES run, then these objects can be retrieved by SESoutput@hashObject$stat_hash and the SESoutput@hashObject$pvalue_hash.
 
 Important: Use these arguments only with the same dataset that was used at initialization.
 
@@ -97,13 +112,13 @@ This test uses the functions coxph and Surv of the package survival and the func
 
 \examples{
 #create a survival simulated dataset
-dataset <- matrix(runif(1000 * 100, 1, 100), nrow = 1000 , ncol = 100)
+dataset <- matrix(runif(1000 * 20, 1, 100), nrow = 1000 , ncol = 20)
 dataset <- as.data.frame(dataset);
 timeToEvent <- numeric(1000)
 event <- numeric(1000)
 ca <- numeric(1000)
 for(i in 1:1000) {
-  timeToEvent[i] <- dataset[i, 1] + 0.5*dataset[i, 30] + 2*dataset[i, 65] + runif(1, 0, 1);
+  timeToEvent[i] <- dataset[i, 1] + 0.5 * dataset[i, 10] + 2 * dataset[i, 15] + runif(1, 0, 1);
   event[i] <- sample( c(0, 1), 1)
   ca[i] <- runif(1, 0, timeToEvent[i]-0.5)
   if(event[i] == 0) {
@@ -117,19 +132,19 @@ require(survival, quietly = TRUE)
   target <- Surv(time = timeToEvent, event = event)
   
   #run the censIndCR   conditional independence test
-  res <- censIndCR( target, dataset, xIndex = 12, csIndex = c(35, 7, 4) )
+  res <- censIndCR( target, dataset, xIndex = 12, csIndex = c(5, 7, 4) )
   res
   
   #run the SES algorithm using the censIndCR conditional independence
   #test for the survival class variable
   sesObject <- SES(target, dataset, max_k = 1, threshold = 0.05, test = "censIndCR");
   sesObject2 <- SES(target, dataset, max_k = 1, threshold = 0.05, test = "censIndWR");
-  #print summary of the SES output
-  summary(sesObject);
+  sesObject3 <- SES(target, dataset, max_k = 1, threshold = 0.05, test = "censIndER");
 }
 
 \keyword{ Survival }
 \keyword{ Cox regression }
 \keyword{ Weibull regression }
+\keyword{ exponential regression }
 \keyword{ Log likelihood ratio }
 \keyword{ Conditional independence test }

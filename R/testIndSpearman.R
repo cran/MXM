@@ -1,11 +1,11 @@
-testIndSpearman = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariateModels=NULL , hash = FALSE, stat_hash=NULL,
- pvalue_hash=NULL, robust=FALSE) 
+testIndSpearman = function(target, dataset, xIndex, csIndex, wei = NULL, statistic = FALSE, dataInfo = NULL, univariateModels=NULL , hash = FALSE, stat_hash = NULL,
+ pvalue_hash = NULL, robust = FALSE) 
   {
-  # TESTINDSPEARMAN:  Spearman Conditional Independence Test for continous class variables
-  # PVALUE = TESTINDSPEARMAN(Y, DATA, XINDEX, CSINDEX, DATAINFO)
+  # TESTINDFISHER Fisher Conditional Independence Test for continous class variables
+  # PVALUE = TESTINDFISHER(Y, DATA, XINDEX, CSINDEX, DATAINFO)
   # This test provides a p-value PVALUE for the NULL hypothesis H0 which is
   # X is independent by TARGET given CS. The pvalue is calculated following
-  # Spearman's method (see reference below)
+  # Fisher's method (see reference below)
   
   # This method requires the following inputs
   #   TARGET: a numeric vector containing the values of the target (continuous) variable. 
@@ -23,6 +23,9 @@ testIndSpearman = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univ
   # Prediction, and Search. The MIT Press, Cambridge, MA, USA, second
   # edition, January 2001.
   
+  # Copyright 2012 Vincenzo Lagani and Ioannis Tsamardinos
+  # R Implementation by Giorgos Athineou (10/2013)
+  
   
   #########################################################################################################
   
@@ -32,6 +35,8 @@ testIndSpearman = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univ
   pvalue = log(1);
   stat = 0;
   flag = 0;
+  
+  if ( !is.list(target) ) {
   
   n = length( target )
   csIndex[which(is.na(csIndex))] = 0;
@@ -69,7 +74,7 @@ testIndSpearman = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univ
   #check input validity
   if(xIndex < 0 || csIndex < 0)
   {
-    message(paste("error in testIndSpearman : wrong input of xIndex or csIndex"))
+    message(paste("error in testIndFisher : wrong input of xIndex or csIndex"))
     results <- list(pvalue = pvalue, stat = 0, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
     return(results);
   }
@@ -97,7 +102,7 @@ testIndSpearman = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univ
   #checking the length
   if (length(x) == 0 || length(target) == 0)
   {
-    message(paste("error in testIndSpearman : empty variable x or target"))
+    message(paste("error in testIndFisher : empty variable x or target"))
     results <- list(pvalue = pvalue, stat = 0, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
     return(results);
   }
@@ -136,7 +141,7 @@ testIndSpearman = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univ
   }
   
   #if x or target is constant then there is no point to perform the test
-  if(var(x) == 0 || var(target) == 0)
+  if( ( sum(x^2) - sum(x)^2 / n ) / (n - 1) == 0  ||  ( sum(target^2) - sum(target)^2 / n ) / (n - 1) == 0 )
   {
     if(hash == TRUE)#update hash objects
     {
@@ -149,7 +154,9 @@ testIndSpearman = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univ
   
   #remove constant columns of cs
   cs = as.matrix(cs)
-  cs = cs[,apply(cs, 2, var, na.rm=TRUE) != 0]
+  cs = cs[, apply(cs, 2, var, na.rm=TRUE) != 0]
+  
+  
   
 #trycatch for dealing with errors
 res <- tryCatch(
@@ -165,30 +172,32 @@ res <- tryCatch(
       results <- list(pvalue = pvalue, stat = stat, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
       return(results);
     }
-    #compute the correlation coefficient between x, target directly
+    #compute the correlation coefficient between x,target directly
     stat = cor(x, target);
-  }else{
+	  
+  } else {
     #perform the test with the cs
-
-     tmpm = cbind(x,target,cs);
+    
+     tmpm = cbind(x, target, cs);
      
      corrMatrix = cor(tmpm);
      
      xyIdx = 1:2;
-     csIdx = 3:(ncol(as.matrix(cs))+2); #or csIdx = 3;
+     csIdx = 3:(NCOL(cs) + 2); #or csIdx = 3;
      
      residCorrMatrix = (corrMatrix[xyIdx, xyIdx]) - as.matrix(corrMatrix[xyIdx, csIdx])%*%(solve( as.matrix(corrMatrix[csIdx, csIdx]) , rbind(corrMatrix[csIdx, xyIdx])) );
 
      stat = abs(residCorrMatrix[1,2] / sqrt(residCorrMatrix[1,1] * residCorrMatrix[2,2]));
+
   }
   #lets calculate the p-value
   
   #comparing against the Student's t distribution
-  z = 0.5 * log( (1 + stat)/(1 - stat) );
-  dof = n - ncol(as.matrix(cs)) - 3; #degrees of freedom
-  w = sqrt(dof) * abs(z) / 1.029563 ; ## Spearman test statistic
+  z = 0.5 * log( (1 + stat) / (1 - stat) );
+  dof = n - NCOL(cs) - 3; #degrees of freedom
+  w = sqrt(dof) * z / 1.029563;
   
-  pvalue = log(2) + pt(-w, dof, log.p = TRUE) ;  # ?dt for documentation
+  pvalue = log(2) + pt(-abs(w), dof, log.p = TRUE) ;  # ?dt for documentation
   #or alternatively we can calculate the p-value by comparing against the normal distribution
   #pvalue = 2 * pnorm(-abs(w));  ### 
   
@@ -216,7 +225,7 @@ res <- tryCatch(
   
 },
 error=function(cond) {
-#    message(paste("warning in try catch of the testIndSpearman test"))
+#    message(paste("warning in try catch of the testIndFisher test"))
 #    message("Here's the original message:")
 #    message(cond)
 #   
@@ -234,10 +243,278 @@ error=function(cond) {
   stat = 0;
   flag = 1;
   
-  results <- list(pvalue = pvalue, stat = 0, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+  results <- list(pvalue = pvalue, stat = stat, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
   return(results);
 },
 finally={}
   )    
-  return(res);
+
+  
+##################################  
+
+            ## meta-analytic approach
+
+##################################
+	
+  
+} else { 
+
+
+  D = length(target)
+  nu = numeric(D)
+  
+  aa <- list()
+
+  for ( i in 1:D ) {
+   
+  targ = target[[ i ]]
+  data = dataset[[ i ]]  
+  
+  #if the test cannot performed succesfully these are the returned values
+
+  n = nu[i] = length( targ )
+
+  csIndex[which(is.na(csIndex))] = 0;
+  
+  if(hash == TRUE)
+  {
+    csIndex2 = csIndex[which(csIndex!=0)]
+    csindex2 = sort(csIndex2)
+    xcs = c(xIndex, csIndex2)
+    key = paste(as.character(xcs) , collapse=" ");
+    if(is.null(stat_hash[[key]]) == FALSE)
+    {
+      stat = stat_hash[[key]];
+      pvalue = pvalue_hash[[key]];
+      flag = 1;
+      
+      aa[[ i ]] <- list(pvalue = pvalue, z = z, stat = stat, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+    }
+  }
+  
+  #if the xIndex is contained in csIndex, x does not bring any new
+  #information with respect to cs
+  if(!is.na(match(xIndex,csIndex)))
+  {
+    if(hash == TRUE) #update hash objects
+    {
+      stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
+      pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
+    }
+    aa[[ i ]] <- list(pvalue = log(1), z = 0, stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+
+  }
+  
+  #check input validity
+  if(xIndex < 0 || csIndex < 0)
+  {
+    message(paste("error in testIndFisher : wrong input of xIndex or csIndex"))
+    aa[[ i ]] <- list(pvalue = pvalue, z = 0, stat = 0, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+  }
+  
+  xIndex = unique(xIndex);
+  csIndex = unique(csIndex);
+  
+  #extract the data
+  x = data[ , xIndex];
+  cs = data[ , csIndex];
+  
+  #remove equal columns of the CS (takes a lot of time)
+#   if(length(csIndex) > 1)
+#   {
+#     #remove same columns
+#     #cs = unique(as.matrix(cs), MARGIN = 2);
+#     #or
+#     w = which(duplicated(cs, MARGIN = 2))
+#     if(length(w) > 0)
+#     {
+#       cs = cs[,-w]
+#     }
+#   }
+  
+  #checking the length
+  if (length(x) == 0 || length(targ) == 0)
+  {
+    message(paste("error in testIndFisher : empty variable x or target"))
+    aa[[ i ]] <- list(pvalue = pvalue, z = 0, stat = 0, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);    
+  }
+  
+  #if x = any of the cs then pvalue = 1 and flag = 1.
+  #That means that the x variable does not add more information to our model due to an exact copy of this in the cs, so it is independent from the target
+  if(length(cs)!=0)
+  {
+    if(is.null( dim(cs )[2]) == TRUE) #cs is a vector
+    {
+      if(any(x != cs) == FALSE)  #if(!any(x == cs) == FALSE)
+      {
+        if(hash == TRUE)#update hash objects
+        {
+          stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
+          pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
+        }
+        aa[[ i ]] <- list(pvalue = log(1), z = 0, stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+        
+      }
+    }else{ #more than one var
+      for ( col in 1:ncol(cs) )
+      {
+        if(any(x != cs[, col]) == FALSE)  #if(!any(x == cs) == FALSE)
+        {
+          if(hash == TRUE)#update hash objects
+          {
+            stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
+            pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
+          }
+          aa[[ i ]] <- list(pvalue = log(1), z = 0, stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+          
+        }
+      }
+    }
+  }
+  
+  #if x or target is constant then there is no point to perform the test
+  if( ( sum(x^2) - sum(x)^2 / n ) / (n - 1) == 0  ||  ( sum(targ^2) - sum(targ)^2 / n ) / (n - 1) == 0 )
+  {
+    if(hash == TRUE)#update hash objects
+    {
+      stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
+      pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
+    }
+    aa[[ i ]] <- list(pvalue = log(1), z = 0, stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+    
+  }
+  
+
+  #remove constant columns of cs
+  cs = as.matrix(cs)
+  cs = cs[, apply(cs, 2, var, na.rm=TRUE) != 0]
+  
+  
+aa[[ i ]] <- tryCatch(
+{
+  #if the conditioning set (cs) is empty, we use a simplified formula
+  if (length(cs) == 0)
+  {
+    if (!is.null(univariateModels))
+    {
+      pvalue = univariateModels$pvalue[[xIndex]];
+      stat = univariateModels$stat[[xIndex]];
+      flag = univariateModels$flag[[xIndex]];
+      results <- list(pvalue = pvalue, stat = stat, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+      return(results);
+    }
+    #compute the correlation coefficient between x, target directly
+
+      stat = cor(x, targ);
+
+  } else{
+     #perform the test with the cs
+
+      tmpm = cbind(x, targ, cs);
+     
+      corrMatrix = cor(tmpm);
+     
+      xyIdx = 1:2;
+      csIdx = 3:(ncol(as.matrix(cs))+2); #or csIdx = 3;
+     
+      residCorrMatrix = (corrMatrix[xyIdx, xyIdx]) - as.matrix(corrMatrix[xyIdx, csIdx])%*%(solve( as.matrix(corrMatrix[csIdx, csIdx]) , rbind(corrMatrix[csIdx, xyIdx])) );
+
+      stat = abs(residCorrMatrix[1,2] / sqrt(residCorrMatrix[1,1] * residCorrMatrix[2,2]));
+  }
+
+  #lets calculate the p-value
+  
+  #comparing against the Student's t distribution
+  z = 0.5 * log( (1 + stat) / (1 - stat) );
+  dof = n - ncol(as.matrix(cs)) - 3; #degrees of freedom
+  w = sqrt(dof) * abs(z) / 1.029563; ## standard errot for Spearman
+  
+  pvalue = log(2) + pt(-w, dof, log.p = TRUE) ;  # ?dt for documentation
+  #or alternatively we can calculate the p-value by comparing against the normal distribution
+  #pvalue = 2 * pnorm(-w);  ### 
+  
+  flag = 1;
+  
+  #last error check
+  if(is.na(pvalue) || is.na(stat))
+  {
+    pvalue = log(1);
+    stat = 0;
+    flag = 1;
+  }else{
+    #update hash objects
+    if(hash == TRUE)
+    {
+      stat_hash[[key]] <- stat; #.set(stat_hash , key , stat)
+      pvalue_hash[[key]] <- pvalue; #.set(pvalue_hash , key , pvalue)
+    }
+  }
+  
+  #testerrorcaseintrycatch(4);
+  
+   list(pvalue = pvalue, z = z, nu = n, stat = w, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+  
+},
+
+error=function(cond) {
+#    message(paste("warning in try catch of the testIndFisher test"))
+#    message("Here's the original message:")
+#    message(cond)
+#   
+#   #        
+#   #        #for debug
+#           print("\nxIndex = \n");
+#           print(xIndex);
+#           print("\ncsindex = \n");
+#           print(csIndex);
+#   
+#   stop();
+  
+  #error case (we are pretty sure that the only error case is when x,cs are highly correlated and the inversion of the matrix is not possible)
+  pvalue = log(1);
+  stat = 0;
+  flag = 1;
+  
+  list(pvalue = pvalue, z = z, nu = n, stat = stat, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+ },
+finally={}
+) 
+  
+}
+
+  if  ( statistic == FALSE ) {
+    
+	pva <- numeric(D) 
+    for ( j in 1:D )   pva[j] = -2 * aa[[ j ]]$pvalue
+  
+    stat = sum(pva)
+    pvalue = pchisq( stat, 2 * D, lower.tail = FALSE, log.p = TRUE ) 
+  
+  } else {
+    sta <- se <- numeric(D) 
+	cisa = ncol(cs)
+	
+    for ( j in 1:D )  {
+	  sta[j] = aa[[ j ]]$z
+	  se[j] = 1 / sqrt(aa[ j ]$nu -  cisa - 3 ) 
+    }
+	
+	sse <- sum(se)
+	stat <- (sta * se) / sqrt( sse )
+	pvalue <- log(2) + pnorm( -abs(stat) / 1.029563 , log.p = TRUE )
+  }
+  
+  if ( hash == TRUE ) {
+    
+    stat_hash[[key]] <- stat
+    pvalue_hash[[key]] <- pvalue  
+    
+  }
+
+ res = list(pvalue = pvalue, stat = stat, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+
+}
+  
+ res
+  
 }

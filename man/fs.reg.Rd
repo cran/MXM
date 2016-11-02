@@ -1,4 +1,4 @@
-\name{Forward selection}
+\name{Forward selection regression}
 \alias{fs.reg}
 \title{
 Variable selection in regression models with forward selection
@@ -9,8 +9,8 @@ Variable selection in regression models with forward selection
 }
 
 \usage{
-fs.reg(target, dataset, threshold = 0.05, test = NULL, stopping = "BIC", tol = 2, 
-robust = FALSE, ncores = 1 ) 
+fs.reg(target, dataset, threshold = 0.05, wei = NULL, test = NULL, user_test = NULL, 
+stopping = "BIC", tol = 2, robust = FALSE, ncores = 1) 
 }
 
 \arguments{
@@ -23,9 +23,14 @@ The dataset; provide either a data frame or a matrix (columns = variables, rows 
 \item{threshold}{
 Threshold (suitable values in [0,1]) for asmmmbsing p-values significance. Default value is 0.05.
 }
+\item{wei}{
+A vector of weights to be used for weighted regression. The default value is NULL. It is not suggested when robust is set to TRUE.
+}
 \item{test}{
-The regression model to use. Available options are 
-"gaussian" for normal linear regression, "beta" for beta regression, "Cox" for Cox proportional hazards, "Weibull" for Weibull regression, "binary" for binomial regression, "multinomial" for multinomial regression, "ordinal" for ordinal regression, "poisson" for poisson regression, "nb" for negative binomial regression, "zip" for zero inflated poisson regression and "speedglm" for linear, binary or poisson regression with large datasets (tens of thousands of observations).
+The regression model to use. Available options are most of the tests for SES and MMPC. The ones NOT available are "gSquare", "censIndER", "testIndMVreg", "testIndClogit", "testIndSpearman" and "testIndFisher".
+}
+\item{user_test}{
+A user-defined conditional independence test (provide a closure type object). Default value is NULL. If this is defined, the "test" argument is ignored.
 }
 \item{stopping}{
 The stopping rule. The BIC is always used for all methods. If you have linear regression though you can change this to "adjrsq" and in this case the adjusted R qaured is used.
@@ -38,10 +43,10 @@ A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust
 It takes more time than a non robust version but it is suggested in case of outliers. Default value is FALSE.
 }
 \item{ncores}{
-How many cores to use. This plays an important role if you have tens of thousands of variables or really large sample sizes and tens of thousands of variables and a regression based test which requires numerical optimisation. In other cammmb it will not make a difference in the overall time (in fact it can be slower). The parallel computation is used in the first step of the algorithm, where univariate associations are examined, those take place in parallel. We have seen a reduction in time of 50\% with 4 cores in comparison to 1 core. Note also, that the amount of reduction is not linear in the number of cores.
+How many cores to use. This plays an important role if you have tens of thousands of variables or really large sample sizes and tens of thousands of variables and a regression based test which requires numerical optimisation. In other cases it will not make a difference in the overall time (in fact it can be slower). The parallel computation is used in the first step of the algorithm, where univariate associations are examined, those take place in parallel. We have seen a reduction in time of 50\% with 4 cores in comparison to 1 core. Note also, that the amount of reduction is not linear in the number of cores.
 }
 %\item{maxit}{
-5The maximum number of iterations required by the MM estimators in the robust binary or poisson regrression. This argument is %taken into account only if the argument robust is set to TRUE.
+%The maximum number of iterations required by the MM estimators in the robust binary or poisson regrression. This argument is %taken into account only if the argument robust is set to TRUE.
 %}
 }
 
@@ -70,6 +75,9 @@ The regression models, one at each step.
 \item{final}{
 The final regression model.
 }
+\item{ci_test}{
+The conditional independence test used. 
+}
 \item{runtime}{
 The run time of the algorithm. A numeric vector. The first element is the user time, the second element is the system time and the third element is the elapsed time.
 }
@@ -92,8 +100,6 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> Micha
 
 \examples{
 set.seed(123)
-#require(gRbase) #for faster computations in the internal functions
-require(hash)
 
 #simulate a dataset with continuous data
 dataset <- matrix( runif(1000 * 20, 1, 100), ncol = 20 )

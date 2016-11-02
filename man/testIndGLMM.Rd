@@ -9,9 +9,9 @@ The main task of this test is to provide a p-value PVALUE for the null hypothesi
 }
 
 \usage{
-testIndGLMM(target, reps = NULL, group, dataset, xIndex, csIndex, dataInfo=NULL, 
-univariateModels=NULL, hash = FALSE, stat_hash=NULL, pvalue_hash=NULL, 
-target_type=0, slopes=FALSE)
+testIndGLMM(target, reps = NULL, group, dataset, xIndex, csIndex, wei = NULL,
+dataInfo = NULL, univariateModels = NULL, hash = FALSE, stat_hash = NULL, 
+pvalue_hash=NULL, target_type = 0, slopes = FALSE)
 }
 
 \arguments{
@@ -23,6 +23,9 @@ target_type=0, slopes=FALSE)
 }
   \item{group}{
   A numeric vector containing the subjects or groups. It must be of the same legnth as target. 
+}
+  \item{wei}{
+  A vector of weights to be used for weighted regression. The default value is NULL. 
 }
   \item{dataset}{
   A numeric matrix or data frame, in case of categorical predictors (factors), containing the variables for performing the test. Rows as samples and columns as features.

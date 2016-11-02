@@ -9,8 +9,9 @@ The main task of this test is to provide a p-value PVALUE for the null hypothesi
 }
 
 \usage{
-testIndSpeedglm(target,dataset,xIndex,csIndex,dataInfo = NULL,univariateModels = NULL, 
-hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, target_type = 0, robust = FALSE)
+testIndSpeedglm(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
+target_type = 0, robust = FALSE)
 }
 
 \arguments{
@@ -25,6 +26,9 @@ The index of the variable whose association with the target we want to test.
 }
 \item{csIndex}{
 The indices of the variables to condition on.
+}
+\item{wei}{
+A vector of weights to be used for weighted regression. The default value is NULL. 
 }
 \item{dataInfo}{
 A list object with information on the structure of the data. Default value is NULL.
@@ -109,13 +113,11 @@ R implementation and documentation: Vincenzo Lagani <vlagani@csd.uoc.gr>, Giorgo
 }
 
 \examples{
-#require(gRbase) #for faster computations in the internal functions
 dataset <- matrix(runif(40000 * 10, 1, 50), ncol = 10 ) 
 #the target feature is the last column of the dataset as a vector
 target <- rpois(40000, 10)
 system.time( testIndPois(target, dataset, xIndex = 1, csIndex = 2) )
 system.time( testIndSpeedglm(target, dataset, xIndex = 1, csIndex = 2) )
-
 }
 
 \keyword{ Linear regression }

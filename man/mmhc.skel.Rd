@@ -94,11 +94,10 @@ a2 <- mmhc.skel(dataset, max_k = 3, threshold = 0.05, test = "testIndSpearman",
 rob = FALSE, nc = 1)
 a3 <- pc.con(dataset)
 a4 <- pc.skel(dataset, R = 1) 
-## check the diffrerences in the runtimes
+
 a1$runtime  
 a2$runtime 
 a3$runtime 
-
 
 }
 

@@ -10,7 +10,7 @@ Variable selection in generalised linear regression models with backward selecti
 }
 
 \usage{
-glm.bsreg(target, dataset, threshold = 0.05)
+glm.bsreg(target, dataset, threshold = 0.05, wei = NULL, heavy = FALSE, robust = FALSE)
 }
 
 \arguments{
@@ -23,6 +23,16 @@ The dataset; provide either a data frame or a matrix (columns = variables, rows 
 \item{threshold}{
 Threshold (suitable values in [0,1]) for asmmmbsing p-values significance. Default value is 0.05.
 }
+\item{wei}{
+A vector of weights to be used for weighted regression. The default value is NULL. It is not suggested when robust is set to TRUE.
+}
+\item{heavy}{
+A boolean variable specifying whether heavy computations are required or not. If for exmaple the dataset contains tens of thousands of rows, it is advised to used memory efficient GLMs and hence set this to TRUE.
+}
+\item{robust}{
+A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust version of the statistical test if it is available. It takes more time than a non robust version but it is suggested in case of outliers. 
+Default value is FALSE. Currently only the linear regression option is supported.
+}
 }
 
 \details{
@@ -31,14 +41,17 @@ This functions currently implements only linear, binary logistic and Poisson reg
 
 \value{
 The output of the algorithm is S3 object including:
-\item{mat}{
+\item{runtime}{
+The run time of the algorithm. A numeric vector. The first element is the user time, the second element is the system time and the third element is the elapsed time.
+}
+\item{info}{
 A matrix with the variables and their latest test statistics and p-values.
+}
+\item{ci_test}{
+The conditional independence test used. 
 }
 \item{final}{
 The final regression model.
-}
-\item{runtime}{
-The run time of the algorithm. A numeric vector. The first element is the user time, the second element is the system time and the third element is the elapsed time.
 }
 }
 
@@ -59,16 +72,20 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> Micha
 
 \examples{
 set.seed(123)
-#require(gRbase) #for faster computations in the internal functions
-require(hash)
 
 #simulate a dataset with continuous data
-dataset <- matrix( runif(1000 * 50, 1, 100), ncol = 50 )
+dataset <- matrix( runif(1000 * 10, 1, 100), ncol = 10 )
 
 #define a simulated class variable 
 target <- rpois(1000, 10)
-
 a <- glm.bsreg(target, dataset, threshold = 0.05) 
+
+target <- rnorm(1000)
+b <- glm.bsreg(target, dataset, threshold = 0.05)
+
+target <- rbinom(1000, 1, 0.6)
+d <- glm.bsreg(target, dataset, threshold = 0.05)
+
 }
 
 \keyword{ Markov Blanket }

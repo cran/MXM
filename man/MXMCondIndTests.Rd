@@ -45,6 +45,7 @@ As for the other tests, they share one thing in common. For all of them, two par
   binary or counts        \tab  \tab  \tab or poisson gression \cr  
   Survival	\tab Mixed \tab censIndCR \tab Cox regression \cr
   Survival	\tab Mixed \tab censIndWR \tab Weibull regression \cr
+  Survival	\tab Mixed \tab censIndER \tab Exponential regression \cr
   Case-control  \tab Mixed \tab testIndClogit \tab Conditional logistic regression \cr
   Multivariate continuous \tab Mixed \tab testIndMVreg  \tab Multivariate linear regression \cr 
   Compositional data \tab Mixed \tab testIndMVreg \tab Multivariate linear regression \cr 
@@ -92,6 +93,8 @@ As for the other tests, they share one thing in common. For all of them, two par
     \item \bold{censIndCR}. For the case of time-to-event data, a Cox regression model is employed. The predictor variables can be either continuous, categorical or mixed. Again, the log-likelihood ratio test is used to assess the significance of the new variable. 
     
     \item \bold{censIndWR}. A second model for the case of time-to-event data, a Weibull regression model is employed. The predictor variables can be either continuous, categorical or mixed. Again, the log-likelihood ratio test is used to assess the significance of the new variable. Unlike the semi-parametric Cox model, the Weibull model is fully parametric.
+
+    \item \bold{censIndER}. A third model for the case of time-to-event data, an exponential regression model is employed. The predictor variables can be either continuous, categorical or mixed. Again, the log-likelihood ratio test is used to assess the significance of the new variable. Unlike the semi-parametric Cox model, the Weibull model is fully parametric.
 
     \item \bold{testIndClogit}. When the data come from a case-control study, the suitable test is via conditional logistic regression. 
 

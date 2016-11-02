@@ -2,12 +2,11 @@ auc <- function(group, preds, roc = FALSE, cutoffs = NULL) {
   
   group <- as.numeric( as.factor(group) ) - 1
   ri <- rank(preds)
-  up <- max(group)
   n <- length(preds)
-  n1 <- sum( group == up )
+  n1 <- sum( group )
   n0 <- n - n1
-  s1 <- sum( ri[group == up ] )
-  auc <- ( s1 - 0.5 * ( n1 * (n1 + 1) ) ) / (n0 * n1)
+  s1 <- sum( ri[ group == 1 ] )
+  auc <- ( s1 - 0.5 * n1 * (n1 + 1) ) / n0 / n1
   result <- auc
   
   if ( roc == TRUE ) {
@@ -24,8 +23,8 @@ auc <- function(group, preds, roc = FALSE, cutoffs = NULL) {
     for ( i in 1:nu ) {
       estp <- as.numeric( preds >= lena[i] ) 
       
-      sens[i] <-  sum( group == 1 & estp == 1 ) / npos
-      spec[i] <-  sum( group == 0 & estp == 0 ) / nnegs
+      sens[i] <-  sum( group == 1  &  estp == 1 ) / npos
+      spec[i] <-  sum( group == 0  &  estp == 0 ) / nnegs
       
     }
     

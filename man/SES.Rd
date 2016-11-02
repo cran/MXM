@@ -12,16 +12,16 @@ SES algorithm follows a forward-backward filter approach for feature selection i
 }
 
 \usage{
-SES(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini = NULL,
+SES(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini = NULL, wei = NULL,
  user_test = NULL, hash = FALSE, hashObject = NULL, robust = FALSE, ncores = 1)
  
-MMPC(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini = NULL, 
+MMPC(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini = NULL, wei = NULL,
  user_test = NULL, hash = FALSE, hashObject = NULL, robust = FALSE, ncores = 1, 
  backward = FALSE)
 }
 
 \arguments{
-  \item{target}{
+\item{target}{
 The class variable. Provide either a string, an integer, a numeric value, a vector, a factor, an ordered factor or a Surv object. See also Details.
 }
 \item{dataset}{
@@ -40,13 +40,16 @@ The conditional independence test to use. Default value is NULL. See also \code{
 \item{ini}{
 This is a supposed to be a list. After running SES or MMPC with some hyper-parameters you might want to run SES again with different hyper-parameters. To avoid calculating the univariate associations (first step of SES and of MPPC) again, you can extract them from the first run of SES and plug them here. This can speed up the second run (and subequent runs of course) by 50\%. See the details and the argument "univ" in the output values. 
 }
-  \item{user_test}{
+\item{wei}{
+A vector of weights to be used for weighted regression. The default value is NULL. It is not suggested when robust is set to TRUE.
+}
+\item{user_test}{
 A user-defined conditional independence test (provide a closure type object). Default value is NULL. If this is defined, the "test" argument is ignored.
 }
-  \item{hash}{
+\item{hash}{
 A boolean variable which indicates whether (TRUE) or not (FALSE) to store the statistics calculated during SES execution in a hash-type object. Default value is FALSE. If TRUE a hashObject is produced.
 }
-  \item{hashObject}{
+\item{hashObject}{
 A List with the hash objects generated in a previous run of SES or MMPC. 
 Each time SES runs with "hash=TRUE" it produces a list of hashObjects that can be re-used in order to speed up next runs of SES or MMPC.
 
@@ -71,7 +74,7 @@ http://www.mensxmachina.org/publications/discovering-multiple-equivalent-biomark
 
 The MMPC function mplements the MMPC algorithm as presented in "Tsamardinos, Brown and Aliferis. The max-min hill-climbing Bayesian network structure learning algorithm" http://www.dsl-lab.org/supplements/mmhc_paper/paper_online.pdf
 
-For faster computations in the internal SES functions, install the suggested package "\bold{gRbase}". In addition, the output value "univ" along with the output value "hashObject" can speed up the computations of subesequent runs of SES and MMPC. The first run with a specific pair of hyper-parameters (threshold and max_k) the univariate associations tests and the conditional independence tests (test statistic and logarithm of their corresponding p-values) are stored and returned. In the next run(s) with different pair(s) of hyper-parameters you can use this information to save time. With a few thousands of variables you will see the difference, which can be up to 50\%. For the non robust correlation based tests, the difference may not be significant though, because a Fortran code is used to extract the (unconditional) correlation coefficients. 
+For faster computations in the internal SES functions, install the suggested package \bold{gRbase}. In addition, the output value "univ" along with the output value "hashObject" can speed up the computations of subesequent runs of SES and MMPC. The first run with a specific pair of hyper-parameters (threshold and max_k) the univariate associations tests and the conditional independence tests (test statistic and logarithm of their corresponding p-values) are stored and returned. In the next run(s) with different pair(s) of hyper-parameters you can use this information to save time. With a few thousands of variables you will see the difference, which can be up to 50\%. For the non robust correlation based tests, the difference may not be significant though, because a Fortran code is used to extract the (unconditional) correlation coefficients. 
 
 The max_k option: the maximum size of the conditioning set to use in the conditioning independence test. Larger values provide more accurate results, at the cost of higher computational times. When the sample size is small (e.g., \eqn{<50} observations) the max_k parameter should be \eqn{ \leq 5}, otherwise the conditional independence test may not be able to provide reliable results.
 
@@ -85,8 +88,9 @@ If the current 'test' argument is defined as NULL or "auto" and the user_test ar
 	\item if target is a ordered factor, the ordered logit regression is used in the logistic test.
 	\item if target is a numerical vector and the dataset is a matrix or a data.frame with continuous variables, the Fisher conditional independence test is used. If the dataset is a data.frame and there are categorical variables, linear regression is used.
 	\item if target is discrete numerical (counts), the poisson regression conditional independence test is used. If there are only two values, the binary logistic regression is to be used.
-	\item if target is a Surv object, the Survival conditional independence test is used.
-	\item if target is a matrix with at least 2 columns, the multivariate linear regression is used.
+	\item if target is a Surv object, a Survival conditional independence test is used.
+	\item if target is a matrix with at least 2 columns, the multivariate linear regression is used. 
+	\item if target is a 2 column matrix whose columns are the number of successes and the number of trials (first and second column respectively) the testIndBinom should be used.
 }
 
 Conditional independence test functions to be pass through the user_test argument should have the same signature of the included test. See \code{\link{testIndFisher}} for an example.
@@ -170,8 +174,6 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> Vince
 \note{
 The packages required by the SES and MMPC algorithm operations are: 
 
-\bold{gRbase} : for faster computations in the internal functions
-
 \bold{hash} : for the hash-based implementation
 
 \bold{quantreg}: for the quantile (median) regression
@@ -186,7 +188,7 @@ The packages required by the SES and MMPC algorithm operations are:
 
 and \bold{ordinal} : also require(stats) and require(MASS) for the testIndLogistic test
 
-\bold{survival} : for the censIndCR and censIndWR test
+\bold{survival} : for the censIndCR, censIndWR and the censIndER tests
 
 \bold{doParallel}: for parallel computations
 
@@ -198,31 +200,30 @@ and \bold{ordinal} : also require(stats) and require(MASS) for the testIndLogist
 
 \examples{
 set.seed(123)
-#require(gRbase) #for faster computations in the internal functions
 require(hash)
 
 #simulate a dataset with continuous data
-dataset <- matrix(runif(1000 * 1000, 1, 100), ncol = 1000)
+dataset <- matrix(runif(1000 * 200, 1, 100), ncol = 200)
 
 #define a simulated class variable 
-target <- 3 * dataset[, 10] + 2 * dataset[, 200] + 3 * dataset[, 20] + rnorm(1000, 0, 5)
+target <- 3 * dataset[, 10] + 2 * dataset[, 100] + 3 * dataset[, 20] + rnorm(1000, 0, 5)
 
-#define some simulated equivalences
+# define some simulated equivalences
 dataset[, 15] <- dataset[, 10] + rnorm(1000, 0, 2)
 dataset[, 10] <- dataset[ , 10] + rnorm(1000, 0, 2)
-dataset[, 250] <- dataset[, 200] + rnorm(1000, 0, 2) 
-dataset[, 230] <- dataset[, 200] + rnorm(1000, 0, 2)
+dataset[, 150] <- dataset[, 100] + rnorm(1000, 0, 2) 
+dataset[, 130] <- dataset[, 100] + rnorm(1000, 0, 2)
 
 require("hash", quietly = TRUE) 
-#run the SES algorithm
+# run the SES algorithm
 sesObject <- SES(target , dataset, max_k = 5, threshold = 0.05, test = "testIndFisher", 
 hash = TRUE, hashObject = NULL);
 
-#print summary of the SES output
+# print summary of the SES output
 summary(sesObject);
-#plot the SES output
-plot(sesObject, mode = "all");
-#get the queues with the equivalences for each selected variable
+# plot the SES output
+# plot(sesObject, mode = "all");
+# get the queues with the equivalences for each selected variable
 sesObject@queues
 #get the generated signatures
 sesObject@signatures;
@@ -246,8 +247,7 @@ sesObject3@runtime;
 
 
 # MMPC algorithm 
-mmpcObject <- MMPC(target , dataset , max_k=3 , threshold=0.05 , test="testIndFisher", 
-hash = FALSE, hashObject=NULL);
+mmpcObject <- MMPC(target, dataset, max_k = 3, threshold = 0.05, test="testIndFisher");
 mmpcObject@selectedVars
 mmpcObject@runtime
 }

@@ -1,4 +1,4 @@
-censIndWR = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariateModels=NULL, hash = FALSE, stat_hash=NULL, pvalue_hash=NULL,robust=FALSE){
+censIndWR = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL, univariateModels=NULL, hash = FALSE, stat_hash=NULL, pvalue_hash=NULL,robust=FALSE){
   # Conditional independence test based on the Log Likelihood ratio test
   
   if(!survival::is.Surv(target))
@@ -63,7 +63,7 @@ censIndWR = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariate
     
     #fitting the model
     tryCatch(
-      weibull_results <- survival::survreg(target ~ x),
+      weibull_results <- survival::survreg(target ~ x, weights = wei),
       warning=function(w) {
         #Do nothing...
       }
@@ -73,10 +73,7 @@ censIndWR = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariate
     }
     
     #retrieve the p value and stat. 
-    if ( is.factor(x) ) {
-      dof = nlevels(x) - 1   
-    } else dof = 1
-    
+    dof <- length( coef(weibull_results) )
     stat = 2 * abs( diff(weibull_results$loglik) )
     pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE);
     
@@ -103,7 +100,7 @@ censIndWR = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariate
     tryCatch(
     
     # fitting the model  (without x)
-     weibull_results <- survival::survreg(target ~ ., data = as.data.frame( dataset[ , c(csIndex)] ) ), 
+     weibull_results <- survival::survreg(target ~ ., data = as.data.frame( dataset[ , c(csIndex)] ), weights = wei), 
     
     warning=function(w) {
     #Do nothing
@@ -116,7 +113,7 @@ censIndWR = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariate
     tryCatch(
       
       #fitting the full model
-      weibull_results_full <- survival::survreg(target ~ ., data = as.data.frame(  dataset[ , c(csIndex, xIndex)] ) ),
+      weibull_results_full <- survival::survreg(target ~ ., data = as.data.frame(  dataset[ , c(csIndex, xIndex)] ), weights = wei ),
       
       warning=function(w) {
         #Do nothing

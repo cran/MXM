@@ -1,15 +1,23 @@
 \name{MXM-internal}
 \alias{InternalSES}
 \alias{InternalMMPC}
+\alias{Internalmases}
+\alias{Internalmammpc}
 \alias{IdentifyEquivalence}
+\alias{IdentifyEquivalence.ma}
 \alias{apply_ideq}
+\alias{apply_ideq.ma}
 \alias{compare_p_values}
 \alias{identifyTheEquivalent}
+\alias{identifyTheEquivalent.ma}
 \alias{max_min_assoc}
+\alias{max_min_assoc.ma}
 \alias{min_assoc}
-\alias{nchoosekm}
+\alias{min_assoc.ma}
 \alias{univariateScore}
+\alias{univariateScore.ma}
 \alias{cat.ci}
+\alias{condi.perm}
 \alias{InternalSES.temporal}
 \alias{InternalMMPC.temporal}
 \alias{IdentifyEquivalence.temporal}
@@ -23,9 +31,15 @@
 \alias{glm.fsreg_2}
 \alias{cvses.par}
 \alias{cvmmpc.par}
-
-
+\alias{dag_to_eg}
+\alias{topological_sort}
+\alias{nchoosek}
 \alias{proc_time-class}
+\alias{R0}
+\alias{R1}
+\alias{R2}
+\alias{R3}
+\alias{is.sepset}
 
 \title{ Internal MXM Functions }
 \description{
@@ -35,16 +49,22 @@ Internal functions of Package \pkg{MXM}
 \itemize{
 \item InternalSES( ... )
 \item InternalMMPC( ... )
+\item Internalmases( ... )
+\item Internalmammpc( ... )
 \item IdentifyEquivalence( ... )
+\item IdentifyEquivalence.ma( ... )
 \item apply_ideq( ... )
+\item apply_ideq.ma( ... )
 \item compare_p_values( ... )
 \item identifyTheEquivalent( ... )
+\item identifyTheEquivalent.ma( ... )
 \item max_min_assoc( ... )
+\item max_min_assoc.ma( ... )
 \item min_assoc( ... )
-\item nchoosekm( ... )
+\item min_assoc.ma( ... )
 \item univariateScore( ... )
+\item univariateScore.ma( ... )
 \item cat.ci( ... )
-\item condi( ... )
 \item condi.perm( ... )
 \item InternalSES.temporal( ... )
 \item InternalMMPC.temporal( ... )
@@ -59,13 +79,19 @@ Internal functions of Package \pkg{MXM}
 \item glm.fsreg_2( ... )
 \item cvses.par( ... )
 \item cvmmpc.par( ... )
+\item dag_to_eg( ... )
+\item topological_sort( ... )
+\item nchoosek( ... )
+\item R0( ... )
+\item R1( ... )
+\item R2( ... )
+\item R3( ... )
+\item is.sepset( ... )
 
 }
 }
 \details{
   These functions are only for internal usage of the MXM package - NOT to be called by the user.
   
-  For faster computations in the internal SES and MMPC functions, install the suggested package "\bold{gRbase}".
-  %% or we have been too lazy to document
 }
 \keyword{Internal MXM Functions}

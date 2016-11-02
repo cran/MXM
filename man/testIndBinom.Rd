@@ -9,8 +9,9 @@ The main task of this test is to provide a p-value PVALUE for the null hypothesi
 }
 
 \usage{
-testIndBinom(target, dataset, xIndex, csIndex, dataInfo = NULL, univariateModels = NULL, 
-              hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, robust = FALSE)
+testIndBinom(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
+robust = FALSE)
 }
 
 \arguments{
@@ -25,6 +26,9 @@ The index of the variable whose association with the target we want to test.
 }
 \item{csIndex}{
 The indices of the variables to condition on.
+}
+\item{wei}{
+A vector of weights to be used for weighted regression. The default value is NULL and should stay as is, since the totals (second column of the target) is used as weights. 
 }
 \item{dataInfo}{
 A list object with information on the structure of the data. Default value is NULL.
@@ -110,7 +114,6 @@ target <- cbind(y/N, N)
 results <- testIndBinom(target, dataset, xIndex = 24, csIndex = 10)
 results
 
-#require(gRbase)  #for faster computations in the internal functions
 #run the SES algorithm using the testIndPois conditional independence test
 a1 <- SES(target, dataset, max_k = 3, threshold = 0.05, test = "testIndBinom");
 a2 <- MMPC(target, dataset, max_k = 3, threshold = 0.05, test = "testIndBinom");

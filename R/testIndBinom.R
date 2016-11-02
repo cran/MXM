@@ -1,4 +1,4 @@
-testIndBinom = function(target, dataset, xIndex, csIndex, dataInfo = NULL, univariateModels = NULL , hash = FALSE, stat_hash = NULL, 
+testIndBinom = function(target, dataset, xIndex, csIndex, wei =  NULL, dataInfo = NULL, univariateModels = NULL , hash = FALSE, stat_hash = NULL, 
                        pvalue_hash = NULL,robust = FALSE) 
 {
   # TESTINDPOIS Conditional Independence Test for discrete class variables 
@@ -91,7 +91,7 @@ testIndBinom = function(target, dataset, xIndex, csIndex, dataInfo = NULL, univa
   #   }
   
   #checking the length
-  if (length(x) == 0 || length(target) == 0)
+  if ( var( as.numeric(x) ) == 0 || length(target) == 0)
   {
     message(paste("error in testIndPois : empty variable x or target"))
     results <- list(pvalue = pvalue, stat = stat, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);

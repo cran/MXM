@@ -55,7 +55,7 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 
 \examples{
-r = cor( iris[, 1:4] )
+r <- cor( iris[, 1:4] )
 partialcor(r, 1, 2, 0) 
 r[1, 2]  ## the same as above
 

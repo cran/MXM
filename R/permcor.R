@@ -12,7 +12,7 @@ permcor <- function(x, R = 999) {
   x <- as.matrix(x)
   n <- nrow(x)
   r <- cor(x)[2]
-  test <- 0.5 * log( (1 + r)/(1 - r) )  ## the test statistic
+  test <- log( (1 + r) / (1 - r) )  ## the test statistic
   x1 <- x[, 1]      ;     x2 <- x[, 2]
   m1 <- sum(x1)     ;     m12 <- sum(x1^2)
   m2 <- sum(x2)     ;     m22 <- sum(x2^2)
@@ -25,7 +25,7 @@ permcor <- function(x, R = 999) {
     sxy[i] <- sum(y1 * x2)
   }  
     rb <- (sxy - up) / down
-    tb <- 0.5 * log( (1 + rb)/(1 - rb) )  ## the test statistic
+    tb <- log( (1 + rb) / (1 - rb) )  ## the test statistic
 
   pvalue <- ( sum( abs(tb) > abs(test) ) + 1 ) / (R + 1)  ## bootstrap p-value
   res <- c( r, pvalue )

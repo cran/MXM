@@ -9,8 +9,9 @@ The main task of this test is to provide a p-value PVALUE for the null hypothesi
 }
 
 \usage{
-testIndClogit(target, dataset, xIndex, csIndex, dataInfo = NULL, univariateModels = NULL, 
-hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, robust = FALSE)
+testIndClogit(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
+robust = FALSE)
 }
 
 \arguments{
@@ -25,6 +26,9 @@ The index of the variable whose association with the target we want to test.
 }
 \item{csIndex}{
 The indices of the variables to condition on.
+}
+\item{wei}{
+A vector of weights to be used for weighted regression. The default value is NULL and it should stay NULL as weights are ignored the conditional logistic regression. See the \bold{survival} package for more information about this type of regression.
 }
 \item{dataInfo}{
 A list object with information on the structure of the data. Default value is NULL.
@@ -95,25 +99,23 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr>, Vinc
 #simulate a dataset with continuous data
 dataset <- matrix(rnorm(300 * 100), nrow = 300 ) 
 #the target feature is the last column of the dataset as a vector
-case = rbinom(300, 1, 0.6)
-ina = which(case==1)
-ina = sample(ina, 100)
+case <- rbinom(300, 1, 0.6)
+ina <- which(case==1)
+ina <- sample(ina, 100)
 case[-ina] = 0 
-id = rep(1:100,3)
-target = cbind(case, id)
+id <- rep(1:100,3)
+target <- cbind(case, id)
 
 results <- testIndClogit(target, dataset, xIndex = 44, csIndex = 60)
 results
 
-#require(gRbase)  #for faster computations in the internal functions
-
 #run the SES algorithm using the testIndClogit conditional independence test
-a1<- SES(target, dataset, max_k = 3, threshold = 0.05, test = "testIndClogit");
-a2<- MMPC(target, dataset, max_k = 3, threshold = 0.05, test = "testIndClogit");
-#print summary of the SES output
+a1 <- SES(target, dataset, max_k = 3, threshold = 0.05, test = "testIndClogit");
+a2 <- MMPC(target, dataset, max_k = 3, threshold = 0.05, test = "testIndClogit");
+# print summary of the SES output
 summary(a1);
-#plot the SES output
-plot(a1, mode = "all");
+# plot the SES output
+# plot(a1, mode = "all");
 }
 
 \keyword{ Conditional logistic regression}

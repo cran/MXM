@@ -1,4 +1,4 @@
-gSquare = function(target, dataset, xIndex, csIndex, dataInfo=NULL, univariateModels=NULL, hash = FALSE, 
+gSquare = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL, univariateModels=NULL, hash = FALSE, 
 stat_hash=NULL, pvalue_hash=NULL,robust=FALSE) {
   #Conditional Independence test based on the G test of independence (log likelihood ratio  test)
   
@@ -62,7 +62,7 @@ stat_hash=NULL, pvalue_hash=NULL,robust=FALSE) {
   }
   
   zz = cbind(target, dataset)
-  dc <- as.numeric( apply(zz, 2, function(x) { length(unique(x)) } ) )
+  dc <- Rfast::colrange(zz, cont = FALSE)  ##  as.numeric( apply(zz, 2, function(x) { length(unique(x)) } ) )
   
   #levels for each variable
    mod <- cat.ci(1, xIndex, csIndex, zz, type = dc )

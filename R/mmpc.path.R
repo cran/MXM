@@ -1,4 +1,4 @@
-mmpc.path <- function(target , dataset , max_ks = NULL , thresholds = NULL , test = NULL , user_test = NULL, robust = FALSE, ncores = 1){
+mmpc.path <- function(target , dataset , wei = NULL, max_ks = NULL , thresholds = NULL , test = NULL , user_test = NULL, robust = FALSE, ncores = 1){
   
   if( is.null(thresholds) ) {
     alphas <- c(0.1, 0.05, 0.01)
@@ -27,11 +27,11 @@ mmpc.path <- function(target , dataset , max_ks = NULL , thresholds = NULL , tes
   for (i in 1:nalpha) {
     for (j in 1:nmaxk) {
       
-      results <- MMPC(target, dataset, max_k = max_ks[j], threshold = alphas[i], test, ini = iniset, hash = TRUE, hashObject = inihash, ncores = ncores)
+      results <- MMPC(target, dataset, max_k = max_ks[j], threshold = alphas[i], test, ini = iniset, wei = wei, hash = TRUE, hashObject = inihash, ncores = ncores)
       iniset <- results@univ
       inihash <- results@hashObject;
       
-      a <- mmpc.model(target, dataset, results)$ypografi 
+      a <- mmpc.model(target, dataset, wei = wei, results)$ypografi 
       
       if ( !is.null(a) ) {
       bic[i, j] <- a[length(a)]    

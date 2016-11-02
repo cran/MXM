@@ -10,8 +10,8 @@ Variable selection in linear regression models with forward selection
 }
 
 \usage{
-lm.fsreg(target, dataset, ini = NULL, threshold = 0.05, stopping = "BIC", tol = 2, 
-robust = FALSE, ncores = 1)
+lm.fsreg(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, stopping = "BIC", 
+tol = 2, heavy = FALSE, robust = FALSE, ncores = 1)
 }
 
 \arguments{
@@ -27,11 +27,17 @@ If you have a set of variables already start with this one. Currently this can o
 \item{threshold}{
 Threshold (suitable values in [0,1]) for assessing the p-values significance. Default value is 0.05.
 }
+\item{wei}{
+A vector of weights to be used for weighted regression. The default value is NULL. It is not suggested when robust is set to TRUE.
+}
 \item{stopping}{
 The stopping rule. The BIC ("BIC") or the adjusted \eqn{R^2} ("adjrsq") can be used. 
 }
 \item{tol}{
 The difference bewtween two successive values of the stopping rule. By default this is is set to 2. If for example, the BIC difference between two succesive models is less than 2, the process stops and the last variable, even though significant does not enter the model. If the adjusted \eqn{R^2} is used, the tol should be something like 0.01 or 0.02. 
+}
+\item{heavy}{
+A boolean variable specifying whether heavy computations are required or not. If for exmaple the dataset contains tens of thousands of rows, it is advised to used memory efficient GLMs and hence set this to TRUE.
 }
 \item{robust}{
 A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust version of the statistical test if it is available. It takes more time than a non robust version but it is suggested in case of outliers. Default value is FALSE. 
@@ -42,15 +48,7 @@ How many cores to use. This plays an important role if you have tens of thousand
 }
 
 \details{
-If the current 'test' argument is defined as NULL or "auto" and the user_test argument is NULL then the algorithm automatically selects the best test based on the type of the data. Particularly:
-\itemize{
-	\item if target is a factor, the multinomial or the binary logistic regression is used. If the target has two values only,   binary logistic regression will be used.
-	\item if target is a ordered factor, the ordered logit regression is used in the logistic test.
-	\item if target is a numerical vector and the dataset is a matrix or a data.frame with continuous variables, the Fisher conditional independence test is used. If the dataset is a data.frame and there are categorical variables, linear regression is used.
-	\item if target is discrete numerical (counts), the poisson regression conditional independence test is used. If there are only two values, the binary logistic regression is to be used.
-	\item if target is a Surv object, the Survival conditional independence test is used.
-	\item if target is a matrix with at least 2 columns, the multivariate linear regression is used.
-}
+Only linear regression (robust and non robust) is supported from this function.
 }
 
 \value{
@@ -66,6 +64,9 @@ The regression models, one at each step.
 }
 \item{final}{
 The final regression model.
+}
+\item{ci_test}{
+The conditional independence test used (either "testIndReg" or "testIndSpeedglm").  
 }
 \item{runtime}{
 The run time of the algorithm. A numeric vector. The first element is the user time, the second element is the system time and the third element is the elapsed time.
@@ -89,8 +90,6 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> Micha
 
 \examples{
 set.seed(123)
-#require(gRbase) #for faster computations in the internal functions
-require(hash)
 
 #simulate a dataset with continuous data
 dataset <- matrix( runif(1000 * 50, 1, 100), ncol = 50 )

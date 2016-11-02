@@ -10,9 +10,9 @@ One or more regression models obtained from SES or MMPC, are returned.
 }
 
 \usage{
-ses.model(target, dataset, sesObject, nsignat = 1, test = NULL)
+ses.model(target, dataset, wei = NULL, sesObject, nsignat = 1, test = NULL)
 
-mmpc.model(target, dataset, mmpcObject, test = NULL)
+mmpc.model(target, dataset, wei = NULL, mmpcObject, test = NULL)
 }
 
 \arguments{
@@ -22,6 +22,9 @@ i.e. strictly within 0 and 1 they are mapped into R using log( target/(1 - targe
 }
 \item{dataset}{
 A numeric matrix containing the variables. Rows are samples and columns are features. If you have categorical variables, this should be a data frame.
+}
+\item{wei}{
+A vector of weights to be used for weighted regression. The default value is NULL. We suggest not to use weights if you choose testIndReg and robust = TRUE (robust regression via M estimation)
 }
 \item{sesObject}{
 An object with the results of a SES run.
@@ -98,10 +101,10 @@ dataset <- matrix(runif(1000 * 101, 1, 100), nrow = 1000 )
 target <- dataset[, 101]
 dataset <- dataset[, -101]
 sesObject <- SES(target , dataset , max_k=3 , threshold = 0.05);
-ses.model(target, dataset, sesObject, nsignat = 1, test = NULL) 
-ses.model(target, dataset, sesObject, nsignat = 40, test = NULL)
+ses.model(target, dataset, sesObject = sesObject, nsignat = 1, test = NULL) 
+ses.model(target, dataset, sesObject = sesObject, nsignat = 40, test = NULL)
 mmpcObject <- MMPC(target , dataset , max_k=3 , threshold = 0.05);
-mmpc.model(target, dataset, mmpcObject, test = NULL) 
+mmpc.model(target, dataset, mmpcObject = mmpcObject, test = NULL) 
 }
 
 \keyword{ Regression modelling }

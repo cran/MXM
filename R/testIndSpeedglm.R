@@ -1,4 +1,4 @@
-testIndSpeedglm = function(target, dataset, xIndex, csIndex, dataInfo=NULL , univariateModels=NULL,
+testIndSpeedglm = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL , univariateModels=NULL,
  hash = FALSE, stat_hash=NULL, pvalue_hash=NULL, target_type=0, robust = FALSE)
 {
   #   TESTINDSPEEDGLM Conditional independence test for large sample sized data (tens and hundreds of thousands) for normal, binary discrete or ordinal class variables
@@ -99,7 +99,7 @@ testIndSpeedglm = function(target, dataset, xIndex, csIndex, dataInfo=NULL , uni
 #   }
   
   #if x or target is constant then there is no point to perform the test
-  if(var(x) == 0 || var( as.numeric(target) ) == 0)
+  if( var( as.numeric(x) ) == 0 || var( as.numeric(target) ) == 0)
   {
     if(hash == TRUE)#update hash objects
     {
@@ -222,7 +222,7 @@ testIndSpeedglm = function(target, dataset, xIndex, csIndex, dataInfo=NULL , uni
       return(results);
     }
       if ( target_type == 1 ) {
-      fit2 = speedglm::speedlm( target ~ x, data = as.data.frame(x) )
+      fit2 = speedglm::speedlm( target ~ x, weights = wei, data = as.data.frame(x) )
       suma = summary(fit2)[[ 13 ]]
       stat = suma[1]
       dof = suma[3]
@@ -230,19 +230,19 @@ testIndSpeedglm = function(target, dataset, xIndex, csIndex, dataInfo=NULL , uni
       flag = 1;
 
       } else if (target_type == 2){
-        fit2 = speedglm::speedglm(target ~ x, data = as.data.frame(x), family = binomial(logit) )
+        fit2 = speedglm::speedglm(target ~ x, weights = wei, data = as.data.frame(x), family = binomial(logit) )
         dev1 = fit2$nulldev
         dev2 = fit2$deviance
-        d2 = length(coef(fit2))
+        d2 = length( coef(fit2) )
         stat = abs( dev1 - dev2 )
         pvalue = pchisq(stat, d2 - 1, lower.tail = FALSE, log.p = TRUE)
         flag = 1;
 
       } else {
-        fit2 = speedglm::speedglm(target ~ x, data = as.data.frame(x), family = poisson(log) )
+        fit2 = speedglm::speedglm(target ~ x, weights = wei, data = as.data.frame(x), family = poisson(log) )
         dev1 = fit2$nulldev
         dev2 = fit2$deviance
-        d2 = length(coef(fit2))
+        d2 = length( coef(fit2) )
         stat = abs( dev1 - dev2 )
         pvalue = pchisq(stat, d2 - 1, lower.tail = FALSE, log.p = TRUE)
         flag = 1;
@@ -251,8 +251,8 @@ testIndSpeedglm = function(target, dataset, xIndex, csIndex, dataInfo=NULL , uni
   }else{
 
     if ( target_type == 1 ) {
-      fit1 = speedglm::speedlm( target ~ dataset[, csIndex], data = as.data.frame( dataset[, c(csIndex, xIndex)] ) )
-      fit2 = speedglm::speedlm( target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ) )
+      fit1 = speedglm::speedlm( target ~ dataset[, csIndex], data = as.data.frame( dataset[, c(csIndex, xIndex)] ), weights = wei,  )
+      fit2 = speedglm::speedlm( target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ), weights = wei,  )
       d1 = length( coef(fit1) ) 
       d2 = length( coef(fit2) )
       df1 = d2 - d1
@@ -262,8 +262,8 @@ testIndSpeedglm = function(target, dataset, xIndex, csIndex, dataInfo=NULL , uni
       flag = 1;
 
       } else if (target_type == 2){
-        fit1 = speedglm::speedglm( target ~ dataset[, csIndex], data = as.data.frame( dataset[, c(xIndex, csIndex)] ), family = binomial(logit) )
-        fit2 = speedglm::speedglm( target ~ ., data = as.data.frame( dataset[, c(xIndex, csIndex)] ), family = binomial(logit) )
+        fit1 = speedglm::speedglm( target ~ dataset[, csIndex], data = as.data.frame( dataset[, c(xIndex, csIndex)] ), family = binomial(logit), weights = wei,  )
+        fit2 = speedglm::speedglm( target ~ ., data = as.data.frame( dataset[, c(xIndex, csIndex)] ), family = binomial(logit), weights = wei,  )
         dev1 = fit1$deviance
         dev2 = fit2$deviance
         d1 = length( coef(fit1) )
@@ -273,8 +273,8 @@ testIndSpeedglm = function(target, dataset, xIndex, csIndex, dataInfo=NULL , uni
         flag = 1;
 
       } else {
-        fit1 = speedglm::speedglm( target ~ dataset[, csIndex], data = as.data.frame( dataset[, c(xIndex, csIndex)] ), family = poisson(log) )
-        fit2 = speedglm::speedglm( target ~ ., data = as.data.frame( dataset[, c(xIndex, csIndex)] ), family = poisson(log) )
+        fit1 = speedglm::speedglm( target ~ dataset[, csIndex], data = as.data.frame( dataset[, c(xIndex, csIndex)] ), family = poisson(log), weights = wei,  )
+        fit2 = speedglm::speedglm( target ~ ., data = as.data.frame( dataset[, c(xIndex, csIndex)] ), family = poisson(log), weights = wei,  )
         dev1 = fit1$deviance
         dev2 = fit2$deviance
         d1 = length( coef(fit1) )

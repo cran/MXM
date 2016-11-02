@@ -76,7 +76,6 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> Vince
 
 \examples{
 set.seed(123)
-#require(gRbase) #for faster computations in the internal functions
 require(hash)
 
 #simulate a dataset with continuous data

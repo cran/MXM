@@ -13,29 +13,23 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 
   
   if ( !is.matrix(dataset) )   dataset = as.matrix(dataset);
 
-  #check for NA values in the dataset and replace them with the variable mean
-  if( any( is.na(dataset) ) == TRUE )
+  #check for NA values in the dataset and replace them with the variable median or the mode
+  if(any(is.na(dataset)) == TRUE)
   {
+
+  
+    #dataset = as.matrix(dataset);
     warning("The dataset contains missing values (NA) and they were replaced automatically by the variable (column) median (for numeric) or by the most frequent level (mode) if the variable is factor")
     
-    if ( method == "pearson" || method == "spearman" )
-    {
-      dataset = apply( dataset, 2, function(x){ x[ which(is.na(x)) ] = median(x, na.rm = TRUE) } );
-    } else if ( method == "cat" ) {
-      for( i in 1:ncol(dataset) )
-      {
-        if ( any( is.na(dataset[, i]) ) )
-        {
-          xi = dataset[, i]
-          poio = which.max( as.vector( table(xi) ) )
-                
-          xi[ which(is.na(xi)) ] = sort( unique(xi) )[poio]
-
-          dataset[, i] = xi
-        }
-        
+    if ( method == "cat" )  {
+	    poia <- which( is.na(dataset), arr.ind = TRUE )[2]
+ 	    for( i in poia ) {
+        xi <- dataset[, i]
+		    a <- which.max( as.vector( table(xi) ) )
+        xi[ which( is.na(xi) ) ] = Rfast::sort_unique(xi)[a]
       }
-    }
+	  } else  dataset = apply( dataset, 2, function(x){ x[which(is.na(x))] = median(x, na.rm = TRUE) ; return(x) } ) 	
+
   }
   
   ### if you want to use Spearman, simply use Spearman on the ranks
@@ -51,9 +45,9 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 
 
   } else {
     ci.test = cat.ci
-    dc <- as.numeric( apply(dataset, 2, function(x) { length(unique(x)) } ) )
-    type = dc
-    rob = FALSE
+    dc <- Rfast::colrange(dataset, cont = FALSE)
+    type <- dc
+    rob <- FALSE
     
   }
   
@@ -172,8 +166,8 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 
       
       for ( i in 1:nrow(zeu) ) {
 
-        adjx = ina[ G[ zeu[i, 1], ] == 2 ]  ;  lx = length(adjx)  ## adjacents to x
-        adjy = ina[ G[ zeu[i, 2], ] == 2 ]  ;  ly = length(adjy)  ## adjacents to y
+        adjx = ina[ G[ zeu[i, 1], ] == 2 ]   ;   lx = length(adjx)  ## adjacents to x
+        adjy = ina[ G[ zeu[i, 2], ] == 2 ]   ;   ly = length(adjy)  ## adjacents to y
         
         if ( lx >= k )  {
           pvalx = pvalue[ zeu[i, 1], adjx ]
@@ -196,7 +190,6 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 
         if ( !is.null(samx) ) sx = 1  else sx = 0
         if ( !is.null(samy) ) sy = 1  else sy = 0 
         sam = rbind( samx * sx, samy * sy ) 
-        sam = as.matrix(sam)
         sam = unique(sam) 
         ## sam contains either the sets of k neighbours of X, or of Y or of both
         ## if the X and Y have common k neighbours, they are removed below
@@ -339,8 +332,8 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 
   
   names(n.tests) = paste("k=", 0:k, sep ="")
   
-  info <- summary( rowSums(G) )
-  density <- sum(G) / ( n * ( n - 1 ) )
+  info <- summary( Rfast::rowsums(G) )
+  density <- sum(G) / n / ( n - 1 ) 
   
  if(graph == TRUE)
   {

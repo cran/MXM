@@ -10,40 +10,49 @@ The main task of this test is to provide a p-value PVALUE for the null hypothesi
 }
 
 \usage{
-testIndFisher(target, dataset, xIndex, csIndex, dataInfo = NULL, univariateModels = NULL,
-hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, robust = FALSE)
+testIndFisher(target, dataset, xIndex, csIndex, wei = NULL, statistic = FALSE, 
+dataInfo = NULL, univariateModels = NULL, hash = FALSE, stat_hash = NULL, 
+pvalue_hash = NULL, robust = FALSE)
 
-testIndSpearman(target, dataset, xIndex, csIndex,dataInfo = NULL,univariateModels = NULL,
-hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, robust = FALSE)
+testIndSpearman(target, dataset, xIndex, csIndex, wei = NULL, statistic = FALSE, 
+dataInfo = NULL, univariateModels = NULL, hash = FALSE, stat_hash = NULL, 
+pvalue_hash = NULL, robust = FALSE)
 
 }
 
 \arguments{
-  \item{target}{
-  A numeric vector containing the values of the target variable. If the values are proportions or percentages, i.e. strictly within 0 and 1 they are mapped into R using log( target/(1 - target) ).
+\item{target}{
+A numeric vector containing the values of the target variable. If the values are proportions or percentages, i.e. strictly within 0 and 1 they are mapped into R using log( target/(1 - target) ). 
+This can also be a list of vectors as well. In this case, the metanalytic approach is used. 
 }
-  \item{dataset}{
-  A numeric matrix containing the variables for performing the test. Rows as samples and columns as features.
+\item{dataset}{
+A numeric matrix containing the variables for performing the test. Rows as samples and columns as features.
 }
-  \item{xIndex}{
-  The index of the variable whose association with the target we want to test.
+\item{xIndex}{
+The index of the variable whose association with the target we want to test.
 }
-  \item{csIndex}{
-  The indices of the variables to condition on.
+\item{csIndex}{
+The indices of the variables to condition on.
 }
-  \item{dataInfo}{
-  A list object with information on the structure of the data. Default value is NULL.
+\item{wei}{
+A vector of weights to be used for weighted regression. The default value is NULL. 
 }
-  \item{univariateModels}{
-  Fast alternative to the hash object for univariate test. List with vectors "pvalues" (p-values), "stats" (statistics) and "flags" (flag = TRUE if the test was succesful) representing the univariate association of each variable with the target. Default value is NULL.
+\item{statistic}{ 
+A boolena variable indicating whether the test statistics (TRUE) or the p-values should be combined (FALSE). See the details about this. 
 }
-  \item{hash}{
+\item{dataInfo}{
+A list object with information on the structure of the data. Default value is NULL.
+}
+\item{univariateModels}{
+Fast alternative to the hash object for univariate test. List with vectors "pvalues" (p-values), "stats" (statistics) and "flags" (flag = TRUE if the test was succesful) representing the univariate association of each variable with the target. Default value is NULL.
+}
+\item{hash}{
 A boolean variable which indicates whether (TRUE) or not (FALSE) to use the hash-based implementation of the statistics of SES. Default value is FALSE. If TRUE you have to specify the stat_hash argument and the pvalue_hash argument.
 }
-  \item{stat_hash}{
+\item{stat_hash}{
 A hash object (hash package required) which contains the cached generated statistics of a SES run in the current dataset, using the current test.
 }
-  \item{pvalue_hash}{
+\item{pvalue_hash}{
 A hash object (hash package required) which contains the cached generated p-values of a SES run in the current dataset, using the current test.
 }
   \item{robust}{
@@ -106,7 +115,6 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> Vince
 }
 
 \examples{
-
 #simulate a dataset with continuous data
 dataset <- matrix(runif(1000 * 200, 1, 1000), nrow = 1000 )
 #the target feature is the last column of the dataset as a vector
@@ -114,16 +122,15 @@ target <- dataset[, 200]
 res1 <- testIndFisher(target, dataset, xIndex = 44, csIndex = 100)
 res2 <- testIndSpearman(target, dataset, xIndex = 44, csIndex = 100)
 
-#require(gRbase)  #for faster computations in the internal functions
 #define class variable (here tha last column of the dataset)
-target <- 200;
+dataset <- dataset[, -200];
 #run the SES algorithm using the testIndFisher conditional independence test
 sesObject <- SES(target, dataset, max_k = 3, threshold = 0.05, test = "testIndFisher");
 
 #print summary of the SES output
 summary(sesObject);
-#plot the SES output
-plot(sesObject, mode = "all");
+# plot the SES output
+# plot(sesObject, mode = "all");
 
 }
 

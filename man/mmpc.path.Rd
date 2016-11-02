@@ -9,7 +9,7 @@ MMPC solution paths for many combinations of hyper-parameters.
 }
 
 \usage{
-mmpc.path(target, dataset, max_ks = NULL, thresholds = NULL, test = NULL,
+mmpc.path(target, dataset, wei = NULL, max_ks = NULL, thresholds = NULL, test = NULL,
 user_test = NULL, robust = FALSE, ncores = 1)
 }
 
@@ -20,6 +20,9 @@ The class variable. Provide either a string, an integer, a numeric value, a vect
 \item{dataset}{
 The data-set; provide either a data frame or a matrix (columns = variables , rows = samples).
 Alternatively, provide an ExpressionSet (in which case rows are samples and columns are features, see bioconductor for details).
+}
+\item{wei}{
+A vector of weights to be used for weighted regression. The default value is NULL. 
 }
 \item{max_ks}{
 A vector of possible max_k values. Can be a number as well, but this does not really make sense to do. If nothing is given, the values max_k=3 and max_k=2 are used by default. 
@@ -79,7 +82,6 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> Vince
 
 \examples{
 set.seed(123)
-require(gRbase) #for faster computations in the internal functions
 require(hash)
 # simulate a dataset with continuous data
 dataset <- matrix(runif(1000 * 101, 1, 100), nrow = 1000 ) 
@@ -87,7 +89,7 @@ dataset <- matrix(runif(1000 * 101, 1, 100), nrow = 1000 )
 target <- dataset[, 101]
 dataset <- dataset[, -101]
 
-a = mmpc.path(target, dataset, max_ks = NULL, thresholds = NULL, test = NULL, 
+a <- mmpc.path(target, dataset, max_ks = NULL, thresholds = NULL, test = NULL, 
 user_test = NULL, robust = FALSE, ncores = 1)
 }
 

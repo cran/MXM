@@ -10,7 +10,6 @@ pc.or <- function(mod, graph = FALSE) {
   G <- mod$G  ## the undirected graph
   n <- ncol(G)  ## how many variables are there
   ina <- 1:n 
-  G1 <- array( dim = c(n, n, 1000) )
   kappa <- mod$kappa
   sep <- mod$sepset  ## the triples with separating variables
   durat <-  proc.time()
@@ -50,296 +49,57 @@ pc.or <- function(mod, graph = FALSE) {
       }
     }
     
-    if ( !is.matrix(sepa) )  sepa <- as.matrix( t(sepa) )
+    if ( !is.matrix(sepa) )  sepa <- matrix( sepa, nrow = 1 )
     colnames(sepa) <- c("X", "Y", paste("Var", 1:len, sep = ""), "logged p-value")
     m <- nrow(sepa)
     p <- ncol(sepa) - 1
     rownames(sepa) <- colnames(G)[ sepa[, 1] ]
     ## sepa contains all the non significant pairs given at least one variable
     
-    ## function to check whether a node belongs in the sepset of two pairs of variables
-    is.sepset <- function(pair, nd, separ) {
-      if ( !is.matrix(separ) ) {
-        separ <- as.matrix( t(separ) )
-      }
-      p <- ncol(separ)
-      m <- nrow(separ)
-      
-      ela <- c( pair, nd, numeric( p - 3) ) 
-      wa <- abs( separ[, - (p + 1)] - rep( ela, rep(m, p) ) ) 
-      if (m == 1) {
-        sa <- which( sum(wa[1:2]) == 0 )
-      } else {
-        sa <- which( rowSums(wa[, 1:2]) == 0 ) 
-      }
-      if ( length(sa) > 0 ) {
-        kati <- intersect( nd, separ[sa, ] ) 
-        res <- ( length( kati ) > 0 )
-      } else res <- FALSE
-      res 
-    }
+    vim <- 1  ## 1st step	
+    ### Orientation rule 0: find the triplets (v structures) and orient
+  	G <- R0(G, ina, sepa) 
+	
+    ## 1st orientation rule: if there is an arrow and then an edge make it arrow
+    G <- R1(G)
+	
+    ## 2nd orientation rule: if there is a directed path connect the beginning with the end
+    G <- R2(G) 
     
-    ### first orientation rule: find the triplets (v structures) and orient
+    ### 3rd rule, the complicated one with v structures
+    G <- R3(G)
     
-    l <- rowSums(G == 1)
-    id <- which(l >= 0) 
-    vim <- 1  ## 1st step
+    G1 <- G
     
-    if ( length(id) > 0 ) {
-      
-      for (i in id) {
-        adj <- ina[G[i, ] == 1 ]
-        if ( length(adj) > 1 ) {
-          sam <- as.matrix( t( combn(adj, 2) ) )
-          ela <- NULL
-          for ( j in 1:nrow(sam) ) {
-            if ( G[sam[j, 1], sam[j, 2] ] == 0 ) {
-              res <- is.sepset( sam[j, ], i, sepa[, 1:p] )
-              if ( res == FALSE ) {
-                G[ sam[j, 1], i ] = G[ sam[j, 2], i ] = 2 
-                G[ i, sam[j, 1] ] = G[ i, sam[j, 2] ] = 3
-                
-              } else G <- G                 
-            }
-          }
-        }
-      }
-    }
+    ## 1st orientation rule: if there is an arrow and then an edge make it arrow
+    G <- R1(G) 
     
-
-    ## second orientation rule: if there is an arrow and then an edge make it arrow
-
-    if ( sum( G == 2 ) > 0 & sum( G == 1 ) > 0 ) {
-      
-      tup <- which( G == 2, arr.ind = TRUE )
-      nup <- nrow(tup) 
-      for (i in 1:nup) {
-        can <- tup[i, 2] 
-        geit <- which( G[can, ] == 1 )
-        if ( sum( G[can, ] == 3 ) == 0 ) {
-          po = which( G[tup[i, 1], geit] == 0 ) 
-          G[can, po] <- 2
-          G[po, can] <- 3
-        }
-        
-      }
-      
-    } 
+    ## 2nd orientation rule: if there is a directed path connect the beginning with the end
+    G <- R2(G)    
     
-
-    ## third orientation rule: if there is a directed path connect the beginning with the end
+    ### 3rd rule, the complicated one with v structures
+    G <- R3(G)
     
-    if ( sum( G == 2 ) > 0 & sum( G == 1 ) > 0 ) {
-      
-      poia <- which( G == 1, arr.ind = TRUE ) 
-      poia1 <- which( G == 1 )
-      poia2 <- which( G == 3 )
-      GGG <- G
-      GGG[poia1] <- NA
-      GGG[poia2] <- NA
-      GGG[GGG == 0] <- NA
-      g1 <- e1071::allShortestPaths(GGG)
-      
-      for ( i in 1:nrow(poia) )  {
-        aa <- e1071::extractPath( g1, start = poia[i, 1], end = poia[i, 2] )
-        if ( length(aa) > 2 ) {
-          G[ poia[i, 1], poia[i, 2] ] <- 2
-          G[ poia[i, 2], poia[i, 1] ] <- 3
-        }
-      }   
-      
-    } 
-    
-
-    ### 4th rule, the complicated one with v structures
-    
-    if ( sum( G == 2 ) > 0 & sum( G == 1 ) > 0 ) {
-      
-      tup <- which( G == 2, arr.ind = TRUE )
-      nup <- nrow(tup) 
-      poia <- as.factor( tup[, 2] )
-      poia <- as.numeric( levels(poia) ) 
-      ela <- NULL
-      for ( i in poia ) {
-        b3 <- which(G[i, ] == 1) 
-        if ( length( b3 ) > 0 ) {
-          wa <- tup[ tup[, 2] == i, ]
-          if ( is.matrix(wa) )  ela <- combn( 1:nrow(wa), 2 )
-          if ( !is.null(ela) ) {
-            for ( j in 1:ncol(ela) ) {
-              wa2 <- as.vector( wa[ ela[, j], 1 ] ) 
-              b1 <- which( G[ wa2[1], ] == 2 )
-              b2 <- which( G[ wa2[2], ] == 2 ) 
-              tomi <- intersect( b1, intersect(b3, b2) )
-              if ( length(tomi)>0 )  {
-                G[tomi, i] <- 2  
-                G[i, tomi] <- 3    
-              }
-            }
-          } 
-        }
-        ela <- NULL
-      }  
-    }  
-    
-    G1[ , , 1] <- G
-    
-    ## second orientation rule: if there is an arrow and then an edge make it arrow
-    
-    if ( sum( G == 2 ) > 0 & sum( G == 1 ) > 0 ) {
-      
-      tup <- which( G == 2, arr.ind = TRUE )
-      nup <- nrow(tup) 
-      for (i in 1:nup) {
-        can <- tup[i, 2] 
-        geit <- which( G[can, ] == 1 )
-        if ( sum( G[can, ] == 3 ) == 0 ) {
-          po = which( G[tup[i, 1], geit] == 0 ) 
-          G[can, po] <- 2
-          G[po, can] <- 3
-        }
-        
-      }
-      
-    } 
-    
-    ## third orientation rule: if there is a directed path connect the beginning with the end
-    
-    if ( sum( G == 2 ) > 0 & sum(G == 1) > 0 ) {
-      
-      poia <- which( G == 1, arr.ind = TRUE ) 
-      poia1 <- which( G == 1 )
-      poia2 <- which( G == 3 )
-      GGG <- G
-      GGG[poia1] <- NA
-      GGG[poia2] <- NA
-      GGG[GGG == 0] <- NA
-      g1 <- e1071::allShortestPaths(GGG)
-      
-      for ( i in 1:nrow(poia) )  {
-        aa <- e1071::extractPath( g1, start = poia[i, 1], end = poia[i, 2] )
-        if ( length(aa) > 2 ) {
-          G[ poia[i, 1], poia[i, 2] ] <- 2
-          G[ poia[i, 2], poia[i, 1] ] <- 3
-        }
-      }   
-      
-    } 
-    
-    ### 4th rule, the complicated one with v structures
-    
-    if ( sum( G == 2 ) > 0 & sum( G == 1 ) > 0 ) {
-      
-      tup <- which( G == 2, arr.ind = TRUE )
-      nup <- nrow(tup) 
-      poia <- as.factor( tup[, 2] )
-      poia <- as.numeric( levels(poia) ) 
-      ela <- NULL
-      for ( i in poia ) {
-        b3 <- which(G[i, ] == 1) 
-        if ( length( b3 ) > 0 ) {
-          wa <- tup[ tup[, 2] == i, ]
-          if ( is.matrix(wa) )  ela <- combn( 1:nrow(wa), 2 )
-          if ( !is.null(ela) ) {
-            for ( j in 1:ncol(ela) ) {
-              wa2 <- as.vector( wa[ ela[, j], 1 ] ) 
-              b1 <- which( G[ wa2[1], ] == 2 )
-              b2 <- which( G[ wa2[2], ] == 2 ) 
-              tomi <- intersect( b1, intersect(b3, b2) )
-              if ( length(tomi)>0 )  {
-                G[tomi, i] <- 2  
-                G[i, tomi] <- 3    
-              }
-            }
-          } 
-        }
-        ela <- NULL
-      }  
-    }  
-    
-    G1[ , , 2] <- G
+    G2 <- G
     
     vim <- 2 
-    while ( sum( abs( G1[, , vim] - G1[, , vim - 1 ] ) ) != 0 ) {
-      vim <- vim + 1
+    while ( sum( abs( G1 - G2 ) ) != 0 ) {
       
-      ## second orientation rule: if there is an arrow and then an edge make it arrow
+	  vim <- vim + 1 
+      G1 <- G2   
+      ## 1st orientation rule: if there is an arrow and then an edge make it arrow
+      G <- R1(G)
       
-      if ( sum( G == 2 ) > 0 & sum( G == 1 ) > 0 ) {
-        
-        tup <- which( G == 2, arr.ind = TRUE )
-        nup <- nrow(tup) 
-        for (i in 1:nup) {
-          can <- tup[i, 2] 
-          geit <- which( G[can, ] == 1 )
-          if ( sum( G[can, ] == 3 ) == 0 ) {
-            po = which( G[tup[i, 1], geit] == 0 ) 
-            G[can, po] <- 2
-            G[po, can] <- 3
-          }
-          
-        }
-        
-      } 
-      
-      ## third orientation rule: if there is a directed path connect the beginning with the end
-      
-      if ( sum( G == 2 ) > 0 & sum( G == 1)  > 0 ) {
-        
-        poia <- which( G == 1, arr.ind = TRUE ) 
-        poia1 <- which( G == 1 )
-        poia2 <- which( G == 3 )
-        GGG <- G
-        GGG[poia1] <- NA
-        GGG[poia2] <- NA
-        GGG[GGG == 0] <- NA
-        g1 <- e1071::allShortestPaths(GGG)
-        
-        for ( i in 1:nrow(poia) )  {
-          aa <- e1071::extractPath( g1, start = poia[i, 1], end = poia[i, 2] )
-          if ( length(aa) > 2 ) {
-            G[ poia[i, 1], poia[i, 2] ] <- 2
-            G[ poia[i, 2], poia[i, 1] ] <- 3
-          }
-        }   
-        
-      }      
-      
-      ### 4th rule, the complicated one with v structures
-      
-      if ( sum( G == 2 ) > 0 & sum( G == 1 ) > 0 ) {
-        
-        tup <- which( G == 2, arr.ind = TRUE )
-        nup <- nrow(tup) 
-        poia <- as.factor( tup[, 2] )
-        poia <- as.numeric( levels(poia) ) 
-        ela <- NULL
-        for ( i in poia ) {
-          b3 <- which(G[i, ] == 1) 
-          if ( length( b3 ) > 0 ) {
-            wa <- tup[ tup[, 2] == i, ]
-            if ( is.matrix(wa) )  ela <- combn( 1:nrow(wa), 2 )
-            if ( !is.null(ela) ) {
-              for ( j in 1:ncol(ela) ) {
-                wa2 <- as.vector( wa[ ela[, j], 1 ] ) 
-                b1 <- which( G[ wa2[1], ] == 2 )
-                b2 <- which( G[ wa2[2], ] == 2 ) 
-                tomi <- intersect( b1, intersect(b3, b2) )
-                if ( length(tomi) > 0 )  {
-                  G[tomi, i] <- 2  
-                  G[i, tomi] <- 3    
-                }
-              }
-            } 
-          }
-          ela <- NULL
-        }  
-      }  
-      
-      G1[ , , vim] <- G
+      ## 2nd orientation rule: if there is a directed path connect the beginning with the end
+      G <- R2(G) 
+       
+      ### 3rd rule, the complicated one with v structures
+      G <- R3(G)
+	        
+      G2 <- G
     }
     
-    G <- G1[, , vim]
+    G <- G2
     
   } ## end of all rules 
   
@@ -360,3 +120,152 @@ pc.or <- function(mod, graph = FALSE) {
   final = list(Gini = mod$G, G = G, runtime = durat) 
   final
 }
+
+
+
+
+
+
+
+
+
+#############
+### Rules  
+#############
+
+R0 <- function(G, ina, sepa) {
+
+  
+    p <- ncol(sepa) - 1
+    l <- Rfast::rowsums( G == 1 )
+    id <- which( l >= 0 ) 
+    
+    if ( length(id) > 0 ) {
+      
+      for (i in id) {
+        adj <- ina[ G[i, ] == 1 ]
+        if ( length(adj) > 1 ) {
+          sam <-  matrix( combn(adj, 2), ncol = 2, byrow = TRUE )  
+          ela <- NULL
+          for ( j in 1:nrow(sam) ) {
+            if ( G[sam[j, 1], sam[j, 2] ] == 0 ) {
+              res <- is.sepset( sam[j, ], i, sepa[, 1:p] )
+              if ( res == FALSE ) {
+                G[ sam[j, 1], i ] = G[ sam[j, 2], i ] = 2 
+                G[ i, sam[j, 1] ] = G[ i, sam[j, 2] ] = 3
+                
+              } else G <- G  
+			  
+            }
+          }
+        }
+      }
+	  
+    }
+	
+	G
+	
+}
+    
+	
+	
+R1 <- function(G) {
+
+   if ( sum( G == 2 ) > 0 & sum( G == 1 ) > 0 ) {
+      
+      tup <- which( G == 2, arr.ind = TRUE )
+      nup <- nrow(tup) 
+      for (i in 1:nup) {
+        can <- tup[i, 2] 
+        geit <- which( G[can, ] == 1 )
+        if ( sum( G[can, ] == 3 ) == 0 ) {
+          po = which( G[tup[i, 1], geit] == 0 ) 
+          G[can, po] <- 2
+          G[po, can] <- 3
+        }
+        
+      }
+      
+   } 
+	
+   G
+   
+}   
+
+
+R2 <- function(G) {
+
+   if ( sum( G == 2 ) > 0 & sum( G == 1 ) > 0 ) {
+      
+      poia <- which( G == 1, arr.ind = TRUE ) 
+      poia1 <- which( G == 1 )
+      poia2 <- which( G == 3 )
+      GGG <- G
+      GGG[poia1] <- NA
+      GGG[poia2] <- NA
+      GGG[GGG == 0] <- NA
+      g1 <- e1071::allShortestPaths(GGG)
+      
+      for ( i in 1:nrow(poia) )  {
+        aa <- e1071::extractPath( g1, start = poia[i, 1], end = poia[i, 2] )
+        if ( length(aa) > 2 ) {
+          G[ poia[i, 1], poia[i, 2] ] <- 2
+          G[ poia[i, 2], poia[i, 1] ] <- 3
+        }
+      }   
+      
+   } 
+	
+   G
+	
+}	
+
+
+R3 <- function(G) {
+    if ( sum( G == 2 ) > 0 & sum( G == 1 ) > 0 ) {
+        
+       tup <- which( G == 2, arr.ind = TRUE )
+       nup <- nrow(tup) 
+       poia <- as.factor( tup[, 2] )
+       poia <- as.numeric( levels(poia) ) 
+       ela <- NULL
+
+       for ( i in poia ) {
+         b3 <- which(G[i, ] == 1) 
+         if ( length( b3 ) > 0 ) {
+           wa <- tup[ tup[, 2] == i, ]
+           if ( is.matrix(wa) )  ela <- combn( 1:nrow(wa), 2 )
+           if ( !is.null(ela) ) {
+             for ( j in 1:ncol(ela) ) {
+               wa2 <- as.vector( wa[ ela[, j], 1 ] ) 
+               b1 <- which( G[ wa2[1], ] == 2 )
+               b2 <- which( G[ wa2[2], ] == 2 ) 
+               tomi <- intersect( b1, intersect(b3, b2) )
+               if ( length(tomi) > 0 )  {
+                 G[tomi, i] <- 2  
+                 G[i, tomi] <- 3    
+               }
+             }
+           } 
+         }
+
+         ela <- NULL
+
+	   }  
+    }
+	  
+	G 
+	 
+}
+
+
+is.sepset <- function(pair, nd, separ) {
+  
+  a <- length( intersect( pair, separ[1:2] ) )
+  if ( a > 1 )  { 
+    b <- length( intersect(nd, separ) ) > 0
+  } else b <- FALSE
+  
+  b
+  
+} 

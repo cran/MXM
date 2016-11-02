@@ -10,28 +10,32 @@ from 'TARGET' given a conditioning set CS. This test is based on the log likelih
 }
 
 \usage{
-gSquare(target, dataset, xIndex, csIndex, dataInfo = NULL, univariateModels = NULL,
-hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, robust = FALSE)
+gSquare(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, 
+pvalue_hash = NULL, robust = FALSE)
 }
 
 \arguments{
-  \item{target}{
-  A numeric vector containing the values of the target variable.
+\item{target}{
+A numeric vector containing the values of the target variable.
 }
-  \item{dataset}{
-  A numeric matrix containing the variables for performing the test. Rows as samples and columns as features.
+\item{dataset}{
+A numeric matrix containing the variables for performing the test. Rows as samples and columns as features.
 }
-  \item{xIndex}{
-  The index of the variable whose association with the target we want to test.
+\item{xIndex}{
+The index of the variable whose association with the target we want to test.
 }
-  \item{csIndex}{
-  The indices of the variables to condition on.
+\item{csIndex}{
+The indices of the variables to condition on.
 }
-  \item{dataInfo}{
-  A list object with information on the structure of the data. Default value is NULL.
+\item{wei}{
+A vector of weights to be used for weighted regression. The default value is NULL. It is not suggested when robust is set to TRUE.
 }
-  \item{univariateModels}{
-  Fast alternative to the hash object for univariate test. List with vectors "pvalues" (p-values), "stats" (statistics) and 
+\item{dataInfo}{
+A list object with information on the structure of the data. Default value is NULL.
+}
+\item{univariateModels}{
+Fast alternative to the hash object for univariate tests. List with vectors "pvalues" (p-values), "stats" (statistics) and 
 "flags" (flag = TRUE if the test was succesful) representing the univariate association of each variable with the target. 
 Default value is NULL.
 }
@@ -114,7 +118,6 @@ dataset <- dataset[, -51]
 results <- gSquare(target, dataset, xIndex = 44, csIndex = c(10,20) )
 results
 
-#require(gRbase) #for faster computations in the internal functions
 #run SES algorithm using the gSquare conditional independence test for the binary class variable
 sesObject <- SES(target, dataset, max_k = 3, threshold = 0.05, test = "gSquare");
 target <- as.factor(target)
@@ -122,8 +125,8 @@ sesObject2 <- SES(target, dataset, max_k = 3, threshold = 0.05, test = "testIndL
 #print summary of the SES output
 summary(sesObject);
 summary(sesObject2);
-#plot the SES output
-plot(sesObject, mode = "all");
+# plot the SES output
+# plot(sesObject, mode = "all");
 }
 
 \keyword{ \eqn{G^2} test }

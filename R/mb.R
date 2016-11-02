@@ -22,8 +22,8 @@ mb <- function(G, node, graph = FALSE) {
   le <- length(children) 
   spouses <- list()
   if (le > 0) {
-    for (i in le) {
-      spousa <- which( G[children, ] == 3 )
+    for (i in children) {
+      spousa <- which( G[i, ] == 3 )
       spouses[[ i ]] <- setdiff(spousa, node) 
     }
   }

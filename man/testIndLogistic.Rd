@@ -9,8 +9,9 @@ The main task of this test is to provide a p-value PVALUE for the null hypothesi
 }
 
 \usage{
-testIndLogistic(target,dataset,xIndex,csIndex,dataInfo = NULL,univariateModels = NULL, 
-hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, target_type = 0, robust = FALSE)
+testIndLogistic(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
+target_type = 0, robust = FALSE)
 }
 
 \arguments{
@@ -25,6 +26,9 @@ hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, target_type = 0, robust = FA
 }
   \item{csIndex}{
   The indices of the variables to condition on.
+}
+  \item{wei}{
+  A vector of weights to be used for weighted regression. The default value is NULL. 
 }
   \item{dataInfo}{
   A list object with information on the structure of the data. Default value is NULL.
@@ -111,9 +115,8 @@ This test uses the function multinom (package nnet) for multinomial logistic reg
 }
 
 \examples{
-#require(gRbase) #for faster computations in the internal functions
-require(nnet)
-require(ordinal)
+#require(nnet)
+#require(ordinal)
 
 #simulate a dataset with categorical data 
 dataset_m <- matrix( sample(c(0, 1, 2), 50 * 100, replace = TRUE), ncol = 50)
@@ -133,8 +136,8 @@ dataset_m <- dataset_m[, -50]
   test = "testIndLogistic");
   #print summary of the SES output
   summary(sesObject);
-  #plot the SES output
-  plot(sesObject, mode = "all");
+  # plot the SES output
+  # plot(sesObject, mode = "all");
 
 
 ########################################################################
@@ -151,8 +154,8 @@ dataset_m <- dataset_m[, -50]
                    test = "testIndLogistic");
   #print summary of the SES output
   summary(sesObject);
-  #plot the SES output
-  plot(sesObject, mode = "all");
+  # plot the SES output
+  # plot(sesObject, mode = "all");
 
 
 ########################################################################
@@ -175,8 +178,8 @@ dataset_b <- dataset_b[, -50]
   test = "testIndLogistic");
   #print summary of the SES output
   summary(sesObject);
-  #plot the SES output
-  plot(sesObject, mode = "all");
+  # plot the SES output
+  # plot(sesObject, mode = "all");
 }
 
 \keyword{ Binary logistic regression }
