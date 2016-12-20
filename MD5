@@ -1,4 +1,4 @@
-ca9af4b114a64215b65d24c98e10e614 *DESCRIPTION
+25969f149368f070f52d13c07918d7ea *DESCRIPTION
 4bf1501c926c3e25555cde9005e1a0f9 *NAMESPACE
 2d75a63776568f856529804a8c3b72d9 *R/MMPC.R
 84a89ddd56fd48abcc1610dc885f64c8 *R/MMPC.temporal.R
@@ -23,7 +23,7 @@ be59d0d3b4e5212f78c0ce928ede5d2c *R/bs.reg.R
 c278886f60aa231138730efd4d8430d3 *R/censIndCR.R
 dff77bdc21f359ffcdc018f83aa7bb05 *R/censIndER.R
 84b5cea5835770d67b25fd6bf00d9a7a *R/censIndWR.R
-cd61d15747cd1a15600f2ad069d6b30d *R/condi.R
+b8b3fbea26d294f085c2e7571e688c2f *R/condi.R
 f2450aa6eb5e26df463fca0cefdb0347 *R/cv.mmpc.R
 a2baeeeaeccc45ecbe1fc587bc7d7646 *R/cv.ses.R
 af8ea5e10e41b191dfd6508ad67a6b96 *R/cvmmpc.par.R
@@ -91,11 +91,11 @@ b001623375b2e5591f9c91db14db4057 *R/zip.fsreg.R
 588e195fb7732d0942900d69f186b84d *build/vignette.rds
 617f56b83a1fbae12b872c2f86076370 *inst/CITATION
 c01aa5553062c2c77e13e29ea9a749c2 *inst/doc/article.ltx
-26c19e183018a9a7aad96f10699eb7d9 *inst/doc/article.pdf
+adb6967a559477bbee5f52558d400905 *inst/doc/article.pdf
 041e3a1f44a6cf4c1647af18c7db48bb *man/MMPC.temporal.output-class.Rd
 6ed5b7fd4c333a56e740482f943182a0 *man/MMPCoutput-class.Rd
 869791a2933ea93e242ac8981b703be7 *man/MXM-internal.Rd
-cdd2b2d8f008a3bc37a4889b0c2115f0 *man/MXM-package.Rd
+853795771257922b1db5dec4c48bb683 *man/MXM-package.Rd
 78eb65b5562a367f213e591589d41326 *man/MXMCondIndTests.Rd
 967c392b9fa47f04f60693069d935e92 *man/SES.Rd
 ead9c4e2cd66fc6b9d102d9c97d0f21f *man/SES.temporal.Rd

@@ -15,7 +15,7 @@ MMPC and SES can handle even thousands of variables and for some tests, even man
 \tabular{ll}{
 Package: \tab MXM\cr
 Type: \tab Package\cr
-Version: \tab 0.9.6\cr
+Version: \tab 0.9.7\cr
 Date: \tab 2016-12-20\cr
 License: \tab GPL-2\cr
 }

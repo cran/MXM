@@ -64,7 +64,7 @@ condi <- function(ind1, ind2, cs, dat, type = "pearson", rob = FALSE, R = 1) {
     x1 <- dat[, ind1]
     x2 <- dat[, ind2 ]
    
-    if ( d > 0 ) {  ## There are no conditioning variables
+    if ( d == 0 ) {  ## There are no conditioning variables
       
       if ( rob ) { ## robust correlation
 

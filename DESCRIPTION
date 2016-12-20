@@ -1,7 +1,7 @@
 Package: MXM
 Type: Package
 Title: Discovering Multiple, Statistically-Equivalent Signatures
-Version: 0.9.6
+Version: 0.9.7
 URL: http://mensxmachina.org
 Date: 2016-12-20
 Author: Ioannis Tsamardinos, Vincenzo Lagani, Giorgos Athineou, Michail Tsagris, Giorgos Borboudakis, Anna Roumpelaki
@@ -14,6 +14,6 @@ Imports: methods, stats, utils, survival, MASS, graphics, ordinal,
         nnet, quantreg, lme4, foreach, doParallel, parallel, speedglm,
         e1071, relations, Rfast, visNetwork
 NeedsCompilation: no
-Packaged: 2016-12-20 09:08:04 UTC; user
+Packaged: 2016-12-20 09:53:00 UTC; user
 Repository: CRAN
-Date/Publication: 2016-12-20 10:46:49
+Date/Publication: 2016-12-20 11:46:31
