@@ -72,11 +72,9 @@ Colombo, Diego, and Marloes H. Maathuis (2014). Order-independent constraint-bas
 }
 
 \author{
-R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 
-%\note{
-%}
 
 \seealso{
 \code{\link{pc.skel}, \link{pc.or}, \link{mmhc.skel} }
@@ -89,12 +87,10 @@ tru <- y$G
 
 mod <- pc.con(x)
 b <- pc.or(mod)
-plota(tru) 
+plotnetwork(tru) 
 dev.new()
-plota(b$G)
-
+plotnetwork(b$G)
 }
 
-\keyword{ \eqn{G^2} test }
-\keyword{ Log likelihood ratio }
-\keyword{ Conditional independence test }
+\keyword{ Directed acylic graph }
+\keyword{ simulation of random values }

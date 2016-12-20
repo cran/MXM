@@ -9,28 +9,22 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
   ## dataset contains the data, it must be a matrix 
   ## alpha is the level of significance, set to 0.05 by default
   ## if graph is true, the graph will appear
-  
   alpha <- log(alpha)
-  
   title <- deparse( substitute(dataset) )
   dataset <- as.matrix(dataset)
-  
   #check for NA values in the dataset and replace them with the variable mean
-  if( any( is.na(dataset) ) == TRUE )
-  {
+  if( any( is.na(dataset) ) )   {
     #dataset = as.matrix(dataset);
     warning("The dataset contains missing values (NA) and they were replaced automatically by the variable (column) median (for numeric) or by the most frequent level (mode) if the variable is factor")
-      
     dataset = apply( dataset, 2, function(x){ x[ which(is.na(x)) ] = median(x, na.rm = TRUE) ; return(x) } );
   }
   
   ### if you want to use Spearman, simply use Spearman on the ranks
-  if (method == "spearman")  {
-    dat <- apply(dataset, 2, rank)
-  }
+  if (method == "spearman")    dat <- apply(dataset, 2, rank)
   
-  n <- ncol(dataset)
-  nu <- nrow(dataset)
+  dm <- dim(dataset)
+  n <- dm[2]
+  nu <- dm[1]
   k <- 0  ## initial size of the sperating set
   G <- matrix(2, n, n)  # 3 sep-set indicates a subset of variables which eliminate given edge  
   ## If an element has the number 2 it means there is connection, otherwiser it will have 0
@@ -41,10 +35,9 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
   ## in addition this works even if the required memory is too big and cannot be allocated
   ## In small dimensions, less than 1000 this will be slower than cor(dataset)
   ## but the difference is negligible
-  mat <- t(dataset) - colMeans(dataset)
-  mat <- mat / sqrt( rowSums(mat^2) )
+  mat <- t(dataset) - Rfast::colmeans(dataset)
+  mat <- mat / sqrt( Rfast::rowsums(mat^2) )
   R <- tcrossprod( mat )
- 
   R1 <- R[lower.tri(R)]
   
   up <- sqrt( nu - 3 )   
@@ -69,7 +62,7 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
   G[pvalue > alpha] <- 0   ## emoves edges from non significantly related pairs
   if ( is.null( colnames(dataset) ) ) {
     colnames(G) <- rownames(G) <- paste("X", 1:n, sep = "")
-  } else colnames(G) <- rownames(G) <- colnames(dataset)
+  }  else colnames(G) <- rownames(G) <- colnames(dataset)
 
   ina <- 1:n 
   sep <- list()
@@ -91,10 +84,8 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
     final <- list(kappa = k, G = G) 
   } else {
 
-    ell = 2
-
+    ell <- 2
     ## Execute PC algorithm: main loop
-
     while ( k < ell  &  duo > 0 )  {
       k <- k + 1   ## size of the seperating set will change now
       tes <- 0
@@ -111,7 +102,6 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
       for ( i in 1:nrow(zeu) ) {
 
         xyIdx <- zeu[i, 1:2]
-        
         adjx <- ina[ G[ xyIdx[ 1 ], ] == 2 ]   ;   lx <- length(adjx)  ## adjacents to x
         adjy <- ina[ G[ xyIdx[ 2 ], ] == 2 ]   ;   ly <- length(adjy)  ## adjacents to y
         
@@ -137,10 +127,8 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
         if ( !is.null(samy) )  sy <- 1   else sy <- 0 
         sam <- rbind( samx * sx, samy * sy ) 
         sam <- unique(sam) 
-        
         ## sam contains either the sets of k neighbours of X, or of Y or of both
-        ## if the X and Y have common k neighbours, they are removed below
-        
+        ## if the X and Y have common k neighbours, they are removed below       
         rem <- intersect( xyIdx, sam )
         if ( length(rem) > 0 ) {
           pam <- list()
@@ -171,22 +159,18 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
           }
         }
 
-        if ( nrow(sam) == 0 ) {
+        if ( dim(sam)[1] == 0 ) {
           G <- G  
           
         } else {
        
           csIdx <- sam[1, 1:k]  
           Rsel <- R[xyIdx, xyIdx]
-          
-          condR <- Rsel - as.matrix( R[xyIdx, csIdx] ) %*% 
-          ( solve( as.matrix( R[csIdx, csIdx] ) , rbind( R[csIdx, xyIdx] ) ) )
-          
+          condR <- Rsel - as.matrix( R[xyIdx, csIdx] ) %*% ( solve( as.matrix( R[csIdx, csIdx] ) , rbind( R[csIdx, xyIdx] ) ) )
           r <- abs( condR[1, 2] / sqrt( condR[1, 1] * condR[2, 2]) ) 
           if (r > 1)  r <- 1
           
           stat <- abs( 0.5 * log( (1 + r) / (1 - r) ) ) * cor.se ## absolute of the test statistic
-
           aa <-  log(2) + pt(stat, dofk, lower.tail = FALSE, log.p = TRUE) 
           tes <- tes + 1 
           
@@ -201,14 +185,11 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
               m <- m + 1
 
               csIdx <- sam[m, 1:k]
-              condR <- Rsel - as.matrix( R[xyIdx, csIdx] ) %*% 
-              ( solve( as.matrix( R[csIdx, csIdx] ) , rbind( R[csIdx, xyIdx] ) ) )
-              
+              condR <- Rsel - as.matrix( R[xyIdx, csIdx] ) %*% ( solve( as.matrix( R[csIdx, csIdx] ) , rbind( R[csIdx, xyIdx] ) ) )
               r <- abs( condR[1, 2] / sqrt( condR[1, 1] * condR[2, 2]) )
               if (r > 1)  r <- 1
               
               stat <- abs( 0.5 * log( (1 + r) / (1 - r) ) ) * cor.se  ## absolute of the test statistic
-
               aa <-  log(2) + pt(stat, dofk, lower.tail = FALSE, log.p = TRUE) 
               tes <- tes + 1
             }
@@ -238,15 +219,10 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
       
       if (length(id) == 1) {
          sep[[ k ]] <- c( zeu[id, 1:2], met[id, ] )
-      } else {
-        sep[[ k ]] <- cbind( zeu[id, 1:2], met[id, ] )
-      }
+      } else    sep[[ k ]] <- cbind( zeu[id, 1:2], met[id, ] )
       
       zeu <- zeu[-id, ]  
-      if ( class(zeu) != "matrix" ) {
-        zeu <- matrix(zeu, ncol = 4)
-      }  
-      
+      if ( !is.matrix( class(zeu) ) )   zeu <- matrix(zeu, ncol = 4)
       duo <- nrow(zeu)
         
       n.tests[ k + 1 ] <- tes
@@ -259,29 +235,17 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
 
     ###### end of the algorithm
 
-  
     for ( l in 1:k ) { 
       
       if ( is.matrix(sep[[ l ]]) ) {
-        if ( nrow(sep[[ l ]]) > 0) {  
-          sepa = sep[[ l ]]
-          colnames( sepa )[1:2] = c("X", "Y")
-          colnames( sepa )[ 2 + 1:l ] = paste("SepVar", 1:l)
-          colnames( sepa )[ c(l + 3):c(l + 4) ] = c("stat", "logged.p-value")
-          sepa =  sepa[ order(sepa[, 1], sepa[, 2] ), ]
-          sep[[ l ]] = sepa
-        }
-        
+          colnames( sep[[ l ]] ) <- c("X", "Y", paste("SepVar", 1:l), "stat", "logged.p-value")
+          #sepa =  sepa[ order(sepa[, 1], sepa[, 2] ), ]
       } else {
-        if ( length(sep[[ l ]]) > 0) { 
-          names( sep[[ l ]] )[1:2] = c("X", "Y")
-          names( sep[[ l ]] )[ 2 + 1:l ] = paste("SepVar", 1:l)
-          names( sep[[ l ]] )[ c(l + 3):c(l + 4) ] = c("stat", "logged.p-value")
-        } 
+        if ( length(sep[[ l ]]) > 0)   names( sep[[ l ]] ) <- c("X", "Y", paste("SepVar", 1:l), "stat", "logged.p-value")
       }
       
     } 
- 
+  #######################
   }
 
   n.tests <- n.tests[ n.tests>0 ]
@@ -297,7 +261,7 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
       if ( is.matrix( sep[[ l ]] ) )  {
         nu <- nrow( sep[[ l ]] )
         if ( nu > 0 ) sepset[[ l ]] = sep[[ l ]][1:nu, ]
-      } else sepset[[ l ]] = sep[[ l ]]    
+      }  else sepset[[ l ]] <- sep[[ l ]]    
     }
     
   }  
@@ -307,16 +271,7 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
   info <- summary( rowSums(G) )
   density <- sum(G) /  n / ( n - 1 ) 
   
- if(graph == TRUE)
-  {
-    if(requireNamespace("Rgraphviz", quietly = TRUE, warn.conflicts = FALSE) == TRUE)
-    {
-      am.graph <- new("graphAM", adjMat = G, edgemode = "undirected")
-      plot( am.graph, main = paste("Skeleton of the PC algorithm for", title ) ) 
-    }else{
-      warning('In order to plot the generated network, package Rgraphviz is required.')
-    }
-  }
-
+  if( graph )  plotnetwork(G, paste("Skeleton of the PC algorithm for", title) )
+  
   list(stat = stata, pvalue = pvalue, runtime = durat, kappa = k, n.tests = n.tests, density = density, info = info, G = G, sepset = sepset, title = title )
 }

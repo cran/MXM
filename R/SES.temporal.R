@@ -86,7 +86,7 @@ SES.temporal = function(target, reps = NULL, group, dataset, max_k = 3 , thresho
   stat_hash = NULL;
   pvalue_hash = NULL;
   
-  if(hash == TRUE)
+  if( hash )
   {
     if(requireNamespace("hash"))
     {
@@ -111,32 +111,14 @@ SES.temporal = function(target, reps = NULL, group, dataset, max_k = 3 , thresho
   ###################################
   # dataset checking and initialize #
   ###################################
-  
-  if(!is.null(dataset))
-  {
-  
-    #check if dataset is an ExpressionSet object of Biobase package
-    #if(class(dataset) == "ExpressionSet")
-    #{
-    #  #get the elements (numeric matrix) of the current ExpressionSet object.
-    #  dataset = Biobase::exprs(dataset);
-    #  dataset = t(dataset); #take the features as columns and the samples as rows
-    #} else if ( class(dataset) == "matrix" | class(dataset) == "data.frame" ){
-    #  target = target 
-    #} else {
-    #  stop('Invalid dataset class. It must be either a matrix, a dataframe or an ExpressionSet');
-    #}
 
-  }
-    if(is.null(dataset) || is.null(target) )
+  if(is.null(dataset) || is.null(target) )
     {
       stop('invalid dataset or target (class feature) arguments.');
-    }else{
-      target = target;
-    }
+    }else  target = target;
   
   #check for NA values in the dataset and replace them with the variable mean
-  if(any(is.na(dataset)) == TRUE)
+  if( any(is.na(dataset)) )
   {
     dataset = as.matrix(dataset);
     warning("The dataset contains missing values and they were replaced automatically by the variable (column) mean.")
@@ -174,6 +156,8 @@ SES.temporal = function(target, reps = NULL, group, dataset, max_k = 3 , thresho
   # test checking and initialize #
   ################################
   
+  la <- length( Rfast::sort_unique( as.numeric(target) ) )
+
   if(typeof(user_test) == "closure")
   {
     test = user_test;
@@ -185,13 +169,13 @@ SES.temporal = function(target, reps = NULL, group, dataset, max_k = 3 , thresho
       if("factor" %in% class(target))
       {
         test = "testIndGLMM";
-        if(is.ordered(target) == TRUE)
+        if( is.ordered(target) )
         {
           dataInfo$target_type = "binary";
           
           cat('\nTarget variable type: Binary')
         }else{
-          if(length(unique(target)) == 2)
+          if( la == 2 )
           {
             dataInfo$target_type = "binary"
             cat('\nTarget variable type: Binomial')
@@ -209,9 +193,9 @@ SES.temporal = function(target, reps = NULL, group, dataset, max_k = 3 , thresho
           }
         }
         
-        if(identical(floor(target),target) == TRUE)
+        if( identical(floor(target),target) )
         {
-          if(length(unique(target)) == 2)
+          if( la == 2)
           {
             dataInfo$target_type = "binary";
             cat('\nTarget variable type: Binary')
@@ -234,9 +218,9 @@ SES.temporal = function(target, reps = NULL, group, dataset, max_k = 3 , thresho
     if(test == "testIndGLMM")
     {
 
-       if(identical(floor(target),target) == TRUE)
+       if( identical(floor(target), target) )
         {
-          if(length(unique(target)) == 2)
+          if( la == 2)
           {
             dataInfo$target_type = "binary";
             cat('\nTarget variable type: Binary')
@@ -252,7 +236,7 @@ SES.temporal = function(target, reps = NULL, group, dataset, max_k = 3 , thresho
           test = "testIndGLMM";  
         }
       
-      if(is.ordered(target) == TRUE)
+      if( is.ordered(target) )
       {
         dataInfo$target_type = "binary";
         #cat('\nTarget variable type: Binary')
@@ -264,9 +248,9 @@ SES.temporal = function(target, reps = NULL, group, dataset, max_k = 3 , thresho
         }
         
       }else{
-        if(identical(floor(target),target) == TRUE)
+        if( identical(floor(target), target) )
         {
-          if(length(unique(target)) == 2)
+          if( la == 2)
           {
             dataInfo$target_type = "binary";
             cat('\nTarget variable type: Binary')
@@ -299,7 +283,7 @@ SES.temporal = function(target, reps = NULL, group, dataset, max_k = 3 , thresho
     ci_test = test
     if(length(test) == 1) #avoid vectors, matrices etc
     {
-      test = match.arg(test , av_tests ,TRUE);
+      test = match.arg(test, av_tests, TRUE);
       #convert to closure type
       if(test == "testIndGLMM")
       {
@@ -311,9 +295,7 @@ SES.temporal = function(target, reps = NULL, group, dataset, max_k = 3 , thresho
         test = testIndGLMM;
       }
       
-    }else{
-      stop('invalid test option');
-    }
+    }else  stop('invalid test option');
   }
   
   ###################################
@@ -325,29 +307,14 @@ SES.temporal = function(target, reps = NULL, group, dataset, max_k = 3 , thresho
   varsize = dim(dataset)[[2]];
   
   #option checking
-  if((typeof(max_k)!="double") || max_k < 1)
-  {
-    stop('invalid max_k option');
-  }
-  if(max_k > varsize)
-  {
-    max_k = varsize;
-  }
-  if((typeof(threshold)!="double") || exp(threshold) <= 0 || exp(threshold) > 1)
-  {
-    stop('invalid threshold option');
-  }
-  if(typeof(equal_case)!="double")
-  {
-    stop('invalid equal_case option');
-  }
+  if((typeof(max_k)!="double") || max_k < 1)  stop('invalid max_k option');
+  if(max_k > varsize)  max_k = varsize;
+  if((typeof(threshold)!="double") || exp(threshold) <= 0 || exp(threshold) > 1)  stop('invalid threshold option');
+  if(typeof(equal_case)!="double")  stop('invalid equal_case option');
   
   #######################################################################################
 
-  if(!is.null(user_test))
-  {
-    ci_test = "user_test";
-  }
+  if( !is.null(user_test) )  ci_test = "user_test";
 
   #######################################################################################
   
@@ -373,9 +340,7 @@ InternalSES.temporal = function(target , reps , group, dataset , max_k = 3 , thr
  
  if ( is.null(ini) ) {
    univariateModels = univariateScore.temporal(target , reps, group, dataset , test, wei = wei, hash=hash, dataInfo, stat_hash=stat_hash, pvalue_hash=pvalue_hash, targetID, slopes = slopes, ncores = ncores);
- } else {
-   univariateModels = ini
- }
+ } else   univariateModels = ini
   
   pvalues = univariateModels$pvalue;
   stats = univariateModels$stat;
@@ -646,8 +611,7 @@ IdentifyEquivalence.temporal = function(equal_case , queues , target , reps, gro
       
       #flag to get out from the outermost loop
       breakFlag = FALSE;
-      
-      
+          
       for(i in 1:ncol(subsetcsk))
       {
         z = subsetcsk[,i];
@@ -677,7 +641,7 @@ IdentifyEquivalence.temporal = function(equal_case , queues , target , reps, gro
           break;
         }
       }
-      if(breakFlag == TRUE)
+      if( breakFlag )
       {
         break;
       }else
@@ -727,13 +691,10 @@ apply_ideq.temporal = function(i , queues , target , reps, group, dataset , cvar
   
   cur_results = test(target , reps, group, dataset , w, zPrime , wei = wei, dataInfo=dataInfo, univariateModels, hash = hash, stat_hash, pvalue_hash, slopes = slopes);
   
-  if(cur_results$flag & (cur_results$pvalue > threshold))
-  {
+  if(cur_results$flag & (cur_results$pvalue > threshold)) {
     queues[[w]] = as.matrix(c(queues[[w]] , queues[[cvar]]));
     return(queues[[w]]);
-  }else{
-    return(NA);
-  }
+  } else  return(NA);
 }
 
 #########################################################################################################
@@ -756,13 +717,9 @@ max_min_assoc.temporal = function(target, reps, group, dataset , test , wei, thr
     pvalue_hash = mma_res$pvalue_hash;
     
     
-    if(mma_res$pvalue > threshold)
-    {
-      remainingVars[[cvar]] = 0;
-    }
+    if(mma_res$pvalue > threshold)   remainingVars[[cvar]] = 0;
     
-    if(compare_p_values(mma_res$pvalue , selected_pvalue , mma_res$stat , selected_stat))
-    {
+    if (compare_p_values(mma_res$pvalue , selected_pvalue , mma_res$stat , selected_stat)) {
       selected_var = cvar;
       selected_pvalue = mma_res$pvalue;
       selected_stat = mma_res$stat;
@@ -782,28 +739,24 @@ min_assoc.temporal = function(target , reps, group, dataset , test ,  max_k , cv
   #   ma_stat = univariateModels$stat[[cvar]];
   ma_pvalue = pvalues[[cvar]]; #CHANGE
   ma_stat = stats[[cvar]]; #CHANGE
-  
   selectedVars = which(selectedVars==1);
   #max size of the condiotioning test
   k = min(c(max_k , length(selectedVars)));
-  
   ck = 1;
-  while(ck<=k)
-  {
+  
+  while(ck<=k)  {
     #lastvar = unique(which(selectedVarsOrder == max(selectedVarsOrder)));
     lastvar = which(selectedVarsOrder == max(selectedVarsOrder))[1]; #CHANGE
     
     tempCS = setdiff(selectedVars, lastvar) #CHANGE
-    if(ck == 1) #CHANGE
-    {
+    if(ck == 1) { #CHANGE
       subsetcsk = as.matrix(lastvar); #CHANGE
-    }else{
+    } else {
       subsetcsk = t( Rfast::comb_n(tempCS, ck-1) )
       numSubsets = dim(subsetcsk)[2]; #CHANGE
       subsetcsk = rbind(subsetcsk, lastvar*rep(1,numSubsets)); #CHANGE
     }
     
-
     for(i in 1:ncol(subsetcsk))
     {
       s = subsetcsk[,i];

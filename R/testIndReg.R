@@ -21,9 +21,7 @@ testIndReg = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = N
   # References
   # [1] Norman R. Draper and Harry Smith. Applied Regression 
   # Analysis, Wiley, New York, USA, third edition, May 1998.
-  
- 
-  
+   
   #########################################################################################################
   
   #initialization
@@ -32,13 +30,10 @@ testIndReg = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = N
   pvalue = log(1);
   stat = 0;
   flag = 0;
-   if ( all(target>0 & target<1) ) ## are they proportions?
-   { 
-     target = log( target/(1-target) ) 
-   }
+
   csIndex[which(is.na(csIndex))] = 0;
   
-  if(hash == TRUE)
+  if( hash )
   {
     csIndex2 = csIndex[which(csIndex!=0)]
     csindex2 = sort(csIndex2)
@@ -57,9 +52,9 @@ testIndReg = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = N
   
   #if the xIndex is contained in csIndex, x does not bring any new
   #information with respect to cs
-  if(!is.na(match(xIndex,csIndex)))
+  if( !is.na(match(xIndex,csIndex)) )
   {
-    if(hash == TRUE)#update hash objects
+    if( hash )#update hash objects
     {
       stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
       pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
@@ -97,22 +92,16 @@ testIndReg = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = N
 #   }
    n = length(target)
   #checking the length
-  if (length(x) == 0 || n == 0)
-  {
-    message(paste("error in testIndReg : empty variable x or target"))
-    results <- list(pvalue = pvalue, stat = stat, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
-    return(results);
-  }
 
   #if x = any of the cs then pvalue = 1 and flag = 1.
   #That means that the x variable does not add more information to our model due to an exact copy of this in the cs, so it is independent from the target
-  if(length(cs)!=0)
+  if( length(cs) != 0 )
   {
-    if(is.null(dim(cs)[2]) == TRUE) #cs is a vector
+    if( is.null(dim(cs)[2]) ) #cs is a vector
     {
       if(any(x != cs) == FALSE)  #if(!any(x == cs) == FALSE)
       {
-        if(hash == TRUE)#update hash objects
+        if( hash )#update hash objects
         {
           stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
           pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
@@ -125,7 +114,7 @@ testIndReg = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = N
       {
         if(any(x != cs[,col]) == FALSE)  #if(!any(x == cs) == FALSE)
         {
-          if(hash == TRUE)#update hash objects
+          if( hash )#update hash objects
           {
             stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
             pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
@@ -138,9 +127,9 @@ testIndReg = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = N
   }
   
   #if x or target is constant then there is no point to perform the test
-  if( var( as.numeric(x) ) == 0 || var(target) == 0 )
+  if( vara( as.numeric(x) ) == 0 )
   {
-    if(hash == TRUE)#update hash objects
+    if( hash )#update hash objects
     {
       stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
       pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
@@ -148,11 +137,7 @@ testIndReg = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = N
     results <- list(pvalue = log(1), stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
     return(results);
   }
-  
-  #remove constant columns of cs
-  cs = as.matrix(cs)
-  cs = cs[,apply(cs, 2, var, na.rm=TRUE) != 0]
-  
+
   #trycatch for dealing with errors
   res <- tryCatch(
 {
@@ -167,7 +152,7 @@ testIndReg = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = N
       results <- list(pvalue = pvalue, stat = stat, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
       return(results);
     }
-    if (robust == TRUE) { ## robust estimation
+    if ( robust ) { ## robust estimation
 
        fit1 = MASS::rlm(target ~ 1, weights = wei)
        fit2 = MASS::rlm(target ~ x, weights = wei)
@@ -180,7 +165,6 @@ testIndReg = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = N
     }else{
       s0 = var(target) * (n - 1)
       mat = model.matrix(target~ ., as.data.frame(x) )
-      mat = mat[1:n, ]
 	    if ( !is.null(wei) ) {
 	      fit2 = lm.wfit(mat, target, w = wei)
 	    } else   fit2 = lm.fit(mat, target)
@@ -191,15 +175,14 @@ testIndReg = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = N
     } 
     
   }else{
-        if (robust == TRUE ){ ##robust estimation
-          fit1 = MASS::rlm(target ~ ., data = as.data.frame(dataset[,  csIndex]), maxit = 2000, weights = wei )
-          fit2 = MASS::rlm(target ~ ., data = as.data.frame(dataset[, c(csIndex, xIndex)]), maxit = 2000, weights = wei )
-          lik1 = as.numeric( logLik(fit1) )
-          lik2 = as.numeric( logLik(fit2) )
-          stat = 2 * abs(lik1 - lik2)
-          dof = abs( length( coef(fit1) ) - length( coef(fit2) ) )
-          pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
-
+     if ( robust ){ ##robust estimation
+        fit1 = MASS::rlm(target ~ ., data = as.data.frame(dataset[,  csIndex]), maxit = 2000, weights = wei )
+        fit2 = MASS::rlm(target ~ ., data = as.data.frame(dataset[, c(csIndex, xIndex)]), maxit = 2000, weights = wei )
+        lik1 = as.numeric( logLik(fit1) )
+        lik2 = as.numeric( logLik(fit2) )
+        stat = 2 * abs(lik1 - lik2)
+        dof = abs( length( coef(fit1) ) - length( coef(fit2) ) )
+        pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
       } else {
       fit2 = lm( target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ), weights = wei )
       mod = anova(fit2)
@@ -222,7 +205,7 @@ testIndReg = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = N
     flag = 0;
   }else{
     #update hash objects
-    if(hash == TRUE)
+    if( hash )
     {
       stat_hash[[key]] <- stat;#.set(stat_hash , key , stat)
       pvalue_hash[[key]] <- pvalue;#.set(pvalue_hash , key , pvalue)

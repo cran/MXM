@@ -63,14 +63,9 @@ A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust
 \details{
 If hash = TRUE, all three tests require the arguments 'stat_hash' and 'pvalue_hash' for the hash-based implementation of the statistic test. These hash Objects are produced or updated by each run of SES (if hash == TRUE) and they can be reused in order to speed up next runs of the current statistic test. If "SESoutput" is the output of a SES run, then these objects can be retrieved by SESoutput@hashObject$stat_hash and the SESoutput@hashObject$pvalue_hash.
 
-Important: Use these arguments only with the same dataset that was used at initialization.
+Important: Use these arguments only with the same dataset that was used at initialization. For all the available conditional independence tests that are currently included on the package, please see "?CondIndTests".
 
-For all the available conditional independence tests that are currently included on the package, please see "?CondIndTests".
-
-If you have overdispersion, the variance is higher than the mean, a negative binomial is to be used.
-
-If you have more zeros than expected under a Poisson model, not overdispersion, then zero inlfated Poisson is to be used. 
-
+If you have overdispersion, the variance is higher than the mean, a negative binomial is to be used. If you have more zeros than expected under a Poisson model, not overdispersion, then zero inlfated Poisson is to be used. Bear in mind that if you have a small number of zeros, there is no reason to use this model. If for example you have count data but no, or 1 zeros, this will not work.
 }
 
 \value{
@@ -103,7 +98,7 @@ Joseph M.H. (2011). Negative Binomial Regression. Cambridge University Press, 2n
 \author{
 Vincenzo Lagani, Ioannis Tsamardinos, Michail Tsagris and Giorgos Athineou
 
-R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr>, Vincenzo Lagani <vlagani@csd.uoc.gr> and Michail Tsagris <mtsagris@yahoo.gr>
+R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr>, Vincenzo Lagani <vlagani@csd.uoc.gr> and Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 
 %\note{

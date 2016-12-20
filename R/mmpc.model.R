@@ -11,12 +11,10 @@ mmpc.model = function(target, dataset, wei = NULL, mmpcObject, test = NULL) {
     bic = NULL
   }
   
-  if ( any(is.na(dataset) ) == TRUE )
-  {
+  if ( any(is.na(dataset) ) ) {
     #dataset = as.matrix(dataset);
     warning("The dataset contains missing values (NA) and they were replaced automatically by the variable (column) median (for numeric) or by the most frequent level (mode) if the variable is factor")
-    if (class(dataset) == "matrix")
-    {
+    if (class(dataset) == "matrix")   {
       dataset = apply(dataset, 2, function(x) { x[ which(is.na(x)) ] = median(x,na.rm = TRUE) } );
     }else{
       for(i in 1:ncol(dataset))
@@ -40,56 +38,28 @@ mmpc.model = function(target, dataset, wei = NULL, mmpcObject, test = NULL) {
     ci_test = mmpcObject@test
   } else ci_test = test 
   
-  rob = mmpcObject@rob
-  
-    ypografi = mmpcObject@selectedVars  
-    
+    rob <- mmpcObject@rob
+    ypografi <- mmpcObject@selectedVars  
     p <- length(ypografi)
     # mat1 <- mat2 <- numeric(p)
     
     if ( ci_test == "testIndFisher" || ci_test == "testIndReg" ) {
-      if ( min(target) > 0 & max(target) < 1 ) {  ## are they proportions?
-        target = log( target/(1 - target) ) 
-      }  
+      if ( min(target) > 0 & max(target) < 1 )   target <- log( target/(1 - target) ) 
       
-      if (rob == TRUE) {
-        # cont = robust::lmRob.control(mxr = 2000, mxf = 2000, mxs = 2000 )  ## only used in robust linear regression
-        # mod = robust::lmRob( target ~ ., data = as.data.frame( dataset[, ypografi ] ), control = cont )
+      if ( rob ) {
         mod = MASS::rlm(target ~., data = as.data.frame(dataset[, ypografi ]), maxit = 2000, weights = wei )
-        bic = BIC( mod )
-        
-        # for (i in 1:p) {
-        #   mi <- robust::lmRob( target ~ ., data = as.data.frame( dataset[, c(1:i) ] ), control = cont )
-        #   es <- fitted(mi)
-        #   mat1[i] <- cor(target, es)^2
-        #   mi <- robust::lmRob( target ~ ., data = as.data.frame( dataset[, -i ] ), control = cont )
-        #   es <- fitted(mi)
-        #   mat2[i] <- cor(target, es)^2
-        # }  
-        
+        bic = BIC( mod )        
       } else {
         mod = lm( target ~ ., data = as.data.frame(dataset[, ypografi ]), weights = wei )
-        bic = BIC(mod)
-        
-        # for (i in 1:p) {
-        #   mi <- lm( target ~ ., data = as.data.frame( dataset[, c(1:i) ] ) )
-        #   es <- fitted(mi)
-        #   mat1[i] <- cor(target, es)^2
-        #   mi <- lm( target ~ ., data = as.data.frame( dataset[, -i ] ) )
-        #   es <- fitted(mi)
-        #   mat2[i] <- cor(target, es)^2
-        # }  
-        
+        bic = BIC(mod)      
       }  
       
-    } else if (ci_test == "testIndRQ") {
-      if ( all( target>0 & target<1 ) ) {  ## are they proportions?
-        target = log( target/(1 - target) ) 
-      }
-      mod = quantreg::rq( target ~., data = as.data.frame(dataset[, ypografi ]), weights = wei  )
-	  la <- logLik(mod)
-      bic <-  - 2 * as.numeric( la ) + attr(la, "df") * log( length(target) )
-      
+    } else if ( ci_test == "testIndSpearman" || ci_test == "testIndRQ" ) {
+      if ( all( target>0 & target<1 ) )  target = log( target/(1 - target) ) 
+
+      mod <- quantreg::rq( target ~., data = as.data.frame(dataset[, ypografi ]), weights = wei  )
+  	  la <- logLik(mod)
+      bic <-  - 2 * as.numeric( la ) + attr(la, "df") * log( length(target) )   
       # for (i in 1:p) {
       #   mi <- quantreg::rq( target ~ ., data = as.data.frame( dataset[, c(1:i) ] ) )
       #   es <- fitted(mi)
@@ -100,33 +70,22 @@ mmpc.model = function(target, dataset, wei = NULL, mmpcObject, test = NULL) {
       # }  
       
     } else if ( ci_test == "testIndBeta" ) {
-      mod = betareg::betareg( target ~ ., data = as.data.frame(dataset[, ypografi ]), weights = wei )
-      bic = BIC(mod)
-      
-      # y = log(target / ( 1- target) )
-      # for (i in 1:p) {
-      #   mi <- betareg::betareg( target ~ ., data = as.data.frame( dataset[, c(1:i) ] ) )
-      #   es <- fitted(mi)
-      #   es1 <- log( es / (1 - es) )
-      #   mat1[i] <- cor(y, es1)^2
-      #   mi <- betareg::betareg( target ~ ., data = as.data.frame( dataset[, -i ] ) )
-      #   es <- fitted(mi)
-      #   es1 <- log( es / (1 - es) )
-      #   mat2[i] <- cor(y, es)^2
-      # }
+      mod <- beta.mod( target, dataset[, ypografi ], wei = wei )
+      bic <-  - 2 * mod$loglik + ( length( coef(mod$be) ) + 1 ) * log( length(target) )
       
     } else if ( ci_test == "testIndSpeedglm" ) {
-      if ( length( unique(target) )  == 2 ) {
-        mod = speedglm::speedglm( target ~ ., data = as.data.frame(dataset[, ypografi ]), weights = wei, family = binomial() )
-        bic =  - 2 * as.numeric( logLik(mod) ) + length( coef(mod) ) * log( length(target) )
+      la <- length( Rfast::sort_unique(target) )
+      if ( la == 2 ) {
+        mod <- speedglm::speedglm( target ~ ., data = as.data.frame(dataset[, ypografi ]), weights = wei, family = binomial() )
+        bic <-  - 2 * as.numeric( logLik(mod) ) + length( coef(mod) ) * log( length(target) )
       
-      } else if ( length( unique(target) )  > 2  &  sum( floor(target) - target) == 0 ) {
-        mod = speedglm::speedglm( target ~ ., data = as.data.frame(dataset[, ypografi ]), weights = wei, family = poisson() )
-        bic =  - 2 * as.numeric( logLik(mod) ) + length( coef(mod) ) * log( length(target) )
+      } else if ( la  > 2  &  sum( floor(target) - target) == 0 ) {
+        mod <- speedglm::speedglm( target ~ ., data = as.data.frame(dataset[, ypografi ]), weights = wei, family = poisson() )
+        bic <-  - 2 * as.numeric( logLik(mod) ) + length( coef(mod) ) * log( length(target) )
 		
       } else {
-        mod = speedglm::speedlm( target ~ ., data = as.data.frame(dataset[, ypografi ]), weights = wei )
-        bic =  - 2 * as.numeric( logLik(mod) ) + ( length( coef(mod) ) + 1 ) * log( length(target) )
+        mod <- speedglm::speedlm( target ~ ., data = as.data.frame(dataset[, ypografi ]), weights = wei )
+        bic <-  - 2 * as.numeric( logLik(mod) ) + ( length( coef(mod) ) + 1 ) * log( length(target) )
       }  
       
     } else if ( ci_test == "testIndPois") {
@@ -139,88 +98,70 @@ mmpc.model = function(target, dataset, wei = NULL, mmpcObject, test = NULL) {
       #}
       
     } else if ( ci_test == "testIndNB" ) {
-      mod = MASS::glm.nb( target ~ ., data = as.data.frame(dataset[, ypografi ]), weights = wei )
-      bic = BIC(mod)
+      mod <- MASS::glm.nb( target ~ ., data = as.data.frame(dataset[, ypografi ]), weights = wei )
+      bic <- BIC(mod)
       
     } else if ( ci_test == "testIndZIP" ) {
-      mod = pscl::zeroinfl( target ~. | ., data = as.data.frame( dataset[, ypografi] ), weights = wei )
-      bic = BIC(mod)
+      mod <- zip.mod( target, dataset[, ypografi], wei = wei )
+      bic <-  -2 * mod$loglik + ( length( coef(mod$be) ) + 1) * log( length(target) )
       
     } else if ( class(target) == "matrix" & ci_test == "testIndMVreg" ) {
-      if ( all(target > 0 & target < 1) ) {  ## are they compositional data?
-        target = log( target[, -1] / (target[, 1]) ) 
-      } 
-      mod = lm( target ~., data = as.data.frame(dataset[, ypografi ]), weights = wei )
-      bic = BIC(mod)
+      if ( all(target > 0 & target < 1) )    target <- log( target[, -1] / (target[, 1]) ) 
+      mod <- lm( target ~., data = as.data.frame(dataset[, ypografi ]), weights = wei )
+      bic <- NULL
       
     } else if ( class(target) == "matrix"  &  ci_test == "testIndBinom" ) {
-      
-      mod = glm( target[, 1] /target[, 2] ~., data = as.data.frame(dataset[, ypografi ]), weights = target[, 2], family = binomial )
-      bic = BIC(mod)
+      mod <- glm( target[, 1] /target[, 2] ~., data = as.data.frame(dataset[, ypografi ]), weights = target[, 2], family = binomial )
+      bic <- BIC(mod)
       
     } else if (ci_test == "censIndCR") {
-      mod = survival::coxph( target ~ ., data = as.data.frame(dataset[, ypografi ]), weights = wei )
-      bic = BIC(mod)
+      mod <- survival::coxph( target ~ ., data = as.data.frame(dataset[, ypografi ]), weights = wei )
+      bic <- BIC(mod)
       
     } else if (ci_test == "censIndWR") {
-      mod = survival::survreg( target ~ ., data = as.data.frame(dataset[, ypografi ]), weights = wei )
-      bic = BIC(mod)
+      mod <- survival::survreg( target ~ ., data = as.data.frame(dataset[, ypografi ]), weights = wei )
+      bic <- BIC(mod)
 
     } else if (ci_test == "censIndER") {
-      mod = survival::survreg( target ~ ., data = as.data.frame(dataset[, ypografi ]), weights = wei, distribution = "exponential" )
-      bic = BIC(mod)
+      mod <- survival::survreg( target ~ ., data = as.data.frame(dataset[, ypografi ]), weights = wei, distribution = "exponential" )
+      bic <- BIC(mod)
       
     } else if (ci_test == "testIndClogit") {
-      case = as.logical(target[, 1]);  
-      id = target[, 2]
-      mod = survival::clogit(case ~ . + strata(id), data = as.data.frame( dataset[ , ypografi] ) )  ## wieghts are ignored here anyway
-      bic = BIC(mod)
+      case <- as.logical(target[, 1]);  
+      id <- target[, 2]
+      mod <- survival::clogit(case ~ . + strata(id), data = as.data.frame( dataset[ , ypografi] ) )  ## wieghts are ignored here anyway
+      bic <- BIC(mod)
       
     } else if ( ci_test == "testIndLogistic" || ci_test == "gSquare" ) {
-      if ( length(unique(target)) == 2 ) {
+      if ( length( Rfast::sort_unique(target)) == 2 ) {
         #if ( rob == TRUE ) {
         #  mod <- robust::glmRob( target ~ ., data = as.data.frame(dataset[, ypografi ]) , binomial, maxit = 100 )
         #  bic <- mod$deviance + length( coef(mod) ) * log( length(target) )
         #} else { 
-        mod = glm( target ~., data = as.data.frame(dataset[, ypografi ]), family = binomial, weights = wei ) 
-        bic = BIC(mod)
+        mod <- glm( target ~., data = as.data.frame(dataset[, ypografi ]), family = binomial, weights = wei ) 
+        bic <- BIC(mod)
         #}
         
-      } else if ( is.ordered(target) == FALSE ) { 
-        target = as.factor( as.numeric( as.vector(target) ) )
-        mod = nnet::multinom( target ~., data = as.data.frame(dataset[, ypografi ]), trace = FALSE, weights = wei )
-        bic = BIC(mod)
+      } else if ( !is.ordered(target) ) { 
+        target <- as.factor( as.numeric( as.vector(target) ) )
+        mod <- nnet::multinom( target ~., data = as.data.frame(dataset[, ypografi ]), trace = FALSE, weights = wei )
+        bic <- BIC(mod)
         
-      } else if ( is.ordered(target) == TRUE ) {
-        mod = ordinal::clm( target ~., data = as.data.frame(dataset[, ypografi ]), weights = wei  )
-        bic = BIC(mod)
-      }
-      
+      } else if ( is.ordered(target) ) {
+        mod <- ordinal::clm( target ~., data = as.data.frame(dataset[, ypografi ]), weights = wei  )
+        bic <- BIC(mod)
+      }    
       
     }
-    
-    # if ( is.null( colnames(dataset) ) ) {
-    #   names(ypografi) = paste("X", ypografi, sep = "")
-    #   names(mat1) = paste("+X", ypografi, sep = "")
-    #   names(mat2) = paste("-X", ypografi, sep = "")
-    # } else {
-    #   nama = colnames(dataset)
-    #   names(ypografi) = nama
-    #   names(mat1) = paste("+", nama, sep = "")
-    #   names(mat2) = paste("-", nama, sep = "")
-    # } 
-    
+       
     if ( is.null( colnames(dataset) ) ) {
       names(ypografi) = paste("Var", ypografi, sep = " ")
-    } else {
-      names(ypografi) = colnames(dataset)[ypografi]
-    }
+    } else  names(ypografi) = colnames(dataset)[ypografi]
     
-    ypografi = c(ypografi, bic)
+    ypografi <- c(ypografi, bic)
     names(ypografi)[length(ypografi)] = "bic"
     
-  
-  list(mod = mod, ypografi = ypografi)  
+    list(mod = mod, ypografi = ypografi)  
   
 }
 

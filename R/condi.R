@@ -25,7 +25,7 @@ condi <- function(ind1, ind2, cs, dat, type = "pearson", rob = FALSE, R = 1) {
     rob = FALSE   ## if spearman is chosen, robust is set to FALSE  
   }
 
-  if (rob == FALSE) {
+  if ( !rob ) {
     if ( d == 0 ) {
       r <- cor(dat[, ind1], dat[, ind2])
     } else {
@@ -40,17 +40,11 @@ condi <- function(ind1, ind2, cs, dat, type = "pearson", rob = FALSE, R = 1) {
     }
     
   } else {  ## robust estimation using M estimation
-    # cont = robust::lmRob.control(mxr = 2000, mxf = 2000, mxs = 2000 )  ## only used in robust linear regression
     if ( d == 0 ) {
-      # b1 <- coef( robust::lmRob( dat[, ind1] ~ dat[, ind2], control = cont) )[2]
-      # b2 <- coef( robust::lmRob( dat[, ind2] ~ dat[, ind1], control = cont) )[2]
-       b1 <- coef( MASS::rlm( dat[, ind1] ~ dat[, ind2], maxit = 2000 ) )[2]
-       b2 <- coef( MASS::rlm( dat[, ind2] ~ dat[, ind1], maxit = 2000 ) )[2]
-      
+      b1 <- coef( MASS::rlm( dat[, ind1] ~ dat[, ind2], maxit = 2000 ) )[2]
+      b2 <- coef( MASS::rlm( dat[, ind2] ~ dat[, ind1], maxit = 2000 ) )[2]    
       r <- sqrt( abs(b1 * b2) )
     } else {
-      # e1 <- resid( robust::lmRob( dat[, ind1] ~  dat[, ind2] + dat[, cs], control = cont ) )
-      # e2 <- resid( robust::lmRob( dat[, ind2] ~  dat[, ind1] + dat[, cs], control = cont ) )
       e1 <- resid( MASS::rlm( dat[, ind1] ~.,  data = data.frame( dat[, c(ind2, cs) ] ), maxit = 2000 ) )
       e2 <- resid( MASS::rlm( dat[, ind2] ~., data = data.frame( dat[, c(ind1, cs) ] ), maxit = 2000 ) )
       r <- cor(e1, e2)
@@ -59,9 +53,7 @@ condi <- function(ind1, ind2, cs, dat, type = "pearson", rob = FALSE, R = 1) {
   
   if (type == "pearson") {
     stat <- abs( 0.5 * log( (1 + r) / (1 - r) ) * sqrt(n - d - 3) )  ## absolute of the test statistic
-  } else {
-    stat <- abs( 0.5 * log( (1 + r) / (1 - r) ) * sqrt(n - d - 3) ) /  1.029563  ## absolute of the test statistic
-  }
+  } else  stat <- abs( 0.5 * log( (1 + r) / (1 - r) ) * sqrt(n - d - 3) ) /  1.029563  ## absolute of the test statistic
   
   pvalue <- log(2) + pt(stat, n - d - 3, lower.tail = FALSE, log.p = TRUE)  ## logged p-value
   result <- c(stat, pvalue, n - d - 3)
@@ -69,23 +61,19 @@ condi <- function(ind1, ind2, cs, dat, type = "pearson", rob = FALSE, R = 1) {
   
   } else if ( R > 1 ) {  ## permutation based test
     
-    x1 = dat[, ind1]
-    x2 = dat[, ind2 ]
+    x1 <- dat[, ind1]
+    x2 <- dat[, ind2 ]
    
     if ( d > 0 ) {  ## There are no conditioning variables
       
-      if (rob == TRUE) { ## robust correlation
-        #cont = robust::lmRob.control(mxr = 2000, mxf = 2000, mxs = 2000 )  ## only used in robust linear regression
-        #mod1 <- robust::lmRob( x1 ~ x2, control = cont )
-        #mod2 <- robust::lmRob( x2 ~ x1, control = cont ) 
+      if ( rob ) { ## robust correlation
+
         mod1 <- MASS::rlm( x1 ~ x2, maxit = 2000 )
-        mod2 <- MASS::rlm( x2 ~ x1, maxit = 2000 ) 
-        
+        mod2 <- MASS::rlm( x2 ~ x1, maxit = 2000 )       
         b1 <- coef( mod1 )[2]
         b2 <- coef( mod2 )[2]
         r <- sqrt( abs(b1 * b2) )
-        stat <- abs( 0.5 * log( (1 + r) / (1 - r) ) )  ## absolute of the test statistic
-        
+        stat <- abs( 0.5 * log( (1 + r) / (1 - r) ) )  ## absolute of the test statistic      
         e1 <- resid(mod1)
         e2 <- resid(mod2)
         res <- permcor( cbind(e1, e2), R )
@@ -100,9 +88,8 @@ condi <- function(ind1, ind2, cs, dat, type = "pearson", rob = FALSE, R = 1) {
       
     }else{  ## there are conditioning variables
       
-      if (rob == TRUE) { ## robust correlation
-        # e1 <- resid( robust::lmRob( x1 ~ ., data = as.data.frame(dat[, cs]) ), control = cont )
-        # e2 <- resid( robust::lmRob( x2 ~.,  as.data.frame(dat[, cs]) ), control = cont )
+      if ( rob ) { ## robust correlation
+
         e1 <- resid( MASS::rlm( x1 ~ ., data = as.data.frame(dat[, cs]) ), maxit = 2000 )
         e2 <- resid( MASS::rlm( x2 ~.,  data = as.data.frame(dat[, cs]) ), maxit = 2000 )
         res <- permcor( cbind(e1, e2), R)

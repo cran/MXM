@@ -42,14 +42,7 @@ mb <- function(G, node, graph = FALSE) {
     Grel[Grel != 2] <- 0
   }
   
-  if (graph == TRUE) {
-    if(requireNamespace("Rgraphviz", quietly = TRUE, warn.conflicts = FALSE) == TRUE) {
-      g <- as( Grel, "graphNEL" )
-      plot(g, main = paste("Completed partially directed graph" ) )
-    } else {
-      warning('In order to plot the generated network, package Rgraphviz is required.')
-    }
-  }
-  
+  if ( graph )  plotnetwork(Grel, titlos = paste("Completed partially directed graph" ) )
+    
   list( parents = parents, children = children, spouses = spouses, relatives = relatives, markov.blanket = blanket )
 }

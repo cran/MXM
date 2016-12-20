@@ -40,6 +40,22 @@
 \alias{R2}
 \alias{R3}
 \alias{is.sepset}
+\alias{regbeta}
+\alias{regbetawei}
+\alias{betamle.wei}
+\alias{regzip}
+\alias{regzipwei}
+\alias{zipmle.wei}
+\alias{zipwei}
+\alias{bic.betafsreg}
+\alias{bic.zipfsreg}
+\alias{beta.fsreg}
+\alias{zip.fsreg}
+\alias{beta.bsreg}
+\alias{zip.bsreg}
+\alias{vara}
+%\alias{iamb.betabs}
+%\alias{iamb.zipbs}
 
 \title{ Internal MXM Functions }
 \description{
@@ -87,11 +103,27 @@ Internal functions of Package \pkg{MXM}
 \item R2( ... )
 \item R3( ... )
 \item is.sepset( ... )
+\item regbeta( ... )
+\item regbetawei( ... )
+\item betamle.wei( ... )
+\item regzip( ... )
+\item regzipawei( ... )
+\item zipmle.wei( ... )
+\item zipwei( ... )
+\item bic.betafsreg( ... )
+\item bic.zipfsreg( ... )
+\item beta.fsreg( ... )
+\item zip.fsreg( ... )
+\item beta.bsreg( ... )
+\item zip.bsreg( ... )
+\item vara( ... )
+%\item iamb.betabs( ... )
+%\item iamb.zipbs( ... )
 
 }
 }
 \details{
   These functions are only for internal usage of the MXM package - NOT to be called by the user.
-  
 }
+
 \keyword{Internal MXM Functions}

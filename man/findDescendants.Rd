@@ -57,7 +57,7 @@ R implementation and documentation: Anna Roumpelaki <anna.roumpelaki@gmail.com>
 %%  ~~further notes~~
 %}
 \seealso{
-\code{ \link{plota}, \link{nei}, \link{mb}, \link{pc.or} 
+\code{ \link{plotnetwork}, \link{nei}, \link{mb}, \link{pc.or} 
 }
 }
 
@@ -69,7 +69,7 @@ tru = y$G
 x = y$x
 mod = pc.con(x)
 G = pc.or(mod)$G
-plota(G)
+plotnetwork(G)
 findDescendants(G, 4, graph = FALSE)
 findAncestors(G, 4, graph = FALSE)
 findAncestors(G)

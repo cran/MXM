@@ -49,14 +49,7 @@ nei <- function(G, node, graph = TRUE) {
     names(geit) <- nama[geit]
   }
 
-    if (graph == TRUE) {
-      if(requireNamespace("Rgraphviz", quietly = TRUE, warn.conflicts = FALSE) == TRUE) {
-        am.graph <- new("graphAM", adjMat = Gnei, edgemode = "undirected")
-        plot(am.graph, main = "Subgraph of association network")
-      } else {
-        warning('In order to plot the generated network, package Rgraphviz is required.')
-      }
-    }
-	
+  if ( graph )  plotnetwork(Gnei, titlos = "Subgraph of association network")
+
   geit
 }

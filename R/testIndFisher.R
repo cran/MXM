@@ -37,15 +37,11 @@ testIndFisher = function(target, dataset, xIndex, csIndex, wei = NULL, statistic
   flag = 0;
   
   if ( !is.list(target) ) {
-    
-    if ( all(target>0 & target<1) ) ## are they proportions?
-    { 
-      target = log( target/(1 - target) ) 
-    }
+
     n = length( target )
     csIndex[which(is.na(csIndex))] = 0;
     
-    if (hash == TRUE)
+    if ( hash )
     {
       csIndex2 = csIndex[which(csIndex!=0)]
       csindex2 = sort(csIndex2)
@@ -65,9 +61,9 @@ testIndFisher = function(target, dataset, xIndex, csIndex, wei = NULL, statistic
     
     #if the xIndex is contained in csIndex, x does not bring any new
     #information with respect to cs
-    if(!is.na(match(xIndex,csIndex)))
+    if( !is.na(match(xIndex,csIndex)) )
     {
-      if(hash == TRUE)#update hash objects
+      if( hash )#update hash objects
       {
         stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
         pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
@@ -90,37 +86,16 @@ testIndFisher = function(target, dataset, xIndex, csIndex, wei = NULL, statistic
     #extract the data
     x = dataset[ , xIndex];
     cs = dataset[ , csIndex];
-    
-    #remove equal columns of the CS (takes a lot of time)
-    #   if(length(csIndex) > 1)
-    #   {
-    #     #remove same columns
-    #     #cs = unique(as.matrix(cs), MARGIN = 2);
-    #     #or
-    #     w = which(duplicated(cs, MARGIN = 2))
-    #     if(length(w) > 0)
-    #     {
-    #       cs = cs[,-w]
-    #     }
-    #   }
-    
-    #checking the length
-    if (length(x) == 0 || length(target) == 0)
-    {
-      message(paste("error in testIndFisher : empty variable x or target"))
-      results <- list(pvalue = pvalue, stat = 0, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
-      return(results);
-    }
-    
+       
     #if x = any of the cs then pvalue = 1 and flag = 1.
     #That means that the x variable does not add more information to our model due to an exact copy of this in the cs, so it is independent from the target
     if(length(cs)!=0)
     {
-      if(is.null(dim(cs)[2]) == TRUE) #cs is a vector
+      if( is.null(dim(cs)[2]) ) #cs is a vector
       {
         if(any(x != cs) == FALSE)  #if(!any(x == cs) == FALSE)
         {
-          if(hash == TRUE)#update hash objects
+          if( hash )#update hash objects
           {
             stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
             pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
@@ -133,7 +108,7 @@ testIndFisher = function(target, dataset, xIndex, csIndex, wei = NULL, statistic
         {
           if(any(x != cs[,col]) == FALSE)  #if(!any(x == cs) == FALSE)
           {
-            if(hash == TRUE)#update hash objects
+            if( hash )#update hash objects
             {
               stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
               pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
@@ -146,9 +121,9 @@ testIndFisher = function(target, dataset, xIndex, csIndex, wei = NULL, statistic
     }
     
     #if x or target is constant then there is no point to perform the test
-    if(var(x) == 0 || var(target) == 0)
+    if( vara(x) == 0 )
     {
-      if(hash == TRUE)#update hash objects
+      if( hash )#update hash objects
       {
         stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
         pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
@@ -159,9 +134,7 @@ testIndFisher = function(target, dataset, xIndex, csIndex, wei = NULL, statistic
     
     #remove constant columns of cs
     cs = as.matrix(cs)
-    cs = cs[, apply(cs, 2, var, na.rm=TRUE) != 0]
-    
-    
+    cs = cs[, apply(cs, 2, var, na.rm=TRUE) != 0]  
     
     #trycatch for dealing with errors
     res <- tryCatch(
@@ -178,30 +151,24 @@ testIndFisher = function(target, dataset, xIndex, csIndex, wei = NULL, statistic
             return(results);
           }
           #compute the correlation coefficient between x,target directly
-          if (robust == TRUE) { ## robust correlation
+          if ( robust ) { ## robust correlation
             b1 = coef( MASS::rlm(target ~ x, maxit = 2000 ) )[2]
             b2 = coef( MASS::rlm(x ~ target, maxit = 2000 ) )[2]
             stat = sqrt( abs (b1 * b2) ) 
-          }else{
-            stat = cor(x, target);
-          }
+          }else  stat = cor(x, target);
         }else{
           #perform the test with the cs
           
-          if (robust == TRUE) { ## robust correlation
+          if ( robust ) { ## robust correlation
             e1 = resid( MASS::rlm( target ~., data = data.frame( dataset[, csIndex] ), maxit = 2000 ) ) 
             e2 = resid( MASS::rlm( dataset[, xIndex] ~.,  data = data.frame( dataset[, csIndex] ), maxit = 2000 ) )
             stat = cor(e1,e2) 
           }else{
             tmpm = cbind(x, target, cs);
-            
-            corrMatrix = cor(tmpm);
-            
+            corrMatrix = cor(tmpm);         
             xyIdx = 1:2;
-            csIdx = 3:(ncol(as.matrix(cs))+2); #or csIdx = 3;
-            
+            csIdx = 3:(ncol(as.matrix(cs))+2); #or csIdx = 3;          
             residCorrMatrix = (corrMatrix[xyIdx, xyIdx]) - as.matrix(corrMatrix[xyIdx, csIdx])%*%(solve( as.matrix(corrMatrix[csIdx, csIdx]) , rbind(corrMatrix[csIdx, xyIdx])) );
-            
             stat = abs(residCorrMatrix[1,2] / sqrt(residCorrMatrix[1,1] * residCorrMatrix[2,2]));
           }
         }
@@ -226,7 +193,7 @@ testIndFisher = function(target, dataset, xIndex, csIndex, wei = NULL, statistic
           flag = 1;
         }else{
           #update hash objects
-          if(hash == TRUE)
+          if( hash )
           {
             stat_hash[[key]] <- stat;#.set(stat_hash , key , stat)
             pvalue_hash[[key]] <- pvalue;#.set(pvalue_hash , key , pvalue)
@@ -272,7 +239,6 @@ testIndFisher = function(target, dataset, xIndex, csIndex, wei = NULL, statistic
   
 } else {  
 
-
   D = length(target)
   pva = numeric(D)
 
@@ -285,15 +251,11 @@ testIndFisher = function(target, dataset, xIndex, csIndex, wei = NULL, statistic
 
   #if the test cannot performed succesfully these are the returned values
 
-   if ( all(targ > 0 & targ < 1) ) ## are they proportions?
-   { 
-     targ = log( targ/(1 - targ) ) 
-   }
   n = length( targ )
 
   csIndex[which(is.na(csIndex))] = 0;
   
-  if(hash == TRUE)
+  if( hash )
   {
     csIndex2 = csIndex[which(csIndex!=0)]
     csindex2 = sort(csIndex2)
@@ -313,7 +275,7 @@ testIndFisher = function(target, dataset, xIndex, csIndex, wei = NULL, statistic
   #information with respect to cs
   if(!is.na(match(xIndex,csIndex)))
   {
-    if(hash == TRUE) #update hash objects
+    if( hash ) #update hash objects
     {
       stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
       pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
@@ -349,22 +311,16 @@ testIndFisher = function(target, dataset, xIndex, csIndex, wei = NULL, statistic
 #     }
 #   }
   
-  #checking the length
-  if (length(x) == 0 || length(targ) == 0)
-  {
-    message(paste("error in testIndFisher : empty variable x or target"))
-    aa[[ i ]] <- list(pvalue = pvalue, z = 0, stat = 0, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);    
-  }
-  
+ 
   #if x = any of the cs then pvalue = 1 and flag = 1.
   #That means that the x variable does not add more information to our model due to an exact copy of this in the cs, so it is independent from the target
   if(length(cs)!=0)
   {
-    if(is.null( dim(cs )[2]) == TRUE) #cs is a vector
+    if( is.null( dim(cs )[2]) ) #cs is a vector
     {
       if(any(x != cs) == FALSE)  #if(!any(x == cs) == FALSE)
       {
-        if(hash == TRUE)#update hash objects
+        if( hash )#update hash objects
         {
           stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
           pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
@@ -377,7 +333,7 @@ testIndFisher = function(target, dataset, xIndex, csIndex, wei = NULL, statistic
       {
         if(any(x != cs[, col]) == FALSE)  #if(!any(x == cs) == FALSE)
         {
-          if(hash == TRUE)#update hash objects
+          if( hash )#update hash objects
           {
             stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
             pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
@@ -390,9 +346,9 @@ testIndFisher = function(target, dataset, xIndex, csIndex, wei = NULL, statistic
   }
   
   #if x or target is constant then there is no point to perform the test
-  if( ( sum(x^2) - sum(x)^2 / n ) / (n - 1) == 0  ||  ( sum(targ^2) - sum(targ)^2 / n ) / (n - 1) == 0 )
+  if( vara(x) == 0 )
   {
-    if(hash == TRUE)#update hash objects
+    if( hash )#update hash objects
     {
       stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
       pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
@@ -401,11 +357,9 @@ testIndFisher = function(target, dataset, xIndex, csIndex, wei = NULL, statistic
     
   }
   
-
   #remove constant columns of cs
   cs = as.matrix(cs)
   cs = cs[, apply(cs, 2, var, na.rm=TRUE) != 0]
-  
   
 aa[[ i ]] <- tryCatch(
 {
@@ -422,7 +376,7 @@ aa[[ i ]] <- tryCatch(
     }
     #compute the correlation coefficient between x, target directly
 
-    if (robust == TRUE) { ## robust correlation
+    if ( robust ) { ## robust correlation
       b1 = coef( MASS::rlm(targ ~ x, maxit = 2000 ) )[2]
       b2 = coef( MASS::rlm(x ~ targ, maxit = 2000 ) )[2]
       stat = sqrt( abs (b1 * b2) ) 
@@ -433,20 +387,16 @@ aa[[ i ]] <- tryCatch(
   } else{
      #perform the test with the cs
 
-    if (robust == TRUE) { ## robust correlation
+    if ( robust ) { ## robust correlation
       e1 = resid( MASS::rlm( targ ~., data = data.frame( data[, csIndex] ), maxit = 2000 ) ) 
       e2 = resid( MASS::rlm( data[, xIndex] ~.,  data = data.frame( data[, csIndex] ), maxit = 2000 ) )
       stat = cor(e1,e2) 
     } else {
-      tmpm = cbind(x, targ, cs);
-     
+      tmpm = cbind(x, targ, cs);   
       corrMatrix = cor(tmpm);
-     
       xyIdx = 1:2;
       csIdx = 3:(NCOL(cs) + 2); #or csIdx = 3;
-     
       residCorrMatrix = (corrMatrix[xyIdx, xyIdx]) - as.matrix(corrMatrix[xyIdx, csIdx])%*%(solve( as.matrix(corrMatrix[csIdx, csIdx]) , rbind(corrMatrix[csIdx, xyIdx])) );
-
       stat = abs(residCorrMatrix[1,2] / sqrt(residCorrMatrix[1,1] * residCorrMatrix[2,2]));
     }
   }
@@ -472,7 +422,7 @@ aa[[ i ]] <- tryCatch(
     flag = 1;
   }else{
     #update hash objects
-    if(hash == TRUE)
+    if( hash )
     {
       stat_hash[[key]] <- stat; #.set(stat_hash , key , stat)
       pvalue_hash[[key]] <- pvalue; #.set(pvalue_hash , key , pvalue)
@@ -511,7 +461,7 @@ finally={}
   
 }
 
- if  ( statistic == FALSE ) {
+ if  ( !statistic ) {
     
 	pva <- numeric(D) 
     for ( j in 1:D )   pva[j] = -2 * aa[[ j ]]$pvalue
@@ -534,7 +484,7 @@ finally={}
   }
   
   
-  if ( hash == TRUE ) {
+  if ( hash ) {
     
     stat_hash[[key]] <- stat
     pvalue_hash[[key]] <- pvalue  

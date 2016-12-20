@@ -1,4 +1,4 @@
-glm.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold = 0.05, tol = 2, heavy = heavy, robust = FALSE, ncores = 1) {
+glm.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold = 0.05, tol = 2, heavy, robust = FALSE, ncores = 1) {
   
   ## target can be Real valued (normal), binary (binomial) or counts (poisson)
   ## dataset is a matrix or a data.frame with the predictor variables
@@ -49,10 +49,8 @@ glm.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold = 
     devi = dof = numeric(p)
     #if ( robust == FALSE ) {
     if ( pa == 0 ) {
-      ini = glm( y / wei ~ 1, weights = wei, family = binomial )$deviance  ## residual deviance
-    } else {
-      ini = glm(y / wei ~., data = as.data.frame( iniset ), weights = wei, family = binomial )$deviance  ## residual deviance
-    }  
+      ini <- glm( y / wei ~ 1, weights = wei, family = binomial, y = FALSE, model = FALSE )$deviance  ## residual deviance
+    } else  ini <- glm(y / wei ~., data = as.data.frame( iniset ), weights = wei, family = binomial, y = FALSE, model = FALSE )$deviance  ## residual deviance
     #} else {
     #  ini = robust::glmRob( target ~ 1, family = oiko, maxit = maxit )$deviance  ## residual deviance
     #}
@@ -60,7 +58,7 @@ glm.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold = 
     if (ncores <= 1) {
       #if ( robust == FALSE ) {  ## Non robust
       for (i in 1:p) {
-        mi <- glm( y / wei ~ . , as.data.frame( dataset[, c(da, pa + i)] ), weights = wei, family = binomial )
+        mi <- glm( y / wei ~ . , as.data.frame( dataset[, c(da, pa + i)] ), weights = wei, family = binomial, y = FALSE, model = FALSE )
         devi[i] <- mi$deviance
         dof[i] = length( coef( mi ) ) 
       }
@@ -100,8 +98,8 @@ glm.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold = 
       #         stopCluster(cl)
       #       }
       
-      stat = ini - mod[, 1]
-      pval = pchisq( stat, mod[, 2] - 1, lower.tail = FALSE, log.p = TRUE )
+      stat <- ini - mod[, 1]
+      pval <- pchisq( stat, mod[, 2] - 1, lower.tail = FALSE, log.p = TRUE )
     }
     
     mat <- cbind(1:p, pval, stat) 
@@ -116,13 +114,9 @@ glm.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold = 
     if ( mat[sel, 2] < threshold ) {
       info[k, ] <- mat[sel, ]
       mat <- mat[-sel, ] 
-      if ( !is.matrix(mat) ) {
-        mat <- matrix(mat, ncol = 3) 
-      }
-      mat <- mat[ order( mat[, 2] ), ]
-      
+      if ( !is.matrix(mat) )  mat <- matrix(mat, ncol = 3) 
       #if ( robust == FALSE ) {
-      mi <- glm( y / wei ~., data = as.data.frame( dataset[, c(da, sel) ] ), weights = wei, family = binomial )
+      mi <- glm( y / wei ~., data = as.data.frame( dataset[, c(da, sel) ] ), weights = wei, family = binomial, y = FALSE, model = FALSE )
       tool[k] <- BIC( mi )
       #} else {
       #  mi <- robust::glmRob( target ~ dataset[, sel], family = oiko, maxit = maxit )
@@ -142,16 +136,16 @@ glm.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold = 
       k <- k + 1
       pn <- p - k + 1   
       
-      ini = moda[[ 1 ]]$deviance  ## residual deviance
-      do = length( coef( moda[[ 1 ]]  ) ) 
+      ini <- moda[[ 1 ]]$deviance  ## residual deviance
+      do <- length( coef( moda[[ 1 ]]  ) ) 
       
       if ( ncores <= 1 ) {
-        devi = dof = numeric(pn)
+        devi <- dof <- numeric(pn)
         #if ( robust == FALSE ) {  ## Non robust
         for ( i in 1:pn ) {
-          ww <- glm( y / wei ~., data = as.data.frame( dataset[, c(da, sela, mat[pa + i, 1]) ] ), weights = wei, family = binomial )
+          ww <- glm( y / wei ~., data = as.data.frame( dataset[, c(da, sela, mat[pa + i, 1]) ] ), weights = wei, family = binomial, y = FALSE, model = FALSE )
           devi[i] <- ww$deviance
-          dof[i] = length( coef( ww ) )          
+          dof[i] <- length( coef( ww ) )          
         }
         
         # } else {  ## Robust
@@ -162,15 +156,15 @@ glm.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold = 
         #   }   
         # }
         
-        stat = ini - devi
-        pval = pchisq( stat, dof - do, lower.tail = FALSE, log.p = TRUE )
+        stat <- ini - devi
+        pval <- pchisq( stat, dof - do, lower.tail = FALSE, log.p = TRUE )
         
       } else {
         
         #if ( robust == FALSE ) {  ## Non robust
         cl <- makePSOCKcluster(ncores)
         registerDoParallel(cl)
-        mata = matrix(0, pn, 2)  
+        mata <- matrix(0, pn, 2)  
         mod <- foreach( i = 1:pn, .combine = rbind) %dopar% {
           ww <- glm( y / wei ~., data = as.data.frame( dataset[, c(da, sela, mat[pa + i, 1]) ] ), weights = wei, family = binomial )
           mata[i, ] <- c( ww$deviance, length( coef( ww ) ) )
@@ -190,8 +184,8 @@ glm.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold = 
         #   stopCluster(cl)
         # }
         
-        stat = ini - mod[, 1]
-        pval = pchisq( stat, mod[, 2] - do, lower.tail = FALSE, log.p = TRUE )
+        stat <- ini - mod[, 1]
+        pval <- pchisq( stat, mod[, 2] - do, lower.tail = FALSE, log.p = TRUE )
         
       }
       
@@ -202,7 +196,7 @@ glm.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold = 
       
       if ( mat[ina, 2] < threshold ) {
         #if ( robust == FALSE ) {
-        ma <- glm( y / wei ~., data=as.data.frame( dataset[, c(da, sela, sel) ] ), weights = wei, family = binomial )
+        ma <- glm( y / wei ~., data=as.data.frame( dataset[, c(da, sela, sel) ] ), weights = wei, family = binomial, y = FALSE, model = FALSE )
         tool[k] <- BIC( ma )
         #} else {
         #  ma <- robust::glmRob( target ~  dataset[, sela] + dataset[, sel], family = oiko, maxit = maxit )
@@ -217,8 +211,6 @@ glm.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold = 
           sela <- info[, 1]
           mat <- mat[-ina , ] 
           if ( !is.matrix(mat) )   mat <- matrix(mat, ncol = 3) 
-          mat <- mat[ order( mat[, 2] ), ]
-          
           moda[[ k ]] <- ma
         }
         
@@ -235,8 +227,8 @@ glm.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold = 
     if ( nrow(info) > 1  &  nrow(mat) > 0 ) {
       while ( ( info[k, 2] < threshold ) &  ( k < n ) & ( tool[ k - 1 ] - tool[ k ] > tol ) & ( nrow(mat) > 0 ) )  {
         
-        ini = moda[[ k ]]$deviance  ## residual deviance
-        do = length( coef( moda[[ k ]]  ) ) 
+        ini <- moda[[ k ]]$deviance  ## residual deviance
+        do <- length( coef( moda[[ k ]]  ) ) 
         
         k <- k + 1   
         pn <- p - k  + 1
@@ -245,9 +237,9 @@ glm.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold = 
           devi = dof = numeric(pn) 
           #if ( robust == FALSE ) {  ## Non robust
           for ( i in 1:pn ) {
-            ma <- glm( y / wei ~., data = as.data.frame( dataset[, c(da, sela, mat[pa + i, 1] ) ] ), weights = wei, family = binomial )
+            ma <- glm( y / wei ~., data = as.data.frame( dataset[, c(da, sela, mat[pa + i, 1] ) ] ), weights = wei, family = binomial, y = FALSE, model = FALSE )
             devi[i] <- ma$deviance
-            dof[i] = length( coef( ma ) ) 
+            dof[i] <- length( coef( ma ) ) 
           }
           
           # } else {  ## Robust
@@ -258,17 +250,17 @@ glm.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold = 
           #   }
           # }
           
-          stat = ini - devi
-          pval = pchisq( stat, dof - do, lower.tail = FALSE, log.p = TRUE )
+          stat <- ini - devi
+          pval <- pchisq( stat, dof - do, lower.tail = FALSE, log.p = TRUE )
           
         } else {
           #if ( robust == FALSE ) {  ## Non robust
           cl <- makePSOCKcluster(ncores)
           registerDoParallel(cl)
-          devi = dof = numeric(pn)
-          mata = matrix(0, pn, 2)  
+          devi <- dof <- numeric(pn)
+          mata <- matrix(0, pn, 2)  
           mod <- foreach( i = 1:pn, .combine = rbind) %dopar% {
-            ww <- glm( y / wei ~., data = as.data.frame( dataset[, c(da, sela, mat[pa + i, 1]) ] ), weights = wei, family = binomial )
+            ww <- glm( y / wei ~., data = as.data.frame( dataset[, c(da, sela, mat[pa + i, 1]) ] ), weights = wei, family = binomial, y = FALSE, model = FALSE )
             mata[i, ] <- c( ww$deviance, length( coef( ww ) ) )
           }
           
@@ -286,8 +278,8 @@ glm.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold = 
           #   stopCluster(cl)
           # }
           
-          stat = ini - mod[, 1]
-          pval = pchisq( stat, mod[, 2] - do, lower.tail = FALSE, log.p = TRUE )
+          stat <- ini - mod[, 1]
+          pval <- pchisq( stat, mod[, 2] - do, lower.tail = FALSE, log.p = TRUE )
           
         }
         
@@ -298,7 +290,7 @@ glm.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold = 
         
         if ( mat[ina, 2] < threshold ) {
           #if ( robust == FALSE ) {
-          ma <- glm( y / wei ~., data = as.data.frame( dataset[, c(da, sela, sel) ] ), weights = wei, family = binomial )
+          ma <- glm( y / wei ~., data = as.data.frame( dataset[, c(da, sela, sel) ] ), weights = wei, family = binomial, y = FALSE, model = FALSE )
           tool[k] <- BIC( ma )
           #} else {
           #  ma <- robust::glmRob( target ~., data = as.data.frame( dataset[, c(sela, sel) ] ), family = oiko, maxit = maxit )
@@ -312,8 +304,6 @@ glm.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold = 
             sela <- info[, 1]
             mat <- mat[-ina , ]
             if ( !is.matrix(mat) )  mat <- matrix(mat, ncol = 3) 
-            mat <- mat[ order( mat[, 2] ), ]
-            
             moda[[ k ]] <- ma
           } 
           
@@ -330,8 +320,8 @@ glm.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold = 
     models <- NULL
     
     if ( d == 0 ) {
-      final <- summary( glm( y / wei ~., data = as.data.frame( iniset ), weights = wei, family = binomial ) )
-      info = NULL
+      final <- glm( y / wei ~., data = as.data.frame( iniset ), weights = wei, family = binomial, y = FALSE, model = FALSE )
+      info <- NULL
       
     } else {
       
@@ -340,21 +330,17 @@ glm.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold = 
         xx <- as.data.frame( dataset[, c(da, sela) ] )
         if ( pa == 0 ) {
           colnames(xx) <- paste("V", sela, sep = "") 
-        } else {
-          colnames(xx) <- c( paste("X", da, sep = ""),  paste("V", sela, sep = "") )
-        }
+        } else  colnames(xx) <- c( paste("X", da, sep = ""),  paste("V", sela, sep = "") )
         
         if ( d == 1 ) {
           
           xx <- as.data.frame( dataset[, c(da, sela)] )
           if ( pa == 0 ) {
             colnames(xx) <- paste("V", sela, sep = "") 
-          } else {
-            colnames(xx) <- c( paste("X", da, sep = ""),  paste("V", sela, sep = "") )
-          }
+          } else  colnames(xx) <- c( paste("X", da, sep = ""),  paste("V", sela, sep = "") )
           
           #if ( robust == FALSE ) {
-          models[[ 1 ]] <- final <- glm( y / wei ~., data = as.data.frame( xx ), weights = wei, family = binomial )
+          models[[ 1 ]] <- final <- glm( y / wei ~., data = as.data.frame( xx ), weights = wei, family = binomial, y = FALSE, model = FALSE )
           #} else {
           #  models[[ 1]] <- final <- robust::glmRob( target ~., data = as.data.frame( xx ), family = oiko, maxit = maxit )
           #}
@@ -362,7 +348,7 @@ glm.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold = 
         } else {
           for ( i in 1:c(pa + d) ) {
             #if ( robust == FALSE ) {
-            models[[ i ]] <- glm( y / wei ~., data = as.data.frame( xx[, 1:i] ), weights = wei, family = binomial )
+            models[[ i ]] <- glm( y / wei ~., data = as.data.frame( xx[, 1:i] ), weights = wei, family = binomial, y = FALSE, model = FALSE )
             #} else { 
             #  models[[ i ]] <- robust::glmRob( target ~., data = as.data.frame( xx[, 1:i]), family = oiko, maxit = maxit )
             #}
@@ -374,13 +360,13 @@ glm.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold = 
         info <- info[1:d, ]
         if ( d == 1 )  info <- matrix(info, nrow = 1)
         info <- cbind( info, tool[ 1:d ] ) 
-        colnames(info) <- c( "variables", "p-value", "stat", "BIC" )
+        colnames(info) <- c( "variables", "log.p-value", "stat", "BIC" )
         rownames(info) <- info[, 1]
       }
       
     }    
     
-    result <-   list(mat = t(mat), info = info, models = models, final = final, runtime = runtime ) 
+    result <- list(mat = t(mat), info = info, models = models, final = final, runtime = runtime ) 
    
     
     #############################
@@ -410,19 +396,19 @@ glm.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold = 
   #if ( robust == FALSE ) {
   if ( pa == 0 ) {
   
-    if ( heavy == FALSE ) {
-      ini = glm( target ~ 1, family = oiko, weights = wei )$deviance  ## residual deviance
+    if ( !heavy ) {
+      ini <- glm( target ~ 1, family = oiko, weights = wei, y = FALSE, model = FALSE )$deviance  ## residual deviance
 	  } else {
 	    ci_test <- "testIndSpeedglm"
-	    ini = speedglm::speedglm( target ~ 1, data = as.data.frame(dataset), family = oiko, weights = wei )$deviance  ## residual deviance
+	    ini <- speedglm::speedglm( target ~ 1, data = data.frame(dataset), family = oiko, weights = wei )$deviance  ## residual deviance
 	  }   
 	
   } else {
-    if ( heavy == FALSE ) {
-      ini = glm(target ~., data = as.data.frame( iniset ), family = oiko )$deviance  ## residual deviance
+    if ( !heavy ) {
+      ini <- glm(target ~., data = data.frame( iniset ), family = oiko, y = FALSE, model = FALSE )$deviance  ## residual deviance
 	  } else {
 	    ci_test <- "testIndSpeedglm"
-	    ini = speedglm::speedglm(target ~., data = as.data.frame( iniset ), family = oiko, weights = wei )$deviance  ## residual deviance
+	    ini <- speedglm::speedglm(target ~., data = data.frame( iniset ), family = oiko, weights = wei )$deviance  ## residual deviance
 	  }
 	
   }
@@ -433,18 +419,18 @@ glm.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold = 
   
   if (ncores <= 1) {
     #if ( robust == FALSE ) {  ## Non robust
-	  if ( heavy == FALSE ) {
+	  if ( !heavy  ) {
       for (i in 1:p) {
-        mi <- glm( target ~ . , as.data.frame( dataset[, c(da, pa + i)] ), family = oiko, weights= wei )
+        mi <- glm( target ~ ., data.frame( dataset[, c(da, pa + i)] ), family = oiko, weights= wei, y = FALSE, model = FALSE )
         devi[i] <- mi$deviance
-        dof[i] = length( coef( mi ) ) 
+        dof[i] <- length( coef( mi ) ) 
       }
     
 	} else {
 	  for (i in 1:p) {
-        mi <- speedglm::speedglm( target ~ . , as.data.frame( dataset[, c(da, pa + i)] ), family = oiko, weights = wei )
+        mi <- speedglm::speedglm( target ~ ., data.frame( dataset[, c(da, pa + i)] ), family = oiko, weights = wei )
         devi[i] <- mi$deviance
-        dof[i] = length( coef( mi ) ) 
+        dof[i] <- length( coef( mi ) ) 
       }
 	  
 	}
@@ -456,17 +442,17 @@ glm.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold = 
     #  }
     #}
     
-    stat = ini - devi
-    pval = pchisq( stat, dof - 1, lower.tail = FALSE, log.p = TRUE )
+    stat <- ini - devi
+    pval <- pchisq( stat, dof - 1, lower.tail = FALSE, log.p = TRUE )
     
   } else {
     #if ( robust == FALSE ) {  ## Non robust
-	if ( heavy == TRUE ) { 
+	if ( !heavy ) { 
       cl <- makePSOCKcluster(ncores)
       registerDoParallel(cl)
       mata <- matrix(0, p, 2)
       mod <- foreach( i = 1:p, .combine = rbind) %dopar% {
-        ww <- glm( target ~., data = as.data.frame( dataset[, c(da, pa + i)] ), family = oiko, weights = wei )
+        ww <- glm( target ~., data = data.frame( dataset[, c(da, pa + i)] ), family = oiko, weights = wei, y = FALSE, model = FALSE )
         mata[i, ] <- c( ww$deviance, length( coef( ww ) )  )
       }
     
@@ -477,7 +463,7 @@ glm.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold = 
       registerDoParallel(cl)
       mata <- matrix(0, p, 2)
       mod <- foreach( i = 1:p, .combine = rbind, .export = "speedglm", .packages = "speedglm") %dopar% {
-        ww <- speedglm( target ~., data = as.data.frame( dataset[, c(da, pa + i)] ), family = oiko, weights = wei )
+        ww <- speedglm::speedglm( target ~., data = data.frame( dataset[, c(da, pa + i)] ), family = oiko, weights = wei )
         mata[i, ] <- c( ww$deviance, length( coef( ww ) )  )
       }
     
@@ -496,8 +482,8 @@ glm.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold = 
     #         stopCluster(cl)
     #       }
     
-    stat = ini - mod[, 1]
-    pval = pchisq( stat, mod[, 2] - 1, lower.tail = FALSE, log.p = TRUE )
+    stat <- ini - mod[, 1]
+    pval <- pchisq( stat, mod[, 2] - 1, lower.tail = FALSE, log.p = TRUE )
   }
   
   mat <- cbind(1:p, pval, stat) 
@@ -513,16 +499,15 @@ glm.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold = 
     info[k, ] <- mat[sel, ]
     mat <- mat[-sel, ] 
     if ( !is.matrix(mat) )   mat <- matrix(mat, ncol = 3) 
-    mat <- mat[ order( mat[, 2] ), ]
-    
+
     #if ( robust == FALSE ) {
-	if ( heavy == TRUE ) {
-      mi <- glm( target ~., data = as.data.frame( dataset[, c(da, sel) ] ), family = oiko, weights = wei )
+	   if ( !heavy ) {
+      mi <- glm( target ~., data = as.data.frame( dataset[, c(da, sel) ] ), family = oiko, weights = wei, y = FALSE, model = FALSE )
       tool[k] <- BIC( mi )
-	} else {
-	  mi <- speedglm::speedglm( target ~., data = as.data.frame( dataset[, c(da, sel) ] ), family = oiko, weights = wei )
-      tool[k] <-  - 2 * mi$logLik + length( coef(mi) ) * con
-	}
+	  } else {
+	    mi <- speedglm::speedglm( target ~., data = as.data.frame( dataset[, c(da, sel) ] ), family = oiko, weights = wei )
+      tool[k] <-  - 2 * logLik(mi) + length( coef(mi) ) * con
+  	}
     #} else {
     #  mi <- robust::glmRob( target ~ dataset[, sel], family = oiko, maxit = maxit )
     #  tool[1] <- mi$deviance + length( coef( mi ) ) * log(n)
@@ -545,11 +530,11 @@ glm.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold = 
     do <- length( coef( mi ) ) 
     
     if ( ncores <= 1 ) {
-      devi = dof = numeric(pn)
+      devi <- dof <- numeric(pn)
       #if ( robust == FALSE ) {  ## Non robust
-	  if ( heavy == TRUE ) {
+	  if ( !heavy ) {
         for ( i in 1:pn ) {
-          ww <- glm( target ~., data = as.data.frame( dataset[, c(da, sela, mat[pa + i, 1]) ] ), family = oiko, weights = wei )
+          ww <- glm( target ~., data = as.data.frame( dataset[, c(da, sela, mat[pa + i, 1]) ] ), family = oiko, weights = wei, y = FALSE, model = FALSE )
           devi[i] <- ww$deviance
           dof[i] <- length( coef( ww ) )          
         }
@@ -570,18 +555,18 @@ glm.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold = 
       #   }   
       # }
       
-      stat = ini - devi
-      pval = pchisq( stat, dof - do, lower.tail = FALSE, log.p = TRUE )
+      stat <- ini - devi
+      pval <- pchisq( stat, dof - do, lower.tail = FALSE, log.p = TRUE )
       
     } else {
       
       #if ( robust == FALSE ) {  ## Non robust
-	  if ( heavy == TRUE ) {
+	  if ( !heavy ) {
         cl <- makePSOCKcluster(ncores)
         registerDoParallel(cl)
-        mata = matrix(0, pn, 2)  
+        mata <- matrix(0, pn, 2)  
         mod <- foreach( i = 1:pn, .combine = rbind) %dopar% {
-          ww <- glm( target ~., data = as.data.frame( dataset[, c(da, sela, mat[pa + i, 1]) ] ), family = oiko, weights = wei )
+          ww <- glm( target ~., data = as.data.frame( dataset[, c(da, sela, mat[pa + i, 1]) ] ), family = oiko, weights = wei, y = FALSE, model = FALSE )
           mata[i, ] <- c( ww$deviance, length( coef( ww ) ) )
         }
       
@@ -590,7 +575,7 @@ glm.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold = 
       } else {
         cl <- makePSOCKcluster(ncores)
         registerDoParallel(cl)
-        mata = matrix(0, pn, 2)  
+        mata <- matrix(0, pn, 2)  
         mod <- foreach( i = 1:pn, .combine = rbind, .export = "speedglm", .packages = "speedglm") %dopar% {
           ww <- speedglm::speedglm( target ~., data = as.data.frame( dataset[, c(da, sela, mat[pa + i, 1]) ] ), family = oiko, weights = wei )
           mata[i, ] <- c( ww$deviance, length( coef( ww ) ) )
@@ -612,8 +597,8 @@ glm.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold = 
       #   stopCluster(cl)
       # }
       
-      stat = ini - mod[, 1]
-      pval = pchisq( stat, mod[, 2] - do, lower.tail = FALSE, log.p = TRUE )
+      stat <- ini - mod[, 1]
+      pval <- pchisq( stat, mod[, 2] - do, lower.tail = FALSE, log.p = TRUE )
       
     }
     
@@ -624,13 +609,13 @@ glm.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold = 
     
     if ( mat[ina, 2] < threshold ) {
       #if ( robust == FALSE ) {
-	  if ( heavy == TRUE )  {
-        ma <- glm( target ~., data=as.data.frame( dataset[, c(da, sela, sel) ] ), family = oiko, weights = wei )
+	    if ( !heavy )  {
+        ma <- glm( target ~., data=as.data.frame( dataset[, c(da, sela, sel) ] ), family = oiko, weights = wei, y = FALSE, model = FALSE )
         tool[k] <- BIC( ma )
-	  } else {
+	    } else {
         ma <- speedglm::speedglm( target ~., data=as.data.frame( dataset[, c(da, sela, sel) ] ), family = oiko, weights = wei )
-        tool[k] <-  - 2 * ma$logLik + length( coef(ma) ) * con	  
-	  }	
+        tool[k] <-  - 2 * logLik(ma) + length( coef(ma) ) * con	  
+	    }	
       #} else {
       #  ma <- robust::glmRob( target ~  dataset[, sela] + dataset[, sel], family = oiko, maxit = maxit )
       #  tool[k] <- ma$deviance + length( coef( ma ) ) * log(n)
@@ -644,8 +629,6 @@ glm.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold = 
         sela <- info[, 1]
         mat <- mat[-ina , ] 
         if ( !is.matrix(mat) )   mat <- matrix(mat, ncol = 3) 
-        mat <- mat[ order( mat[, 2] ), ]
-        
         moda[[ k ]] <- ma
       }
       
@@ -662,29 +645,29 @@ glm.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold = 
   if ( nrow(info) > 1  &  nrow(mat) > 0 ) {
     while ( ( info[k, 2] < threshold ) &  ( k < n ) & ( tool[ k - 1 ] - tool[ k ] > tol ) & ( nrow(mat) > 0 ) )  {
       
-      ini = moda[[ k ]]$deviance  ## residual deviance
-      do = length( coef( moda[[ k ]]  ) ) 
+      ini <- moda[[ k ]]$deviance  ## residual deviance
+      do <- length( coef( moda[[ k ]]  ) ) 
       
       k <- k + 1   
       pn <- p - k  + 1
       
       if (ncores <= 1) {  
-        devi = dof = numeric(pn) 
+        devi <- dof <- numeric(pn) 
         #if ( robust == FALSE ) {  ## Non robust
-		if ( heavy == TRUE ) {
+		    if ( !heavy ) {
           for ( i in 1:pn ) {
-            ma <- glm( target ~., data = as.data.frame( dataset[, c(da, sela, mat[pa + i, 1] ) ] ), family = oiko, weights = wei )
+            ma <- glm( target ~., data = as.data.frame( dataset[, c(da, sela, mat[pa + i, 1] ) ] ), family = oiko, weights = wei, y = FALSE, model = FALSE )
             devi[i] <- ma$deviance
-            dof[i] = length( coef( ma ) ) 
+            dof[i] <- length( coef( ma ) ) 
           }
 		
         } else {
           for ( i in 1:pn ) {
             ma <- speedglm:speedglm( target ~., data = as.data.frame( dataset[, c(da, sela, mat[pa + i, 1] ) ] ), family = oiko, weights = wei )
             devi[i] <- ma$deviance
-            dof[i] = length( coef( ma ) ) 
+            dof[i] <- length( coef( ma ) ) 
           }		
-		}
+		    }
         # } else {  ## Robust
         #   for ( i in 1:pn ) {
         #     ma <- robust::glmRob( target ~., data = as.data.frame( dataset[, c(sela, mat[i, 1]) ] ), family = oiko, maxit = maxit )
@@ -693,18 +676,18 @@ glm.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold = 
         #   }
         # }
         
-        stat = ini - devi
-        pval = pchisq( stat, dof - do, lower.tail = FALSE, log.p = TRUE )
+        stat <- ini - devi
+        pval <- pchisq( stat, dof - do, lower.tail = FALSE, log.p = TRUE )
         
       } else {
         #if ( robust == FALSE ) {  ## Non robust
-		if ( heavy == FALSE )  {
+		    if ( !heavy )  {
           cl <- makePSOCKcluster(ncores)
           registerDoParallel(cl)
-          devi = dof = numeric(pn)
-          mata = matrix(0, pn, 2)  
+          devi <- dof <- numeric(pn)
+          mata <- matrix(0, pn, 2)  
           mod <- foreach( i = 1:pn, .combine = rbind) %dopar% {
-            ww <- glm( target ~., data = as.data.frame( dataset[, c(da, sela, mat[pa + i, 1]) ] ), family = oiko, weights = wei )
+            ww <- glm( target ~., data = as.data.frame( dataset[, c(da, sela, mat[pa + i, 1]) ] ), family = oiko, weights = wei, y = FALSE, model = FALSE )
             mata[i, ] <- c( ww$deviance, length( coef( ww ) ) )
           }
         
@@ -712,15 +695,15 @@ glm.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold = 
         } else {
           cl <- makePSOCKcluster(ncores)
           registerDoParallel(cl)
-          devi = dof = numeric(pn)
-          mata = matrix(0, pn, 2)  
+          devi <- dof <- numeric(pn)
+          mata <- matrix(0, pn, 2)  
           mod <- foreach( i = 1:pn, .combine = rbind ,.export = "speedglm", .packages = "speedglm") %dopar% {
             ww <- speedglm( target ~., data = as.data.frame( dataset[, c(da, sela, mat[pa + i, 1]) ] ), family = oiko, weights = wei )
             mata[i, ] <- c( ww$deviance, length( coef( ww ) ) )
           }
         
           stopCluster(cl)		
-		}
+	    	}
         
         # } else {  ## Robust
         #   cl <- makePSOCKcluster(ncores)
@@ -734,8 +717,8 @@ glm.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold = 
         #   stopCluster(cl)
         # }
         
-        stat = ini - mod[, 1]
-        pval = pchisq( stat, mod[, 2] - do, lower.tail = FALSE, log.p = TRUE )
+        stat <- ini - mod[, 1]
+        pval <- pchisq( stat, mod[, 2] - do, lower.tail = FALSE, log.p = TRUE )
         
       }
       
@@ -746,13 +729,13 @@ glm.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold = 
       
       if ( mat[ina, 2] < threshold ) {
         #if ( robust == FALSE ) {
-		if ( heavy == FALSE ) {
-          ma <- glm( target ~., data = as.data.frame( dataset[, c(da, sela, sel) ] ), family = oiko, weights = wei )
+		    if ( !heavy ) {
+          ma <- glm( target ~., data = as.data.frame( dataset[, c(da, sela, sel) ] ), family = oiko, weights = wei, y = FALSE, model = FALSE )
           tool[k] <- BIC( ma )
         } else {
           ma <- speedglm::speedglm( target ~., data = as.data.frame( dataset[, c(da, sela, sel) ] ), family = oiko, weights = wei )
-          tool[k] <-  - 2 * ma$logLik + length( coef(ma) ) * con		
-		}
+          tool[k] <-  - 2 * logLik(ma) + length( coef(ma) ) * con		
+		    }
 		#} else {
         #  ma <- robust::glmRob( target ~., data = as.data.frame( dataset[, c(sela, sel) ] ), family = oiko, maxit = maxit )
         #  tool[k] <- ma$deviance + length( coef( ma ) ) * log(n)
@@ -765,8 +748,6 @@ glm.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold = 
           sela <- info[, 1]
           mat <- mat[-ina , ]
           if ( !is.matrix(mat) )   mat <- matrix(mat, ncol = 3) 
-          mat <- mat[ order( mat[, 2] ), ]
-          
           moda[[ k ]] <- ma
         } 
         
@@ -783,12 +764,10 @@ glm.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold = 
   models <- NULL
   
   if ( d == 0 ) {
-    if ( heavy == FALSE ) {
-      final <- glm( target ~., data = as.data.frame( iniset ), family = oiko, weights = wei ) 
-	} else {
-	  final <- speedglm::speedglm( target ~., data = as.data.frame( iniset ), family = oiko, weights = wei ) 
-	}
-    info = NULL
+    if ( !heavy ) {
+      final <- glm( target ~., data = as.data.frame( iniset ), family = oiko, weights = wei, y = FALSE, model = FALSE ) 
+	  } else  final <- speedglm::speedglm( target ~., data = as.data.frame( iniset ), family = oiko, weights = wei ) 
+    info <- NULL
     
   } else {
   
@@ -797,25 +776,20 @@ glm.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold = 
     xx <- as.data.frame( dataset[, c(da, sela) ] )
     if ( pa == 0 ) {
       colnames(xx) <- paste("V", sela, sep = "") 
-    } else {
-      colnames(xx) <- c( paste("X", da, sep = ""),  paste("V", sela, sep = "") )
-    }
+    } else   colnames(xx) <- c( paste("X", da, sep = ""),  paste("V", sela, sep = "") )
     
     if ( d == 1 ) {
       
       xx <- as.data.frame( dataset[, c(da, sela)] )
       if ( pa == 0 ) {
         colnames(xx) <- paste("V", sela, sep = "") 
-      } else {
-        colnames(xx) <- c( paste("X", da, sep = ""),  paste("V", sela, sep = "") )
-      }
+      } else  colnames(xx) <- c( paste("X", da, sep = ""),  paste("V", sela, sep = "") )
       
       #if ( robust == FALSE ) {
-	  if ( heavy == FALSE ) {
-        models[[ 1 ]] <- final <- glm( target ~., data = as.data.frame( xx ), family = oiko, weights = wei )
-	  } else {
-	    models[[ 1 ]] <- final <- speedglm::speedglm( target ~., data = as.data.frame( xx ), family = oiko, weights = wei )
-	  }	
+	    if ( !heavy ) {
+        models[[ 1 ]] <- final <- glm( target ~., data = as.data.frame( xx ), family = oiko, weights = wei, y = FALSE, model = FALSE )
+	    } else  models[[ 1 ]] <- final <- speedglm::speedglm( target ~., data = as.data.frame( xx ), family = oiko, weights = wei )
+	 	
       #} else {
       #  models[[ 1]] <- final <- robust::glmRob( target ~., data = as.data.frame( xx ), family = oiko, maxit = maxit )
       #}
@@ -823,11 +797,9 @@ glm.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold = 
     } else {
       for ( i in 1:c(pa + d) ) {
         #if ( robust == FALSE ) {
-		if ( heavy ==TRUE ) {
-        models[[ i ]] <- glm( target ~., data = as.data.frame( xx[, 1:i] ), family = oiko, weights = wei )
-		} else {
-		  models[[ i ]] <- speedglm::speedglm( target ~., data = as.data.frame( xx[, 1:i] ), family = oiko, weights = wei )
-		}
+		if ( !heavy ) {
+        models[[ i ]] <- glm( target ~., data = as.data.frame( xx[, 1:i] ), family = oiko, weights = wei, y = FALSE, model = FALSE )
+		} else  models[[ i ]] <- speedglm::speedglm( target ~., data = as.data.frame( xx[, 1:i] ), family = oiko, weights = wei )
         #} else { 
         #  models[[ i ]] <- robust::glmRob( target ~., data = as.data.frame( xx[, 1:i]), family = oiko, maxit = maxit )
         #}
@@ -839,7 +811,7 @@ glm.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold = 
     info <- info[1:d, ]
     if ( d == 1 )  info <- matrix(info, nrow = 1)
     info <- cbind( info, tool[ 1:d ] ) 
-    colnames(info) <- c( "variables", "p-value", "stat", "BIC" )
+    colnames(info) <- c( "variables", "log.p-value", "stat", "BIC" )
     rownames(info) <- info[, 1]
   }
   

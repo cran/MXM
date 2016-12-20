@@ -26,9 +26,6 @@ testIndSpearman = function(target, dataset, xIndex, csIndex, wei = NULL, statist
   # Copyright 2012 Vincenzo Lagani and Ioannis Tsamardinos
   # R Implementation by Giorgos Athineou (10/2013)
   
-  
-  #########################################################################################################
-  
   #initialization
   
   #if the test cannot performed succesfully these are the returned values
@@ -38,10 +35,9 @@ testIndSpearman = function(target, dataset, xIndex, csIndex, wei = NULL, statist
   
   if ( !is.list(target) ) {
   
-  n = length( target )
   csIndex[which(is.na(csIndex))] = 0;
   
-  if(hash == TRUE)
+  if( hash )
   {
     csIndex2 = csIndex[which(csIndex!=0)]
     csindex2 = sort(csIndex2)
@@ -62,7 +58,7 @@ testIndSpearman = function(target, dataset, xIndex, csIndex, wei = NULL, statist
   #information with respect to cs
   if(!is.na(match(xIndex,csIndex)))
   {
-    if(hash == TRUE)#update hash objects
+    if( hash )#update hash objects
     {
       stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
       pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
@@ -85,37 +81,16 @@ testIndSpearman = function(target, dataset, xIndex, csIndex, wei = NULL, statist
   #extract the data
   x = dataset[ , xIndex];
   cs = dataset[ , csIndex];
-  
-  #remove equal columns of the CS (takes a lot of time)
-#   if(length(csIndex) > 1)
-#   {
-#     #remove same columns
-#     #cs = unique(as.matrix(cs), MARGIN = 2);
-#     #or
-#     w = which(duplicated(cs, MARGIN = 2))
-#     if(length(w) > 0)
-#     {
-#       cs = cs[,-w]
-#     }
-#   }
-  
-  #checking the length
-  if (length(x) == 0 || length(target) == 0)
-  {
-    message(paste("error in testIndFisher : empty variable x or target"))
-    results <- list(pvalue = pvalue, stat = 0, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
-    return(results);
-  }
-  
+   
   #if x = any of the cs then pvalue = 1 and flag = 1.
   #That means that the x variable does not add more information to our model due to an exact copy of this in the cs, so it is independent from the target
   if(length(cs)!=0)
   {
-    if(is.null(dim(cs)[2]) == TRUE) #cs is a vector
+    if( is.null(dim(cs)[2]) ) #cs is a vector
     {
       if(any(x != cs) == FALSE)  #if(!any(x == cs) == FALSE)
       {
-        if(hash == TRUE)#update hash objects
+        if( hash )#update hash objects
         {
           stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
           pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
@@ -128,7 +103,7 @@ testIndSpearman = function(target, dataset, xIndex, csIndex, wei = NULL, statist
       {
         if(any(x != cs[,col]) == FALSE)  #if(!any(x == cs) == FALSE)
         {
-          if(hash == TRUE)#update hash objects
+          if( hash )#update hash objects
           {
             stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
             pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
@@ -141,9 +116,9 @@ testIndSpearman = function(target, dataset, xIndex, csIndex, wei = NULL, statist
   }
   
   #if x or target is constant then there is no point to perform the test
-  if( ( sum(x^2) - sum(x)^2 / n ) / (n - 1) == 0  ||  ( sum(target^2) - sum(target)^2 / n ) / (n - 1) == 0 )
+  if( vara(x)== 0 )
   {
-    if(hash == TRUE)#update hash objects
+    if( hash )#update hash objects
     {
       stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
       pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
@@ -151,12 +126,6 @@ testIndSpearman = function(target, dataset, xIndex, csIndex, wei = NULL, statist
     results <- list(pvalue = log(1), stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
     return(results);
   }
-  
-  #remove constant columns of cs
-  cs = as.matrix(cs)
-  cs = cs[, apply(cs, 2, var, na.rm=TRUE) != 0]
-  
-  
   
 #trycatch for dealing with errors
 res <- tryCatch(
@@ -178,15 +147,11 @@ res <- tryCatch(
   } else {
     #perform the test with the cs
     
-     tmpm = cbind(x, target, cs);
-     
-     corrMatrix = cor(tmpm);
-     
+     tmpm = cbind(x, target, cs);    
+     corrMatrix = cor(tmpm);   
      xyIdx = 1:2;
-     csIdx = 3:(NCOL(cs) + 2); #or csIdx = 3;
-     
+     csIdx = 3:(NCOL(cs) + 2); #or csIdx = 3;    
      residCorrMatrix = (corrMatrix[xyIdx, xyIdx]) - as.matrix(corrMatrix[xyIdx, csIdx])%*%(solve( as.matrix(corrMatrix[csIdx, csIdx]) , rbind(corrMatrix[csIdx, xyIdx])) );
-
      stat = abs(residCorrMatrix[1,2] / sqrt(residCorrMatrix[1,1] * residCorrMatrix[2,2]));
 
   }
@@ -211,7 +176,7 @@ res <- tryCatch(
     flag = 1;
   }else{
     #update hash objects
-    if(hash == TRUE)
+    if( hash )
     {
       stat_hash[[key]] <- stat;#.set(stat_hash , key , stat)
       pvalue_hash[[key]] <- pvalue;#.set(pvalue_hash , key , pvalue)
@@ -276,7 +241,7 @@ finally={}
 
   csIndex[which(is.na(csIndex))] = 0;
   
-  if(hash == TRUE)
+  if( hash )
   {
     csIndex2 = csIndex[which(csIndex!=0)]
     csindex2 = sort(csIndex2)
@@ -296,7 +261,7 @@ finally={}
   #information with respect to cs
   if(!is.na(match(xIndex,csIndex)))
   {
-    if(hash == TRUE) #update hash objects
+    if( hash ) #update hash objects
     {
       stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
       pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
@@ -332,22 +297,16 @@ finally={}
 #     }
 #   }
   
-  #checking the length
-  if (length(x) == 0 || length(targ) == 0)
-  {
-    message(paste("error in testIndFisher : empty variable x or target"))
-    aa[[ i ]] <- list(pvalue = pvalue, z = 0, stat = 0, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);    
-  }
-  
+ 
   #if x = any of the cs then pvalue = 1 and flag = 1.
   #That means that the x variable does not add more information to our model due to an exact copy of this in the cs, so it is independent from the target
   if(length(cs)!=0)
   {
-    if(is.null( dim(cs )[2]) == TRUE) #cs is a vector
+    if( is.null( dim(cs )[2]) ) #cs is a vector
     {
       if(any(x != cs) == FALSE)  #if(!any(x == cs) == FALSE)
       {
-        if(hash == TRUE)#update hash objects
+        if( hash )#update hash objects
         {
           stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
           pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
@@ -360,7 +319,7 @@ finally={}
       {
         if(any(x != cs[, col]) == FALSE)  #if(!any(x == cs) == FALSE)
         {
-          if(hash == TRUE)#update hash objects
+          if( hash )#update hash objects
           {
             stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
             pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
@@ -373,9 +332,9 @@ finally={}
   }
   
   #if x or target is constant then there is no point to perform the test
-  if( ( sum(x^2) - sum(x)^2 / n ) / (n - 1) == 0  ||  ( sum(targ^2) - sum(targ)^2 / n ) / (n - 1) == 0 )
+  if( vara(x) == 0 )
   {
-    if(hash == TRUE)#update hash objects
+    if( hash )#update hash objects
     {
       stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
       pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
@@ -383,12 +342,10 @@ finally={}
     aa[[ i ]] <- list(pvalue = log(1), z = 0, stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
     
   }
-  
 
   #remove constant columns of cs
   cs = as.matrix(cs)
-  cs = cs[, apply(cs, 2, var, na.rm=TRUE) != 0]
-  
+  cs = cs[, apply(cs, 2, var, na.rm=TRUE) != 0 ]
   
 aa[[ i ]] <- tryCatch(
 {
@@ -410,15 +367,11 @@ aa[[ i ]] <- tryCatch(
   } else{
      #perform the test with the cs
 
-      tmpm = cbind(x, targ, cs);
-     
-      corrMatrix = cor(tmpm);
-     
+      tmpm = cbind(x, targ, cs);     
+      corrMatrix = cor(tmpm);     
       xyIdx = 1:2;
-      csIdx = 3:(ncol(as.matrix(cs))+2); #or csIdx = 3;
-     
+      csIdx = 3:(ncol(as.matrix(cs))+2); #or csIdx = 3;     
       residCorrMatrix = (corrMatrix[xyIdx, xyIdx]) - as.matrix(corrMatrix[xyIdx, csIdx])%*%(solve( as.matrix(corrMatrix[csIdx, csIdx]) , rbind(corrMatrix[csIdx, xyIdx])) );
-
       stat = abs(residCorrMatrix[1,2] / sqrt(residCorrMatrix[1,1] * residCorrMatrix[2,2]));
   }
 
@@ -443,7 +396,7 @@ aa[[ i ]] <- tryCatch(
     flag = 1;
   }else{
     #update hash objects
-    if(hash == TRUE)
+    if( hash )
     {
       stat_hash[[key]] <- stat; #.set(stat_hash , key , stat)
       pvalue_hash[[key]] <- pvalue; #.set(pvalue_hash , key , pvalue)
@@ -482,7 +435,7 @@ finally={}
   
 }
 
-  if  ( statistic == FALSE ) {
+  if  ( !statistic ) {
     
 	pva <- numeric(D) 
     for ( j in 1:D )   pva[j] = -2 * aa[[ j ]]$pvalue
@@ -504,7 +457,7 @@ finally={}
 	pvalue <- log(2) + pnorm( -abs(stat) / 1.029563 , log.p = TRUE )
   }
   
-  if ( hash == TRUE ) {
+  if ( hash ) {
     
     stat_hash[[key]] <- stat
     pvalue_hash[[key]] <- pvalue  

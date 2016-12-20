@@ -44,8 +44,7 @@ seed = FALSE, ncores = 1, mat = NULL )
 }
 
 \details{
- The lm.ridge command in MASS library is a wrapper for this function. If you want a fast choice of \eqn{\lambda}, then specify auto = TRUE and the \eqn{\lambda} which minimizes 
- the generalised cross-validation criterion will be returned. Otherise a k-fold cross validation is performed and the estimated performance is bias corrected as suggested by Tibshirani and Tibshirani (2009). 
+ The lm.ridge command in MASS library is a wrapper for this function. If you want a fast choice of \eqn{\lambda}, then specify auto = TRUE and the \eqn{\lambda} which minimizes the generalised cross-validation criterion will be returned. Otherise a k-fold cross validation is performed and the estimated performance is bias corrected as suggested by Tibshirani and Tibshirani (2009). 
 }
 
 \value{
@@ -75,7 +74,7 @@ Tibshirani R.J., and Tibshirani R. (2009). A bias correction for the minimum err
 \author{
  Michail Tsagris
 
-R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> and Michail Tsagris <mtsagris@yahoo.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 
 \note{

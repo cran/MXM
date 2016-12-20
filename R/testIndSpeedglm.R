@@ -37,7 +37,7 @@ testIndSpeedglm = function(target, dataset, xIndex, csIndex, wei = NULL, dataInf
   
   csIndex[which(is.na(csIndex))] = 0
   
-  if(hash == TRUE)
+  if( hash )
   {
     csIndex2 = csIndex[which(csIndex!=0)]
     csindex2 = sort(csIndex2)
@@ -58,17 +58,12 @@ testIndSpeedglm = function(target, dataset, xIndex, csIndex, wei = NULL, dataInf
   pvalue = log(1);
   stat = 0;
   flag = 0;
-  
-   if ( all(target>0 & target<1) ) ## are they proportions?
-   { 
-     target = log( target/(1-target) ) 
-   }
 
   #if the xIndex is contained in csIndex, x does not bring any new
   #information with respect to cs
   if(!is.na(match(xIndex,csIndex)))
   {
-    if(hash == TRUE)#update hash objects
+    if( hash )#update hash objects
     {
       stat_hash$key <- 0;#.set(stat_hash , key , 0)
       pvalue_hash$key <- log(1);#.set(pvalue_hash , key , 1)
@@ -92,16 +87,10 @@ testIndSpeedglm = function(target, dataset, xIndex, csIndex, wei = NULL, dataInf
   x = dataset[ , xIndex];
   cs = dataset[ , csIndex];
   
-#   if(length(csIndex) > 1)
-#   {
-#     #remove same columns
-#     cs = unique(as.matrix(cs), MARGIN = 2);
-#   }
-  
   #if x or target is constant then there is no point to perform the test
-  if( var( as.numeric(x) ) == 0 || var( as.numeric(target) ) == 0)
+  if( vara( as.numeric(x) ) == 0 )
   {
-    if(hash == TRUE)#update hash objects
+    if( hash )#update hash objects
     {
       stat_hash$key <- 0;#.set(stat_hash , key , 0)
       pvalue_hash$key <- log(1);#.set(pvalue_hash , key , 1)
@@ -112,25 +101,18 @@ testIndSpeedglm = function(target, dataset, xIndex, csIndex, wei = NULL, dataInf
   
   #remove NAs-zeros from cs
   #csIndex = csIndex[csIndex!=0]
-  
-  #remove constant columns of cs
-  cs = as.matrix(cs)
-  cs = cs[,apply(cs, 2, var, na.rm=TRUE) != 0]
-  
-  if(length(cs) == 0 || is.na(cs) == TRUE)
-  {
-    cs = NULL;
-  }
+
+  if(length(cs) == 0 || is.na(cs) )  cs = NULL;
   
   #if x = any of the cs then pvalue = log(1) and flag = 1.
   #That means that the x variable does not add more information to our model due to an exact copy of this in the cs, so it is independent from the target
   if(length(cs)!=0)
   {
-    if(is.null(dim(cs)[2]) == TRUE) #cs is a vector
+    if( is.null(dim(cs)[2]) ) #cs is a vector
     {
       if(any(x != cs) == FALSE)  #if(!any(x == cs) == FALSE)
       {
-        if(hash == TRUE)#update hash objects
+        if( hash )#update hash objects
         {
           stat_hash$key <- 0;#.set(stat_hash , key , 0)
           pvalue_hash$key <- log(1);#.set(pvalue_hash , key , 1)
@@ -143,7 +125,7 @@ testIndSpeedglm = function(target, dataset, xIndex, csIndex, wei = NULL, dataInf
       {
         if(any(x != cs[,col]) == FALSE)  #if(!any(x == cs) == FALSE)
         {
-          if(hash == TRUE)#update hash objects
+          if( hash )#update hash objects
           {
             stat_hash$key <- 0;#.set(stat_hash , key , 0)
             pvalue_hash$key <- log(1);#.set(pvalue_hash , key , 1)
@@ -157,9 +139,9 @@ testIndSpeedglm = function(target, dataset, xIndex, csIndex, wei = NULL, dataInf
   
   if(target_type == 0)
   {
-    if (length(unique(target)) == 2 ||  "factor" %in% class(target) ) {
+    if (length( Rfast::sort_unique(target) ) == 2 ||  "factor" %in% class(target) ) {
         dataInfo$target_type = "binary" 
-    } else if (identical(floor(target), target) == TRUE) {
+    } else if (identical(floor(target), target) ) {
         dataInfo$target_type = "discrete"
     } else {
         dataInfo$target_type = "normal"
@@ -184,30 +166,19 @@ testIndSpeedglm = function(target, dataset, xIndex, csIndex, wei = NULL, dataInf
       return(results);
     }
   }
-  
-  #checking the length
-  if (length(x) == 0 || length(target) == 0)
-  {
-    message(paste("error in testIndSpeedglm : empty variable x or target"))
-    results <- list(pvalue = pvalue, stat = stat, flag = flag, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
-    return(results);
-  }
-  n=length(target)  ## sample size
+
   #trycatch for dealing with errors
-  
   
   res <- tryCatch(
 {
   #binomial or multinomial target?
-  yCounts = length(unique(target));
+  yCounts = length( unique(target) );
   if(yCounts == 2)
   {
     target_type = 2;
-  }else  if ( identical(floor(target),target) == TRUE )
+  }else  if ( identical(floor(target), target) )
    { target_type = 3
-    }else{
-     target_type = 1 
-  }
+    }else  target_type = 1 
   
   #if the conditioning set (cs) is empty, we use the t-test on the coefficient of x.
   if(length(cs) == 0)
@@ -251,19 +222,19 @@ testIndSpeedglm = function(target, dataset, xIndex, csIndex, wei = NULL, dataInf
   }else{
 
     if ( target_type == 1 ) {
-      fit1 = speedglm::speedlm( target ~ dataset[, csIndex], data = as.data.frame( dataset[, c(csIndex, xIndex)] ), weights = wei,  )
-      fit2 = speedglm::speedlm( target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ), weights = wei,  )
+      fit1 = speedglm::speedlm( target ~ dataset[, csIndex], data = as.data.frame( dataset[, c(csIndex, xIndex)] ), weights = wei )
+      fit2 = speedglm::speedlm( target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ), weights = wei )
       d1 = length( coef(fit1) ) 
       d2 = length( coef(fit2) )
       df1 = d2 - d1
-      df2 = n - d2
+      df2 = length(target) - d2
       stat = ( (fit1$RSS - fit2$RSS)/df1 ) / ( fit2$RSS /df2 )
       pvalue = pf(stat, df1, df2, lower.tail = FALSE, log.p = TRUE) 
       flag = 1;
 
       } else if (target_type == 2){
-        fit1 = speedglm::speedglm( target ~ dataset[, csIndex], data = as.data.frame( dataset[, c(xIndex, csIndex)] ), family = binomial(logit), weights = wei,  )
-        fit2 = speedglm::speedglm( target ~ ., data = as.data.frame( dataset[, c(xIndex, csIndex)] ), family = binomial(logit), weights = wei,  )
+        fit1 = speedglm::speedglm( target ~ dataset[, csIndex], data = as.data.frame( dataset[, c(xIndex, csIndex)] ), family = binomial(logit), weights = wei )
+        fit2 = speedglm::speedglm( target ~ ., data = as.data.frame( dataset[, c(xIndex, csIndex)] ), family = binomial(logit), weights = wei )
         dev1 = fit1$deviance
         dev2 = fit2$deviance
         d1 = length( coef(fit1) )
@@ -273,8 +244,8 @@ testIndSpeedglm = function(target, dataset, xIndex, csIndex, wei = NULL, dataInf
         flag = 1;
 
       } else {
-        fit1 = speedglm::speedglm( target ~ dataset[, csIndex], data = as.data.frame( dataset[, c(xIndex, csIndex)] ), family = poisson(log), weights = wei,  )
-        fit2 = speedglm::speedglm( target ~ ., data = as.data.frame( dataset[, c(xIndex, csIndex)] ), family = poisson(log), weights = wei,  )
+        fit1 = speedglm::speedglm( target ~ dataset[, csIndex], data = as.data.frame( dataset[, c(xIndex, csIndex)] ), family = poisson(log), weights = wei )
+        fit2 = speedglm::speedglm( target ~ ., data = as.data.frame( dataset[, c(xIndex, csIndex)] ), family = poisson(log), weights = wei )
         dev1 = fit1$deviance
         dev2 = fit2$deviance
         d1 = length( coef(fit1) )
@@ -287,20 +258,27 @@ testIndSpeedglm = function(target, dataset, xIndex, csIndex, wei = NULL, dataInf
   }
   
   #update hash objects
-  if(hash == TRUE)
+  if( hash )
   {
     stat_hash$key <- stat;#.set(stat_hash , key , stat)
     pvalue_hash$key <- pvalue;#.set(pvalue_hash , key , pvalue)
   }
   
   #last error check
-  if(is.na(pvalue) || is.na(stat))
-  { 
-    flag = 0;
-  }
-  
+    if(is.na(pvalue) || is.na(stat))
+    {
+      pvalue = log(1);
+      stat = 0;
+      flag = 0;
+    }else{
+      #update hash objects
+      if( hash )
+      {
+        stat_hash[[key]] <- stat;#.set(stat_hash , key , stat)
+        pvalue_hash[[key]] <- pvalue;#.set(pvalue_hash , key , pvalue)
+      }
+    }
   #testerrorcaseintrycatch(4);
-  
   results <- list(pvalue = pvalue, stat = stat, flag = flag, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
   return(results);
   

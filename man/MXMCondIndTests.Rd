@@ -25,8 +25,10 @@ As for the other tests, they share one thing in common. For all of them, two par
   \tab \tab after logit transformation \tab \cr  
   Proportions \tab Mixed \tab testIndRQ \tab Median regression \cr 
   \tab \tab after logit transformation \tab \cr  
-  Proportions \tab Mixed \tab testIndBeta \tab Beta regression \cr  
-  Successes \& totals \tab Mixed \ testIndBinom \tab Binomial regression \cr
+  Proportions \tab Mixed \tab testIndBeta \tab Beta regression \cr 
+  Non negative \tab Mixed \tab testIndIGreg \tab Inverse Gaussian regression \cr 
+  Non negative \tab Mixed \tab censIndWR \tab Weibull regression \cr
+  Successes \& totals \tab Mixed \tab testIndBinom \tab Binomial regression \cr
   Discrete \tab	Mixed \tab testIndPois \tab Poisson regression \cr 
   Discrete \tab	Mixed \tab testIndZIP \tab Zero Inflated \cr 
    \tab	\tab  \tab Poisson regression \cr 
@@ -58,55 +60,57 @@ As for the other tests, they share one thing in common. For all of them, two par
 
 \section{Tests}{
   \enumerate{
-    \item \bold{testIndFisher}. This is a standard test of independence when both the target and the set of predictor variables are continuous (continuous-continuous). When the joint multivariate normality of all the variables is assumed, we know that if a correlation is zero this means that the two variables are independent. Moving in this spirit, when the partial correlation between the target variable and the new predictor variable conditioning on a set of (predictor) variables is zero, then we have evidence to say they are independent as well. An easy way to calculate the partial correlation between the target and a predictor variable conditioning on some other variables is to regress the both the target and the new variable on the conditioning set. The correlation coefficient of the residuals produced by the two regressions equals the partial correlation coefficient. If the robust option is selected, the two aforementioned regression models are fitted using M estimators (Marona et al., 2006). If the target variable consists of proportions or percentages (within the (0, 1) interval), the logit transformation is applied beforehand.
+\item \bold{testIndFisher}. This is a standard test of independence when both the target and the set of predictor variables are continuous (continuous-continuous). When the joint multivariate normality of all the variables is assumed, we know that if a correlation is zero this means that the two variables are independent. Moving in this spirit, when the partial correlation between the target variable and the new predictor variable conditioning on a set of (predictor) variables is zero, then we have evidence to say they are independent as well. An easy way to calculate the partial correlation between the target and a predictor variable conditioning on some other variables is to regress the both the target and the new variable on the conditioning set. The correlation coefficient of the residuals produced by the two regressions equals the partial correlation coefficient. If the robust option is selected, the two aforementioned regression models are fitted using M estimators (Marona et al., 2006). If the target variable consists of proportions or percentages (within the (0, 1) interval), the logit transformation is applied beforehand.
     
-    \item \bold{testIndSpearman}. This is a non-parametric alternative to \bold{testIndFisher} test. It is a bit slower than its competitor, yet very fast and suggested when normality assumption breaks down or outliers are present. In fact, within SES, what happens is that the ranks of the target and of the dataset (predictor variables) are computed and the \bold{testIndSpearman} is aplied. This is faster than applying Fisher with M estimators as described above. If the target variable consists of proportions or percentages (within the (0, 1) interval), the logit transformation is applied beforehand.
+\item \bold{testIndSpearman}. This is a non-parametric alternative to \bold{testIndFisher} test. It is a bit slower than its competitor, yet very fast and suggested when normality assumption breaks down or outliers are present. In fact, within SES, what happens is that the ranks of the target and of the dataset (predictor variables) are computed and the \bold{testIndSpearman} is aplied. This is faster than applying Fisher with M estimators as described above. If the target variable consists of proportions or percentages (within the (0, 1) interval), the logit transformation is applied beforehand.
     
-    \item \bold{testIndReg}. In the case of target-predictors being continuous-mixed or continuous-categorical, the suggested test is via the standard linear regression. In this case, two linear regression models are fitted. One with the conditioning set only and one with the conditioning set plus the new variable. The significance of the new variable is assessed via the F test, which calculates the residual sum of squares of the two models. The reason for the F test is because the new variable may be categorical and in this case the t test cannot be used. It makes sense to say, that this test can be used instead of the \bold{testIndFisher}, but it will be slower. If the robust option is selected, the two models are fitted using M estimators (Marona et al. 2006). If the target variable consists of proportions or percentages (within the (0, 1) interval), the logit transformation is applied beforehand.
+\item \bold{testIndReg}. In the case of target-predictors being continuous-mixed or continuous-categorical, the suggested test is via the standard linear regression. In this case, two linear regression models are fitted. One with the conditioning set only and one with the conditioning set plus the new variable. The significance of the new variable is assessed via the F test, which calculates the residual sum of squares of the two models. The reason for the F test is because the new variable may be categorical and in this case the t test cannot be used. It makes sense to say, that this test can be used instead of the \bold{testIndFisher}, but it will be slower. If the robust option is selected, the two models are fitted using M estimators (Marona et al. 2006). If the target variable consists of proportions or percentages (within the (0, 1) interval), the logit transformation is applied beforehand.
     
-    \item \bold{testIndRQ}. An alternative to \bold{testIndReg} for the case of continuous-mixed (or continuous-continuous) variables is the \bold{testIndRQ}. Instead of fitting two linear regression models, which model the expected value, one can choose to model the median of the distribution (Koenker, 2005). The significance of the new variable is assessed via a rank based test calibrated with an F distribution (Gutenbrunner et al., 1993). The reason for this is that we performed simulation studies and saw that this type of test attains the type I error in contrast to the log-likelihood ratio test. The benefit of this regression is that it is robust, in contrast to the classical linear regression. If the target variable consists of proportions or percentages (within the (0, 1) interval), the logit transformation is applied beforehand.
-    
-    \item \bold{testIndBeta}. When the target is proportion (or percentage, i.e., between 0 and 1, not inclusive) the user can fit a regression model assuming a beta distribution. The predictor variables can be either conitnuous, categorical or mixed. The procedure is the same as in the \bold{testIndReg} case. 
-    
-    \item \bold{Alternatives to testIndBeta}. Instead of \bold{testIndBeta} the user has the option to choose all the previous to that mentioned tests by transforming the target variable with the logit transformation. In this way, the support of the target becomes the whole of R^d and then depending on the type of the predictors and whether a robust approach is required or not, there is a variety of alternative to beta regression tests. 
-    
-    \item \bold{testIndPois}. When the target is discrete, and in specific count data, the default test is via the Poisson regression. The predictor variables can be either conitnuous, categorical or mixed. The procedure is the same as in all the previously regression model based tests. 
-    
-    \item \bold{testIndNB}. As an alternative to the Poisson regression, we have included the Negative binomial regression to capture cases of overdispersion. The predictor variables can be either conitnuous, categorical or mixed. 
+\item \bold{testIndRQ}. An alternative to \bold{testIndReg} for the case of continuous-mixed (or continuous-continuous) variables is the \bold{testIndRQ}. Instead of fitting two linear regression models, which model the expected value, one can choose to model the median of the distribution (Koenker, 2005). The significance of the new variable is assessed via a rank based test calibrated with an F distribution (Gutenbrunner et al., 1993). The reason for this is that we performed simulation studies and saw that this type of test attains the type I error in contrast to the log-likelihood ratio test. The benefit of this regression is that it is robust, in contrast to the classical linear regression. If the target variable consists of proportions or percentages (within the (0, 1) interval), the logit transformation is applied beforehand.
 
-    \item \bold{testIndZIP}. When the number of zeros is more than expected under a Poisson model, the zero inflated poisson regression is to be employed. The predictor variables can be either conitnuous, categorical or mixed. 
+\item \bold{testIndBeta}. When the target is proportion (or percentage, i.e., between 0 and 1, not inclusive) the user can fit a regression model assuming a beta distribution. The predictor variables can be either continuous, categorical or mixed. The procedure is the same as in the \bold{testIndReg} case. 
     
-    \item \bold{testIndLogistic} (Binomial). When the target is categorical with only two outcomes, success or failure for example, then a binary logistic regression is to be used. Whether regression or classification is the task of interest, this method is applicable. The advantage of this over a linear or quadratic discriminant analysis is that it allows for categorical predictor variables as well and for mixed types of predictors.
-    
-    \item \bold{testIndLogistic} (Un-ordered multinomial). If the target has more than two outcomes, but it is of nominal type, there is no ordering of the outcomes, multinomial logistic regression will be employed. Again, this regression is suitable for classification purposes as well and it to allows for categorical predictor variables.
-    
-    \item \bold{testIndLogistic} (Ordered multinomial). This is a special case of multinomial regression, in which case the outcomes have an ordering, such as \bold{not satisfied}, \bold{neutral}, \bold{satisfied}. The appropriate method is ordinal logistic regression. 
-    
-    \item \bold{testIndBinom}. When the target variable is a matrix of two columns, where the first one is the number of successes and the second one is the number of trials, binomial regression is to be used. 
-    
-    \item \bold{testIndSpeedglm}. If you have a few tens of thousands of observations, the default functions for linear, binary logistic and poisson regression will be slow causing the computer to jamm. For this reason, memory efficient handling regressions should be used.
-    
-    \item \bold{gSquare}. If all variables, both the target and predictors are categorical the default test is the G-square test of independence. It is similar to the chi-squared test of independence, but instead of using the chi-squared metric between the observed and estimated frequencies in contingency tables, the Kullback-Leibler divergence of the observed from the estimated frequencies is used. The asymptotic distribution of the test statistic is a chi-squared distribution on some appropriate degrees of freedom. The target variable can be either ordered or unordered with two or more outcomes. 
-    
-    \item \bold{Alternatives to gSquare}. An alternative to the \bold{gSquare} test is the \bold{testIndLogistic}. Depending on the nature of the target, binary, un-ordered multinomial or ordered multinomial the appropriate regression model is fitted. 
-    
-    \item \bold{censIndCR}. For the case of time-to-event data, a Cox regression model is employed. The predictor variables can be either continuous, categorical or mixed. Again, the log-likelihood ratio test is used to assess the significance of the new variable. 
-    
-    \item \bold{censIndWR}. A second model for the case of time-to-event data, a Weibull regression model is employed. The predictor variables can be either continuous, categorical or mixed. Again, the log-likelihood ratio test is used to assess the significance of the new variable. Unlike the semi-parametric Cox model, the Weibull model is fully parametric.
+\item \bold{Alternatives to testIndBeta}. Instead of \bold{testIndBeta} the user has the option to choose all the previous to that mentioned tests by transforming the target variable with the logit transformation. In this way, the support of the target becomes the whole of R^d and then depending on the type of the predictors and whether a robust approach is required or not, there is a variety of alternative to beta regression tests. 
 
-    \item \bold{censIndER}. A third model for the case of time-to-event data, an exponential regression model is employed. The predictor variables can be either continuous, categorical or mixed. Again, the log-likelihood ratio test is used to assess the significance of the new variable. Unlike the semi-parametric Cox model, the Weibull model is fully parametric.
+\item \bold{testIndIGreg}. When you have non negative data, i.e. the target variable takes positive values (including 0), a suggested regression is based on the the inverse gaussian distribution. The link function is not the inverse of the square root as expected, but the logarithm. This is to ensure that the fitted values will be always be non negative. The predictor variables can be either continuous, categorical or mixed. The significance between the two models is assessed via the log-likelihood ratio test. Alternatively, the user can use the Weibull regression (\bold{censIndWR}). 
 
-    \item \bold{testIndClogit}. When the data come from a case-control study, the suitable test is via conditional logistic regression. 
+\item \bold{testIndPois}. When the target is discrete, and in specific count data, the default test is via the Poisson regression. The predictor variables can be either continuous, categorical or mixed. The procedure is the same as in all the previously regression model based tests, i.e. the log-likelihood ratio test is used to assess the conditional independence of the variable of interest. 
+    
+\item \bold{testIndNB}. As an alternative to the Poisson regression, we have included the Negative binomial regression to capture cases of overdispersion. The predictor variables can be either continuous, categorical or mixed. 
 
-    \item \bold{testIndMVReg}. In the case of multivariate continuous targets, the suggested test is via a multivariate linear regression.  The target variable can be compositional data as well. These are positive data, whose vectors sum to 1.  They can sum to any constant, as long as it the same, but for convenience reasons we assume that they are normalised to sum to 1.  In this case the additive log-ratio transformation (multivariate logit transformation) is applied beforehand. 
+\item \bold{testIndZIP}. When the number of zeros is more than expected under a Poisson model, the zero inflated poisson regression is to be employed. The predictor variables can be either continuous, categorical or mixed. 
+    
+\item \bold{testIndLogistic} (Binomial). When the target is categorical with only two outcomes, success or failure for example, then a binary logistic regression is to be used. Whether regression or classification is the task of interest, this method is applicable. The advantage of this over a linear or quadratic discriminant analysis is that it allows for categorical predictor variables as well and for mixed types of predictors.
+    
+\item \bold{testIndLogistic} (Un-ordered multinomial). If the target has more than two outcomes, but it is of nominal type, there is no ordering of the outcomes, multinomial logistic regression will be employed. Again, this regression is suitable for classification purposes as well and it to allows for categorical predictor variables.
+    
+\item \bold{testIndLogistic} (Ordered multinomial). This is a special case of multinomial regression, in which case the outcomes have an ordering, such as \bold{not satisfied}, \bold{neutral}, \bold{satisfied}. The appropriate method is ordinal logistic regression. 
+    
+\item \bold{testIndBinom}. When the target variable is a matrix of two columns, where the first one is the number of successes and the second one is the number of trials, binomial regression is to be used. 
+    
+\item \bold{testIndSpeedglm}. If you have a few tens of thousands of observations, the default functions for linear, binary logistic and poisson regression will be slow causing the computer to jamm. For this reason, memory efficient handling regressions should be used.
+    
+\item \bold{gSquare}. If all variables, both the target and predictors are categorical the default test is the G-square test of independence. It is similar to the chi-squared test of independence, but instead of using the chi-squared metric between the observed and estimated frequencies in contingency tables, the Kullback-Leibler divergence of the observed from the estimated frequencies is used. The asymptotic distribution of the test statistic is a chi-squared distribution on some appropriate degrees of freedom. The target variable can be either ordered or unordered with two or more outcomes. 
+    
+\item \bold{Alternatives to gSquare}. An alternative to the \bold{gSquare} test is the \bold{testIndLogistic}. Depending on the nature of the target, binary, un-ordered multinomial or ordered multinomial the appropriate regression model is fitted. 
+    
+\item \bold{censIndCR}. For the case of time-to-event data, a Cox regression model is employed. The predictor variables can be either continuous, categorical or mixed. Again, the log-likelihood ratio test is used to assess the significance of the new variable. 
+    
+\item \bold{censIndWR}. A second model for the case of time-to-event data, a Weibull regression model is employed. The predictor variables can be either continuous, categorical or mixed. Again, the log-likelihood ratio test is used to assess the significance of the new variable. Unlike the semi-parametric Cox model, the Weibull model is fully parametric.
 
-    \item \bold{testIndGLMM}. In the case of a longitudinal or clustered targets (continuous, proportions, binary or counts), the suggested test is via a (generalised) linear mixed model.   
+\item \bold{censIndER}. A third model for the case of time-to-event data, an exponential regression model is employed. The predictor variables can be either continuous, categorical or mixed. Again, the log-likelihood ratio test is used to assess the significance of the new variable. Unlike the semi-parametric Cox model, the Weibull model is fully parametric.
+
+\item \bold{testIndClogit}. When the data come from a case-control study, the suitable test is via conditional logistic regression. 
+
+\item \bold{testIndMVReg}. In the case of multivariate continuous targets, the suggested test is via a multivariate linear regression.  The target variable can be compositional data as well. These are positive data, whose vectors sum to 1.  They can sum to any constant, as long as it the same, but for convenience reasons we assume that they are normalised to sum to 1.  In this case the additive log-ratio transformation (multivariate logit transformation) is applied beforehand. 
+
+\item \bold{testIndGLMM}. In the case of a longitudinal or clustered targets (continuous, proportions, binary or counts), the suggested test is via a (generalised) linear mixed model.   
 
 }
 }
 
 \details{
- These tests can be called by SES or individually by the user.
+ These tests can be called by SES or individually by the user. In all regression cases, expect for the mixed models, there is an option for weights. 
 }
 
 \references{
@@ -149,7 +153,7 @@ Spirtes P.,  Glymour C. and Scheines R. (2001). Causation, Prediction, and Searc
 }
 
 \author{
-Michail Tsagris <mtsagris@yahoo.gr>
+Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 
 \keyword{ Conditional independence tests }

@@ -68,9 +68,7 @@ If argument target_type=0 then testIndLogistic requires the dataInfo argument to
 
 If hash = TRUE, testIndLogistic requires the arguments 'stat_hash' and 'pvalue_hash' for the hash-based implementation of the statistic test. These hash Objects are produced or updated by each run of SES (if hash == TRUE) and they can be reused in order to speed up next runs of the current statistic test. If "SESoutput" is the output of a SES run, then these objects can be retrieved by SESoutput@hashObject$stat_hash and the SESoutput@hashObject$pvalue_hash.
 
-Important: Use these arguments only with the same dataset that was used at initialization.
-
-For all the available conditional independence tests that are currently included on the package, please see "?CondIndTests".
+Important: Use these arguments only with the same dataset that was used at initialization. For all the available conditional independence tests that are currently included on the package, please see "?CondIndTests".
 }
 
 \value{
@@ -103,7 +101,7 @@ McCullagh, Peter, and John A. Nelder. Generalized linear models.  CRC press, USA
 \author{
 Vincenzo Lagani and Ioannis Tsamardinos 
 
-R implementation and documentation: Vincenzo Lagani <vlagani@csd.uoc.gr>, Giorgos Athineou <athineou@csd.uoc.gr> and Michail Tsagris <mtsagris@yahoo.gr>
+R implementation and documentation: Vincenzo Lagani <vlagani@csd.uoc.gr>, Giorgos Athineou <athineou@csd.uoc.gr> and Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 
 \note{
@@ -150,8 +148,7 @@ dataset_m <- dataset_m[, -50]
   #run the SES algorithm using the testIndLogistic conditional independence test 
   #for the ordinal class variable
   sesObject <- SES(factor(target_m, ordered=TRUE), dataset_m, max_k = 3 , 
-  threshold = 0.05, 
-                   test = "testIndLogistic");
+  threshold = 0.05, test = "testIndLogistic");
   #print summary of the SES output
   summary(sesObject);
   # plot the SES output

@@ -1,16 +1,16 @@
 \name{Backward selection regression}
 \alias{bs.reg}
 \title{
-  Variable selection in regression models with forward selection
+Variable selection in regression models with backward selection
 }
 
 \description{
-  Variable selection in regression models with forward selection
+Variable selection in regression models with backward selection
 }
 
 \usage{
-bs.reg(target, dataset, threshold = 0.05, test = NULL, wei = NULL, user_test = NULL, 
-heavy = FALSE, robust = FALSE)
+bs.reg(target, dataset, threshold = 0.05, wei = NULL, test = NULL, user_test = NULL, 
+robust = FALSE)
 }
 
 \arguments{
@@ -21,19 +21,16 @@ The class variable. Provide either a string, an integer, a numeric value, a vect
 The dataset; provide either a data frame or a matrix (columns = variables, rows = samples). In either case, only two cases are avaialble, either all data are continuous, or categorical. 
   }
 \item{threshold}{
-Threshold (suitable values in [0,1]) for asmmmbsing p-values significance. Default value is 0.05.
+Threshold (suitable values in [0,1]) for assessing p-values significance. Default value is 0.05.
 }
 \item{test}{
-The regression model to use. Available options are most of the tests for SES and MMPC. The ones NOT available are "gSquare", "censIndER", "testIndMVreg", "testIndClogit", "testIndBinom", "testIndSpearman" and "testIndFisher".
+The regression model to use. Available options are most of the tests for SES and MMPC. The ones NOT available are "gSquare", "censIndER", "testIndMVreg", "testIndClogit", "testIndSpearman" and "testIndFisher". If you want to use multinomial or ordinal logistic regression, make sure your target is factor. See also \code{\link{SES}} and \code{\link{CondIndTests}} for the tests.
 }
 \item{wei}{
 A vector of weights to be used for weighted regression. The default value is NULL. It is not suggested when robust is set to TRUE.
 }
 \item{user_test}{
 A user-defined conditional independence test (provide a closure type object). Default value is NULL. If this is defined, the "test" argument is ignored.
-}
-\item{heavy}{
-A boolean variable specifying whether heavy computations are required or not. If for exmaple the dataset contains tens of thousands of rows, it is advised to used memory efficient GLMs and hence set this to TRUE.
 }
 \item{robust}{
 A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust version of the statistical test if it is available.  It takes more time than a non robust version but it is suggested in case of outliers. Default value is FALSE.
@@ -65,7 +62,7 @@ The final regression model.
 \author{
   Michail Tsagris
   
-  R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> Michail Tsagris <mtsagris@yahoo.gr>
+  R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 
 \seealso{

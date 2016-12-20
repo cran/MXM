@@ -13,10 +13,10 @@ permcor(x, R = 999)
 }
 
 \arguments{
-  \item{x}{
-  A matrix with two columns, two continuous variables.
+\item{x}{
+A matrix with two columns, two continuous variables.
 }
-  \item{R}{
+\item{R}{
 The number of permutations to be conducted; set to 999 by default. 
 }
 }
@@ -29,14 +29,14 @@ This is a computational non parametric correlation coefficient test and is advis
 A vector consisting of two values, the Pearson correlation and the permutation based p-value. 
 }
 
-%\references{
-%
-%}
+\references{
+Legendre Pierre (2000). Comparison of permutation methods for the partial correlation and partial Mantel tests. Journal of Statistical Computation and Simulation 67(1):37-73.
+}
 
 \author{
-Vincenzo Lagani and Ioannis Tsamardinos
+Michail Tsagris
 
-R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> Vincenzo Lagani <vlagani@csd.uoc.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 %\note{
 %%  ~~further notes~~
@@ -52,4 +52,4 @@ permcor(iris[,1:2], R = 9999)
 }
 
 \keyword{ Permutation test }
-\keyword{ Conditional Independence Test }
+\keyword{ conditional independence test }

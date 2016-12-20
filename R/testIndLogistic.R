@@ -1,5 +1,5 @@
-testIndLogistic = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL , univariateModels = NULL ,
- hash = FALSE,stat_hash = NULL, pvalue_hash = NULL, target_type = 0, robust = FALSE)
+testIndLogistic = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, univariateModels = NULL,
+ hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, target_type = 0, robust = FALSE)
 {
   #   TESTINDLOGISTIC Conditional Independence Test based on logistic regression for binary,categorical or ordinal class variables
   #
@@ -9,7 +9,6 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, wei = NULL, dataInf
   #   The comparison is performed through a chi-square test with one degree 
   #   of freedom on the difference between the deviances of the two models. 
   #   TESTINDLOGISTIC requires the following inputs:
-  
   #   target: a column vector containing the values of the target variable. 
   #   target must be an integer vector, with values from 0 to k-1, where k is
   #   the number of categories
@@ -54,23 +53,18 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, wei = NULL, dataInf
   #   Revision: 1.0 Date: 18/05/2012
   #   R Implementation by Giorgos Athineou (12/2013)
   
-  #initialization
-  
   #cast factor into numeric vector
-  if(is.ordered(target) == FALSE)
-  {
-    target = as.factor(as.numeric(as.vector(target)));
-  }
+  if( !is.ordered(target) )   target = as.factor( as.numeric( as.vector(target) ) );
   
   csIndex[which(is.na(csIndex))] = 0
   
-  if(hash == TRUE)
+  if( hash )
   {
     csIndex2 = csIndex[which(csIndex!=0)]
     csindex2 = sort(csIndex2)
     xcs = c(xIndex,csIndex2)
     key = paste(as.character(xcs) , collapse=" ");
-    if(is.null(stat_hash[[key]]) == FALSE)
+    if( !is.null(stat_hash[[key]]) )
     {
       stat = stat_hash[[key]];
       pvalue = pvalue_hash[[key]];
@@ -88,9 +82,9 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, wei = NULL, dataInf
   
   #if the xIndex is contained in csIndex, x does not bring any new
   #information with respect to cs
-  if(!is.na(match(xIndex,csIndex)))
+  if( !is.na(match(xIndex,csIndex)) )
   {
-    if(hash == TRUE)#update hash objects
+    if( hash )#update hash objects
     {
       stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
       pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
@@ -114,16 +108,10 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, wei = NULL, dataInf
   x = dataset[ , xIndex];
   cs = dataset[ , csIndex];
   
-#   if(length(csIndex) > 1)
-#   {
-#     #remove same columns
-#     cs = unique(as.matrix(cs), MARGIN = 2);
-#   }
-  
   #if x or target is constant then there is no point to perform the test
-  if( var( as.numeric(x) ) == 0 || var( as.numeric(target) )== 0 )
+  if( vara( as.numeric(x) ) == 0 )
   {
-    if(hash == TRUE)#update hash objects
+    if( hash )#update hash objects
     {
       stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
       pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
@@ -134,25 +122,18 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, wei = NULL, dataInf
   
   #remove NAs-zeros from cs
   #csIndex = csIndex[csIndex!=0]
-  
-  #remove constant columns of cs
-  cs = as.matrix(cs)
-  cs = cs[,apply(cs, 2, var, na.rm=TRUE) != 0]
-  
-  if(length(cs) == 0 || is.na(cs) == TRUE)
-  {
-    cs = NULL;
-  }
+
+  if(length(cs) == 0 || is.na(cs) )  cs = NULL;
   
   #if x = any of the cs then pvalue = 1 and flag = 1.
   #That means that the x variable does not add more information to our model due to an exact copy of this in the cs, so it is independent from the target
   if(length(cs)!=0)
   {
-    if(is.null(dim(cs)[2]) == TRUE) #cs is a vector
+    if( is.null(dim(cs)[2]) ) #cs is a vector
     {
       if(any(x != cs) == FALSE)  #if(!any(x == cs) == FALSE)
       {
-        if(hash == TRUE)#update hash objects
+        if( hash )#update hash objects
         {
           stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
           pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
@@ -165,7 +146,7 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, wei = NULL, dataInf
       {
         if(any(x != cs[,col]) == FALSE)  #if(!any(x == cs) == FALSE)
         {
-          if(hash == TRUE)#update hash objects
+          if( hash )#update hash objects
           {
             stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
             pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
@@ -204,14 +185,6 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, wei = NULL, dataInf
     }
   }
   
-  #checking the length
-  if (length(x) == 0 || length(target) == 0)
-  {
-    message(paste("error in testIndLogistic : empty variable x or target"))
-    results <- list(pvalue = pvalue, stat = stat, flag = flag, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
-    return(results);
-  }
-  n=length(target)  ## sample size
   #trycatch for dealing with errors
   res <- tryCatch(
 {
@@ -225,7 +198,6 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, wei = NULL, dataInf
     #correct encoding for target
     #target = target + 1;
   #}
-  n = length(target)
   #if the conditioning set (cs) is empty, we use the t-test on the coefficient of x.
   if(length(cs) == 0)
   {
@@ -327,20 +299,28 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, wei = NULL, dataInf
   flag = 1;
   
   #update hash objects
-  if(hash == TRUE)
+  if( hash )
   {
     stat_hash[[key]] <- stat;#.set(stat_hash , key , stat)
     pvalue_hash[[key]] <- pvalue;#.set(pvalue_hash , key , pvalue)
   }
   
   #last error check
+  #last error check
   if(is.na(pvalue) || is.na(stat))
-  { 
+  {
+    pvalue = log(1);
+    stat = 0;
     flag = 0;
+  }else{
+    #update hash objects
+    if( hash )
+    {
+      stat_hash[[key]] <- stat;#.set(stat_hash , key , stat)
+      pvalue_hash[[key]] <- pvalue;#.set(pvalue_hash , key , pvalue)
+    }
   }
-  
   #testerrorcaseintrycatch(4);
-  
   results <- list(pvalue = pvalue, stat = stat, flag = flag, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
   return(results);
   

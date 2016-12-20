@@ -8,7 +8,7 @@ censIndER = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL
   
   csIndex[which(is.na(csIndex))] = 0;
   
-  if(hash == TRUE)
+  if( hash )
   {
     csIndex2 = csIndex[which(csIndex!=0)]
     csindex2 = sort(csIndex2)
@@ -27,10 +27,6 @@ censIndER = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL
   
   #initialization: these values will be returned whether the test cannot be carried out
   
-  #in this test dataset must be a dataframe
-  #dataset = as.data.frame(dataset);
-  #dataset = cbind(dataset,target[,1]);#dataset$timeToEvent = target[,1];#dataInfo$timeToEvent;
-  
   pvalue = log(1);
   stat = 0;
   flag = 0;
@@ -38,17 +34,10 @@ censIndER = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL
   expo_results = NULL;
   expo_results_full = NULL;
   
-  #timeIndex = dim(dataset)[2];
   event = target[,2]#dataInfo$event;
   
   #retrieving the data
   x = dataset[ , xIndex];
-  timeToEvent = target[, 1];
-  
-  #if no data, let's return
-  if (length(x) == 0 || length(timeToEvent) == 0){
-    return(results);
-  }
   
   #if the censored indicator is empty, a dummy variable is created
   numCases = dim(dataset)[1];
@@ -73,11 +62,11 @@ censIndER = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL
     }
     
     #retrieve the p value and stat. 
-    dof <- length( coef(expo_results) )
+    dof <- length( coef(expo_results) ) - 1
     stat = 2 * abs( diff(expo_results$loglik) )
     pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE);
     
-    if(hash == TRUE)#update hash objects
+    if( hash )#update hash objects
     {
       stat_hash[[key]] <- stat;#.set(stat_hash , key , stat)
       pvalue_hash[[key]] <- pvalue;#.set(pvalue_hash , key , pvalue)
@@ -86,17 +75,7 @@ censIndER = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL
     flag = 1;
     
   }else{
-    
-    #perform the test with the cs
-    #tecs = dataset[ , c(csIndex)];
-    
-    #tecs = dataset[ ,c(timeIndex, csIndex)];
-    #names(tecs)[1] = 'timeToEvent';
-    #tecs$event = event; #it was without comment (warning LHS to a list)
-    #texcs = dataset[ , c(xIndex, csIndex)]; #texcs = dataset[ ,c(timeIndex, xIndex, csIndex)];
-    #names(texcs)[1] = 'timeToEvent';
-    #texcs$event = event; #it was without comment (warning LHS to a list)
-    
+
     tryCatch(
     
     # fitting the model  (without x)
@@ -127,13 +106,9 @@ censIndER = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL
     res = anova(expo_results, expo_results_full)
     stat = abs( res[2, 6] );
     dF = abs( res[2, 5] );
-#     res = anova(expo_results_full)
-#     pr = nrow(res)
-#     stat = res[pr, 2]
-#     dF = res[pr, 1]
     pvalue = pchisq(stat, dF, lower.tail = FALSE, log.p = TRUE)
     
-    if(hash == TRUE)#update hash objects
+    if( hash )#update hash objects
     {
       stat_hash[[key]] <- stat;#.set(stat_hash , key , stat)
       pvalue_hash[[key]] <- pvalue;#.set(pvalue_hash , key , pvalue)

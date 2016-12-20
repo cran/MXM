@@ -70,7 +70,6 @@ How many cores to use. This plays an important role if you have tens of thousand
 If TRUE, the backward (or symmetry correction) phase will be implemented. This removes any falsely included variables in the parents and children set of the target variable and it will slow down the algorithm. Bear in mind that the target becomes predictor variables. Hence, this is advised to be used with "testIndifisher" and "gSquare" only and not with survival or multivariate targets. This is because the two aforementioned tests are symmetrical, i.e. there is not dependent or independent variable. In addition, if there are highly collinear (or statistically equivalent) variables, this phase tends to remove correctly identified variables, simply because it will identify 
 a variable wich is highly collinear with the target variable. 
 }
-
 }
 
 \details{
@@ -183,7 +182,7 @@ Tsamardinos, Brown and Aliferis (2006). The max-min hill-climbing Bayesian netwo
 \author{
 Ioannis Tsamardinos, Vincenzo Lagani
 
-R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> Vincenzo Lagani <vlagani@csd.uoc.gr>  
+R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr>, Vincenzo Lagani <vlagani@csd.uoc.gr>  and Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 
 
@@ -215,11 +214,13 @@ hash = TRUE, hashObject = NULL)
 ina <- rbinom(1000, 2, 0.5) + 1
 a2 <- ma.ses(target , dataset, ina = ina, max_k = 5, threshold = 0.05, test = "testIndFisher", 
 hash = TRUE, hashObject = NULL)
-
+a3 <- ma.mmpc(target , dataset, ina = ina, max_k = 5, threshold = 0.05, test = "testIndFisher", 
+hash = TRUE, hashObject = NULL)
 
 #get the generated signatures
 a1@signatures
 a2@signatures
+a3@selectedVars
 
 }
 

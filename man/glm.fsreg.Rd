@@ -53,6 +53,9 @@ How many cores to use. This plays an important role if you have tens of thousand
 
 \value{
 The output of the algorithm is S3 object including:
+\item{runtime}{
+The run time of the algorithm. A numeric vector. The first element is the user time, the second element is the system time and the third element is the elapsed time.
+}
 \item{mat}{
 A matrix with the variables and their latest test statistics and p-values.
 }
@@ -62,14 +65,11 @@ A matrix with the selected variables, their p-values and test statistics. Each r
 \item{models}{
 The regression models, one at each step.
 }
-\item{final}{
-The final regression model.
-}
 \item{ci_test}{
 The conditional independence test used. 
 }
-\item{runtime}{
-The run time of the algorithm. A numeric vector. The first element is the user time, the second element is the system time and the third element is the elapsed time.
+\item{final}{
+The final regression model.
 }
 }
 
@@ -81,7 +81,7 @@ The run time of the algorithm. A numeric vector. The first element is the user t
 \author{
 Michail Tsagris
 
-R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> Michail Tsagris <mtsagris@yahoo.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 
 \seealso{

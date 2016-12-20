@@ -53,9 +53,7 @@ A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust
 \details{
 If hash = TRUE, testIndBeta requires the arguments 'stat_hash' and 'pvalue_hash' for the hash-based implementation of the statistic test. These hash Objects are produced or updated by each run of SES (if hash == TRUE) and they can be reused in order to speed up next runs of the current statistic test. If "SESoutput" is the output of a SES run, then these objects can be retrieved by SESoutput@hashObject$stat_hash and the SESoutput@hashObject$pvalue_hash.
 
-Important: Use these arguments only with the same dataset that was used at initialization.
-
-For all the available conditional independence tests that are currently included on the package, please see "?CondIndTests".
+Important: Use these arguments only with the same dataset that was used at initialization. For all the available conditional independence tests that are currently included on the package, please see "?CondIndTests". An alternative regression to this is "testIndReg" and "testIndRQ" .In these two latter cases, the logit transformation is first applied to the target variable. 
 }
 
 \value{
@@ -84,7 +82,7 @@ Ferrari S.L.P. and Cribari-Neto F. (2004). Beta Regression for Modelling Rates a
 \author{
 Vincenzo Lagani, Ioannis Tsamardinos, Michail Tsagris and Giorgos Athineou
 
-R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr>, Vincenzo Lagani <vlagani@csd.uoc.gr> and Michail Tsagris <mtsagris@yahoo.gr>
+R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr>, Vincenzo Lagani <vlagani@csd.uoc.gr> and Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 
 %\note{
@@ -97,13 +95,13 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr>, Vinc
 
 \examples{
 #simulate a dataset with continuous data
-dataset <- matrix(runif(200 * 50, 1, 1000), nrow = 200 ) 
+dataset <- matrix(runif(100 * 20, 1, 1000), ncol = 20 ) 
 #the target feature is the last column of the dataset as a vector
-target <- dataset[, 50]
-dataset <- dataset[, -50]
+target <- dataset[, 20]
+dataset <- dataset[, -20]
 target <- target / (max(target) + 2 )
 
-results <- testIndBeta(target, dataset, xIndex = 44, csIndex = 49)
+results <- testIndBeta(target, dataset, xIndex = 14, csIndex = 9)
 results
 
 #run the SES algorithm using the testIndBeta conditional independence test

@@ -41,7 +41,7 @@ It takes more time than a non robust version but it is suggested in case of outl
 How many cores to use. This plays an important role if you have tens of thousands of variables or really large sample sizes and tens of thousands of variables and a regression based test which requires numerical optimisation. In other cammmb it will not make a difference in the overall time (in fact it can be slower). The parallel computation is used in the first step of the algorithm, where univariate associations are examined, those take place in parallel. We have seen a reduction in time of 50\% with 4 cores in comparison to 1 core. Note also, that the amount of reduction is not linear in the number of cores.
 }
 \item{hold}{
-After backward (or symmetry correction) phase is implemented. This will remove any possibly falsely included variables in the parents and children set of the target variable and it will slow down the algorithm. If hold is TRUE, even if some variables are identified as falsely included, they will remain. If there are highly collinear (or statistically equivalent) variables, this phase tends to remove correctly identified variables, simply because it will identify a variable wich is highly collinear with the target variable. In this case, the hold should be TRUE. Can you know this in advnace? Well, maybe you can run the SES algorithm to get an idea, or be suspicious about it. 
+After the MMPC, the backward (or symmetry correction) phase is implemented. This will remove any possibly falsely included variables in the parents and children set of the target variable and it will slow down the algorithm. If hold is TRUE, even if some variables are identified as falsely included, they will remain. If there are highly collinear (or statistically equivalent) variables, this phase tends to remove correctly identified variables, simply because it will identify a variable wich is highly collinear with the target variable. In this case, the hold should be TRUE. Can you know this in advnace? Well, maybe you can run the SES algorithm to get an idea, or be suspicious about it. 
 }
 }
 
@@ -60,14 +60,14 @@ The run time of the algorithm. A numeric vector. The first element is the user t
 }
 
 \references{
-Tsamardinos I., Aliferis C. F. and Statnikov, A. (2003). Time and sample efficient discovery of Markov blankets and direct causal relations. In Proceedings of the 9th ACM SIGKDD international conference on Knowledge discovery and data mining (pp. 673-678). 
+Tsamardinos I., Aliferis C. F. and Statnikov, A. (2003). Time and sample efficient discovery of Markov blankets and direct causal relations. In Proceedings of the 9th ACM SIGKDD international conference on Knowledge discovery and data mining, pp. 673-678.
 }
 
 
 \author{
-Ioannis Tsamardinos, Vincenzo Lagani
+Michail Tsagris
 
-R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> Vincenzo Lagani <vlagani@csd.uoc.gr>  
+R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 
 \seealso{

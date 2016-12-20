@@ -23,7 +23,7 @@ ridgereg.cv <- function( target, dataset, K = 10, lambda = seq(0, 2, by = 0.1),
   mspe <- NULL
   performance <- NULL
 
-  if ( auto == TRUE ) {
+  if ( auto ) {
     runtime <- proc.time()
     mod <- MASS::lm.ridge( target ~ dataset, lambda = lambda ) 
     gcv <- min(mod$GCV)
@@ -33,7 +33,7 @@ ridgereg.cv <- function( target, dataset, K = 10, lambda = seq(0, 2, by = 0.1),
 
   } else {
     if ( is.null(mat) ) { ## no folds were given by the user
-      if (seed == TRUE)  set.seed(1234567) ## the folds will always be the same
+      if ( seed )  set.seed(1234567) ## the folds will always be the same
       nu <- sample(1:n, min( n, round(n / K) * K ) )
       ## It may be the case this new nu is not exactly the same
       ## as the one specified by the user
@@ -41,7 +41,7 @@ ridgereg.cv <- function( target, dataset, K = 10, lambda = seq(0, 2, by = 0.1),
       ## to a matrix a warning message should appear 
       mat <- matrix( nu, ncol = K ) 
     } else mat <- mat
-      rmat <- nrow(mat)
+      rmat <- dim(mat)[1]
       
     if ( ncores == 1 ) {
       
@@ -58,18 +58,18 @@ ridgereg.cv <- function( target, dataset, K = 10, lambda = seq(0, 2, by = 0.1),
         mx <- as.vector( Rfast::colmeans(xtrain) )
         yy <- ytrain - my  ## center the dependent variables
         s <- Rfast::colVars(xtrain, std = TRUE) 
-        xtest <- ( t(xtest) - mx ) / s ## standardize the newdata values 
-        xtest <- t(xtest)
+        xtest <- t( ( t(xtest) - mx ) / s ) ## standardize the independent variable values 
+        xx <- t( ( t(xtrain) - mx ) / s )
         
-        xx <- ( t(xtrain) - mx ) / s
-        xx <- t(xx)
         sa <- svd(xx)
-        tu <- t(sa$u)    ;    d <- sa$d    ;    v <- sa$v
+        d <- sa$d    ;    v <- t(sa$v)    ;     tu <- t(sa$u)  
+        d2 <- d^2    ;    A <- d * tu %*% yy
         
         for (i in 1:mi) {
-          betas <- ( v %*% (tu * ( d / ( d^2 + lambda[i] ) ) ) ) %*% yy 
+          ## betas <- ( v %*% (tu * ( d / ( d^2 + lambda[i] ) ) ) ) %*% yy 
+          betas <- crossprod( v / ( d2 + lambda[i] ), A )
           est <- xtest %*% betas + my 
-            per[vim, i] <- sum( (ytest - est)^2 ) / rmat
+          per[vim, i] <- sum( (ytest - est)^2 ) / rmat
         }
         
       }
@@ -93,16 +93,16 @@ ridgereg.cv <- function( target, dataset, K = 10, lambda = seq(0, 2, by = 0.1),
         mx <- as.vector( Rfast::colmeans(xtrain) )
         yy <- ytrain - my  ## center the dependent variables
         s <- Rfast::colVars(xtrain, std = TRUE) 
-        
-        xx <- ( t(xtrain) - mx ) / s
-        xx <- t(xx)
-        xtest <- ( t(xtest) - mx ) / s ## standardize the newdata values   
-        xtest <- t(xtest)
+        xx <- t( ( t(xtrain) - mx ) / s )
+        xtest <- t( ( t(xtest) - mx ) / s ) ## standardize the newdata values   
 
         sa <- svd(xx)
-        tu <- t(sa$u)    ;    d <- sa$d    ;    v <- sa$v
+        d <- sa$d    ;    v <- t(sa$v)    ;     tu <- t(sa$u)  
+        d2 <- d^2    ;    A <- d * tu %*% yy
+        
         for ( i in 1:mi ) {
-          betas <- ( v %*% ( tu *( d / ( d^2 + lambda[i] ) ) ) ) %*% yy 
+          ## betas <- ( v %*% (tu * ( d / ( d^2 + lambda[i] ) ) ) ) %*% yy 
+          betas <- crossprod( v / ( d2 + lambda[i] ), A )
           est <- xtest %*% betas + my 
           pe[i] <- sum( (ytest - est)^2 ) / rmat
         }

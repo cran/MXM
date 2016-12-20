@@ -15,13 +15,13 @@ glm.bsreg(target, dataset, threshold = 0.05, wei = NULL, heavy = FALSE, robust =
 
 \arguments{
 \item{target}{
-The class variable. Provide either an integer, a numeric value, or a factor. See also Details.
+The class variable. Provide either an integer, a numeric value, or a factor. It can also be a matrix with two columns for the case of binomial regression. In this case, the first column is the nubmer of successes and the second column is the number of trials. See also the Details.
 }
 \item{dataset}{
-The dataset; provide either a data frame or a matrix (columns = variables, rows = samples). In either case, only two cases are avaialble, either all data are continuous, or categorical. 
+The dataset; provide either a data frame or a matrix (columns = variables, rows = observations). In either case, only two cases are avaialble, either all data are continuous, or categorical. 
 }
 \item{threshold}{
-Threshold (suitable values in [0,1]) for asmmmbsing p-values significance. Default value is 0.05.
+Threshold (suitable values in (0, 1)) for assessing p-values significance. Default value is 0.05.
 }
 \item{wei}{
 A vector of weights to be used for weighted regression. The default value is NULL. It is not suggested when robust is set to TRUE.
@@ -36,7 +36,7 @@ Default value is FALSE. Currently only the linear regression option is supported
 }
 
 \details{
-This functions currently implements only linear, binary logistic and Poisson regression. If the sample size is less than the number of variables a meesage will appear and no backward regression is performed. 
+This functions currently implements only linear, binomial, binary logistic and Poisson regression. If the sample size is less than the number of variables a meesage will appear and no backward regression is performed. 
 }
 
 \value{
@@ -46,6 +46,9 @@ The run time of the algorithm. A numeric vector. The first element is the user t
 }
 \item{info}{
 A matrix with the variables and their latest test statistics and p-values.
+}
+\item{mat}{
+A matrix with the selected variables and their latest test statistic and p-value.
 }
 \item{ci_test}{
 The conditional independence test used. 
@@ -63,7 +66,7 @@ The final regression model.
 \author{
 Michail Tsagris
 
-R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> Michail Tsagris <mtsagris@yahoo.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 
 \seealso{

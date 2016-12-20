@@ -8,7 +8,7 @@ censIndWR = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL
   
   csIndex[which(is.na(csIndex))] = 0;
   
-  if(hash == TRUE)
+  if( hash )
   {
     csIndex2 = csIndex[which(csIndex!=0)]
     csindex2 = sort(csIndex2)
@@ -43,13 +43,7 @@ censIndWR = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL
   
   #retrieving the data
   x = dataset[ , xIndex];
-  timeToEvent = target[, 1];
-  
-  #if no data, let's return
-  if (length(x) == 0 || length(timeToEvent) == 0){
-    return(results);
-  }
-  
+   
   #if the censored indicator is empty, a dummy variable is created
   numCases = dim(dataset)[1];
   if (length(event)==0){
@@ -73,11 +67,11 @@ censIndWR = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL
     }
     
     #retrieve the p value and stat. 
-    dof <- length( coef(weibull_results) )
+    dof <- length( coef(weibull_results) ) - 1
     stat = 2 * abs( diff(weibull_results$loglik) )
     pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE);
     
-    if(hash == TRUE)#update hash objects
+    if( hash ) #update hash objects
     {
       stat_hash[[key]] <- stat;#.set(stat_hash , key , stat)
       pvalue_hash[[key]] <- pvalue;#.set(pvalue_hash , key , pvalue)
@@ -86,17 +80,7 @@ censIndWR = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL
     flag = 1;
     
   }else{
-    
-    #perform the test with the cs
-    #tecs = dataset[ , c(csIndex)];
-    
-    #tecs = dataset[ ,c(timeIndex, csIndex)];
-    #names(tecs)[1] = 'timeToEvent';
-    #tecs$event = event; #it was without comment (warning LHS to a list)
-    #texcs = dataset[ , c(xIndex, csIndex)]; #texcs = dataset[ ,c(timeIndex, xIndex, csIndex)];
-    #names(texcs)[1] = 'timeToEvent';
-    #texcs$event = event; #it was without comment (warning LHS to a list)
-    
+
     tryCatch(
     
     # fitting the model  (without x)
@@ -133,7 +117,7 @@ censIndWR = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL
 #     dF = res[pr, 1]
     pvalue = pchisq(stat, dF, lower.tail = FALSE, log.p = TRUE)
     
-    if(hash == TRUE)#update hash objects
+    if( hash )#update hash objects
     {
       stat_hash[[key]] <- stat;#.set(stat_hash , key , stat)
       pvalue_hash[[key]] <- pvalue;#.set(pvalue_hash , key , pvalue)

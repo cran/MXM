@@ -8,13 +8,13 @@ testIndClogit = function(target, dataset, xIndex, csIndex, wei =  NULL, dataInfo
   
   csIndex[which(is.na(csIndex))] = 0;
   
-  if(hash == TRUE)
+  if( hash )
   {
     csIndex2 = csIndex[which(csIndex!=0)]
     csindex2 = sort(csIndex2)
     xcs = c(xIndex,csIndex2)
     key = paste(as.character(xcs) , collapse=" ");
-    if(is.null(stat_hash[[key]]) == FALSE)
+    if( !is.null(stat_hash[[key]]) )
     {
       stat = stat_hash[[key]];
       pvalue = pvalue_hash[[key]];
@@ -27,10 +27,6 @@ testIndClogit = function(target, dataset, xIndex, csIndex, wei =  NULL, dataInfo
   
   #initialization: these values will be returned whether the test cannot be carried out
   
-  #in this test dataset must be a dataframe
-  #dataset = as.data.frame(dataset);
-  #dataset = cbind(dataset,target[,1]);#dataset$timeToEvent = target[,1];#dataInfo$timeToEvent;
-  
   pvalue = log(1);
   stat = 0;
   flag = 0;
@@ -38,18 +34,10 @@ testIndClogit = function(target, dataset, xIndex, csIndex, wei =  NULL, dataInfo
   clogit_results = NULL;
   clogit_results_full = NULL;
   
-  #timeIndex = dim(dataset)[2];
   id = target[, 2] #the patient id
-  
-  #retrieving the data
   x = dataset[ , xIndex];
   case = as.logical(target[, 1]);  ## case control, 0 is the control
-  
-  #if no data, let's return
-  if (length(x) == 0 || length(case) == 0){
-    return(results);
-  }
-  
+   
   numCases = length(case);
 
   #if the conditioning set (cs) is empty, lets take it easy.
@@ -60,7 +48,7 @@ testIndClogit = function(target, dataset, xIndex, csIndex, wei =  NULL, dataInfo
     
     #fitting the model
     tryCatch(
-      clogit_results <- survival::clogit(case ~ x + strata(id) ,weights = wei),
+      clogit_results <- survival::clogit(case ~ x + strata(id), weights = wei),
       warning=function(w) {
         #Do nothing...
       }
@@ -69,15 +57,12 @@ testIndClogit = function(target, dataset, xIndex, csIndex, wei =  NULL, dataInfo
       return(results);
     }
     
-    #retrieve the p value and stat. 
-    if ( is.factor(x) ) {
-      dof = nlevels(x) - 1   
-    } else dof = 1
-    
+    #retrieve the p value and stat.
+    dof = length( coef(clogit_results) ) - 1
     stat = 2 * abs( diff(clogit_results$loglik) )
     pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE);
     
-    if(hash == TRUE)#update hash objects
+    if( hash )#update hash objects
     {
       stat_hash[[key]] <- stat;#.set(stat_hash , key , stat)
       pvalue_hash[[key]] <- pvalue;#.set(pvalue_hash , key , pvalue)
@@ -123,7 +108,7 @@ testIndClogit = function(target, dataset, xIndex, csIndex, wei =  NULL, dataInfo
     dF = res[2, 3]
     pvalue = pchisq(stat, dF, lower.tail = FALSE, log.p = TRUE)
     
-    if(hash == TRUE)#update hash objects
+    if( hash )#update hash objects
     {
       stat_hash[[key]] <- stat;#.set(stat_hash , key , stat)
       pvalue_hash[[key]] <- pvalue;#.set(pvalue_hash , key , pvalue)

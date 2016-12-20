@@ -55,7 +55,7 @@ Zhang, Jiji. (2008). On the completeness of orientation rules for causal discove
 \author{
  Michail Tsagris
 
-R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> and Michail Tsagris <mtsagris@yahoo.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 
 %\note{
@@ -68,21 +68,21 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> and M
 
 \examples{
 # simulate a dataset with continuous data
-y = rdag(1000, 15, 0.3)
-tru = y$G 
-x = y$x
-mod = pc.con(x)
+y <- rdag(1000, 15, 0.3)
+tru <- y$G 
+x <- y$x
+mod <- pc.con(x)
 mod$runtime
 
-b = pc.or(mod)
-plota(tru) 
+b <- pc.or(mod)
+plotnetwork(tru) 
 dev.new()
-plota(b$G)
+plotnetwork(b$G)
 
 dev.off()
-plota( dag2eg(tru) )  ## essential graph
+plotnetwork( dag2eg(tru) )  ## essential graph
 dev.new()
-plota(b$G)
+plotnetwork(b$G)
 
 }
 

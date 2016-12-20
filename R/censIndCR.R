@@ -8,7 +8,7 @@ censIndCR = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL
   
   csIndex[which(is.na(csIndex))] = 0;
   
-  if(hash == TRUE)
+  if( hash )
   {
     csIndex2 = csIndex[which(csIndex!=0)]
     csindex2 = sort(csIndex2)
@@ -43,12 +43,6 @@ censIndCR = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL
   
   #retrieving the data
   x = dataset[ , xIndex];
-  timeToEvent = target[, 1];
-  
-  #if no data, let's return
-  if (length(x) == 0 || length(timeToEvent) == 0){
-    return(results);
-  }
   
   #if the censored indicator is empty, a dummy variable is created
   numCases = dim(dataset)[1];
@@ -73,11 +67,12 @@ censIndCR = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL
     }
     
     #retrieve the p value and stat. 
-    dof <- length( coef(cox_results) )
-    stat = cox_results$score;
-    pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE);
+    res <- anova(cox_results)
+    dof <- res[2, 3]
+    stat <- res[2, 2]
+    pvalue <- pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE);
     
-    if(hash == TRUE)#update hash objects
+    if( hash )#update hash objects
     {
       stat_hash[[key]] <- stat;#.set(stat_hash , key , stat)
       pvalue_hash[[key]] <- pvalue;#.set(pvalue_hash , key , pvalue)
@@ -86,30 +81,7 @@ censIndCR = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL
     flag = 1;
     
   }else{
-    
-    #perform the test with the cs
-    #tecs = dataset[ , c(csIndex)];
-    
-    #tecs = dataset[ ,c(timeIndex, csIndex)];
-    #names(tecs)[1] = 'timeToEvent';
-    #tecs$event = event; #it was without comment (warning LHS to a list)
-    #texcs = dataset[ , c(xIndex, csIndex)]; #texcs = dataset[ ,c(timeIndex, xIndex, csIndex)];
-    #names(texcs)[1] = 'timeToEvent';
-    #texcs$event = event; #it was without comment (warning LHS to a list)
-    
-    #tryCatch(
-    
-    #fitting the model (without x)
-    # cox_results <- survival::coxph (target ~ ., data = as.data.frame( dataset[ , c(csIndex)] ) ), 
-    
-    #warning=function(w) {
-    #Do nothing
-    #}
-    #)
-    #if (is.null(cox_results)){
-    #  return(results);
-    #}   
-    
+ 
     tryCatch(
       
       #fitting the full model
@@ -119,21 +91,17 @@ censIndCR = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL
         #Do nothing
       }
     )
-    if (is.null(cox_results_full)){
+    if ( is.null(cox_results_full) ){
       return(results);
     }
-    
-    #retrieving the p value
-    #res = anova(cox_results_full, cox_results)
-    #stat = abs( res$Chisq[2] );
-    #dF = abs( res$Df[2] );
+
     res = anova(cox_results_full)
     pr = nrow(res)
     stat = res[pr, 2]
     dF = res[pr, 3]
     pvalue = pchisq(stat, dF, lower.tail = FALSE, log.p = TRUE)
     
-    if(hash == TRUE)#update hash objects
+    if( hash )#update hash objects
     {
       stat_hash[[key]] <- stat;#.set(stat_hash , key , stat)
       pvalue_hash[[key]] <- pvalue;#.set(pvalue_hash , key , pvalue)

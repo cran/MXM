@@ -84,8 +84,8 @@ If the target is a single integer value or a string, it has to corresponds to th
 
 If the current 'test' argument is defined as NULL or "auto" and the user_test argument is NULL then the algorithm automatically selects the best test based on the type of the data. Particularly:
 \itemize{
-	\item if target is a factor, the multinomial or the binary logistic regression is used. If the target has two values only, binary logistic regression will be used.
-	\item if target is a ordered factor, the ordered logit regression is used in the logistic test.
+	\item if the target is a factor, the multinomial or the binary logistic regression is used. If the target has two values only, binary logistic regression will be used. 
+	\item if target is a ordered factor, ordinal regression is used in the logistic test. Hence, if you want to use multinomial or ordinal logistic regression, make sure your target is factor. 
 	\item if target is a numerical vector and the dataset is a matrix or a data.frame with continuous variables, the Fisher conditional independence test is used. If the dataset is a data.frame and there are categorical variables, linear regression is used.
 	\item if target is discrete numerical (counts), the poisson regression conditional independence test is used. If there are only two values, the binary logistic regression is to be used.
 	\item if target is a Surv object, a Survival conditional independence test is used.
@@ -200,7 +200,7 @@ and \bold{ordinal} : also require(stats) and require(MASS) for the testIndLogist
 
 \examples{
 set.seed(123)
-require(hash)
+require("hash", quietly = TRUE) 
 
 #simulate a dataset with continuous data
 dataset <- matrix(runif(1000 * 200, 1, 100), ncol = 200)
@@ -214,7 +214,6 @@ dataset[, 10] <- dataset[ , 10] + rnorm(1000, 0, 2)
 dataset[, 150] <- dataset[, 100] + rnorm(1000, 0, 2) 
 dataset[, 130] <- dataset[, 100] + rnorm(1000, 0, 2)
 
-require("hash", quietly = TRUE) 
 # run the SES algorithm
 sesObject <- SES(target , dataset, max_k = 5, threshold = 0.05, test = "testIndFisher", 
 hash = TRUE, hashObject = NULL);

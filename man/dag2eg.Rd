@@ -36,14 +36,14 @@ Chickering, D.M. (1995). A transformational characterization of equivalent Bayes
 \author{
 Ioannis Tsamardinos and Michail Tsagris
 
-R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr>, Ioannis Tsamardinos <tsamard@csd.uoc.gr> and  and Michail Tsagris <mtsagris@yahoo.gr>
+R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr>, Ioannis Tsamardinos <tsamard@csd.uoc.gr> and  and Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 
 %\note{
 %%  ~~further notes~~
 %}
 \seealso{
-\code{ \link{plota}, \link{nei}, \link{pc.or} 
+\code{ \link{plotnetwork}, \link{nei}, \link{pc.or} 
 }
 }
 
@@ -54,8 +54,8 @@ y = rdag(1000, 10, 0.3)
 tru = y$G 
 eg = dag2eg(tru)
 par( mfrow = c(1, 2) )
-plota(tru)
-plota(eg)
+plotnetwork(tru)
+plotnetwork(eg)
 }
 
 \keyword{ Network plot }

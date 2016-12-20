@@ -7,7 +7,7 @@ reg.fit <- function(y, dataset, event = NULL, reps = NULL, group = NULL, slopes 
                     reml = FALSE, model = NULL, robust = FALSE, wei = NULL, xnew = NULL) {
   
   ## possible models are "gaussian" (default), "binary", "binomial", "multinomial", "poisson",
-  ## "ordinal", "Cox", "Weibull", "exponential", "zip0", "zipx", "beta", "median", "negbin",
+  ## "ordinal", "Cox", "Weibull", "exponential", "zip", "beta", "median", "negbin",
   ## "longitudinal" or "grouped".
   ## robust is either TRUE or FALSE
   ## y is the target variable, can be a numerical variable, a matrix, a factor, ordinal factor, percentages, or time to event
@@ -20,31 +20,23 @@ reg.fit <- function(y, dataset, event = NULL, reps = NULL, group = NULL, slopes 
   ## reml is for mixed models. If TRUE, REML will be used, otherwise ML will be used
 
   x <- as.data.frame(dataset)  ## just in case
-  if ( is.null( colnames(x) ) )  {  ## checks for column names
-    colnames(x) <- paste("X", 1:ncol(x), sep = "")
-  }	
-
-  ## dependent (target) variable checking if no model was given, 
-  ## but other arguments are given. For some cases, these are default cases
+  if ( is.null( colnames(x) ) )  colnames(x) <- paste("X", 1:ncol(x), sep = "")
+  la <- length( Rfast::sort_unique(target) )
 
   if ( is.null(model) ) {
 
     ## linear regression 
-    if ( sum( class(y) == "numeric" ) == 1 & is.null(event) & is.null(reps)  &  is.null(group) ) {
-      model <- "gaussian"  
-    }
+    if ( sum( class(y) == "numeric" ) == 1 & is.null(event) & is.null(reps)  &  is.null(group) )  model <- "gaussian"  
     
     ## multivariate data
-    if ( sum( class(y) == "matrix") == 1 ) {
-      a <- rowSums(y)
-      if ( min(y) > 0 & round( sd(a), 16 ) == 0 )  ## are they compositional data?
-        y <- log(y[, -1] / y[, 1])
-        model <- "gaussian"
+    if ( sum( class(y) == "matrix" ) == 1 ) { 
+      if ( min(y) > 0 &  sd(Rfast::rowsums(y) == 0 ) )  y <- log(y[, -1] / y[, 1])  ## compositional data
+      model <- "gaussian"
     }
     
     ## percentages
-    if ( min(y) > 0 & max( y ) < 1 )  {  ## are they percentages?
-      y <- log( y / (1 - y) ) 
+    if ( is.vector(y) )  {
+      if ( all(y >0 & y < 1) )  y <- log( y / (1 - y) ) 
       model <- "gaussian"
     }
     
@@ -55,52 +47,41 @@ reg.fit <- function(y, dataset, event = NULL, reps = NULL, group = NULL, slopes 
     }
 
     ## longitudinal data
-    if ( !is.null(reps) & !is.null(group) ) {
-      model <- "longitudinal"
-    }
+    if ( !is.null(reps) & !is.null(group) )  model <- "longitudinal"
     
     ## grouped data
-    if ( is.null(reps) & !is.null(group) ) {
-      model <- "grouped"
-    }
+    if ( is.null(reps) & !is.null(group) )  model <- "grouped"
     
     ## binary data
-    if ( length( unique(y) ) == 2 ) {
-      model <- "binary"   
-    }
+    if ( la == 2 )  model <- "binary"   
     
     ## ordinal, multinomial or perhaps binary data
     if ( is.factor(y) ) {
       if ( !is.ordered(y) ) {
-        if ( length(unique(y) ) == 2 ) {
+        if ( la == 2 ) {
           y <- as.vector(y)
           model <- "binary"
-        } else {
-          model <- "multinomial"
-        }  
+        } else  model <- "multinomial"
 
       } else {
-        if ( length(unique(y) ) == 2 ) {
+        if ( la == 2 ) {
           y <- as.vector(y)
           model <- "binary"
-        } else {
-          model <- "ordinal"    
-        }
+        } else  model <- "ordinal"    
       }
     }
     
     ## count data
-    if ( sum( is.vector(y) ) == 1 ) { 
-      if  ( sum( floor(y) - y ) == 0 & length(y) > 2 )   model <- "poisson"
+    if ( sum( is.vector(y) ) == 1 ) {
+      if ( ( sum( floor(y) - y ) == 0  &  la > 2 ) )  model <- "poisson"
     }
   
-  }
-
+  }  
   ##### model checking
  
      ## univariate gaussian model
   if ( model == "gaussian"  &  is.vector(y) ) {
-     if ( robust == FALSE ) {
+     if ( !robust ) {
        mod <- lm(y ~ ., data = as.data.frame(x), weights = wei )
      } else {
        # cont = robust::lmRob.control(mxr = 2000, mxf = 2000, mxs = 2000 )
@@ -109,7 +90,7 @@ reg.fit <- function(y, dataset, event = NULL, reps = NULL, group = NULL, slopes 
      }
 
   } else if ( model == "gaussian"  &  sum( class(y) == "matrix" ) == 1 ) {
-       mod <- lm(y ~ ., data = as.data.frame(x) )
+    mod <- lm(y ~ ., data = as.data.frame(x) )
  
   } else if ( model == "binomial" &  sum( class(y) == "matrix" ) == 1 ) {
     mod <- glm(y[, 1] / y[, 2] ~ ., data = as.data.frame(x), weights = y[, 2], family = binomial )
@@ -147,16 +128,12 @@ reg.fit <- function(y, dataset, event = NULL, reps = NULL, group = NULL, slopes 
     mod <- MASS::glm.nb(y ~ ., data = as.data.frame(x), weights = wei )
 
     ## zero inflated poisson regression with constant zero part
-  } else if ( model == "zip0" ) {
-    mod <- pscl::zeroinfl( y ~ .| 1, data = as.data.frame(x), weights = wei )
-
-    ## zero inflated poisson regression with variable zero part
-  } else if ( model == "zipx" ) {
-    mod <- pscl::zeroinfl( y ~ . | ., data = as.data.frame(x), weights = wei )
+  } else if ( model == "zip" ) {
+    mod <- zip.mod(y, x, wei = wei)
 
     ## beta regression
   } else if ( model == "beta" ) {
-    mod <- betareg::betareg(y ~ ., data = as.data.frame(x), weights = wei )
+    mod <- beta.mod(y, x, wei = wei )
   
     ## Cox proportional hazards
   } else if ( model == "Cox" ) {
@@ -172,42 +149,30 @@ reg.fit <- function(y, dataset, event = NULL, reps = NULL, group = NULL, slopes 
 
     ## (generalised) linear mixed models for longitudinal data
   } else if ( model == "longitudinal" ) {
-    if ( length( unique(y) ) != 2 ) {
-      if (slopes == TRUE ) {
+    if ( la > 2  &  sum( round(y) - y ) != 0  ) {
+      if ( slopes ) {
         mod <- lme4::lmer( target ~ . -group + (reps|group), REML = reml, data = as.data.frame( cbind(reps, x) ), weights = wei ) 
-      } else {
-        mod <- lme4::lmer( target ~ . -group + (1|group), REML = reml, data = as.data.frame( cbind(reps, x) ), weights = wei )
-      }
-    }
-
-    if ( sum( round(y) - y ) != 0 ) {
-      if (slopes == TRUE ) {
+      } else  mod <- lme4::lmer( target ~ . -group + (1|group), REML = reml, data = as.data.frame( cbind(reps, x) ), weights = wei )
+	  
+    } else if ( la > 2  &  sum( round(y) - y ) == 0 ) {
+      if ( slopes ) {
         mod <- lme4::glmer( target ~ . - group + (reps|group), REML = reml, family = poisson,  data = ( cbind(reps, x) ), weights = wei ) 
-      } else {
-        mod <- lme4::glmer( target ~ . -group  + (1|group), REML = reml, family = poisson, data = ( cbind(reps, x) ), weights = wei )
-      }
-    }
-
-    if ( length( unique(y) ) == 2 ) {
+      } else  mod <- lme4::glmer( target ~ . -group  + (1|group), REML = reml, family = poisson, data = ( cbind(reps, x) ), weights = wei )
+	  
+    } else  if ( la == 2 ) {
       y <- as.vector(y)   
-      if (slopes == TRUE ) {
+      if ( slopes ) {
         mod <- lme4::glmer( target ~ . - group + (reps|group), REML = reml, family = binomial, data = as.data.frame( cbind(reps, x) ), weights = wei ) 
-      } else {
-        mod <- lme4::glmer( target ~ . -group + (1|group), REML = reml, family = binomial, data = as.data.frame( cbind(reps, x) ), weights = wei )
-      }
+      } else  mod <- lme4::glmer( target ~ . -group + (1|group), REML = reml, family = binomial, data = as.data.frame( cbind(reps, x) ), weights = wei )
     }
 
     ## (generalised) linear mixed models for grouped data
   } else if ( model == "grouped" ) {
-    if ( sum( round(y) - y ) != 0 & length( unique(y) ) != 2 ) {
+    if ( sum( round(y) - y ) != 0  &  la > 2 ) {
       mod <- lme4::lmer( target ~ . -group + (1|group), REML = reml, data = as.data.frame(x), weights = wei )
-    }
-
-    if ( sum( round(y) - y ) != 0 ) {
+    } else if ( sum( round(y) - y ) == 0  &  la > 2) {
       mod <- lme4::glmer( target ~ . -group + (1|group), REML = reml, family = poisson, data = as.data.frame(x), weights = wei )
-    }
-
-    if ( length( unique(y) ) == 2 ) {
+    } else if ( la == 2 ) {
       mod <- lme4::glmer( target ~ . -group + (1|group), REML = reml, family = binomial, data = as.data.frame(x), weights = wei )
     }
   }

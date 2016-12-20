@@ -32,7 +32,7 @@ ridge.reg(target, dataset, lambda, B = 1, newdata = NULL)
 }
 
 \details{
- The lm.ridge command in MASS library is a wrapper for this function. 
+There is also the lm.ridge command in MASS library if you are interested in ridge regression. 
 }
 
 \value{
@@ -57,7 +57,7 @@ Brown P. J. (1994). Measurement, Regression and Calibration. Oxford Science Publ
 \author{
  Michail Tsagris
 
-R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> and Michail Tsagris <mtsagris@yahoo.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 
 %\note{

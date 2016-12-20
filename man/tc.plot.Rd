@@ -62,11 +62,11 @@ Tsamardinos I., Aliferis C. F. and Statnikov, A. (2003). Time and sample efficie
 \author{
 Michail Tsagris
 
-R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> Michail Tsagris <mtsagris@yahoo.gr>
+R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 
 \seealso{
-\code{\link{testIndGLMM}, }
+\code{\link{testIndGLMM}, \link{SES.temporal} }
 }
 
 \examples{

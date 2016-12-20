@@ -54,26 +54,26 @@ The Markov blanket of the node of interest. The collection of all the previous.
 \author{
  Michail Tsagris
 
-R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> and Michail Tsagris <mtsagris@yahoo.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 
 %\note{
 %%  ~~further notes~~
 %}
 \seealso{
-\code{ \link{plota}, \link{nei}, \link{pc.or} 
+\code{ \link{plotnetwork}, \link{nei}, \link{pc.or} 
 }
 }
 
 \examples{
 # simulate a dataset with continuous data
 # simulate a dataset with continuous data
-y = rdag(1000, 10, 0.3)
-tru = y$G 
-x = y$x
-mod = pc.con(x)
-G = pc.or(mod)$G
-plota(G)
+y <- rdag(1000, 10, 0.3)
+tru <- y$G 
+x <- y$x
+mod <- pc.con(x)
+G <- pc.or(mod)$G
+plotnetwork(G)
 dev.new()
 mb(G, 8, graph = TRUE)
 }

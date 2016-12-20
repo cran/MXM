@@ -10,7 +10,7 @@ rdag <- function(n, p, s, a = 0, m, A = NULL, seed = FALSE) {
   if ( is.null(A) ) { ## no adjacency matrix is given
     if ( s > 1 || s < 0 )  s <- 0.5
     if ( a > 1 || a < 0 )  a <- 0
-    if ( seed == TRUE )  set.seed(1234567)
+    if ( seed )  set.seed(1234567)
     A <- matrix( 0, p, p )
     nu <- 0.5 * p * (p - 1)
     A[ lower.tri(A) ] <- rbinom(nu, 1, s)
@@ -24,16 +24,14 @@ rdag <- function(n, p, s, a = 0, m, A = NULL, seed = FALSE) {
   sigma <- solve( Ip - A )
   sigma <- tcrossprod( sigma ) 
   nout <- 0
-  if ( seed == TRUE )  set.seed(1234567)
+  if ( seed )  set.seed(1234567)
   
   if (a > 0) {
-    y <- MASS::mvrnorm( n - nout, numeric(p), sigma)
+    y <- Rfast::rmvnorm( n - nout, numeric(p), sigma)
     nout <- round( a * n )
-    yout <- MASS::mvrnorm(nout, m, sigma)
+    yout <- Rfast::rmvnorm(nout, m, sigma)
     x <- rbind(y, yout)  
-  } else {
-    x <- MASS::mvrnorm(n, numeric(p), sigma)
-  }
+  } else  x <- Rfast::rmvnorm(n, numeric(p), sigma)
   
   B <- t( A )
   B[ B > 0 ] <- 2

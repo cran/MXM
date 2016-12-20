@@ -24,8 +24,7 @@ ridge.reg <- function(target, dataset, lambda, B = 1, newdata = NULL) {
   yy <- target - my  ## center the dependent variables
   s <- Rfast::colVars(dataset, std = TRUE) 
   mx <- as.vector( Rfast::colmeans(dataset) )
-  xx <- ( t(dataset) - mx ) / s
-  xx <- t(xx)
+  xx <- t( ( t(dataset) - mx ) / s )
 
   xtx <- crossprod(xx)
   lamip <- lambda * diag(p)
@@ -34,8 +33,10 @@ ridge.reg <- function(target, dataset, lambda, B = 1, newdata = NULL) {
   betas <- W %*% crossprod(xx, yy) 
   est <- xx %*% betas + my
   va <- var(target - est) * (n - 1) / (n - p - 1)
-  vab <- kronecker(va, W %*% xtx %*% W  ) 
-  seb <- as.vector( sqrt( diag(vab) ) )
+  # vab <- kronecker(va, W %*% xtx %*% W  ) 
+  # seb <- as.vector( sqrt( diag(vab) ) )
+  vab <- va * mahalanobis(W, numeric(p), xtx, inverted = TRUE)
+  seb <- sqrt( vab )
 
   if (B > 1) { ## bootstrap estimation of the standard errors
     be <- matrix(nrow = B, ncol = p )
@@ -59,8 +60,7 @@ ridge.reg <- function(target, dataset, lambda, B = 1, newdata = NULL) {
     
     newdata <- as.matrix(newdata)
     newdata <- matrix(newdata, ncol = p)
-    newdata <- ( t(newdata) - mx ) / s ## standardize the 
-    newdata <- t(newdata)
+    newdata <- t( ( t(newdata) - mx ) / s ) ## standardize the independent variables of the new data
     est <- newdata %*% beta + my 
   } else est <- est
   

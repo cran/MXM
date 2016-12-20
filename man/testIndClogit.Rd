@@ -5,7 +5,7 @@ Conditional independence test based on conditional logistic regression for case 
 }
 
 \description{
-The main task of this test is to provide a p-value PVALUE for the null hypothesis: feature 'X' is independent from 'TARGET' given a conditioning set CS. The pvalue is calculated by comparing a conditional logistic regression model based on the conditioning set CS against a model whose regressor are both X and CS. The comparison is performed through a chi-square test with the appropriate degrees of freedom on the difference between the deviances of the two models. This is suitable for a case control design
+The main task of this test is to provide a p-value PVALUE for the null hypothesis: feature 'X' is independent from 'TARGET' given a conditioning set CS. The pvalue is calculated by comparing a conditional logistic regression model based on the conditioning set CS against a model whose regressors are both X and CS. The comparison is performed through a chi-square test with the appropriate degrees of freedom on the difference between the deviances of the two models. This is suitable for a case control design
 }
 
 \usage{
@@ -53,18 +53,18 @@ A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust
 \details{
 If hash = TRUE, testIndClogit requires the arguments 'stat_hash' and 'pvalue_hash' for the hash-based implementation of the statistic test. These hash Objects are produced or updated by each run of SES (if hash == TRUE) and they can be reused in order to speed up next runs of the current statistic test. If "SESoutput" is the output of a SES run, then these objects can be retrieved by SESoutput@hashObject$stat_hash and the SESoutput@hashObject$pvalue_hash.
 
-Important: Use these arguments only with the same dataset that was used at initialization.
+Important: Use these arguments only with the same dataset that was used at initialization. For all the available conditional independence tests that are currently included on the package, please see "?CondIndTests".
 
-For all the available conditional independence tests that are currently included on the package, please see "?CondIndTests".
+This is for case control studies. The logliklihood for a conditional logistic regresson model equals the loglikelihood from a Cox model with a particular data structure. When a well tested Cox model routine is available many packages use this "trick" rather than writing a new software routine from scratch, and this is what the "clogit" function in the "survival" package does. In detail, a stratified Cox model with each case/control group assigned to its own stratum, time set to a constant, status of 1=case 0=control, and using the exact partial likelihood has the same likelihood formula as a conditional logistic regression. The "clogit" routine creates the necessary dummy variable of times (all 1) and the strata, then calls the function "coxph". 
 }
 
 \value{
 A list including:
 \item{pvalue}{
-A numeric value that represents the logarithm of the generated p-value due to Beta regression (see reference below).
+A numeric value that represents the logarithm of the generated p-value due to the conditional logistic regression (see reference below).
 }
 \item{stat}{
-A numeric value that represents the generated statistic due to Beta regression (see reference below).
+A numeric value that represents the generated statistic due to the conditional logistic regression (see reference below).
 }
 \item{flag}{
 A numeric value (control flag) which indicates whether the test was succesful (0) or not (1).
@@ -78,13 +78,13 @@ The current hash object used for the p-values. See argument stat_hash and detail
 }
 
 \references{
-Ferrari S.L.P. and Cribari-Neto F. (2004). Beta Regression for Modelling Rates and Proportions. Journal of Applied Statistics, 31(7): 799-815.
+Michell H. Gail, Jay H. Lubin and Lawrence V. Rubinstein (1980). Likelihood calculations for matched case-control studies and survival studies with tied death times. Biometrika 68:703-707. 
 }
 
 \author{
-Vincenzo Lagani, Ioannis Tsamardinos, Michail Tsagris and Giorgos Athineou
+Vincenzo Lagani, Ioannis Tsamardinos, Giorgos Athineou and Michail Tsagris
 
-R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr>, Vincenzo Lagani <vlagani@csd.uoc.gr> and Michail Tsagris <mtsagris@yahoo.gr>
+R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr>, Vincenzo Lagani <vlagani@csd.uoc.gr> and Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 
 %\note{

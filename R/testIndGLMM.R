@@ -50,13 +50,13 @@ testIndGLMM = function(target, reps = NULL, group, dataset, xIndex, csIndex,  we
   
   csIndex[which(is.na(csIndex))] = 0
   
-  if(hash == TRUE)
+  if( hash )
   {
     csIndex2 = csIndex[which(csIndex!=0)]
     csindex2 = sort(csIndex2)
     xcs = c(xIndex,csIndex2)
     key = paste(as.character(xcs) , collapse=" ");
-    if(is.null(stat_hash[[key]]) == FALSE)
+    if( !is.null(stat_hash[[key]]) )
     {
       stat = stat_hash[[key]];
       pvalue = pvalue_hash[[key]];
@@ -72,10 +72,7 @@ testIndGLMM = function(target, reps = NULL, group, dataset, xIndex, csIndex,  we
   stat = 0;
   flag = 0;
   
-   if ( all(target>0 & target<1) ) ## are they proportions?
-   { 
-     target = log( target/(1-target) ) 
-   }
+   if ( all(target>0 & target<1) )  target = log( target/(1-target) ) 
 
   oikogeneia = c('normal', 'binomial', 'poisson' )
 
@@ -83,7 +80,7 @@ testIndGLMM = function(target, reps = NULL, group, dataset, xIndex, csIndex,  we
   #information with respect to cs
   if(!is.na(match(xIndex,csIndex)))
   {
-    if(hash == TRUE)#update hash objects
+    if( hash )#update hash objects
     {
       stat_hash$key <- 0;#.set(stat_hash , key , 0)
       pvalue_hash$key <- log(1);#.set(pvalue_hash , key , 1)
@@ -99,24 +96,15 @@ testIndGLMM = function(target, reps = NULL, group, dataset, xIndex, csIndex,  we
     results <- list(pvalue = pvalue, stat = stat, flag = flag, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
     return(results);
   }
-  
-  #xIndex = unique(xIndex);
-  #csIndex = unique(csIndex);
-  
+
   #extract the data
   x = dataset[ , xIndex];
   cs = dataset[ , csIndex];
-  
-#   if(length(csIndex) > 1)
-#   {
-#     #remove same columns
-#     cs = unique(as.matrix(cs), MARGIN = 2);
-#   }
-  
+   
   #if x or target is constant then there is no point to perform the test
-  if(var(x) == 0 || var(target) == 0)
+  if( vara(x) == 0 )
   {
-    if(hash == TRUE)#update hash objects
+    if( hash )#update hash objects
     {
       stat_hash$key <- 0;#.set(stat_hash , key , 0)
       pvalue_hash$key <- log(1);#.set(pvalue_hash , key , 1)
@@ -127,25 +115,18 @@ testIndGLMM = function(target, reps = NULL, group, dataset, xIndex, csIndex,  we
   
   #remove NAs-zeros from cs
   #csIndex = csIndex[csIndex!=0]
-  
-  #remove constant columns of cs
-  cs = as.matrix(cs)
-  cs = cs[,apply(cs, 2, var, na.rm=TRUE) != 0]
-  
-  if(length(cs) == 0 || is.na(cs) == TRUE)
-  {
-    cs = NULL;
-  }
+
+  if(length(cs) == 0 || is.na(cs) )  cs = NULL;
   
   #if x = any of the cs then pvalue = log(1)and flag = 1.
   #That means that the x variable does not add more information to our model due to an exact copy of this in the cs, so it is independent from the target
   if(length(cs)!=0)
   {
-    if(is.null(dim(cs)[2]) == TRUE) #cs is a vector
+    if( is.null(dim(cs)[2]) ) #cs is a vector
     {
       if(any(x != cs) == FALSE)  #if(!any(x == cs) == FALSE)
       {
-        if(hash == TRUE)#update hash objects
+        if( hash )#update hash objects
         {
           stat_hash$key <- 0;#.set(stat_hash , key , 0)
           pvalue_hash$key <- log(1);#.set(pvalue_hash , key , 1)
@@ -158,7 +139,7 @@ testIndGLMM = function(target, reps = NULL, group, dataset, xIndex, csIndex,  we
       {
         if(any(x != cs[,col]) == FALSE)  #if(!any(x == cs) == FALSE)
         {
-          if(hash == TRUE)#update hash objects
+          if( hash )#update hash objects
           {
             stat_hash$key <- 0;#.set(stat_hash , key , 0)
             pvalue_hash$key <- log(1);#.set(pvalue_hash , key , 1)
@@ -172,13 +153,11 @@ testIndGLMM = function(target, reps = NULL, group, dataset, xIndex, csIndex,  we
   
   if(target_type == 0)
   {
-    if (length(unique(target)) == 2 |  "factor" %in% class(target) ) {
+    if ( length( Rfast::sort_unique(target) ) == 2 |  "factor" %in% class(target) ) {
         dataInfo$target_type = "binary" 
-    } else if  (identical(floor(target), target) == TRUE) {
+    } else if  (identical(floor(target), target) ) {
         dataInfo$target_type = "discrete"
-    } else {
-        dataInfo$target_type = "normal"
-    }
+    } else  dataInfo$target_type = "normal"
 
     target_type = dataInfo$target_type;
     if(dataInfo$target_type == "normal")  {
@@ -187,9 +166,7 @@ testIndGLMM = function(target, reps = NULL, group, dataset, xIndex, csIndex,  we
       target_type = 2;
     }else if(dataInfo$target_type == "discrete"){
       target_type = 3;
-    }else{
-      target_type = 1; #default value in case of bad definition
-    }
+    }else  target_type = 1; #default value in case of bad definition
   }else{
     target_type = floor(target_type);
     if(target_type < 1 || target_type > 3)
@@ -199,28 +176,19 @@ testIndGLMM = function(target, reps = NULL, group, dataset, xIndex, csIndex,  we
       return(results);
     }
   }
-  
-  #checking the length
-  if (length(x) == 0 || length(target) == 0)
-  {
-    message(paste("error in testIndGLMM : empty variable x or target"))
-    results <- list(pvalue = pvalue, stat = stat, flag = flag, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
-    return(results);
-  }
+
   n = length(target)  ## sample size
   #trycatch for dealing with errors
   res <- tryCatch(
 {
   #binomial or multinomial target?
-  yCounts = length(unique(target));
+  yCounts = length( unique(target) );
   if(yCounts == 2)
   {
     target_type = 2;
-  }else  if ( identical(floor(target),target) == TRUE )
+  }else  if ( identical(floor(target), target) )
    { target_type = 3
-    }else{
-     target_type = 1 
-  }
+    }else  target_type = 1 
   
  #if the conditioning set (cs) is empty, we use the t-test on the coefficient of x.
   if(length(cs) == 0)
@@ -236,60 +204,53 @@ testIndGLMM = function(target, reps = NULL, group, dataset, xIndex, csIndex,  we
     }
    if ( is.null(reps) ) {
       if ( target_type == 1 ) {
-        fit2 = lme4::lmer( target ~ (1|group) + dataset[, xIndex], weights = wei, REML=FALSE )
-      } else {
-        fit2 = lme4::glmer( target ~ (1|group) + dataset[, xIndex], weights = wei, REML=FALSE , family = oikogeneia[target_type] ) 
-      }
+        fit2 = lme4::lmer( target ~ (1|group) + dataset[, xIndex], weights = wei, REML = FALSE )
+      } else  fit2 = lme4::glmer( target ~ (1|group) + dataset[, xIndex], weights = wei, REML = FALSE , family = oikogeneia[target_type] ) 
+
    } else {
       reps = reps 
-      if ( slopes == TRUE ) {
+      if ( slopes ) {
       if ( target_type == 1 ) {
-        fit2 = lme4::lmer( target ~ reps + (reps|group) + dataset[, xIndex], weights = wei, REML=FALSE ) 
-      } else {     
-        fit2 = lme4::glmer( target ~ reps + (reps|group) + dataset[, xIndex], weights = wei, REML=FALSE , family = oikogeneia[target_type] ) 
-      } 
+        fit2 = lme4::lmer( target ~ reps + (reps|group) + dataset[, xIndex], weights = wei, REML = FALSE ) 
+      } else  fit2 = lme4::glmer( target ~ reps + (reps|group) + dataset[, xIndex], weights = wei, REML = FALSE , family = oikogeneia[target_type] ) 
+	  
    }else{
       reps = reps 
      if ( target_type == 1 ) {
-          fit2 = lme4::lmer( target ~ reps + (1|group) + dataset[, xIndex], weights = wei, REML=FALSE )        
-        } else {
-          fit2 = lme4::glmer( target ~ reps + (1|group) + dataset[, xIndex], weights = wei, REML=FALSE , family = oikogeneia[target_type] )  
-        }
+          fit2 = lme4::lmer( target ~ reps + (1|group) + dataset[, xIndex], weights = wei, REML = FALSE )        
+        } else  fit2 = lme4::glmer( target ~ reps + (1|group) + dataset[, xIndex], weights = wei, REML = FALSE , family = oikogeneia[target_type] )  
       }
    }
+   
   }else{
     if ( is.null(reps) ) {
       if ( target_type == 1 ) {
-        fit2 = lme4::lmer( target ~ (1|group) + dataset[, csIndex] + dataset[, xIndex], weights = wei, REML=FALSE )  
+        fit2 = lme4::lmer( target ~ (1|group) + dataset[, csIndex] + dataset[, xIndex], weights = wei, REML = FALSE )  
         ##fit1= lme4::lmer( target~ (1|group) + dataset[, csIndex], data = dataset[, c(csIndex, xIndex)], REML=FALSE )     
         ##fit2 = lme4::lmer( target~. + (1|group) - group, data = dataset[, c(csIndex, xIndex)], REML=FALSE )     
       } else {
-        fit2 = lme4::glmer( target ~ (1|group) + dataset[, csIndex] + dataset[, xIndex], weights = wei, REML=FALSE , family = oikogeneia[target_type] ) 
+        fit2 = lme4::glmer( target ~ (1|group) + dataset[, csIndex] + dataset[, xIndex], weights = wei, REML = FALSE , family = oikogeneia[target_type] ) 
         ##fit1 = lme4::glmer( target~ (1|group) + dataset[, csIndex], data =  dataset[, c(csIndex, xIndex)], REML=FALSE, family = oikogeneia[target_type] )     
         ##fit2 = lme4::glmer( target~. + (1|group) - group, data =  dataset[, c(csIndex, xIndex)], REML=FALSE, family = oikogeneia[target_type] )     
         }
       } else {
       reps = reps 
-      if (slopes == TRUE ) {
+      if (slopes ) {
         if (target_type == 1) {
-          fit2 = lme4::lmer( target ~ reps + (reps|group) + dataset[, csIndex] + dataset[, xIndex], weights = wei, REML=FALSE )
+          fit2 = lme4::lmer( target ~ reps + (reps|group) + dataset[, csIndex] + dataset[, xIndex], weights = wei, REML = FALSE )
           ##fit1 = lme4::lmer( target~ (reps|group) +dataset[, csIndex], data = dataset[, c(csIndex, xIndex)], REML=FALSE )     
           ##fit2 = lme4::lmer( target~. + (reps|group) - group, data = dataset[, c(csIndex, xIndex)], REML=FALSE )     
-        } else {
-          fit2 = lme4::glmer( target ~ reps + (reps|group) + dataset[, csIndex] + dataset[, xIndex], weights = wei, REML=FALSE , family = oikogeneia[target_type])
+        } else  fit2 = lme4::glmer( target ~ reps + (reps|group) + dataset[, csIndex] + dataset[, xIndex], weights = wei, REML = FALSE , family = oikogeneia[target_type])
           ##fit1 = lme4::glmer( target~ reps + (reps|group) + dataset[, csIndex], data = dataset[, c(csIndex, xIndex)], REML=FALSE, family = oikogeneia[target_type] )     
           ##fit2 = lme4::glmer( target~. + reps + (reps|group) - group, data = dataset[, c(csIndex, xIndex)], REML=FALSE, family = oikogeneia[target_type] )     
-        }
        }else{
        if (target_type == 1) {
-          fit2 = lme4::lmer( target ~ reps + (1|group) + dataset[, csIndex] + dataset[, xIndex], weights = wei, REML=FALSE )
+          fit2 = lme4::lmer( target ~ reps + (1|group) + dataset[, csIndex] + dataset[, xIndex], weights = wei, REML = FALSE )
           ##fit1 = lme4::lmer( target~  (1|group) + dataset[, csIndex], data = dataset[, c(csIndex, xIndex)], REML=FALSE )     
           ##fit2 = lme4::lmer( target~.  + (1|group) - group, data = dataset[, c(csIndex, xIndex)], REML=FALSE )     
-        } else {
-          fit2 = lme4::glmer( target ~ reps + (1|group) + dataset[, csIndex] + dataset[, xIndex], weights = wei, REML=FALSE , family = oikogeneia[target_type]) 
+        } else  fit2 = lme4::glmer( target ~ reps + (1|group) + dataset[, csIndex] + dataset[, xIndex], weights = wei, REML = FALSE , family = oikogeneia[target_type]) 
           ##fit1 = lme4::glmer( target~ reps + (1|group) + dataset[, csIndex], data = dataset[, c(csIndex, xIndex)], REML=FALSE, family = oikogeneia[target_type] )     
           ##fit2 = lme4::glmer( target~. + reps + (1|group) - group, data = dataset[, c(csIndex, xIndex)], REML=FALSE, family = oikogeneia[target_type] )     
-        }
       }
     }
   }
@@ -304,20 +265,15 @@ testIndGLMM = function(target, reps = NULL, group, dataset, xIndex, csIndex,  we
   pvalue = pf(stat, v1, v2, lower.tail = FALSE, log.p=TRUE)
   flag = 1;
   #update hash objects
-  if(hash == TRUE)
+  if( hash )
   {
     stat_hash$key <- stat;#.set(stat_hash , key , stat)
     pvalue_hash$key <- pvalue;#.set(pvalue_hash , key , pvalue)
   }
   
   #last error check
-  if(is.na(pvalue) || is.na(stat))
-  { 
-    flag = 0;
-  }
-  
+  if(is.na(pvalue) || is.na(stat))   flag = 0;
   #testerrorcaseintrycatch(4);
-  
   results <- list(pvalue = pvalue, stat = stat, flag = flag, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
   return(results);
   

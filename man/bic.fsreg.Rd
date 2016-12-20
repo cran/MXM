@@ -9,7 +9,7 @@ Variable selection in regression models with forward selection using BIC
 }
 
 \usage{
-bic.fsreg(target, dataset, test = NULL, wei = NULL, tol = 0, robust = FALSE, ncores = 1)
+bic.fsreg(target, dataset, test = NULL, wei = NULL, tol = 2, robust = FALSE, ncores = 1)
 }
 
 \arguments{
@@ -21,9 +21,7 @@ The dataset; provide either a data frame or a matrix (columns = variables, rows 
 }
 \item{test}{
 The regression model to use. Available options are 
-"testIndReg" for normal linear regression, "testIndBeta" for beta regression, "censIndCR" or "censIndWR" for Cox proportional hazards and Weibull regression respectively, 
-"testIndLogistic" for binomial, multinomial or ordinal regression, "testIndPois" for poisson regression, "testIndNB" for negative binomial regression, "testIndZIP" for zero inflated poisson regression, 
-"testIndRQ" for quantile regression and "testIndSpeedglm" for linear, binary or poisson regression with large datasets (tens of thousands of observations).
+"testIndReg" for normal linear regression, "testIndBeta" for beta regression, "censIndCR" or "censIndWR" for Cox proportional hazards and Weibull regression respectively, "testIndLogistic" for binomial, multinomial or ordinal regression, "testIndPois" for poisson regression, "testIndNB" for negative binomial regression, "testIndZIP" for zero inflated poisson regression, "testIndRQ" for quantile regression and "testIndSpeedglm" for linear, binary or poisson regression with large datasets (tens of thousands of observations).  If you want to use multinomial or ordinal logistic regression, make sure your target is factor. See also \code{\link{SES}} and \code{\link{CondIndTests}} for the tests.
 }
 \item{wei}{
 A vector of weights to be used for weighted regression. The default value is NULL. It is not suggested when robust is set to TRUE.
@@ -80,7 +78,7 @@ Tsamardinos I., Aliferis C. F. and Statnikov, A. (2003). Time and sample efficie
 \author{
 Michail Tsagris
 
-R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> Michail Tsagris <mtsagris@yahoo.gr>
+R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 
 \seealso{
@@ -95,8 +93,8 @@ dataset <- matrix( runif(1000 * 20, 1, 100), ncol = 20 )
 
 #define a simulated class variable 
 target <- 3 * dataset[, 10] + 2 * dataset[, 15] + 3 * dataset[, 20] + rnorm(1000, 0, 5)
-a1 <- bic.fsreg(target, dataset, robust = FALSE, tol = 2, ncores = 1 ) 
-a2 <- bic.fsreg(target, dataset, robust = TRUE, tol = 2, ncores = 1 ) 
+a1 <- bic.fsreg(target, dataset, robust = FALSE, tol = 4, ncores = 1 ) 
+a2 <- bic.fsreg(target, dataset, robust = TRUE, tol = 4, ncores = 1 ) 
 a3 <- MMPC(target, dataset, robust= FALSE, ncores = 1)
 
 target <- round(target)

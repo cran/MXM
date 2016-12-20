@@ -20,24 +20,14 @@
 
 cv.ses <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, alphas = c(0.1, 0.05, 0.01), max_ks = c(3, 2), task = NULL, metric = NULL, modeler = NULL, ses_test = NULL, ncores = 1)
 {
-  
-  
+    
   if ( ncores > 1 ) {  ## multi-threaded task
     result = cvses.par(target, dataset, wei = wei, kfolds = kfolds, folds = folds, alphas = alphas, max_ks = max_ks, task = task, metric = metric, modeler = modeler, ses_test = ses_test, ncores = ncores)
 
-    
-  } else { ## one core task
-
-      
+  } else { ## one core task     
   
-  if(is.null(alphas))
-  {
-    alphas <- c(0.1, 0.05, 0.01)
-  }
-  if(is.null(max_ks))
-  {
-    max_ks <- c(3, 2)  
-  }
+  if(is.null(alphas))  alphas <- c(0.1, 0.05, 0.01)
+  if(is.null(max_ks))  max_ks <- c(3, 2)  
   
   alphas = sort(alphas, decreasing = TRUE)
   max_ks = sort(max_ks, decreasing = TRUE)
@@ -62,80 +52,58 @@ cv.ses <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, alpha
   
   if ( is.null(folds) )
   {
-    folds = generatefolds(target, nfolds = kfolds, stratified = TRUE, seed = FALSE )
-  }else{
-    kfolds <- length( folds);
-  }
+    folds <- generatefolds(target, nfolds = kfolds, stratified = TRUE, seed = FALSE )
+  } else  kfolds <- length( folds);
   
-  if(is.null(task)){
+  if (is.null(task)){
     stop("Please provide a valid task argument 'C'-classification, 'R'-regression, 'S'-survival.")
     #to do: select automatically the appropriate task due to the data, target
-  }else if (task == 'C'){
+  } else if (task == 'C'){
     
     #Classification task (logistic regression)
     if (is.null(metric)){
       metricFunction <- auc.mxm;
-    }else{
-      metricFunction <- metric;
-    }
+    } else   metricFunction <- metric;
     
     if (is.null(modeler)){
       modelerFunction <- glm.mxm;
-    }else{
-      modelerFunction <- modeler;
-    }
+    } else   modelerFunction <- modeler;
     
     if ( is.null(ses_test) ) {
       test <- 'testIndLogistic';
-    }else{
-      test <- ses_test;
-    }
+    } else  test <- ses_test;
     
-  }else if(task == 'R'){
+  } else if(task == 'R'){
     
     #Regression task (logistic regression)
     if (is.null(metric)){
       metricFunction <- mse.mxm;
-    }else{
-      metricFunction <- metric;
-    }
+    } else  metricFunction <- metric;
     
     if (is.null(modeler)){
       modelerFunction <- lm.mxm;
-    }else{
-      modelerFunction <- modeler;
-    }
+    } else  modelerFunction <- modeler;
     
     if (is.null(ses_test)){
       test = 'testIndFisher';
-    }else{
-      test <- ses_test;
-    }
+    } else  test <- ses_test;
     
-  }else if(task == 'S'){
+  } else if(task == 'S'){
     
     #cox survival analysis (cox regression)
     if (is.null(metric)){
       metricFunction <- ci.mxm;
-    }else{
-      metricFunction <- metric;
-    }
+    } else  metricFunction <- metric;
     
     if (is.null(modeler)){
       modelerFunction <- coxph.mxm;
-    }else{
-      modelerFunction <- modeler;
-    }
+    } else  modelerFunction <- modeler;
     
     if (is.null(ses_test)){
       test = "censIndCR";
-    }else{
-      test <- ses_test;
-    }
+    } else  test <- ses_test;
     
-  }else{
-    stop("Please provide a valid task argument 'C'-classification, 'R'-regression, 'S'-survival.")
-  }
+  }else  stop("Please provide a valid task argument 'C'-classification, 'R'-regression, 'S'-survival.")
   
   nSESConfs = length(SES_configurations)
   #merging SES configuration lists and create the general cv results list
@@ -158,15 +126,12 @@ cv.ses <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, alpha
   for(k in 1:kfolds){
     #print(paste('CV: Fold', k, 'of', kfolds));
     train_samples <- c();
-    for(i in which(c(1:kfolds) != k))
-    {
-      train_samples = c( train_samples, folds[[ i ]] )
-    }
+    for(i in which(c(1:kfolds) != k))  train_samples = c( train_samples, folds[[ i ]] )
     
     #leave one fold out each time as a test set and the rest as train set
     train_set <- dataset[train_samples, ] #Set the training set
     train_target <- target[train_samples]
-	  wtrain <- wei[train_samples]
+	wtrain <- wei[train_samples]
     test_set <- dataset[folds[[k]], ] #Set the validation set
     test_target <- target[ folds[[k]] ]
     
@@ -202,36 +167,22 @@ cv.ses <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, alpha
       {
         #generate a model due to the task and find the performance
         #logistic model for a classification task, linear model for the regression task and a cox model for the survival task
-        
         preds <- modelerFunction(train_target, sign_data, sign_test, wei = wtrain)
+      } else  preds <- modelerFunction(train_target, rep(1, nrow(sign_data)), rep(1, nrow(sign_test)), wei = wtrain)
         
-      } else {
-        
-        preds <- modelerFunction(train_target, rep(1, nrow(sign_data)), rep(1, nrow(sign_test)), wei = wtrain)
-      } 
-        
-        if(is.null(preds))
-        {
+        if(is.null(preds)) {
           conf_ses[[ses_conf_id]]$preds[[k]] <- NULL
           conf_ses[[ses_conf_id]]$performances[k] <- NA
-        }
-        else{
+        } else{
           performance = metricFunction(preds, test_target)
           conf_ses[[ses_conf_id]]$preds[[k]] <- preds
           conf_ses[[ses_conf_id]]$performances[k] <- performance
         }
-  
     }
     
     #clear the hashmap and garbages
-    if(is.null(SESHashMap$pvalue_hash) == FALSE)
-    {
-      hash::clear(SESHashMap$pvalue_hash)
-    }
-    if(is.null(SESHashMap$stat_hash) == FALSE)
-    {
-      hash::clear(SESHashMap$stat_hash)
-    }
+    if( is.null(SESHashMap$pvalue_hash) == FALSE )  hash::clear(SESHashMap$pvalue_hash)
+    if( is.null(SESHashMap$stat_hash) == FALSE )   hash::clear(SESHashMap$stat_hash)
     rm(SESHashMap);
     gc();
   }
@@ -258,13 +209,11 @@ cv.ses <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, alpha
   #TT
   mat <- matrix(nrow = length(best_model[[ 1 ]]), ncol = kfolds)
   
-  for ( i in 1:nrow(mat) ) {
-    mat[i, ] <- as.vector( best_model[[ 1 ]][[ i ]]$performances )  
-  }
+  for ( i in 1:dim(mat)[1] )  mat[i, ] <- as.vector( best_model[[ 1 ]][[ i ]]$performances )  
   
   opti <- Rfast::rowmeans(mat)
   bestpar <- which.max(opti)
-  estb <- abs( sum( mat[bestpar, ] - Rfast::colMaxs(mat, value = TRUE) ) / kfolds )   ##  apply(mat, 2, max) ) / kfolds )
+  estb <- abs( sum( mat[bestpar, ] -  apply(mat, 2, max) ) ) / kfolds   ##  Rfast::colMaxs(mat, value = TRUE) ) / kfolds )
   
   best_model$best_configuration = conf_ses[[bestpar]]$configuration
     best_model$best_performance <- max( opti )
@@ -272,7 +221,7 @@ cv.ses <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, alpha
   
   best_model$runtime <- proc.time() - tic 
     
-  result = best_model
+  result <- best_model
   
 }
 
@@ -328,7 +277,7 @@ auc.mxm <- function(predictions, test_target){
 #accuracy (binary)
 acc.mxm <- function(predictions, test_target){
   
-  sum( (predictions>0.5) == test_target ) / length(test_target)
+  sum( (predictions > 0.5) == test_target ) / length(test_target)
 
 }
 
@@ -356,14 +305,17 @@ ord_mae.mxm <- function(predictions, test_target){
 #cindex
 ci.mxm <- function(predictions, test_target){
    
-  1 - Hmisc::rcorr.cens(predictions, test_target)[1];
+  ## 1 - Hmisc::rcorr.cens(predictions, test_target)[1];
+  survival::survConcordance(test_target ~ predictions)$concordance
   
 }
 
 #cindex for weibull and exponential regession
 ciwr.mxm <- function(predictions, test_target){
     
-  ci = Hmisc::rcorr.cens(predictions, test_target)[1];
+  ## Hmisc::rcorr.cens(predictions, test_target)[1];
+  1 - survival::survConcordance(test_target ~ predictions)$concordance
+  
   
 }  
 
@@ -517,11 +469,9 @@ lmrob.mxm <- function(train_target, sign_data, sign_test, wei){ ## used for univ
 
 ## beta regression
 beta.mxm <- function(train_target, sign_data, sign_test, wei){ ## used for univariate and multivariate target in classical regression
-  
-    x = sign_data
-    sign_model <- betareg::betareg( train_target ~ ., data = data.frame(x), weights = wei );
-    x = sign_test
-    preds <- predict( sign_model, newdata=data.frame(x) )
+    x <- sign_data
+    xnew <- sign_test 
+    preds <- beta.mod( train_target, x, wei = wei, xnew = xnew )$est
     log( preds / (1 - preds) )  ## logit transformation to make it comparable with the normal regression
    
 }
@@ -529,9 +479,9 @@ beta.mxm <- function(train_target, sign_data, sign_test, wei){ ## used for univa
 ## cox regression
 coxph.mxm <- function(train_target, sign_data, sign_test, wei){
   
-  x = sign_data
+  x <- sign_data
   sign_model <- survival::coxph(train_target~., data = data.frame(x), weights = wei)
-  x = sign_test
+  x <- sign_test
   predict(sign_model, newdata=data.frame(x), type="risk")
   
 }
@@ -539,18 +489,18 @@ coxph.mxm <- function(train_target, sign_data, sign_test, wei){
 ## weibull regression
 weibreg.mxm <- function(train_target, sign_data, sign_test, wei){
   
-  x = sign_data
+  x <- sign_data
   sign_model <- survival::survreg(train_target~., data = data.frame(x), weights = wei)
-  x = sign_test
+  x <- sign_test
   predict(sign_model, newdata=data.frame(x) )
   
 }
 
 exporeg.mxm <- function(train_target, sign_data, sign_test, wei){
   
-  x = sign_data
+  x <- sign_data
   sign_model <- survreg(train_target~., data = data.frame(x), dist = "exponential", weights = wei)
-  x = sign_test
+  x <- sign_test
   predict(sign_model, newdata=data.frame(x) )
  
 }

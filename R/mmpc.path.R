@@ -1,12 +1,7 @@
 mmpc.path <- function(target , dataset , wei = NULL, max_ks = NULL , thresholds = NULL , test = NULL , user_test = NULL, robust = FALSE, ncores = 1){
   
-  if( is.null(thresholds) ) {
-    alphas <- c(0.1, 0.05, 0.01)
-  }
-  if( is.null(max_ks) )
-  {
-    max_ks <- c(4, 3, 2)  
-  }
+  if( is.null(thresholds) )  alphas <- c(0.1, 0.05, 0.01)
+  if( is.null(max_ks) )   max_ks <- c(4, 3, 2)  
   
   alphas = sort(alphas, decreasing = TRUE)
   max_ks = sort(max_ks, decreasing = TRUE)

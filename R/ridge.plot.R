@@ -12,9 +12,7 @@ ridge.plot <- function(target, dataset, lambda = seq(0, 5, by = 0.1) ) {
   y <- as.vector(target)
   x <- as.matrix(dataset)
   
-  if ( all( y > 0 & y < 1 ) ){
-    y <- log(y / ( 1 - y) ) ## logistic normal
-  }
+  if ( all( y > 0 & y < 1 ) )  y <- log(y / ( 1 - y) ) ## logistic normal
 
   n <- length(y)  ## sample size
   p <- dim(x)[2]  ## dimensionality of x
@@ -23,13 +21,10 @@ ridge.plot <- function(target, dataset, lambda = seq(0, 5, by = 0.1) ) {
   yy <- y - sum(y) / n  ## center the dependent variables
   xx <- Rfast::standardise(x)  ## standardize the independent variables
   sa <- svd(xx)
-  d <- sa$d    ;    v <- t(sa$v)    ;     tu <- t(sa$u)  
+  d <- sa$d    ;    v <- t(sa$v)   ;     tu <- t(sa$u)  
   d2 <- d^2    ;    A <- d * tu %*% yy
 
-  for (i in 1:R) {
-    be[, i] <-  crossprod( v / ( d2 + lambda[i] ), A )  
-
-  }
+  for (i in 1:R)   be[, i] <-  crossprod( v / ( d2 + lambda[i] ), A )  
 
   plot(lambda, be[1,], type = "l", col = 1, lty = 1,
        ylim = c( min(be), max(be) ), xlab = expression(paste(lambda, " values") ),

@@ -12,20 +12,22 @@ ridge.plot(target, dataset, lambda = seq(0, 5, by = 0.1) )
 }
 
 \arguments{
-  \item{target}{
-  A numeric vector containing the values of the target variable. If the values are proportions or percentages, 
-  i.e. strictly within 0 and 1 they are mapped into R using log( target/(1 - target) ). In any case, they must be continuous only.
+\item{target}{
+A numeric vector containing the values of the target variable. If the values are proportions or percentages, 
+i.e. strictly within 0 and 1 they are mapped into R using log( target/(1 - target) ). In any case, they must be continuous only.
 }
-  \item{dataset}{
-  A numeric matrix containing the continuous variables. Rows are samples and columns are features.
+\item{dataset}{
+A numeric matrix containing the continuous variables. Rows are samples and columns are features.
 }
-  \item{lambda}{
-  A grid of values of the regularisation parameter \eqn{\lambda}.
+\item{lambda}{
+A grid of values of the regularisation parameter \eqn{\lambda}.
 }
 }
+
 \details{
 For every value of \eqn{\lambda} the coefficients are obtained. They are plotted versus the \eqn{\lambda} values. 
 }
+
 \value{
 A plot with the values of the coefficients as a function of \eqn{\lambda}.
 }
@@ -39,7 +41,7 @@ Brown P. J. (1994). Measurement, Regression and Calibration. Oxford Science Publ
 \author{
  Michail Tsagris
 
-R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr>, Vincenzo Lagani <vlagani@csd.uoc.gr> and Michail Tsagris <mtsagris@yahoo.gr>
+R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr>, Vincenzo Lagani <vlagani@csd.uoc.gr> and Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 
 %\note{

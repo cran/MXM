@@ -14,7 +14,7 @@ undir.path(G, y, x)
 
 \arguments{
 \item{G}{
-An adjacency matrix where G[i,j] = G[j, i] = 1 means there is an edge between nodes i and j. If G[i,j] = G[j, i] = 0 there is no edge between them.     
+An adjacency matrix where G[i,j] = G[j, i] = 1 means there is an edge between nodes i and j. If G[i, j] = G[j, i] = 0 there is no edge between them.     
 }
 \item{y}{
 A numerical value indicating the first node, it has to be a number between 1 and the maximum number of variables.
@@ -39,7 +39,7 @@ Tsamardinos, Brown and Aliferis (2006). The max-min hill-climbing Bayesian netwo
 \author{
  Michail Tsagris
 
-R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> and Michail Tsagris <mtsagris@yahoo.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 
 %\note{
@@ -53,9 +53,8 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> and M
 # simulate a dataset with continuous data
 set.seed(1234)
 dataset <- matrix(runif(1000 * 20, 1, 100), nrow = 1000 ) 
-G = pc.con(dataset)$G
-library(Rgraphviz)  ## requires this library from bioconductor
-plota(G)
+G <- pc.con(dataset)$G
+plotnetwork(G)
 undir.path(G, 3, 4)
 undir.path(G, 1, 3)
 }

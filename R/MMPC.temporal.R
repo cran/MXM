@@ -14,7 +14,7 @@ MMPC.temporal = function(target , reps = NULL, group, dataset , max_k = 3 , thre
   stat_hash = NULL;
   pvalue_hash = NULL;
   
-  if(hash == TRUE)
+  if( hash )
   {
     if(requireNamespace("hash"))
     {
@@ -40,30 +40,13 @@ MMPC.temporal = function(target , reps = NULL, group, dataset , max_k = 3 , thre
   # dataset checking and initialize #
   ###################################
   
-  if(!is.null(dataset))
-  {
-    #check if dataset is an ExpressionSet object of Biobase package
-    #if(class(dataset) == "ExpressionSet")
-    #{
-    #  #get the elements (numeric matrix) of the current ExpressionSet object.
-    #  dataset = Biobase::exprs(dataset);
-    #  dataset = t(dataset); #take the features as columns and the samples as rows
-    #} else if ( class(dataset) == "matrix" | class(dataset) == "data.frame" ){
-    #  target = target 
-    #} else {
-    #  stop('Invalid dataset class. It must be either a matrix, a dataframe or an ExpressionSet');
-    #}
-	
-  }
-    if(is.null(dataset) || is.null(target) )
+    if( is.null(dataset) || is.null(target) )
     {
       stop('invalid dataset or target (class feature) arguments.');
-    }else{
-      target = target;
-    }
+    }else  target = target;
   
   #check for NA values in the dataset and replace them with the variable mean
-  if(any(is.na(dataset)) == TRUE)
+  if( any(is.na(dataset)) )
   {
     dataset = as.matrix(dataset);
     warning("The dataset contains missing values and they were replaced automatically by the variable (column) mean.")
@@ -101,6 +84,8 @@ MMPC.temporal = function(target , reps = NULL, group, dataset , max_k = 3 , thre
   # test checking and initialize #
   ################################
   
+  la <- length( Rfast::sort_unique( as.numeric(target) ) )
+
   if(typeof(user_test) == "closure")
   {
     test = user_test;
@@ -112,13 +97,13 @@ MMPC.temporal = function(target , reps = NULL, group, dataset , max_k = 3 , thre
       if("factor" %in% class(target))
       {
         test = "testIndGLMM";
-        if(is.ordered(target) == TRUE)
+        if( is.ordered(target) )
         {
           dataInfo$target_type = "binary";
           
           cat('\nTarget variable type: Binary')
         }else{
-          if(length(unique(target)) == 2)
+          if( la == 2)
           {
             dataInfo$target_type = "binary"
             cat('\nTarget variable type: Binomial')
@@ -136,9 +121,9 @@ MMPC.temporal = function(target , reps = NULL, group, dataset , max_k = 3 , thre
           }
         }
         
-        if(identical(floor(target),target) == TRUE)
+        if( identical(floor(target), target) )
         {
-          if(length(unique(target)) == 2)
+          if( la == 2 )
           {
             dataInfo$target_type = "binary";
             cat('\nTarget variable type: Binary')
@@ -161,9 +146,9 @@ MMPC.temporal = function(target , reps = NULL, group, dataset , max_k = 3 , thre
     if(test == "testIndGLMM")
     {
 
-       if(identical(floor(target),target) == TRUE)
+       if( identical(floor(target), target) )
         {
-          if(length(unique(target)) == 2)
+          if( la == 2)
           {
             dataInfo$target_type = "binary";
             cat('\nTarget variable type: Binary')
@@ -179,7 +164,7 @@ MMPC.temporal = function(target , reps = NULL, group, dataset , max_k = 3 , thre
           test = "testIndGLMM";  
         }
       
-      if(is.ordered(target) == TRUE)
+      if( is.ordered(target) )
       {
         dataInfo$target_type = "binary";
         #cat('\nTarget variable type: Binary')
@@ -191,9 +176,9 @@ MMPC.temporal = function(target , reps = NULL, group, dataset , max_k = 3 , thre
         }
         
       }else{
-        if(identical(floor(target),target) == TRUE)
+        if( identical(floor(target), target) )
         {
-          if(length(unique(target)) == 2)
+          if( la == 2)
           {
             dataInfo$target_type = "binary";
             cat('\nTarget variable type: Binary')
@@ -252,29 +237,14 @@ MMPC.temporal = function(target , reps = NULL, group, dataset , max_k = 3 , thre
   varsize = dim(dataset)[[2]];
   
   #option checking
-  if((typeof(max_k)!="double") || max_k < 1)
-  {
-    stop('invalid max_k option');
-  }
-  if(max_k > varsize)
-  {
-    max_k = varsize;
-  }
-  if((typeof(threshold)!="double") || exp(threshold) <= 0 || exp(threshold) > 1)
-  {
-    stop('invalid threshold option');
-  }
-  if(typeof(equal_case)!="double")
-  {
-    stop('invalid equal_case option');
-  }
+  if((typeof(max_k)!="double") || max_k < 1)  stop('invalid max_k option');
+  if(max_k > varsize)  max_k = varsize;
+  if((typeof(threshold)!="double") || exp(threshold) <= 0 || exp(threshold) > 1)  stop('invalid threshold option');
+  if(typeof(equal_case)!="double")  stop('invalid equal_case option');
   
   #######################################################################################
 
-  if(!is.null(user_test))
-  {
-    ci_test = "user_test";
-  }
+  if( !is.null(user_test) )  ci_test = "user_test";
 
   #call the main MMPC.temporal function after the checks and the initializations
   results = InternalMMPC.temporal(target, reps, group, dataset, max_k, threshold, test, ini, wei, user_test, dataInfo, hash, varsize, stat_hash, pvalue_hash, targetID, slopes = slopes, ncores = ncores);
@@ -294,16 +264,15 @@ MMPC.temporal = function(target , reps = NULL, group, dataset , max_k = 3 , thre
   
   #######################################################################################
   
-  rows = length(target)
-  cols = ncol(dataset)
+  dm <- dim(dataset)
+  rows <- dm[1]
+  cols <- dm[2]
   
   #univariate feature selection test
   
   if ( is.null(ini) ) {
     univariateModels = univariateScore.temporal(target , reps, group, dataset , test, wei=wei, hash=hash, dataInfo, stat_hash=stat_hash, pvalue_hash=pvalue_hash, targetID, slopes = slopes, ncores = ncores);
-  } else {
-    univariateModels = ini
-  }
+  } else  univariateModels = ini
   
   pvalues = univariateModels$pvalue;
   stats = univariateModels$stat;
@@ -311,7 +280,7 @@ MMPC.temporal = function(target , reps = NULL, group, dataset , max_k = 3 , thre
   stat_hash = univariateModels$stat_hash;
   pvalue_hash = univariateModels$pvalue_hash;
   #if we dont have any associations , return
-  if(min(pvalues , na.rm=TRUE) > threshold) #or min(pvalues, na.rm=TRUE)
+  if(min(pvalues , na.rm = TRUE) > threshold) #or min(pvalues, na.rm=TRUE)
   {
     cat('No associations!');
     

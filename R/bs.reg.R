@@ -1,9 +1,9 @@
-bs.reg <- function(target, dataset, threshold = 0.05, test = NULL, wei = NULL, user_test = NULL, heavy = FALSE, robust = FALSE) {
+bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, user_test = NULL, robust = FALSE) {
   
   threshold <- log(threshold)
-  
-  n <- nrow(dataset)  ## sample size 
-  p <- ncol(dataset)  ## number of variables
+  dm <- dim(dataset)
+  n <- dm[1]  ## sample size 
+  p <- dm[2]  ## number of variables
 
   if ( p > n ) {
     res <- paste("The number of variables is hiher than the sample size. No backward procedure was attempted")
@@ -13,83 +13,57 @@ bs.reg <- function(target, dataset, threshold = 0.05, test = NULL, wei = NULL, u
    tic <- proc.time()
 
   #check for NA values in the dataset and replace them with the variable median or the mode
-  if(any(is.na(dataset)) == TRUE)
-  {
-  
-    warning("The dataset contains missing values (NA) and they were replaced automatically by the variable (column) median (for numeric) or by the most frequent level (mode) if the variable is factor")
-    
-    if (class(dataset) == "matrix")  {
-    
-       dataset = apply(dataset, 2, function(x){ x[which(is.na(x))] = median(x, na.rm = TRUE) ; return(x)}) 
-              
-    }else{
-	
-      poia <- which( is.na(dataset), arr.ind = TRUE )[2]
- 	    for( i in poia ) {
-          xi = dataset[, i]
-          if(class(xi) == "numeric")
-          {                    
-            xi[ which( is.na(xi) ) ] = median(xi, na.rm = TRUE) 
-          } else if ( class(xi) == "factor" ) {
-            xi[ which( is.na(xi) ) ] = levels(xi)[ which.max( as.vector( table(xi) ) )]
-          }
-          dataset[, i] = xi
-        }
-    }
-    
-  }
+   if( any(is.na(dataset)) ) {
+     #dataset = as.matrix(dataset);
+     warning("The dataset contains missing values (NA) and they were replaced automatically by the variable (column) median (for numeric) or by the most frequent level (mode) if the variable is factor")
+     if (class(dataset) == "matrix")  {
+       dataset <- apply( dataset, 2, function(x){ x[which(is.na(x))] = median(x, na.rm = TRUE) ; return(x) } ) 
+     }else{
+       poia <- which( is.na(dataset), arr.ind = TRUE )[2]
+       for( i in poia )  {
+         xi <- dataset[, i]
+         if(class(xi) == "numeric")
+         {                    
+           xi[ which( is.na(xi) ) ] <- median(xi, na.rm = TRUE) 
+         } else if ( is.factor( xi ) ) {
+           xi[ which( is.na(xi) ) ] <- levels(xi)[ which.max( as.vector( table(xi) ) )]
+         }
+         dataset[, i] <- xi
+       }
+     }
+   }
   
 
     ##################################
     # target checking and initialize #
     ################################## 
 
- if ( is.null( colnames(dataset) ) )  {  ## checks for column names
-    colnames(dataset) <- paste("X", 1:p, sep = "")
-  }	
+ if ( is.null( colnames(dataset) ) )  colnames(dataset) <- paste("X", 1:p, sep = "")
   
   la <- length( Rfast::sort_unique(target) )
-   
+ 
   ## dependent (target) variable checking if no test was given, 
   ## but other arguments are given. For some cases, these are default cases
   
   if ( is.null(test)  &  is.null(user_test) ) {
-      
-    ## percentages
-    if ( min( target ) > 0 & max( target ) < 1 )  {  ## are they percentages?
-      target <- log( target / (1 - target) ) 
-      ci_test <- test <- "testIndReg"  
-	
+    
     ## surival data
-    } else if ( sum( class(target) == "Surv" ) == 1 ) {
+    if ( sum( class(target) == "Surv" ) == 1 ) {
       ci_test <- test <- "censIndCR"
-    
-    ## binary data
-    } else if ( la == 2 ) {
-      ci_test <- test <- "testIndLogistic"   
-	  
-	  ## counts
-    } else if ( sum(target - round(target) ) == 0  &  la > 2 ) {
-      ci_test <- test <- "testIndPois"
-	  }
-    
-    ## ordinal, multinomial or perhaps binary data
-    if ( is.factor(target) ) {
-      if ( !is.ordered(target) ) {
-        if ( la == 2 ) {
-          target <- as.vector(target)
-          ci_test <- test <- "testIndLogistic"
-        } else   ci_test <- test <- "testIndLogistic"
-      }  
-        
-    } else if ( la == 2 ) {
-      target <- as.vector(target)
-      test <- "testIndLogistic"
+      
+      ## ordinal, multinomial or perhaps binary data
+    } else if ( is.factor(target) ||  is.ordered(target) || length( Rfast::sort_unique(target) ) == 2 ) {
+      ci_test <- test <- "testIndLogistic"
+      
+      ## count data
+    } else if ( length( Rfast::sort_unique(target) ) > 2  &  !is.factor(target) ) {
+      if ( sum( round(target) - target ) == 0 ) {
+        ci_test <- test <- "testIndPois"
+      } else  ci_test <- test <- "testIndReg"  
     }
   }
-    
-
-  av_models = c("testIndReg", "testIndBeta", "censIndCR", "testIndRQ", "censIndWR", "testIndLogistic", "testIndPois", "testIndNB", "testIndZIP", "testIndSpeedglm");
+   
+  av_models = c("testIndReg", "testIndBeta", "censIndCR", "testIndRQ", "censIndWR", "testIndLogistic", "testIndPois", "testIndNB", "testIndZIP", "testIndSpeedglm", "testIndBinom");
   
   ci_test <- test
   test <- match.arg(test, av_models, TRUE);
@@ -98,20 +72,24 @@ bs.reg <- function(target, dataset, threshold = 0.05, test = NULL, wei = NULL, u
    ###  GLMs 
    ############
     
+    heavy = FALSE
     if (test == "testIndSpeedglm")   heavy <- TRUE
     
-    if ( test == "testIndPois"  ||  test == "testIndReg"  ||  ( test == "testIndLogistic"  &  la == 2 )  ||  test == "testIndSpeedglm" ) {
+    if ( test == "testIndPois"  ||  test == "testIndReg"  ||  ( test == "testIndLogistic"  &  la == 2 )  ||  test == "testIndSpeedglm" || test == "testIndBinom" ) {
 
-       res <- glm.bsreg(target = target, dataset = dataset, wei = wei, threshold = exp( threshold ), heavy = heavy, robust = robust ) 
-       
+      res <- glm.bsreg(target = target, dataset = dataset, wei = wei, threshold = exp( threshold ), heavy = heavy, robust = robust ) 
+	   
+    } else if ( test == "testIndBeta" ) {
 
+      res <- beta.bsreg(target = target, dataset = dataset, wei = wei, threshold = exp( threshold ) ) 
+	  
+    } else if ( test == "testIndZIP" ) {
+
+      res <- zip.bsreg(target = target, dataset = dataset, wei = wei, threshold = exp( threshold ) ) 	
+ 
     } else {
 	   
-	  if ( test == "testIndBeta" ) {
-        test = betareg::betareg 
-        robust = FALSE
-
-      } else if ( test == "censIndCR" ) {
+     if ( test == "censIndCR" ) {
         test = survival::coxph 
         robust = FALSE
 		
@@ -137,10 +115,6 @@ bs.reg <- function(target, dataset, threshold = 0.05, test = NULL, wei = NULL, u
       } else if ( test == "testIndRQ" ) {
         test = quantreg::rq
         robust = FALSE
-      
-      } else if ( test == "testIndZIP" ) {
-        test = pscl::zeroinfl 
-        robust = FALSE	
 	
 	  } else if (test == "testIndRQ") {
 	    test = quantreg::rq
@@ -161,9 +135,8 @@ bs.reg <- function(target, dataset, threshold = 0.05, test = NULL, wei = NULL, u
 		  dof[j] <- dofini - length( coef(mod) ) 
 	  }
 	  
-      
       mat <- cbind(1:p, pchisq( stat, dof, lower.tail = FALSE, log.p = TRUE), stat )
-      colnames(mat) <- c("variable", "p-value", "statistic" )
+      colnames(mat) <- c("variable", "log.p-values", "statistic" )
       rownames(mat) <- 1:p 
 
       sel <- which.max( mat[, 2] )
@@ -190,6 +163,7 @@ bs.reg <- function(target, dataset, threshold = 0.05, test = NULL, wei = NULL, u
 
            ini <- test( target ~., data = dat, weights = wei )
            likini <- logLik(ini) 
+           dofini <- length( coef(ini) )
 
            i <- i + 1        
            k <- p - i + 1
@@ -204,8 +178,12 @@ bs.reg <- function(target, dataset, threshold = 0.05, test = NULL, wei = NULL, u
 		          final <- "No variables were selected"
 		          info <- rbind(info, c(mat[, 1], stat, pval) )
 		          dat <- as.data.frame( dataset[, -info[, 1] ] )
-		        } else final <- ini
-		       
+		          mat <- NULL
+		        } else {
+		          info <- rbind(info, c(0, -10, -10)) 
+		          final <- ini
+		        }  
+		              
 		      } else { 
             stat <- dof <- numeric(k)
              
@@ -226,26 +204,23 @@ bs.reg <- function(target, dataset, threshold = 0.05, test = NULL, wei = NULL, u
       
                info <- rbind(info, mat[sel, ] )
                mat <- mat[-sel, ] 
-               if ( !is.matrix(mat) ) {
-                 mat <- matrix(mat, ncol = 3) 
-               }
+               if ( !is.matrix(mat) )  mat <- matrix(mat, ncol = 3) 
                dat <- as.data.frame( dataset[, -info[, 1] ] )
              }
  
            }
-        
            
          }
 	   
       }
       
-
-   runtime <- proc.time() - tic		
-   info <- info[ info[, 1] > 0, ]
-   res<- list(runtime = runtime, info = info, ci_test = ci_test, final = final ) 
+      runtime <- proc.time() - tic		
+      info <- info[ info[, 1] > 0, ]
+      colnames(mat) <- c("Variables", "log.p-values", "statistic")
+      res <- list(runtime = runtime, info = info, mat = mat, ci_test = ci_test, final = final ) 
     }
   
-  } 
+  }
   
   res
   

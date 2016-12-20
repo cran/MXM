@@ -1,7 +1,7 @@
 #useDynLib(MXM, .registration = TRUE)
 
 #testIndFisher
-importFrom("stats", coef, resid, cor, pnorm)
+importFrom("stats", coef, resid, cor, pnorm, mahalanobis)
 
 #testIndLogistic
 importFrom("stats", model.frame, model.matrix, glm.fit, lm.fit, deviance, as.formula, pchisq, lm.wfit)
@@ -10,9 +10,6 @@ importFrom("ordinal", clm)
 
 #testIndRQ
 importFrom("quantreg", rq)
-
-#testIndBeta
-importFrom("betareg", betareg)
 
 #testIndNB
 importFrom("MASS", glm.nb)
@@ -23,14 +20,11 @@ importFrom("MASS", rlm)
 #testIndPois
 importFrom("stats", glm, anova)
 
-#testIndZIP
-importFrom("pscl", zeroinfl)
-
 #testIndReg
 importFrom("stats", lm)
 
 # censIndCR and censIndWR
-importFrom("survival", is.Surv, coxph, Surv, survreg, clogit, strata)
+importFrom("survival", is.Surv, coxph, Surv, survreg, clogit, strata, survConcordance)
 
 #testIndGLMM
 importFrom("lme4", lmer, glmer)
@@ -41,27 +35,26 @@ importFrom("speedglm", speedlm, speedglm)
 #robust glms
 #importFrom("robust", glmRob, lmsreg)
 
-#cv.ses
-importFrom("Hmisc", rcorr.cens)
-
 importFrom("utils", combn)
 importFrom("MASS", lm.ridge)
 
 #more
 importFrom("methods", "new", "as")
 importFrom("stats", "predict", "var", "pt", "pf", "binomial", "family", "predict.lm", "BIC", "logLik", "median", "poisson", "sd",
-             "xtabs", "fitted", "rbinom", "runif", "drop1", "weights", "inverse.gaussian")
+             "xtabs", "fitted", "rbinom", "runif", "drop1", "weights", "inverse.gaussian", "nlm", "optim")
 
 importFrom("grDevices", "dev.new")
   
 importFrom("graphics", barplot, grid, lines, legend, axis, plot, points, abline)
 
+importFrom("visNetwork", "visNetwork", "visPhysics", "visInteraction", "visOptions", "%>%")
+
 importFrom("e1071", allShortestPaths, extractPath )
 
 importFrom("relations", relation, relation_incidence, transitive_closure)
 
-importFrom("Rfast", "colVars", "univglms", "colmeans", "g2Test_univariate", "g2Test", "colMaxs", 
-           "sort_mat", "which_isFactor", "standardise", "colrange", "comb_n", "regression")
+importFrom("Rfast", "colVars", "univglms", "colmeans", "g2Test_univariate", "g2Test", "sort_mat", "which_isFactor", 
+           "standardise", "colrange", "comb_n", "regression", "zip.mle", "beta.mle", "rmvnorm", "rowMaxs")
 
 
 import("doParallel")
@@ -74,10 +67,10 @@ export(SES, InternalSES, MMPC, InternalMMPC, SES.temporal, InternalSES.temporal,
        testIndRQ, testIndGLMM, testIndMVreg, testIndBeta, testIndNB, testIndClogit, testIndPois, testIndReg, 
        testIndSpearman, testIndZIP, testIndSpeedglm, testIndBinom, cv.ses, auc.mxm, acc.mxm, acc_multinom.mxm, mse.mxm, ci.mxm, ciwr.mxm, 
        ord_mae.mxm, poisdev.mxm, nbdev.mxm, glm.mxm, lm.mxm, pois.mxm, nb.mxm, multinom.mxm, rq.mxm, lmrob.mxm, ordinal.mxm, 
-       coxph.mxm, beta.mxm, weibreg.mxm, ridge.reg, ridgereg.cv, ridge.plot, ses.model, mmpc.model, nei, plota, reg.fit, pc.or, undir.path, rdag, 
+       coxph.mxm, beta.mxm, weibreg.mxm, ridge.reg, ridgereg.cv, ridge.plot, ses.model, mmpc.model, nei, reg.fit, pc.or, undir.path, rdag, 
        mb, mmmb, permcor, findAncestors, findDescendants, transitiveClosure, dag2eg, bic.fsreg, bic.glm.fsreg, fs.reg, glm.fsreg, 
        lm.fsreg, glm.bsreg, tc.plot, cv.mmpc, mmpc.path, condi, partialcor, auc, generatefolds, ma.ses, ma.mmpc, equivdags, testIndIGreg,
-       bs.reg)
+       bs.reg, zip.reg, zip.mod, zip.regs, beta.regs, beta.mod, beta.reg, plotnetwork)
 
 exportClasses("SESoutput")
 exportClasses("MMPCoutput")

@@ -24,29 +24,18 @@ cv.mmpc <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, alph
   
   if ( ncores > 1 ) {  ## multi-threaded task
     result = cvmmpc.par(target, dataset, wei = wei, kfolds = kfolds, folds = folds, alphas = alphas, max_ks = max_ks, task = task, metric = metric, modeler = modeler, mmpc_test = mmpc_test, ncores = ncores)
-    
-    
+      
   } else { ## one core task
-    
-    
-  
-  if(is.null(alphas))
-  {
-    alphas <- c(0.1, 0.05, 0.01)
-  }
-  if(is.null(max_ks))
-  {
-    max_ks <- c(3, 2)  
-  }
-  
+       
+  if(is.null(alphas))  alphas <- c(0.1, 0.05, 0.01)
+  if(is.null(max_ks))  max_ks <- c(3, 2)  
   
   alphas = sort(alphas, decreasing = TRUE)
   max_ks = sort(max_ks, decreasing = TRUE)
   
   nAlpha <- length(alphas);
   nMax_ks <- length(max_ks);
-  
-  
+   
   #defining the mmpc configurations
   nmmpcConfs <- nAlpha * nMax_ks;
   mmpc_configurations <- vector("list" , nmmpcConfs);
@@ -60,15 +49,12 @@ cv.mmpc <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, alph
       configuration$max_k <- k;
       mmpc_configurations[[i]] <- configuration;
     }
-  }
-  
+  } 
   
   if ( is.null(folds) )
   {
-    folds = generatefolds(target, nfolds = kfolds, stratified = TRUE, seed = FALSE)
-  }else{
-    kfolds <- length( folds[[1]] );
-  }
+    folds <- generatefolds(target, nfolds = kfolds, stratified = TRUE, seed = FALSE)
+  } else  kfolds <- length( folds[[1]] );
   
   
   if(is.null(task)){
@@ -79,68 +65,47 @@ cv.mmpc <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, alph
     #Classification task (logistic regression)
     if (is.null(metric)){
       metricFunction <- auc.mxm;
-    }else{
-      metricFunction <- metric;
-    }
+    }else   metricFunction <- metric;
     
     if (is.null(modeler)){
       modelerFunction <- glm.mxm;
-    }else{
-      modelerFunction <- modeler;
-    }
+    }else   modelerFunction <- modeler;
     
     if (is.null(mmpc_test)){
       test <- 'testIndLogistic';
-    }else{
-      test <- mmpc_test;
-    }
+    }else  test <- mmpc_test;
     
   }else if(task == 'R'){
     
     #Regression task (logistic regression)
     if (is.null(metric)){
       metricFunction <- mse.mxm;
-    }else{
-      metricFunction <- metric;
-    }
+    }else  metricFunction <- metric;
     
     if (is.null(modeler)){
       modelerFunction <- lm.mxm;
-    }else{
-      modelerFunction <- modeler;
-    }
+    }else  modelerFunction <- modeler;
     
     if (is.null(mmpc_test)){
       test = 'testIndFisher';
-    }else{
-      test <- mmpc_test;
-    }
+    }else  test <- mmpc_test;
     
   }else if(task == 'S'){
     
     #cox survival analysis (cox regression)
     if (is.null(metric)){
       metricFunction <- ci.mxm;
-    }else{
-      metricFunction <- metric;
-    }
+    }else  metricFunction <- metric;
     
     if (is.null(modeler)){
       modelerFunction <- coxph.mxm;
-    }else{
-      modelerFunction <- modeler;
-    }
+    }else  modelerFunction <- modeler;
     
     if (is.null(mmpc_test)){
       test = "censIndCR";
-    }else{
-      test <- mmpc_test;
-    }
+    }else  test <- mmpc_test;
     
-  }else{
-    stop("Please provide a valid task argument 'C'-classification, 'R'-regression, 'S'-survival.")
-  }
-  
+  }else  stop("Please provide a valid task argument 'C'-classification, 'R'-regression, 'S'-survival.")
   
   nmmpcConfs = length(mmpc_configurations)
   #merging mmpc configuration lists and create the general cv results list
@@ -151,18 +116,13 @@ cv.mmpc <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, alph
     conf_mmpc[[i]]$performances <- vector('numeric', kfolds)
     conf_mmpc[[i]]$variables <- vector('list', kfolds)
   }
-  
-  
+    
   tic <- proc.time()
   
   for(k in 1:kfolds){
     #print(paste('CV: Fold', k, 'of', kfolds));
     train_samples <- c();
-    for(i in which(c(1:kfolds) != k))
-    {
-      train_samples = c( train_samples, folds[[ i ]] )
-    }
-    
+    for(i in which(c(1:kfolds) != k))  train_samples = c( train_samples, folds[[ i ]] ) 
     
     #leave one fold out each time as a test set and the rest as train set
     train_set <- dataset[train_samples, ] #Set the training set
@@ -174,8 +134,7 @@ cv.mmpc <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, alph
     #mmpc hashmap
     mmpcHashMap = NULL;
     mmpcini = NULL
-    
-    
+      
     #for each conf of mmpc
     for(mmpc_conf_id in 1:nmmpcConfs){
       
@@ -201,14 +160,8 @@ cv.mmpc <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, alph
       {
         #generate a model due to the task and find the performance
         #logistic model for a classification task, linear model for the regression task and a cox model for the survival task
-        
         preds <- modelerFunction(train_target, sign_data, sign_test, wei = wtrain)
-        
-      } else {
-        
-        preds <- modelerFunction(train_target, rep(1, nrow(sign_data)), rep(1, nrow(sign_test)), wei = wtrain)
-        
-      }
+      } else  preds <- modelerFunction(train_target, rep(1, nrow(sign_data)), rep(1, nrow(sign_test)), wei = wtrain)
     
         if(is.null(preds))
         {
@@ -220,18 +173,11 @@ cv.mmpc <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, alph
           conf_mmpc[[mmpc_conf_id]]$preds[[k]] <- preds
           conf_mmpc[[mmpc_conf_id]]$performances[k] <- performance
         }
-
     }
     
     #clear the hashmap and garbages
-    if(is.null(mmpcHashMap$pvalue_hash) == FALSE)
-    {
-      hash::clear(mmpcHashMap$pvalue_hash)
-    }
-    if(is.null(mmpcHashMap$stat_hash) == FALSE)
-    {
-      hash::clear(mmpcHashMap$stat_hash)
-    }
+    if( is.null(mmpcHashMap$pvalue_hash) == FALSE )   hash::clear(mmpcHashMap$pvalue_hash)
+    if( is.null(mmpcHashMap$stat_hash) == FALSE )    hash::clear(mmpcHashMap$stat_hash)
     rm(mmpcHashMap);
     gc();
   }
@@ -259,13 +205,11 @@ cv.mmpc <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, alph
   #TT
   mat <- matrix(nrow = length(best_model[[ 1 ]]), ncol = kfolds)
   
-  for ( i in 1:nrow(mat) ) {
-    mat[i, ] <- as.vector( best_model[[ 1 ]][[ i ]]$performances )  
-  }
+  for ( i in 1:nrow(mat) )  mat[i, ] <- as.vector( best_model[[ 1 ]][[ i ]]$performances )  
   
-  opti <- rowMeans(mat)
+  opti <- Rfast::rowmeans(mat)
   bestpar <- which.max(opti)
-  estb <- abs( sum( mat[bestpar, ] - Rfast::colMaxs(mat) ) / kfolds )   ## apply(mat, 2, max) ) / kfolds
+  estb <- abs( sum( mat[bestpar, ] - apply(mat, 2, max) ) ) / kfolds  ## Rfast::colMaxs(mat, value = TRUE) ) / kfolds )   
   
   best_model$best_configuration = conf_mmpc[[bestpar]]$configuration
   best_model$best_performance <- max( opti )

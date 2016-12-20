@@ -53,13 +53,9 @@ A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust
 \details{
   If hash = TRUE, all three tests require the arguments 'stat_hash' and 'pvalue_hash' for the hash-based implementation of the statistic test. These hash Objects are produced or updated by each run of SES (if hash == TRUE) and they can be reused in order to speed up next runs of the current statistic test. If "SESoutput" is the output of a SES run, then these objects can be retrieved by SESoutput@hashObject$stat_hash and the SESoutput@hashObject$pvalue_hash.
   
-  Important: Use these arguments only with the same dataset that was used at initialization.
+Important: Use these arguments only with the same dataset that was used at initialization. For all the available conditional independence tests that are currently included on the package, please see "?CondIndTests".
   
-  For all the available conditional independence tests that are currently included on the package, please see "?CondIndTests".
-  
-  If you have overdispersion, the variance is higher than the mean, a negative binomial is to be used.
-  
-  If you have more zeros than expected under a Poisson model, not overdispersion, then zero inlfated Poisson is to be used. 
+If you have overdispersion, the variance is higher than the mean, a negative binomial is to be used. If you have more zeros than expected under a Poisson model, not overdispersion, then zero inlfated Poisson is to be used. This is in fact a logistic reression where the target is the ratio of successes divided by the totals and the weights are the totals. 
   
 }
 
@@ -83,17 +79,13 @@ A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust
 }
 
 \references{
-  McCullagh P., and Nelder J.A. (1989). Generalized linear models.  CRC press, USA, 2nd edition.
-  
-  Lambert D. (1992). Zero-inflated Poisson regression, with an application to defects in manufacturing. Technometrics, 34(1):1-14.
-  
-  Joseph M.H. (2011). Negative Binomial Regression. Cambridge University Press, 2nd edition.
+McCullagh P., and Nelder J.A. (1989). Generalized linear models.  CRC press, USA, 2nd edition.
 }
 
 \author{
-  Vincenzo Lagani, Ioannis Tsamardinos, Michail Tsagris and Giorgos Athineou
+Vincenzo Lagani, Ioannis Tsamardinos, Giorgos Athineou and Michail Tsagris.
   
-  R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr>, Vincenzo Lagani <vlagani@csd.uoc.gr> and Michail Tsagris <mtsagris@yahoo.gr>
+R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr>, Vincenzo Lagani <vlagani@csd.uoc.gr> and Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 
 %\note{

@@ -4,7 +4,7 @@ stat_hash=NULL, pvalue_hash=NULL,robust=FALSE) {
   
   csIndex[which(is.na(csIndex))] = 0;
   
-  if(hash == TRUE)
+  if( hash )
   {
     csIndex2 = csIndex[which(csIndex!=0)]
     csindex2 = sort(csIndex2)
@@ -27,7 +27,7 @@ stat_hash=NULL, pvalue_hash=NULL,robust=FALSE) {
   {
     if(xIndex == csIndex)
     {
-      if(hash == TRUE)#update hash objects
+      if( hash )#update hash objects
       {
         stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
         pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
@@ -59,20 +59,28 @@ stat_hash=NULL, pvalue_hash=NULL,robust=FALSE) {
       results <- list(pvalue = pvalue, stat = stat, flag = flag, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
       return(results);
     }
+    
+    else {
+      zz <- cbind(target, dataset[, xIndex] )
+      dc <- Rfast::colrange(zz, cont = FALSE)  ##  as.numeric( apply(zz, 2, function(x) { length(unique(x)) } ) )
+      mod <- cat.ci(1, 2, 0, zz, type = dc )
+      stat <- mod[1]
+      pvalue <- mod[2]
+      flag = 1;
+    }
   }
   
-  zz = cbind(target, dataset)
+  zz <- cbind(target, dataset[, c(xIndex, csIndex)] )
   dc <- Rfast::colrange(zz, cont = FALSE)  ##  as.numeric( apply(zz, 2, function(x) { length(unique(x)) } ) )
   
   #levels for each variable
-   mod <- cat.ci(1, xIndex, csIndex, zz, type = dc )
+   mod <- cat.ci(1, 2, c(1:dim(zz)[2])[-c(1:2)], zz, type = dc )
      stat <- mod[1]
      pvalue <- mod[2]
   flag = 1;
-  #define a temp statistic due to the pvalue because gSquareBin does not return the stat
 
   
-  if(hash == TRUE)
+  if( hash )
   {
     stat_hash[[key]] <- stat;#.set(stat_hash , key , stat)
     pvalue_hash[[key]] <- pvalue;#.set(pvalue_hash , key , pvalue)

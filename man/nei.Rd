@@ -42,7 +42,7 @@ Bear in mind that the values can be extracted with the $ symbol, i.e. this is an
 \author{
  Michail Tsagris
 
-R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> and Michail Tsagris <mtsagris@yahoo.gr>
+R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> and Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 
 %\note{
@@ -56,8 +56,8 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> and M
 # simulate a dataset with continuous data
 set.seed(1234)
 dataset <- matrix(runif(1000 * 20, 1, 100), nrow = 1000 ) 
-G = pc.con(dataset)$G
-plota(G)
+G <- pc.con(dataset)$G
+plotnetwork(G)
 dev.new()
 nei( G, c(3, 4) )
 dev.new()

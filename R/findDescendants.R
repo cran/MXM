@@ -16,19 +16,8 @@ findDescendants <- function(G, node = NULL, graph = FALSE) {
     desc <- which( desc > 0 )
     Gdesc <- G[c(node, desc), c(node, desc)]
   
-    if ( graph == TRUE) {
-  
-      if ( length(desc) > 0 ) {
-	
-        if ( requireNamespace("Rgraphviz", quietly = TRUE, warn.conflicts = FALSE) == TRUE ) {
-          Gdesc[ Gdesc != 2 ] <- 0
-          g <- as( Gdesc, "graphNEL" )
-          plot(g, main = paste("Completed partially directed graph with ancestors of ", node ) )
-        } else {
-          warning('In order to plot the generated network, package Rgraphviz is required.')
-        }
-      } 
-	
+    if ( graph ) {
+      if ( length(desc) > 0 )   plotnetwork(Gdesc, titlos = paste("Completed partially directed graph with descendants of ", node ) )
     }
 
     res <- list(isDesc = isDesc, Gdesc = Gdesc, desc = desc)     

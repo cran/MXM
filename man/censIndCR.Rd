@@ -137,9 +137,9 @@ require(survival, quietly = TRUE)
   
   #run the SES algorithm using the censIndCR conditional independence
   #test for the survival class variable
-  sesObject <- SES(target, dataset, max_k = 1, threshold = 0.05, test = "censIndCR");
-  sesObject2 <- SES(target, dataset, max_k = 1, threshold = 0.05, test = "censIndWR");
-  sesObject3 <- SES(target, dataset, max_k = 1, threshold = 0.05, test = "censIndER");
+  ses1 <- SES(target, dataset, max_k = 1, threshold = 0.05, test = "censIndCR");
+  ses2 <- SES(target, dataset, max_k = 1, threshold = 0.05, test = "censIndWR");
+  ses3 <- SES(target, dataset, max_k = 1, threshold = 0.05, test = "censIndER");
 }
 
 \keyword{ Survival }

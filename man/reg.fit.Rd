@@ -39,9 +39,7 @@ This is for the longitudinal or grouped data only, TRUE or FALSE. If TRUE, REML 
 }
 \item{model}{
 The type of model you want to use. It can be specified by the user or left NULL, if other correct arguments have been passed. 
-Poissible values (apart from NULL) are: "gaussian" (default), "binary", "binomial", "multinomial", "poisson", "ordinal", "Cox", "weibull", "exponential", "zip0", "zipx", "beta", "median", "negbin", "longitudinal" and "grouped". 
-The "zip0" means that the zero part is constant, the variables are not associated with the excessive zeros. This is done with "zipx". The value "grouped" refers to grouped data, but this does not have to be given if the argument 
-"group" is given, but not the argument "reps. The "binomial" is when you have the number of successes and also the number of trials. 
+Poissible values (apart from NULL) are: "gaussian" (default), "binary", "binomial", "multinomial", "poisson", "ordinal", "Cox", "weibull", "exponential", "zip", "beta", "median", "negbin", "longitudinal" and "grouped". The "zip" means that the zero part is constant, the variables are not associated with the excessive zeros. The value "grouped" refers to grouped data, but this does not have to be given if the argument "group" is given, but not the argument "reps. The "binomial" is when you have the number of successes and also the number of trials. 
 }
 \item{robust}{
 A boolean variable. If TRUE robust models will be returned. Currently this is supported by the "gaussian" model only.
@@ -55,7 +53,7 @@ If you have new data whose target values you want to predict put it here, otherw
 }
 
 \details{
-This is a generic regression function, which offers prediction as well. It is important that you pass the arguments with their names, for example if you have time to event data, write "event = ..." and not just put your event variable. This will avoid confusion. 
+This is a generic regression function, which offers prediction as well. It is important that you pass the arguments with their names, for example if you have time to event data, write "event = ..." and not just put your event variable. This will avoid confusion. For the mixed models you need to specify the relevant arguments, "slopes", "reps", "reml" and "group" 
 }
 
 \value{
@@ -75,7 +73,7 @@ Almost the same as in \code{\link{CondIndTests}}.
 \author{
  Michail Tsagris
 
-R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> and Michail Tsagris <mtsagris@yahoo.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 
 %\note{

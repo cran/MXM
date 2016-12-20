@@ -83,7 +83,7 @@ ma.mmpc = function(target, dataset, ina, statistic = FALSE, max_k = 3, threshold
   stat_hash = NULL;
   pvalue_hash = NULL;
   
-  if(hash == TRUE)
+  if( hash )
   {
     if(requireNamespace("hash"))
     {
@@ -108,68 +108,33 @@ ma.mmpc = function(target, dataset, ina, statistic = FALSE, max_k = 3, threshold
   ###################################
   # dataset checking and initialize #
   ###################################
-  
-  if(!is.null(dataset))
-  {
-    if( sum( class(target) == "matrix") == 1 )
-    {
-      if( sum( class(target) == "Surv") == 1 )
-      {
-        stop('Invalid dataset class. For survival analysis provide a dataframe-class dataset');
-      }
-    }
-    
-    #check if dataset is an ExpressionSet object of Biobase package
-    #if(class(dataset) == "ExpressionSet")
-    #{
-      #get the elements (numeric matrix) of the current ExpressionSet object.
-      #dataset = Biobase::exprs(dataset);
-      #dataset = t(dataset);#take the features as columns and the samples as rows
-      #     }else if(is.data.frame(dataset)){
-      #       if(class(target) != "Surv")
-      #       {
-      #         dataset = as.matrix(dataset);
-      #       }
-    #}else if((class(dataset) != "matrix") & (is.data.frame(dataset) == FALSE) ){
-    #  stop('Invalid dataset class. It must be either a matrix, a dataframe or an ExpressionSet');
-    #}
-  }
+
   if(is.null(dataset) || is.null(target)) #|| (dim(as.matrix(target))[2] != 1 & class(target) != "Surv" ))
   {
     stop('invalid dataset or target (class feature) arguments.');
-  }else{
-    target = target;
-  }
+  }else  target = target;
   
   #check for NA values in the dataset and replace them with the variable median or the mode
-  if(any(is.na(dataset)) == TRUE)
-  {
-
-  
+  if( any(is.na(dataset)) ) {
     #dataset = as.matrix(dataset);
     warning("The dataset contains missing values (NA) and they were replaced automatically by the variable (column) median (for numeric) or by the most frequent level (mode) if the variable is factor")
-    
     if (class(dataset) == "matrix")  {
-    
-       dataset = apply(dataset, 2, function(x){ x[which(is.na(x))] = median(x, na.rm = TRUE) ; return(x)}) 
-              
+      dataset <- apply( dataset, 2, function(x){ x[which(is.na(x))] = median(x, na.rm = TRUE) ; return(x) } ) 
     }else{
-	
-    poia <- which( is.na(dataset), arr.ind = TRUE )[2]
- 	for( i in poia )
-      {
-          xi = dataset[, i]
-          if(class(xi) == "numeric")
-          {                    
-            xi[ which( is.na(xi) ) ] = median(xi, na.rm = TRUE) 
-          } else if ( class(xi) == "factor" ) {
-            xi[ which( is.na(xi) ) ] = levels(xi)[ which.max( as.vector( table(xi) ) )]
-          }
-          dataset[, i] = xi
+      poia <- which( is.na(dataset), arr.ind = TRUE )[2]
+      for( i in poia )  {
+        xi <- dataset[, i]
+        if(class(xi) == "numeric")
+        {                    
+          xi[ which( is.na(xi) ) ] <- median(xi, na.rm = TRUE) 
+        } else if ( is.factor( xi ) ) {
+          xi[ which( is.na(xi) ) ] <- levels(xi)[ which.max( as.vector( table(xi) ) )]
         }
+        dataset[, i] <- xi
+      }
     }
-    
   }
+  
   
   ##################################
   # target checking and initialize #
@@ -199,121 +164,11 @@ ma.mmpc = function(target, dataset, ina, statistic = FALSE, max_k = 3, threshold
   }
   
   
-  if( sum( class(target) == "matrix") == 1 )
-  {
-    if(ncol(target) >= 2 & class(target) != "Surv")
-    {
-      if( (is.null(test) || test == "auto") & (is.null(user_test)) )
-      {
-        
-        if ( min(target) > 0 & sum( rowSums(target) - 1 ) == 0 ) ## are they compositional data?
-        { 
-          target = log( target[, -1]/target[, 1] ) 
-        }
-        test = "testIndMVreg"
-        warning("Multivariate target (ncol(target) >= 2) requires a multivariate test of conditional independence. The testIndMVreg was used. For a user-defined multivariate test, please provide one in the user_test argument.");
-      }
-    }
-    
-  }
-  
   ################################
   # test checking and initialize #
   ################################
   
-  if(typeof(user_test) == "closure")
-  {
-    test = user_test;
-  }else{
-    #auto detect independence test in case of not defined by the user and the test is null or auto
-    if(is.null(test) || test == "auto")
-    {
-      
-      if ( length( unique(target) ) == 2 ) {
-        target = as.factor(target)
-      }
-      if ( sum( class(target) == "matrix") == 1 ) {
-        test = "testIndMVreg"
-      }
-      
-      #if target is a factor then use the Logistic test
-      if("factor" %in% class(target))
-      {
-        test = "testIndLogistic";
-        if(is.ordered(target) == TRUE)
-        {
-          dataInfo$target_type = "ordinal";
-          cat('\nTarget variable type: Ordinal')
-        }else{
-          if( length(unique(target)) == 2 )
-          {
-            dataInfo$target_type = "binary"
-            cat('\nTarget variable type: Binomial')
-          }else{
-            dataInfo$target_type = "nominal"
-            cat('\nTarget variable type: Nominal')
-          }
-        }
-        
-      }else if ( class(target) == "numeric" || class(target) == "integer" ){
-        
-        if( sum( floor(target) - target ) == 0 & length(target) > 2 )
-        {
-          test = "testIndPois";
-        }else{
-          if(class(dataset) == "matrix")
-          {
-            test = "testIndFisher";
-          }
-          else if(class(dataset) == "data.frame")
-          {
-            if(any(sapply(dataset, is.factor)))
-            {
-              test = "testIndReg";
-            }else{
-              test = "testIndFisher";
-            }
-          }
-        }
-        
-      }else if(survival::is.Surv(target) == TRUE){
-        test = "censIndCR";
-      }else{
-        stop('Target must be a factor, vector, matrix with at least 2 columns column or a Surv object');
-      }
-    }
-    
-    if(test == "testIndLogistic")
-    {
-      if(is.ordered(target) == TRUE)
-      {
-        dataInfo$target_type = "ordinal";
-        cat('\nTarget variable type: Ordinal')
-        
-        if(requireNamespace("ordinal", quietly = TRUE, warn.conflicts = FALSE)==FALSE)
-        {
-          cat("The testIndLogistic test requires the ordinal package for the ordered logistic regression method. Please install it.");
-          return(NULL);
-        }
-        
-      }else{
-        if(length(unique(target)) == 2)
-        {
-          dataInfo$target_type = "binary"
-          cat('\nTarget variable type: Binomial')
-        }else{
-          dataInfo$target_type = "nominal"
-          cat('\nTarget variable type: Nominal')
-          
-          if(requireNamespace("nnet", quietly = TRUE, warn.conflicts = FALSE)==FALSE)
-          {
-            cat("The testIndLogistic test requires the nnet package for the multinomial logistic regression method. Please install it.");
-            return(NULL);
-          }
-        }
-      }
-    }
-    
+ 
     #cat("\nConditional independence test used: ");cat(test);cat("\n");
     
     #available conditional independence tests
@@ -322,36 +177,32 @@ ma.mmpc = function(target, dataset, ina, statistic = FALSE, max_k = 3, threshold
     ci_test = test
     #cat(test)
     
-    if(length(test) == 1) #avoid vectors, matrices etc
-    {
-      test = match.arg(test , av_tests ,TRUE);
+    if(length(test) == 1)  {#avoid vectors, matrices etc
+
+      test = match.arg(test, av_tests, TRUE);
       #convert to closure type
-      if(test == "testIndFisher")
+      if(test == "testIndFisher") 
       {
         #an einai posostiaio target
-        if ( min(target) > 0 & max(target) < 1 ) {
-          target = log( target/(1 - target) ) ## logistic normal 
-        }
+        if ( min(target) > 0  &  max(target) < 1 )   target = log( target/(1 - target) ) ## logistic normal 
         
         if(class(dataset) == "data.frame")
         {
-          if(any(sapply(dataset, is.factor))){
+          if ( length( which_isFactor(dataset) ) > 0 ) {
             warning("Dataset contains categorical variables (factors). A regression model is advised to be used instead.")
           } else dataset <- as.matrix(dataset)
         }
-        
+            
         test = testIndFisher;
       }
       else if(test == "testIndSpearman")
       {
         #an einai posostiaio target
-        if ( min(target) > 0 & max(target) < 1 ) {
-          target = log( target / (1 - target) ) ## logistic normal 
-        }
+        if ( min(target) > 0  &  max(target) < 1 )   target = log( target / (1 - target) ) ## logistic normal 
         
         if(class(dataset) == "data.frame")
         {
-          if ( length( Rfast::which_isFactor(dataset) ) > 0 ) {
+          if ( length( which_isFactor(dataset) ) > 0 ) {
             warning("Dataset contains categorical variables (factors). A regression model is advised to be used instead.")
           } else dataset <- as.matrix(dataset)
         }
@@ -359,123 +210,8 @@ ma.mmpc = function(target, dataset, ina, statistic = FALSE, max_k = 3, threshold
         dataset = apply(dataset, 2, rank)  
         test = testIndSpearman;  ## Spearman is Pearson on the ranks of the data
       }
-      else if (test == "testIndReg") ## It uMMPC the F test
-      {
-
-        #an einai posostiaio target
-        if ( min(target) > 0 & max(target) < 1 ) {
-          target = log(target/(1-target)) ## logistic normal 
-        }
-        
-        test = testIndReg;
-      }
-      else if(test == "testIndMVreg")
-      {
-        if ( min(target) > 0 & sum( rowSums(target) - 1 ) == 0 ) ## are they compositional data?
-        { 
-          target = log( target[, -1]/target[, 1] ) 
-        }
-        test = testIndMVreg;
-      }     
-      else if(test == "testIndBeta") ## beta regression for proportions
-      {
-
-        test = testIndBeta;
-        if(requireNamespace("betareg", quietly = TRUE, warn.conflicts = FALSE)==FALSE)
-        {
-          cat("The testIndBeta requires the betareg package. Please install it.");
-          return(NULL);
-        }
-      }
-      else if(test == "testIndRQ") ## beta regression for proportions
-      {
-
-        #an einai posostiaio target
-        if ( all( target>0 & target<1 ) ){
-          target = log( target/(1 - target) ) ## logistic normal 
-        }
-        
-        test = testIndRQ;
-        if(requireNamespace("quantreg", quietly = TRUE, warn.conflicts = FALSE)==FALSE)
-        {
-          cat("The testIndRQ requires the quantreg package. Please install it.");
-          return(NULL);
-        }
-      }
-      else if (test == "testIndIGreg") ## Poisson regression
-      {
-        test = testIndIGreg;
-      }
-      else if (test == "testIndPois") ## Poisson regression
-      {
-        test = testIndPois;
-      }
-      else if (test == "testIndSpeedglm") ## Poisson regression
-      {
-        test = testIndSpeedglm;
-      }
-      else if (test == "testIndNB") ## Negative binomial regression
-      {
-        test = testIndNB;
-      }
-      else if (test == "testIndZIP") ## Poisson regression
-      {
-
-        test = testIndZIP;
-      }
-      else if(test == "censIndCR")
-      {
-
-        test = censIndCR;
-        if(requireNamespace("survival", quietly = TRUE, warn.conflicts = FALSE)==FALSE)
-        {
-          cat("The censIndCR requires the survival package. Please install it.");
-          return(NULL);
-        }
-      }
-      else if(test == "censIndWR")
-      {
-
-        test = censIndWR;
-        if(requireNamespace("survival", quietly = TRUE, warn.conflicts = FALSE)==FALSE)
-        {
-          cat("The censIndWR requires the survival package. Please install it.");
-          return(NULL);
-        }
-      }
-      else if(test == "testIndClogit")
-      {
-
-        test = testIndClogit;
-        if(requireNamespace("survival", quietly = TRUE, warn.conflicts = FALSE)==FALSE)
-        {
-          cat("The testIndClogit requires the survival package. Please install it.");
-          return(NULL);
-        }
-      }
-      else if(test == "testIndBinom")
-      {
-
-        test = testIndBinom;
-      }
-      else if(test == "testIndLogistic")
-      {
-
-        test = testIndLogistic;
-      }
-      else if(test == "gSquare")
-      {
-        test = gSquare;
-      }
-      #more tests here
-    }else{
-      stop('invalid test option');
-    }
-  }
-
-
-
-
+	    
+    } else   stop('invalid test option');
   
   ###################################
   # options checking and initialize #
@@ -486,49 +222,25 @@ ma.mmpc = function(target, dataset, ina, statistic = FALSE, max_k = 3, threshold
   varsize = ncol(dataset);
   
   #option checking
-  if((typeof(max_k)!="double") || max_k < 1)
-  {
-    stop('invalid max_k option');
-  }
-  if(max_k > varsize)
-  {
-    max_k = varsize;
-  }
-  if((typeof(threshold)!="double") || exp(threshold) <= 0 || exp(threshold) > 1)
-  {
-    stop('invalid threshold option');
-  }
-  # if(typeof(equal_case)!="double")
-  # {
-  #   stop('invalid equal_case option');
-  # }
-  
+  if((typeof(max_k)!="double") || max_k < 1)   stop('invalid max_k option');
+  if(max_k > varsize)   max_k = varsize;
+  if((typeof(threshold)!="double") || exp(threshold) <= 0 || exp(threshold) > 1)   stop('invalid threshold option');
 
   #######################################################################################
   
-
-  if(!is.null(user_test))
-  {
-    ci_test = "user_test";
-  }
-  
-
-  ## end of checking
-
+  if(!is.null(user_test))  ci_test = "user_test";
+ 
   D = max(ina)
   
   targ = list()
   data = list()
-  for (l in 1:D) {
-   
+  for (l in 1:D) { 
    targ[[ l ]] = target[ ina == l ]
    data[[ l ]] = dataset[ ina == l, ]
   }
-
-
-   
+  
   #call the main MMPC function after the checks and the initializations
-  results = Internalmammpc(tar, data, statistic, max_k, threshold, test, ini, user_test, dataInfo, hash, varsize, stat_hash, pvalue_hash, targetID, robust = robust, ncores = ncores);
+  results = Internalmammpc(targ, data, statistic, max_k, threshold, test, ini, user_test, dataInfo, hash, varsize, stat_hash, pvalue_hash, targetID, robust = robust, ncores = ncores);
   
   #for testing backward phase
   #   results$selectedVars = c(results$selectedVars,15)
@@ -537,7 +249,7 @@ ma.mmpc = function(target, dataset, ina, statistic = FALSE, max_k = 3, threshold
   #   print(results$selectedVarsOrder)
   
   #backward phase
-  if ( backward == TRUE ) {
+  if ( backward ) {
     
     varsToIterate = results$selectedVars;
     varsOrder = results$selectedVarsOrder;
@@ -550,11 +262,9 @@ ma.mmpc = function(target, dataset, ina, statistic = FALSE, max_k = 3, threshold
         tar <- dataset[, varsToIterate[i]];
         datas <- cbind(target, dataset[, -varsToIterate[i]])
         res = Internalmammpc(tar, datas, statistic, max_k, threshold , test, user_test, dataInfo, hash, varsize, stat_hash, pvalue_hash, targetID, robust = robust, ncores = ncores);
-        if(1 %in% res$selectedVars == FALSE){
-          met[i] = 0;
+        if(1 %in% res$selectedVars == FALSE)   met[i] = 0;
           #           results$selectedVars = results$selectedVars[-which(results$selectedVars == results$selectedVars[cvar])]
           #           results$selectedVarsOrder = results$selectedVarsOrder[-which(results$selectedVarsOrder == results$selectedVarsOrder[cvar])]
-        }
       }
     }
     
@@ -562,7 +272,6 @@ ma.mmpc = function(target, dataset, ina, statistic = FALSE, max_k = 3, threshold
     results$selectedVarsOrder = varsOrder[met]
   }
   
-
   mammpcoutput <-new("mammpc.output", selectedVars = results$selectedVars, selectedVarsOrder=results$selectedVarsOrder, hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, univ=results$univ, max_k=results$max_k, threshold = results$threshold, runtime=results$runtime, test=ci_test, rob = robust);
   
   return(mammpcoutput);
@@ -578,140 +287,58 @@ Internalmammpc = function(targ, data, statistic, max_k, threshold, test = NULL ,
   
   #######################################################################################
  
-  
   D = length(targ) 
   
   if ( is.null(ini) ) { 
     
     cols = ncol( data[[ 1 ]] )  
-    
-    sta = pval = matrix(0, D, cols)
-    
+    sta = pval = matrix(0, D, cols)   
     univariateModels = list()
-    
-    if ( identical(test, testIndFisher) == TRUE & robust == FALSE )  ## Pearson's correlation 
+   
+   if ( identical(test, testIndFisher)  &  !robust )  ## Pearson's correlation 
     {
+	
+	  for ( l in 1:D ) {  
+    
+	  target = targ[[ l ]]
+	  dataset = data[[ l ]]
+      rows = length(target)
+      a = as.vector( cor(target, dataset) )
+      dof = rows - 3; #degrees of freedom
+      wa = abs( 0.5 * log( (1 + a) / (1 - a) ) * sqrt(dof) )
       
-      for ( l in 1:D ) {  
-        
-        target = targ[[ l ]]
-        dataset = data[[ l ]]
-        rows = length(target)
-        
-        a = as.vector( cor(target, dataset) )
-        dof = rows - 3; #degrees of freedom
-        wa = abs( 0.5 * log( (1 + a) / (1 - a) ) * sqrt(dof) )
-        
-        if ( targetID != - 1 )  wa[ targetID ] = 0
-        
-        sta[l, ] = wa
-        pval[l, ] = log(2) + pt(-wa, dof, log.p = TRUE)
-      }  
+      if ( targetID != - 1 )  wa[ targetID ] = 0  
+       sta[l, ] = wa
+       pval[l, ] = log(2) + pt(-wa, dof, log.p = TRUE)
+	 }  
       univariateModels$stat = - 2 * Rfast::colsums(pval);
       univariateModels$pvalue = pchisq(univariateModels$stat, 2 * D, lower.tail = FALSE, log.p = TRUE) ;
       univariateModels$flag = numeric(cols) + 1;
       univariateModels$stat_hash = stat_hash;
       univariateModels$pvalue_hash = pvalue_hash;
+	 
+    } else if ( identical(test, testIndSpearman) ) {  ## Spearman's correlation
+	
+	 for ( l in 1:D ) {  
+    
+	  target = targ[[ l ]]
+	  dataset = data[[ l ]]
+      rows = length(target) 
+      a = as.vector( cor(target, dataset) )
+      dof = rows - 3; #degrees of freedom
+      wa = abs( 0.5 * log( (1 + a) / (1 - a) ) * sqrt(dof) / 1.029563 )
       
-    } else if ( identical(test, testIndSpearman) == TRUE ) {  ## Spearman's correlation
-      
-      for ( l in 1:D ) {  
-        
-        target = targ[[ l ]]
-        dataset = data[[ l ]]
-        rows = length(target)
-        
-        a = as.vector( cor(target, dataset) )
-        dof = rows - 3; #degrees of freedom
-        wa = abs( 0.5 * log( (1 + a) / (1 - a) ) * sqrt(dof) / 1.029563 )
-        
-        if ( targetID != - 1 )  wa[ targetID ] = 0
-        
-        sta[l, ] = wa
-        pval[l, ] = log(2) + pt(-wa, dof, lower.tail = FALSE, log.p = TRUE)
-      }  
-      
-      univariateModels$stat = - 2 * colSums(pval);
+      if ( targetID != - 1 )  wa[ targetID ] = 0
+	    sta[l, ] = wa
+      pval[l, ] = log(2) + pt(-wa, dof, lower.tail = FALSE, log.p = TRUE)
+	 }  
+      univariateModels$stat = - 2 * Rfast::colsums(pval);
       univariateModels$pvalue = pchisq(univariateModels$stat, 2 * D, lower.tail = FALSE, log.p = TRUE) ;
       univariateModels$flag = numeric(cols) + 1;
       univariateModels$stat_hash = stat_hash;
       univariateModels$pvalue_hash = pvalue_hash;    
-      
-    } else if ( identical(test, testIndBeta) == TRUE ) {  ## Beta regression
-      
-      univariateModels = list();
-      fit1 = betareg::betareg(target ~ 1)
-      lik2 = numeric(cols)
-      dof = numeric(cols)
-      
-      if ( ncores <= 1 | is.null(ncores) ) {
-        
-        for ( l in 1:D ) {  
-          
-          target = targ[[ l ]]
-          dataset = data[[ l ]]
-          
-          for ( i in 1:cols ) {
-            
-            if (i != targetID){
-              
-              fit2 = betareg::betareg(target ~ dataset[, i] )
-              lik2[i] = as.numeric( logLik(fit2) )
-              dof[i] = length( coef(fit2) ) - 2
-            } else {
-              lik2[i] = lik1
-            }   
-          }
-          
-          lik1 = as.numeric( logLik(fit1) )
-          sta[l, ] = as.vector( 2 * abs(lik1 - lik2) )
-          pval[l, ] = pchisq(stat[l, ], dof, lower.tail = FALSE, log.p = TRUE)
-          
-        }
-        
-        univariateModels$stat = - 2 * colSums(pval)
-        univariateModels$pvalue = pchisq(univariateModels$stat, 2 * D, lower.tail = FALSE, log.p = TRUE) ;
-        univariateModels$flag = numeric(cols) + 1;
-        univariateModels$stat_hash = stat_hash;
-        univariateModels$pvalue_hash = pvalue_hash;
-        
-      } else {
-        
-        for (l in 1:D) {
-          
-          target = targ[[ l ]]
-          dataset = data[[ l ]]
-          
-          cl <- makePSOCKcluster(ncores)
-          registerDoParallel(cl)
-          mod <- foreach(i = 1:cols, .combine = rbind, .packages = "betareg") %dopar% {
-            ## arguments order for any CI test are fixed
-            if ( i != targetID ) {
-              fit2 = betareg(target ~ dataset[, i] )
-              lik2 = as.numeric( logLik(fit2) )
-              
-              return( c(lik2, length( coef(fit2) ) ) )
-            } else{
-              return( c(0, 0) )
-            }
-          }
-          stopCluster(cl)
-          
-          lik1 = as.numeric( logLik(fit1) )
-          dof = as.vector( mod[, 2] ) - 2 
-          stat[l, ] = as.vector( 2 * abs(lik1 - mod[, 1]) )
-          pval[l, ] = pchisq(stat[l, ], dof, lower.tail = FALSE, log.p = TRUE)
-          
-        }
-        
-        univariateModels$stat = - 2 * Rfast::colsums(pval)
-        univariateModels$pvalue = pchisq(univariateModels$stat, 2 * D, lower.tail = FALSE, log.p = TRUE) ;
-        univariateModels$flag = numeric(cols) + 1
-        univariateModels$stat_hash = NULL
-        univariateModels$pvalue_hash = NULL   
-      }
-      
-    } else if ( identical(test, testIndReg) == TRUE & robust == TRUE ) {  ## M (Robust) linear regression
+	 
+    } else if ( identical(test, testIndReg)  & robust ) {  ## M (Robust) linear regression
       
       univariateModels = list();
       fit1 = MASS::rlm(target ~ 1)
@@ -720,30 +347,30 @@ Internalmammpc = function(targ, data, statistic, max_k, threshold, test = NULL ,
       
       if ( ncores <= 1 | is.null(ncores) ) {
         
-        for (l in 1:D) {
+      for (l in 1:D) {
+
+      target = targ[[ l ]]
+	  dataset = data[[ l ]]
+
+        for ( i in 1:cols ) {
           
-          target = targ[[ l ]]
-          dataset = data[[ l ]]
-          
-          for ( i in 1:cols ) {
+          if ( i != targetID ) {
             
-            if ( i != targetID ) {
-              
-              fit2 = MASS::rlm(target ~ dataset[, i] )
-              lik2[i] = as.numeric( logLik(fit2) )
-              dof[i] = length( coef(fit2) ) - 1
-            } else {
-              lik2[i] = lik1
-            }
-            
-          } 
-          
-          lik1 = as.numeric( logLik(fit1) )
-          sta[l, ] = as.vector( 2 * abs(lik1 - lik2) )
-          pval[l, ] = pchisq(stat[l, ], dof, lower.tail = FALSE, log.p = TRUE)
+            fit2 = MASS::rlm(target ~ dataset[, i] )
+            lik2[i] = as.numeric( logLik(fit2) )
+            dof[i] = length( coef(fit2) ) - 1
+          } else {
+            lik2[i] = lik1
+          }
           
         } 
         
+        lik1 = as.numeric( logLik(fit1) )
+        sta[l, ] = as.vector( 2 * abs(lik1 - lik2) )
+        pval[l, ] = pchisq(sta[l, ], dof, lower.tail = FALSE, log.p = TRUE)
+
+       } 
+
         univariateModels$stat = - 2 * Rfast::colsums(pval)
         univariateModels$pvalue = pchisq(univariateModels$stat, 2 * D, lower.tail = FALSE, log.p = TRUE) ;
         univariateModels$flag = numeric(cols) + 1;
@@ -751,35 +378,35 @@ Internalmammpc = function(targ, data, statistic, max_k, threshold, test = NULL ,
         univariateModels$pvalue_hash = pvalue_hash;
         
       } else {
-        
-        for ( l in 1:D )	{
+       
+       for ( l in 1:D )	{
+	   
+	   target = targ[[ l ]]
+	   dataset = data[[ l ]]
+	  
+        cl <- makePSOCKcluster(ncores)
+        registerDoParallel(cl)
+        mod <- foreach(i = 1:cols, .combine = rbind, .packages = "MASS") %dopar% {
           
-          target = targ[[ l ]]
-          dataset = data[[ l ]]
-          
-          cl <- makePSOCKcluster(ncores)
-          registerDoParallel(cl)
-          mod <- foreach(i = 1:cols, .combine = rbind, .packages = "MASS") %dopar% {
+          if ( i != targetID ) {
+            fit2 = rlm(target ~ dataset[, i] )
+            lik2 = as.numeric( logLik(fit2) )
             
-            if ( i != targetID ) {
-              fit2 = rlm(target ~ dataset[, i] )
-              lik2 = as.numeric( logLik(fit2) )
-              
-              return( c(lik2, length( coef(fit2) ) ) )
-            } else{
-              return( c(0, 0) )
-            }
-            
+            return( c(lik2, length( coef(fit2) ) ) )
+          } else{
+            return( c(0, 0) )
           }
-          stopCluster(cl)
-          
-          lik1 = as.numeric( logLik(fit1) )
-          dof = as.vector( mod[, 2] ) - 1 
-          sta[l, ] = as.vector( 2 * abs(lik1 - mod[, 1]) )
-          pval[l, ] = pchisq(stat[l, ], dof, lower.tail = FALSE, log.p = TRUE)
           
         }
+        stopCluster(cl)
         
+        lik1 = as.numeric( logLik(fit1) )
+        dof = as.vector( mod[, 2] ) - 1 
+        sta[l, ] = as.vector( 2 * abs(lik1 - mod[, 1]) )
+        pval[l, ] = pchisq(sta[l, ], dof, lower.tail = FALSE, log.p = TRUE)
+		
+       }
+	   
         univariateModels$stat = - 2 * Rfast::colsums(pval)
         univariateModels$pvalue = pchisq(univariateModels$stat, 2 * D, lower.tail = FALSE, log.p = TRUE) ;
         univariateModels$flag = numeric(cols) + 1
@@ -788,7 +415,7 @@ Internalmammpc = function(targ, data, statistic, max_k, threshold, test = NULL ,
       }   
       
       
-    } else if ( identical(test, testIndLogistic) == TRUE  &  is.ordered(target) == TRUE  ) {  ## 
+    } else if ( identical(test, testIndLogistic)  &  is.ordered(target) ) {  ## 
       
       lik2 = numeric(cols)
       dof = numeric(cols)
@@ -798,31 +425,31 @@ Internalmammpc = function(targ, data, statistic, max_k, threshold, test = NULL ,
       df1 = length( coef(fit1) )
       
       if ( ncores <= 1 | is.null(ncores) ) {
-        
-        for ( l in 1:D )	{
+       
+       for ( l in 1:D )	{
+	   
+	   target = targ[[ l ]]
+	   dataset = data[[ l ]]
+	   
+        for ( i in 1:cols ) {
           
-          target = targ[[ l ]]
-          dataset = data[[ l ]]
-          
-          for ( i in 1:cols ) {
+          if (i != targetID){
             
-            if (i != targetID){
-              
-              x <- model.matrix(target ~ dataset[, i] )
-              fit2 <- ordinal::clm.fit(target, x)
-              lik2[i] <- as.numeric( fit2$logLik )
-              dof[i] <- length( coef(fit2) ) - df1
-            } else {
-              lik2[i] <- lik1
-            }   
-          }
-          
-          lik1 = as.numeric( logLik(fit1) )
-          sta[l, ] = as.vector( 2 * abs(lik1 - lik2) )
-          pval[l, ] = pchisq(stat[l, ], dof, lower.tail = FALSE, log.p = TRUE)
-          
+            x <- model.matrix(target ~ dataset[, i] )
+            fit2 <- ordinal::clm.fit(target, x)
+            lik2[i] <- as.numeric( fit2$logLik )
+            dof[i] <- length( coef(fit2) ) - df1
+          } else {
+            lik2[i] <- lik1
+          }   
         }
         
+        lik1 = as.numeric( logLik(fit1) )
+        sta[l, ] = as.vector( 2 * abs(lik1 - lik2) )
+        pval[l, ] = pchisq(sta[l, ], dof, lower.tail = FALSE, log.p = TRUE)
+       
+       }
+ 	   
         univariateModels$stat = - 2 * Rfast::colsums(pval)
         univariateModels$pvalue = pchisq(univariateModels$stat, 2 * D, lower.tail = FALSE, log.p = TRUE) ;
         univariateModels$flag = numeric(cols) + 1;
@@ -831,263 +458,34 @@ Internalmammpc = function(targ, data, statistic, max_k, threshold, test = NULL ,
         
       } else {
         
-        for ( l in 1:D )	{
-          
-          target = targ[[ l ]]
-          dataset = data[[ l ]]
-          
-          cl <- makePSOCKcluster(ncores)
-          registerDoParallel(cl)
-          mod <- foreach(i = 1:cols, .combine = rbind, .packages = "ordinal") %dopar% {
-            ## arguments order for any CI test are fixed
-            if ( i != targetID ) {
-              x <- model.matrix(target ~ dataset[, i] )
-              fit2 <- ordinal::clm.fit(target, x)
-              lik2 <- as.numeric( fit2$logLik )
-              
-              return( c(lik2, length( coef(fit2) ) ) )
-            } else{
-              return( c(0, 0) )
-            }
-          }
-          stopCluster(cl)
-          
-          lik1 = as.numeric( logLik(fit1) )
-          dof = as.vector( mod[, 2] ) - df1 
-          sta[l, ] = as.vector( 2 * abs(lik1 - mod[, 1]) )
-          pval[l, ] = pchisq(stat[l, ], dof, lower.tail = FALSE, log.p = TRUE)
-          
-        }
-        
-        univariateModels$stat = - 2 * Rfast::colsums(pval)
-        univariateModels$pvalue = pchisq(univariateModels$stat, 2 * D, lower.tail = FALSE, log.p = TRUE) ;
-        univariateModels$flag = numeric(cols) + 1
-        univariateModels$stat_hash = NULL
-        univariateModels$pvalue_hash = NULL   
-      }
-      
-    } else if ( identical(test, testIndLogistic) == TRUE  &  is.ordered(target) == FALSE  &  length( unique(target) ) > 2  ) {  ## 
-      
-      target = as.factor( as.numeric( as.vector(target) ) );
-      
-      lik2 = numeric(cols)
-      dof = numeric(cols)
-      fit1 = nnet::multinom(target ~ 1, trace = FALSE)
-      df1 = length( coef(fit1) )
-      
-      
-      if ( ncores <= 1 | is.null(ncores) ) {
-        
-        for ( l in 1:D )	{
-          
-          target = targ[[ l ]]
-          dataset = data[[ l ]]
-          
-          for ( i in 1:cols ) {
+       for ( l in 1:D )	{
+	   
+	   target = targ[[ l ]]
+	   dataset = data[[ l ]]
+	   
+        cl <- makePSOCKcluster(ncores)
+        registerDoParallel(cl)
+        mod <- foreach(i = 1:cols, .combine = rbind, .packages = "ordinal") %dopar% {
+          ## arguments order for any CI test are fixed
+          if ( i != targetID ) {
+            x <- model.matrix(target ~ dataset[, i] )
+            fit2 <- ordinal::clm.fit(target, x)
+            lik2 <- as.numeric( fit2$logLik )
             
-            if (i != targetID){
-              
-              fit2 = nnet::multinom(target ~ dataset[, i], trace = FALSE )
-              lik2[i] = as.numeric( logLik(fit2) )
-              dof[i] = length( coef(fit2) ) - df1
-            } else {
-              lik2[i] = lik1
-            }   
+            return( c(lik2, length( coef(fit2) ) ) )
+          } else{
+            return( c(0, 0) )
           }
-          
-          
-          lik1 = as.numeric( logLik(fit1) )
-          sta[l, ] = as.vector( 2 * abs(lik1 - lik2) )
-          pval[l, ] = pchisq(stat[l, ], dof, lower.tail = FALSE, log.p = TRUE)
-        } 	
+        }
+        stopCluster(cl)
+        
+        lik1 = as.numeric( logLik(fit1) )
+        dof = as.vector( mod[, 2] ) - df1 
+        sta[l, ] = as.vector( 2 * abs(lik1 - mod[, 1]) )
+        pval[l, ] = pchisq(sta[l, ], dof, lower.tail = FALSE, log.p = TRUE)
 		
-        univariateModels$stat = - 2 * Rfast::colsums(pval)
-        univariateModels$pvalue = pchisq(univariateModels$stat, 2 * D, lower.tail = FALSE, log.p = TRUE) ;
-        univariateModels$flag = numeric(cols) + 1;
-        univariateModels$stat_hash = stat_hash;
-        univariateModels$pvalue_hash = pvalue_hash;
-        
-      } else {
-        
-        for ( l in 1:D ) {	
-          
-          target = targ[[ l ]]
-          dataset = data[[ l ]]
-          
-          cl <- makePSOCKcluster(ncores)
-          registerDoParallel(cl)
-          mod <- foreach(i = 1:cols, .combine = rbind, .packages = "nnet") %dopar% {
-            ## arguments order for any CI test are fixed
-            if ( i != targetID ) {
-              
-              
-              fit2 = nnet::multinom(target ~ dataset[, i])
-              lik2 = as.numeric( logLik(fit2 ) )
-              
-              return( c(lik2, length( coef(fit2) ) ) )
-            } else{
-              return( c(0, 0) )
-            }
-          }
-          stopCluster(cl)
-          
-          lik1 = as.numeric( logLik(fit1) )
-          dof = as.vector( mod[, 2] ) - df1 
-          sta[l, ] = as.vector( 2 * abs(lik1 - mod[, 1]) )
-          pval[l, ] = pchisq(stat[l, ], dof, lower.tail = FALSE, log.p = TRUE)
-          
-        }
-        
-        univariateModels$stat = - 2 * Rfast::colsums(pval)
-        univariateModels$pvalue = pchisq(univariateModels$stat, 2 * D, lower.tail = FALSE, log.p = TRUE) ;
-        univariateModels$flag = numeric(cols) + 1
-        univariateModels$stat_hash = NULL
-        univariateModels$pvalue_hash = NULL   
-        
-      }
-      
-    } else if ( identical(test, testIndZIP) == TRUE ) {  ## Zero-inflated Poisson regression
-      
-      univariateModels = list();
-      fit1 = pscl::zeroinfl(target ~ 1 | 1)
-      lik2 = numeric(cols)
-      dof = numeric(cols)
-      
-      if ( ncores <= 1 | is.null(ncores) ) {
-        
-        for ( l in 1:D )	{
-          
-          target = targ[[ l ]]
-          dataset = data[[ l ]]
-          
-          for ( i in 1:cols ) {
-            
-            if ( i != targetID ) {
-              fit2 = pscl::zeroinfl( target ~ dataset[, i] | 1 )
-              lik2[i] = as.numeric( logLik(fit2) )
-              dof[i] = length( coef(fit2) ) - 2
-            } else {
-              lik2[i] = lik1
-            }
-          }
-          
-          lik1 = as.numeric( logLik(fit1) )
-          sta[l, ] = as.vector( 2 * abs(lik1 - lik2) )
-          pval[l, ] = pchisq(stat[l, ], dof, lower.tail = FALSE, log.p = TRUE)
-          
-        }
-        
-        univariateModels$stat = - 2 * Rfast::colsums(pval)
-        univariateModels$pvalue = pchisq(univariateModels$stat, 2 * D, lower.tail = FALSE, log.p = TRUE) ;
-        univariateModels$flag = numeric(cols) + 1;
-        univariateModels$stat_hash = stat_hash;
-        univariateModels$pvalue_hash = pvalue_hash;
-        
-      } else {
-        
-        for ( l in 1:D )	{
-          
-          target = targ[[ l ]]
-          dataset = data[[ l ]]
-          
-          cl <- makePSOCKcluster(ncores)
-          registerDoParallel(cl)
-          mod <- foreach(i = 1:cols, .combine = rbind, .packages = "pscl") %dopar% {
-            
-            if ( i != targetID ) {
-              fit2 = pscl::zeroinfl( target ~ dataset[, i] | 1 )
-              lik2 = as.numeric( logLik(fit2) )
-              
-              return( c(lik2, length( coef(fit2) ) ) )
-            } else{
-              return( c(0, 0) )
-            }
-            
-          }
-          stopCluster(cl)
-          
-          lik1 = as.numeric( logLik(fit1) )
-          dof = as.vector( mod[, 2] ) - 2 
-          sta[l, ] = as.vector( 2 * abs(lik1 - mod[, 1]) )
-          pval[l, ] = pchisq(stat[l, ], dof, lower.tail = FALSE, log.p = TRUE)
-          
-        }
-        
-        univariateModels$stat = - 2 * Rfast::colsums(pval)
-        univariateModels$pvalue = pchisq(univariateModels$stat, 2 * D, lower.tail = FALSE, log.p = TRUE) ;
-        univariateModels$flag = numeric(cols) + 1
-        univariateModels$stat_hash = NULL
-        univariateModels$pvalue_hash = NULL   
-      }
-      
-    } else if ( identical(test, testIndRQ) == TRUE ) {  ## Median (quantile) regression
-      
-      univariateModels = list();
-      fit1 = quantreg::rq(target ~ 1)
-      stat = pval = numeric(cols)
-      
-      if ( ncores <= 1 | is.null(ncores) ) {
-        
-        for ( l in 1:D )	{
-          
-          target = targ[[ l ]]
-          dataset = data[[ l ]]
-          
-          for ( i in 1:cols ) {
-            
-            if (i != targetID) {
-              
-              fit2 = quantreg::rq(target ~ dataset[, i] )
-              ww = anova(fit1, fit2, test = "rank")
-              df1 = as.numeric( ww[[1]][1] )
-              df2 = as.numeric( ww[[1]][2] )
-              sta[l, i] = as.numeric( ww[[1]][3] )
-              pval[l, i] = pf(stat[l, i], df1, df2, lower.tail = FALSE, log.p = TRUE)
-            } else {
-              pval[l, i] = log(1);
-              stat[l, i] = 0;
-            }
-          }
-          
-        } 
-        
-        univariateModels$stat = - 2 * Rfast::colsums(pval)
-        univariateModels$pvalue = pchisq(univariateModels$stat, 2 * D, lower.tail = FALSE, log.p = TRUE) ;
-        univariateModels$flag = numeric(cols) + 1;
-        univariateModels$stat_hash = stat_hash;
-        univariateModels$pvalue_hash = pvalue_hash;
-        
-      } else {
-        
-        for ( l in 1:D )	{
-          
-          target = targ[[ l ]]
-          dataset = data[[ l ]]
-          
-          cl <- makePSOCKcluster(ncores)
-          registerDoParallel(cl)
-          mod <- foreach(i = 1:cols, .combine = rbind, .packages = "quantreg") %dopar% {
-            
-            if (i != targetID) {
-              fit2 = quantreg::rq(target ~ dataset[, i] )
-              ww = anova(fit1, fit2, test = "rank")
-              df1 = as.numeric( ww[[1]][1] )
-              df2 = as.numeric( ww[[1]][2] )
-              st = as.numeric( ww[[1]][3] )
-              pv = pf(stat, df1, df2, lower.tail = FALSE, log.p = TRUE)
-              
-              return( c(st, pv ) )
-            } else{
-              return( c(0, 0) )
-            }
-            
-          }
-          stopCluster(cl)
-          
-          pval[l, ] = mod[, 2]
-          
-        } 	   
-        
+	   }
+	   
         univariateModels$stat = - 2 * Rfast::colsums(pval)
         univariateModels$pvalue = pchisq(univariateModels$stat, 2 * D, lower.tail = FALSE, log.p = TRUE) ;
         univariateModels$flag = numeric(cols) + 1
@@ -1096,20 +494,19 @@ Internalmammpc = function(targ, data, statistic, max_k, threshold, test = NULL ,
       }
       
     } else {  
-      univariateModels = univariateScore.ma(targ, data , test, statistic, dataInfo = dataInfo, hash=hash, stat_hash=stat_hash, pvalue_hash=pvalue_hash, targetID=targetID, robust=robust, ncores=ncores);
+      univariateModels = univariateScore.ma(targ, data, test, statistic = FALSE, dataInfo = dataInfo, hash=hash, stat_hash=stat_hash, pvalue_hash=pvalue_hash, targetID=targetID, robust=robust, ncores=ncores);
     }
     
   } else {
     univariateModels = ini
   } 
-
  
   pvalues = univariateModels$pvalue;      
   stats = univariateModels$stat;
   flags = univariateModels$flag;
   
   #if we dont have any associations , return
-  if ( min(pvalues , na.rm=TRUE) > threshold ) 
+  if ( min(pvalues , na.rm = TRUE) > threshold ) 
   {
     cat('No associations!');
     
@@ -1197,12 +594,10 @@ Internalmammpc = function(targ, data, statistic, max_k, threshold, test = NULL ,
   numberofSelectedVars = sum(selectedVars);#
   selectedVarsOrder = sort(selectedVarsOrder);#
   #adjusting the results
-  if(targetID > 0)
-  {
+  if(targetID > 0)  {
     toAdjust <- which(selectedVars > targetID);
     selectedVars[toAdjust] = selectedVars[toAdjust] + 1;
   }
-  
   
   results = NULL;
   results$selectedVars = which(selectedVars == 1);
@@ -1227,8 +622,7 @@ Internalmammpc = function(targ, data, statistic, max_k, threshold, test = NULL ,
   runtime = proc.time() - runtime;
   results$runtime = runtime;
   results$rob = robust
-  
-  
+   
   return(results);
 }
 

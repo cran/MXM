@@ -1,4 +1,3 @@
-
 pc.or <- function(mod, graph = FALSE) {
   ## mod is the outcome of the function pc.con or pc.skel
   ## method is either "pearson", "spearman" or "cat"
@@ -6,7 +5,6 @@ pc.or <- function(mod, graph = FALSE) {
   ## rob is either TRUE or FALSE
   ## sim is either TRUE or FALSE
   ## graph is either TRUE or FALSE
-  
   G <- mod$G  ## the undirected graph
   n <- ncol(G)  ## how many variables are there
   ina <- 1:n 
@@ -17,7 +15,6 @@ pc.or <- function(mod, graph = FALSE) {
     G <- G 
     paste("There are no separating sets")
   } else {
-    
     
     len <- length(sep) 
     if ( len == 1 )  {
@@ -110,13 +107,13 @@ pc.or <- function(mod, graph = FALSE) {
   Ga <- G 
   Ga[ Ga == 3 ] <- 0
   
-  if (graph == TRUE) {
-    gini <- as( mod$G, "graphNEL" )
-    plot(gini, main = paste("Skeleton of the PC algorithm for", mod$title ) )
+  if ( graph ) {
+    
+    plotnetwork(mod$G, titlos = paste("Skeleton of the PC algorithm for", mod$title ) )
     dev.new()
-    g <- as( Ga, "graphNEL" )
-    plot(g, main = paste("CPDAG of the PC algorithm for", mod$title ) )
+    plotnetwork(Ga, titlos = paste("CPDAG of the PC algorithm for", mod$title ))
   }
+  
   final = list(Gini = mod$G, G = G, runtime = durat) 
   final
 }
@@ -134,7 +131,6 @@ pc.or <- function(mod, graph = FALSE) {
 #############
 
 R0 <- function(G, ina, sepa) {
-
   
     p <- ncol(sepa) - 1
     l <- Rfast::rowsums( G == 1 )
@@ -145,12 +141,12 @@ R0 <- function(G, ina, sepa) {
       for (i in id) {
         adj <- ina[ G[i, ] == 1 ]
         if ( length(adj) > 1 ) {
-          sam <-  matrix( combn(adj, 2), ncol = 2, byrow = TRUE )  
+          sam <-  as.matrix(  t( combn(adj, 2) ) )
           ela <- NULL
           for ( j in 1:nrow(sam) ) {
             if ( G[sam[j, 1], sam[j, 2] ] == 0 ) {
               res <- is.sepset( sam[j, ], i, sepa[, 1:p] )
-              if ( res == FALSE ) {
+              if ( !res ) {
                 G[ sam[j, 1], i ] = G[ sam[j, 2], i ] = 2 
                 G[ i, sam[j, 1] ] = G[ i, sam[j, 2] ] = 3
                 
@@ -171,31 +167,28 @@ R0 <- function(G, ina, sepa) {
 	
 R1 <- function(G) {
 
-   if ( sum( G == 2 ) > 0 & sum( G == 1 ) > 0 ) {
-      
+   if ( sum( G == 2 ) > 0  &  sum( G == 1 ) > 0 ) {
       tup <- which( G == 2, arr.ind = TRUE )
       nup <- nrow(tup) 
       for (i in 1:nup) {
         can <- tup[i, 2] 
         geit <- which( G[can, ] == 1 )
-        if ( sum( G[can, ] == 3 ) == 0 ) {
-          po = which( G[tup[i, 1], geit] == 0 ) 
-          G[can, po] <- 2
-          G[po, can] <- 3
-        }
-        
+        # G[can, geit] <- 2
+        # G[geit, can] <- 3
+        if ( length(geit) > 0 ) {
+          G[can, geit] <- 2
+          G[geit, can] <- 3
+        }  
       }
-      
    } 
 	
-   G
-   
+  G
 }   
 
 
 R2 <- function(G) {
 
-   if ( sum( G == 2 ) > 0 & sum( G == 1 ) > 0 ) {
+   if ( sum( G == 2 ) > 0  &  sum( G == 1 ) > 0 ) {
       
       poia <- which( G == 1, arr.ind = TRUE ) 
       poia1 <- which( G == 1 )
@@ -203,21 +196,25 @@ R2 <- function(G) {
       GGG <- G
       GGG[poia1] <- NA
       GGG[poia2] <- NA
-      GGG[GGG == 0] <- NA
+      GGG[ GGG == 0 ] <- NA
       g1 <- e1071::allShortestPaths(GGG)
+      nu <- nrow(poia)
       
-      for ( i in 1:nrow(poia) )  {
-        aa <- e1071::extractPath( g1, start = poia[i, 1], end = poia[i, 2] )
-        if ( length(aa) > 2 ) {
-          G[ poia[i, 1], poia[i, 2] ] <- 2
-          G[ poia[i, 2], poia[i, 1] ] <- 3
-        }
-      }   
+      if ( nu > 0 ) {
+        for ( i in 1:nrow(poia) )  {
+          aa <- e1071::extractPath( g1, start = poia[i, 1], end = poia[i, 2] )
+          if ( length(aa) > 2 ) {
+            if ( G[ poia[i, 1], poia[i, 2] ] == 1 ) {
+              G[ poia[i, 1], poia[i, 2] ] <- 2
+              G[ poia[i, 2], poia[i, 1] ] <- 3
+            }
+          }
+        }   
+      }
       
    } 
 	
    G
-	
 }	
 
 
@@ -250,22 +247,19 @@ R3 <- function(G) {
          }
 
          ela <- NULL
-
 	   }  
     }
 	  
 	G 
-	 
 }
 
 
 is.sepset <- function(pair, nd, separ) {
   
-  a <- length( intersect( pair, separ[1:2] ) )
-  if ( a > 1 )  { 
-    b <- length( intersect(nd, separ) ) > 0
+  a <- which( Rfast::colsums(t(separ[, 1:2]) - pair ) == 0 )
+  if ( length(a) > 1 )  { 
+    b <- length( intersect(nd, separ[a, -c(1:2)]) ) > 0
   } else b <- FALSE
   
   b
-  
 } 

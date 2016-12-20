@@ -9,7 +9,7 @@ Variable selection in regression models with forward selection
 }
 
 \usage{
-fs.reg(target, dataset, threshold = 0.05, wei = NULL, test = NULL, user_test = NULL, 
+fs.reg(target, dataset, threshold = 0.05, wei = NULL, test = NULL, user_test = NULL,
 stopping = "BIC", tol = 2, robust = FALSE, ncores = 1) 
 }
 
@@ -54,7 +54,7 @@ How many cores to use. This plays an important role if you have tens of thousand
 If the current 'test' argument is defined as NULL or "auto" and the user_test argument is NULL then the algorithm automatically selects the best test based on the type of the data. Particularly:
 \itemize{
 	\item if target is a factor, the multinomial or the binary logistic regression is used. If the target has two values only,   binary logistic regression will be used.
-	\item if target is a ordered factor, the ordered logit regression is used.
+	\item if target is a ordered factor, the ordered logit regression is used. Hence, if you want to use multinomial or ordinal logistic regression, make sure your target is factor. 
 	\item if target is a numerical vector or a matrix with at least two columns (multivariate) linear regression is used. 
 	\item if target is discrete numerical (counts), the poisson regression conditional independence test is used. If there are only two values, the binary logistic regression is to be used.
 	\item if target is a Surv object, the Survival conditional independence test is used.
@@ -91,7 +91,7 @@ The run time of the algorithm. A numeric vector. The first element is the user t
 \author{
 Michail Tsagris
 
-R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> Michail Tsagris <mtsagris@yahoo.gr>
+R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 
 \seealso{
@@ -105,22 +105,23 @@ set.seed(123)
 dataset <- matrix( runif(1000 * 20, 1, 100), ncol = 20 )
 
 #define a simulated class variable 
-target <- rpois(1000, 10)
+target <- rt(1000, 10)
 
-a1 <- fs.reg(target, dataset, threshold = 0.05, test = NULL, stopping = "BIC", tol = 2, 
+a1 <- fs.reg(target, dataset, threshold = 0.05, test = "testIndRQ", stopping = "BIC", tol = 2, 
 robust = FALSE, ncores = 1 ) 
-a2 <- MMPC(target, dataset)
 
-a3 <- fs.reg(target, dataset, threshold = 0.05, test = NULL, stopping = "BIC", tol = 2, 
-robust = TRUE, ncores = 1 ) 
-a4 <- MMPC(target, dataset, test="testIndReg", robust= TRUE)
+y <- survival::Surv(rexp(1000), rep(1,1000) )
+a2 <- fs.reg(y, dataset, threshold = 0.05, test = "censIndWR", stopping = "BIC", tol = 2, 
+robust = FALSE, ncores = 1 ) 
+a3 <- MMPC(target, dataset)
 
-target <- rbinom(1000, 1,0.6)
+target <- rbinom(1000, 1, 0.6)
 b1 <- fs.reg(target, dataset, threshold = 0.05, test = NULL, stopping = "BIC", tol = 2, 
 robust = FALSE, ncores = 1 ) 
-b2 <- MMPC(target, dataset)
 
-
+target <- factor( rbinom(1000, 2, 0.6) )
+b2 <- fs.reg(target, dataset, threshold = 0.05, test = NULL, stopping = "BIC", tol = 2, 
+robust = FALSE, ncores = 1 ) 
 }
 
 \keyword{ Markov Blanket }

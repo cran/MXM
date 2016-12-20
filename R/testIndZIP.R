@@ -18,8 +18,6 @@ testIndZIP = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NUL
   # this method returns: the pvalue PVALUE, the statistic STAT and a control variable FLAG.
   # if FLAG == 1 then the test was performed succesfully
   
-  #########################################################################################################
-  
   #initialization
   
   #if the test cannot performed succesfully these are the returned values
@@ -28,7 +26,7 @@ testIndZIP = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NUL
   flag = 0;
   csIndex[which(is.na(csIndex))] = 0;
   
-  if(hash == TRUE)
+  if( hash )
   {
     csIndex2 = csIndex[which(csIndex!=0)]
     csindex2 = sort(csIndex2)
@@ -49,7 +47,7 @@ testIndZIP = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NUL
   #information with respect to cs
   if(!is.na(match(xIndex,csIndex)))
   {
-    if(hash == TRUE)#update hash objects
+    if( hash )#update hash objects
     {
       stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
       pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
@@ -72,37 +70,16 @@ testIndZIP = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NUL
   #extract the data
   x = dataset[ , xIndex];
   cs = dataset[ , csIndex];
-  
-  #remove equal columns of the CS (takes a lot of time)
-  #   if(length(csIndex) > 1)
-  #   {
-  #     #remove same columns
-  #     #cs = unique(as.matrix(cs), MARGIN = 2);
-  #     #or
-  #     w = which(duplicated(cs, MARGIN = 2))
-  #     if(length(w) > 0)
-  #     {
-  #       cs = cs[,-w]
-  #     }
-  #   }
-  
-  #checking the length
-  if (length(x) == 0 || length(target) == 0)
-  {
-    message(paste("error in testIndZIP : empty variable x or target"))
-    results <- list(pvalue = pvalue, stat = stat, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
-    return(results);
-  }
-  
+
   #if x = any of the cs then pvalue = log(1) and flag = 1.
   #That means that the x variable does not add more information to our model due to an exact copy of this in the cs, so it is independent from the target
   if(length(cs)!=0)
   {
-    if(is.null(dim(cs)[2]) == TRUE) #cs is a vector
+    if( is.null(dim(cs)[2]) ) #cs is a vector
     {
       if(any(x != cs) == FALSE)  #if(!any(x == cs) == FALSE)
       {
-        if(hash == TRUE)#update hash objects
+        if( hash )#update hash objects
         {
           stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
           pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
@@ -115,7 +92,7 @@ testIndZIP = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NUL
       {
         if(any(x != cs[,col]) == FALSE)  #if(!any(x == cs) == FALSE)
         {
-          if(hash == TRUE)#update hash objects
+          if( hash )#update hash objects
           {
             stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
             pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
@@ -128,9 +105,9 @@ testIndZIP = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NUL
   }
   
   #if x or target is constant then there is no point to perform the test
-  if( var( as.numeric(x) ) == 0 || var(target) == 0 )
+  if( vara( as.numeric(x) ) == 0 )
   {
-    if(hash == TRUE)#update hash objects
+    if( hash ) #update hash objects
     {
       stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
       pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
@@ -138,11 +115,7 @@ testIndZIP = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NUL
     results <- list(pvalue = log(1), stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
     return(results);
   }
-  
-  #remove constant columns of cs
-  cs = as.matrix(cs)
-  cs = cs[,apply(cs, 2, var, na.rm=TRUE) != 0]
-  
+
   #trycatch for dealing with errors
   res <- tryCatch(
     {
@@ -150,27 +123,24 @@ testIndZIP = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NUL
       if(length(cs) == 0)
       {
         #compute the relationship between x,target directly
-        fit1 = pscl::zeroinfl(target ~ 1 | 1, weights = wei)
-        fit2 = pscl::zeroinfl(target ~ x | 1, weights = wei )
-        lik1 = as.numeric( logLik(fit1) )
-        lik2 = as.numeric( logLik(fit2) )
-        stat = 2 * abs( lik1 - lik2 )
-        dof = length( coef(fit2) ) - 2
-        pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)   
-        flag = 1;
+        if ( is.null(wei) )  lik1 <- zipmle.wei(target, wei)  else  lik1 <- Rfast::zip.mle(target)
+        
+        fit2 <- zip.reg(target, x, wei = wei, lgy = NULL) 
+        stat <- 2 * abs( lik1 - fit2$loglik )
+        dof <- length( fit2$be ) - 1
+        pvalue <- pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)   
+        flag <- 1;
 
       } else {
-        fit1 = pscl::zeroinfl( target ~. | 1, weights = wei, data = as.data.frame( dataset[, csIndex] ) )
-        fit2 = pscl::zeroinfl( target ~. | 1, weights = wei, data = as.data.frame( dataset[, c(csIndex, xIndex)] ) )
-        lik1 = as.numeric( logLik(fit1) )
-        lik2 = as.numeric( logLik(fit2) )
-        stat = 2 * abs( lik1 - lik2 )
-        dof = length( coef(fit2) ) - length( coef(fit1) )
-        pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)   
-        flag = 1;
+        lgy <- sum( lgamma(target + 1) )
+        fit1 <- zip.reg(target, as.data.frame( dataset[, csIndex] ), wei = wei, lgy = lgy) 
+        fit2 <- zip.reg(target, as.data.frame( dataset[, c(csIndex, xIndex)] ), wei = wei, lgy = lgy) 
+        stat <- 2 * abs( fit1$loglik - fit2$loglik )
+        dof <- length( fit1$be ) - length( fit2$be )
+        pvalue <- pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)   
+        flag <- 1;
 
       } 
-            
       #last error check
       if(is.na(pvalue) || is.na(stat))
       {
@@ -179,15 +149,13 @@ testIndZIP = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NUL
         flag = 0;
       }else{
         #update hash objects
-        if(hash == TRUE)
+        if( hash )
         {
           stat_hash[[key]] <- stat;#.set(stat_hash , key , stat)
           pvalue_hash[[key]] <- pvalue;#.set(pvalue_hash , key , pvalue)
         }
       }
-      
       #testerrorcaseintrycatch(4);
-      
       results <- list(pvalue = pvalue, stat = stat, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
       return(results);
       

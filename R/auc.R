@@ -9,7 +9,7 @@ auc <- function(group, preds, roc = FALSE, cutoffs = NULL) {
   auc <- ( s1 - 0.5 * n1 * (n1 + 1) ) / n0 / n1
   result <- auc
   
-  if ( roc == TRUE ) {
+  if ( roc ) {
     
     if ( is.null(cutoffs) ) {
       lena <- seq(1, 0, by = -0.01)
@@ -21,11 +21,9 @@ auc <- function(group, preds, roc = FALSE, cutoffs = NULL) {
     nnegs <- sum( group == 0 )
     
     for ( i in 1:nu ) {
-      estp <- as.numeric( preds >= lena[i] ) 
-      
+      estp <- as.numeric( preds >= lena[i] )      
       sens[i] <-  sum( group == 1  &  estp == 1 ) / npos
       spec[i] <-  sum( group == 0  &  estp == 0 ) / nnegs
-      
     }
     
     sens[1] <- 0

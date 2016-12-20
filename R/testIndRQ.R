@@ -21,11 +21,7 @@ testIndRQ = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL
   # References
   # [1] Koenker, Roger. Quantile regression. New York, Cambridge        
   # university press, 2005.
- 
-  
-  
-  #########################################################################################################
-  
+
   #initialization
   
   #if the test cannot performed succesfully these are the returned values
@@ -34,12 +30,7 @@ testIndRQ = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL
   flag = 0;
   csIndex[which(is.na(csIndex))] = 0;
   
-   if ( min(target)>0 & max(target)<1 ) ## are they proportions?
-   { 
-     target = log( target/(1-target) ) 
-   }
-
-  if(hash == TRUE)
+  if( hash )
   {
     csIndex2 = csIndex[which(csIndex!=0)]
     csindex2 = sort(csIndex2)
@@ -60,7 +51,7 @@ testIndRQ = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL
   #information with respect to cs
   if(!is.na(match(xIndex,csIndex)))
   {
-    if(hash == TRUE)#update hash objects
+    if( hash )#update hash objects
     {
       stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
       pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
@@ -83,37 +74,17 @@ testIndRQ = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL
   #extract the data
   x = dataset[ , xIndex];
   cs = dataset[ , csIndex];
-  
-  #remove equal columns of the CS (takes a lot of time)
-#   if(length(csIndex) > 1)
-#   {
-#     #remove same columns
-#     #cs = unique(as.matrix(cs), MARGIN = 2);
-#     #or
-#     w = which(duplicated(cs, MARGIN = 2))
-#     if(length(w) > 0)
-#     {
-#       cs = cs[,-w]
-#     }
-#   }
-  
-  #checking the length
-  if (length(x) == 0 || length(target) == 0)
-  {
-    message(paste("error in testIndRQ : empty variable x or target"))
-    results <- list(pvalue = pvalue, stat = stat, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
-    return(results);
-  }
+
   
   #if x = any of the cs then pvalue = 1 and flag = 1.
   #That means that the x variable does not add more information to our model due to an exact copy of this in the cs, so it is independent from the target
-  if(length(cs)!=0)
+  if( length(cs) != 0 )
   {
-    if(is.null(dim(cs)[2]) == TRUE) #cs is a vector
+    if( is.null(dim(cs)[2]) ) #cs is a vector
     {
       if(any(x != cs) == FALSE)  #if(!any(x == cs) == FALSE)
       {
-        if(hash == TRUE)#update hash objects
+        if( hash )#update hash objects
         {
           stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
           pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
@@ -126,7 +97,7 @@ testIndRQ = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL
       {
         if(any(x != cs[,col]) == FALSE)  #if(!any(x == cs) == FALSE)
         {
-          if(hash == TRUE)#update hash objects
+          if( hash )#update hash objects
           {
             stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
             pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
@@ -139,9 +110,9 @@ testIndRQ = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL
   }
   
   #if x or target is constant then there is no point to perform the test
-  if ( var( as.numeric(x) ) == 0 || var(target) == 0 )
+  if ( vara( as.numeric(x) ) == 0 )
   {
-    if(hash == TRUE)#update hash objects
+    if( hash )#update hash objects
     {
       stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
       pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
@@ -149,11 +120,7 @@ testIndRQ = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL
     results <- list(pvalue = log(1), stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
     return(results);
   }
-  
-  #remove constant columns of cs
-  cs = as.matrix(cs)
-  cs = cs[,apply(cs, 2, var, na.rm=TRUE) != 0]
-  
+
   #trycatch for dealing with errors
   res <- tryCatch(
 {
@@ -197,7 +164,7 @@ testIndRQ = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL
     flag = 0;
   }else{
     #update hash objects
-    if(hash == TRUE)
+    if( hash )
     {
       stat_hash[[key]] <- stat;#.set(stat_hash , key , stat)
       pvalue_hash[[key]] <- pvalue;#.set(pvalue_hash , key , pvalue)

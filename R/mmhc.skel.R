@@ -1,4 +1,4 @@
-mmhc.skel <- function(dataset, max_k = 3, threshold = 0.05, test = NULL, rob = FALSE, fast = FALSE, nc = 1, graph = FALSE) {
+mmhc.skel <- function(dataset, max_k = 3, threshold = 0.05, test = "testIndFisher", rob = FALSE, fast = FALSE, symmetry = TRUE, nc = 1, graph = FALSE) {
   ## dataset is either conitnuous or categorical data  
   ## max_k is the maximum number of variables upon which to condition
   ## threshold is the level of significance to reject the independence
@@ -8,14 +8,10 @@ mmhc.skel <- function(dataset, max_k = 3, threshold = 0.05, test = NULL, rob = F
   ## nc is the number of cores to use, set to 1 by default
   
   dataset <- as.matrix(dataset)
-  n <- ncol(dataset)
-  G <- matrix(0, n, n )
-  if ( test == "testIndSpearman" ) {
-    dataset <- apply(dataset, 2, rank)
-    rob = FALSE 
-  }
+  n <- dim(dataset)[2]
+  G <- matrix(0, n, n)
   
-   if (fast == TRUE) {  
+   if ( fast ) {  
       
      pa <- proc.time()
      a <- MMPC(1, dataset, max_k = max_k, test = test, threshold = threshold, robust = rob)
@@ -39,7 +35,7 @@ mmhc.skel <- function(dataset, max_k = 3, threshold = 0.05, test = NULL, rob = F
       
    } else {
       
-     if (nc == 1 || nc < 1 || is.null(nc) ) {
+     if (nc <= 1  ||  is.null(nc) ) {
         
        pa <- proc.time()
        for (i in 1:n) {
@@ -72,8 +68,13 @@ mmhc.skel <- function(dataset, max_k = 3, threshold = 0.05, test = NULL, rob = F
   
   diag(G) <- 0
   
-  a <- which( G == 1 & t(G) == 1 ) 
-  G[ -a ] <- 0
+  if (symmetry ) {
+    a <- which( G == 1  &  t(G) == 1 ) 
+    G[ -a ] <- 0
+  } else {
+    G <- G + t(G)
+    G[ G > 0 ] <- 1
+  }
   
   info <- summary( Rfast::rowsums(G) )
   density <- sum(G) / n / ( n - 1 ) 
@@ -81,17 +82,8 @@ mmhc.skel <- function(dataset, max_k = 3, threshold = 0.05, test = NULL, rob = F
   if (is.null( colnames(dataset) ) ) {
     colnames(G) <- rownames(G) <- paste("X", 1:n, sep = "")
   } else  colnames(G) <- rownames(G) <- colnames(dataset)
-  
-  if(graph == TRUE)
-  {
-    if(requireNamespace("Rgraphviz", quietly = TRUE, warn.conflicts = FALSE) == TRUE)
-    {
-      am.graph <- new("graphAM", adjMat = G, edgemode = "undirected")
-      plot( am.graph, main = paste("Skeleton of the MMHC algorithm for", deparse( substitute(dataset) ) ) )
-    }else{
-      warning('In order to plot the generated network, package Rgraphviz is required.')
-    }
-  }
+   
+  if( graph )  plotnetwork(G, paste("Skeleton of the MMHC algorithm for", deparse( substitute(dataset) ) ) )
   
   list(runtime = runtime, density = density, info = info, G = G)
 }

@@ -3,9 +3,9 @@ generatefolds <- function(target, nfolds = 10, stratified = TRUE, seed = FALSE) 
   a <- paste("Fold", 1:nfolds)
   runs <- sapply(a, function(x) NULL)
 
-  if ( seed == TRUE )  set.seed(1234)
+  if ( seed )  set.seed(1234)
   
-  if ( stratified == FALSE ) {
+  if ( !stratified ) {
     
     options(warn = -1)
     mat <- matrix( sample( length(target) ), ncol = nfolds )
@@ -19,7 +19,7 @@ generatefolds <- function(target, nfolds = 10, stratified = TRUE, seed = FALSE) 
 
   } else {
     
-   labs <- unique(target)
+   labs <- Rfast::sort_unique(target)
    run <- list()
      
    for ( i in 1:length(labs) ) {

@@ -9,8 +9,8 @@ The skeleton of a Bayesian network produced by MMHC. No orientations are involve
 }
 
 \usage{
-mmhc.skel(dataset, max_k = 3, threshold = 0.05, test = NULL, rob = FALSE, fast = FALSE,
-nc = 1, graph = FALSE) 
+mmhc.skel(dataset, max_k = 3, threshold = 0.05, test = "testIndFisher", rob = FALSE, 
+fast = FALSE, symmetry = TRUE, nc = 1, graph = FALSE) 
 }
 
 \arguments{
@@ -32,11 +32,14 @@ A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust
 \item{fast}{
 A bollean variable indicating a faster procedure to take place. By default this is set to FALSE. See details about this. 
 }
+\item{symmetry}{
+In order for an edge to be added, a statistical relationship must have been found from both directions. If you want this symmetry correction to take place, leave this boolean variable to TRUE. If you set it to FALSE, then if a relationship between Y and X is detected but not between X and Y, the edge is still added. 
+}
 \item{nc}{
 How many cores to use. This plays an important role if you have many variables, say thousands or so. You can try with nc = 1 and with nc = 4 for example to see the differences. If you have a multicore machine, this is a must option.
 }
 \item{graph}{
-Boolean that indicates whether or not to generate a plot with the graph. Package RgraphViz is required.
+Boolean that indicates whether or not to generate a plot with the graph. The package "RgraphViz" is required.
 }
 }
 
@@ -75,7 +78,7 @@ Tsamardinos, Brown and Aliferis (2006). The max-min hill-climbing Bayesian netwo
 \author{
  Michail Tsagris
 
-R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> and Michail Tsagris <mtsagris@yahoo.gr>
+R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> and Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 
 %\note{

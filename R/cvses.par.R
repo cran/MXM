@@ -21,14 +21,8 @@
 cvses.par <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, alphas = NULL, max_ks = NULL, task = NULL, metric = NULL, modeler = NULL, ses_test = NULL, ncores = 2)
 {
   
-  if(is.null(alphas))
-  {
-    alphas <- c(0.1, 0.05, 0.01)
-  }
-  if(is.null(max_ks))
-  {
-    max_ks <- c(3, 2)  
-  }
+  if( is.null(alphas) )  alphas <- c(0.1, 0.05, 0.01)
+  if( is.null(max_ks) )  max_ks <- c(3, 2)  
   
   alphas = sort(alphas, decreasing = TRUE)
   max_ks = sort(max_ks, decreasing = TRUE)
@@ -53,10 +47,8 @@ cvses.par <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, al
   
   if ( is.null(folds) )
   {
-    folds = generatefolds(target, nfolds = kfolds, stratified = TRUE, seed= FALSE)
-  }else{
-    kfolds <- length( folds[[1]] );
-  }
+    folds = generatefolds(target, nfolds = kfolds, stratified = TRUE, seed = FALSE)
+  }else  kfolds <- length( folds[[1]] );
   
   if(is.null(task)){
     stop("Please provide a valid task argument 'C'-classification, 'R'-regression, 'S'-survival.")
@@ -66,67 +58,47 @@ cvses.par <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, al
     #Classification task (logistic regression)
     if (is.null(metric)){
       metricFunction <- auc.mxm;
-    }else{
-      metricFunction <- metric;
-    }
+    }else  metricFunction <- metric;
     
     if (is.null(modeler)){
       modelerFunction <- glm.mxm;
-    }else{
-      modelerFunction <- modeler;
-    }
+    }else  modelerFunction <- modeler;
     
     if (is.null(ses_test)){
       test <- 'testIndLogistic';
-    }else{
-      test <- ses_test;
-    }
+    }else  test <- ses_test;
     
   }else if(task == 'R'){
     
     #Regression task (logistic regression)
     if (is.null(metric)){
       metricFunction <- mse.mxm;
-    }else{
-      metricFunction <- metric;
-    }
+    }else  metricFunction <- metric;
     
     if (is.null(modeler)){
       modelerFunction <- lm.mxm;
-    }else{
-      modelerFunction <- modeler;
-    }
+    }else  modelerFunction <- modeler;
     
     if (is.null(ses_test)){
       test = 'testIndFisher';
-    }else{
-      test <- ses_test;
-    }
+    }else  test <- ses_test;
     
   }else if(task == 'S'){
     
     #cox survival analysis (cox regression)
     if (is.null(metric)){
       metricFunction <- ci.mxm;
-    }else{
-      metricFunction <- metric;
-    }
+    }else  metricFunction <- metric;
     
     if (is.null(modeler)){
       modelerFunction <- coxph.mxm;
-    }else{
-      modelerFunction <- modeler;
-    }
+    }else  modelerFunction <- modeler;
     
     if (is.null(ses_test)){
       test = "censIndCR";
-    }else{
-      test <- ses_test;
-    }
+    }else  test <- ses_test;
     
-  }else{
-    stop("Please provide a valid task argument 'C'-classification, 'R'-regression, 'S'-survival.")
-  }
+  }else  stop("Please provide a valid task argument 'C'-classification, 'R'-regression, 'S'-survival.")
   
   nSESConfs = length(SES_configurations)
   #merging SES configuration lists and create the general cv results list
@@ -141,18 +113,13 @@ cvses.par <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, al
   
   tic <- proc.time()
   
-  
-    
     cl <- makePSOCKcluster(ncores)
     registerDoParallel(cl)
     mod <- foreach(k = 1:kfolds, .combine = rbind, .packages = c("MXM", "hash")) %dopar% {
       
     #print(paste('CV: Fold', k, 'of', kfolds));
     train_samples <- c();
-    for(i in which(c(1:kfolds) != k))
-    {
-      train_samples = c( train_samples, folds[[ i ]] )
-    }
+    for ( i in which(c(1:kfolds) != k) )  train_samples = c( train_samples, folds[[ i ]] )
     
     ela = numeric( nSESConfs )
     #leave one fold out each time as a test set and the rest as train set
@@ -190,47 +157,31 @@ cvses.par <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, al
       sign_data <- as.matrix(train_set[ ,curr_sign])
       sign_test <- as.matrix(test_set[ ,curr_sign]);
       
-      if ( dim(signatures)[1] >= 1 & length(results@selectedVars ) > 0 )
-      {
+      if ( dim(signatures)[1] >= 1 & length(results@selectedVars ) > 0 ) {
         #generate a model due to the task and find the performance
         #logistic model for a classification task, linear model for the regression task and a cox model for the survival task
-        
         preds<-modelerFunction( train_target, sign_data, sign_test, wei = wtrain )
-        
-      } else {
-        
-        preds <- modelerFunction( train_target, rep(1, nrow(sign_data)), rep(1, nrow(sign_test)), wei = wtrain )
-      } 
+      } else  preds <- modelerFunction( train_target, rep(1, nrow(sign_data)), rep(1, nrow(sign_test)), wei = wtrain )
       
-      if(is.null(preds))
-      {
+      if(is.null(preds)) {
         conf_ses[[ses_conf_id]]$preds[[k]] <- NULL
         conf_ses[[ses_conf_id]]$performances[k] <- NA
         ela[ses_conf_id] = NA
-      }
-      else{
+      } else {
         performance = metricFunction(preds, test_target)
         conf_ses[[ses_conf_id]]$preds[[k]] <- preds
         conf_ses[[ses_conf_id]]$performances[k] <- performance
         ela[ses_conf_id] = performance
-        
-      }
-      
+      }  
     }
     
-    #clear the hashmap and garbages
-    if(is.null(SESHashMap$pvalue_hash) == FALSE)
-    {
-      hash::clear(SESHashMap$pvalue_hash)
-    }
-    if(is.null(SESHashMap$stat_hash) == FALSE)
-    {
-      hash::clear(SESHashMap$stat_hash)
-    }
-    rm(SESHashMap);
-    gc();
+      #clear the hashmap and garbages
+      if ( is.null(SESHashMap$pvalue_hash) == FALSE )   hash::clear(SESHashMap$pvalue_hash)
+      if ( is.null(SESHashMap$stat_hash) == FALSE )   hash::clear(SESHashMap$stat_hash)
+      rm(SESHashMap);
+      gc();
     
-    return( as.vector(ela ) )
+      return( as.vector(ela ) )
     }
     
     stopCluster(cl)
@@ -243,36 +194,30 @@ cvses.par <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, al
   
   #TT
 
-  mat = mod  
-  opti <- rowMeans(mat)
+  mat <- mod  
+  opti <- Rfast::rowmeans(mat)
   bestpar <- which.max(opti)
 
-  vale = numeric(6)
+  vale <- numeric( nAlpha * nMax_ks)
   for (i in 1:nAlpha) {
-    for (j in 1:nMax_ks) {
-      
+    for (j in 1:nMax_ks) {     
       k <- (i - 1) * nMax_ks + j
       vale[k] <- paste("a=", alphas[i], " & k=", max_ks[j], sep = "")
-      
     }
   }
   colnames(mat) = vale
   
   opti <- as.vector( Rfast::colmeans(mat) )
   bestpar <- which.max(opti)
-  estb <- abs( mean( mat[, bestpar] - apply(mat, 1, max) ) )
+  estb <- abs( mean( mat[, bestpar] - Rfast::rowMaxs(mat, value = TRUE) ) )     ### apply(mat, 1, max) ) )
   
   best_model <- NULL
   
   best_model$cv_results_all = mat
   best_model$best_performance <- max( opti )
-  best_model$BC_best_perf <- best_model$best_performance + estb
-  
+  best_model$BC_best_perf <- best_model$best_performance + estb 
   best_model$best_configuration = SES_configurations[[ bestpar ]]
-  
-  
   best_model$BC_best_perf <- best_model$best_performance - estb
-  
   best_model$runtime <- proc.time() - tic 
   
   return(best_model)
