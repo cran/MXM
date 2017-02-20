@@ -104,6 +104,16 @@ If there are missing values in the dataset (predictor variables) columnwise impu
 If you have percentages, in the (0, 1) interval, they are automatically mapped into \eqn{R} by using the logit transformation. If you set the test to \code{\link{testIndBeta}}, beta regression is used. If you have compositional data, positive multivariate data where each vector sums to 1, with NO zeros, they are also mapped into the Euclidean space using the additive log-ratio (multivariate logit) transformation (Aitchison, 1986).
 
 If you use testIndSpearman (argument "test"), the ranks of the data calculated and those are used in the caclulations. This speeds up the whole procedure.
+
+As a rule of thumb you can try this. If for example you have counts and want to see which model fits best, there are two ways. Calculate the mean and the variance. If they are similar, use the Poisson instead of the negative binomial as it is much faster. If you are not convinced, you can either use the negative binomial or do the following simulation study.
+
+x <- matrix(rnorm(n * 1000), ncol = 1000)
+a <- Rfast::univglms(y, x)
+hist(a[, 2])  ## histogram of the p-values
+
+If the histogram shows a uniform distribution, use the Poisson regression. If the histogram is not uniform, then repeat the simluation but with a negative binomial distribution. If the histogram is again not flat, then another model is necessary. If the data come from a Poisson or negative binomial, the histogram with a negative binomial regressino will be flat. If the data come a from a negative binomial, the histogram with a Poisson will not be uniform. 
+
+On the same page, if you have many zeros, try Rfast::zip.mle and see whether there are grounds to to facilitate the use of a zero inflated Poisson model. Otherwise, do a simulation study like before.  
 }
 
 \value{

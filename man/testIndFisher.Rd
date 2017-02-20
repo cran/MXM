@@ -1,6 +1,7 @@
 \name{Correlation based conditonal independence tests}
 \alias{testIndFisher}
 \alias{testIndSpearman}
+\alias{permFisher}
 \title{
 Fisher and Spearman conditional independence test for continuous class variables
 }
@@ -18,6 +19,9 @@ testIndSpearman(target, dataset, xIndex, csIndex, wei = NULL, statistic = FALSE,
 dataInfo = NULL, univariateModels = NULL, hash = FALSE, stat_hash = NULL, 
 pvalue_hash = NULL, robust = FALSE)
 
+permFisher(target, dataset, xIndex, csIndex, wei = NULL, statistic = FALSE, 
+dataInfo = NULL, univariateModels = NULL, hash = FALSE, stat_hash = NULL, 
+pvalue_hash = NULL, robust = FALSE, R = 999)
 }
 
 \arguments{
@@ -38,7 +42,8 @@ The indices of the variables to condition on.
 A vector of weights to be used for weighted regression. The default value is NULL. 
 }
 \item{statistic}{ 
-A boolena variable indicating whether the test statistics (TRUE) or the p-values should be combined (FALSE). See the details about this. 
+A boolean variable indicating whether the test statistics (TRUE) or the p-values should be combined (FALSE). See the details about this.
+For the permFisher test this is not taken into account.
 }
 \item{dataInfo}{
 A list object with information on the structure of the data. Default value is NULL.
@@ -55,8 +60,11 @@ A hash object (hash package required) which contains the cached generated statis
 \item{pvalue_hash}{
 A hash object (hash package required) which contains the cached generated p-values of a SES run in the current dataset, using the current test.
 }
-  \item{robust}{
+\item{robust}{
 A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robustified version of Fisher's correlation coefficient via MM-estimation available from \code{\link{rlm}} in the package "MASS". Two regressions are fitted and the square root ot the absolute value of the beta coefficients is used to calculate the correlation coefficient (Shevlyakov and Smirnov, 2011). For the conditional correlation the correlation of the residuals of the two robust regressions is calcualted. For more ways of calculating the correlation coefficient see the references. It takes more time than non robust version but it is suggested in case of outliers. Default value is FALSE. In the case of testIndSpearman, this is not used, as Spearman correlation is robust by default.
+}
+\item{R}{
+The number of permutations to use. The default value is 999.
 }
 }
 
@@ -70,6 +78,10 @@ For all the available conditional independence tests that are currently included
 Note that if the \code{\link{testIndReg}} is used instead the results will not be be the same, unless the sample size is very large. This is because the Fisher test uses the t distribution stemming from the Fisher's z transform and not the t distribution of the correlation coefficient.
 
 BE CAREFUL with testIndSpearman. The Pearson's correlation coefficient is actually calculated. So, you must have transformed the data into their ranks before plugging them here. The reason for this is to speed up the computation time, as this test can be used in SES, MMPC and mmhc.skel. The variance of the Fisher transformed Spearman's correlation is \eqn{\frac{1.06}{n-3}} and the variance of the Fisher transformed Pearson's correlation coefficient is \eqn{\frac{1}{n-3}}.
+
+When performing the above tests with multiple datasets, the test statistic and the p-values are combined in a meta-analytic way. Is up to the user to decide whether to use the fixed effects model approach and combine the test statistics (statistic = TRUE), or combine the p-values as Fisher suggested (statistic = FALSE). 
+
+The argument R is useful only for the permFisher test. 
 }
 
 \value{
@@ -92,19 +104,31 @@ The current hash object used for the p-values. See argument stat_hash and detail
 }
 
 \references{
+Fisher R. A. (1925). Statistical methods for research workers. Genesis Publishing Pvt Ltd.
+
+Fisher R. A. (1948). Combining independent tests of significance. American Statistician, 2(5), 30--31
+
+Fisher R. A. (1915). Frequency distribution of the values of the correlation coefficient in samples from an indefinitely large population. Biometrika, 10(4): 507--521.
+
+Fieller E. C., Hartley H. O. and Pearson E. S. (1957). Tests for rank correlation coefficients. I. Biometrika, 44(3/4): 470--481.
+
+Fieller E. C. and Pearson E. S. (1961). Tests for rank correlation coefficients. II. Biometrika, 48(1/2): 29--40.
+
 Hampel F. R., Ronchetti E. M., Rousseeuw P. J., and Stahel W. A. (1986). Robust statistics: the approach based on influence functions. John Wiley & Sons. 
+
+Pearson, K. (1895). Note on regression and inheritance in the case of two parents. Proceedings of the Royal Society of London, 58, 240--242.
 
 Peter Spirtes, Clark Glymour, and Richard Scheines. Causation, Prediction, and Search. The MIT Press, Cambridge, MA, USA, second edition, January 2001.
 
-Lee Rodgers J., and Nicewander W.A. (1988). "Thirteen ways to look at the correlation coefficient." The American Statistician 42(1): 59-66.
+Lee Rodgers J., and Nicewander W.A. (1988). "Thirteen ways to look at the correlation coefficient." The American Statistician 42(1): 59--66.
 
-Shevlyakov G. and Smirnov P. (2011). Robust Estimation of the Correlation Coefficient: An Attempt of Survey. Austrian Journal of Statistics, 40(1 & 2): 147-156.
+Shevlyakov G. and Smirnov P. (2011). Robust Estimation of the Correlation Coefficient: An Attempt of Survey. Austrian Journal of Statistics, 40(1 & 2): 147--156.
 }
 
 \author{
-Vincenzo Lagani and Ioannis Tsamardinos (Copyright 2012)
+Vincenzo Lagani and Ioannis Tsamardinos
 
-R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> Vincenzo Lagani <vlagani@csd.uoc.gr>
+R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> Vincenzo Lagani <vlagani@csd.uoc.gr>.
 }
 %\note{
 %%  ~~further notes~~
@@ -121,6 +145,8 @@ dataset <- matrix(runif(1000 * 200, 1, 1000), nrow = 1000 )
 target <- dataset[, 200]
 res1 <- testIndFisher(target, dataset, xIndex = 44, csIndex = 100)
 res2 <- testIndSpearman(target, dataset, xIndex = 44, csIndex = 100)
+res3 <- permFisher(target, dataset, xIndex = 44, csIndex = 100, R = 999)
+
 
 #define class variable (here tha last column of the dataset)
 dataset <- dataset[, -200];

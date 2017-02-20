@@ -32,7 +32,7 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
   #########
   ## if it is binomial or poisson regression
   #########
-  la <- length( Rfast::sort_unique(target) ) 
+  la <- length( unique(target) ) 
 
   if ( la == 2  || ( sum( round(target) - target ) == 0  &  la > 2 ) ) {
 
@@ -128,7 +128,7 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
     sel <- which.min( mat[, 2] )
     sela <- sel
 
-    if ( mat[sel, 2] < ini ) {
+    if ( ini - mat[sel, 2] > tol ) {
 
       info[1, ] <- mat[sel, ]
       mat <- mat[-sel, ]
@@ -221,9 +221,9 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
 
       ina <- which.min( mat[, 2] )
       sel <- mat[ina, 1]
-
-      if ( mat[ina, 2] >= tool[1] ) {
-        info <- rbind( info,  c( -10, 1e300 ) )
+      
+      if ( tool[1] - mat[ina, 2] <= tol ) {
+        info <- info
 
       } else {
         tool[2] <- mat[ina, 2]
@@ -232,8 +232,6 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
         mat <- mat[-ina , ]
         if ( !is.matrix(mat) )   mat <- matrix(mat, ncol = 2) 
      }
-
-     if ( sum( info[2, ] -  c( -10, 1e300 ) ) == 0 )  info <- matrix( info[1, ], ncol = 2)
 
    }
 
@@ -307,12 +305,12 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
         ina <- which.min( mat[, 2] )
         sel <- mat[ina, 1]
 
-        if ( mat[ina, 2] >= tool[k - 1] ) {
+        if ( tool[k - 1] - mat[ina, 2]  <= tol ) {
           info <- rbind( info,  c( -10, 1e300 ) )
-          tool[k] <- 1e+300
+          tool[k] <- Inf
 
         } else {
-          tool[k] = mat[ina, 2]
+          tool[k] <- mat[ina, 2]
           info <- rbind(info, mat[ina, ] )
           sela <- info[, 1]
           mat <- mat[-ina , ]
@@ -424,7 +422,7 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
     sel <- which.min( mat[, 2] )
     sela <- sel
 
-    if ( mat[sel, 2] < ini ) {
+    if ( ini - mat[sel, 2] > tol ) {
 	
       if ( !robust ) {
 	      if ( !heavy ) {
@@ -442,7 +440,7 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
       info[1, ] <- mat[sel, ]
       mat <- mat[-sel, ]
       if ( !is.matrix(mat) )   mat <- matrix(mat, ncol = 2) 
-    }  else  {
+    } else  {
       info <- info  
       sela <- NULL
     }
@@ -517,8 +515,8 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
        ina <- which.min( mat[, 2] )
        sel <- mat[ina, 1]
 
-      if ( mat[ina, 2] >= tool[1] ) {
-        info <- rbind( info,  c( -10, 1e300 ) )
+       if ( tool[1] - mat[ina, 2] <= tol ) {
+          info <- info
 
       } else {
 
@@ -529,8 +527,6 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
         if ( !is.matrix(mat) )  mat <- matrix(mat, ncol = 2) 
       }
 
-      if ( sum( info[2, ] -  c( -10, 1e300 ) ) == 0 )  info <- matrix( info[1, ], ncol = 2)
-
     }
 
       #########
@@ -538,8 +534,8 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
       #########
 
     if ( nrow(info) > 1 ) {
-      while ( ( k < n - 10 ) & ( tool[ k - 1 ] - tool[ k ] > tol ) ) {
-
+      while ( ( k < n - 10 ) & ( tool[ k - 1 ] - tool[ k ] > tol ) & ( nrow(mat) > 0 ) ) {
+        
         k <- k + 1
         pn <- p - k + 1
 
@@ -605,9 +601,9 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
          ina <- which.min( mat[, 2] )
          sel <- mat[ina, 1]
 
-         if ( mat[ina, 2] >= tool[k - 1] ) {
+         if ( tool[k - 1] - mat[ina, 2]  <= tol ) {
            info <- rbind( info,  c( -10, 1e300 ) )
-           tool[k] <- 1e+300
+           tool[k] <- Inf
 
          } else {
  

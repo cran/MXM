@@ -1,5 +1,5 @@
-testIndFisher = function(target, dataset, xIndex, csIndex, wei = NULL, statistic = FALSE, dataInfo = NULL, univariateModels=NULL , hash = FALSE, stat_hash = NULL,
- pvalue_hash = NULL, robust = FALSE) 
+permFisher = function(target, dataset, xIndex, csIndex, wei = NULL, statistic = FALSE, dataInfo = NULL, univariateModels=NULL , hash = FALSE, stat_hash = NULL,
+ pvalue_hash = NULL, robust = FALSE, R = 999) 
   {
   # TESTINDFISHER Fisher Conditional Independence Test for continous class variables
   # PVALUE = TESTINDFISHER(Y, DATA, XINDEX, CSINDEX, DATAINFO)
@@ -81,9 +81,11 @@ testIndFisher = function(target, dataset, xIndex, csIndex, wei = NULL, statistic
     
     xIndex = unique(xIndex);
     csIndex = unique(csIndex);
+    
     #extract the data
     x = dataset[ , xIndex];
     cs = dataset[ , csIndex];
+       
     #if x = any of the cs then pvalue = 1 and flag = 1.
     #That means that the x variable does not add more information to our model due to an exact copy of this in the cs, so it is independent from the target
     if(length(cs)!=0)
@@ -132,13 +134,14 @@ testIndFisher = function(target, dataset, xIndex, csIndex, wei = NULL, statistic
     #remove constant columns of cs
     cs = as.matrix(cs)
     cs = cs[, apply(cs, 2, var, na.rm=TRUE) != 0]  
+    
     #trycatch for dealing with errors
     res <- tryCatch(
       {
         #if the conditioning set (cs) is empty, we use a simplified formula
         if (length(cs) == 0)
         {
-          if(!is.null(univariateModels))
+          if ( !is.null(univariateModels) )
           {
             pvalue = univariateModels$pvalue[[xIndex]];
             stat = univariateModels$stat[[xIndex]];
@@ -148,34 +151,38 @@ testIndFisher = function(target, dataset, xIndex, csIndex, wei = NULL, statistic
           }
           #compute the correlation coefficient between x,target directly
           if ( robust ) { ## robust correlation
-            b1 = coef( MASS::rlm(target ~ x, maxit = 2000 ) )[2]
-            b2 = coef( MASS::rlm(x ~ target, maxit = 2000 ) )[2]
-            stat = sqrt( abs (b1 * b2) ) 
-          }else  stat = cor(x, target);
+            mod1 <- MASS::rlm( target ~ x, maxit = 2000 )
+            mod2 <- MASS::rlm( x ~ target, maxit = 2000 )       
+            e1 <- resid(mod1)
+            e2 <- resid(mod2)
+            res <- permcor( cbind(e1, e2), R )
+            stat <- abs( res[1] )
+            pvalue <- log(res[2])
+            
+          } else  {
+            res <- permcor( cbind(x, target), R )
+            stat <- abs( res[1] )
+            pvalue <- log(res[2])
+          }
         }else{
           #perform the test with the cs
           
           if ( robust ) { ## robust correlation
-            e1 = resid( MASS::rlm( target ~., data = data.frame( dataset[, csIndex] ), maxit = 2000 ) ) 
-            e2 = resid( MASS::rlm( dataset[, xIndex] ~.,  data = data.frame( dataset[, csIndex] ), maxit = 2000 ) )
-            stat = cor(e1,e2) 
+            e1 = resid( MASS::rlm( target ~ cs, maxit = 2000 ) ) 
+            e2 = resid( MASS::rlm( x ~ cs, maxit = 2000 ) )
+            res <- permcor( cbind(e1, e2), R)
+            stat <- abs( res[1] )
+            pvalue <- res[2]
           }else{
-            tmpm = cbind(x, target, cs);
-            corrMatrix = cor(tmpm);         
-            xyIdx = 1:2;
-            csIdx = 3:(ncol(as.matrix(cs))+2); #or csIdx = 3;          
-            residCorrMatrix = (corrMatrix[xyIdx, xyIdx]) - as.matrix(corrMatrix[xyIdx, csIdx])%*%(solve( as.matrix(corrMatrix[csIdx, csIdx]) , rbind(corrMatrix[csIdx, xyIdx])) );
-            stat = abs(residCorrMatrix[1,2] / sqrt(residCorrMatrix[1,1] * residCorrMatrix[2,2]));
+            er <- resid( lm.fit(cbind(1, cs), cbind( x, target )  ) )
+            res <- permcor( er, R ) 
+            stat <- abs( res[1] )
+            pvalue <- log(res[2])
           }
         }
         #lets calculate the p-value
-        z = 0.5*log( (1+stat)/(1-stat) );
-        dof = n - ncol(as.matrix(cs)) - 3; #degrees of freedom
-        stat = sqrt(dof) * abs(z);
-        pvalue = log(2) + pt(-stat, dof, log.p = TRUE) ;  # ?dt for documentation
-        #or alternatively we can calculate the p-value by comparing against the normal distribution
-        #pvalue = 2 * pnorm(-abs(w));  ### 
-        flag = 1;
+        
+       flag = 1;
         
         #last error check
         if(is.na(pvalue) || is.na(stat))
@@ -279,7 +286,7 @@ testIndFisher = function(target, dataset, xIndex, csIndex, wei = NULL, statistic
   if(xIndex < 0 || csIndex < 0)
   {
     message(paste("error in testIndFisher : wrong input of xIndex or csIndex"))
-    aa[[ i ]] <- list(pvalue = pvalue, z = 0, stat = 0, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+    aa[[ i ]] <- list(pvalue = pvalue, stat = 0, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
   }
   
   xIndex = unique(xIndex);
@@ -316,7 +323,7 @@ testIndFisher = function(target, dataset, xIndex, csIndex, wei = NULL, statistic
           stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
           pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
         }
-        aa[[ i ]] <- list(pvalue = log(1), z = 0, stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+        aa[[ i ]] <- list(pvalue = log(1), stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
         
       }
     }else{ #more than one var
@@ -329,7 +336,7 @@ testIndFisher = function(target, dataset, xIndex, csIndex, wei = NULL, statistic
             stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
             pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
           }
-          aa[[ i ]] <- list(pvalue = log(1), z = 0, stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+          aa[[ i ]] <- list(pvalue = log(1), stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
           
         }
       }
@@ -368,35 +375,36 @@ aa[[ i ]] <- tryCatch(
     #compute the correlation coefficient between x, target directly
 
     if ( robust ) { ## robust correlation
-      b1 = coef( MASS::rlm(targ ~ x, maxit = 2000 ) )[2]
-      b2 = coef( MASS::rlm(x ~ targ, maxit = 2000 ) )[2]
-      stat = sqrt( abs (b1 * b2) ) 
-    } else  stat = cor(x, targ);
-    
+      mod1 <- MASS::rlm( targ ~ x, maxit = 2000 )
+      mod2 <- MASS::rlm( x ~ targ, maxit = 2000 )       
+      e1 <- resid(mod1)
+      e2 <- resid(mod2)
+      res <- permcor( cbind(e1, e2), R )
+      stat <- abs( res[1] )
+      pvalue <- log(res[2])
+    }else{
+      res <- permcor( cbind(x, targ), R )
+      stat <- abs( res[1] )
+      pvalue <- log(res[2])
+    }
+
   } else{
      #perform the test with the cs
 
     if ( robust ) { ## robust correlation
       e1 = resid( MASS::rlm( targ ~., data = data.frame( data[, csIndex] ), maxit = 2000 ) ) 
       e2 = resid( MASS::rlm( data[, xIndex] ~.,  data = data.frame( data[, csIndex] ), maxit = 2000 ) )
-      stat = cor(e1,e2) 
+      res <- permcor( cbind(e1, e2), R )
+      stat <- abs( res[1] )
+      pvalue <- log(res[2])
     } else {
-      tmpm = cbind(x, targ, cs);   
-      corrMatrix = cor(tmpm);
-      xyIdx = 1:2;
-      csIdx = 3:(NCOL(cs) + 2); #or csIdx = 3;
-      residCorrMatrix = (corrMatrix[xyIdx, xyIdx]) - as.matrix(corrMatrix[xyIdx, csIdx])%*%(solve( as.matrix(corrMatrix[csIdx, csIdx]) , rbind(corrMatrix[csIdx, xyIdx])) );
-      stat = abs(residCorrMatrix[1,2] / sqrt(residCorrMatrix[1,1] * residCorrMatrix[2,2]));
+      er <- resid( lm.fit(cbind(1, cs), cbind( x, targ )  ) )
+      res <- permcor( er, R ) 
+      stat <- abs( res[1] )
+      pvalue <- log(res[2])
     }
   }
 
-  #lets calculate the p-value
-  z = 0.5 * log( (1 + stat) / (1 - stat) );
-  dof = n - NCOL(cs) - 3; #degrees of freedom
-  stat = sqrt(dof) * abs(z) ; ## standard errot for Spearman
-  pvalue = log(2) + pt(-stat, dof, log.p = TRUE) ;  # ?dt for documentation
-  #or alternatively we can calculate the p-value by comparing against the normal distribution
-  #pvalue = 2 * pnorm(-w);  ### 
   flag = 1;
   
   #last error check
@@ -413,10 +421,8 @@ aa[[ i ]] <- tryCatch(
       pvalue_hash[[key]] <- pvalue; #.set(pvalue_hash , key , pvalue)
     }
   }
-  
   #testerrorcaseintrycatch(4);
-   list(pvalue = pvalue, z = z, nu = n, stat = stat, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
-  
+   list(pvalue = pvalue, nu = n, stat = stat, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
 },
 
 error=function(cond) {
@@ -438,40 +444,21 @@ error=function(cond) {
   stat = 0;
   flag = 1;
   
-  list(pvalue = pvalue, z = z, nu = n, stat = stat, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+  list(pvalue = pvalue, nu = n, stat = stat, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
  },
 finally={}
 ) 
   
 }
 
-  if  ( !statistic ) {
-    
-	  pva <- numeric(D) 
-    for ( j in 1:D )   pva[j] = -2 * aa[[ j ]]$pvalue
-  
-    stat = sum(pva)
-    pvalue = pchisq( stat, 2 * D, lower.tail = FALSE, log.p = TRUE ) 
-  
-  } else {
-    sta <- se <- numeric(D) 
-	  cisa = ncol(cs)
-	
-    for ( j in 1:D )  {
-	    sta[j] = aa[[ j ]]$z
-	    se[j] = 1 / sqrt(aa[ j ]$nu -  cisa - 3 ) 
-    }
-	
-  	sse <- sum(se)
-	  stat <- (sta * se) / sqrt( sse )
-	  pvalue <- log(2) + pnorm( -abs(stat), log.p = TRUE )
-  }
-  
+  pva <- numeric(D) 
+  for ( j in 1:D )   pva[j] = -2 * aa[[ j ]]$pvalue
+  stat = sum(pva)
+  pvalue = pchisq( stat, 2 * D, lower.tail = FALSE, log.p = TRUE ) 
+
   if ( hash ) {
-    
     stat_hash[[key]] <- stat
     pvalue_hash[[key]] <- pvalue  
-    
   }
 
  res = list(pvalue = pvalue, stat = stat, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);

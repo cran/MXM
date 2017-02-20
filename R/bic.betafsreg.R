@@ -53,7 +53,7 @@ bic.betafsreg <- function( target, dataset, wei = NULL, tol = 2, ncores = 1 ) {
     rownames(mat) <- 1:p
     sel <- which.min( mat[, 2] )
     
-    if ( mat[sel, 2] < ini ) {
+    if ( ini - mat[sel, 2] > tol ) {
       info[1, ] <- mat[sel, ]
       mat <- mat[-sel, ]
       if ( !is.matrix(mat) )   mat <- matrix(mat, ncol = 2) 
@@ -104,7 +104,7 @@ bic.betafsreg <- function( target, dataset, wei = NULL, tol = 2, ncores = 1 ) {
       ina <- which.min( mat[, 2] )
       sel <- mat[ina, 1]
       
-      if ( mat[ina, 2] >= tool[1] ) {
+      if ( tool[1] - mat[ina, 2] <= tol ) {
         info <- info
         sela <- NULL
         
@@ -156,9 +156,9 @@ bic.betafsreg <- function( target, dataset, wei = NULL, tol = 2, ncores = 1 ) {
         ina <- which.min( mat[, 2] )
         sel <- mat[ina, 1]
         
-        if ( mat[ina, 2] >= tool[k - 1] ) {
-          info <- rbind( info,  c( -10, 1e300 ) )
-          tool[k] <- 1e+300
+        if ( tool[k - 1] - mat[ina, 2]  <= tol ) {
+          info <- rbind( info,  c( -10, Inf ) )
+          tool[k] <- Inf
           
         } else {
           
@@ -178,7 +178,6 @@ bic.betafsreg <- function( target, dataset, wei = NULL, tol = 2, ncores = 1 ) {
     }
     
     runtime <- proc.time() - runtime
-    
     
     d <- length(sela)
     final <- NULL

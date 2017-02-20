@@ -208,7 +208,7 @@ SES = function(target, dataset , max_k = 3 , threshold = 0.05 , test = NULL , in
   # test checking and initialize #
   ################################
   
-la <- length( Rfast::sort_unique( as.numeric(target) ) )
+la <- length( unique( as.numeric(target) ) )
   
   if(typeof(user_test) == "closure")
   {
@@ -472,7 +472,7 @@ InternalSES = function(target, dataset, max_k, threshold, test = NULL, ini, wei=
   cols = ncol(dataset)
   ## if testIndSpearman is selected and the user has put robust =TRUE, the robust is not taken into consideration. 
   #univariate feature selection test
-  la <- length( Rfast::sort_unique(target) )
+  la <- length( unique(target) )
   
   if ( is.null(ini) ) { 
     
@@ -570,9 +570,7 @@ InternalSES = function(target, dataset, max_k, threshold, test = NULL, ini, wei=
             lik2 = as.numeric( logLik(fit2) )
             
             return( c(lik2, length( coef(fit2) ) - 1 ) )
-          } else{
-            return( c(0, 0) )
-          }
+          } else  return( c(0, 0) )
           
         }
         stopCluster(cl)
@@ -599,7 +597,7 @@ InternalSES = function(target, dataset, max_k, threshold, test = NULL, ini, wei=
       
       mod <- Rfast::regression(dataset, target)
       univariateModels$stat = mod[1, ]
-      univariateModels$pvalue = pf(mod[1, ], mod[2, ], rows - mod[2, ], lower.tail = F, log.p = TRUE)
+      univariateModels$pvalue = pf(mod[1, ], mod[2, ], rows - mod[2, ], lower.tail = FALSE, log.p = TRUE)
       univariateModels$flag = numeric(cols) + 1;
       univariateModels$stat_hash = stat_hash;
       univariateModels$pvalue_hash = pvalue_hash;
@@ -708,7 +706,6 @@ InternalSES = function(target, dataset, max_k, threshold, test = NULL, ini, wei=
         }
         
         stat = as.vector( 2 * abs(lik1 - lik2) )
-        
         univariateModels$stat = stat
         univariateModels$pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
         univariateModels$flag = numeric(cols) + 1;
@@ -764,7 +761,6 @@ InternalSES = function(target, dataset, max_k, threshold, test = NULL, ini, wei=
         }
         
         stat = as.vector( 2 * abs(lik1 - lik2) )
-        
         univariateModels$stat = stat
         univariateModels$pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
         univariateModels$flag = numeric(cols) + 1;
@@ -776,16 +772,11 @@ InternalSES = function(target, dataset, max_k, threshold, test = NULL, ini, wei=
         cl <- makePSOCKcluster(ncores)
         registerDoParallel(cl)
         mod <- foreach(i = 1:cols, .combine = rbind, .packages = "nnet") %dopar% {
-          if ( i != targetID ) {
-            
-            
+          if ( i != targetID ) {          
             fit2 = nnet::multinom(target ~ dataset[, i], weights = wei)
             lik2 = as.numeric( logLik(fit2 ) )
-            
             return( c(lik2, length( coef(fit2) ) ) )
-          } else{
-            return( c(0, 0) )
-          }
+          } else  return( c(0, 0) )
         }
         stopCluster(cl)
         
@@ -800,10 +791,7 @@ InternalSES = function(target, dataset, max_k, threshold, test = NULL, ini, wei=
       
     } else if ( identical(test, testIndLogistic)  &  la == 2  &  is.matrix(dataset)  &  is.null(wei) ) {  ## logistic regression
       
-      if ( is.factor(target) ) {
-        target <- as.numeric(target) - 1
-      }
-      
+      if ( is.factor(target) )    target <- as.numeric(target) - 1
       mod <- Rfast::univglms( target, dataset, oiko = "binomial", logged = TRUE )
       univariateModels$stat = mod[, 1]
       univariateModels$pvalue = mod[, 2]
@@ -827,9 +815,7 @@ InternalSES = function(target, dataset, max_k, threshold, test = NULL, ini, wei=
             fit2 = glm( target ~ dataset[, i], binomial, weights = wei )
             lik2[i] = as.numeric( logLik(fit2) )
             dof[i] = length( coef(fit2) ) - 1
-          } else {
-            lik2[i] = lik1
-          }
+          } else  lik2[i] = lik1
         }
         
         stat = 2 * abs(lik1 - lik2)
@@ -848,12 +834,8 @@ InternalSES = function(target, dataset, max_k, threshold, test = NULL, ini, wei=
           if ( i != targetID ) {
             fit2 = glm( target ~ dataset[, i], binomial, weights = wei )
             lik2 = as.numeric( logLik(fit2) )
-            
             return( c(lik2, length( coef(fit2) ) - 1 ) )
-          } else{
-            return( c(0, 0) )
-          }
-          
+          } else   return( c(0, 0) )
         }
         stopCluster(cl)
         
@@ -866,6 +848,54 @@ InternalSES = function(target, dataset, max_k, threshold, test = NULL, ini, wei=
         univariateModels$pvalue_hash = NULL   
       }
       
+    } else if ( identical(test, testIndBinom) ) {  ## Logistic regression
+  
+      univariateModels = list();
+      wei <- target[, 2] 
+      y <- target[, 1] / wei
+      fit1 = glm(y ~ 1, binomial, weights = wei)
+      lik1 = as.numeric( logLik(fit1) )
+      lik2 = numeric(cols)
+      dof = numeric(cols)
+      ina <- 1:cols
+      if ( targetID != -1 )  ina[targetID] == 0
+  
+        if ( ncores <= 1 | is.null(ncores) ) {
+    
+          for ( i in ina ) {
+            fit2 = glm( y ~ dataset[, i], binomial, weights = wei )
+            lik2[i] = as.numeric( logLik(fit2) )
+            dof[i] = length( coef(fit2) ) - 1
+          }
+    
+          stat = 2 * abs(lik1 - lik2)
+          univariateModels$stat = stat
+          univariateModels$pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
+          univariateModels$flag = numeric(cols) + 1;
+          univariateModels$stat_hash = stat_hash;
+          univariateModels$pvalue_hash = pvalue_hash;
+     
+        } else {
+          cl <- makePSOCKcluster(ncores)
+          registerDoParallel(cl)
+          wei <- target[, 2] 
+          y <- target[, 1] / wei
+          mod <- foreach(i = ina, .combine = rbind) %dopar% {
+          fit2 = glm( y ~ dataset[, i], binomial, weights = wei )
+          lik2 = as.numeric( logLik(fit2) )
+          return( c(lik2, length( coef(fit2) ) - 1 ) )
+        }
+        stopCluster(cl)
+    
+        lik1 = as.numeric( logLik(fit1) )
+        stat = as.vector( 2 * abs(lik1 - mod[, 1]) )
+        univariateModels$stat = stat
+        univariateModels$pvalue = pchisq(stat, mod[, 2], lower.tail = FALSE, log.p = TRUE)
+        univariateModels$flag = numeric(cols) + 1
+        univariateModels$stat_hash = NULL
+        univariateModels$pvalue_hash = NULL   
+      }
+	  
     } else if ( identical(test, testIndPois)  &  is.matrix(dataset)  &  is.null(wei) ) {  ## Poisson regression
       
       mod <- Rfast::univglms( target, dataset, oiko = "poisson", logged = TRUE ) 
@@ -910,11 +940,8 @@ InternalSES = function(target, dataset, max_k, threshold, test = NULL, ini, wei=
           if ( i != targetID ) {
             fit2 = glm( target ~ dataset[, i], poisson, weights = wei )
             lik2 = as.numeric( logLik(fit2) )
-            
             return( c(lik2, length( coef(fit2) ) - 1 ) )
-          } else{
-            return( c(0, 0) )
-          }
+          } else   return( c(0, 0) )
           
         }
         stopCluster(cl)
@@ -959,11 +986,8 @@ InternalSES = function(target, dataset, max_k, threshold, test = NULL, ini, wei=
           if ( i != targetID ) {
             fit2 = MASS::glm.nb( target ~ dataset[, i], weights = wei )
             lik2 = fit2$deviance
-            
             return( c(lik2, length( coef(fit2) ) - 1 ) )
-          } else{
-            return( c(0, 0) )
-          }
+          } else   return( c(0, 0) )
           
         }
         stopCluster(cl)
@@ -1028,15 +1052,11 @@ InternalSES = function(target, dataset, max_k, threshold, test = NULL, ini, wei=
             df2 = as.numeric( ww[[1]][2] )
             stat = as.numeric( ww[[1]][3] )
             pval = pf(stat, df1, df2, lower.tail = FALSE, log.p = TRUE)
-            
             return( c(stat, pval ) )
-          } else{
-            return( c(0, 0) )
-          }
+          } else    return( c(0, 0) )
           
         }
         stopCluster(cl)
-        
         
         univariateModels$stat = as.vector( mod[, 1] )
         univariateModels$pvalue = as.vector( mod[, 2] )
@@ -1061,9 +1081,7 @@ InternalSES = function(target, dataset, max_k, threshold, test = NULL, ini, wei=
             fit2 = glm( target ~ dataset[, i], family = inverse.gaussian(link = log), weights = wei )
             lik2[i] = as.numeric( logLik(fit2) )
             dof[i] = length( coef(fit2) ) - 1
-          } else {
-            lik2[i] = lik1
-          }
+          } else   lik2[i] = lik1
         }
         
         stat = 2 * abs(lik1 - lik2)
@@ -1081,11 +1099,8 @@ InternalSES = function(target, dataset, max_k, threshold, test = NULL, ini, wei=
           if ( i != targetID ) {
             fit2 = glm( target ~ dataset[, i], family = inverse.gaussian(link = log), weights = wei )
             lik2 = as.numeric( logLik(fit2) )
-            
             return( c(lik2, length( coef(fit2) ) - 1 ) )
-          } else{
-            return( c(0, 0) )
-          }
+          } else    return( c(0, 0) )
           
         }
         stopCluster(cl)
@@ -1119,7 +1134,6 @@ InternalSES = function(target, dataset, max_k, threshold, test = NULL, ini, wei=
         }
         
         stat = 2 * abs(lik1 - lik2)
-        
         univariateModels$stat = stat
         univariateModels$pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
         univariateModels$flag = numeric(cols) + 1;
@@ -1134,11 +1148,8 @@ InternalSES = function(target, dataset, max_k, threshold, test = NULL, ini, wei=
           if ( i != targetID ) {
             fit2 = survival::coxph( target ~ dataset[, i], weights = wei )
             lik2 = as.numeric( logLik(fit2) )
-            
             return( c(lik2, length( coef(fit2) ) ) )
-          } else{
-            return( c(0, 0) )
-          }
+          } else   return( c(0, 0) )
           
         }
         stopCluster(cl)
@@ -1187,11 +1198,8 @@ InternalSES = function(target, dataset, max_k, threshold, test = NULL, ini, wei=
           if ( i != targetID ) {
             fit2 = survival::survreg( target ~ dataset[, i], weights = wei )
             lik2 = as.numeric( logLik(fit2) )
-            
             return( c(lik2, length( coef(fit2) ) - 1 ) )
-          } else{
-            return( c(0, 0) )
-          }
+          } else    return( c(0, 0) )
           
         }
         stopCluster(cl)
@@ -1203,7 +1211,89 @@ InternalSES = function(target, dataset, max_k, threshold, test = NULL, ini, wei=
         univariateModels$stat_hash = NULL
         univariateModels$pvalue_hash = NULL   
       }
-      
+    } else if ( identical(test, testIndClogit) ) {  ## Weibull regression
+  
+      id = target[, 2] #the patient id
+      case = as.logical(target[, 1]);  ## case 
+      univariateModels = list();
+      stat = numeric(cols)
+      dof = numeric(cols)
+      ina <- 1:cols
+      if ( targetID != -1 )  ina[targetID] == 0
+  
+        if ( ncores <= 1 | is.null(ncores) ) {
+    
+          for ( i in ina ) {
+            fit2 = survival::clogit( case ~ dataset[, i] + strata(id) ) 
+            dof[i] = length( coef(fit2) ) 
+            stat[i] = 2 * abs( diff(fit2$loglik) )
+          }
+    
+          univariateModels$stat = stat
+          univariateModels$pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
+          univariateModels$flag = numeric(cols) + 1;
+          univariateModels$stat_hash = stat_hash;
+          univariateModels$pvalue_hash = pvalue_hash;
+    
+        } else {
+          cl <- makePSOCKcluster(ncores)
+          registerDoParallel(cl)
+          mod <- foreach(i = ina, .combine = rbind, .packages = "survival") %dopar% {
+            fit2 = survival::clogit(case ~ dataset[, i] + strata(id) ) 
+            return( c(2 * abs( diff(fit2$loglik) ), length( coef(fit2) ) ) )
+          }
+          stopCluster(cl)
+    
+          stat = as.vector( 2 * abs(lik1 - mod[, 1]) )
+          univariateModels$stat = stat
+          univariateModels$pvalue = pchisq(stat, mod[, 2], lower.tail = FALSE, log.p = TRUE)
+          univariateModels$flag = numeric(cols) + 1
+          univariateModels$stat_hash = NULL
+          univariateModels$pvalue_hash = NULL   
+        }
+  
+    } else if ( identical(test, censIndER) ) {  ## Weibull regression
+  
+      univariateModels = list();
+      fit1 = survival::survreg(target ~ 1, dist = "exponential", weights = wei)
+      lik1 = as.numeric( logLik(fit1) )
+      lik2 = numeric(cols)
+      dof = numeric(cols)
+      ina <- 1:cols
+      if ( targetID != -1 )  ina[targetID] == 0
+  
+      if ( ncores <= 1 | is.null(ncores) ) {
+    
+        for ( i in ina ) {
+          fit2 = survival::survreg( target ~ dataset[, i], dist = "exponential", weights = wei )
+          lik2[i] = as.numeric( logLik(fit2) )
+          dof[i] = length( coef(fit2) ) - 1
+        }
+    
+        stat = 2 * abs(lik1 - lik2)
+        univariateModels$stat = stat
+        univariateModels$pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
+        univariateModels$flag = numeric(cols) + 1;
+        univariateModels$stat_hash = stat_hash;
+        univariateModels$pvalue_hash = pvalue_hash;
+    
+      } else {
+        cl <- makePSOCKcluster(ncores)
+        registerDoParallel(cl)
+        mod <- foreach(i = ina, .combine = rbind, .packages = "survival") %dopar% {
+          fit2 = survival::survreg( target ~ dataset[, i], dist = "exponential", weights = wei )
+          return( c(as.numeric( logLik(fit2) ), length( coef(fit2) ) - 1 ) )
+        }
+        stopCluster(cl)
+    
+        stat = as.vector( 2 * abs(lik1 - mod[, 1]) )
+        univariateModels$stat = stat
+        univariateModels$pvalue = pchisq(stat, mod[ ,2], lower.tail = FALSE, log.p = TRUE)
+        univariateModels$flag = numeric(cols) + 1
+        univariateModels$stat_hash = NULL
+        univariateModels$pvalue_hash = NULL   
+      }
+	  
     } else{  
       univariateModels = univariateScore(target, dataset, test, wei = wei, dataInfo = dataInfo, hash=hash, stat_hash=stat_hash, pvalue_hash=pvalue_hash, targetID=targetID, robust=robust, ncores=ncores);
     }
@@ -1216,7 +1306,7 @@ InternalSES = function(target, dataset, max_k, threshold, test = NULL, ini, wei=
 #   stat_hash = univariateModels$stat_hash;
 #   pvalue_hash = univariateModels$pvalue_hash;
   #if we dont have any associations , return
-  if ( min(pvalues , na.rm=TRUE) > threshold ) 
+  if ( min(pvalues, na.rm = TRUE) > threshold ) 
   {
     cat('No associations!');
     

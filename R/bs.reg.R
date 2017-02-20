@@ -40,7 +40,7 @@ bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
 
  if ( is.null( colnames(dataset) ) )  colnames(dataset) <- paste("X", 1:p, sep = "")
   
-  la <- length( Rfast::sort_unique(target) )
+  la <- length( unique(target) )
  
   ## dependent (target) variable checking if no test was given, 
   ## but other arguments are given. For some cases, these are default cases
@@ -52,11 +52,11 @@ bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
       ci_test <- test <- "censIndCR"
       
       ## ordinal, multinomial or perhaps binary data
-    } else if ( is.factor(target) ||  is.ordered(target) || length( Rfast::sort_unique(target) ) == 2 ) {
+    } else if ( is.factor(target) ||  is.ordered(target) || length( unique(target) ) == 2 ) {
       ci_test <- test <- "testIndLogistic"
       
       ## count data
-    } else if ( length( Rfast::sort_unique(target) ) > 2  &  !is.factor(target) ) {
+    } else if ( length( unique(target) ) > 2  &  !is.factor(target) ) {
       if ( sum( round(target) - target ) == 0 ) {
         ci_test <- test <- "testIndPois"
       } else  ci_test <- test <- "testIndReg"  
@@ -134,7 +134,8 @@ bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
 		  stat[j] <- 2 * abs( likini - logLik(mod) )
 		  dof[j] <- dofini - length( coef(mod) ) 
 	  }
-	  
+	    
+	    if ( ci_test == "censIndCR")   dof <- dof + 1
       mat <- cbind(1:p, pchisq( stat, dof, lower.tail = FALSE, log.p = TRUE), stat )
       colnames(mat) <- c("variable", "log.p-values", "statistic" )
       rownames(mat) <- 1:p 
@@ -172,6 +173,7 @@ bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
 		        mod <- test(target ~ 1, weights = wei)
 		        stat <- 2 * abs( likini - logLik(mod) )
 		        dof <- dofini - length( coef(mod) ) 
+		        if ( ci_test == "censIndCR")   dof <- dof + 1
 		        pval <- pchisq( stat, dof, lower.tail = FALSE, log.p = TRUE)
 		      
 		        if (pval > threshold ) {
@@ -192,7 +194,7 @@ bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
 		          stat[j] <- 2 * abs( likini - logLik(mod) )
 		          dof[j] <- dofini - length( coef(mod) ) 
 	          }
-           
+            
             mat[, 2:3] <- cbind( pchisq( stat, dof, lower.tail = FALSE, log.p = TRUE), stat )
             sel <- which.max( mat[, 2] )
            

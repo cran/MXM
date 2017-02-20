@@ -115,7 +115,6 @@ zip.fsreg <- function(target, dataset, threshold = 0.05, wei = NULL, tol = 2, nc
       
     }
     
-  
   mat[, 2:3] <- cbind(pval, stat)
   ina <- which.min(mat[, 2])
   sel <- mat[ina, 1]    
@@ -189,7 +188,7 @@ zip.fsreg <- function(target, dataset, threshold = 0.05, wei = NULL, tol = 2, nc
         ma <- zip.reg( target, dataset[, c(sela, sel) ], wei = wei )
         tool[k] <-  - 2 * ma$loglik + ( length(ma$be) + 1 ) * con
         
-        if ( tool[ k - 1 ] - tool[ k  ] < tol ) {
+        if ( tool[ k - 1 ] - tool[ k  ] <= tol ) {
           info <- rbind(info, c( 1e300, 0, 0 ) )
           
         } else { 

@@ -15,14 +15,14 @@ findAncestors(G, node = NULL, graph = FALSE)
 }
 
 \arguments{
-  \item{G}{
-  The graph matrix as produced from \code{\link{pc.or}} or any other algorithm which produces directed graphs. 
+\item{G}{
+The graph matrix as produced from \code{\link{pc.or}} or any other algorithm which produces directed graphs. 
 }
-  \item{node}{
-  A numerical value indicating the node (or variable) whose descendants are to be returned. 
+\item{node}{
+A numerical value indicating the node (or variable) whose descendants are to be returned. 
 }
-  \item{graph}{
-  A boolean variable. If TRUE the relevant graph will appear (if there are descendants). 
+\item{graph}{
+A boolean variable. If TRUE the relevant graph will appear (if there are descendants). 
 }
 }
 

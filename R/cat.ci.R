@@ -14,11 +14,9 @@ cat.ci <- function(xi, yi, cs, dataset, type = type, rob = FALSE, R = 1) {
   ## type is set to NULL be default. This argument is not taken into consideration anywhere
   ## rob is FALSE by default, even if it is TRUE it is not taken into cosideration
   ## the type and rob arguments are put here so as to have the same signature as condi
-  
   if ( sum(cs == 0) > 0 ) {  ## There are no conditioning variables
   
     a1 <- Rfast::g2Test_univariate(dataset[, c(xi, yi)], type[c(xi, yi)])
-     
     stat <- as.numeric( a1$statistic )
     dof <- as.numeric( a1$df )
     pval <- pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
@@ -38,5 +36,4 @@ cat.ci <- function(xi, yi, cs, dataset, type = type, rob = FALSE, R = 1) {
   
   names(res) <- c("Chi-squared test", "logged p-value", "df")
   res
-
 }

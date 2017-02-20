@@ -53,7 +53,7 @@ bic.zipfsreg <- function( target, dataset, wei = NULL, tol = 2, ncores = 1 ) {
   rownames(mat) <- 1:p
   sel <- which.min( mat[, 2] )
   
-  if ( mat[sel, 2] < ini ) {
+  if ( ini - mat[sel, 2] > tol ) {
     
     info[1, ] <- mat[sel, ]
     mat <- mat[-sel, ]
@@ -62,7 +62,7 @@ bic.zipfsreg <- function( target, dataset, wei = NULL, tol = 2, ncores = 1 ) {
     mi <- zip.reg( target, dataset[, sel], wei = wei, lgy = lgy )
     tool[1] <-  - 2 * mi$loglik + ( length(mi$be) + 1 ) * con
     moda[[ 1 ]] <- mi
-  }  else  {
+  } else  {
     info <- info  
     sela <- NULL
   }  
@@ -103,7 +103,7 @@ bic.zipfsreg <- function( target, dataset, wei = NULL, tol = 2, ncores = 1 ) {
     ina <- which.min( mat[, 2] )
     sel <- mat[ina, 1]
     
-    if ( mat[ina, 2] >= tool[1] ) {
+    if ( tool[1] - mat[ina, 2] <= tol ) {
       info <- info
       
     } else {
@@ -150,9 +150,9 @@ bic.zipfsreg <- function( target, dataset, wei = NULL, tol = 2, ncores = 1 ) {
       ina <- which.min( mat[, 2] )
       sel <- mat[ina, 1]
       
-      if ( mat[ina, 2] >= tool[k - 1] ) {
-        info <- rbind( info,  c( -10, 1e300 ) )
-        tool[k] <- 1e+300
+      if ( tool[k - 1] - mat[ina, 2] <= tol ) {
+        info <- rbind( info,  c( -10, Inf ) )
+        tool[k] <- Inf
         
       } else {
         

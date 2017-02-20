@@ -6,24 +6,18 @@
 #####################
 
 condi <- function(ind1, ind2, cs, dat, type = "pearson", rob = FALSE, R = 1) {
-  
   ## ind1 and ind2 are the two indices of the two variables whose correlation is of interest
   ## cs is a vector with the indices of of variable(s),  over which the condition takes place
   ## dat is the data, a matrix form
   ## type is either "pearson" or "spearman"
   ## For a robust estimation of the PEarson correlation set rob = TRUE or FALSE otherwise
-
-  n <- nrow(dat) ## sample size
+  n <- dim(dat)[1] ## sample size
   d <- sum( cs>0 )  ## dimensionality of cs
   
-  
   if ( R == 1 ) {  ## no permutation
-  
   ## NOTE: if you set test = "spearman", you must have the ranks of the data in 
   ## the dat argument and not the data themselves. This is to speed up the computations
-  if (type == "spearman") { 
-    rob = FALSE   ## if spearman is chosen, robust is set to FALSE  
-  }
+  if (type == "spearman") rob = FALSE   ## if spearman is chosen, robust is set to FALSE  
 
   if ( !rob ) {
     if ( d == 0 ) {
@@ -34,9 +28,11 @@ condi <- function(ind1, ind2, cs, dat, type = "pearson", rob = FALSE, R = 1) {
       corrMatrix <- cor(tmpm)
       xyIdx <- 1:2
       csIdx <- 3:( d + 2 ) # or csIdx = 3
-      residCorrMatrix <- ( corrMatrix[xyIdx, xyIdx] ) - as.matrix( corrMatrix[xyIdx, csIdx] ) %*% 
-      ( solve( as.matrix( corrMatrix[csIdx, csIdx] ) , rbind( corrMatrix[csIdx, xyIdx] ) ) )
-      r <- abs( residCorrMatrix[1, 2] / sqrt( residCorrMatrix[1, 1] * residCorrMatrix[2, 2]) )
+      residCorrMatrix <- corrMatrix[xyIdx, xyIdx] - as.matrix( corrMatrix[xyIdx, csIdx] ) %*% 
+      ( solve( as.matrix( corrMatrix[csIdx, csIdx] ), rbind( corrMatrix[csIdx, xyIdx] ) ) ) 
+      r <-  - residCorrMatrix[1, 2] / sqrt( residCorrMatrix[1, 1] * residCorrMatrix[2, 2]) 
+      if ( abs(r) >1 )   r <- 0.99999
+      
     }
     
   } else {  ## robust estimation using M estimation
@@ -70,10 +66,6 @@ condi <- function(ind1, ind2, cs, dat, type = "pearson", rob = FALSE, R = 1) {
 
         mod1 <- MASS::rlm( x1 ~ x2, maxit = 2000 )
         mod2 <- MASS::rlm( x2 ~ x1, maxit = 2000 )       
-        b1 <- coef( mod1 )[2]
-        b2 <- coef( mod2 )[2]
-        r <- sqrt( abs(b1 * b2) )
-        stat <- abs( 0.5 * log( (1 + r) / (1 - r) ) )  ## absolute of the test statistic      
         e1 <- resid(mod1)
         e2 <- resid(mod2)
         res <- permcor( cbind(e1, e2), R )
@@ -89,7 +81,6 @@ condi <- function(ind1, ind2, cs, dat, type = "pearson", rob = FALSE, R = 1) {
     }else{  ## there are conditioning variables
       
       if ( rob ) { ## robust correlation
-
         e1 <- resid( MASS::rlm( x1 ~ ., data = as.data.frame(dat[, cs]) ), maxit = 2000 )
         e2 <- resid( MASS::rlm( x2 ~.,  data = as.data.frame(dat[, cs]) ), maxit = 2000 )
         res <- permcor( cbind(e1, e2), R)
@@ -104,16 +95,12 @@ condi <- function(ind1, ind2, cs, dat, type = "pearson", rob = FALSE, R = 1) {
       }
     }
     #lets calculate the stat and p-value which are to be returned
-    
     dof <- n - d - 3; #degrees of freedom
     stat <- stat / dof
     pvalue <- log( pvalue )
-    
     result <- c(stat, pvalue, dof)
     names(result) <- c('test', 'logged.p-value', 'df') 
-    
   }
   
   result
-  
 }

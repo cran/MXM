@@ -1,7 +1,6 @@
 ################################
 #### Permutation based hypothesis testing 
 #### for a zero correlation coefficient 
-####
 ################################
 
 permcor <- function(x, R = 999) {
@@ -16,7 +15,7 @@ permcor <- function(x, R = 999) {
   up <-  m1 * m2 / n
   down <- sqrt( (m12 - m1^2 / n) * (m22 - m2^2 / n) )
   r <- ( sum(x1 * x2) - up) / down
-  test <- log( (1 + r) / (1 - r) )  ## the test statistic
+  test <- abs( log( (1 + r) / (1 - r) ) )  ## the test statistic
   
   sxy <- numeric(R)
   for (i in 1:R) {
@@ -26,7 +25,7 @@ permcor <- function(x, R = 999) {
   rb <- (sxy - up) / down
   tb <- log( (1 + rb) / (1 - rb) )  ## the test statistic
   
-  pvalue <- ( sum( abs(tb) > abs(test) ) + 1 ) / (R + 1)  ## bootstrap p-value
+  pvalue <- ( sum( abs(tb) > test ) + 1 ) / (R + 1)  ## bootstrap p-value
   res <- c( r, pvalue )
   names(res) <- c('correlation', 'p-value')
   res

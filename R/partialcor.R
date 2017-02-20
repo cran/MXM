@@ -7,19 +7,18 @@ partialcor = function(R, indx, indy, indz) {
   if ( is.null(indz) || indz == 0  )  {## classical correlation
      r <- R[indx, indy]
      
-  } else if ( length(indz) == 1  &  indz > 0 ) {
+  } else if ( length(indz) == 1  &  all( indz > 0 ) ) {
     
     a1 <- R[indx, indy]     ;    a2 <- R[indx, indz]
     a3 <- R[indy, indz]
     r <- (a1 - a2 * a3) / sqrt( (1 - a3^2) * (1 - a2^2) )
     
   } else if ( length(indz) > 1 ) {
+    
      rho <- solve( R[c(indx, indy, indz), c(indx, indy, indz)] )
      r <-  - rho[1, 2] / sqrt(rho[1, 1] * rho[2, 2])
   }
-  
-  if ( is.na(r) )  r <- 0  
-  
-  r
-  
+    if ( abs(r) > 1 ) r <- 0.99999
+ r
 }
+

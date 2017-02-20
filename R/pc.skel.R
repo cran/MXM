@@ -26,9 +26,7 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 
         if(class(xi) == "numeric")
         {                    
           xi[ which( is.na(xi) ) ] <- median(xi, na.rm = TRUE) 
-        } else if ( is.factor( xi ) ) {
-          xi[ which( is.na(xi) ) ] <- levels(xi)[ which.max( as.vector( table(xi) ) )]
-        }
+        } else if ( is.factor( xi ) )   xi[ which( is.na(xi) ) ] <- levels(xi)[ which.max( as.vector( table(xi) ) )]
         dataset[, i] <- xi
       }
     }
@@ -41,10 +39,13 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 
   }
   
   if (method == "spearman" || method == "pearson") {
-      ci.test <- condi 
-      type <- method
-      rob <- rob
-
+    ci.test <- condi 
+    type <- method
+    rob <- rob
+  } else if (method == "distcor" ) {
+    ci.test <- dist.condi
+    type <- NULL
+    rob <- NULL
   } else {
     ci.test <- cat.ci
     dc <- Rfast::colrange(dataset, cont = FALSE)
@@ -164,7 +165,6 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 
       met <- matrix(0, duo, k + 2)
       
       for ( i in 1:nrow(zeu) ) {
-
         adjx = ina[ G[ zeu[i, 1], ] == 2 ]   ;   lx = length(adjx)  ## adjacents to x
         adjy = ina[ G[ zeu[i, 2], ] == 2 ]   ;   ly = length(adjy)  ## adjacents to y
         
@@ -268,9 +268,7 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 
       id = which( rowSums(met) > 0 )
       if (length(id) == 1) {
          sep[[ k ]] = c( zeu[id, 1:2], met[id, ] )
-      } else {
-        sep[[ k ]] = cbind( zeu[id, 1:2], met[id, ] )
-      }
+      } else  sep[[ k ]] = cbind( zeu[id, 1:2], met[id, ] )
       
       zeu = zeu[-id, ]  
       if ( class(zeu) != "matrix" )  zeu <- matrix(zeu, ncol = 4)
@@ -279,13 +277,11 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 
 
     }
 
-    G <- G / 2
+    G <- G/2
     diag(G) = 0
     durat = proc.time() - durat
-
     ###### end of the algorithm
     for ( l in 1:k ) { 
-      
       if ( is.matrix(sep[[ l ]]) ) {
         colnames( sep[[ l ]] ) <- c("X", "Y", paste("SepVar", 1:l), "stat", "logged.p-value")
         #sepa =  sepa[ order(sepa[, 1], sepa[, 2] ), ]
@@ -296,14 +292,12 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 
     } 
   #######################
   }  
-
   n.tests = n.tests[ n.tests>0 ]
   k = length(n.tests) - 1
   sepset = list()
   
   if (k == 0) {
     sepset = NULL
-    
   } else {
     for ( l in 1:k ) {
       if ( is.matrix( sep[[ l ]] ) )  {
@@ -314,12 +308,9 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 
   }  
   
   names(n.tests) = paste("k=", 0:k, sep ="")
-  
   info <- summary( Rfast::rowsums(G) )
   density <- sum(G) / n / ( n - 1 ) 
-  
   ##################
- 
   if( graph )  plotnetwork(G, paste("Skeleton of the PC algorithm for", title) )
    
   list(stat = stata, pvalue = pvalue, runtime = durat, kappa = k, n.tests = n.tests, density = density, info = info, G = G, sepset = sepset, title = title )

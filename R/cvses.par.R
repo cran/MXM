@@ -47,7 +47,7 @@ cvses.par <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, al
   
   if ( is.null(folds) )
   {
-    folds = generatefolds(target, nfolds = kfolds, stratified = TRUE, seed = FALSE)
+    folds <- generatefolds(target, nfolds = kfolds, stratified = TRUE, seed = FALSE)
   }else  kfolds <- length( folds[[1]] );
   
   if(is.null(task)){
@@ -80,7 +80,7 @@ cvses.par <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, al
     }else  modelerFunction <- modeler;
     
     if (is.null(ses_test)){
-      test = 'testIndFisher';
+      test <- 'testIndFisher';
     }else  test <- ses_test;
     
   }else if(task == 'S'){
@@ -95,7 +95,7 @@ cvses.par <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, al
     }else  modelerFunction <- modeler;
     
     if (is.null(ses_test)){
-      test = "censIndCR";
+      test <- "censIndCR";
     }else  test <- ses_test;
     
   }else  stop("Please provide a valid task argument 'C'-classification, 'R'-regression, 'S'-survival.")

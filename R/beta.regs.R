@@ -105,9 +105,7 @@ beta.regs <- function(target, dataset, wei = NULL, logged = FALSE, ncores = 1) {
              iterlim = 10000 )
        return( c( - mod2$minimum, dim(x)[2] - 1 ) )
      }
-    
      stopCluster(cl)
-
    }
     
     lik <- mod[, 1] - sly2
@@ -117,7 +115,6 @@ beta.regs <- function(target, dataset, wei = NULL, logged = FALSE, ncores = 1) {
   }  
 
   cbind(stat, pvalue, bic)
-
 }
 
 
@@ -160,13 +157,11 @@ betamle.wei <- function(y, wei) {
   
   iniphi <- sum( y * (1 - y) ) / var(y) / n 
   a1 <- sum(y) * iniphi / n        ;        a2 <- iniphi - a1
-  
   options(warn = -1)
   lik <- nlm( betawei, c( log(a1), log(a2) ), ly1 = ly1, ly2 = ly2, iterlim = 10000 )
   lik2 <- nlm( betawei, lik$estimate, ly1 = ly1, ly2 = ly2, iterlim = 10000 )  
   
   list(iters = lik$iterations + lik2$iterations, param = exp(lik2$estimate), loglik = -lik2$minimum )
-  
 }
 
 

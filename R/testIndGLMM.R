@@ -153,7 +153,7 @@ testIndGLMM = function(target, reps = NULL, group, dataset, xIndex, csIndex,  we
   
   if(target_type == 0)
   {
-    if ( length( Rfast::sort_unique(target) ) == 2 |  "factor" %in% class(target) ) {
+    if ( length( unique(target) ) == 2 |  "factor" %in% class(target) ) {
         dataInfo$target_type = "binary" 
     } else if  (identical(floor(target), target) ) {
         dataInfo$target_type = "discrete"
@@ -214,9 +214,9 @@ testIndGLMM = function(target, reps = NULL, group, dataset, xIndex, csIndex,  we
         fit2 = lme4::lmer( target ~ reps + (reps|group) + dataset[, xIndex], weights = wei, REML = FALSE ) 
       } else  fit2 = lme4::glmer( target ~ reps + (reps|group) + dataset[, xIndex], weights = wei, REML = FALSE , family = oikogeneia[target_type] ) 
 	  
-   }else{
-      reps = reps 
-     if ( target_type == 1 ) {
+      } else{
+        reps = reps 
+        if ( target_type == 1 ) {
           fit2 = lme4::lmer( target ~ reps + (1|group) + dataset[, xIndex], weights = wei, REML = FALSE )        
         } else  fit2 = lme4::glmer( target ~ reps + (1|group) + dataset[, xIndex], weights = wei, REML = FALSE , family = oikogeneia[target_type] )  
       }

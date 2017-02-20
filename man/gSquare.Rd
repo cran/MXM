@@ -92,7 +92,7 @@ The current hash object used for the p-values. See argument stat_hash and detail
 
 \references{
 Tsamardinos, Ioannis, Laura E. Brown, and Constantin F. Aliferis. The max-min hill-climbing Bayesian network structure learning algorithm. 
-Machine learning, 2006 65(1): 31-78. 
+Machine learning, 2006 65(1): 31--78. 
 }
 
 \author{

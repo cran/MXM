@@ -68,7 +68,7 @@ The simulated data.
 }
 
 \references{
-Colombo, Diego, and Marloes H. Maathuis (2014). Order-independent constraint-based causal structure learning." The Journal of Machine Learning Research 15(1): 3741--3782.
+Colombo, Diego, and Marloes H. Maathuis (2014). Order-independent constraint-based causal structure learning. The Journal of Machine Learning Research 15(1): 3741--3782.
 }
 
 \author{

@@ -15,7 +15,7 @@ importFrom("quantreg", rq)
 importFrom("MASS", glm.nb)
 
 #testIndReg
-importFrom("MASS", rlm)
+importFrom("MASS", rlm, ginv)
 
 #testIndPois
 importFrom("stats", glm, anova)
@@ -35,13 +35,16 @@ importFrom("speedglm", speedlm, speedglm)
 #robust glms
 #importFrom("robust", glmRob, lmsreg)
 
+importFrom("energy", dcor.ttest, pdcor.test)
+
 importFrom("utils", combn)
 importFrom("MASS", lm.ridge)
 
 #more
 importFrom("methods", "new", "as")
-importFrom("stats", "predict", "var", "pt", "pf", "binomial", "family", "predict.lm", "BIC", "logLik", "median", "poisson", "sd",
-             "xtabs", "fitted", "rbinom", "runif", "drop1", "weights", "inverse.gaussian", "nlm", "optim")
+importFrom("stats", "predict", "var", "pt", "pf", "binomial", "family", "predict.lm", "BIC", "logLik", "median", 
+             "poisson", "sd", "xtabs", "fitted", "rbinom", "runif", "drop1", "weights", "inverse.gaussian", 
+			 "nlm", "optim")
 
 importFrom("grDevices", "dev.new")
   
@@ -53,8 +56,9 @@ importFrom("e1071", allShortestPaths, extractPath )
 
 importFrom("relations", relation, relation_incidence, transitive_closure)
 
-importFrom("Rfast", "colVars", "univglms", "colmeans", "g2Test_univariate", "g2Test", "sort_mat", "which_isFactor", 
-           "standardise", "colrange", "comb_n", "regression", "zip.mle", "beta.mle", "rmvnorm", "rowMaxs")
+importFrom("Rfast", "colVars", "univglms", "colmeans", "g2Test_univariate", "g2Test", "sort_mat", 
+           "which_isFactor", "standardise", "colrange", "comb_n", "regression", "zip.mle", "beta.mle", 
+		   "rmvnorm", "rowMaxs", "rowsums", "colsums")
 
 
 import("doParallel")
@@ -70,7 +74,8 @@ export(SES, InternalSES, MMPC, InternalMMPC, SES.temporal, InternalSES.temporal,
        coxph.mxm, beta.mxm, weibreg.mxm, ridge.reg, ridgereg.cv, ridge.plot, ses.model, mmpc.model, nei, reg.fit, pc.or, undir.path, rdag, 
        mb, mmmb, permcor, findAncestors, findDescendants, transitiveClosure, dag2eg, bic.fsreg, bic.glm.fsreg, fs.reg, glm.fsreg, 
        lm.fsreg, glm.bsreg, tc.plot, cv.mmpc, mmpc.path, condi, partialcor, auc, generatefolds, ma.ses, ma.mmpc, equivdags, testIndIGreg,
-       bs.reg, zip.reg, zip.mod, zip.regs, beta.regs, beta.mod, beta.reg, plotnetwork)
+       bs.reg, zip.reg, zip.mod, zip.regs, beta.regs, beta.mod, beta.reg, plotnetwork, univregs, iamb.bs, iamb, dist.condi, permFisher,
+       permcorrels, lm.fsreg_heavy)
 
 exportClasses("SESoutput")
 exportClasses("MMPCoutput")

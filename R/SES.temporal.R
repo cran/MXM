@@ -156,7 +156,7 @@ SES.temporal = function(target, reps = NULL, group, dataset, max_k = 3 , thresho
   # test checking and initialize #
   ################################
   
-  la <- length( Rfast::sort_unique( as.numeric(target) ) )
+  la <- length( unique( as.numeric(target) ) )
 
   if(typeof(user_test) == "closure")
   {
@@ -530,7 +530,7 @@ univariateScore.temporal = function(target , reps, group, dataset , test, wei, h
     {
       #arguments order for any CI test are fixed
       if (i != targetID){
-        test_results = test(target , reps, group, dataset , i, 0 , wei = wei, dataInfo=dataInfo, hash=hash, stat_hash=stat_hash, pvalue_hash=pvalue_hash, slopes = slopes)
+        test_results = test(target, reps, group, dataset, i, 0, wei = wei, dataInfo=dataInfo, hash=hash, stat_hash=stat_hash, pvalue_hash=pvalue_hash, slopes = slopes)
         univariateModels$pvalue[[i]] = test_results$pvalue;
         univariateModels$stat[[i]] = test_results$stat;
         univariateModels$flag[[i]] = test_results$flag;
@@ -752,7 +752,7 @@ min_assoc.temporal = function(target , reps, group, dataset , test ,  max_k , cv
     if(ck == 1) { #CHANGE
       subsetcsk = as.matrix(lastvar); #CHANGE
     } else {
-      subsetcsk = t( Rfast::comb_n(tempCS, ck-1) )
+      subsetcsk = as.matrix( nchoosek(tempCS, ck - 1) )
       numSubsets = dim(subsetcsk)[2]; #CHANGE
       subsetcsk = rbind(subsetcsk, lastvar*rep(1,numSubsets)); #CHANGE
     }

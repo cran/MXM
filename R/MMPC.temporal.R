@@ -84,7 +84,7 @@ MMPC.temporal = function(target , reps = NULL, group, dataset , max_k = 3 , thre
   # test checking and initialize #
   ################################
   
-  la <- length( Rfast::sort_unique( as.numeric(target) ) )
+  la <- length( unique( as.numeric(target) ) )
 
   if(typeof(user_test) == "closure")
   {

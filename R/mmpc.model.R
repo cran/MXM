@@ -74,7 +74,7 @@ mmpc.model = function(target, dataset, wei = NULL, mmpcObject, test = NULL) {
       bic <-  - 2 * mod$loglik + ( length( coef(mod$be) ) + 1 ) * log( length(target) )
       
     } else if ( ci_test == "testIndSpeedglm" ) {
-      la <- length( Rfast::sort_unique(target) )
+      la <- length( unique(target) )
       if ( la == 2 ) {
         mod <- speedglm::speedglm( target ~ ., data = as.data.frame(dataset[, ypografi ]), weights = wei, family = binomial() )
         bic <-  - 2 * as.numeric( logLik(mod) ) + length( coef(mod) ) * log( length(target) )
@@ -133,7 +133,7 @@ mmpc.model = function(target, dataset, wei = NULL, mmpcObject, test = NULL) {
       bic <- BIC(mod)
       
     } else if ( ci_test == "testIndLogistic" || ci_test == "gSquare" ) {
-      if ( length( Rfast::sort_unique(target)) == 2 ) {
+      if ( length( unique(target)) == 2 ) {
         #if ( rob == TRUE ) {
         #  mod <- robust::glmRob( target ~ ., data = as.data.frame(dataset[, ypografi ]) , binomial, maxit = 100 )
         #  bic <- mod$deviance + length( coef(mod) ) * log( length(target) )

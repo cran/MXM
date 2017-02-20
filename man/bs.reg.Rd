@@ -49,8 +49,12 @@ The output of the algorithm is S3 object including:
 The run time of the algorithm. A numeric vector. The first element is the user time, the second element is the system time and the third element is the elapsed time.
 }
 \item{info}{
-A matrix with the variables and their latest test statistics and p-values.
+A matrix with the non selected variables and their latest test statistics and p-values.
 }
+\item{mat}{
+A matrix with the selected variables and their latest statistics and p-values.
+}
+
 \item{ci_test}{
 The conditional independence test used. 
 }

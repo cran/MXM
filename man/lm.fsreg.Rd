@@ -1,5 +1,6 @@
 \name{Forward selection with linear regression models}
 \alias{lm.fsreg}
+\alias{lm.fsreg_heavy}
 \title{
 Variable selection in linear regression models with forward selection
 
@@ -11,7 +12,9 @@ Variable selection in linear regression models with forward selection
 
 \usage{
 lm.fsreg(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, stopping = "BIC", 
-tol = 2, heavy = FALSE, robust = FALSE, ncores = 1)
+tol = 2, robust = FALSE, ncores = 1)
+lm.fsreg_heavy(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, 
+stopping = "BIC", tol = 2, ncores = 1)
 }
 
 \arguments{
@@ -36,9 +39,6 @@ The stopping rule. The BIC ("BIC") or the adjusted \eqn{R^2} ("adjrsq") can be u
 \item{tol}{
 The difference bewtween two successive values of the stopping rule. By default this is is set to 2. If for example, the BIC difference between two succesive models is less than 2, the process stops and the last variable, even though significant does not enter the model. If the adjusted \eqn{R^2} is used, the tol should be something like 0.01 or 0.02. 
 }
-\item{heavy}{
-A boolean variable specifying whether heavy computations are required or not. If for exmaple the dataset contains tens of thousands of rows, it is advised to used memory efficient GLMs and hence set this to TRUE.
-}
 \item{robust}{
 A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust version of the statistical test if it is available. It takes more time than a non robust version but it is suggested in case of outliers. Default value is FALSE. 
 }
@@ -48,7 +48,7 @@ How many cores to use. This plays an important role if you have tens of thousand
 }
 
 \details{
-Only linear regression (robust and non robust) is supported from this function.
+Only linear regression (robust and non robust) is supported from this function. The lm.fsreg_heavy is for the case of many tens of thousands of observations. 
 }
 
 \value{
@@ -98,6 +98,8 @@ dataset <- matrix( runif(1000 * 50, 1, 100), ncol = 50 )
 target <- 3 * dataset[, 10] + 2 * dataset[, 20] + 3 * dataset[, 30] + rnorm(1000, 0, 5)
 a <- lm.fsreg(target, dataset, threshold = 0.05, stopping = "BIC", tol = 2, 
 robust = FALSE, ncores = 1 ) 
+a <- lm.fsreg_heavy(target, dataset, threshold = 0.05, stopping = "BIC", tol = 2, 
+ncores = 1 ) 
 b <- fs.reg(target, dataset, threshold = 0.05, test = NULL, stopping = "BIC", tol = 2, 
 robust = TRUE, ncores = 1 ) 
 }

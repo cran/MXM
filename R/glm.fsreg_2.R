@@ -381,7 +381,7 @@ glm.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold = 
     ####################
     
     
-  if ( length( Rfast::sort_unique(target) ) == 2 ) {
+  if ( length( unique(target) ) == 2 ) {
     oiko <- binomial(logit)  ## binomial regression
     ci_test <- "testIndLogistic"
   } else  {
@@ -740,7 +740,7 @@ glm.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold = 
         #  ma <- robust::glmRob( target ~., data = as.data.frame( dataset[, c(sela, sel) ] ), family = oiko, maxit = maxit )
         #  tool[k] <- ma$deviance + length( coef( ma ) ) * log(n)
         #} 
-        if ( tool[ k - 1 ] - tool[ k  ] < tol ) {
+        if ( tool[ k - 1 ] - tool[ k  ] <= tol ) {
           info <- rbind(info, c( 1e300, 0, 0 ) )
           
         } else { 

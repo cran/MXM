@@ -25,7 +25,7 @@ A numerical value indicating the second node, it has to be a number between 1 an
 }
 
 \details{
-The algorithm finds all the nodes between the tow nodes. It finds all paths between the two chosen nodes.
+The algorithm finds all the nodes between the two nodes. It finds all paths between the two chosen nodes.
 }
 
 \value{

@@ -15,8 +15,8 @@ MMPC and SES can handle even thousands of variables and for some tests, even man
 \tabular{ll}{
 Package: \tab MXM\cr
 Type: \tab Package\cr
-Version: \tab 0.9.7\cr
-Date: \tab 2016-12-20\cr
+Version: \tab 0.9.8\cr
+Date: \tab 2017-02-07\cr
 License: \tab GPL-2\cr
 }
 }
@@ -25,8 +25,8 @@ License: \tab GPL-2\cr
 Giorgos Athineou <athineou@csd.uoc.gr>, Vincenzo Lagani <vlagani@csd.uoc.gr>, Michail Tsagris <mtsagris@csd.uoc.gr>, Giorgos Borboudakis <borbudak@csd.uoc.gr>, Ioannis Tsamardinos <tsamard@csd.uoc.gr>, Anna Roumpelaki <anna.roumpelaki@gmail.com>
 }
 
-\section{Maintainers }{
-Giorgos Athineou <athineou@csd.uoc.gr>, Michail Tsagris <mtsagris@csd.uoc.gr>
+\section{Maintainer}{
+Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 
 \references{
@@ -39,6 +39,7 @@ Tsamardinos I., Aliferis C. F. and Statnikov, A. (2003). Time and sample efficie
 
 \note{
 Acknowledgments:
+European Research Council (ERC) project No 617393, "CAUSALPATH - Next Generation Causal Analysis" for funding. 
 
 Michail Tsagris would like to express his acknowledgments to Marios Dimitriadis and Manos Papadakis, undergraduate students in the department of computer science, university of Crete, for their programming tips and advice.
 }

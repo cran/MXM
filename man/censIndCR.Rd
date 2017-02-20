@@ -96,6 +96,10 @@ The current hash object used for the p-values. See argument stat_hash and detail
 V. Lagani and I. Tsamardinos (2010). Structure-based variable selection for survival data. Bioinformatics Journal 16(15): 1887-1894.
 
 Cox,D.R. (1972) Regression models and life-tables. J. R. Stat. Soc., 34, 187-220.
+
+Scholz, F. W. (2001). Maximum likelihood estimation for type I censored Weibull data including covariates. ISSTECH-96-022, Boeing Information & Support Services.
+
+Smith, R. L. (1991). Weibull regression models for reliability data. Reliability Engineering & System Safety, 34(1), 55-76.
 }
 
 \author{

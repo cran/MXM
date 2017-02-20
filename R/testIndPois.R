@@ -6,7 +6,6 @@ testIndPois = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = 
   # This test provides a p-value PVALUE for the NULL hypothesis H0 which is
   # X is independent by TARGET given CS. The pvalue is calculated following
   # nested models
-  
   # This method requires the following inputs
   #   TARGET: a numeric vector containing the values of the target (discrete) variable. 
   #   Its support can be R or any number betweeen 0 and 1, i.e. it contains proportions.
@@ -14,16 +13,10 @@ testIndPois = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = 
   #   XINDEX: the index of the variable whose association with the target we want to test. 
   #   CSINDEX: the indices if the variable to condition on. 
   #   DATAINFO: information on the structure of the data
-  
   # this method returns: the pvalue PVALUE, the statistic STAT and a control variable FLAG.
   # if FLAG == 1 then the test was performed succesfully
-  
   # References
   # [1] McCullagh, Peter, and John A. Nelder. Generalized linear models. CRC press, USA, 2nd edition, 1989.
-  
-  
-   #########################################################################################################
-  
   #initialization
   
   #if the test cannot performed succesfully these are the returned values
@@ -141,7 +134,7 @@ testIndPois = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = 
     
   }else{
     #if ( robust == FALSE ) {
-      fit2 = glm(target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ), poisson, weights = wei)
+    fit2 = glm(target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ), poisson, weights = wei)
     #} else {
     #  fit2 = robust::glmRob(target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ), poisson, maxit = 100)
     #}

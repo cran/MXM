@@ -4,7 +4,6 @@
 #####
 #######################
 #######################
-
 pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
   ## dataset contains the data, it must be a matrix 
   ## alpha is the level of significance, set to 0.05 by default
@@ -20,7 +19,7 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
   }
   
   ### if you want to use Spearman, simply use Spearman on the ranks
-  if (method == "spearman")    dat <- apply(dataset, 2, rank)
+  if (method == "spearman")    dataset <- apply(dataset, 2, rank)
   
   dm <- dim(dataset)
   n <- dm[2]
@@ -41,12 +40,11 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
   R1 <- R[lower.tri(R)]
   
   up <- sqrt( nu - 3 )   
-  if (method == "pearson") {
+  if (method == "pearson")  {
     stat <- abs( 0.5 * log( (1 + R1) / (1 - R1) ) * up )  ## absolute of the test statistic
-  } else if (method == "spearman") {
+  } else if (method == "spearman")  {
     stat <- abs( 0.5 * log( (1 + R1) / (1 - R1) ) * up ) / 1.029563  ## absolute of the test statistic
   }
-  
   ## the next functions use the lower triangular matrix of the correlation
   pv <- stat2 <- diag(n)
   stat2[lower.tri(stat2)] <- stat
@@ -56,7 +54,6 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
   diag(stata) <- diag(pv) <- 0
   pvalue <- pv  
   stadf <- stata / (nu - 3)
-
   #stat[ lower.tri(stat) ] <- 2
   pv[ lower.tri(pv) ] <- 2 
   G[pvalue > alpha] <- 0   ## emoves edges from non significantly related pairs
@@ -69,7 +66,6 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
   n.tests <- NULL
   pval <- list()
   #### some more initial stuff 
-  
   dial <- which( pv <= alpha, arr.ind = TRUE )
   zeu <- cbind( dial, stadf[ dial ], pv[ dial ] )  ## all significant pairs of variables
   zeu <- zeu[ order( - zeu[, 4], zeu[, 3] ), ] ## order of the pairs based on their strength
@@ -166,9 +162,9 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
        
           csIdx <- sam[1, 1:k]  
           Rsel <- R[xyIdx, xyIdx]
-          condR <- Rsel - as.matrix( R[xyIdx, csIdx] ) %*% ( solve( as.matrix( R[csIdx, csIdx] ) , rbind( R[csIdx, xyIdx] ) ) )
-          r <- abs( condR[1, 2] / sqrt( condR[1, 1] * condR[2, 2]) ) 
-          if (r > 1)  r <- 1
+          condR <-  Rsel - as.matrix( R[xyIdx, csIdx] ) %*% ( solve( as.matrix( R[csIdx, csIdx] ) , rbind( R[csIdx, xyIdx] ) ) )
+          r <-  - condR[1, 2] / sqrt( condR[1, 1] * condR[2, 2]) 
+          if ( abs(r) > 1 )   r <- 0.99999 
           
           stat <- abs( 0.5 * log( (1 + r) / (1 - r) ) ) * cor.se ## absolute of the test statistic
           aa <-  log(2) + pt(stat, dofk, lower.tail = FALSE, log.p = TRUE) 

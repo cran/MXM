@@ -131,7 +131,7 @@ ses.model = function(target, dataset, wei = NULL, sesObject, nsignat = 1, test =
       bic = BIC(mod)
       
     } else if ( ci_test == "testIndLogistic" || ci_test == "gSquare" ) {
-      if ( length( Rfast::sort_unique(target) ) == 2 ) {
+      if ( length( unique(target) ) == 2 ) {
         #if ( rob == TRUE ) {
         #  mod <- robust::glmRob( target ~ ., data = as.data.frame(dataset[, ypografi ]) , binomial, maxit = 100 )
         #  bic <- mod$deviance + length( coef(mod) ) * log( length(target) )
@@ -203,7 +203,7 @@ ses.model = function(target, dataset, wei = NULL, sesObject, nsignat = 1, test =
        bic[i] <-  - 2 * mod[[ i ]]$loglik + ( length( coef(mod[[ i ]]$be) ) + 1 ) * log( length(target) )
 
      } else if ( ci_test == "testIndSpeedglm" ) {
-       la <- length( Rfast::sort_unique(target) )  
+       la <- length( unique(target) )  
        if ( la == 2 ) {
          mod[[ i ]] = speedglm::speedglm( target ~ ., data = data.frame(dataset[, ypografi ]), weights = wei, family = binomial() )
          bic[i] =  - 2 * as.numeric( logLik(mod) ) + length( coef(mod) ) * con
@@ -262,7 +262,7 @@ ses.model = function(target, dataset, wei = NULL, sesObject, nsignat = 1, test =
        bic[i] = BIC( mod[[ i ]] )
        
      } else if ( ci_test == "testIndLogistic" || ci_test == "gSquare" ) {
-       if ( length( Rfast::sort_unique(target)) == 2 ) {
+       if ( length( unique(target)) == 2 ) {
         #if ( rob == TRUE ) {
         #  mod[[ i ]] <- robust::glmRob( target ~ ., data = as.data.frame(dataset[, ypografi[i, ] ]) , binomial, maxit = 100 )
         #  bic[[ i ]] <- mod[[ i ]]$deviance + length( coef(mod[[ i ]]) ) * log( length(target) )
@@ -321,7 +321,7 @@ ses.model = function(target, dataset, wei = NULL, sesObject, nsignat = 1, test =
        bic[i] <-  - 2 * mod[[ i ]]$loglik + ( length( coef(mod[[ i ]]$be) ) + 1 ) * log( length(target) )
        
      } else if ( ci_test == "testIndSpeedglm" ) {
-       if ( length( Rfast::sort_unique(target) )  == 2 ) {
+       if ( length( unique(target) )  == 2 ) {
          mod[[ i ]] = speedglm::speedglm( target ~ ., data = data.frame(dataset[, ypografi ]), weights = wei, family = binomial() )
          bic[i] =  - 2 * as.numeric( logLik(mod) ) + length( coef(mod) ) * con
 		 
@@ -379,7 +379,7 @@ ses.model = function(target, dataset, wei = NULL, sesObject, nsignat = 1, test =
        bic[i] = BIC( mod[[ i ]] )
 
      } else if ( ci_test == "testIndLogistic" || ci_test == "gSquare" ) {
-       if ( length( Rfast::sort_unique(target) ) == 2) {
+       if ( length( unique(target) ) == 2) {
         #if ( rob == TRUE ) {
         #  mod[[ i ]] <- robust::glmRob( target ~ ., data = as.data.frame(dataset[, ypografi[i, ] ]) , binomial, maxit = 100 )
         #  bic[[ i ]] <- mod[[ i ]]$deviance + length( coef(mod[[ i ]]) ) * log( length(target) )

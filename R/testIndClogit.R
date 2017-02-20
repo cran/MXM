@@ -58,7 +58,7 @@ testIndClogit = function(target, dataset, xIndex, csIndex, wei =  NULL, dataInfo
     }
     
     #retrieve the p value and stat.
-    dof = length( coef(clogit_results) ) - 1
+    dof = length( coef(clogit_results) ) 
     stat = 2 * abs( diff(clogit_results$loglik) )
     pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE);
     
@@ -98,11 +98,7 @@ testIndClogit = function(target, dataset, xIndex, csIndex, wei =  NULL, dataInfo
       return(results);
     }
     
-    
     #retrieving the p value
-    #res = anova(cox_results_full, cox_results)
-    #stat = abs( res$Chisq[2] );
-    #dF = abs( res$Df[2] );
     res = anova(clogit_results_full, clogit_results)
     stat = res[2, 2]
     dF = res[2, 3]

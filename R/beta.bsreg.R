@@ -44,7 +44,7 @@ beta.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL) {
       ###################
       
       ini <- beta.mod( target,  dataset, wei = wei )
-      dofini <- length( ini$be )
+      dofini <- length( ini$be[, 1] )
       likini <- ini$loglik 
       stat <- dof <- numeric(p)
       
@@ -80,7 +80,7 @@ beta.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL) {
           
           ini <- beta.mod( target, dat, wei = wei )
           likini <- ini$loglik
-          dofini <- length(ini$be)
+          dofini <- length(ini$be[, 1])
           
           i <- i + 1        
           k <- p - i + 1
@@ -137,7 +137,7 @@ beta.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL) {
       
       runtime <- proc.time() - tic		
       info <- info[ info[, 1] > 0, ]
-      res <- list(runtime = runtime, info = info, ci_test = "testIndBeta", final = final ) 
+      res <- list(runtime = runtime, info = info, mat = mat, ci_test = "testIndBeta", final = final ) 
     }
     
   res

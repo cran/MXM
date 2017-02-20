@@ -44,7 +44,7 @@ bic.fsreg <- function( target, dataset, test = NULL, wei = NULL, tol = 2, robust
     ## linear regression 
     if ( sum( class(target) == "numeric" ) == 1  ||  sum( class(target) == "vector" ) == 1  ) {
      
-	 la <- length( Rfast::sort_unique(target) )
+	 la <- length( unique(target) )
 	 
 	 if ( la > 2 ) {
 	   if ( sum( round(target) - target ) == 0 )   test <- "testIndPois" 
@@ -63,7 +63,7 @@ bic.fsreg <- function( target, dataset, test = NULL, wei = NULL, tol = 2, robust
     }
 
     ## ## ordinal, multinomial or perhaps binary data 
-    if ( length( Rfast::sort_unique(target) ) == 2  &  is.factor(target) ) {
+    if ( length( unique(target) ) == 2  &  is.factor(target) ) {
       test <- "testIndLogistic"   
     }
  
@@ -74,7 +74,7 @@ bic.fsreg <- function( target, dataset, test = NULL, wei = NULL, tol = 2, robust
     
     #cat(test)
     
-  if ( ( test == "testIndLogistic"  &  length( Rfast::sort_unique(target) ) == 2 )  ||  test == "testIndPois"  ||  test == "testIndReg" ) {
+  if ( ( test == "testIndLogistic"  &  length( unique(target) ) == 2 )  ||  test == "testIndPois"  ||  test == "testIndReg" ) {
    
     result <- bic.glm.fsreg( target, dataset, wei = wei, tol = tol, heavy = FALSE, robust = robust, ncores = ncores ) 
   
@@ -163,7 +163,7 @@ bic.fsreg <- function( target, dataset, test = NULL, wei = NULL, tol = 2, robust
     rownames(mat) <- 1:p
     sel <- which.min( mat[, 2] )
     
-    if ( mat[sel, 2] < ini ) {
+    if ( ini - mat[sel, 2] > tol ) {
       info[1, ] <- mat[sel, ]
       mat <- mat[-sel, ]
       if ( !is.matrix(mat) )   mat <- matrix(mat, ncol = 2) 
@@ -172,7 +172,7 @@ bic.fsreg <- function( target, dataset, test = NULL, wei = NULL, tol = 2, robust
       la <- logLik(mi)
       tool[1] <-  - 2 * as.numeric( la ) +  attr(la, "df") * con
       moda[[ 1 ]] <- mi
-    }  else  {
+    } else  {
       info <- info  
       sela <- NULL
     }
@@ -216,7 +216,7 @@ bic.fsreg <- function( target, dataset, test = NULL, wei = NULL, tol = 2, robust
       ina <- which.min( mat[, 2] )
       sel <- mat[ina, 1]
 
-      if ( mat[ina, 2] >= tool[1] ) {
+      if ( tool[1] - mat[ina, 2] <= tol ) {
         info <- info
 
       } else {
@@ -267,9 +267,9 @@ bic.fsreg <- function( target, dataset, test = NULL, wei = NULL, tol = 2, robust
         ina <- which.min( mat[, 2] )
         sel <- mat[ina, 1]
 
-        if ( mat[ina, 2] >= tool[k - 1] ) {
-          info <- rbind( info,  c( -10, 1e300 ) )
-          tool[k] <- 1e+300
+        if ( tool[k - 1] - mat[ina, 2]  <= tol ) {
+          info <- rbind( info,  c( -10, Inf ) )
+          tool[k] <- Inf
 
         } else {
 

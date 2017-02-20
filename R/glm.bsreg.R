@@ -197,7 +197,7 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
           
         }
         
-      }
+      }  else final <- ini
       
       runtime <- proc.time() - tic		
       
@@ -207,7 +207,7 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
    ###  Poisson or logistic regression
    ############
      
-   	la <- length( Rfast::sort_unique(target) ) 
+   	la <- length( unique(target) ) 
 	
     if ( la == 2  || ( la > 2  &  sum( round(target) - target ) == 0 ) ) {
 
@@ -364,7 +364,7 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
         }
 	   }
 	   
-    }
+    }   else final <- ini
       
     runtime <- proc.time() - tic		
 
@@ -583,7 +583,7 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
           }
           
         }    
-      }	
+      }	  else final <- ini
 
       runtime <- proc.time() - tic 
 	  

@@ -20,7 +20,7 @@ pc.con(dataset, method = "pearson", alpha = 0.05, graph = FALSE)
   A matrix with the variables. The user must know if they are continuous or if they are categorical. data.frame or matrix are both supported, as the dataset is converted into a matrix.   
 }
   \item{method}{
-If you have continuous data, you can choose either "pearson" or "spearman". If you have categorical data though, this must be "cat". 
+If you have continuous data, you can choose either "pearson", "spearman" or "distcor". The latter uses the distance correlation. If you have categorical data though, this must be "cat". 
 }
   \item{alpha}{
 The significance level ( suitable values in (0, 1) ) for assessing the p-values. Default value is 0.05.
@@ -43,9 +43,9 @@ For example, for the pair (X, Y) there can be two coniditoning sets for example 
 
 If two or more p-values are below the machine epsilon (.Machine$double.eps which is equal to 2.220446e-16), all of them are set to 0. To make the comparison or the ordering feasible we use the logarithm of the p-value. Hence, the logarithm of the p-values is always calculated and used.
 
-In the case of the \eqn{G^2} test of independence (for categorical data) we have incorporated a rule of thumb. I the number of samples is at least 5 times the number of the parameters to be estimated, the test is performed, otherwise, independence is not rejected (see Tsamardinos et al., 2006, pg. 43).
+In the case of the \eqn{G^2} test of independence (for categorical data) we have incorporated a rule of thumb. I the number of samples is at least 5 times the number of the parameters to be estimated, the test is performed, otherwise, independence is not rejected (see Tsamardinos et al., 2006).
 
-The pc.con is a faster implementation of the PC algorithm but for continuous data only, without the robust option, unlike pc.skel which is more general and even for the continuous datasets slower. pc.con accepts only "pearson" and "spearman" as correlations. If in addition, you have more than 1000 variables, a trick to calculate the correlation matrix is implemented which can reduce the time required by this first step by up to 50%. 
+The pc.con is a faster implementation of the PC algorithm but for continuous data only, without the robust option, unlike pc.skel which is more general and even for the continuous datasets slower. pc.con accepts only "pearson" and "spearman" as correlations. 
 
 If there are missing values they are placed by their median in case of continuous data and by their mode (most frequent value) if they are categorical. 
 }
@@ -88,6 +88,9 @@ Bear in mind that the values can be extracted with the $ symbol, i.e. this is an
 }
 \references{
 Spirtes P.,  Glymour C. and Scheines R. (2001). Causation, Prediction, and Search. The MIT Press, Cambridge, MA, USA, 3nd edition.
+Szekely G.J. and Rizzo, M.L. (2014). Partial distance correlation with methods for dissimilarities. The Annals of Statistics, 42(6): 2382--2412.
+
+Szekely G.J. and Rizzo M.L. (2013). Energy statistics: A class of statistics based on distances. Journal of Statistical Planning and Inference 143(8): 1249--1272.
 }
 
 \author{

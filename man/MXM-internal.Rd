@@ -54,8 +54,13 @@
 \alias{beta.bsreg}
 \alias{zip.bsreg}
 \alias{vara}
-%\alias{iamb.betabs}
-%\alias{iamb.zipbs}
+\alias{iamb.betabs}
+\alias{iamb.zipbs}
+\alias{iamb.glmbs}
+\alias{internaliamb.binombs}
+\alias{internaliamb.poisbs}
+\alias{internaliamb.lmbs}
+\alias{lm.fsreg_2.heavy}
 
 \title{ Internal MXM Functions }
 \description{
@@ -117,8 +122,13 @@ Internal functions of Package \pkg{MXM}
 \item beta.bsreg( ... )
 \item zip.bsreg( ... )
 \item vara( ... )
-%\item iamb.betabs( ... )
-%\item iamb.zipbs( ... )
+\item iamb.betabs( ... )
+\item iamb.zipbs( ... )
+\item iamb.glmbs( ... )
+\item internaliamb.binombs( ... )
+\item internaliamb.poisbs( ... )
+\item internaliamb.lmbs( ... )
+\item lm.fsreg_2.heavy( ... )
 
 }
 }

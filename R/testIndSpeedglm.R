@@ -139,7 +139,7 @@ testIndSpeedglm = function(target, dataset, xIndex, csIndex, wei = NULL, dataInf
   
   if(target_type == 0)
   {
-    if (length( Rfast::sort_unique(target) ) == 2 ||  "factor" %in% class(target) ) {
+    if (length( unique(target) ) == 2 ||  "factor" %in% class(target) ) {
         dataInfo$target_type = "binary" 
     } else if (identical(floor(target), target) ) {
         dataInfo$target_type = "discrete"

@@ -21,7 +21,7 @@ reg.fit <- function(y, dataset, event = NULL, reps = NULL, group = NULL, slopes 
 
   x <- as.data.frame(dataset)  ## just in case
   if ( is.null( colnames(x) ) )  colnames(x) <- paste("X", 1:ncol(x), sep = "")
-  la <- length( Rfast::sort_unique(target) )
+  la <- length( unique(target) )
 
   if ( is.null(model) ) {
 
