@@ -1,53 +1,25 @@
 testIndGLMM = function(target, reps = NULL, group, dataset, xIndex, csIndex,  wei =  NULL, dataInfo = NULL, univariateModels = NULL,
  hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, target_type = 0, slopes = FALSE)
 {
-  #   TESTINDGLMM Conditional Independence Test based on generalised linear mixed models for normal, binary discrete or ordinal class variables
-  #
-  #   provides a p-value PVALUE for the null hypothesis: X independent by target
-  #   given CS. The pvalue is calculated by comparing a logistic model based 
-  #   on the conditioning set CS against a model containing both X and CS. 
-  #   The comparison is performed through a chi-square test with one degree 
-  #   of freedom on the difference between the deviances of the two models. 
-  #   TESTINDGLMM requires the following inputs:
-  
+  #   TESTINDGLMM Conditional Independence Test based on generalised linear mixed models for normal, binary ro discrete variables
   #   target: a vector containing the values of the target variable. 
   #   target must be a vector with percentages, binay data, numerical values or integers
-  #      
   #   reps: a vector with the time points (if available)
-  #      
   #   group: a vector indicating the groupings of the subjects.       
-  #
   #   dataset: a numeric data matrix containing the variables for performing
   #   the conditional independence test. They can be mixed variables, either continous or categorical
-  #
   #   xIndex: the index of the variable whose association with the target
   #   must be tested. Can be any type of variable, either continous or categorical.
-  #
   #   csIndex: the indices of the variables to condition on. They can be mixed variables, either continous or categorical
-  #
   #   target_Type: the type of the target
   #   target_type == 1 (normal target)
   #   target_type == 2 (binary target)
   #   target_type == 3 (discrete target)
   #   default target_type=0
-  #  
   #   this method returns: the pvalue PVALUE, the statistic STAT and a control variable FLAG.
   #   if FLAG == 1 then the test was performed succesfully 
-  #
-  #
-  #   References:
-  #   [1] Vincenzo Lagani and Ioannis Tsamardinos (2010), Structure-based
-  #   Variable Selection for Survival Data, Bioinformatics 26(15):1887-1894. 
-  #
-  #   Copyright 2012 Vincenzo Lagani and Ioannis Tsamardinos
-  #   Revision: 1.0 Date: 18/05/2012
-  #   R Implementation by Giorgos Athineou (12/2013)
-  
-  #initialization
-  
   #cast factor into numeric vector
   target = as.numeric(as.vector(target));
-  
   csIndex[which(is.na(csIndex))] = 0
   
   if( hash )
@@ -226,36 +198,21 @@ testIndGLMM = function(target, reps = NULL, group, dataset, xIndex, csIndex,  we
     if ( is.null(reps) ) {
       if ( target_type == 1 ) {
         fit2 = lme4::lmer( target ~ (1|group) + dataset[, csIndex] + dataset[, xIndex], weights = wei, REML = FALSE )  
-        ##fit1= lme4::lmer( target~ (1|group) + dataset[, csIndex], data = dataset[, c(csIndex, xIndex)], REML=FALSE )     
-        ##fit2 = lme4::lmer( target~. + (1|group) - group, data = dataset[, c(csIndex, xIndex)], REML=FALSE )     
-      } else {
-        fit2 = lme4::glmer( target ~ (1|group) + dataset[, csIndex] + dataset[, xIndex], weights = wei, REML = FALSE , family = oikogeneia[target_type] ) 
-        ##fit1 = lme4::glmer( target~ (1|group) + dataset[, csIndex], data =  dataset[, c(csIndex, xIndex)], REML=FALSE, family = oikogeneia[target_type] )     
-        ##fit2 = lme4::glmer( target~. + (1|group) - group, data =  dataset[, c(csIndex, xIndex)], REML=FALSE, family = oikogeneia[target_type] )     
-        }
-      } else {
+      } else  fit2 = lme4::glmer( target ~ (1|group) + dataset[, csIndex] + dataset[, xIndex], weights = wei, REML = FALSE , family = oikogeneia[target_type] ) 
+        
+    } else {
       reps = reps 
       if (slopes ) {
         if (target_type == 1) {
           fit2 = lme4::lmer( target ~ reps + (reps|group) + dataset[, csIndex] + dataset[, xIndex], weights = wei, REML = FALSE )
-          ##fit1 = lme4::lmer( target~ (reps|group) +dataset[, csIndex], data = dataset[, c(csIndex, xIndex)], REML=FALSE )     
-          ##fit2 = lme4::lmer( target~. + (reps|group) - group, data = dataset[, c(csIndex, xIndex)], REML=FALSE )     
         } else  fit2 = lme4::glmer( target ~ reps + (reps|group) + dataset[, csIndex] + dataset[, xIndex], weights = wei, REML = FALSE , family = oikogeneia[target_type])
-          ##fit1 = lme4::glmer( target~ reps + (reps|group) + dataset[, csIndex], data = dataset[, c(csIndex, xIndex)], REML=FALSE, family = oikogeneia[target_type] )     
-          ##fit2 = lme4::glmer( target~. + reps + (reps|group) - group, data = dataset[, c(csIndex, xIndex)], REML=FALSE, family = oikogeneia[target_type] )     
        }else{
        if (target_type == 1) {
           fit2 = lme4::lmer( target ~ reps + (1|group) + dataset[, csIndex] + dataset[, xIndex], weights = wei, REML = FALSE )
-          ##fit1 = lme4::lmer( target~  (1|group) + dataset[, csIndex], data = dataset[, c(csIndex, xIndex)], REML=FALSE )     
-          ##fit2 = lme4::lmer( target~.  + (1|group) - group, data = dataset[, c(csIndex, xIndex)], REML=FALSE )     
         } else  fit2 = lme4::glmer( target ~ reps + (1|group) + dataset[, csIndex] + dataset[, xIndex], weights = wei, REML = FALSE , family = oikogeneia[target_type]) 
-          ##fit1 = lme4::glmer( target~ reps + (1|group) + dataset[, csIndex], data = dataset[, c(csIndex, xIndex)], REML=FALSE, family = oikogeneia[target_type] )     
-          ##fit2 = lme4::glmer( target~. + reps + (1|group) - group, data = dataset[, c(csIndex, xIndex)], REML=FALSE, family = oikogeneia[target_type] )     
       }
     }
   }
-
-
   #calculate the p value and stat.
   mod = anova(fit2)
   v2 = as.numeric( summary(fit2)[[14]][5] )
@@ -288,12 +245,10 @@ error=function(cond) {
   #   print(xIndex);
   #   printf("\ncsindex = \n");
   #   print(csIndex);
-  
   #error case
   pvalue = log(1);
   stat = 0;
   flag = 0;
-  
   stop();
   
   results <- list(pvalue = pvalue, stat = stat, flag = flag, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
@@ -309,5 +264,4 @@ finally={}
   )
   
   return(res);
-  
 }

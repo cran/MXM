@@ -1,8 +1,5 @@
-#####################
-#####################
 ##### Conditional indpendence test for continuous variables using the distance correlation
 #####
-#####################
 #####################
 dist.condi <- function(ind1, ind2, cs, dat, type = NULL, rob = NULL, R = 499) {
   ## ind1 and ind2 are the two indices of the two variables whose correlation is of interest
@@ -17,7 +14,7 @@ dist.condi <- function(ind1, ind2, cs, dat, type = NULL, rob = NULL, R = 499) {
   if ( d == 0 ) {  ## There are no conditioning variables
     mod <- energy::dcor.ttest(x1, x2)
     dof <- mod$parameter
-    stat <- mod$statistic / dof
+    stat <- mod$statistic 
     pvalue <- pt(stat, mod$parameter, lower.tail = FALSE, log.p = TRUE)
   } else{  ## there are conditioning variables
     z <- dat[, cs]
@@ -27,7 +24,7 @@ dist.condi <- function(ind1, ind2, cs, dat, type = NULL, rob = NULL, R = 499) {
     pvalue <- log( mod$p.value )
   }
   #lets calculate the stat and p-value which are to be returned
-  result <- c(mod$statistic, pvalue, dof)
+  result <- c(stat, pvalue, dof)
   names(result) <- c('test', 'logged.p-value', 'df') 
  result
 }

@@ -52,11 +52,9 @@ fs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
     ## surival data
     if ( sum( class(target) == "Surv" ) == 1 ) {
       ci_test <- test <- "censIndCR"
-      
       ## ordinal, multinomial or perhaps binary data
     } else if ( is.factor(target) ||  is.ordered(target) || length( unique(target) ) == 2 ) {
       ci_test <- test <- "testIndLogistic"
-      
       ## count data
     } else if ( length( unique(target) ) > 2  &  !is.factor(target) ) {
       if ( sum( round(target) - target ) == 0 ) {
@@ -188,8 +186,7 @@ fs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
 
     if ( mat[sel, 2] < threshold ) {
       info[1, ] <- mat[sel, ]
-      mat <- mat[-sel, ] 
-      if ( !is.matrix(mat) )  mat <- matrix(mat, ncol = 3) 
+      mat <- mat[-sel, , drop = FALSE] 
       sela <- sel
       mi <- test( target ~ dataset[, sel], weights = wei )
       la <- logLik(mi)
@@ -254,8 +251,7 @@ fs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
       } else { 
         info <- rbind(info, c( mat[ina, ] ) )
         sela <- info[, 1]
-        mat <- mat[-ina , ] 
-        if ( !is.matrix(mat) )    mat <- matrix(mat, ncol = 3) 
+        mat <- mat[-ina ,, drop = FALSE ] 
         moda[[ 2 ]] <- ma
       }
       
@@ -319,8 +315,7 @@ fs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
           } else { 
             info <- rbind( info, mat[ina, ] )
             sela <- info[, 1]
-            mat <- mat[-ina , ]
-            if ( !is.matrix(mat) )  mat <- matrix(mat, ncol = 3) 
+            mat <- mat[-ina , , drop = FALSE]
             moda[[ k ]] <- ma
           } 
           

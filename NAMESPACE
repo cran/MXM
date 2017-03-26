@@ -15,7 +15,7 @@ importFrom("quantreg", rq)
 importFrom("MASS", glm.nb)
 
 #testIndReg
-importFrom("MASS", rlm, ginv)
+importFrom("MASS", rlm)
 
 #testIndPois
 importFrom("stats", glm, anova)

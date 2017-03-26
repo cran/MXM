@@ -50,11 +50,9 @@ bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
     ## surival data
     if ( sum( class(target) == "Surv" ) == 1 ) {
       ci_test <- test <- "censIndCR"
-      
       ## ordinal, multinomial or perhaps binary data
     } else if ( is.factor(target) ||  is.ordered(target) || length( unique(target) ) == 2 ) {
       ci_test <- test <- "testIndLogistic"
-      
       ## count data
     } else if ( length( unique(target) ) > 2  &  !is.factor(target) ) {
       if ( sum( round(target) - target ) == 0 ) {
@@ -150,8 +148,7 @@ bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
       } else {
        
         info[1, ] <- mat[sel, ]
-        mat <- mat[-sel, ] 
-        if ( !is.matrix(mat) )   mat <- matrix(mat, ncol = 3) 
+        mat <- mat[-sel, , drop = FALSE] 
         dat <- as.data.frame( dataset[, -sel] ) 
 
       } 
@@ -171,9 +168,13 @@ bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
 		      
 		      if ( k == 1 ) {
 		        mod <- test(target ~ 1, weights = wei)
-		        stat <- 2 * abs( likini - logLik(mod) )
-		        dof <- dofini - length( coef(mod) ) 
-		        if ( ci_test == "censIndCR")   dof <- dof + 1
+		        if ( ci_test == "censIndCR")  {
+		          dof <- dof + 1
+		          stat <- 2 * abs( likini - mod$loglik )
+		        } else {
+		          stat <- 2 * abs( likini - logLik(mod) )
+		          dof <- dofini - length( coef(mod) ) 
+		        }  
 		        pval <- pchisq( stat, dof, lower.tail = FALSE, log.p = TRUE)
 		      
 		        if (pval > threshold ) {
@@ -205,8 +206,7 @@ bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
              } else {
       
                info <- rbind(info, mat[sel, ] )
-               mat <- mat[-sel, ] 
-               if ( !is.matrix(mat) )  mat <- matrix(mat, ncol = 3) 
+               mat <- mat[-sel, ,drop = FALSE] 
                dat <- as.data.frame( dataset[, -info[, 1] ] )
              }
  

@@ -1,4 +1,4 @@
-testIndClogit = function(target, dataset, xIndex, csIndex, wei =  NULL, dataInfo=NULL, univariateModels=NULL, hash = FALSE, stat_hash=NULL, pvalue_hash=NULL,robust=FALSE){
+testIndClogit = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL, univariateModels=NULL, hash = FALSE, stat_hash=NULL, pvalue_hash=NULL,robust=FALSE){
   # Conditional independence test based on the Log Likelihood ratio test
   
   if( class(target)!= "matrix" || ( class(target)== "matrix" & ncol(target)!=2 ) )
@@ -48,7 +48,7 @@ testIndClogit = function(target, dataset, xIndex, csIndex, wei =  NULL, dataInfo
     
     #fitting the model
     tryCatch(
-      clogit_results <- survival::clogit(case ~ x + strata(id), weights = wei),
+      clogit_results <- survival::clogit(case ~ x + strata(id) ),
       warning=function(w) {
         #Do nothing...
       }
@@ -70,7 +70,7 @@ testIndClogit = function(target, dataset, xIndex, csIndex, wei =  NULL, dataInfo
     
     flag = 1;
     
-  }else{
+  } else {
     
     tryCatch(
       

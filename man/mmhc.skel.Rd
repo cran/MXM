@@ -9,8 +9,8 @@ The skeleton of a Bayesian network produced by MMHC. No orientations are involve
 }
 
 \usage{
-mmhc.skel(dataset, max_k = 3, threshold = 0.05, test = "testIndFisher", rob = FALSE, 
-fast = FALSE, symmetry = TRUE, nc = 1, graph = FALSE) 
+mmhc.skel(dataset, max_k = 3, threshold = 0.05, test = "testIndFisher", type = "MMPC", 
+rob = FALSE, fast = FALSE, symmetry = TRUE, nc = 1, graph = FALSE) 
 }
 
 \arguments{
@@ -20,11 +20,14 @@ A matrix with the variables. The user must know if they are continuous or if the
 \item{max_k}{
 The maximum conditioning set to use in the conditional indepedence test (see Details of SES or MMPC). 
 }
-  \item{threshold}{
+\item{threshold}{
 Threshold ( suitable values in (0, 1) ) for assessing p-values significance. Default value is 0.05.
 }
   \item{test}{
 The conditional independence test to use. Default value is "testIndFisher". This procedure allows for "testIndFisher", "testIndSPearman" for continuous variables and "gSquare" for categorical variables. 
+}
+\item{type}{
+The type of variable selection to take place for each variable (or node). The default (and standard) in "MMPC". You can also choose to run it via "SES" and thus allow for multiple signatures of variables to be ceonnected to a variable.
 }
 \item{rob}{
 A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust version of the statistical test if it is available. It takes more time than a non robust version but it is suggested in case of outliers. Default value is FALSE. This will only be taken into account if test is "testIndFisher".
@@ -64,6 +67,9 @@ The number of edges divided by the total possible number of edges, that is #edge
 }
 \item{info}{
 Some summary statistics about the edges, minimum, maximum, mean, median number of edges.
+}
+\item{ms}{
+If you run "MMPC" for each variable this is NULL. If you run "SES" is a vector denoting which variables had more than one signature, i.e. more than one set of variables associated with them.
 }
 \item{G}{
 The adjancency matrix. A value of 1 in G[i, j] appears in G[j, i] also, indicating that i and j have an edge between them.

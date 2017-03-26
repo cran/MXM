@@ -81,7 +81,6 @@ SES.temporal = function(target, reps = NULL, group, dataset, max_k = 3 , thresho
   # initialization part of SES #
   ##############################
 
-
   equal_case = 3;
   stat_hash = NULL;
   pvalue_hash = NULL;
@@ -94,12 +93,11 @@ SES.temporal = function(target, reps = NULL, group, dataset, max_k = 3 , thresho
       {
         stat_hash = hash();
         pvalue_hash = hash();
-      }else if(class(hashObject) == "list"){
+      } else if(class(hashObject) == "list"){
         stat_hash = hashObject$stat_hash;
         pvalue_hash = hashObject$pvalue_hash;
-      }else{
-        stop('hashObject must be a list of two hash objects (stat_hash, pvalue_hash)')
-      }
+      } else   stop('hashObject must be a list of two hash objects (stat_hash, pvalue_hash)')
+      
     }else{
       cat('The hash version of SES requires the hash package');
       return(NULL);
@@ -107,7 +105,6 @@ SES.temporal = function(target, reps = NULL, group, dataset, max_k = 3 , thresho
   }
   
   dataInfo = NULL;
-  
   ###################################
   # dataset checking and initialize #
   ###################################
@@ -124,13 +121,10 @@ SES.temporal = function(target, reps = NULL, group, dataset, max_k = 3 , thresho
     warning("The dataset contains missing values and they were replaced automatically by the variable (column) mean.")
     dataset = apply(dataset, 2, function(x){ x[which(is.na(x))] = mean(x,na.rm = TRUE) ; return(x) });
   }
-  
   ##################################
   # target checking and initialize #
   ##################################
-  
   targetID = -1;
-  
   #check if the target is a string
   if (is.character(target) & length(target) == 1){
     findingTarget <- target == colnames(dataset);#findingTarget <- target %in% colnames(dataset);
@@ -142,6 +136,8 @@ SES.temporal = function(target, reps = NULL, group, dataset, max_k = 3 , thresho
     target <- dataset[ , targetID];
   }
   
+  test = "testIndGLMM";
+  
   #checking if target is a single number
   if (is.numeric(target) & length(target) == 1){
     if(target > dim(dataset)[2]){
@@ -151,13 +147,10 @@ SES.temporal = function(target, reps = NULL, group, dataset, max_k = 3 , thresho
     targetID <- target;
     target <- dataset[ , targetID];
   }
-  
   ################################
   # test checking and initialize #
   ################################
-  
   la <- length( unique( as.numeric(target) ) )
-
   if(typeof(user_test) == "closure")
   {
     test = user_test;
@@ -168,7 +161,6 @@ SES.temporal = function(target, reps = NULL, group, dataset, max_k = 3 , thresho
       #if target is a factor then use the Logistic test
       if("factor" %in% class(target))
       {
-        test = "testIndGLMM";
         if( is.ordered(target) )
         {
           dataInfo$target_type = "binary";
@@ -187,10 +179,8 @@ SES.temporal = function(target, reps = NULL, group, dataset, max_k = 3 , thresho
       }else if(class(target) == "numeric" || class(target) == "matrix"){
         if(class(target) == "matrix")
         {
-          if(dim(target)[2]!=1)
-          {
-            stop('Target can not be a matrix')
-          }
+          if(dim(target)[2]!=1)   stop('Target can not be a matrix')
+          
         }
         
         if( identical(floor(target),target) )
@@ -210,9 +200,7 @@ SES.temporal = function(target, reps = NULL, group, dataset, max_k = 3 , thresho
           cat('\nTarget variable type: Normal')
           test = "testIndGLMM";  
         }
-      }else{
-        stop('Target must be a factor, vector, matrix with one column or a Surv object');
-      }
+      }else   stop('Target must be a factor, vector, or matrix with one column');
     }
     
     if(test == "testIndGLMM")
@@ -297,11 +285,9 @@ SES.temporal = function(target, reps = NULL, group, dataset, max_k = 3 , thresho
       
     }else  stop('invalid test option');
   }
-  
   ###################################
   # options checking and initialize #
   ###################################
-  
   #extracting the parameters
   max_k = floor(max_k);
   varsize = dim(dataset)[[2]];
@@ -311,21 +297,25 @@ SES.temporal = function(target, reps = NULL, group, dataset, max_k = 3 , thresho
   if(max_k > varsize)  max_k = varsize;
   if((typeof(threshold)!="double") || exp(threshold) <= 0 || exp(threshold) > 1)  stop('invalid threshold option');
   if(typeof(equal_case)!="double")  stop('invalid equal_case option');
-  
-  #######################################################################################
-
+  ######################################################################################
   if( !is.null(user_test) )  ci_test = "user_test";
-
   #######################################################################################
-  
   #call the main SES function after the checks and the initializations
   results = InternalSES.temporal(target, reps, group, dataset, max_k, threshold , test, ini, wei, equal_case, user_test, dataInfo, hash, varsize, stat_hash, pvalue_hash, targetID, slopes, ncores);
-  
   SES.temporal.output <-new("SES.temporal.output", selectedVars = results$selectedVars, selectedVarsOrder=results$selectedVarsOrder, queues=results$queues, signatures=results$signatures, hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, univ = results$uni, max_k=results$max_k, threshold = results$threshold, runtime=results$runtime, test=ci_test, slope = results$slope);
   
   return(SES.temporal.output);
   
 }
+
+
+
+
+
+
+
+
+
 
 #########################################################################################################
 
@@ -364,11 +354,9 @@ InternalSES.temporal = function(target , reps , group, dataset , max_k = 3 , thr
     results$hashObject = NULL;
     class(results$hashObject) = 'list';
     class(results$univ) = 'list';
-    
     results$pvalues = exp(pvalues);
     results$stats = stats;
     results$univ = univariateModels;
-    
     results$max_k = max_k;
     results$threshold = exp(threshold);
     runtime = proc.time() - runtime;
@@ -383,27 +371,18 @@ InternalSES.temporal = function(target , reps , group, dataset , max_k = 3 , thr
   selectedVars = numeric(varsize);
   selectedVarsOrder = numeric(varsize);
   queues = vector('list' , varsize);
-  
   queues <- lapply(1:varsize , function(i){queues[[i]] = i;})
-  
   #select the variable with the highest association
   selectedVar = which(flags == 1 & stats == stats[[which.max(stats)]]);
   selectedVars[selectedVar] = 1;
   selectedVarsOrder[selectedVar] = 1; #CHANGE
-  
   #lets check the first selected var
-  #cat('First selected var: %d, p-value: %.6f\n', selectedVar, pvalues[selectedVar]);
-  
   #remaining variables to be considered
   remainingVars = rep(1,varsize);
   remainingVars[selectedVar] = 0;
   remainingVars[pvalues > threshold] = 0;
-  if (targetID > 0){
-    remainingVars[targetID] = 0;
-  }
-  
+  if (targetID > 0)   remainingVars[targetID] = 0;
   ################ main ses loop ################
-  
   #main SES loop
   #loop until there are not remaining vars
   loop = any(as.logical(remainingVars));
@@ -421,7 +400,7 @@ InternalSES.temporal = function(target , reps , group, dataset , max_k = 3 , thr
     pvalue_hash=IdEq_results$pvalue_hash;
     
     #lets find the variable with the max min association
-    max_min_results = max_min_assoc.temporal(target, reps, group, dataset , test , wei, threshold , max_k , selectedVars , pvalues , stats , remainingVars , univariateModels, selectedVarsOrder, hash=hash, dataInfo, stat_hash=stat_hash, pvalue_hash=pvalue_hash, slopes = slopes);
+    max_min_results = max_min_assoc.temporal(target, reps, group, dataset, test, wei, threshold, max_k, selectedVars, pvalues, stats, remainingVars, univariateModels, selectedVarsOrder, hash=hash, dataInfo, stat_hash=stat_hash, pvalue_hash=pvalue_hash, slopes = slopes);
     selectedVar = max_min_results$selected_var;
     selectedPvalue = max_min_results$selected_pvalue;
     remainingVars = max_min_results$remainingVars;
@@ -429,7 +408,6 @@ InternalSES.temporal = function(target , reps , group, dataset , max_k = 3 , thr
     stats = max_min_results$stats;
     stat_hash=max_min_results$stat_hash;
     pvalue_hash=max_min_results$pvalue_hash;
-    
     #if the selected variable is associated with target , add it to the selected variables
     if(selectedPvalue <= threshold)
     {
@@ -437,12 +415,11 @@ InternalSES.temporal = function(target , reps , group, dataset , max_k = 3 , thr
       selectedVarsOrder[selectedVar] = max(selectedVarsOrder) + 1;
       remainingVars[selectedVar] = 0;
     }
-    
     loop = any(as.logical(remainingVars));
   }
   
   #lets find the variables to be discarded
-  IdEq_results <- IdentifyEquivalence.temporal(equal_case , queues , target , reps, group, dataset , test , wei, threshold , max_k , selectedVars , pvalues , stats , remainingVars , univariateModels, selectedVarsOrder, hash=hash, dataInfo, stat_hash=stat_hash, pvalue_hash=pvalue_hash, slopes = slopes);
+  IdEq_results <- IdentifyEquivalence.temporal(equal_case, queues, target, reps, group, dataset, test, wei, threshold, max_k, selectedVars, pvalues, stats, remainingVars, univariateModels, selectedVarsOrder, hash=hash, dataInfo, stat_hash=stat_hash, pvalue_hash=pvalue_hash, slopes = slopes);
   queues = IdEq_results$queues;
   selectedVars = IdEq_results$selectedVars;
   pvalues = IdEq_results$pvalues;
@@ -450,18 +427,14 @@ InternalSES.temporal = function(target , reps , group, dataset , max_k = 3 , thr
   remainingVars = IdEq_results$remainingVars;
   stat_hash=IdEq_results$stat_hash;
   pvalue_hash=IdEq_results$pvalue_hash;
-  
   selectedVarsOrder[which(!selectedVars)] = varsize;#
   numberofSelectedVars = sum(selectedVars);#
   selectedVarsOrder = sort(selectedVarsOrder);#
-  #   selectedVars = selectedVarsOrder[1:numberofSelectedVars];
-  
-  #queues correctness
+  #  selectedVars = selectedVarsOrder[1:numberofSelectedVars];
+  # queues correctness
   all_queues = queues
   queues = queues[which(selectedVars==1)];
-  
   queues <- lapply(1:length(queues) , function(i){ queues[[i]] = unique(queues[[i]]); });
-  
   #adjusting the results
   if(targetID > 0)
   {
@@ -469,14 +442,11 @@ InternalSES.temporal = function(target , reps , group, dataset , max_k = 3 , thr
     selectedVars[toAdjust] = selectedVars[toAdjust] + 1;
   }
   
-  
   results = NULL;
   results$selectedVars = which(selectedVars == 1);
-  
   svorder = sort(pvalues[results$selectedVars] , index.return = TRUE);
   svorder = results$selectedVars[svorder$ix];
   results$selectedVarsOrder = svorder;
-  
   results$queues = queues;
   results$signatures = as.matrix(do.call(expand.grid, results$queues))
   hashObject = NULL;
@@ -484,11 +454,9 @@ InternalSES.temporal = function(target , reps , group, dataset , max_k = 3 , thr
   hashObject$pvalue_hash = pvalue_hash;
   results$hashObject = hashObject;
   class(results$hashObject) = 'list';
-  
   results$pvalues = exp(pvalues);
   results$stats = stats;
   results$univ = univariateModels;
-  
 #   results$all_queues = all_queues;
 #   already known
 #   results$data = dataset;
@@ -496,12 +464,9 @@ InternalSES.temporal = function(target , reps , group, dataset , max_k = 3 , thr
 #   results$test = test;
   results$max_k = max_k;
   results$threshold = exp(threshold);
-  
   runtime = proc.time() - runtime;
   results$runtime = runtime;
   results$slope = slopes
-
-  
   
   return(results);
 }
@@ -578,16 +543,11 @@ IdentifyEquivalence.temporal = function(equal_case , queues , target , reps, gro
 { 
   varsToBeConsidered = which(selectedVars==1 | remainingVars==1); #CHANGE
   lastvar = which(selectedVarsOrder == max(selectedVarsOrder))[1]; #CHANGE
-  
   #for every variable to be considered
   for(cvar in varsToBeConsidered)
   {
     #if var is the last one added, no sense to perform the check
-    if(cvar == lastvar) #CHANGE
-    {
-      next;
-    }
-    
+    if(cvar == lastvar)   next;
     #the maximum conditioning set
     selectedVarsIDs = which(selectedVars == 1);
     cs = setdiff(selectedVarsIDs , cvar);
@@ -604,7 +564,7 @@ IdentifyEquivalence.temporal = function(equal_case , queues , target , reps, gro
       {
         subsetcsk = as.matrix(lastvar); #CHANGE
       }else{
-        subsetcsk = t( Rfast::comb_n(tempCS, klimit-1) ) 
+        subsetcsk = as.matrix( nchoosek(tempCS, klimit - 1) )
         numSubsets = dim(subsetcsk)[2]; #CHANGE
         subsetcsk = rbind(subsetcsk, lastvar*rep(1,numSubsets));#CHANGE
       }

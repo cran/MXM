@@ -215,17 +215,11 @@ MMPC.temporal = function(target , reps = NULL, group, dataset , max_k = 3 , thre
       #convert to closure type
       if(test == "testIndGLMM")
       {
-        #an einai posostiaio target
-         if ( all(target > 0 & target < 1) ){
-         target = log( target/(1 - target) ) ## logistic normal 
-         }
-        
+         if ( all(target > 0 & target < 1) )  target = log( target/(1 - target) ) ## logistic normal 
         test = testIndGLMM;
       }
       
-    }else{
-      stop('invalid test option');
-    }
+    }else   stop('invalid test option');
   }
   
   ###################################
@@ -261,15 +255,11 @@ MMPC.temporal = function(target , reps = NULL, group, dataset , max_k = 3 , thre
 {
   #get the current time
   runtime = proc.time();
-  
   #######################################################################################
-  
   dm <- dim(dataset)
   rows <- dm[1]
   cols <- dm[2]
-  
   #univariate feature selection test
-  
   if ( is.null(ini) ) {
     univariateModels = univariateScore.temporal(target , reps, group, dataset , test, wei=wei, hash=hash, dataInfo, stat_hash=stat_hash, pvalue_hash=pvalue_hash, targetID, slopes = slopes, ncores = ncores);
   } else  univariateModels = ini
@@ -304,20 +294,15 @@ MMPC.temporal = function(target , reps = NULL, group, dataset , max_k = 3 , thre
     
     return(results);
   }
-  
-  
   #Initialize the data structs
   selectedVars = numeric(varsize);
   selectedVarsOrder = numeric(varsize);
-  
   #select the variable with the highest association
   selectedVar = which(flags == 1 & stats == stats[[which.max(stats)]]);
   selectedVars[selectedVar] = 1;
   selectedVarsOrder[selectedVar] = 1; #CHANGE
-  
   #lets check the first selected var
   #cat('First selected var: %d, p-value: %.6f\n', selectedVar, pvalues[selectedVar]);
-  
   #remaining variables to be considered
   remainingVars = numeric(varsize) + 1;
   remainingVars[selectedVar] = 0;
@@ -325,11 +310,8 @@ MMPC.temporal = function(target , reps = NULL, group, dataset , max_k = 3 , thre
   if (targetID > 0){
     remainingVars[targetID] = 0;
   }
-  
-  ################ main MMPC.temporal loop ################
-  
-  #main MMPC.temporal loop
-  #loop until there are not remaining vars
+  # main MMPC.temporal loop
+  # loop until there are not remaining vars
   loop = any(as.logical(remainingVars));
   
   while(loop)
@@ -343,10 +325,8 @@ MMPC.temporal = function(target , reps = NULL, group, dataset , max_k = 3 , thre
     stats = max_min_results$stats;
     stat_hash=max_min_results$stat_hash;
     pvalue_hash=max_min_results$pvalue_hash;
-    
     #if the selected variable is associated with target , add it to the selected variables
-    if(selectedPvalue <= threshold)
-    {
+    if(selectedPvalue <= threshold) {
       selectedVars[selectedVar] = 1;
       selectedVarsOrder[selectedVar] = max(selectedVarsOrder) + 1;
       remainingVars[selectedVar] = 0;
@@ -361,15 +341,13 @@ MMPC.temporal = function(target , reps = NULL, group, dataset , max_k = 3 , thre
   #   selectedVars = selectedVarsOrder[1:numberofSelectedVars];
   
   #adjusting the results
-  if(targetID > 0)
-  {
+  if(targetID > 0)  {
     toAdjust <- which(selectedVars > targetID);
     selectedVars[toAdjust] = selectedVars[toAdjust] + 1;
   }
   
   results = NULL;
   results$selectedVars = which(selectedVars == 1);
-  
   svorder = sort(pvalues[results$selectedVars] , index.return = TRUE);
   svorder = results$selectedVars[svorder$ix];
   results$selectedVarsOrder = svorder;
@@ -380,18 +358,14 @@ MMPC.temporal = function(target , reps = NULL, group, dataset , max_k = 3 , thre
   results$hashObject = hashObject;
   class(results$hashObject) = 'list';
   class(results$univ) = 'list';
-  
   results$pvalues = exp(pvalues);
   results$stats = stats;
   results$univ = univariateModels
-  
   results$max_k = max_k;
   results$threshold = exp(threshold);
-  
   runtime = proc.time() - runtime;
   results$runtime = runtime;
   results$slope = slopes
-  
   
   return(results);
 }

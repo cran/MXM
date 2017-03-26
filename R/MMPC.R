@@ -501,12 +501,11 @@ InternalMMPC = function(target, dataset, max_k, threshold, test=NULL, ini=NULL, 
 {
   #get the current time
   runtime <- proc.time();
-  
   #######################################################################################
   la <- length( unique(target) )
-  
-  rows <- length(target)
-  cols <- ncol(dataset)
+  dm <- dim(dataset)
+  rows = dm[1]
+  cols = dm[2]
   ## if testIndSpearman is selected and the user has put robust =TRUE, the robust is not taken into consideration. 
   #univariate feature selection test
  
@@ -514,15 +513,12 @@ InternalMMPC = function(target, dataset, max_k, threshold, test=NULL, ini=NULL, 
     
     univariateModels = list()
     
-    if ( identical(test, testIndFisher)  &  !robust )  ## Pearson's correlation 
-    {
+    if ( identical(test, testIndFisher)  &  !robust ) { ## Pearson's correlation 
       a <- as.vector( cor(target, dataset) )
       univariateModels = list();
       dof <- rows - 3; #degrees of freedom
       wa <- 0.5 * log( (1 + a) / (1 - a) ) * sqrt(dof)
-      
       if ( targetID != - 1 )  wa[ targetID ] = 0
-      
       univariateModels$stat = abs(wa);
       univariateModels$pvalue = log(2) + pt(-abs(wa), dof, log.p = TRUE) ;
       univariateModels$flag = numeric(cols) + 1;
@@ -534,9 +530,7 @@ InternalMMPC = function(target, dataset, max_k, threshold, test=NULL, ini=NULL, 
       univariateModels = list();
       dof = rows - 3; #degrees of freedom
       wa = 0.5 * log( (1 + a) / (1 - a) ) * sqrt(dof) / 1.029563
-      
       if ( targetID != - 1 )  wa[ targetID ] = 0
-      
       univariateModels$stat = abs(wa) 
       univariateModels$pvalue = log(2) + pt(-abs(wa), dof, log.p = TRUE);
       univariateModels$flag = numeric(cols) + 1;
@@ -544,13 +538,11 @@ InternalMMPC = function(target, dataset, max_k, threshold, test=NULL, ini=NULL, 
       univariateModels$pvalue_hash = pvalue_hash;
       
     } else if ( identical(test, gSquare) ) {  ## Spearman's correlation
-      
       z <- cbind(target, dataset)
       dc <- Rfast::colrange(z, cont = FALSE)
       a <- Rfast::g2Test_univariate(z, dc)
       stat <- a$statistic[ a$x == 1 ]
       if ( targetID != - 1 )  stat[ targetID ] = 0
-      
       univariateModels$stat = stat
       univariateModels$pvalue = pchisq(stat, a$df[ a$x == 1 ], lower.tail = FALSE, log.p = TRUE)
       univariateModels$flag = numeric(cols) + 1;
@@ -560,7 +552,10 @@ InternalMMPC = function(target, dataset, max_k, threshold, test=NULL, ini=NULL, 
     } else if ( identical(test, testIndBeta) ) {  ## Beta regression
       
       mod <- beta.regs(target, dataset, wei, logged = TRUE, ncores = ncores)
-      
+      if ( targetID != - 1 ) {
+	  mod[ targetID, 1 ] = 0
+        mod[ targetID, 2 ] = log(1)
+      }  
       univariateModels$stat = mod[, 1]
       univariateModels$pvalue = mod[, 2]
       univariateModels$flag = numeric(cols) + 1;
@@ -578,16 +573,12 @@ InternalMMPC = function(target, dataset, max_k, threshold, test=NULL, ini=NULL, 
       if ( ncores <= 1 | is.null(ncores) ) {
         
         for ( i in 1:cols ) {
-          
           if ( i != targetID ) {
-            
             fit2 = MASS::rlm(target ~ dataset[, i], weights = wei )
             lik2[i] = as.numeric( logLik(fit2) )
             dof[i] = length( coef(fit2) ) - 1
-          } else  lik2[i] = lik1
-          
+          } else  lik2[i] = lik1         
         } 
-        
         stat = 2 * abs(lik1 - lik2)
         univariateModels$stat = stat
         univariateModels$pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
@@ -600,14 +591,11 @@ InternalMMPC = function(target, dataset, max_k, threshold, test=NULL, ini=NULL, 
         cl <- makePSOCKcluster(ncores)
         registerDoParallel(cl)
         mod <- foreach(i = 1:cols, .combine = rbind, .packages = "MASS") %dopar% {
-          
           if ( i != targetID ) {
             fit2 = rlm(target ~ dataset[, i], weights = wei )
             lik2 = as.numeric( logLik(fit2) )
-            
             return( c(lik2, length( coef(fit2) ) - 1 ) )
           } else  return( c(0, 0) )
-          
         }
         stopCluster(cl)
         
@@ -623,6 +611,10 @@ InternalMMPC = function(target, dataset, max_k, threshold, test=NULL, ini=NULL, 
     } else if ( identical(test, testIndReg)  &  !robust  &  is.matrix(dataset)  &  is.null(wei) ) {  ## linear regression
         
         mod = Rfast::univglms(target, dataset, oiko = "normal", logged = TRUE) 
+	  if ( targetID != - 1 ) {
+	    mod[ targetID, 1 ] = 0
+          mod[ targetID, 2 ] = log(1)
+        }  
         univariateModels$stat = mod[, 1]
         univariateModels$pvalue = mod[, 2]
         univariateModels$flag = numeric(cols) + 1;
@@ -632,6 +624,7 @@ InternalMMPC = function(target, dataset, max_k, threshold, test=NULL, ini=NULL, 
     } else if ( identical(test, testIndReg)  &  !robust  &  is.data.frame(dataset)  &  is.null(wei) ) {  ## linear regression
         
       mod <- Rfast::regression(dataset, target)
+	if ( targetID != - 1 ) mod[ 1, targetID ] = 0
       univariateModels$stat = mod[1, ]
       univariateModels$pvalue = pf(mod[1, ], mod[2, ], rows - mod[2, ], lower.tail = FALSE, log.p = TRUE)
       univariateModels$flag = numeric(cols) + 1;
@@ -646,6 +639,10 @@ InternalMMPC = function(target, dataset, max_k, threshold, test=NULL, ini=NULL, 
 
           if ( targetID == -1  &  is.matrix(dataset)  &  is.null(wei)  ) {
             mod <- Rfast::univglms(target, dataset, oiko = "binomial", logged = TRUE) 
+		if ( targetID != - 1 ) {
+	         mod[ targetID, 1 ] = 0
+               mod[ targetID, 2 ] = log(1)
+            } 
             stat <- mod[, 1]
             pval <- mod[, 2]
             
@@ -666,6 +663,10 @@ InternalMMPC = function(target, dataset, max_k, threshold, test=NULL, ini=NULL, 
 
           if ( targetID == -1  &  is.matrix(dataset)  &  is.null(wei) ) {
             mod <- Rfast::univglms(target, dataset, oiko = "poisson", logged = TRUE) 
+		if ( targetID != - 1 ) {
+	        mod[ targetID, 1 ] = 0
+              mod[ targetID, 2 ] = log(1)
+            } 
             stat <- mod[, 1]
             pval <- mod[, 2]
             
@@ -687,10 +688,18 @@ InternalMMPC = function(target, dataset, max_k, threshold, test=NULL, ini=NULL, 
             if ( targetID == -1  &  is.null(wei) ) {
               if ( is.matrix(dataset) )  {
                 mod <- Rfast::univglms(target, dataset, oiko = "normal", logged = TRUE) 
+		    if ( targetID != - 1 ) {
+	            mod[ targetID, 1 ] = 0
+                  mod[ targetID, 2 ] = log(1)
+                } 
                 stat <- mod[, 1]
-			          pval <- mod[, 2]
+			    pval <- mod[, 2]
               } else if ( is.data.frame(dataset) ) {
                 mod <- Rfast::regression(dataset, target) 
+		    if ( targetID != - 1 ) {
+	            mod[ targetID, 1 ] = 0
+                  mod[ targetID, 2 ] = log(1)
+                } 
                 stat <- mod[1, ]
                 pval <- pf(stat, mod[2, ], cols - mod[2, ] - 1, lower.tail = FALSE, log.p = TRUE)
               }  
@@ -705,12 +714,10 @@ InternalMMPC = function(target, dataset, max_k, threshold, test=NULL, ini=NULL, 
                   dof[i] <- suma[3]
                 } else stat[i] <- 0   ;  dof[i] = 1
               }
-              pvalue <- pf(stat, dof, cols - dof, lower.tail = FALSE, log.p = TRUE)
-              
+              pvalue <- pf(stat, dof, cols - dof, lower.tail = FALSE, log.p = TRUE)              
             } 
             
         }
-  
         univariateModels$stat = stat
         univariateModels$pvalue = pval
         univariateModels$flag = numeric(cols) + 1;
@@ -722,25 +729,20 @@ InternalMMPC = function(target, dataset, max_k, threshold, test=NULL, ini=NULL, 
       lik2 = numeric(cols)
       dof = numeric(cols)
       univariateModels = list();
-      
       fit1 = ordinal::clm(target ~ 1, weights = wei)
       lik1 = as.numeric( logLik(fit1) )
       df1 = length( coef(fit1) )
       
       if ( ncores <= 1 | is.null(ncores) ) {
         
-        for ( i in 1:cols ) {
-          
+        for ( i in 1:cols ) {    
           if (i != targetID){
-            
             mat <- model.matrix(target ~ dataset[, i] )
             fit2 <- ordinal::clm.fit(target, mat, weights = wei)
             lik2[i] <- as.numeric( fit2$logLik )
             dof[i] <- length( coef(fit2) ) - df1
           } else  lik2[i] <- lik1
-
         }
-        
         stat = as.vector( 2 * abs(lik1 - lik2) )
         univariateModels$stat = stat
         univariateModels$pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
@@ -757,11 +759,8 @@ InternalMMPC = function(target, dataset, max_k, threshold, test=NULL, ini=NULL, 
             mat <- model.matrix(target ~ dataset[, i] )
             fit2 <- ordinal::clm.fit(target, mat, weights = wei)
             lik2 <- as.numeric( fit2$logLik )
-            
             return( c(lik2, length( coef(fit2) ) ) )
-          } else{
-            return( c(0, 0) )
-          }
+          } else  return( c(0, 0) )
         }
         stopCluster(cl)
         
@@ -777,7 +776,6 @@ InternalMMPC = function(target, dataset, max_k, threshold, test=NULL, ini=NULL, 
     } else if ( identical(test, testIndLogistic)  &  la > 2  ) {  ## multinomial regression
       
       target = as.factor( as.numeric( target ) );
-      
       lik2 = numeric(cols)
       dof = numeric(cols)
       fit1 = nnet::multinom(target ~ 1, trace = FALSE, weights = wei)
@@ -787,15 +785,12 @@ InternalMMPC = function(target, dataset, max_k, threshold, test=NULL, ini=NULL, 
       if ( ncores <= 1 | is.null(ncores) ) {
         
         for ( i in 1:cols ) {
-          
           if (i != targetID){
-            
             fit2 = nnet::multinom(target ~ dataset[, i], trace = FALSE, weights = wei )
             lik2[i] = as.numeric( logLik(fit2) )
             dof[i] = length( coef(fit2) ) - df1
           } else  lik2[i] = lik1
         }
-        
         stat = as.vector( 2 * abs(lik1 - lik2) )
         univariateModels$stat = stat
         univariateModels$pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
@@ -827,9 +822,13 @@ InternalMMPC = function(target, dataset, max_k, threshold, test=NULL, ini=NULL, 
         
     } else if ( identical(test, testIndLogistic)  &  la == 2  &  is.matrix(dataset)  &  is.null(wei) ) {  ## logistic regression
     
-        if ( is.factor(target) )      target <- as.numeric(target) - 1
+        if ( is.factor(target) )   target <- as.numeric(target) - 1
 
         mod <- Rfast::univglms( target, dataset, oiko = "binomial", logged = TRUE )
+	  if ( targetID != - 1 ) {
+	     mod[ targetID, 1 ] = 0
+           mod[ targetID, 2 ] = log(1)
+        } 
         univariateModels$stat = mod[, 1]
         univariateModels$pvalue = mod[, 2]
         univariateModels$flag = numeric(cols) + 1;
@@ -847,18 +846,13 @@ InternalMMPC = function(target, dataset, max_k, threshold, test=NULL, ini=NULL, 
       if ( ncores <= 1 | is.null(ncores) ) {
         
         for ( i in 1:cols ) {
-          
           if ( i != targetID ) {
             fit2 = glm( target ~ dataset[, i], binomial, weights = wei )
             lik2[i] = as.numeric( logLik(fit2) )
             dof[i] = length( coef(fit2) ) - 1
-          } else {
-            lik2[i] = lik1
-          }
+          } else   lik2[i] = lik1
         }
-        
         stat = 2 * abs(lik1 - lik2)
-        
         univariateModels$stat = stat
         univariateModels$pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
         univariateModels$flag = numeric(cols) + 1;
@@ -869,13 +863,11 @@ InternalMMPC = function(target, dataset, max_k, threshold, test=NULL, ini=NULL, 
         cl <- makePSOCKcluster(ncores)
         registerDoParallel(cl)
         mod <- foreach(i = 1:cols, .combine = rbind) %dopar% {
-          
           if ( i != targetID ) {
             fit2 = glm( target ~ dataset[, i], binomial, weights = wei )
             lik2 = as.numeric( logLik(fit2) )
             return( c(lik2, length( coef(fit2) ) - 1 ) )
           } else   return( c(0, 0) )
-          
         }
         stopCluster(cl)
         
@@ -907,7 +899,7 @@ InternalMMPC = function(target, dataset, max_k, threshold, test=NULL, ini=NULL, 
             lik2[i] = as.numeric( logLik(fit2) )
             dof[i] = length( coef(fit2) ) - 1
           }
-    
+          
           stat = 2 * abs(lik1 - lik2)
           univariateModels$stat = stat
           univariateModels$pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
@@ -939,6 +931,10 @@ InternalMMPC = function(target, dataset, max_k, threshold, test=NULL, ini=NULL, 
     } else if ( identical(test, testIndPois)  &  is.matrix(dataset)  &  is.null(wei) ) {  ## Poisson regression
       
       mod <- Rfast::univglms( target, dataset, oiko = "poisson", logged = TRUE ) 
+      if ( targetID != - 1 ) {
+	    mod[ targetID, 1 ] = 0
+        mod[ targetID, 2 ] = log(1)
+      } 
       univariateModels$stat = mod[, 1]
       univariateModels$pvalue = mod[, 2]
       univariateModels$flag = numeric(cols) + 1;
@@ -948,6 +944,10 @@ InternalMMPC = function(target, dataset, max_k, threshold, test=NULL, ini=NULL, 
     } else if ( identical(test, testIndPois)  &  is.matrix(dataset)  &  is.null(wei) ) {  ## Poisson regression
       
       mod <- Rfast::univglms( target, dataset, oiko = "poisson", logged = TRUE ) 
+	if ( targetID != - 1 ) {
+	  mod[ targetID, 1 ] = 0
+        mod[ targetID, 2 ] = log(1)
+      } 
       univariateModels$stat = mod[, 1]
       univariateModels$pvalue = mod[, 2]
       univariateModels$flag = numeric(cols) + 1;
@@ -963,9 +963,7 @@ InternalMMPC = function(target, dataset, max_k, threshold, test=NULL, ini=NULL, 
       dof = numeric(cols)
       
       if ( ncores <= 1 | is.null(ncores) ) {
-        
         for ( i in 1:cols ) {
-          
           if ( i != targetID ) {
             fit2 = glm( target ~ dataset[, i], poisson, weights = wei )
             lik2[i] = as.numeric( logLik(fit2) )
@@ -974,7 +972,6 @@ InternalMMPC = function(target, dataset, max_k, threshold, test=NULL, ini=NULL, 
         }
         
         stat = 2 * abs(lik1 - lik2)
-        
         univariateModels$stat = stat
         univariateModels$pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
         univariateModels$flag = numeric(cols) + 1;
@@ -985,13 +982,11 @@ InternalMMPC = function(target, dataset, max_k, threshold, test=NULL, ini=NULL, 
         cl <- makePSOCKcluster(ncores)
         registerDoParallel(cl)
         mod <- foreach(i = 1:cols, .combine = rbind) %dopar% {
-          
           if ( i != targetID ) {
             fit2 = glm( target ~ dataset[, i], poisson, weights = wei )
             lik2 = as.numeric( logLik(fit2) )
             return( c(lik2, length( coef(fit2) ) - 1 ) )
-          } else   return( c(0, 0) )
-          
+          } else   return( c(0, 0) ) 
         }
         stopCluster(cl)
         
@@ -1010,9 +1005,7 @@ InternalMMPC = function(target, dataset, max_k, threshold, test=NULL, ini=NULL, 
       lik1 <- MASS::glm.nb( target ~ 1, weights = wei )$deviance
       if ( ncores <= 1 | is.null(ncores) ) {
         lik2 <- dof <- numeric(cols)
-        
         for ( i in 1:cols ) {
-          
           if ( i != targetID ) {
             fit2 = MASS::glm.nb( target ~ dataset[, i], weights = wei )
             lik2[i] = fit2$deviance
@@ -1031,13 +1024,11 @@ InternalMMPC = function(target, dataset, max_k, threshold, test=NULL, ini=NULL, 
         cl <- makePSOCKcluster(ncores)
         registerDoParallel(cl)
         mod <- foreach(i = 1:cols, .combine = rbind, .packages = "MASS") %dopar% {
-          
           if ( i != targetID ) {
             fit2 = MASS::glm.nb( target ~ dataset[, i], weights = wei )
             lik2 = fit2$deviance
             return( c(lik2, length( coef(fit2) ) - 1 ) )
           } else   return( c(0, 0) )
-          
         }
         stopCluster(cl)
         
@@ -1053,6 +1044,10 @@ InternalMMPC = function(target, dataset, max_k, threshold, test=NULL, ini=NULL, 
       
       univariateModels = list();
       mod <- zip.regs(target, dataset, wei, logged = TRUE, ncores = ncores) 
+	if ( targetID != - 1 ) {
+	  mod[ targetID, 1 ] = 0
+        mod[ targetID, 2 ] = log(1)
+      } 
       univariateModels$stat = mod[, 1]
       univariateModels$pvalue = mod[, 2]
       univariateModels$flag = numeric(cols) + 1;
@@ -1068,9 +1063,7 @@ InternalMMPC = function(target, dataset, max_k, threshold, test=NULL, ini=NULL, 
       if ( ncores <= 1 | is.null(ncores) ) {
         
         for ( i in 1:cols ) {
-          
           if (i != targetID) {
-            
             fit2 = quantreg::rq(target ~ dataset[, i], weights = wei )
             ww = anova(fit1, fit2, test = "rank")
             df1 = as.numeric( ww[[1]][1] )
@@ -1093,7 +1086,6 @@ InternalMMPC = function(target, dataset, max_k, threshold, test=NULL, ini=NULL, 
         cl <- makePSOCKcluster(ncores)
         registerDoParallel(cl)
         mod <- foreach(i = 1:cols, .combine = rbind, .packages = "quantreg") %dopar% {
-          
           if (i != targetID) {
             fit2 = quantreg::rq(target ~ dataset[, i], weights = wei )
             ww = anova(fit1, fit2, test = "rank")
@@ -1103,7 +1095,6 @@ InternalMMPC = function(target, dataset, max_k, threshold, test=NULL, ini=NULL, 
             pval = pf(stat, df1, df2, lower.tail = FALSE, log.p = TRUE)
             return( c(stat, pval ) )
           } else   return( c(0, 0) )
-          
         }
         stopCluster(cl)
         
@@ -1123,9 +1114,7 @@ InternalMMPC = function(target, dataset, max_k, threshold, test=NULL, ini=NULL, 
       dof = numeric(cols)
       
       if ( ncores <= 1 | is.null(ncores) ) {
-        
         for ( i in 1:cols ) {
-          
           if ( i != targetID ) {
             fit2 = glm( target ~ dataset[, i], family = inverse.gaussian(link = log), weights = wei )
             lik2[i] = as.numeric( logLik(fit2) )
@@ -1144,13 +1133,11 @@ InternalMMPC = function(target, dataset, max_k, threshold, test=NULL, ini=NULL, 
         cl <- makePSOCKcluster(ncores)
         registerDoParallel(cl)
         mod <- foreach(i = 1:cols, .combine = rbind) %dopar% {
-          
           if ( i != targetID ) {
             fit2 = glm( target ~ dataset[, i], family = inverse.gaussian(link = log), weights = wei )
             lik2 = as.numeric( logLik(fit2) )
             return( c(lik2, length( coef(fit2) ) - 1 ) )
           } else   return( c(0, 0) )
-          
         }
         stopCluster(cl)
         
@@ -1172,9 +1159,7 @@ InternalMMPC = function(target, dataset, max_k, threshold, test=NULL, ini=NULL, 
       dof = numeric(cols)
       
       if ( ncores <= 1 | is.null(ncores) ) {
-        
         for ( i in 1:cols ) {
-          
           if ( i != targetID ) {
             fit2 = survival::coxph( target ~ dataset[, i], weights = wei )
             lik2[i] = as.numeric( logLik(fit2) )
@@ -1183,7 +1168,6 @@ InternalMMPC = function(target, dataset, max_k, threshold, test=NULL, ini=NULL, 
         }
         
         stat = 2 * abs(lik1 - lik2)
-        
         univariateModels$stat = stat
         univariateModels$pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
         univariateModels$flag = numeric(cols) + 1;
@@ -1194,13 +1178,11 @@ InternalMMPC = function(target, dataset, max_k, threshold, test=NULL, ini=NULL, 
         cl <- makePSOCKcluster(ncores)
         registerDoParallel(cl)
         mod <- foreach(i = 1:cols, .combine = rbind, .packages = "survival") %dopar% {
-          
           if ( i != targetID ) {
             fit2 = survival::coxph( target ~ dataset[, i], weights = wei )
             lik2 = as.numeric( logLik(fit2) )
             return( c(lik2, length( coef(fit2) ) ) )
           } else    return( c(0, 0) )
-          
         }
         stopCluster(cl)
         
@@ -1222,18 +1204,15 @@ InternalMMPC = function(target, dataset, max_k, threshold, test=NULL, ini=NULL, 
       dof = numeric(cols)
       
       if ( ncores <= 1 | is.null(ncores) ) {
-        
         for ( i in 1:cols ) {
-          
           if ( i != targetID ) {
             fit2 = survival::survreg( target ~ dataset[, i], weights = wei )
             lik2[i] = as.numeric( logLik(fit2) )
             dof[i] = length( coef(fit2) ) - 1
           } else  lik2[i] = lik1
         }
-        
-        stat = 2 * abs(lik1 - lik2)
-        
+
+        stat = 2 * abs(lik1 - lik2)        
         univariateModels$stat = stat
         univariateModels$pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
         univariateModels$flag = numeric(cols) + 1;
@@ -1244,13 +1223,11 @@ InternalMMPC = function(target, dataset, max_k, threshold, test=NULL, ini=NULL, 
         cl <- makePSOCKcluster(ncores)
         registerDoParallel(cl)
         mod <- foreach(i = 1:cols, .combine = rbind, .packages = "survival") %dopar% {
-          
           if ( i != targetID ) {
             fit2 = survival::survreg( target ~ dataset[, i], weights = wei )
             lik2 = as.numeric( logLik(fit2) )
             return( c(lik2, length( coef(fit2) ) - 1 ) )
           } else   return( c(0, 0) )
-          
         }
         stopCluster(cl)
         
@@ -1271,9 +1248,7 @@ InternalMMPC = function(target, dataset, max_k, threshold, test=NULL, ini=NULL, 
       dof = numeric(cols)
       ina <- 1:cols
       if ( targetID != -1 )  ina[targetID] == 0
-  
         if ( ncores <= 1 | is.null(ncores) ) {
-    
           for ( i in ina ) {
             fit2 = survival::clogit( case ~ dataset[, i] + strata(id) ) 
             dof[i] = length( coef(fit2) ) 
@@ -1314,7 +1289,6 @@ InternalMMPC = function(target, dataset, max_k, threshold, test=NULL, ini=NULL, 
       if ( targetID != -1 )  ina[targetID] == 0
   
       if ( ncores <= 1 | is.null(ncores) ) {
-    
         for ( i in ina ) {
           fit2 = survival::survreg( target ~ dataset[, i], dist = "exponential", weights = wei )
           lik2[i] = as.numeric( logLik(fit2) )

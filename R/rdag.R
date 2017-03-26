@@ -1,4 +1,4 @@
-rdag <- function(n, p, s, a = 0, m, A = NULL, seed = FALSE) {
+rdag <- function(n, p, s, a = 0, m = NULL, A = NULL, seed = FALSE) {
   ## n in the sample size
   ## p is the number of (nodes or) variables
   ## s is the success probability of the binomial distribution

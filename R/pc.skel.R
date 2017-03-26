@@ -6,13 +6,9 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 
   ## rob is TRUE or FALSE and is supported by type = "pearson" only, i.e. it is to be used
   ## for robust estimation of Pearson correlation coefficient only
   ## if graph is true, the graph will appear
-
   alpha <- log(alpha)
-  
   title <- deparse( substitute(dataset) )
-  
   if ( !is.matrix(dataset) )   dataset <- as.matrix(dataset);
-
   #check for NA values in the dataset and replace them with the variable median or the mode
   if( any(is.na(dataset)) ) {
     #dataset = as.matrix(dataset);
@@ -42,7 +38,7 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 
     ci.test <- condi 
     type <- method
     rob <- rob
-  } else if (method == "distcor" ) {
+  } else if ( method == "distcor" ) {
     ci.test <- dist.condi
     type <- NULL
     rob <- NULL
@@ -107,11 +103,25 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 
       dof <- matrix(m - 3, n, n)
       stadf <- stata / dof
     }   
+  
+  } else if ( method == "distcor" )  {
 
+    stat = pv = matrix(0, n, n)
+    for ( i in 1:c(n - 1) ) {
+      for ( j in c(i + 1):n ) {
+        ro <- dist.condi(i, j, 0, dataset, R = R) 
+        stat[i, j] <- ro[1]
+        pv[i, j] <- ro[2]
+      }
+    }
+    pvalue <- pv + t(pv)  ## p-values
+    stata <- stat + t(stat)
+    dof <- ro[3]
+    stadf <- stata / dof
+    
   } else { ## type = cat
 
     stat <- pv <- dof <- matrix(0, n, n)
-
     a <- Rfast::g2Test_univariate(dataset, dc)
     pva <- pchisq(a$statistic, a$df, lower.tail = FALSE, log.p = TRUE)
     stat[ cbind(a$x, a$y) ] <- a$statistic
@@ -159,7 +169,7 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 
 
     ## Execute PC algorithm: main loop
 
-    while ( k < ell & duo > 0 )  {
+    while ( k <= ell & duo > 0 )  {
       k = k + 1   ## size of the seperating set will change now
       tes = 0
       met <- matrix(0, duo, k + 2)
@@ -223,7 +233,7 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 
           }
         }
 
-        if ( nrow(sam) == 0 ) {
+        if ( dim(sam)[1] == 0 ) {
           G = G  
           
         } else {
@@ -254,8 +264,8 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 
         }
 
         sam = samx = samy = NULL
-
       }  
+      
         ax = ay = list()
         lx = ly = numeric( duo )
         
@@ -270,8 +280,7 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 
          sep[[ k ]] = c( zeu[id, 1:2], met[id, ] )
       } else  sep[[ k ]] = cbind( zeu[id, 1:2], met[id, ] )
       
-      zeu = zeu[-id, ]  
-      if ( class(zeu) != "matrix" )  zeu <- matrix(zeu, ncol = 4)
+      zeu = zeu[-id, , drop = FALSE]  
       duo <- dim(zeu)[1]
       n.tests[ k + 1 ] = tes
 

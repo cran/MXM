@@ -28,7 +28,7 @@ The index of the variable whose association with the target we want to test.
 The indices of the variables to condition on.
 }
 \item{wei}{
-A vector of weights to be used for weighted regression. The default value is NULL and it should stay NULL as weights are ignored the conditional logistic regression. See the \bold{survival} package for more information about this type of regression.
+A vector of weights to be used for weighted regression. The default value is NULL and it should stay NULL as weights are ignored at the conditional logistic regression. See the \bold{survival} package for more information about conditional logistic regression.
 }
 \item{dataInfo}{
 A list object with information on the structure of the data. Default value is NULL.
