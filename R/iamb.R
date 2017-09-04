@@ -1,6 +1,6 @@
 iamb <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, user_test = NULL, stopping = "BIC", tol = 2, robust = FALSE, ncores = 1, back = "iambbs") {
   
-  mod <- fs.reg(target, dataset, threshold, wei, test, user_test, stopping, tol, robust, ncores) 
+  mod <- fs.reg(target, dataset, ini = NULL, threshold, wei, test, user_test, stopping, tol, robust, ncores) 
   poies <- mod$info[, 1]
   
   if ( length(poies) <= 1 )  {

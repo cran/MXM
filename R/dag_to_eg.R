@@ -5,7 +5,6 @@
   ## 
   ## Base Code is from BNT
 
-
 dag_to_eg <- function(dagx) {      # function [eg, order] = dag_to_eg(dagx)
 
   ## Converts a DAG into an Essential Graph
@@ -127,24 +126,20 @@ dag_to_eg <- function(dagx) {      # function [eg, order] = dag_to_eg(dagx)
   }
 
   ##print_dag(dagx); ## Just checking output
-
   ## dagx is now in BNT's eg format, convert to use 
   ## (0: no edge, 1: directed edge, 2: undirected edge format)
   ## Also, make sure that any undirected edge is listed in both
   ## places x1 -- x2 -> (x1, x2) & (x2, x1) = 2;
-
   eg[ which( dagx == 2 ) ] = 1
   eg[ which( dagx == 3 ) ] = 2
 
   for ( i in 1:nx ) {
     for ( j in 1:ny ) {
         if ( eg[i, j] == 2 )   eg[j, i] = 2
-        
     }
  }
 
  list(eg = eg, ord = ord)
-
 }
 
 

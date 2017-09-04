@@ -1,5 +1,7 @@
 \name{BIC based forward selection with generalised linear models}
 \alias{bic.glm.fsreg}
+\alias{bic.gammafsreg}
+\alias{bic.normlog.fsreg}
 \title{
 Variable selection in generalised linear models with forward selection based on BIC
 
@@ -12,6 +14,12 @@ Variable selection in generalised linear models with forward selection based on 
 \usage{
 bic.glm.fsreg( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
 robust = FALSE, ncores = 1) 
+
+bic.gammafsreg(target, dataset, wei = NULL, tol = 0, 
+heavy = FALSE, robust = FALSE, ncores = 1) 
+
+bic.normlog.fsreg(target, dataset, wei = NULL, tol = 0, 
+heavy = FALSE, robust = FALSE, ncores = 1) 
 }
 
 \arguments{
@@ -47,23 +55,20 @@ Forward selection via the BIC is implemented. A variable which results in a redu
 
 \value{
 The output of the algorithm is S3 object including:
+\item{runtime}{
+The run time of the algorithm. A numeric vector. The first element is the user time, the second element is the system time and the third element is the elapsed time.
+}
 \item{mat}{
 A matrix with the variables and their latest test statistics and p-values.
 }
 \item{info}{
 A matrix with the selected variables, and the BIC of the model with that and all the previous variables.
 }
-\item{models}{
-The regression models, one at each step.
-}
-\item{final}{
-The final regression model.
-}
 \item{ci_test}{
 The conditional independence test used. 
 }
-\item{runtime}{
-The run time of the algorithm. A numeric vector. The first element is the user time, the second element is the system time and the third element is the elapsed time.
+\item{final}{
+The final regression model.
 }
 }
 

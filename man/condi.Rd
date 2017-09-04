@@ -1,6 +1,7 @@
-\name{Correlation based tests with and without permutation p-value}
+\name{Conditional independence tests with and without permutation p-value}
 \alias{condi}
 \alias{dist.condi}
+\alias{cat.ci}
 \title{
 Conditional independence test for continuous class variables with and without permutation based p-value
 }
@@ -12,7 +13,8 @@ conditioning set CS.
 
 \usage{
 condi(ind1, ind2, cs, dat, type = "pearson", rob = FALSE, R = 1) 
-dist.condi(ind1, ind2, cs, dat, type = NULL, rob = NULL, R = 499) 
+dist.condi(ind1, ind2, cs, dat, type = NULL, rob = FALSE, R = 499) 
+cat.ci(ind1, ind2, cs, dat, type, rob = FALSE, R = 1)
 }
 
 \arguments{
@@ -26,13 +28,18 @@ The index of the other variable to be considered.
 The index or indices of the conditioning set of variable(s).
 }
 \item{dat}{
-A matrix with the data. 
+A matrix with the data. In the case of "cat.ci" the minimum must be 0, i.e. the data must be like 0, 1, 2 and NOT 1, 2, 3... There is a C++ code behind and the minimum must be 0. 
 }
 \item{type}{
-Do you want the Pearson (type = "pearson") or the Spearman (type = "spearman") correlation to be used. For "dist.condi" this is an obsolete argument but it requires to exist when it is used in the PC algorithm.
+Do you want the Pearson (type = "pearson") or the Spearman (type = "spearman") correlation to be used. For "dist.condi" this is an obsolete argument but it requires to exist when it is used in 
+the PC algorithm. 
+
+For "cat.ci" this should be a vector with the levels, the number of distinct (different) values of each categorical variable. Its length is equal to the number of variables used in the test 
+(2 + the number of conditioning variables). 
 }
 \item{rob}{
-If you choose type="pearson" then you can sapecify whether you want a robust version of it (TRUE) or not (FALSE). For "dist.condi" this is an obsolete argument but it requires to exist when it is used in the PC algorithm.
+If you choose type="pearson" then you can sapecify whether you want a robust version of it (TRUE) or not (FALSE). For "dist.condi" and "cat.ci" this is an obsolete argument but it requires to 
+exist when it is used in the PC algorithm.
 }
 \item{R}{
 If R = 1 then the asymptotic p-value is calculated. If R > 1 a permutation based p-value is returned. For the distance correlation based test, this is

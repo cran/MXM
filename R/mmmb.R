@@ -18,7 +18,7 @@ mmmb = function(target, dataset , max_k = 3 , threshold = 0.05 , test = "testInd
       
       tar <- dataset[ , varsToIterate[i] ];
       datas <- cbind( dataset[, -varsToIterate[i] ], target)
-      res <- MMPC(tar, datas, max_k = 3, threshold = threshold, test = test , user_test = user_test, hash = FALSE, robust = robust, ncores = 1, backward = FALSE) 
+      res <- MMPC(tar, datas, max_k = 3, threshold = threshold, test = test, user_test = user_test, hash = FALSE, robust = robust, ncores = 1, backward = FALSE) 
       poies <- sort( res@selectedVars )
       if ( !hold )  if ( d %in% poies == FALSE )   met[i] = 0;
       poies <- poies[ - which( poies == d ) ]

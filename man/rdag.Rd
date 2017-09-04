@@ -1,5 +1,6 @@
 \name{Data simulation from a DAG}
 \alias{rdag}
+\alias{rdag2}
 \title{
 Simulation of data from DAG (directed acyclic graph)
 }
@@ -11,30 +12,40 @@ from 'TARGET' given a conditioning set CS. This test is based on the log likelih
 
 \usage{
 rdag(n, p, s, a = 0, m, A = NULL, seed = FALSE) 
+rdag2(n, A = NULL, p, nei, low, up) 
 }
 
 \arguments{
-  \item{n}{
-  A number indicating the sample size. 
+\item{n}{
+A number indicating the sample size. 
 }
-  \item{p}{
-  A number indicating the number of nodes (or vectices, or variables).
+\item{p}{
+A number indicating the number of nodes (or vectices, or variables).
 }
-  \item{s}{
-  A number in \eqn{(0, 1)}. This defines somehow the sparseness of the model. It is the probability that a node has an edge. 
+\item{nei}{
+The average number of neighbours.
 }
-  \item{a}{
-  A number in \eqn{(0, 1)}. The defines the percentage of outliers to be included in the simulated data. If \eqn{a=0}, no outliers are generated. 
+\item{s}{
+A number in \eqn{(0, 1)}. This defines somehow the sparseness of the model. It is the probability that a node has an edge. 
 }
-  \item{m}{
-  A vector equal to the number of nodes. This is the mean vector of the normal distribution from which the data are to be generated. This is used only when \eqn{a>0} 
+\item{a}{
+A number in \eqn{(0, 1)}. The defines the percentage of outliers to be included in the simulated data. If \eqn{a=0}, no outliers are generated. 
+}
+\item{m}{
+A vector equal to the number of nodes. This is the mean vector of the normal distribution from which the data are to be generated. This is used only when \eqn{a>0} 
  so as to define the mena vector of the multivariate normal from which the outliers will be generated. 
 }
-  \item{A}{
+\item{A}{
 If you already have an an adjacency matrix in mind, plug it in here, otherwise, leave it NULL. 
 }
-  \item{seed}{
+\item{seed}{
 If seed is TRUE, the simulated data will always be the same. 
+}
+\item{low}{
+Every child will be a function of some parents. The beta coefficients of the parents will be drawn uniformly from two numbers, low and up. See details for more information on this.
+}
+\item{up}{
+Every child will be a function of some parents. The beta coefficients of the parents will be drawn uniformly from two numbers, low and up. See details for more information on this. 
 }
 }
 
@@ -48,6 +59,11 @@ If a is greater than zero, the outliers are generated from a multivariate normal
 specified by the user, the argument "m". The flexibility of the outliers is that you cna specifiy outliers in some variables only or in all of them. 
 For example, m=c(0,0,5) introduces outliers in the third variable only, whereas m=c(5,5,5) introduces outliers in all variables. 
 The user is free to decide on the type of outliers to include in the data.
+
+For the "rdag2", this is a different way of simulating data from DAGs. The first variable is normally generated. Every other variable can be a function of some previous ones. 
+Suppose now that the i-th variable is a child of 4 previous variables. We need for coefficients \eqn{b_j} to multiply the 4 variables and then generate the i-th variable from 
+a normal with mean \eqn{\sum_{j=1}b_j X_j} and variance 1. The \eqn{b_j} will be either positive or negative values with equal probability. Their absolute values ranges between 
+"low" and "up". The code is accessible and you can see in detail what is going on. In addition, every generated data, are standardised to avoid numerical overflow.
 }
 
 
@@ -57,7 +73,7 @@ A list including:
 The number of outliers.
 }
 \item{G}{
-The adcacency matrix used. If G[i, j] = 1, then G[j, i] = 2 and this means that there is an arrow from j to i.
+The adcacency matrix used. For the "rdag" if G[i, j] = 2, then G[j, i] = 3 and this means that there is an arrow from j to i. For the "rdag2" the entries are either G[i, j] = G[j, i] = 0 (no edge) or G[i, j] = 1 and G[j, i] = 0 (direction from i to j). 
 }
 \item{A}{
 The matrix with the with the uniform values in the interval \eqn{0.1, 1}. 

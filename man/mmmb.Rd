@@ -46,7 +46,7 @@ After the MMPC, the backward (or symmetry correction) phase is implemented. This
 }
 
 \details{
-The idea is to run the MMPC algorithm at first and identify the parents and children (PCt) of the target variable. As a second step, the MMPC algorithm is run on the discovered variables to return PCi. The parents of the children of the target are the spouses of the target. Every variable in PCi is checked to see if it is a spouse of the target. If yes, it is included in the Markov Blanket of the target, otherwise it is thrown. If the data are continous, the Fisher correlation test is used or the Spearman correlation (more robust). If the data are categorical, the \eqn{G^2} test is used. 
+The idea is to run the MMPC algorithm at first and identify the parents and children (PC) of the target variable. As a second step, the MMPC algorithm is run on the discovered variables to return PC. The parents of the children of the target are the spouses of the target. Every variable in PCi is checked to see if it is a spouse of the target. If yes, it is included in the Markov Blanket of the target, otherwise it is thrown. If the data are continous, the Fisher correlation test is used or the Spearman correlation (more robust). If the data are categorical, the \eqn{G^2} test is used. 
 }
 
 \value{

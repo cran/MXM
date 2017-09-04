@@ -1,5 +1,7 @@
 \name{Forward selection with generalised linear regression models}
 \alias{glm.fsreg}
+\alias{gammafsreg}
+\alias{normlog.fsreg}
 \title{
 Variable selection in generalised linear regression models with forward selection
 }
@@ -11,17 +13,23 @@ Variable selection in generalised linear regression models with forward selectio
 \usage{
 glm.fsreg(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, tol = 2, 
 heavy = FALSE, robust = FALSE, ncores = 1) 
+
+gammafsreg(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, tol = 2, 
+heavy = FALSE, robust = FALSE, ncores = 1) 
+
+normlog.fsreg(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, tol = 2, 
+heavy = FALSE, robust = FALSE, ncores = 1) 
 }
 
 \arguments{
 \item{target}{
-The class variable. Provide either a string, an integer, a numeric value, a vector, a factor, an ordered factor or a Surv object. See also Details.
+A numerical vector or a factor variable with two levels. The Gamma regression reuqires strictly positive numbers, wehreas the normlog requires positive numbes, zero included.
 }
 \item{dataset}{
-The dataset; provide either a data frame or a matrix (columns = variables, rows = samples). In either case, only two cases are avaialble, either all data are continuous, or categorical. 
+The dataset; provide either a data frame or a matrix (columns = variables, rows = samples). In either case, only two cases are available, either all data are continuous, or categorical. 
 }
 \item{ini}{
-If you have a set of variables already start with this one. Currently this can only be a matrix with continuous variables. In such cases, the dataset must also contain continuous variables only. Otherwise leave it NULL. 
+If you have a set of variables already start with this one. Otherwise leave it NULL. 
 }
 \item{threshold}{
 Threshold (suitable values in [0,1]) for assessing the p-values significance. Default value is 0.05.
@@ -57,13 +65,10 @@ The output of the algorithm is S3 object including:
 The run time of the algorithm. A numeric vector. The first element is the user time, the second element is the system time and the third element is the elapsed time.
 }
 \item{mat}{
-A matrix with the variables and their latest test statistics and p-values.
+A matrix with the variables and their latest test statistics and p-values. If you have logistic or Poisson regression with continuous predictor variables in a matrix form and no weights, this will not appear. In this case, a C++ code is called and the output is less.
 }
 \item{info}{
 A matrix with the selected variables, their p-values and test statistics. Each row corresponds to a model which contains the variables up to that line. The BIC in the last column is the BIC of that model.
-}
-\item{models}{
-The regression models, one at each step.
 }
 \item{ci_test}{
 The conditional independence test used. 

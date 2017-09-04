@@ -36,8 +36,9 @@ lm.fsreg_heavy <- function(target, dataset, ini = NULL, threshold = 0.05, wei = 
             ww = speedglm::speedlm( target ~ dataset[, i], data = as.data.frame(dataset), weights = wei )
             suma = summary(ww)[[ 13 ]]
             stat[i] = suma[1]
-            dof = suma[3]
-            pval[i] = pf(stat[i], 1, dof, lower.tail = FALSE, log.p = TRUE)
+            df1 = suma[2]
+			      df2 <- suma[3]  
+            pval[i] = pf(stat[i], df1, df2, lower.tail = FALSE, log.p = TRUE)
           }
           mat <- cbind(1:p, pval, stat)
         }
@@ -50,8 +51,9 @@ lm.fsreg_heavy <- function(target, dataset, ini = NULL, threshold = 0.05, wei = 
         ww = speedlm( target ~ dataset[, i], data = as.data.frame(dataset), weights = wei ) 
         suma = summary(ww)[[ 13 ]]
         stat[i] = suma[1]
-        dof = suma[3]
-        pval[i] = pf(stat, 1, dof, lower.tail = FALSE, log.p = TRUE)
+        df1 = suma[2]
+		    df2 <- suma[3] 
+        pval[i] = pf(stat, df1, df2, lower.tail = FALSE, log.p = TRUE)
         mat[i, ] = c(pval[i], stat[i]) 
       }
       stopCluster(cl)
@@ -66,8 +68,7 @@ lm.fsreg_heavy <- function(target, dataset, ini = NULL, threshold = 0.05, wei = 
     
     if ( mat[sel, 2] < threshold ) {
       info[1, ] <- mat[sel, ]
-      mat <- mat[-sel, ] 
-      if ( !is.matrix(mat) )   mat <- matrix(mat, ncol = 3) 
+      mat <- mat[-sel, , drop = FALSE] 
       mi = speedglm::speedlm( target ~ dataset[, sel], data = data.frame(dataset), weights = wei )
       if ( stopping == "adjrsq" ) {
         tool[1] <- as.numeric( summary( mi )[[ 11 ]] )		  
@@ -153,8 +154,7 @@ lm.fsreg_heavy <- function(target, dataset, ini = NULL, threshold = 0.05, wei = 
           } else { 
             info <- rbind( info, mat[ina, ] )
             sela <- info[, 1]
-            mat <- mat[-ina , ]
-            if ( !is.matrix(mat) )   mat <- matrix(mat, ncol = 3) 
+            mat <- mat[-ina , , drop = FALSE]
             moda[[ k ]] <- ma
           }
           
@@ -166,7 +166,7 @@ lm.fsreg_heavy <- function(target, dataset, ini = NULL, threshold = 0.05, wei = 
     ###### k greater than 2
     ######
     if ( nrow(info) > 1  &  nrow(mat) > 0 ) {
-      while ( ( info[k, 2] < threshold ) &  ( k < n ) & ( abs( tool[ k ] - tool[ k - 1 ] ) > tol ) & ( nrow(mat) > 0 ) )  {
+      while ( info[k, 2] < threshold &  k < n - 15 & abs( tool[ k ] - tool[ k - 1 ] ) > tol &  nrow(mat) > 0 )  {
         
         k <- k + 1   
         pn <- p - k + 1 
@@ -218,8 +218,7 @@ lm.fsreg_heavy <- function(target, dataset, ini = NULL, threshold = 0.05, wei = 
             } else { 
               info <- rbind( info, mat[ina, ] )
               sela <- info[, 1]
-              mat <- mat[-ina , ] 
-              if ( !is.matrix(mat) )  mat <- matrix(mat, ncol = 3) 
+              mat <- mat[-ina , , drop = FALSE] 
               moda[[ k ]] <- ma
             }
             
@@ -235,8 +234,7 @@ lm.fsreg_heavy <- function(target, dataset, ini = NULL, threshold = 0.05, wei = 
             } else { 
               info <- rbind( info, mat[ina, ] )
               sela <- info[, 1]
-              mat <- mat[-ina , ]
-              if ( !is.matrix(mat) )   mat <- matrix(mat, ncol = 3) 
+              mat <- mat[-ina , , drop = FALSE]
               moda[[ k ]] <- ma
             }
             
@@ -252,31 +250,16 @@ lm.fsreg_heavy <- function(target, dataset, ini = NULL, threshold = 0.05, wei = 
     
     d <- length(sela)
     final <- NULL
-    models <- NULL
-    
-    if ( d >= 1 ) {
-      models <- NULL
-      xx <- as.data.frame( dataset[, sela] )
-      colnames(xx) <- paste("V", sela, sep = "") 
-      
-      if ( d == 1 ) {
-        xx <- as.data.frame( dataset[, sela] )
-        colnames(xx) <- paste("V", sela, sep = "") 
-        models[[ 1 ]] <- final <- speedglm::speedlm( target ~., data = as.data.frame( xx ), weights = wei )
 
-      } else {
-        for (i in 1:d)   models[[ i ]] <- speedglm::speedlm( target ~., data = as.data.frame( xx[, 1:i] ), weights = wei )
-      }
-      
-      final <- models[[ d ]]
-      info <- info[1:d, ]
-      if ( d == 1 )  info <- matrix(info, nrow = 1)
+    if ( d >= 1 ) {
+      final <- speedglm::speedlm( target ~., data = as.data.frame( dataset[, sela] ), weights = wei )
+      info <- info[1:d, , drop = FALSE]
       info <- cbind( info, tool[ 1:d ] ) 
       colnames(info) <- c( "variables", "log.p-value", "stat", stopping )
       rownames(info) <- info[, 1]
     }
     
-    result <- list(runtime = runtime, mat = t(mat), info = info, models = models, ci_test = ci_test, final = final ) 
+    result <- list(runtime = runtime, mat = t(mat), info = info, ci_test = ci_test, final = final ) 
     
   }  
   

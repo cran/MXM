@@ -32,7 +32,7 @@ The ara under the curve is returned. The user has the option of getting the rece
 }
 
 \value{
-If the roc is set to FALSE, the area under the curve is returned only. Otherwise a list including
+A list including:
 \item{cutoffs}{
 The cutoff values.
 }
@@ -46,7 +46,7 @@ The specificity value for each cutoff value.
 The Youden index which is defined as the maximum value of sensitivity - specificity + 1.
 }
 \item{auc}{
-The area under the curve.
+The area under the curve. If "roc" is set to FALSE, this is the only item in the list to be returned.
 }
 }
 

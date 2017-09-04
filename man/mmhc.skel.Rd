@@ -10,12 +10,13 @@ The skeleton of a Bayesian network produced by MMHC. No orientations are involve
 
 \usage{
 mmhc.skel(dataset, max_k = 3, threshold = 0.05, test = "testIndFisher", type = "MMPC", 
-rob = FALSE, fast = FALSE, symmetry = TRUE, nc = 1, graph = FALSE) 
+rob = FALSE, fast = FALSE, symmetry = TRUE, nc = 1) 
 }
 
 \arguments{
 \item{dataset}{
-A matrix with the variables. The user must know if they are continuous or if they are categorical. data.frame or matrix are both supported, as the dataset is converted into a matrix.   
+A matrix with the variables. The user must know if they are continuous or if they are categorical. If you have a matrix with categorical data, i.e. 0, 1, 2, 3 where each number indicates a category, 
+the minimum number for each variable must be 0. data.frame is also supported, as the dataset in this case is converted into a matrix.   
 }
 \item{max_k}{
 The maximum conditioning set to use in the conditional indepedence test (see Details of SES or MMPC). 
@@ -23,26 +24,28 @@ The maximum conditioning set to use in the conditional indepedence test (see Det
 \item{threshold}{
 Threshold ( suitable values in (0, 1) ) for assessing p-values significance. Default value is 0.05.
 }
-  \item{test}{
+\item{test}{
 The conditional independence test to use. Default value is "testIndFisher". This procedure allows for "testIndFisher", "testIndSPearman" for continuous variables and "gSquare" for categorical variables. 
 }
 \item{type}{
-The type of variable selection to take place for each variable (or node). The default (and standard) in "MMPC". You can also choose to run it via "SES" and thus allow for multiple signatures of variables to be ceonnected to a variable.
+The type of variable selection to take place for each variable (or node). The default (and standard) in "MMPC". You can also choose to run it via "SES" and thus allow for multiple signatures of variables to be connected 
+to a variable.
 }
 \item{rob}{
-A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust version of the statistical test if it is available. It takes more time than a non robust version but it is suggested in case of outliers. Default value is FALSE. This will only be taken into account if test is "testIndFisher".
+A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust version of the statistical test if it is available. It takes more time than a non robust version but it is suggested in case of outliers. 
+Default value is FALSE. This will only be taken into account if test is "testIndFisher".
 }
 \item{fast}{
 A bollean variable indicating a faster procedure to take place. By default this is set to FALSE. See details about this. 
 }
 \item{symmetry}{
-In order for an edge to be added, a statistical relationship must have been found from both directions. If you want this symmetry correction to take place, leave this boolean variable to TRUE. If you set it to FALSE, then if a relationship between Y and X is detected but not between X and Y, the edge is still added. 
+In order for an edge to be added, a statistical relationship must have been found from both directions. If you want this symmetry correction to take place, leave this boolean variable to TRUE. If you set it to FALSE, then if 
+a relationship between Y and X is detected but not between X and Y, the edge is still added. 
 }
 \item{nc}{
-How many cores to use. This plays an important role if you have many variables, say thousands or so. You can try with nc = 1 and with nc = 4 for example to see the differences. If you have a multicore machine, this is a must option.
-}
-\item{graph}{
-Boolean that indicates whether or not to generate a plot with the graph. The package "RgraphViz" is required.
+How many cores to use. This plays an important role if you have many variables, say thousands or so. You can try with nc = 1 and with nc = 4 for example to see the differences. If you have a multicore machine, this is a must 
+option. There was an extra argument for plotting the skeleton but it does not work with the current visualisation 
+packages, hence we removed the argument. Use \code{\link{plotnetwork}} to plot the skeleton.   
 }
 }
 
@@ -71,12 +74,16 @@ Some summary statistics about the edges, minimum, maximum, mean, median number o
 \item{ms}{
 If you run "MMPC" for each variable this is NULL. If you run "SES" is a vector denoting which variables had more than one signature, i.e. more than one set of variables associated with them.
 }
+\item{ntests}{
+The number of tests MMPC (or SES) performed at each variable.
+}
 \item{G}{
 The adjancency matrix. A value of 1 in G[i, j] appears in G[j, i] also, indicating that i and j have an edge between them.
 }
 
 Bear in mind that the values can be extracted with the $ symbol, i.e. this is an S3 class output. 
 }
+
 \references{
 Tsamardinos, Brown and Aliferis (2006). The max-min hill-climbing Bayesian network structure learning algorithm. Machine learning, 65(1), 31-78.
 }
@@ -91,16 +98,16 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> and M
 %%  ~~further notes~~
 %}
 \seealso{
-\code{ \link{SES}, \link{MMPC}, \link{pc.skel} }
+\code{ \link{pc.skel}, \link{pc.or}, \link{corfs.network} }
 }
 
 \examples{
 # simulate a dataset with continuous data
-dataset <- matrix(runif(1000 * 50, 1, 100), nrow = 1000 ) 
+dataset <- matrix(runif(1000 * 30, 1, 100), nrow = 1000 ) 
 a1 <- mmhc.skel(dataset, max_k = 3, threshold = 0.05, test = "testIndFisher", 
 rob = FALSE, nc = 1) 
 a2 <- mmhc.skel(dataset, max_k = 3, threshold = 0.05, test = "testIndSpearman", 
-rob = FALSE, nc = 1)
+type = "SES", rob = FALSE, nc = 1)
 a3 <- pc.con(dataset)
 a4 <- pc.skel(dataset, R = 1) 
 

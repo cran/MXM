@@ -8,14 +8,14 @@ Currently the \pkg{MXM} package supports numerous tests for different types of t
 
 The \bold{testIndFisher} and the \bold{gSquare} tests have two things in common. They do not use a model implicitly (i.e. estimate some beta coefficients), even though there is an underlying assumed one. Secondly they are pure tests of independence (again, with assumptions required).
 
-As for the other tests, they share one thing in common. For all of them, two parametric models must be fit. The null model containing the conditioning set of variables alone and the alternative model containing the conditioning set and the candidate variable. The significance of the new variable is assessed via a log-likelihood ratio test with the appropriate degrees of freedom. All of these tests are summarized in the below table.
+As for the other tests, they share one thing in common. For all of them, two parametric models must be fit. The null model containing the conditioning set of variables alone and the alternative model containing the conditioning set and the candidate variable. The significance of the new variable is assessed via a log-likelihood ratio test with the appropriate degrees of freedom. All of these tests which are available for SES and MMPC are summarized in the below table.
 
 \tabular{llll}{ 
   \bold{Target variable} \tab	\bold{Predictor variables} \tab \bold{Available tests} \tab	\bold{Short explanation} \cr 
   
   Continuous \tab Continuous \tab testIndFisher (robust) \tab Partial correlation \cr 
   Continuous \tab Continuous \tab testIndSpearman \tab Partial correlation \cr 
-  Continuous \tab Mixed \tab testIndReg (robust) \tab Linear regression \cr 
+  Continuous \tab Mixed \tab testIndReg (robust) \tab MM regression \cr 
   Continuous \tab Mixed \tab testIndRQ \tab Median regression \cr  
   Proportions \tab Continuous \tab testIndFisher (robust) \tab Partial correlation \cr 
   \tab \tab after logit transformation \tab \cr
@@ -53,12 +53,12 @@ As for the other tests, they share one thing in common. For all of them, two par
   Compositional data \tab Mixed \tab testIndMVreg \tab Multivariate linear regression \cr 
   (no zeros) \tab  \tab after multivariate \tab  \cr 
   \tab \tab logit transformation \tab \cr
-  Longitudinal	\tab Continuous \tab TestIndGLMM \tab (Generalised) linear \cr
+  Longitudinal	\tab Continuous \tab testIndGLMM \tab (Generalised) linear \cr
    	\tab \tab \tab mixed models \cr
 }
 }
 
-\section{Tests}{
+\section{Log-likelihood ratio tests}{
   \enumerate{
 \item \bold{testIndFisher}. This is a standard test of independence when both the target and the set of predictor variables are continuous (continuous-continuous). When the joint multivariate normality of all the variables is assumed, we know that if a correlation is zero this means that the two variables are independent. Moving in this spirit, when the partial correlation between the target variable and the new predictor variable conditioning on a set of (predictor) variables is zero, then we have evidence to say they are independent as well. An easy way to calculate the partial correlation between the target and a predictor variable conditioning on some other variables is to regress the both the target and the new variable on the conditioning set. The correlation coefficient of the residuals produced by the two regressions equals the partial correlation coefficient. If the robust option is selected, the two aforementioned regression models are fitted using M estimators (Marona et al., 2006). If the target variable consists of proportions or percentages (within the (0, 1) interval), the logit transformation is applied beforehand.
     
@@ -109,8 +109,39 @@ As for the other tests, they share one thing in common. For all of them, two par
 }
 }
 
+
+\section{Wald based tests}{
+
+The available tests for wald.ses and wald.mmpc are listed below. Note, that only continuous predictors are allowed. 
+
+\tabular{llll}{ 
+  \bold{Target variable} \tab \bold{Available tests} \tab	\bold{Short explanation} \cr 
+  
+  Continuous  \tab waldMMReg \tab MM regression \cr  
+  Proportions \tab waldMMreg \tab MM regression \cr 
+  \tab \tab after logit transformation \tab \cr  
+  Proportions \tab waldBeta \tab Beta regression \cr 
+  Non negative \tab waldIGreg \tab Inverse Gaussian regression \cr 
+  Non negative \tab waldWR \tab Weibull regression \cr
+  Successes \& totals \tab testIndBinom \tab Binomial regression \cr
+  Discrete \tab waldPois \tab Poisson regression \cr 
+  Discrete \tab waldZIP \tab Zero Inflated \cr 
+   \tab	\tab  \tab Poisson regression \cr 
+  Discrete \tab waldNB \tab Negative binomial regression \cr 
+  Factor with two \tab waldBinary \tab Binary logistic regression \cr
+  levels or binary \tab \tab \tab \cr  
+  Factor with more than \tab waldOrdinal \tab Ordinal logistic regression \cr		 
+  two levels (ordered) \tab \tab \tab \cr  
+  Continuous, proportions, \tab waldSpeedglm \tab binary logistic \cr   
+  binary or counts        \tab  \tab  \tab or poisson gression \cr  
+  Survival	 \tab waldCR \tab Cox regression \cr
+  Survival	 \tab waldWR \tab Weibull regression \cr
+  Survival	 \tab waldER \tab Exponential regression \cr
+}
+}
+
 \details{
- These tests can be called by SES or individually by the user. In all regression cases, expect for the mixed models, there is an option for weights. 
+ These tests can be called by SES, MMPC, wald.mmpc or individually by the user. In all regression cases, there is an option for weights. 
 }
 
 \references{
@@ -155,7 +186,6 @@ Scholz, F. W. (2001). Maximum likelihood estimation for type I censored Weibull 
 Smith, R. L. (1991). Weibull regression models for reliability data. Reliability Engineering & System Safety, 34(1), 55-76.
 
 Spirtes P.,  Glymour C. and Scheines R. (2001). Causation, Prediction, and Search. The MIT Press, Cambridge, MA, USA, 3nd edition.
-
 }
 
 \author{

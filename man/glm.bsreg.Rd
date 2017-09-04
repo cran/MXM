@@ -1,8 +1,10 @@
 \name{Backward selection with generalised linear regression models}
 \alias{glm.bsreg}
+\alias{gammabsreg}
+\alias{normlog.bsreg}
+
 \title{
 Variable selection in generalised linear regression models with backward selection
-
 }
 
 \description{
@@ -10,7 +12,14 @@ Variable selection in generalised linear regression models with backward selecti
 }
 
 \usage{
-glm.bsreg(target, dataset, threshold = 0.05, wei = NULL, heavy = FALSE, robust = FALSE)
+glm.bsreg(target, dataset, threshold = 0.05, wei = NULL, heavy = FALSE, 
+robust = FALSE)
+
+gammabsreg(target, dataset, threshold = 0.05, wei = NULL, heavy = FALSE, 
+robust = FALSE)
+
+normlog.bsreg(target, dataset, threshold = 0.05, wei = NULL, heavy = FALSE, 
+robust = FALSE)
 }
 
 \arguments{
@@ -77,17 +86,19 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 set.seed(123)
 
 #simulate a dataset with continuous data
-dataset <- matrix( runif(1000 * 10, 1, 100), ncol = 10 )
+dataset <- matrix( runif(100 * 10, 1, 100), ncol = 10 )
 
 #define a simulated class variable 
-target <- rpois(1000, 10)
+target <- rpois(100, 10)
 a <- glm.bsreg(target, dataset, threshold = 0.05) 
 
-target <- rnorm(1000)
+target <- rbinom(100, 1, 0.6)
 b <- glm.bsreg(target, dataset, threshold = 0.05)
 
-target <- rbinom(1000, 1, 0.6)
-d <- glm.bsreg(target, dataset, threshold = 0.05)
+target <- rgamma(100, 1, 2)
+b1 <- gammabsreg(target, dataset, threshold = 0.05)
+b2 <- normlog.bsreg(target, dataset, threshold = 0.05)
+
 
 }
 

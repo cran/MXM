@@ -62,7 +62,7 @@ if(is.null(edges)){
 }else{
   
     if ( is.null(titlos) )   titlos <- "Network" 
-    visNetwork::visNetwork(nodesprint, edgesprint, width = "100%",height = "100%",main = titlos) %>% 
+    visNetwork::visNetwork(nodesprint, edgesprint, width = "100%", height = "600px", main = titlos) %>% 
     visNetwork::visPhysics(minVelocity = 1, maxVelocity = 50,repulsion = list(nodeDistance = 200, centralGravity = 10000), barnesHut = list(gravitationalConstant = -16000)) %>%
     visNetwork::visInteraction(navigationButtons = TRUE,hover = TRUE, hoverConnectedEdges = TRUE) %>%
     visNetwork::visOptions(nodesIdSelection = list(enabled = TRUE))

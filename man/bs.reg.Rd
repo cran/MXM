@@ -15,16 +15,19 @@ robust = FALSE)
 
 \arguments{
 \item{target}{
-The class variable. Provide either a string, an integer, a numeric value, a vector, a factor, an ordered factor or a Surv object. See also Details.
+The class variable. Provide either a string, an integer, a numeric value, a vector, a factor, an ordered factor or a Surv object. See also Details. For the gamma regression this must a vector with strictly positive numbers (no zeros allowed). 
 }
 \item{dataset}{
 The dataset; provide either a data frame or a matrix (columns = variables, rows = samples). In either case, only two cases are avaialble, either all data are continuous, or categorical. 
-  }
+}
 \item{threshold}{
 Threshold (suitable values in [0,1]) for assessing p-values significance. Default value is 0.05.
 }
 \item{test}{
-The regression model to use. Available options are most of the tests for SES and MMPC. The ones NOT available are "gSquare", "censIndER", "testIndMVreg", "testIndClogit", "testIndSpearman" and "testIndFisher". If you want to use multinomial or ordinal logistic regression, make sure your target is factor. See also \code{\link{SES}} and \code{\link{CondIndTests}} for the tests.
+The regression model to use. Available options are most of the tests for SES and MMPC. 
+The ones NOT available are "gSquare", "censIndER", "testIndMVreg", "testIndClogit", 
+"testIndSpearman" and "testIndFisher". If you want to use multinomial or ordinal logistic regression, 
+make sure your target is factor. See also \code{\link{SES}} and \code{\link{CondIndTests}} for the tests.
 }
 \item{wei}{
 A vector of weights to be used for weighted regression. The default value is NULL. It is not suggested when robust is set to TRUE.
@@ -64,9 +67,9 @@ The final regression model.
 }
 
 \author{
-  Michail Tsagris
-  
-  R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> Michail Tsagris <mtsagris@csd.uoc.gr>
+Michail Tsagris
+ 
+R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 
 \seealso{

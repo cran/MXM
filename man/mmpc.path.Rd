@@ -1,5 +1,6 @@
 \name{MMPC solution paths for many combinations of hyper-parameters}
 \alias{mmpc.path}
+\alias{waldmmpc.path}
 \title{
 MMPC solution paths for many combinations of hyper-parameters
 }
@@ -10,6 +11,9 @@ MMPC solution paths for many combinations of hyper-parameters.
 
 \usage{
 mmpc.path(target, dataset, wei = NULL, max_ks = NULL, thresholds = NULL, test = NULL,
+user_test = NULL, robust = FALSE, ncores = 1)
+
+waldmmpc.path(target, dataset, wei = NULL, max_ks = NULL, thresholds = NULL, test = NULL,
 user_test = NULL, robust = FALSE, ncores = 1)
 }
 

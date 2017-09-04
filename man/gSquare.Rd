@@ -1,5 +1,6 @@
 \name{G-square conditional independence test for discrete data}
 \alias{gSquare}
+\alias{permgSquare}
 \title{
 G-square conditional independence test for discrete data
 }
@@ -13,6 +14,10 @@ from 'TARGET' given a conditioning set CS. This test is based on the log likelih
 gSquare(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
 univariateModels = NULL, hash = FALSE, stat_hash = NULL, 
 pvalue_hash = NULL, robust = FALSE)
+
+permgSquare(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, 
+pvalue_hash = NULL, robust = FALSE,  threshold = 0.05, R = 999)
 }
 
 \arguments{
@@ -54,6 +59,12 @@ using the current test.
   \item{robust}{
 A boolean variable which indicates whether (TRUE) or not (FALSE) 
 to use a robust test. Currently it is not available for this test.
+}
+\item{threshold}{
+Threshold (suitable values in [0,1]) for assessing p-values significance. Default value is 0.05. This is actually obsolete here, but has to be in order to have a concise list of input arguments across the same family of functions.
+}
+\item{R}{
+The number of permutations to use. The default value is 999.
 }
 }
 

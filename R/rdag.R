@@ -6,7 +6,6 @@ rdag <- function(n, p, s, a = 0, m = NULL, A = NULL, seed = FALSE) {
   ## a number between 0 and 1
   ## m is the mean vector which is used only if you want outliers, i.e. if a > 0
   ## A is an adjancey matrix given by the user 
-  
   if ( is.null(A) ) { ## no adjacency matrix is given
     if ( s > 1 || s < 0 )  s <- 0.5
     if ( a > 1 || a < 0 )  a <- 0
@@ -33,11 +32,13 @@ rdag <- function(n, p, s, a = 0, m = NULL, A = NULL, seed = FALSE) {
     x <- rbind(y, yout)  
   } else  x <- Rfast::rmvnorm(n, numeric(p), sigma)
   
-  B <- t( A )
-  B[ B > 0 ] <- 2
-  ind <- which( t(B) == 2 )
-  B[ind] <- 3
-  
-  colnames(x) <- paste("X", 1:p, sep = "")
-  list(nout = nout, G = B, A = A, x = x)
+  G <- t( A )
+  G[ G > 0 ] <- 2
+  ind <- which( t(G) == 2 )
+  G[ind] <- 3
+  V <- paste("X", 1:p, sep = "")
+  colnames(x) <- V
+  colnames(G) <- rownames(G) <- V
+  colnames(A) <- rownames(A) <- V
+  list(nout = nout, G = G, A = A, x = x)
 }

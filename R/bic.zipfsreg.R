@@ -10,19 +10,17 @@ bic.zipfsreg <- function( target, dataset, wei = NULL, tol = 2, ncores = 1 ) {
   result <- NULL
   sela <- NULL
   lgy <- sum( lgamma(target + 1) ) 
-  
   #check for NA values in the dataset and replace them with the variable median or the mode
-  if( any(is.na(dataset)) ) {
+  if ( any( is.na(dataset) ) ) {
     #dataset = as.matrix(dataset);
     warning("The dataset contains missing values (NA) and they were replaced automatically by the variable (column) median (for numeric) or by the most frequent level (mode) if the variable is factor")
-    if (class(dataset) == "matrix")  {
+    if ( is.matrix(dataset) )  {
       dataset <- apply( dataset, 2, function(x){ x[which(is.na(x))] = median(x, na.rm = TRUE) ; return(x) } ) 
-    }else{
-      poia <- which( is.na(dataset), arr.ind = TRUE )[2]
-      for( i in poia )  {
+    } else {
+       poia <- unique( which( is.na(dataset), arr.ind = TRUE )[, 2] )
+      for ( i in poia )  {
         xi <- dataset[, i]
-        if(class(xi) == "numeric")
-        {                    
+        if ( is.numeric(xi) ) {                    
           xi[ which( is.na(xi) ) ] <- median(xi, na.rm = TRUE) 
         } else if ( is.factor( xi ) ) {
           xi[ which( is.na(xi) ) ] <- levels(xi)[ which.max( as.vector( table(xi) ) )]
@@ -31,12 +29,9 @@ bic.zipfsreg <- function( target, dataset, wei = NULL, tol = 2, ncores = 1 ) {
       }
     }
   }
-  
   ##################################
   # target checking and initialize #
   ##################################
-  
-  
   if ( is.null( colnames(dataset) ) )    colnames(dataset) <- paste("X", 1:p, sep = "")
 
   runtime <- proc.time()
@@ -48,7 +43,6 @@ bic.zipfsreg <- function( target, dataset, wei = NULL, tol = 2, ncores = 1 ) {
   bico <- zip.regs(target, dataset, wei, logged = TRUE, ncores = ncores)[, 3]
   mat <- cbind(1:p, bico)
   bico <- NULL
-  
   colnames(mat) <- c("variable", "BIC")
   rownames(mat) <- 1:p
   sel <- which.min( mat[, 2] )
@@ -56,8 +50,7 @@ bic.zipfsreg <- function( target, dataset, wei = NULL, tol = 2, ncores = 1 ) {
   if ( ini - mat[sel, 2] > tol ) {
     
     info[1, ] <- mat[sel, ]
-    mat <- mat[-sel, ]
-    if ( !is.matrix(mat) )   mat <- matrix(mat, ncol = 2) 
+    mat <- mat[-sel, , drop = FALSE]
     sela <- sel
     mi <- zip.reg( target, dataset[, sel], wei = wei, lgy = lgy )
     tool[1] <-  - 2 * mi$loglik + ( length(mi$be) + 1 ) * con
@@ -82,7 +75,6 @@ bic.zipfsreg <- function( target, dataset, wei = NULL, tol = 2, ncores = 1 ) {
         ma <- zip.reg( target, dataset[, c(sel, mat[i, 1]) ], wei = wei, lgy = lgy )
         bico[i] <-  - 2 * ma$loglik + ( length(ma$be) + 1 ) * con
       }
-      
       mat[, 2] <- bico
       
     } else {
@@ -95,9 +87,7 @@ bic.zipfsreg <- function( target, dataset, wei = NULL, tol = 2, ncores = 1 ) {
         bico[i] <-  - 2 * ww$loglik + ( length(ma$be) + 1 ) * con
       }
       stopCluster(cl)
-      
       mat[, 2] <- mod
-      
     }
     
     ina <- which.min( mat[, 2] )
@@ -110,20 +100,17 @@ bic.zipfsreg <- function( target, dataset, wei = NULL, tol = 2, ncores = 1 ) {
       tool[2] <- mat[ina, 2]
       info <- rbind(info, mat[ina, ] )
       sela <- info[, 1]
-      mat <- mat[-ina , ]
-      if ( !is.matrix(mat) )  mat <- matrix(mat, ncol = 2) 
+      mat <- mat[-ina, , drop = FALSE]
       mi <- zip.reg( target, dataset[, sela], wei = wei, lgy = lgy )
       tool[2] <-  - 2 * mi$loglik + ( length(mi$be) + 1 ) * con
       moda[[ 2 ]] <- mi
     }
   }
-  
   #########
   ####      k is greater than 2
   #########
-
   if ( nrow(info) > 1  &  nrow(mat) > 0 ) {
-    while ( ( k < n - 10 ) & ( tool[ k - 1 ] - tool[ k ] > tol ) & ( nrow(mat) > 0 ) ) {
+    while ( ( k < n - 15 ) & ( tool[ k - 1 ] - tool[ k ] > tol ) & ( nrow(mat) > 0 ) ) {
       
       k <- k + 1
       pn <- p - k + 1
@@ -159,8 +146,7 @@ bic.zipfsreg <- function( target, dataset, wei = NULL, tol = 2, ncores = 1 ) {
         tool[k] <- mat[ina, 2]
         info <- rbind(info, mat[ina, ] )
         sela <- info[, 1]
-        mat <- mat[-ina , ]
-        if ( !is.matrix(mat) )  mat <- matrix(mat, ncol = 2) 
+        mat <- mat[-ina, , drop = FALSE]
         ma <- zip.reg( target, dataset[, sela], wei = wei, lgy =lgy )
         tool[k] <-  - 2 * ma$loglik + ( length(ma$be) + 1 ) * con
         moda[[ k ]] <- ma
@@ -174,28 +160,16 @@ bic.zipfsreg <- function( target, dataset, wei = NULL, tol = 2, ncores = 1 ) {
   
   d <- length(sela)
   final <- NULL
-  models <- NULL
-  
+
   if ( d >= 1 ) {
-    models <- NULL
-    xx <- as.data.frame( dataset[, sela] )
     colnames(xx) <- paste("V", sela, sep = "")
-    if ( d == 1 ) {
-      xx <- as.data.frame( dataset[, sela] )
-      colnames(xx) <- paste("V", sela, sep = "")
-      models <- final <- zip.reg( target, xx, wei = wei )
-      
-    } else    for (i in 1:d)  models[[ i ]] <- zip.reg( target, xx[, 1:i], wei = wei )
-    
-    final <- models[[ d ]]
-    info <- info[1:d, ]
-    if ( d == 1 )  info <- matrix(info, nrow = 1)
+    final <- zip.reg( target, as.data.frame( dataset[, sela] ), wei = wei )
+    info <- info[1:d, , drop = FALSE ]
     colnames(info) <- c( "variables", "BIC" )
     rownames(info) <- info[, 1]
     
   }
   
-  list(mat = t(mat), info = info, models = models, final = final, ci_test = "testIndZIP", runtime = runtime )
-  
+  list(runtime = runtime, mat = t(mat), info = info, ci_test = "testIndZIP", final = final )
 } 
 

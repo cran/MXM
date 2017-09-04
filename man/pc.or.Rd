@@ -9,16 +9,13 @@ The function takes the outcome of the PC algorithm, as produced by \code{\link{p
 }
 
 \usage{
-pc.or(mod, graph = FALSE) 
-
+pc.or(mod) 
 }
 
 \arguments{
-  \item{mod}{
-  An object with the results of the PC algorithm, as produced by \code{\link{pc.skel}} or \code{\link{pc.con}}.   
-}
-\item{graph}{
-Boolean that indicates whether or not to generate a plot with the graph. Package RgraphViz is required.
+\item{mod}{
+An object with the results of the PC algorithm, as produced by \code{\link{pc.skel}} or \code{\link{pc.con}}. There was an extra argument for plotting the skeleton but it does not work with the current visualisation 
+packages, hence we removed the argument. Use \code{\link{plotnetwork}} to plot the skeleton.   
 }
 }
 

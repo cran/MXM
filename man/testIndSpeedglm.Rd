@@ -1,5 +1,6 @@
 \name{Conditional independence test for continuous, binary and count data with thousands of samples}
 \alias{testIndSpeedglm}
+\alias{waldSpeedglm}
 \title{
 Conditional independence test for continuous, binary and discrete (counts) variables with thousands of observations
 }
@@ -12,6 +13,10 @@ The main task of this test is to provide a p-value PVALUE for the null hypothesi
 testIndSpeedglm(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
 univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
 target_type = 0, robust = FALSE)
+
+waldSpeedglm(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
+target_type = 1, robust = FALSE)
 }
 
 \arguments{
@@ -49,8 +54,8 @@ A hash object (hash package required) which contains the cached generated p-valu
 A numeric vector that represents the type of the target. Default value is 0. See details for more.
 \itemize{
 \item target_type = 1 (binary target)
-\item target_type = 2 (nominal target)
-\item target_type = 3 (discrete target)
+\item target_type = 2 (disrete target)
+\item target_type = 3 (continuous target)
 }
 }
 \item{robust}{
@@ -72,7 +77,9 @@ Important: Use these arguments only with the same dataset that was used at initi
 
 This test is designed for large sample sized data, tens and hundreds of thousands and it works for linear, logistic and poisson regression. The classical \code{\link{lm}} and \code{\link{glm}} functions will use too much memory when many observations are available. The package "speedglm" handles such data more efficiently. You can try and see, in the first case the computer will jam, whereas in the second it will not. Hence, this test is to be used in these cases only. We have not set a threshold on the sample size, so that the algorithm decides whether to shift to speedglm or not, because this depends upon the user's computing fascilities. When there are up to \eqn{20,000} observations, the built-in function \code{\link{lm}} is faster, but when \eqn{n=30,000}, the \code{\link{speedlm}} is more than twice as fast. 
 
-For all the available conditional independence tests that are currently included on the package, please see "?CondIndTests".
+For all the available conditional independence tests that are currently included on the package, please see "?CondIndTests". 
+
+The log-likelihood ratio test used in "testIndSpeedglm" requires the fitting of two models. The Wald test used in "waldSpeedglm" requires fitting of only one model, the full one. The significance of the variable is examined only. Only continuous (or binary) predictor variables are currently accepted in this test. 
 }
 
 \value{

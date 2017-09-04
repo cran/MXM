@@ -16,7 +16,6 @@
 \alias{min_assoc.ma}
 \alias{univariateScore}
 \alias{univariateScore.ma}
-\alias{cat.ci}
 \alias{condi.perm}
 \alias{InternalSES.temporal}
 \alias{InternalMMPC.temporal}
@@ -29,10 +28,7 @@
 \alias{is.sepset}
 \alias{lm.fsreg_2}
 \alias{glm.fsreg_2}
-\alias{cvses.par}
-\alias{cvmmpc.par}
 \alias{dag_to_eg}
-\alias{topological_sort}
 \alias{nchoosek}
 \alias{proc_time-class}
 \alias{R0}
@@ -53,7 +49,6 @@
 \alias{zip.fsreg}
 \alias{beta.bsreg}
 \alias{zip.bsreg}
-\alias{vara}
 \alias{iamb.betabs}
 \alias{iamb.zipbs}
 \alias{iamb.glmbs}
@@ -61,6 +56,50 @@
 \alias{internaliamb.poisbs}
 \alias{internaliamb.lmbs}
 \alias{lm.fsreg_2.heavy}
+\alias{InternalMMPC.temporal}
+\alias{InternalSES.temporal}
+\alias{InternalSES}
+\alias{InternalMMPC}
+\alias{univariateScore}
+\alias{perm.univariateScore}
+\alias{max_min_assoc}
+\alias{min_assoc}
+\alias{nchoosek}
+\alias{Internalmases}
+\alias{compare_p_values}
+\alias{perm.Internalmmpc}
+\alias{wald.Internalmmpc}
+\alias{wald.Internalses}
+\alias{perm.IdentifyEquivalence}
+\alias{perm.identifyTheEquivalent}
+\alias{perm.apply_ideq}
+\alias{IdentifyEquivalence}
+\alias{apply_ideq}
+\alias{identifyTheEquivalent}
+\alias{cvses.par}
+\alias{cvmmpc.par}
+\alias{cvwaldses.par}
+\alias{cvwaldmmpc.par}
+\alias{cvpermses.par}
+\alias{cvpermmmpc.par}
+\alias{wald.univariateScore}
+\alias{univariateScore.ma}
+\alias{IdentifyEquivalence.ma}
+\alias{identifyTheEquivalent.ma}
+\alias{apply_ideq.ma}
+\alias{max_min_assoc.ma}
+\alias{min_assoc.ma}
+\alias{fs.reg_2}
+\alias{gammafsreg_2}
+\alias{beta.fsreg_2}
+\alias{zip.fsreg_2}
+\alias{internaliamb.zipbs}
+\alias{internaliamb.betabs}
+\alias{iamb.gammabs}
+\alias{iamb.normlogbs}
+\alias{internaliamb.gammabs}
+\alias{internaliamb.normlogbs}
+\alias{bic.tobit.fsreg}
 
 \title{ Internal MXM Functions }
 \description{
@@ -85,7 +124,6 @@ Internal functions of Package \pkg{MXM}
 \item min_assoc.ma( ... )
 \item univariateScore( ... )
 \item univariateScore.ma( ... )
-\item cat.ci( ... )
 \item condi.perm( ... )
 \item InternalSES.temporal( ... )
 \item InternalMMPC.temporal( ... )
@@ -98,10 +136,7 @@ Internal functions of Package \pkg{MXM}
 \item is.sepset( ... ) 
 \item lm.fsreg_2( ... )
 \item glm.fsreg_2( ... )
-\item cvses.par( ... )
-\item cvmmpc.par( ... )
 \item dag_to_eg( ... )
-\item topological_sort( ... )
 \item nchoosek( ... )
 \item R0( ... )
 \item R1( ... )
@@ -121,7 +156,6 @@ Internal functions of Package \pkg{MXM}
 \item zip.fsreg( ... )
 \item beta.bsreg( ... )
 \item zip.bsreg( ... )
-\item vara( ... )
 \item iamb.betabs( ... )
 \item iamb.zipbs( ... )
 \item iamb.glmbs( ... )
@@ -129,7 +163,50 @@ Internal functions of Package \pkg{MXM}
 \item internaliamb.poisbs( ... )
 \item internaliamb.lmbs( ... )
 \item lm.fsreg_2.heavy( ... )
-
+\item InternalMMPC.temporal( ... )
+\item InternalSES.temporal( ... )
+\item InternalSES( ... )
+\item InternalMMPC( ... )
+\item univariateScore( ... )
+\item perm.univariateScore( ... )
+\item max_min_assoc( ... )
+\item min_assoc( ... )
+\item nchoosek( ... )
+\item Internalmases( ... )
+\item compare_p_values( ... )
+\item perm.Internalmmpc
+\item wald.Internalmmpc
+\item wald.Internalses
+\item perm.IdentifyEquivalence( ... )
+\item perm.identifyTheEquivalent( ... )
+\item perm.apply_ideq( ... )
+\item IdentifyEquivalence( ... )
+\item apply_ideq( ... )
+\item identifyTheEquivalent( ... )
+\item cvses.par( ... )
+\item cvmmpc.par( ... )
+\item cvwaldses.par( ... )
+\item cvwaldmmpc.par( ... )
+\item cvpermses.par( ... )
+\item cvpermmmpc.par( ... )
+\item wald.univariateScore( ... )
+\item univariateScore.ma( ... )
+\item IdentifyEquivalence.ma( ... )
+\item identifyTheEquivalent.ma( ... )
+\item apply_ideq.ma( ... )
+\item max_min_assoc.ma( ... )
+\item min_assoc.ma( ... )
+\item fs.reg_2( ... )
+\item gammafsreg_2( ... )
+\item beta.fsreg_2( ... )
+\item zip.fsreg_2( ... )
+\item internaliamb.zipbs( ... )
+\item internaliamb.betabs( ... )
+\item iamb.gammabs( ... )
+\item iamb.normlogbs( ... )
+\item internaliamb.gammabs( ... )
+\item internaliamb.normlogbs( ... )
+\item bic.tobit.fsreg( ... )
 }
 }
 \details{

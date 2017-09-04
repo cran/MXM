@@ -88,7 +88,9 @@ The current hash object used for the p-values. See argument stat_hash and detail
 }
 
 \references{
-Pinheiro, Jose, and Douglas Bates. Mixed-effects models in S and S-PLUS. Springer Science \& Business Media, 2006.
+Eugene Demidenko (2013). Mixed Models: Theory and Applications with R, 2nd Edition. New Jersey: Wiley \& Sons.
+
+Jose Pinheiro Jose and Douglas Bates. Mixed-effects models in S and S-PLUS. Springer Science \& Business Media, 2006.
 }
 
 \author{

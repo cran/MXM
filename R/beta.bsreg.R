@@ -1,30 +1,31 @@
 beta.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL) {
   
   threshold <- log(threshold)
-  
   dm <- dim(dataset)
-  n <- dm[1]  ## sample size 
-  p <- dm[2]  ## number of variables
-  
+  if ( is.null(dm) ) {
+    n <- length(target)
+    p <- 1
+  } else {
+    n <- dm[1]  ## sample size 
+    p <- dm[2]  ## number of variables
+  }  
   if ( p > n ) {
     res <- paste("The number of variables is hiher than the sample size. No backward procedure was attempted")
     
   } else {
     
     tic <- proc.time()
-    
     #check for NA values in the dataset and replace them with the variable median or the mode
-    if( any(is.na(dataset)) ) {
+    if( any( is.na(dataset) ) ) {
       #dataset = as.matrix(dataset);
       warning("The dataset contains missing values (NA) and they were replaced automatically by the variable (column) median (for numeric) or by the most frequent level (mode) if the variable is factor")
-      if (class(dataset) == "matrix")  {
+      if ( is.matrix(dataset) )  {
         dataset <- apply( dataset, 2, function(x){ x[which(is.na(x))] = median(x, na.rm = TRUE) ; return(x) } ) 
       }else{
-        poia <- which( is.na(dataset), arr.ind = TRUE )[2]
+        poia <- unique( which( is.na(dataset), arr.ind = TRUE )[, 2] )
         for( i in poia )  {
           xi <- dataset[, i]
-          if(class(xi) == "numeric")
-          {                    
+          if ( is.numeric(xi) )  {                    
             xi[ which( is.na(xi) ) ] <- median(xi, na.rm = TRUE) 
           } else if ( is.factor( xi ) ) {
             xi[ which( is.na(xi) ) ] <- levels(xi)[ which.max( as.vector( table(xi) ) )]
@@ -33,16 +34,9 @@ beta.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL) {
         }
       }
     }
-    
     ##################################
     # target checking and initialize #
     ################################## 
-    
-    if ( is.null( colnames(dataset) ) )   colnames(dataset) <- paste("X", 1:p, sep = "")
-
-      ###################
-      ###################
-      
       ini <- beta.mod( target,  dataset, wei = wei )
       dofini <- length( ini$be[, 1] )
       likini <- ini$loglik 
@@ -57,7 +51,6 @@ beta.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL) {
       mat <- cbind(1:p, pchisq( stat, dof, lower.tail = FALSE, log.p = TRUE), stat )
       colnames(mat) <- c("variable", "log.p-value", "statistic" )
       rownames(mat) <- 1:p 
-      
       sel <- which.max( mat[, 2] )
       info <- matrix( c(0, -10, -10) , ncol = 3 )
       sela <- sel 
@@ -67,8 +60,7 @@ beta.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL) {
         
       } else {
         info[1, ] <- mat[sel, ]
-        mat <- mat[-sel, ] 
-        if ( !is.matrix(mat) )   mat <- matrix(mat, ncol = 3) 
+        mat <- mat[-sel, drop = FALSE] 
         dat <- as.data.frame( dataset[, -sel] ) 
       } 
       
@@ -81,7 +73,6 @@ beta.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL) {
           ini <- beta.mod( target, dat, wei = wei )
           likini <- ini$loglik
           dofini <- length(ini$be[, 1])
-          
           i <- i + 1        
           k <- p - i + 1
           
@@ -120,19 +111,14 @@ beta.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL) {
             if ( mat[sel, 2] < threshold ) {
               final <- ini
               info <- rbind(info, c(0, -10, -10) )
-              
             } else {
-              
               info <- rbind(info, mat[sel, ] )
-              mat <- mat[-sel, ] 
-              if ( !is.matrix(mat) )  mat <- matrix(mat, ncol = 3) 
+              mat <- mat[-sel, , drop = FALSE] 
               dat <- as.data.frame( dataset[, -info[, 1] ] )
             }
             
           }
-          
         }
-        
       }
       
       runtime <- proc.time() - tic		
@@ -141,7 +127,6 @@ beta.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL) {
     }
     
   res
-  
 } 
   
 

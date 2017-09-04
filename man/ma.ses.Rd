@@ -48,7 +48,7 @@ The conditional independence test to use. Default value is NULL. See also \code{
 \item{ini}{
 This is a supposed to be a list. After running SES or MMPC with some hyper-parameters you might want to run SES again with different hyper-parameters. To avoid calculating the univariate associations (first step of SES and of MPPC) again, you can extract them from the first run of SES and plug them here. This can speed up the second run (and subequent runs of course) by 50\%. See the details and the argument "univ" in the output values. 
 }
-  \item{user_test}{
+\item{user_test}{
 A user-defined conditional independence test (provide a closure type object). Default value is NULL. If this is defined, the "test" argument is ignored.
 }
   \item{hash}{
@@ -67,8 +67,7 @@ A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust
 How many cores to use. This plays an important role if you have tens of thousands of variables or really large sample sizes and tens of thousands of variables and a regression based test which requires numerical optimisation. In other cases it will not make a difference in the overall time (in fact it can be slower). The parallel computation is used in the first step of the algorithm, where univariate associations are examined, those take place in parallel. We have seen a reduction in time of 50\% with 4 cores in comparison to 1 core. Note also, that the amount of reduction is not linear in the number of cores.
 }
 \item{backward}{
-If TRUE, the backward (or symmetry correction) phase will be implemented. This removes any falsely included variables in the parents and children set of the target variable and it will slow down the algorithm. Bear in mind that the target becomes predictor variables. Hence, this is advised to be used with "testIndifisher" and "gSquare" only and not with survival or multivariate targets. This is because the two aforementioned tests are symmetrical, i.e. there is not dependent or independent variable. In addition, if there are highly collinear (or statistically equivalent) variables, this phase tends to remove correctly identified variables, simply because it will identify 
-a variable wich is highly collinear with the target variable. 
+If TRUE, the backward (or symmetry correction) phase will be implemented. This removes any falsely included variables in the parents and children set of the target variable. This is an experimental stage, so do not trust too much or ven better do not use. 
 }
 }
 

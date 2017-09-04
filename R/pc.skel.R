@@ -1,4 +1,4 @@
-pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 1, graph = FALSE) {
+pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 1) {
   ## dataset contains the data, it must be a matrix 
   ## type can be either "pearson" or "spearman" for continuous variables OR
   ## "cat" for categorical variables
@@ -6,49 +6,46 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 
   ## rob is TRUE or FALSE and is supported by type = "pearson" only, i.e. it is to be used
   ## for robust estimation of Pearson correlation coefficient only
   ## if graph is true, the graph will appear
-  alpha <- log(alpha)
   title <- deparse( substitute(dataset) )
-  if ( !is.matrix(dataset) )   dataset <- as.matrix(dataset);
-  #check for NA values in the dataset and replace them with the variable median or the mode
+  if ( !is.matrix(dataset) )   dataset <- Rfast::data.frame.to_matrix(dataset);
+  
+  if ( method != "distcor"  &  rob == FALSE )  {
+    res <- Rfast::pc.skel(dataset = dataset, method = method, alpha = alpha, R = R)
+    info <- summary( Rfast::rowsums(res$G) )
+    n <- dim(dataset)[2]
+    density <- sum(res$G) / n / ( n - 1 ) 
+    res$density = density
+    res$info = info
+    res$title = title 
+    
+  } else {
+
+  alpha <- log(alpha)
   if( any(is.na(dataset)) ) {
     #dataset = as.matrix(dataset);
     warning("The dataset contains missing values (NA) and they were replaced automatically by the variable (column) median (for numeric) or by the most frequent level (mode) if the variable is factor")
-    if (class(dataset) == "matrix")  {
+    if ( is.matrix(dataset) )  {
       dataset <- apply( dataset, 2, function(x){ x[which(is.na(x))] = median(x, na.rm = TRUE) ; return(x) } ) 
-    }else{
-      poia <- which( is.na(dataset), arr.ind = TRUE )[2]
-      for( i in poia )  {
+    } else {
+      poia <- unique( which( is.na(dataset), arr.ind = TRUE )[, 2] )
+      for ( i in poia )  {
         xi <- dataset[, i]
-        if(class(xi) == "numeric")
-        {                    
+        if ( is.numeric(xi) ) {                    
           xi[ which( is.na(xi) ) ] <- median(xi, na.rm = TRUE) 
         } else if ( is.factor( xi ) )   xi[ which( is.na(xi) ) ] <- levels(xi)[ which.max( as.vector( table(xi) ) )]
         dataset[, i] <- xi
       }
     }
   }
-  
-  ### if you want to use Spearman, simply use Spearman on the ranks
-  if (method == "spearman")  {
-    dataset <- apply(dataset, 2, rank)
-    rob <- FALSE
-  }
-  
-  if (method == "spearman" || method == "pearson") {
+  if ( method == "pearson" ) {
     ci.test <- condi 
     type <- method
-    rob <- rob
+    rob <- TRUE
   } else if ( method == "distcor" ) {
     ci.test <- dist.condi
     type <- NULL
     rob <- NULL
-  } else {
-    ci.test <- cat.ci
-    dc <- Rfast::colrange(dataset, cont = FALSE)
-    type <- dc
-    rob <- FALSE
-  }
-  
+  } 
   dm <- dim(dataset)
   n <- dm[2]
   m <- dm[1]
@@ -58,54 +55,23 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 
   diag(G) = -100
   durat = proc.time()
   
-  if ( method == "pearson" || method == "spearman") {
+  if ( method == "pearson") {
     
-    if (R == 1) {
-      if ( !rob ) {
-        r = cor(dataset)
-        if (type == "pearson") {
-          stata = abs( 0.5 * log( (1 + r) / (1 - r) ) * sqrt(m - 3) )  ## absolute of the test statistic
-        } else if (type == "spearman") {
-          stata = abs( 0.5 * log( (1 + r) / (1 - r) ) * sqrt(m - 3) ) / 1.029563  ## absolute of the test statistic
-        }
-        pv = pvalue = log(2) + pt(stata, m - 3, lower.tail = FALSE, log.p = TRUE)  ## logged p-values 
-        dof = matrix(m - 3, n, n)
-        diag(stata) = diag(dof) = 0
-        stadf = stata / dof
-
-      } else {
-
-        stat = pv = matrix(0, n, n)
-        for ( i in 1:c(n - 1) ) {
-          for ( j in c(i + 1):n ) {
-            ro <- condi(i, j, 0, dataset, type = "pearson", rob = TRUE) 
-            stat[i, j] = ro[1]
-            pv[i, j] = ro[2]
-          }
-        }
-        pvalue = pv + t(pv)  ## p-values
-        stata = stat + t(stat)
-        dof = matrix(m - 3, n, n)
-        stadf = stata / dof
-      }
-      
-    } else if (R > 1) {
       stat = pv = matrix(0, n, n)
       for ( i in 1:c(n - 1) ) {
         for ( j in c(i + 1):n ) {
-          ro <- permcor(dataset[, c(i, j)], R = R) 
-          stat[i, j] <- ro[1]
-          pv[i, j] <- log( ro[2] )
+          ro <- condi(i, j, 0, dataset, type = "pearson", rob = TRUE) 
+          stat[i, j] = ro[1]
+          pv[i, j] = ro[2]
         }
       }
-      pvalue <- pv + t(pv)  ## p-values
-      stata <- stat + t(stat)
-      dof <- matrix(m - 3, n, n)
-      stadf <- stata / dof
-    }   
-  
+      pvalue = pv + t(pv)  ## p-values
+      stata = stat + t(stat)
+      dof = matrix(m - 3, n, n)
+      stadf = stata / dof
+    
   } else if ( method == "distcor" )  {
-
+    
     stat = pv = matrix(0, n, n)
     for ( i in 1:c(n - 1) ) {
       for ( j in c(i + 1):n ) {
@@ -116,26 +82,10 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 
     }
     pvalue <- pv + t(pv)  ## p-values
     stata <- stat + t(stat)
-    dof <- ro[3]
-    stadf <- stata / dof
+    stadf <- stata 
     
-  } else { ## type = cat
-
-    stat <- pv <- dof <- matrix(0, n, n)
-    a <- Rfast::g2Test_univariate(dataset, dc)
-    pva <- pchisq(a$statistic, a$df, lower.tail = FALSE, log.p = TRUE)
-    stat[ cbind(a$x, a$y) ] <- a$statistic
-    stata <- stat + t(stat)
-    diag(stata) <- 0
-    pv[ cbind(a$x, a$y) ] <- pva
-    pvalue <- pv + t(pv)
-    dof[ cbind(a$x, a$y) ] <- a$df
-    dof = dof + t(dof)  
-    stadf = stata / dof
-  }
-    
+  } 
   pv <- pvalue
-
   #stat[ lower.tri(stat) ] = 2
   pv[ lower.tri(pv) ] = 2 
   G[pvalue > alpha] <- 0   ## removes edges from non significantly related pairs
@@ -149,26 +99,20 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 
   sep = list()
   n.tests = NULL
   pval = list()
-  
   #### some more initial stuff 
-   dial = which( pv <= alpha, arr.ind = TRUE )
-   zeu = cbind( dial, stadf[ dial ], pv[ dial ] )  ## all significant pairs of variables
-   zeu <- zeu[ order( - zeu[, 4], zeu[, 3] ), ] ## order of the pairs based on their strength
-   if ( !is.matrix(zeu) )  zeu = matrix(zeu, nrow = 1)
-   duo = nrow(zeu)  ## number of pairs to be checkd for conditional independence
-   n.tests[1] = n * (n - 1) / 2
-
+  dial = which( pv <= alpha, arr.ind = TRUE )
+  zeu = cbind( dial, stadf[ dial ], pv[ dial ] )  ## all significant pairs of variables
+  zeu <- zeu[ order( - zeu[, 4], zeu[, 3] ), , drop = FALSE] ## order of the pairs based on their strength
+  duo = dim(zeu)[1]  ## number of pairs to be checkd for conditional independence
+  n.tests[1] = n * (n - 1) / 2
   #### main search
-
   if (duo == 0) {
     diag(G) = 0
     final = list(kappa = k, G = G) 
   } else {
-
+    
     ell = 2
-
     ## Execute PC algorithm: main loop
-
     while ( k <= ell & duo > 0 )  {
       k = k + 1   ## size of the seperating set will change now
       tes = 0
@@ -202,7 +146,6 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 
         sam = unique(sam)
         ## sam contains either the sets of k neighbours of X, or of Y or of both
         ## if the X and Y have common k neighbours, they are removed below
-        
         rem = intersect( zeu[i, 1:2], sam )
         if ( length(rem) > 0 ) {
           pam = list()
@@ -210,10 +153,10 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 
             pam[[ j ]] = as.vector( which(sam == rem[j], arr.ind = TRUE)[, 1] ) 
           }
         }
-
+        
         pam = unlist(pam)
         sam = sam[ - pam, ] 
-
+        
         if ( !is.matrix(sam) ) {
           sam = matrix( sam, nrow = 1 ) 
         } else if ( nrow(sam) == 0 ) {
@@ -222,7 +165,6 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 
         } else { 
           if (k == 1) {
             sam = sam[ order( sam[, 2 ] ), ]
-            
           } else {
             an <- t( apply(sam[, -c(1:2)], 1, sort, decreasing = TRUE) )
             sam <- cbind(sam[, 1:2], an)
@@ -232,12 +174,10 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 
             sam <- as.matrix( sam2[, nc:1] )
           }
         }
-
+        
         if ( dim(sam)[1] == 0 ) {
           G = G  
-          
         } else {
-          
           a = ci.test( zeu[i, 1], zeu[i, 2], sam[1, 1:k], dataset, type = type, rob = rob, R = R )
           if ( a[2] > alpha ) {
             G[ zeu[i, 1], zeu[i, 2] ] = 0  ## remove the edge between two variables
@@ -258,34 +198,27 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 
               G[ zeu[i, 2], zeu[i, 1] ] = 0  ## remove the edge between two variables
               met[i, ] = c( sam[m, 1:k], a[1:2] ) 
             }
-            
           }
-          
         }
-
         sam = samx = samy = NULL
       }  
       
-        ax = ay = list()
-        lx = ly = numeric( duo )
-        
-        for ( i in 1:duo ) {
-          ax[[ i ]] = ina[ G[ zeu[i, 1], ] == 2 ]  ;  lx[i] = length( ax[[ i ]] )
-          ay[[ i ]] = ina[ G[ zeu[i, 2], ] == 2 ]  ;  ly[i] = length( ay[[ i ]] ) 
-        }
-
+      ax = ay = list()
+      lx = ly = numeric( duo )
+      for ( i in 1:duo ) {
+        ax[[ i ]] = ina[ G[ zeu[i, 1], ] == 2 ]  ;  lx[i] = length( ax[[ i ]] )
+        ay[[ i ]] = ina[ G[ zeu[i, 2], ] == 2 ]  ;  ly[i] = length( ay[[ i ]] ) 
+      }
       ell = max(lx, ly)
       id = which( rowSums(met) > 0 )
       if (length(id) == 1) {
-         sep[[ k ]] = c( zeu[id, 1:2], met[id, ] )
+        sep[[ k ]] = c( zeu[id, 1:2], met[id, ] )
       } else  sep[[ k ]] = cbind( zeu[id, 1:2], met[id, ] )
-      
       zeu = zeu[-id, , drop = FALSE]  
       duo <- dim(zeu)[1]
       n.tests[ k + 1 ] = tes
-
     }
-
+    
     G <- G/2
     diag(G) = 0
     durat = proc.time() - durat
@@ -297,9 +230,8 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 
       } else {
         if ( length(sep[[ l ]]) > 0)   names( sep[[ l ]] ) <- c("X", "Y", paste("SepVar", 1:l), "stat", "logged.p-value")
       }
-      
     } 
-  #######################
+    #######################
   }  
   n.tests = n.tests[ n.tests>0 ]
   k = length(n.tests) - 1
@@ -315,12 +247,11 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 
       } else sepset[[ l ]] = sep[[ l ]]    
     }
   }  
-  
   names(n.tests) = paste("k=", 0:k, sep ="")
   info <- summary( Rfast::rowsums(G) )
   density <- sum(G) / n / ( n - 1 ) 
+  res <- list(stat = stata, pvalue = pvalue, runtime = durat, kappa = k, n.tests = n.tests, density = density, info = info, G = G, sepset = sepset, title = title )
+  }  ## end if ( method != distcor & rob = FALSE )
   ##################
-  if( graph )  plotnetwork(G, paste("Skeleton of the PC algorithm for", title) )
-   
-  list(stat = stata, pvalue = pvalue, runtime = durat, kappa = k, n.tests = n.tests, density = density, info = info, G = G, sepset = sepset, title = title )
+  res
 }

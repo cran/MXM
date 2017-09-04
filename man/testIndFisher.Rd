@@ -21,7 +21,7 @@ pvalue_hash = NULL, robust = FALSE)
 
 permFisher(target, dataset, xIndex, csIndex, wei = NULL, statistic = FALSE, 
 dataInfo = NULL, univariateModels = NULL, hash = FALSE, stat_hash = NULL, 
-pvalue_hash = NULL, robust = FALSE, R = 999)
+pvalue_hash = NULL, robust = FALSE, threshold = 0.05, R = 999)
 }
 
 \arguments{
@@ -62,6 +62,9 @@ A hash object (hash package required) which contains the cached generated p-valu
 }
 \item{robust}{
 A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robustified version of Fisher's correlation coefficient via MM-estimation available from \code{\link{rlm}} in the package "MASS". Two regressions are fitted and the square root ot the absolute value of the beta coefficients is used to calculate the correlation coefficient (Shevlyakov and Smirnov, 2011). For the conditional correlation the correlation of the residuals of the two robust regressions is calcualted. For more ways of calculating the correlation coefficient see the references. It takes more time than non robust version but it is suggested in case of outliers. Default value is FALSE. In the case of testIndSpearman, this is not used, as Spearman correlation is robust by default.
+}
+\item{threshold}{
+Threshold (suitable values in [0,1]) for assessing p-values significance. Default value is 0.05. This is actually obsolete here, but has to be in order tyo have a concise list of input arguments across the same family of functions.
 }
 \item{R}{
 The number of permutations to use. The default value is 999.

@@ -2,12 +2,10 @@
 #### Permutation based hypothesis testing 
 #### for a zero correlation coefficient 
 ################################
-
 permcor <- function(x, R = 999) {
   ## x is a 2 column matrix containing the data
   ## type can be either "pearson" or "spearman"
   ## R is the number of permutations
-  
   x1 <- x[, 1]      ;     x2 <- x[, 2]
   n <- length(x1)
   m1 <- sum(x1)     ;     m12 <- sum(x1^2)
@@ -16,7 +14,6 @@ permcor <- function(x, R = 999) {
   down <- sqrt( (m12 - m1^2 / n) * (m22 - m2^2 / n) )
   r <- ( sum(x1 * x2) - up) / down
   test <- abs( log( (1 + r) / (1 - r) ) )  ## the test statistic
-  
   sxy <- numeric(R)
   for (i in 1:R) {
     y1 <- sample(x1, n)
@@ -24,7 +21,6 @@ permcor <- function(x, R = 999) {
   }  
   rb <- (sxy - up) / down
   tb <- log( (1 + rb) / (1 - rb) )  ## the test statistic
-  
   pvalue <- ( sum( abs(tb) > test ) + 1 ) / (R + 1)  ## bootstrap p-value
   res <- c( r, pvalue )
   names(res) <- c('correlation', 'p-value')

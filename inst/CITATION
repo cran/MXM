@@ -1,17 +1,21 @@
-citHeader("To cite MXM in publications use:")
-
-citEntry(entry = "article",
-  title        = "Feature Selection with the {R} Package {MXM}: Discovering Multiple, Statistically-Equivalent, Predictive Feature Subsets",
-  author       = "Lagani V. and Athineou G. and Farcomeni A. and Tsagris M. and Tsamardinos I.",
+bibentry(bibtype = "Article",
+  title        = "Feature Selection with the {R} Package {MXM}: Discovering 
+Statistically Equivalent Feature Subsets",
+  author       = c(person(given = "Vincenzo",
+                          family = "Lagani"),
+                   person(given = "Giorgos",
+                          family = "Athineou"),
+                   person(given = "Alessio",
+                          family = "Farcomeni"),
+                   person(given = "Michail",
+                          family = "Tsagris"),
+                   person(given = "Ioannis",
+                          family = "Tsamardinos")),
   journal      = "Journal of Statistical Software",
-  year         = "2016",
-  volume       = "To appear",
-  url          = "http://mensxmachina.org/site/wp-content/cache/mendeley-file-cache/c0407327-6c13-3a4a-ac63-f0831e05e3be.pdf",
-
-  textVersion  =
-  paste("Lagani, V., Athineou, G., Farcomeni, A., Tsagris, M. and Tsamardinos, I. (2016).",
-        "Feature Selection with the R Package MXM: Discovering Multiple, Statistically-Equivalent, Predictive Feature Subsets.",
-        "Journal of Statistical Software, 2016 (to appear)")
+  year         = "2017",
+  volume       = "80",
+  number       = "7",
+  pages        = "1--25",
+  doi          = "10.18637/jss.v080.i07",
+  header       = "To cite MXM in publications use:"
 )
-
-

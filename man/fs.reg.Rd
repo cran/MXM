@@ -9,8 +9,8 @@ Variable selection in regression models with forward selection
 }
 
 \usage{
-fs.reg(target, dataset, threshold = 0.05, wei = NULL, test = NULL, user_test = NULL,
-stopping = "BIC", tol = 2, robust = FALSE, ncores = 1) 
+fs.reg(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, test = NULL, 
+user_test = NULL, stopping = "BIC", tol = 2, robust = FALSE, ncores = 1) 
 }
 
 \arguments{
@@ -20,6 +20,9 @@ The class variable. Provide either a string, an integer, a numeric value, a vect
 \item{dataset}{
 The dataset; provide either a data frame or a matrix (columns = variables, rows = samples). In either case, only two cases are avaialble, either all data are continuous, or categorical. 
 }
+\item{ini}{
+If you have a set of variables already start with this one. Otherwise leave it NULL. 
+}
 \item{threshold}{
 Threshold (suitable values in [0,1]) for asmmmbsing p-values significance. Default value is 0.05.
 }
@@ -27,7 +30,7 @@ Threshold (suitable values in [0,1]) for asmmmbsing p-values significance. Defau
 A vector of weights to be used for weighted regression. The default value is NULL. It is not suggested when robust is set to TRUE.
 }
 \item{test}{
-The regression model to use. Available options are most of the tests for SES and MMPC. The ones NOT available are "gSquare", "censIndER", "testIndMVreg", "testIndClogit", "testIndSpearman" and "testIndFisher".
+The regression model to use. Available options are most of the tests for SES and MMPC. The ones NOT available are "gSquare", "censIndER", "testIndMVreg", "testIndClogit" and "testIndSpearman". If you have continuous predictor variables in matrix form, you can put "testIndFisher" and this is pretty fast. Instead of calcualting partial F-tests, which requires liear regression models to be fit, it calcualtes partial correlation coefficients and this is much more efficient. 
 }
 \item{user_test}{
 A user-defined conditional independence test (provide a closure type object). Default value is NULL. If this is defined, the "test" argument is ignored.
@@ -55,31 +58,28 @@ If the current 'test' argument is defined as NULL or "auto" and the user_test ar
 \itemize{
 	\item if target is a factor, the multinomial or the binary logistic regression is used. If the target has two values only,   binary logistic regression will be used.
 	\item if target is a ordered factor, the ordered logit regression is used. Hence, if you want to use multinomial or ordinal logistic regression, make sure your target is factor. 
-	\item if target is a numerical vector or a matrix with at least two columns (multivariate) linear regression is used. 
+	\item if target is a numerical vector and the dataset is not a matrix, but a data.frame linear regression is used. If however, the dataset is a matrix, the correlation based forward selection is used. That is, instead of partial F-tests, we do partial correlation tests.
 	\item if target is discrete numerical (counts), the poisson regression conditional independence test is used. If there are only two values, the binary logistic regression is to be used.
 	\item if target is a Surv object, the Survival conditional independence test is used.
 }
 }
 
 \value{
-The output of the algorithm is S3 object including:
+In the case of test="testIndreg", robust = FALSE and class(dataset) = matrix, just one matrix is returned with the index of the selected variable(s), the p-value, the test statistic and the BIC value of each model. For all other cases, the output of the algorithm is S3 object including:
+\item{runtime}{
+The run time of the algorithm. A numeric vector. The first element is the user time, the second element is the system time and the third element is the elapsed time.
+}
 \item{mat}{
 A matrix with the variables and their latest test statistics and p-values.
 }
 \item{info}{
 A matrix with the selected variables, their p-values and test statistics. Each row corresponds to a model which contains the variables up to that line. The BIC in the last column is the BIC of that model.
 }
-\item{models}{
-The regression models, one at each step.
-}
-\item{final}{
-The final regression model.
-}
 \item{ci_test}{
 The conditional independence test used. 
 }
-\item{runtime}{
-The run time of the algorithm. A numeric vector. The first element is the user time, the second element is the system time and the third element is the elapsed time.
+\item{final}{
+The final regression model.
 }
 }
 
@@ -106,6 +106,9 @@ dataset <- matrix( runif(1000 * 20, 1, 100), ncol = 20 )
 
 #define a simulated class variable 
 target <- rt(1000, 10)
+
+a0 <- fs.reg(target, dataset, threshold = 0.05, stopping = "BIC", tol = 2, 
+robust = FALSE, ncores = 1 ) 
 
 a1 <- fs.reg(target, dataset, threshold = 0.05, test = "testIndRQ", stopping = "BIC", tol = 2, 
 robust = FALSE, ncores = 1 ) 

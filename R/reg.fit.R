@@ -2,10 +2,8 @@
 ### A generic regression model accepting many regression models
 ###
 ##########
-
 reg.fit <- function(y, dataset, event = NULL, reps = NULL, group = NULL, slopes = FALSE, 
                     reml = FALSE, model = NULL, robust = FALSE, wei = NULL, xnew = NULL) {
-  
   ## possible models are "gaussian" (default), "binary", "binomial", "multinomial", "poisson",
   ## "ordinal", "Cox", "Weibull", "exponential", "zip", "beta", "median", "negbin",
   ## "longitudinal" or "grouped".
@@ -18,43 +16,34 @@ reg.fit <- function(y, dataset, event = NULL, reps = NULL, group = NULL, slopes 
   ## group is NULL unless you have grouped (or clustered) data or longitudinal data (needs reps)
   ## slopes is for the longitudinal data only, TRUE or FALSE 
   ## reml is for mixed models. If TRUE, REML will be used, otherwise ML will be used
-
   x <- as.data.frame(dataset)  ## just in case
   if ( is.null( colnames(x) ) )  colnames(x) <- paste("X", 1:ncol(x), sep = "")
   la <- length( unique(target) )
 
   if ( is.null(model) ) {
-
     ## linear regression 
     if ( sum( class(y) == "numeric" ) == 1 & is.null(event) & is.null(reps)  &  is.null(group) )  model <- "gaussian"  
-    
     ## multivariate data
     if ( sum( class(y) == "matrix" ) == 1 ) { 
       if ( min(y) > 0 &  sd(Rfast::rowsums(y) == 0 ) )  y <- log(y[, -1] / y[, 1])  ## compositional data
       model <- "gaussian"
     }
-    
     ## percentages
     if ( is.vector(y) )  {
       if ( all(y >0 & y < 1) )  y <- log( y / (1 - y) ) 
       model <- "gaussian"
     }
-    
     ## surival data
     if ( !is.null(event) ) {
       target <- survival::Surv(time = y, event = event)
       model <- "Cox"
     }
-
     ## longitudinal data
     if ( !is.null(reps) & !is.null(group) )  model <- "longitudinal"
-    
     ## grouped data
     if ( is.null(reps) & !is.null(group) )  model <- "grouped"
-    
     ## binary data
     if ( la == 2 )  model <- "binary"   
-    
     ## ordinal, multinomial or perhaps binary data
     if ( is.factor(y) ) {
       if ( !is.ordered(y) ) {
@@ -62,7 +51,6 @@ reg.fit <- function(y, dataset, event = NULL, reps = NULL, group = NULL, slopes 
           y <- as.vector(y)
           model <- "binary"
         } else  model <- "multinomial"
-
       } else {
         if ( la == 2 ) {
           y <- as.vector(y)
@@ -70,7 +58,6 @@ reg.fit <- function(y, dataset, event = NULL, reps = NULL, group = NULL, slopes 
         } else  model <- "ordinal"    
       }
     }
-    
     ## count data
     if ( sum( is.vector(y) ) == 1 ) {
       if ( ( sum( floor(y) - y ) == 0  &  la > 2 ) )  model <- "poisson"
@@ -86,13 +73,13 @@ reg.fit <- function(y, dataset, event = NULL, reps = NULL, group = NULL, slopes 
      } else {
        # cont = robust::lmRob.control(mxr = 2000, mxf = 2000, mxs = 2000 )
        # mod <- robust::lmRob(y ~ ., data = as.data.frame(x), control = cont) 
-       mod <- MASS::rlm(y ~., data=as.data.frame(x), maxit = 2000, weights = wei)
+       mod <- MASS::rlm(y ~., data=as.data.frame(x), maxit = 2000, weights = wei, method = "MM")
      }
 
-  } else if ( model == "gaussian"  &  sum( class(y) == "matrix" ) == 1 ) {
+  } else if ( model == "gaussian"  &  is.matrix(y) ) {
     mod <- lm(y ~ ., data = as.data.frame(x) )
  
-  } else if ( model == "binomial" &  sum( class(y) == "matrix" ) == 1 ) {
+  } else if ( model == "binomial" &  is.matrix(y) ) {
     mod <- glm(y[, 1] / y[, 2] ~ ., data = as.data.frame(x), weights = y[, 2], family = binomial )
     
     ## median (quantile) regression 

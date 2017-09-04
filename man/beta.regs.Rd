@@ -1,5 +1,7 @@
 \name{Many simple beta regressions}
 \alias{beta.regs}
+\alias{perm.betaregs}
+\alias{wald.betaregs}
 \title{
 Many simple beta regressions.
 }
@@ -9,7 +11,12 @@ Many simple beta regressions.
 }
 
 \usage{
-beta.regs(target, dataset, wei = NULL, logged = FALSE, ncores = 1) 
+beta.regs(target, dataset, wei = NULL, check = FALSE, logged = FALSE, ncores = 1) 
+
+perm.betaregs(target, dataset, wei = NULL, check = FALSE, logged = FALSE, 
+threshold = 0.05, R = 999, ncores = 1)
+
+wald.betaregs(target, dataset, wei = NULL, check = FALSE, logged = FALSE, ncores = 1) 
 }
 
 \arguments{
@@ -22,8 +29,17 @@ The indendent variable(s). It can be a vector, a matrix or a dataframe with cont
 \item{wei}{
 A vector of weights to be used for weighted regression. The default value is NULL. 
 }
+\item{check}{
+A boolean variable indicating whether to chekc for variables with identical values. The defauls is FALSE.
+}
 \item{logged}{
 A boolean variable; it will return the logarithm of the pvalue if set to TRUE.
+}
+\item{threshold}{
+Threshold (suitable values in [0,1]) for assessing p-values significance. Default value is 0.05.
+}
+\item{R}{
+The number of permutations, set to 999 by default. There is a trick to avoind doing all permutations. As soon as the number of times the permuted test statistic is more than the observed test statistic is more than 50 (in this example case), the p-value has exceeded the signifiance level (threshold value) and hence the predictor variable is not significant. There is no need to continue do the extra permutations, as a decision has already been made. 
 }
 \item{ncores}{
 The number of cores to use. The default value is 1.
@@ -57,9 +73,10 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 
 \examples{
-y <- rbeta(500, 5, 3)
-x <- matrix( rnorm(500 * 20), ncol = 20)
-a <- beta.regs(y, x)
+y <- rbeta(60, 5, 3)
+x <- matrix( rnorm(60 * 10), ncol = 10)
+a1 <- beta.regs(y, x)
+a2 <- perm.betaregs(y, x[, 1:5])
 }
 
 \keyword{ Regression models }

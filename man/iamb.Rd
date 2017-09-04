@@ -27,8 +27,7 @@ Threshold (suitable values in (0,1)) for assessing p-values significance. Defaul
 A vector of weights to be used for weighted regression. The default value is NULL. It is not suggested when robust is set to TRUE.
 }
 \item{test}{
-The regression model to use. Available options are most of the tests for SES and MMPC. The ones NOT available are "gSquare", "censIndER", "testIndMVreg", "testIndClogit", "testIndSpearman" and 
-"testIndFisher".
+The regression model to use. Available options are most of the tests for SES and MMPC. The ones NOT available are "gSquare", "censIndER", "testIndMVreg", "testIndClogit", "testIndSpearman" and "testIndFisher", "testIndIG" and "testIndTobit". 
 }
 \item{user_test}{
 A user-defined conditional independence test (provide a closure type object). Default value is NULL. If this is defined, the "test" argument is ignored.
@@ -68,6 +67,11 @@ The output of the backward phase. In the case of no backward procedure this is t
 If the forward regression returned at most one variable, no backward procedure takes place and a message appears informing the user about this.
 }
 }
+
+\references{
+Tsamardinos, I., Aliferis, C. F., Statnikov, A. R., & Statnikov, E. (2003). Algorithms for Large Scale Markov Blanket Discovery. In FLAIRS conference, pp. 376-380.
+}
+
 
 \author{
 Michail Tsagris

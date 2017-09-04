@@ -1,7 +1,13 @@
 \name{Conditional independence tests for count data }
 \alias{testIndPois}
-\alias{testIndZIP}
 \alias{testIndNB}
+\alias{testIndZIP}
+\alias{permPois}
+\alias{permNB}
+\alias{permZIP}
+\alias{waldPois}
+\alias{waldNB}
+\alias{waldZIP}
 \title{
 Regression conditional independence test for discrete (counts) class dependent variables
 }
@@ -22,6 +28,30 @@ robust = FALSE)
 testIndZIP(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
 univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
 robust = FALSE)
+
+permPois(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
+robust = FALSE, threshold = 0.05, R = 999)
+
+permNB(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
+robust = FALSE, threshold = 0.05, R = 999)
+
+permZIP(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
+robust = FALSE, threshold = 0.05, R = 999)
+
+waldPois(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
+robust = FALSE) 
+
+waldNB(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
+robust = FALSE) 
+
+waldZIP(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL,
+robust = FALSE) 
 }
 
 \arguments{
@@ -29,7 +59,7 @@ robust = FALSE)
   A numeric vector containing the values of the target variable.
 }
   \item{dataset}{
-  A numeric matrix or data frame, in case of categorical predictors (factors), containing the variables for performing the test. Rows as samples and columns as features.
+  A numeric matrix or data frame, in case of categorical predictors (factors), containing the variables for performing the test. Rows as samples and columns as features. In the cases of "waldPois", "waldNB" and "waldZIP" this is strictly a matrix. 
 }
   \item{xIndex}{
   The index of the variable whose association with the target we want to test.
@@ -58,6 +88,12 @@ A hash object (hash package required) which contains the cached generated p-valu
   \item{robust}{
 A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust version of the statistical test if it is available. It takes more time than non robust version but it is suggested in case of outliers. Default value is FALSE as it is currently nor supported.
 }
+\item{threshold}{
+Threshold (suitable values in [0,1]) for assessing p-values significance. 
+}
+\item{R}{
+The number of permutations, set to 999 by default. There is a trick to avoind doing all permutations. As soon as the number of times the permuted test statistic is more than the observed test statistic is more than 50 (if threshold = 0.05 and R = 999), the p-value has exceeded the signifiance level (threshold value) and hence the predictor variable is not significant. There is no need to continue do the extra permutations, as a decision has already been made. 
+}
 }
 
 \details{
@@ -66,6 +102,8 @@ If hash = TRUE, all three tests require the arguments 'stat_hash' and 'pvalue_ha
 Important: Use these arguments only with the same dataset that was used at initialization. For all the available conditional independence tests that are currently included on the package, please see "?CondIndTests".
 
 If you have overdispersion, the variance is higher than the mean, a negative binomial is to be used. If you have more zeros than expected under a Poisson model, not overdispersion, then zero inlfated Poisson is to be used. Bear in mind that if you have a small number of zeros, there is no reason to use this model. If for example you have count data but no, or 1 zeros, this will not work.
+
+The log-likelihood ratio test used in "testIndPois", "testIndNB" and "testIndZIP" requires the fitting of two models. The Wald test used in "waldPois", "waldNB" and "waldZIP" requires fitting of only one model, the full one. The significance of the variable is examined only. Only continuous (or binary) predictor variables are currently accepted in this test. 
 }
 
 \value{

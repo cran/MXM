@@ -1,6 +1,10 @@
 \name{Cross-Validation for SES and MMPC}
 \alias{cv.ses}
 \alias{cv.mmpc}
+\alias{cv.waldses}
+\alias{cv.waldmmpc}
+\alias{cv.permses}
+\alias{cv.permmmpc}
 \alias{auc.mxm}
 \alias{acc.mxm}
 \alias{ord_mae.mxm}
@@ -33,17 +37,33 @@ The function performs a k-fold cross-validation for identifying the best values 
 \usage{
 cv.ses(target, dataset, wei = NULL, kfolds = 10, folds = NULL, 
 alphas = c(0.1, 0.05, 0.01), max_ks = c(3, 2), task = NULL, 
-metric = NULL, modeler = NULL, ses_test = NULL, ncores = 1)
+metric = NULL, modeler = NULL, ses_test = NULL, robust = FALSE, ncores = 1)
 
 cv.mmpc(target, dataset, wei = NULL, kfolds = 10, folds = NULL, 
 alphas = c(0.1, 0.05, 0.01), max_ks = c(3, 2), task = NULL, 
+metric = NULL, modeler = NULL, mmpc_test = NULL, robust = FALSE, ncores = 1)
+
+cv.waldses(target, dataset, wei = NULL, kfolds = 10, folds = NULL, 
+alphas = c(0.1, 0.05, 0.01), max_ks = c(3, 2), task = NULL, 
+metric = NULL, modeler = NULL, ses_test = NULL, ncores = 1)
+
+cv.waldmmpc(target, dataset, wei = NULL, kfolds = 10, folds = NULL, 
+alphas = c(0.1, 0.05, 0.01), max_ks = c(3, 2), task = NULL, 
 metric = NULL, modeler = NULL, mmpc_test = NULL, ncores = 1)
+
+cv.permses(target, dataset, wei = NULL, kfolds = 10, folds = NULL, 
+alphas = c(0.1, 0.05, 0.01), max_ks = c(3, 2), task = NULL, 
+metric = NULL, modeler = NULL, ses_test = NULL, R = 999, ncores = 1)
+
+cv.permmmpc(target, dataset, wei = NULL, kfolds = 10, folds = NULL, 
+alphas = c(0.1, 0.05, 0.01), max_ks = c(3, 2), task = NULL, 
+metric = NULL, modeler = NULL, mmpc_test = NULL, R = 999, ncores = 1)
 
 }
 
 \arguments{
   \item{target}{
-  The target or class variable as in SES and MMPC.
+  The target or class variable as in SES and MMPC. The difference is that it cannot accept a single numeric value, an integer indicating the column in the dataset. 
 }
   \item{dataset}{
   The dataset object as in SES and MMPC.
@@ -75,11 +95,18 @@ metric = NULL, modeler = NULL, mmpc_test = NULL, ncores = 1)
    If you know what you have put it here to avoid the function chopsing somehting else. \bold{Note} that you put these words as they are, without "". 
 }
   \item{ses_test}{
-  A function object that defines the conditional independence test used in the SES function (see also SES help page). If NULL, testIndFisher, testIndLogistic and censIndLR are used for classification, regression and survival analysis tasks, respectively.
-  If you know what you have put it here to avoid the function chopsing somehting else.  
+  A function object that defines the conditional independence test used in the SES function (see also SES help page). If NULL, "testIndFisher", "testIndLogistic" and "censIndCR" 
+  are used for classification, regression and survival analysis tasks, respectively. If you know what you have put it here to avoid the function chopsing somehting else. 
+  Not all tests can be included here. "testIndClogit", "testIndMVreg", "testIndIG", "testIndGamma", "testIndZIP" and "testIndTobit" are anot available at the moment.  
 }
 \item{mmpc_test}{
-A function object that defines the conditional independence test used in the MMPC function (see also SES help page). If NULL, testIndFisher, testIndLogistic and censIndLR are used for classification, regression and survival analysis tasks, respectively.
+A function object that defines the conditional independence test used in the MMPC function (see also SES help page). If NULL, "testIndFisher", "testIndLogistic" and "censIndCR"  are used for classification, regression and survival analysis tasks, respectively.
+}
+\item{robust}{
+A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust version of the statistical test if it is available. It takes more time than a non robust version but it is suggested in case of outliers. Default value is FALSE.
+}
+\item{R}{
+The number of permutations, set to 999 by default. There is a trick to avoind doing all permutations. As soon as the number of times the permuted test statistic is more than the observed test statistic is more than 50 (if threshold = 0.05 and R = 999), the p-value has exceeded the signifiance level (threshold value) and hence the predictor variable is not significant. There is no need to continue do the extra permutations, as a decision has already been made. 
 }
 \item{ncores}{
 This argument is valid only if you have a multi-threaded machine. 

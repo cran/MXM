@@ -1,30 +1,29 @@
 glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FALSE, robust = FALSE) {
   
   threshold <- log(threshold)
-  
   dm <- dim(dataset)
-  n <- dm[1]  ## sample size 
-  p <- dm[2]  ## number of variables
-
+  if ( is.null(dm) ) {
+    n <- length(target)
+    p <- 1
+  } else {
+    n <- dm[1]  ## sample size 
+    p <- dm[2]  ## number of variables
+  }  
   if ( p > n ) {
     res <- paste("The number of variables is hiher than the sample size. 
     No backward procedure was attempted")
-  
   } else {
-
-
   #check for NA values in the dataset and replace them with the variable median or the mode
-    if( any(is.na(dataset)) ) {
+    if ( any(is.na(dataset)) ) {
       #dataset = as.matrix(dataset);
       warning("The dataset contains missing values (NA) and they were replaced automatically by the variable (column) median (for numeric) or by the most frequent level (mode) if the variable is factor")
-      if (class(dataset) == "matrix")  {
+      if ( is.matrix(dataset) )  {
         dataset <- apply( dataset, 2, function(x){ x[which(is.na(x))] = median(x, na.rm = TRUE) ; return(x) } ) 
-      }else{
-        poia <- which( is.na(dataset), arr.ind = TRUE )[2]
+      } else {
+        poia <- unique( which( is.na(dataset), arr.ind = TRUE )[, 2] )
         for( i in poia )  {
           xi <- dataset[, i]
-          if(class(xi) == "numeric")
-          {                    
+          if( is.numeric(xi) )   {                    
             xi[ which( is.na(xi) ) ] <- median(xi, na.rm = TRUE) 
           } else if ( is.factor( xi ) ) {
             xi[ which( is.na(xi) ) ] <- levels(xi)[ which.max( as.vector( table(xi) ) )]
@@ -33,19 +32,13 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
         }
       }
     }
-    
-  
     ##################################
     # target checking and initialize #
     ################################## 
-   
-    if ( is.null( colnames(dataset) ) )  colnames(dataset) <- paste("X", 1:p, sep = "")
-  
     if ( is.matrix(target)  &  NCOL(target) == 2 )  {
       
       ci_test <- "testIndBinom"
       runtime <- proc.time()
-      
       wei <- target[, 2]
       y <- target[, 1] / wei
       
@@ -80,16 +73,13 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
         res <- list(mat = mat, final = ini  ) 
         
       } else {
-        
         info[1, ] <- mat[sel, ]
         mat <- mat[-sel, ] 
         if ( !is.matrix(mat) )   mat <- matrix(mat, ncol = 3) 
         dat <- as.data.frame( dataset[, -sel] ) 
-        
       } 
       
       i <- 1  
-      
       if ( info[1, 2] > threshold ) {
         
         if ( !heavy ) {
@@ -99,7 +89,6 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
             ini <- glm( y ~., data = data.frame(dat), family = binomial(logit), weights = wei, y = FALSE, model = FALSE )
             i <- i + 1
             k <- p - i + 1
-            
             if ( k == 1 ) {
               mod <- glm(target ~ 1, family = binomial(logit), weights = wei)
               stat <- 2 * abs( logLik(ini) - logLik(mod) )
@@ -114,7 +103,7 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
               } else {
                 info <- rbind(info, c(0, -10, -10)) 
                 final <- ini
-                mat[, 2:3] <- c(pval, stat)
+                mat[, 2:3] <- c(stat, pval)
               }  
             } else {
               tab <- drop1( ini, test = "Chisq" )
@@ -128,17 +117,11 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
                info <- rbind(info, c(0, -10, -10) )
               
              } else {
-              
                info <- rbind(info, mat[sel, ] )
-               mat <- mat[-sel, ] 
-               if ( !is.matrix(mat) ) {
-                 mat <- matrix(mat, ncol = 3) 
-               }
+               mat <- mat[-sel, , drop = FALSE] 
                dat <- as.data.frame( dataset[, -info[, 1] ] )
             }
-            
            }  
-            
           }
           
         } else {
@@ -164,13 +147,12 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
               } else {
                 info <- rbind(info, c(0, -10, -10)) 
                 final <- ini
-                mat[, 2:3] <- c(pval, stat)
+                mat[, 2:3] <- c(stat, pval)
               }
               
             } else {
               
              stat <- dof <- numeric(k)
-            
              for (j in 1:k) {
               mod <- speedglm::speedglm( y ~., data = data.frame(dat[, -j]), family = binomial(logit), weights = wei )
               stat[j] <- mod$deviance - ini$deviance
@@ -187,8 +169,7 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
             } else {
               
               info <- rbind(info, mat[sel, ] )
-              mat <- mat[-sel, ] 
-              if ( !is.matrix(mat) )  mat <- matrix(mat, ncol = 3) 
+              mat <- mat[-sel, , drop = FALSE] 
               dat <- as.data.frame( dataset[, -info[, 1] ] )
             }
             
@@ -206,7 +187,6 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
    ############ 
    ###  Poisson or logistic regression
    ############
-     
    	la <- length( unique(target) ) 
 	
     if ( la == 2  || ( la > 2  &  sum( round(target) - target ) == 0 ) ) {
@@ -254,10 +234,8 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
       } else {
        
         info[1, ] <- mat[sel, ]
-        mat <- mat[-sel, ] 
-        if ( !is.matrix(mat) )   mat <- matrix(mat, ncol = 3) 
+        mat <- mat[-sel, , drop = FALSE] 
         dat <- as.data.frame( dataset[, -sel] ) 
-
       } 
     
       i <- 1  
@@ -269,7 +247,6 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
          while ( info[i, 2] > threshold  &  NCOL(dat) > 0 )  {   
            i <- i + 1
            k <- p - i + 1
-
            ini <- glm( target ~., data = data.frame(dat), family = oiko, weights = wei, y = FALSE, model = FALSE )
            
            if ( k == 1 ) {
@@ -286,7 +263,7 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
              } else {
                info <- rbind(info, c(0, -10, -10)) 
                final <- ini
-               mat[, 2:3] <- c(pval, stat)
+               mat[, 2:3] <- c(stat, pval)
              }
              
            } else {
@@ -303,13 +280,10 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
 
              } else {
                info <- rbind(info, mat[sel, ] )
-               mat <- mat[-sel, ] 
-               if ( !is.matrix(mat) )   mat <- matrix(mat, ncol = 3) 
+               mat <- mat[-sel, , drop = FALSE] 
                dat <- as.data.frame( dataset[, -info[, 1] ] )
              }
-            
            }  
-
          }
          
 	   } else {
@@ -334,7 +308,7 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
 		         } else {
 		           info <- rbind(info, c(0, -10, -10)) 
 		           final <- ini
-		           mat[, 2:3] <- c(pval, stat)
+		           mat[, 2:3] <- c(stat, pval)
 		         }  
 		       } else {		       
 		       
@@ -355,8 +329,7 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
 
              } else {
                info <- rbind(info, mat[sel, ] )
-               mat <- mat[-sel, ] 
-               if ( !is.matrix(mat) )  mat <- matrix(mat, ncol = 3) 
+               mat <- mat[-sel,  ,drop = FALSE] 
                dat <- as.data.frame( dataset[, -info[, 1] ] )
              }
 
@@ -367,23 +340,16 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
     }   else final <- ini
       
     runtime <- proc.time() - tic		
-
-
-   ############ 
-   ###  Linear regression
-   ############
-      
-
+    ############ 
+    ###  Linear regression
+    ############
     } else { 
       
 	    tic <- proc.time()
-
       ## percentages
-      if ( min( target ) > 0 & max( target ) < 1 )  {  ## are they percentages?
-        target <- log( target / (1 - target) )       
-      }
+      if ( min( target ) > 0 & max( target ) < 1 )  target <- log( target / (1 - target) )       
       
-	if ( !heavy ) {
+	  if ( !heavy ) {
 	  
 	    ci_test <- "testIndReg"  
       if ( !robust ) {
@@ -434,8 +400,7 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
         
       } else {
         info[1, ] <- mat[sel, ]
-        mat <- mat[-sel, ] 
-        if ( !is.matrix(mat) )   mat <- matrix(mat, ncol = 3) 
+        mat <- mat[-sel, , drop = FALSE] 
         dat <- as.data.frame( dataset[, -sel] ) 
       } 
     
@@ -466,11 +431,11 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
               } else {
                 info <- rbind(info, c(0, -10, -10)) 
                 final <- ini
-                mat[, 2:3] <- c(pval, stat)
+                mat[, 2:3] <- c(stat, pval)
               }  
             } else {
               
-              mat[, 2:3] <- cbind( pval, stat )
+              mat[, 2:3] <- cbind( stat, pval )
               
               sel <- which.max( mat[, 2] )
               if ( mat[sel, 2] < threshold ) {
@@ -480,8 +445,7 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
               } else {
                 
                 info <- rbind(info, mat[sel, ] )
-                mat <- mat[-sel, ] 
-                if ( !is.matrix(mat) )   mat <- matrix(mat, ncol = 3) 
+                mat <- mat[-sel, , drop = FALSE] 
                 dat <- as.data.frame( dataset[, -info[, 1]] )
               }
             }
@@ -505,7 +469,7 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
               } else {
                 info <- rbind(info, c(0, -10, -10)) 
                 final <- ini
-                mat[, 2:3] <- c(pval, stat)
+                mat[, 2:3] <- c(stat, pval)
               }  
             } else { 
             
@@ -524,8 +488,7 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
               } else {
       
                 info <- rbind(info, mat[sel, ] )
-                mat <- mat[-sel, ] 
-                if ( !is.matrix(mat) )   mat <- matrix(mat, ncol = 3) 
+                mat <- mat[-sel, , drop = FALSE] 
                 dat <- as.data.frame( dataset[, -info[, 1]] )
               }
 			      }
@@ -554,7 +517,7 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
               } else {
                 info <- rbind(info, c(0, -10, -10)) 
                 final <- ini
-                mat[, 2:3] <- c(pval, stat)
+                mat[, 2:3] <- c(stat, pval)
               }  
             } else {
               
@@ -574,8 +537,7 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
 
               } else {
                 info <- rbind(info, mat[sel, ] )
-                mat <- mat[-sel, ] 
-                if ( !is.matrix(mat) )   mat <- matrix(mat, ncol = 3) 
+                mat <- mat[-sel, , drop = FALSE] 
                 dat <- as.data.frame( dataset[, -info[, 1]] )
               }
 
@@ -595,9 +557,7 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
     res <- list(runtime = runtime, info = info, mat = mat, ci_test = ci_test, final = final ) 
     
   }  
-	
   res
-
 }    
 
      

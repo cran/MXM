@@ -32,7 +32,7 @@ ridge.reg <- function(target, dataset, lambda, B = 1, newdata = NULL) {
   W <- solve( xtx + lamip )
   betas <- W %*% crossprod(xx, yy) 
   est <- xx %*% betas + my
-  va <- var(target - est) * (n - 1) / (n - p - 1)
+  va <- Rfast::Var(target - est) * (n - 1) / (n - p - 1)
   # vab <- kronecker(va, W %*% xtx %*% W  ) 
   # seb <- as.vector( sqrt( diag(vab) ) )
   vab <- va * mahalanobis(W, numeric(p), xtx, inverted = TRUE)

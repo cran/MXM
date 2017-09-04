@@ -2,30 +2,22 @@ beta.reg <- function(target, dataset, wei = NULL) {
   
   n <- length(target)
   x <- model.matrix(target ~ ., data.frame(dataset) )
-  iniphi <- log( sum( target * (1 - target) ) / var(target) / n )
+  iniphi <- log( sum( target * (1 - target) ) / Rfast::Var(target) / n )
   
   if ( is.null(wei) ) {
     ly1 <- log(1 - target)     ;    ly <- log(target) - ly1           
     sly1 <- sum(ly1)      ;    sly2 <- sum( log(target) ) + sly1   
-    
     options(warn = -1)
-    mod1 <- nlm(regbeta, c( iniphi, numeric(dim(x)[2]) ), 
-                ly = ly, sly1 = sly1, x = x, n = n, iterlim = 10000 )
-    mod2 <- nlm(regbeta, mod1$estimate, ly = ly, sly1 = sly1, x = x, n = n, 
-                iterlim = 10000 )
+    mod1 <- nlm(regbeta, c( iniphi, numeric(dim(x)[2]) ), ly = ly, sly1 = sly1, x = x, n = n, iterlim = 10000 )
+    mod2 <- nlm(regbeta, mod1$estimate, ly = ly, sly1 = sly1, x = x, n = n, iterlim = 10000 )
   } else {
     w <- wei / sum(wei)
     ly1 <- w * log(1 - target)     ;    ly <- w * log(target) - ly1
     sly1 <- sum(ly1)    ;    sly2 <- sum( w * log( target ) ) + sly1   
-    
     options(warn = -1)
-    mod1 <- nlm(regbetawei, c(iniphi, numeric(dim(x)[2]) ), 
-                ly = ly, sly1 = sly1, x = x, w = w, iterlim = 10000 )
-    mod2 <- nlm(regbetawei, mod1$estimate, ly = ly, sly1 = sly1, x = x, w = w, 
-                iterlim = 10000 )
+    mod1 <- nlm(regbetawei, c(iniphi, numeric(dim(x)[2]) ), ly = ly, sly1 = sly1, x = x, w = w, iterlim = 10000 )
+    mod2 <- nlm(regbetawei, mod1$estimate, ly = ly, sly1 = sly1, x = x, w = w, iterlim = 10000 )
   }
   
-  list(iters = mod1$iterations + mod2$iterations, 
-       phi = exp(mod2$estimate[1]), be = mod2$estimate[-1], loglik = - mod2$minimum - sly2)
-  
+  list(phi = exp(mod2$estimate[1]), be = mod2$estimate[-1], loglik = - mod2$minimum - sly2)
 }

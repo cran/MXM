@@ -2,6 +2,12 @@
 \alias{censIndCR}
 \alias{censIndWR}
 \alias{censIndER}
+\alias{permCR}
+\alias{permWR}
+\alias{permER}
+\alias{waldCR}
+\alias{waldWR}
+\alias{waldER}
 \title{
 Conditional independence test for survival data 
 }
@@ -22,14 +28,38 @@ robust = FALSE)
 censIndER(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
 univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
 robust = FALSE)
+
+permCR(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
+robust = FALSE, threshold = 0.05, R = 999)
+
+permWR(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
+robust = FALSE, threshold = 0.05, R = 999)
+
+permER(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
+robust = FALSE, threshold = 0.05, R = 999)
+
+waldCR(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
+robust = FALSE)
+
+waldWR(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
+robust = FALSE)
+
+waldER(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
+robust = FALSE)
 }
 
 \arguments{
   \item{target}{
-  A Survival object (class Surv from package survival) containing the time to event data (time) and the status indicator vector (event). View \link{Surv} documentation for more information.
+A Survival object (class Surv from package survival) containing the time to event data (time) and the status indicator vector (event). View \link{Surv} documentation for more information. 
 }
   \item{dataset}{
-  A numeric matrix or data frame, in case of categorical predictors (factors), containing the variables for performing the test. Rows as samples and columns as features.
+  A numeric matrix or data frame, in case of categorical predictors (factors), containing the variables for performing the test. Rows as samples and columns as features. In the cases of "waldCR", "waldWR", "waldER", "waldCR", "permWR" and "permER" this is strictly a matrix. 
 }
   \item{xIndex}{
   The index of the variable whose association with the target we want to test.
@@ -58,6 +88,12 @@ A hash object (hash package required) which contains the cached generated p-valu
   \item{robust}{
 A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robustified version of Cox regression. Currently the robust version is not available for this test. Note, that Cox and Weibull regressions offer robust (sandwich) estimation of the standard error of the coefficients, but not robust estimation of the parameters. 
 }
+\item{threshold}{
+Threshold (suitable values in [0,1]) for assessing p-values significance. 
+}
+\item{R}{
+The number of permutations, set to 999 by default. There is a trick to avoind doing all permutations. As soon as the number of times the permuted test statistic is more than the observed test statistic is more than 50 (in this example case), the p-value has exceeded the signifiance level (threshold value) and hence the predictor variable is not significant. There is no need to continue do the extra permutations, as a decision has already been made. 
+}
 }
 
 \details{
@@ -71,6 +107,8 @@ If "SESoutput" is the output of a SES run, then these objects can be retrieved b
 Important: Use these arguments only with the same dataset that was used at initialization.
 
 For all the available conditional independence tests that are currently included on the package, please see "?CondIndTests".
+
+The log-likelihood ratio test used in "censIndCR", "censIndWR" and "censIndER" requires the fitting of two models. The Wald tests used in "waldCR", "waldWR" and "waldER" requires fitting of only one model, the full one. The significance of the variable is examined only. Only continuous (or binary) predictor variables are currently accepted in this test. 
 }
 
 \value{

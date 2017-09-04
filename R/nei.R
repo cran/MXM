@@ -4,14 +4,12 @@
 #####
 ############################
 ############################
-
 nei <- function(G, node, graph = TRUE) {
   ## G is the adjacency matrix of an UN-DIRECTED graph
   ## node is either one number between 1 and the number of nodes
   ## or more numbers, corresponding to two or more nodes
   ## it is a node whose neighbors you want to find
   ## it can also be a vector with more than one nodes
-  
   if ( is.null( colnames(G) ) ) {
     p <- ncol(G)
     nama <- paste("X", 1:p, sep = "")

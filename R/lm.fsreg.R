@@ -49,12 +49,12 @@ lm.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, 
        for (i in 1:p) {
         # ww = robust::lmRob( target ~ dataset[, i], control = cont )
         # tab = aovlmrob( ww )
-        ww = MASS::rlm( target ~ dataset[, i ], maxit = 2000, weights = wei ) 
+        ww = MASS::rlm( target ~ dataset[, i ], maxit = 2000, method = "MM") 
         stat[i] = 2 * as.numeric( logLik(ww) )
         dof[i] = length( coef(ww) )
        }
 
-       fit0 = MASS::rlm( target ~ 1, maxit = 2000, weights = wei ) 
+       fit0 = MASS::rlm( target ~ 1, maxit = 2000, method = "MM") 
        stat0 = 2 * as.numeric( logLik(fit0) )
        difa = abs( stat - stat0 )
        pval = pchisq(difa, dof - 1, lower.tail = FALSE, log.p = TRUE)
@@ -77,7 +77,7 @@ lm.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, 
         stopCluster(cl)
 		
       } else {  ## Robust
-        fit0 = MASS::rlm( target ~ 1, maxit = 2000, weights = wei ) 
+        fit0 = MASS::rlm( target ~ 1, maxit = 2000, weights = wei, method = "MM" ) 
         stat0 = 2 * logLik(fit0)
         
          cl <- makePSOCKcluster(ncores)
@@ -87,7 +87,7 @@ lm.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, 
            # ww <- lmRob( target ~ dataset[, i], control = cont )
            # tab <- aovlmrob( ww )
            # mat[i, ] <- c(tab[2, 3], tab[2, 2] ) 
-           ww = rlm( target ~ dataset[, i], maxit = 2000, weights = wei ) 
+           ww = MASS::rlm( target ~ dataset[, i], maxit = 2000, method = "MM") 
            mat[i, ] = c( 2 * as.numeric( logLik(ww) ), length( coef(ww) ) )
          }
          stopCluster(cl)
@@ -107,31 +107,30 @@ lm.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, 
     
     if ( mat[sel, 2] < threshold ) {
       info[1, ] <- mat[sel, ]
-      mat <- mat[-sel, ] 
-      if ( !is.matrix(mat) )   mat <- matrix(mat, ncol = 3) 
+      mat <- mat[-sel,  ,drop = FALSE] 
 
       if ( stopping == "adjrsq" ) {
 
         if ( !robust ) {
-            mi = lm( target ~ dataset[, sel], weights = wei, y = FALSE, model = FALSE )
-            tool[1] <- as.numeric( summary( mi )[[ 9 ]] )
+            ma = lm( target ~ dataset[, sel], weights = wei, y = FALSE, model = FALSE )
+            tool[1] <- as.numeric( summary( ma )[[ 9 ]] )
 		   
         } else {
-          mi = MASS::rlm( target ~ dataset[, sel], maxit = 2000, weights = wei )
-          r2 = cor( target, fitted(mi) )^2
-          tool[1] = 1 - (1 - r2) * (n - 1) / ( n - length( coef(mi) ) - 1 )
+          ma = MASS::rlm( target ~ dataset[, sel], maxit = 2000, method = "MM")
+          r2 = cor( target, fitted(ma) )^2
+          tool[1] = 1 - (1 - r2) * (n - 1) / ( n - length( coef(ma) ) - 1 )
         }         
       } else if ( stopping  == "BIC" ) { 
         if ( !robust ) {
-            mi = lm( target ~ dataset[, sel], weights = wei, y = FALSE, model = FALSE )
-            tool[1] <- BIC( mi )
+            ma = lm( target ~ dataset[, sel], weights = wei, y = FALSE, model = FALSE )
+            tool[1] <- BIC( ma )
           
         } else {
-          mi = MASS::rlm( target ~ dataset[, sel], maxit = 2000, weights = wei )
-          tool[1] <- BIC(mi)
+          ma = MASS::rlm( target ~ dataset[, sel], maxit = 2000, method = "MM")
+          tool[1] <- BIC(ma)
         }
       }
-      moda[[ 1 ]] <- mi
+      moda[[ 1 ]] <- ma
       
     }  else  {
       info <- info  
@@ -150,9 +149,9 @@ lm.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, 
         if ( !robust ) {    
            for (i in 1:pn) {
              ww = lm( target ~ dataset[, sel] + dataset[, mat[i, 1] ], weights = wei, y = FALSE, model = FALSE )
-             tab = anova( ww )
-             mat[i, 3] = tab[2, 4] 
-             df1 = tab[2, 1]   ;  df2 = tab[3, 1]
+             tab = anova( ma, ww )
+             mat[i, 3] = tab[2, 5] 
+             df1 = tab[2, 3]   ;  df2 = tab[2, 1]
              mat[i, 2] = pf( mat[i, 3], df1, df2, lower.tail = FALSE, log.p = TRUE )
            }
 		  
@@ -162,7 +161,7 @@ lm.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, 
           sta = dof = numeric(pn)
           
           for (i in 1:pn) {
-            ww = MASS::rlm( target ~ dataset[, sel] + dataset[, mat[i, 1] ], maxit = 2000, weights = wei )
+            ww = MASS::rlm( target ~ dataset[, sel] + dataset[, mat[i, 1] ], maxit = 2000, method = "MM")
             sta[i] = 2 * as.numeric( logLik(ww) )
             dof[i] = length( coef(ww) )
           } 
@@ -182,7 +181,7 @@ lm.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, 
              ww <- lm( target ~ dataset[, sel] + dataset[, mat[i, 1] ], weights = wei, y = FALSE, model = FALSE )
              tab <- anova( ww )
              stat[i] <- tab[2, 4] 
-             df1 <- tab[2, 1]   ;  df2 = tab[3, 1]
+             df1 <- tab[2, 3]   ;  df2 = tab[2, 1]
              pval[i] <- pf( stat[i], df1, df2, lower.tail = FALSE, log.p = TRUE )
              mata[i, ] <- c(pval[i], stat[i]) 
            }
@@ -194,10 +193,9 @@ lm.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, 
           
           cl <- makePSOCKcluster(ncores)
           registerDoParallel(cl)
-          mata <- matrix(0, pn, 2)
           mod <- foreach( i = 1:pn, .combine = rbind, .export = c("rlm"), .packages = "MASS" ) %dopar% {
-            ww <- rlm( target ~ dataset[, sel] + dataset[, mat[i, 1] ], maxit = 2000, weights = wei )
-            mata[i, ] = c( 2 * as.numeric( logLik(ww) ), length( coef(ww) ) )
+            ww <- rlm( target ~ dataset[, sel] + dataset[, mat[i, 1] ], maxit = 2000, method = "MM")
+            return( c( 2 * as.numeric( logLik(ww) ), length( coef(ww) ) ) )
           }
           stopCluster(cl)
           
@@ -218,7 +216,7 @@ lm.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, 
 			         ma = lm( target ~ dataset[, sela] + dataset[, sel], weights = wei, y = FALSE, model = FALSE )
                tool[k] <- as.numeric( summary( ma )[[ 9 ]] )
             } else {         
-              ma = MASS::rlm( target ~ dataset[, sela] + dataset[, sel], maxit = 2000, weights = wei )
+              ma = MASS::rlm( target ~ dataset[, sela] + dataset[, sel], maxit = 2000, method = "MM")
               r2 = cor( target, fitted(ma) )^2
               tool[k] = 1 - (1 - r2) * (n - 1) / ( n - length( coef(ma) ) - 1)
             }
@@ -229,8 +227,7 @@ lm.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, 
             } else {  
               info <- rbind(info, mat[ina, ] )
               sela <- info[, 1]
-              mat <- mat[-ina , ] 
-              if ( !is.matrix(mat) )   mat <- matrix(mat, ncol = 3) 
+              mat <- mat[-ina, , drop = FALSE ] 
               moda[[ k ]] <- ma
             }
 
@@ -244,7 +241,7 @@ lm.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, 
                 ma = lm( target ~ dataset[, sela] + dataset[, sel], weights = wei, y = FALSE, model = FALSE )
                 tool[2] <- BIC( ma )
             } else {
-              ma = MASS::rlm( target ~ dataset[, sela] + dataset[, sel], maxit = 2000, weights = wei )
+              ma = MASS::rlm( target ~ dataset[, sela] + dataset[, sel], maxit = 2000, method = "MM")
               tool[2] = BIC(ma)
             }
 			
@@ -266,7 +263,7 @@ lm.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, 
      ###### k greater than 2
      ######
     if ( nrow(info) > 1  &  nrow(mat) > 0 ) {
-      while ( ( info[k, 2] < threshold ) &  ( k < n ) & ( abs( tool[ k ] - tool[ k - 1 ] ) > tol ) & ( nrow(mat) > 0 ) )  {
+      while ( info[k, 2] < threshold  &  k < n - 15 & abs( tool[ k ] - tool[ k - 1 ] ) > tol & nrow(mat) > 0 )  {
          
         k <- k + 1   
         pn <- p - k + 1 
@@ -276,9 +273,9 @@ lm.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, 
           if ( !robust ) {
               for ( i in 1:pn ) {
                  ww <- lm( target ~., data = as.data.frame( dataset[, c(sela, mat[i, 1]) ] ), weights = wei, y = FALSE, model = FALSE )
-                 tab <- anova( ww )
-                 mat[i, 3] <- tab[k, 4] 
-                 df1 <- tab[k, 1]   ;  df2 = tab[k + 1, 1]
+                 tab <- anova(ma, ww )
+                 mat[i, 3] <- tab[2, 5] 
+                 df1 <- tab[2, 3]   ;  df2 = tab[2, 1]
                  mat[i, 2] <- pf( mat[i, 3], df1, df2, lower.tail = FALSE, log.p = TRUE )
               }
 			
@@ -288,7 +285,7 @@ lm.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, 
             fr = length( coef( moda[[ k - 1 ]] ) )
             sta = dof = numeric(pn)      
             for (i in 1:pn) {
-              ww = MASS::rlm( target ~., data = as.data.frame( dataset[, c(sela, mat[i, 1]) ] ), maxit = 2000, weights = wei )
+              ww = MASS::rlm( target ~., data = as.data.frame( dataset[, c(sela, mat[i, 1]) ] ), maxit = 2000, method = "MM")
               sta[i] = 2 * as.numeric( logLik(ww) )
               dof[i] = length( coef(ww) )
             } 
@@ -318,10 +315,9 @@ lm.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, 
             fr = length( coef( moda[[ k - 1 ]] ) )
             cl <- makePSOCKcluster(ncores)
             registerDoParallel(cl)
-            mata <- matrix(0, pn, 2)
             mod <- foreach( i = 1:pn, .combine = rbind, .export = c("rlm"), .packages = "MASS" ) %dopar% {
-              ww <- MASS::rlm( target ~., data = data.frame( dataset[, c(sela, mat[ i, 1]) ] ), maxit = 2000, weights = wei )
-              mata[i, ] = c( 2 * as.numeric( logLik(ww) ), length( coef(ww) ) )
+              ww <- MASS::rlm( target ~., data = data.frame( dataset[, c(sela, mat[ i, 1]) ] ), maxit = 2000, method = "MM")
+              return( c( 2 * as.numeric( logLik(ww) ), length( coef(ww) ) ) )
             }
             stopCluster(cl)  
             difa = abs( mod[, 1] - do )
@@ -345,7 +341,7 @@ lm.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, 
 
               } else {
                 # ma = robust::lmRob( target ~., data = as.data.frame( dataset[, c(sela, sel)] ), control = cont )
-                ma = MASS::rlm( target ~., data = as.data.frame( dataset[, c(sela, sel)] ), maxit = 2000, weights = wei )
+                ma = MASS::rlm( target ~., data = as.data.frame( dataset[, c(sela, sel)] ), maxit = 2000, method = "MM")
                 tool[k] =  BIC(ma)
               }
 
@@ -370,7 +366,7 @@ lm.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, 
                  tool[k] <- as.numeric( summary(ma)[[ 9 ]] )
 				
               } else {
-                ma = MASS::rlm( target ~., data = as.data.frame( dataset[, c(sela, sel)] ), maxit = 2000, weights = wei )
+                ma = MASS::rlm( target ~., data = as.data.frame( dataset[, c(sela, sel)] ), maxit = 2000, method = "MM")
                 r2 = cor(target, fitted(ma) )^2
                 tool[k] <- 1 - (1 - r2) * (n - 1) / ( n - length( coef(ma) ) - 1)
               }               
@@ -396,39 +392,19 @@ lm.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, 
 
     d <- length(sela)
     final <- NULL
-    models <- NULL
 
     if ( d >= 1 ) {
-      models <- NULL
-      xx <- as.data.frame( dataset[, sela] )
-      colnames(xx) <- paste("V", sela, sep = "") 
-
-      if ( d == 1 ) {
-        xx <- as.data.frame( dataset[, sela] )
-        colnames(xx) <- paste("V", sela, sep = "") 
-
-       if ( !robust ) {
-          models[[ 1 ]] <- final <- lm( target ~., data = as.data.frame( xx ), weights = wei, y = FALSE, model = FALSE )
-
-		   } else  models[[ 1 ]] <- final <- MASS::rlm( target ~., data = as.data.frame( xx ), maxit = 2000, weights = wei )
-        
-      } else {
-        for (i in 1:d) {
-          if ( !robust ) {
-              models[[ i ]] <- lm( target ~., data = as.data.frame( xx[, 1:i] ), weights = wei, y = FALSE, model = FALSE )
-		      } else   models[[ i ]] <- MASS::rlm( target ~., data = data.frame( xx[, 1:i]), maxit = 2000, weights = wei )  
-        }
-      }
-
-      final <- models[[ d ]]
-      info <- info[1:d, ]
-      if ( d == 1 )  info <- matrix(info, nrow = 1)
+      if ( !robust ) {
+        final <- lm( target ~., data = as.data.frame( dataset[, sela] ), weights = wei, y = FALSE, model = FALSE )
+		  } else   final <- MASS::rlm( target ~., data = as.data.frame( dataset[, sela] ), maxit = 2000, method = "MM")  
+    
+      info <- info[1:d, , drop = FALSE]
       info <- cbind( info, tool[ 1:d ] ) 
       colnames(info) <- c( "variables", "log.p-value", "stat", stopping )
       rownames(info) <- info[, 1]
     }
 
-    result <- list(runtime = runtime, mat = t(mat), info = info, models = models, ci_test = ci_test, final = final ) 
+    result <- list(runtime = runtime, mat = t(mat), info = info, ci_test = ci_test, final = final ) 
     
   }  
   

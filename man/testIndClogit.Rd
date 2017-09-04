@@ -1,5 +1,7 @@
 \name{Conditional independence test for case control data}
 \alias{testIndClogit}
+\alias{waldClogit}
+\alias{permClogit}
 \title{
 Conditional independence test based on conditional logistic regression for case control studies 
 }
@@ -12,6 +14,10 @@ The main task of this test is to provide a p-value PVALUE for the null hypothesi
 testIndClogit(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
 univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
 robust = FALSE)
+
+permClogit(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
+robust = FALSE, threshold = 0.05, R = 999)
 }
 
 \arguments{
@@ -47,6 +53,12 @@ A hash object (hash package required) which contains the cached generated p-valu
 }
 \item{robust}{
 A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robustified version of Beta regression. Currently it is not available for this test.
+}
+\item{threshold}{
+Threshold (suitable values in [0,1]) for assessing p-values significance. 
+}
+\item{R}{
+The number of permutations, set to 999 by default. There is a trick to avoind doing all permutations. As soon as the number of times the permuted test statistic is more than the observed test statistic is more than 50 (if threshold = 0.05 and R = 999), the p-value has exceeded the signifiance level (threshold value) and hence the predictor variable is not significant. There is no need to continue do the extra permutations, as a decision has already been made. 
 }
 }
 
@@ -97,16 +109,16 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr>, Vinc
 
 \examples{
 #simulate a dataset with continuous data
-dataset <- matrix(rnorm(300 * 100), nrow = 300 ) 
+dataset <- matrix(rnorm(300 * 40), nrow = 300 ) 
 #the target feature is the last column of the dataset as a vector
 case <- rbinom(300, 1, 0.6)
-ina <- which(case==1)
+ina <- which(case == 1)
 ina <- sample(ina, 100)
 case[-ina] = 0 
-id <- rep(1:100,3)
+id <- rep(1:100, 3)
 target <- cbind(case, id)
 
-results <- testIndClogit(target, dataset, xIndex = 44, csIndex = 60)
+results <- testIndClogit(target, dataset, xIndex = 34, csIndex = 30)
 results
 
 #run the SES algorithm using the testIndClogit conditional independence test

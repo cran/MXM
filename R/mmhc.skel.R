@@ -1,4 +1,4 @@
-mmhc.skel <- function(dataset, max_k = 3, threshold = 0.05, test = "testIndFisher", type = "MMPC", rob = FALSE, fast = FALSE, symmetry = TRUE, nc = 1, graph = FALSE) {
+mmhc.skel <- function(dataset, max_k = 3, threshold = 0.05, test = "testIndFisher", type = "MMPC", rob = FALSE, fast = FALSE, symmetry = TRUE, nc = 1) {
   ## dataset is either conitnuous or categorical data  
   ## max_k is the maximum number of variables upon which to condition
   ## threshold is the level of significance to reject the independence
@@ -6,10 +6,10 @@ mmhc.skel <- function(dataset, max_k = 3, threshold = 0.05, test = "testIndFishe
   ## OR gSquare (default) for categorical data
   ## rob is for robust correlation
   ## nc is the number of cores to use, set to 1 by default
-  dataset <- as.matrix(dataset)
+  if ( is.data.frame(dataset) )   dataset <- Rfast::data.frame.to_matrix(dataset) - 1
   n <- dim(dataset)[2]
   G <- matrix(0, n, n)
-  
+  ntests <- numeric(n)
   ############
   #### MMPC
   ############
@@ -22,7 +22,8 @@ mmhc.skel <- function(dataset, max_k = 3, threshold = 0.05, test = "testIndFishe
       a <- MMPC(1, dataset, max_k = max_k, test = test, threshold = threshold, robust = rob)
       sel <- a@selectedVars
       G[1, sel] <- 1 
-    
+      ntests[1] <- a@n.tests
+      
       for ( i in 2:n ) {
         ina <- 1:n
         che <- which( G[ 1:c(i - 1), i ] == 0 ) 
@@ -33,6 +34,7 @@ mmhc.skel <- function(dataset, max_k = 3, threshold = 0.05, test = "testIndFishe
           sela <- ina[sel]
           G[i, sela] <- 1 
         }  else  G[i, ] <- 0
+        ntests[i] <- a@n.tests
       }
       runtime <- proc.time() - pa
     
@@ -44,7 +46,8 @@ mmhc.skel <- function(dataset, max_k = 3, threshold = 0.05, test = "testIndFishe
         for (i in 1:n) {
           a <- MMPC(i, dataset, max_k = max_k, test = test, threshold = threshold, robust = rob)
           sel <- a@selectedVars
-          G[i, sel] <- 1 
+          G[i, sel] <- 1
+          ntests[i] <- a@n.tests
         } 
         runtime <- proc.time() - pa
       
@@ -59,11 +62,12 @@ mmhc.skel <- function(dataset, max_k = 3, threshold = 0.05, test = "testIndFishe
           sel <- numeric(n)
           a <- MMPC(i, dataset, max_k = max_k, test = test, threshold = threshold, robust = rob)
           sel[a@selectedVars] <- 1
-          return(sel)
+          return( c(a@n.tests, sel) )
         }
       
         stopCluster(cl)
-        G <- as.matrix(mod)
+        G <- as.matrix(mod[, -1])
+        ntests <- as.vector(mod[, 1])
         runtime <- proc.time() - pa
       }
     
@@ -80,6 +84,7 @@ mmhc.skel <- function(dataset, max_k = 3, threshold = 0.05, test = "testIndFishe
       ms[i] <- dim(poies)[1]
       sel <- unique(poies)
       G[1, sel] <- 1 
+      ntests[1] <- a@n.tests
       
       for ( i in 2:n ) {
         ina <- 1:n
@@ -93,6 +98,7 @@ mmhc.skel <- function(dataset, max_k = 3, threshold = 0.05, test = "testIndFishe
           sela <- ina[sel]
           G[i, sela] <- 1 
         }  else  G[i, ] <- 0
+        ntests[i] <- a@n.tests
       }
       runtime <- proc.time() - pa
       
@@ -107,6 +113,7 @@ mmhc.skel <- function(dataset, max_k = 3, threshold = 0.05, test = "testIndFishe
           ms[i] <- dim(poies)[1]
           sel <- unique(poies)
           G[i, sel] <- 1 
+          ntests[i] <- a@n.tests
         } 
         runtime <- proc.time() - pa
         
@@ -122,12 +129,13 @@ mmhc.skel <- function(dataset, max_k = 3, threshold = 0.05, test = "testIndFishe
           a <- SES(i, dataset, max_k = max_k, test = test, threshold = threshold, robust = rob)
           poies <- a@signatures
           sel[ unique(poies) ] <- 1
-          return( c(dim(poies)[1], sel) ) 
+          return( c(a@n.tests, dim(poies)[1], sel) ) 
         }
         
         stopCluster(cl)
         G <- as.matrix(mod[, -1])
-        ms <- as.vector(mod[, 1])
+        ntests <- as.vector(mod[, 1])
+        ms <- as.vector(mod[, 2])
         runtime <- proc.time() - pa
       }
       
@@ -152,8 +160,6 @@ mmhc.skel <- function(dataset, max_k = 3, threshold = 0.05, test = "testIndFishe
   if (is.null( colnames(dataset) ) ) {
     colnames(G) <- rownames(G) <- paste("X", 1:n, sep = "")
   } else  colnames(G) <- rownames(G) <- colnames(dataset)
-  
-  if ( graph )  plotnetwork(G, paste("Skeleton of the MMHC algorithm for", deparse( substitute(dataset) ) ) )
-  
-  list(runtime = runtime, density = density, info = info, ms = ms, G = G)
+   
+  list(runtime = runtime, density = density, info = info, ms = ms, ntests = ntests, G = G)
 }

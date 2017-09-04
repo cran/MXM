@@ -9,15 +9,13 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
   oiko <- NULL
   info <- matrix( 0, ncol = 2 )
   # cont = robust::lmRob.control(mxr = 2000, mxf = 2000, mxs = 2000 )
-
-  
-    #check for NA values in the dataset and replace them with the variable median or the mode
-  if( any(is.na(dataset)) ) {
+  #check for NA values in the dataset and replace them with the variable median or the mode
+  if ( any( is.na(dataset) ) ) {
     warning("The dataset contains missing values (NA) and they were replaced automatically by the variable (column) median (for numeric) or by the most frequent level (mode) if the variable is factor")
-    if (class(dataset) == "matrix")  {
+    if ( is.matrix(dataset) )  {
       dataset <- apply( dataset, 2, function(x){ x[which(is.na(x))] = median(x, na.rm = TRUE) ; return(x) } ) 
     } else {
-      poia <- which( is.na(dataset), arr.ind = TRUE )[2]
+       poia <- unique( which( is.na(dataset), arr.ind = TRUE )[, 2] )
       for( i in poia )  {
         xi <- dataset[, i]
         if ( is.numeric(xi) ) {                    
@@ -34,18 +32,17 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
   #########
   la <- length( unique(target) ) 
 
-  if ( la == 2  || ( sum( round(target) - target ) == 0  &  la > 2 ) ) {
+  if ( la == 2  | ( sum( round(target) - target ) == 0  &  la > 2 ) ) {
 
    if ( la == 2 ) {
-      oiko <- binomial(logit)  ## binomial regression
+      oiko <- binomial(link = logit)  ## binomial regression
       ci_test <- "testIndLogistic"
     } else {
-      oiko <- poisson(log)  ## poisson regression
+      oiko <- poisson(link = log)  ## poisson regression
       ci_test <- "testIndPois"
     }
     
     durat <- proc.time()
-    
     #if ( robust == FALSE ) {
 	  if ( !heavy ) {
         ini = BIC( glm( target ~ 1, family = oiko, weights = wei, y = FALSE, model = FALSE ) )   ## initial BIC
@@ -72,7 +69,6 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
 	        bico[i] <-  - 2 * mi$logLik + length( coef(mi) ) * con   ## initial BIC
 		    }	
 		  }  
-
       # } else {  ## Robust
       #   for (i in 1:p) {
       #     mi <- robust::glmRob( target ~ dataset[, i], family = oiko, maxit = maxit )
@@ -81,7 +77,6 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
       # }
         
       mat <- cbind(1:p, bico)
-
       if( any( is.na(mat) ) )   mat[ which( is.na(mat) ) ] = ini
 
     } else {
@@ -131,8 +126,7 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
     if ( ini - mat[sel, 2] > tol ) {
 
       info[1, ] <- mat[sel, ]
-      mat <- mat[-sel, ]
-      if ( !is.matrix(mat) )    mat <- matrix(mat, ncol = 2) 
+      mat <- mat[-sel, , drop = FALSE]
       #if ( robust == FALSE ) {
 	    if ( !heavy ) {
           mi <- glm( target ~ dataset[, sel], family = oiko, weights = wei, y = FALSE, model = FALSE )
@@ -154,7 +148,6 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
     ######
     ###     k equals 2
     ######
-
     if ( length(moda) > 0  &  nrow(mat) > 0 ) {
 
       k <- 2
@@ -221,33 +214,28 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
 
       ina <- which.min( mat[, 2] )
       sel <- mat[ina, 1]
-      
       if ( tool[1] - mat[ina, 2] <= tol ) {
         info <- info
-
       } else {
         tool[2] <- mat[ina, 2]
         info <- rbind(info, mat[ina, ] )
         sela <- info[, 1]
-        mat <- mat[-ina , ]
-        if ( !is.matrix(mat) )   mat <- matrix(mat, ncol = 2) 
+        mat <- mat[-ina, , drop = FALSE]
      }
 
    }
-
    #########
    ####      k is greater than 2
    #########
-
     if ( nrow(info) > 1  &  nrow(mat) > 0 ) {
-      while ( ( k < n - 10 ) & ( tool[ k - 1 ] - tool[ k ] > tol ) & ( nrow(mat) > 0 ) ) {
+      while (  k < n - 15  &  tool[ k - 1 ] - tool[ k ] > tol  & nrow(mat) > 0 ) {
 
         k <- k + 1
         pn <- p - k + 1
 
         if (ncores <= 1) {
           #if ( robust == FALSE ) {  ## Non robust
-		    if ( !heavy ) {
+		      if ( !heavy ) {
             for ( i in 1:pn ) {
               ma <- glm( target ~., data = as.data.frame( dataset[, c(sela, mat[i, 1]) ] ), family = oiko, weights = wei, y = FALSE, model = FALSE )
               mat[i, 2] <- BIC( ma )
@@ -313,9 +301,7 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
           tool[k] <- mat[ina, 2]
           info <- rbind(info, mat[ina, ] )
           sela <- info[, 1]
-          mat <- mat[-ina , ]
-          if ( !is.matrix(mat) )  mat <- matrix(mat, ncol = 2) 
-
+          mat <- mat[-ina, , drop = FALSE]
         }
 
       }
@@ -324,8 +310,6 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
 
     duration <- proc.time() - durat
 
-	
-
     #####################################################
     #####################################################
     ##          ##
@@ -333,7 +317,6 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
     ##          ##
     #####################################################
     #####################################################
-
 
   } else {
   
@@ -374,7 +357,7 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
 		    }
       } else {  ## Robust
         for (i in 1:p) {
-         mi <- MASS::rlm( target ~ dataset[, i], maxit = 2000, weights = wei )
+         mi <- MASS::rlm( target ~ dataset[, i], maxit = 2000, method = "MM")
          bico[i] <- BIC(mi)
         }
       }
@@ -408,7 +391,7 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
         registerDoParallel(cl)
         bico <- numeric(p)
         mod <- foreach( i = 1:p, .combine = rbind, export = "rlm", .packages = "MASS" ) %dopar% {
-          ww <- rlm( target ~ dataset[, i], maxit = 2000, weights = wei )
+          ww <- MASS::rlm( target ~ dataset[, i], maxit = 2000, method = "MM")
           bico[i] = BIC(ww)
         }
         stopCluster(cl)
@@ -433,13 +416,12 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
           tool[1] <- BIC(mi)	
 		    }
       } else {
-        mi <- MASS::rlm( target ~ dataset[, sel], maxit = 2000, weights = wei )
+        mi <- MASS::rlm( target ~ dataset[, sel], maxit = 2000, method = "MM")
         tool[1] <- BIC(mi)
       }
       moda[[ 1 ]] <- mi
       info[1, ] <- mat[sel, ]
-      mat <- mat[-sel, ]
-      if ( !is.matrix(mat) )   mat <- matrix(mat, ncol = 2) 
+      mat <- mat[-sel, , drop = FALSE]
     } else  {
       info <- info  
       sela <- NULL
@@ -470,7 +452,7 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
 		      } 	 
         } else {
           for (i in 1:pn) {
-            ma <- MASS::rlm( target ~., data = data.frame( dataset[, c(sel, mat[i, 1]) ] ), maxit = 2000, weights = wei )
+            ma <- MASS::rlm( target ~., data = data.frame( dataset[, c(sel, mat[i, 1]) ] ), maxit = 2000, method = "MM")
             mat[i, 2] <- BIC( ma )
           }
         }
@@ -503,7 +485,7 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
           registerDoParallel(cl)
           bico <- numeric(pn)
           mod <- foreach( i = 1:pn, .combine = rbind, export = "rlm", .packages = "MASS" ) %dopar% {
-            ww <- rlm( target ~., data = data.frame( dataset[, c(sel, mat[i, 1]) ] ), maxit = 2000, weights = wei )
+            ww <- MASS::rlm( target ~., data = data.frame( dataset[, c(sel, mat[i, 1]) ] ), maxit = 2000, method = "MM")
             bico[i] <- BIC( ww )
           }
           stopCluster(cl)
@@ -523,18 +505,15 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
         tool[2] <- mat[ina, 2]
         info <- rbind(info, mat[ina, ] )
         sela <- info[, 1]
-        mat <- mat[-ina , ]
-        if ( !is.matrix(mat) )  mat <- matrix(mat, ncol = 2) 
+        mat <- mat[-ina, , drop = FALSE]
       }
 
     }
-
-      #########
-      ####      k is greater than 2
-      #########
-
+   #########
+   ####      k is greater than 2
+   #########
     if ( nrow(info) > 1 ) {
-      while ( ( k < n - 10 ) & ( tool[ k - 1 ] - tool[ k ] > tol ) & ( nrow(mat) > 0 ) ) {
+      while ( k < n - 15 & tool[ k - 1 ] - tool[ k ] > tol & nrow(mat) > 0 ) {
         
         k <- k + 1
         pn <- p - k + 1
@@ -556,7 +535,7 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
 
            } else {
              for ( i in 1:pn ) {
-               ma <- MASS::rlm( target ~., data = data.frame( dataset[, c(sela, mat[i, 1]) ] ), maxit = 2000, weights = wei )
+               ma <- MASS::rlm( target ~., data = data.frame( dataset[, c(sela, mat[i, 1]) ] ), maxit = 2000, method = "MM")
                mat[i, 2] <- BIC( ma )
              }
            }
@@ -588,7 +567,7 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
              registerDoParallel(cl)
              bico <- numeric(pn)
              mod <- foreach( i = 1:p, .combine = rbind, export = "rlm", .packages = "MASS" ) %dopar% {
-               ww <- rlm( target ~., data = data.frame( dataset[, c(sela, mat[i, 1]) ] ), maxit = 2000, weights = wei )
+               ww <- MASS::rlm( target ~., data = data.frame( dataset[, c(sela, mat[i, 1]) ] ), maxit = 2000, method = "MM")
                bico[i] <- BIC( ww )
              }
              stopCluster(cl)
@@ -610,9 +589,7 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
            tool[k] <- mat[ina, 2]
            info <- rbind(info, mat[ina, ] )
            sela <- info[, 1]
-           mat <- mat[-ina , ]
-           if ( !is.matrix(mat) )   mat <- matrix(mat, ncol = 2) 
-
+           mat <- mat[-ina , , drop = FALSE]
         }
 
       }
@@ -624,68 +601,30 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
 
     d <- length(sela)
     final <- NULL
-    models <- NULL
 
     if ( d >= 1 ) {
-      models <- NULL
-      xx <- as.data.frame( dataset[, sela] )
-      colnames(xx) <- paste("V", sela, sep = "")
-      if ( d == 1 ) {
-
-        models <- NULL
-        xx <- as.data.frame( dataset[, sela] )
-        colnames(xx) <- paste("V", sela, sep = "")
-
-        if ( is.null(oiko) ) {
-		
-           if ( !robust ) {
-		          if ( !heavy ) {
-                models <- final <- lm( target ~., data = data.frame( xx ), weights = wei, y = FALSE, model = FALSE )
-			        } else  models <- final <- speedglm::speedlm( target ~., data = as.data.frame( xx ), weights = wei )	 
-           } else  models <- final <- MASS::rlm( target ~., data = data.frame( xx ), maxit = 2000, weights = wei )
-
-        } else {
-          #if ( robust == FALSE ) {
-		      if ( !heavy ) {
-            models <- final <- glm( target ~., data = data.frame( xx ), family = oiko, weights = wei, y = FALSE, model = FALSE )
-		      } else  models <- final <- speedglm::speedglm( target ~., data = data.frame( xx ), family = oiko, weights = wei )		  
-          #} else {
-          #  models <- final <- robust::glmRob( target ~., data = as.data.frame( xx ), family = oiko, maxit = maxit )
-          #}
-        }
-
-      } else {
-        if ( is.null(oiko) ) {
-		
-          if ( !robust ) {
-		         if ( !heavy ) {
-               for (i in 1:d)  models[[ i ]] <- lm( target ~., data = data.frame( xx[, 1:i] ), weights = wei, y = FALSE, model = FALSE )
-             } else   for (i in 1:d)    models[[ i ]] <- speedglm::speedlm( target ~., data = as.data.frame( xx[, 1:i] ), weights = wei )
-          } else   for (i in 1:d)   models[[ i ]] <- MASS::rlm( target ~., data = data.frame( xx[, 1:i] ), maxit = 2000, weights = wei )
-		  
-        } else {
+      if ( is.null(oiko) ) {
+        if ( !robust ) {
           if ( !heavy ) {
-            for (i in 1:d) {
-            #if ( robust == FALSE ) {
-              models[[ i ]] <- glm( target ~., data = data.frame( xx[, 1:i] ), family = oiko, weights = wei, y = FALSE, model = FALSE )
-		       	}  
-		    } else   for (i in 1:d)   models[[ i ]] <- speedglm::speedglm( target ~., data = data.frame( xx[, 1:i] ), family = oiko, weights = wei )		
-            #} else {
-            #  models[[ i ]] <- robust::glmRob( target ~., data = as.data.frame( xx[, 1:i] ), family = oiko, maxit = maxit )
-            #}
-        }
-
-        final <- summary( models[[ d ]] )
-        
+            final <- lm( target ~., data = as.data.frame( dataset[, sela] ), weights = wei, y = FALSE, model = FALSE )
+	        } else  final <- speedglm::speedlm( target ~., data = as.data.frame( dataset[, sela] ), weights = wei )	 
+        } else  final <- MASS::rlm( target ~., data = data.frame( dataset[, sela] ), maxit = 2000, method = "MM")
+      #if ( robust == FALSE ) {
+     
+      } else {
+        if ( !heavy ) {
+          final <- glm( target ~., data = as.data.frame( dataset[, sela] ), family = oiko, weights = wei, y = FALSE, model = FALSE )
+        } else  final <- speedglm::speedglm( target ~., data = data.frame( dataset[, sela] ), family = oiko, weights = wei )		  
       }
-
-      info <- info[1:d, ]
-      if ( d == 1 )  info <- matrix(info, nrow = 1)
-      colnames(info) <- c( "variables", "BIC" )
-      rownames(info) <- info[, 1]
-    
+      #} else {
+      #  models <- final <- robust::glmRob( target ~., data = as.data.frame( xx ), family = oiko, maxit = maxit )
+      #}
     }
+    info <- info[1:d, , drop = FALSE]
+    if ( d == 1 )  info <- matrix(info, nrow = 1)
+    colnames(info) <- c( "variables", "BIC" )
+    rownames(info) <- info[, 1]
+    
 
-    list(mat = t(mat), info = info, models = models, final = final, ci_test = ci_test, runtime = duration)
-
+    list( runtime = duration, mat = t(mat), info = info, ci_test = ci_test, final = final)
 }

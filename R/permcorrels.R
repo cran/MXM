@@ -3,20 +3,18 @@ permcorrels <- function(y, x, R = 999) {
   tb <- matrix(nrow = dm[2], ncol = R)
   n <- dm[1]
   my <- sum(y)        ;     my2 <- sum(y^2)
-  mx <- colsums(x)     ;     mx2 <- colsums(x^2)
+  mx <- Rfast::colsums(x)     ;     mx2 <- Rfast::colsums(x^2)
   up <-  my * mx / n
   down <- sqrt( (my2 - my^2 / n) * (mx2 - mx^2 / n) )
-  r <- ( colsums(y * x) - up) / down
+  r <- ( Rfast::colsums(y * x) - up) / down
   test <- abs( log( (1 + r) / (1 - r) ) )  ## the test statistic
-
   for (i in 1:R) {
     yb <- sample(y, n)
-    tb[, i] <- colsums(yb * x)
+    tb[, i] <- Rfast::colsums(yb * x)
   }  
   tb <- (tb - up) / down
   tb <- log( (1 + tb) / (1 - tb) )  ## the test statistic
-  
-  pvalue <- ( rowsums( abs(tb) > test ) + 1 ) / (R + 1)  ## bootstrap p-value
+  pvalue <- ( Rfast::rowsums( abs(tb) > test ) + 1 ) / (R + 1)  ## bootstrap p-value
   res <- cbind(r, test, pvalue)
   names(res) <- c("correlation", "statistic", "p-value")
   res

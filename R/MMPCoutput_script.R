@@ -11,16 +11,15 @@
 setOldClass('proc_time')
 
 setClass(Class='MMPCoutput', 
-         slots=list(selectedVars='numeric', selectedVarsOrder='numeric', hashObject='list', pvalues='numeric', stats='numeric', univ='list', max_k='numeric', threshold='numeric', runtime='proc_time', test='character', rob='logical'), 
-         prototype=list(selectedVars=NULL, selectedVarsOrder=NULL, hashObject=NULL, pvalues=NULL, stats=NULL, univ=NULL, max_k=NULL, threshold=NULL, runtime=NULL, test=NULL, rob=NULL));
+         slots=list(selectedVars='numeric', selectedVarsOrder='numeric', hashObject='list', pvalues='numeric', stats='numeric', univ='list', max_k='numeric', threshold='numeric', n.tests ='numeric', runtime='proc_time', test='character', rob='logical'), 
+         prototype=list(selectedVars=NULL, selectedVarsOrder=NULL, hashObject=NULL, pvalues=NULL, stats=NULL, univ=NULL, max_k=NULL, threshold=NULL,n.tests=NULL, runtime=NULL, test=NULL, rob=NULL));
 
 setMethod("summary", signature(object="MMPCoutput"), 
           function(object){
             x = object;
             #cat("General summary of the MMPCoutput object:\n")
             #summary(x);
-            if( length(x@selectedVars) == 0 )
-            {
+            if ( length(x@selectedVars) == 0 ) {
               cat("\nSelected Variables: ")
               print(x@selectedVars);
               cat("\nSelected Variables ordered by pvalue: ")
@@ -39,13 +38,15 @@ setMethod("summary", signature(object="MMPCoutput"),
               cat(x@threshold);
               cat("\nTest: ")
               cat(x@test);
+              cat("\nNumber of tests: ")
+              cat(x@n.tests);
               cat("\nTotal Runtime:\n")
               print(x@runtime)
               #cat("    user system elapsed\n")
               #print(x@runtime[1:3]);
               cat("\nRobust:\n")
               print(x@rob)
-            }else{
+            } else {
               cat("\nSelected Variables: ")
               print(x@selectedVars);
               cat("\nSelected Variables ordered by pvalue: ")
@@ -64,6 +65,8 @@ setMethod("summary", signature(object="MMPCoutput"),
               print(x@threshold);
               cat("\nTest: ")
               cat(x@test);
+              cat("\nNumber of tests: ")
+              cat(x@n.tests);
               cat("\nTotal Runtime:\n")
               print(x@runtime)
               #cat("    user system elapsed\n")
@@ -76,13 +79,11 @@ setMethod("summary", signature(object="MMPCoutput"),
 setMethod("plot", signature(x="MMPCoutput"), 
           function(x,mode="all", ...){
             
-            if(length(x@pvalues) <= 1000)
-            {
+            if ( length(x@pvalues) <= 1000 ) {
               mode="all";
             }
             
-            if(mode=="partial")
-            {
+            if (mode=="partial") {
               barplot(x@pvalues[1:500]);
               grid(nx = NA, ny = NULL, col = "black")
               b = barplot(add = TRUE,x@pvalues[1:500], main="Variables' Pvalues for null hypothesis: Ind(var, target)",xlab="Variable ID",ylab = "p-value" , beside=TRUE , border = FALSE)
@@ -91,7 +92,7 @@ setMethod("plot", signature(x="MMPCoutput"),
               legend('topleft' ,  paste('threshold:',x@threshold, sep=" ") , lwd= 2.5,col="red" , bty = "n")
               labels = c(1,x@selectedVars,length(x@pvalues))
               axis(1, at=b[c(1,x@selectedVars,length(x@pvalues))],labels=labels)
-            }else{
+            } else {
               barplot(x@pvalues);
               grid(nx = NA, ny = NULL, col = "black")
               b = barplot(add = TRUE,x@pvalues, main="Variables' Pvalues for null hypothesis: Ind(var, target)",xlab="Variable ID",ylab = "p-value" , beside=TRUE , border = FALSE)

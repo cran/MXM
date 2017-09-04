@@ -4,7 +4,6 @@
 #####
 ############################
 ############################
-
 mb <- function(G, node, graph = FALSE) {
   ## G is the adjacency matrix of an UN-DIRECTED graph
   ## node is a number between 1 and the number of nodes

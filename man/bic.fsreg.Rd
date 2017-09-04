@@ -14,14 +14,23 @@ bic.fsreg(target, dataset, test = NULL, wei = NULL, tol = 2, robust = FALSE, nco
 
 \arguments{
 \item{target}{
-The class variable. Provide either a string, an integer, a numeric value, a vector, a factor, an ordered factor or a Surv object. See also Details.
+The class variable. Provide either a string, an integer, a numeric value, a vector, a factor, an ordered factor or 
+a Surv object. See also Details.
 }
 \item{dataset}{
-The dataset; provide either a data frame or a matrix (columns = variables, rows = samples). The data can be either euclidean, categorical or both.
+The dataset; provide either a data frame or a matrix (columns = variables, rows = samples). The data can be either 
+euclidean, categorical or both.
 }
 \item{test}{
 The regression model to use. Available options are 
-"testIndReg" for normal linear regression, "testIndBeta" for beta regression, "censIndCR" or "censIndWR" for Cox proportional hazards and Weibull regression respectively, "testIndLogistic" for binomial, multinomial or ordinal regression, "testIndPois" for poisson regression, "testIndNB" for negative binomial regression, "testIndZIP" for zero inflated poisson regression, "testIndRQ" for quantile regression and "testIndSpeedglm" for linear, binary or poisson regression with large datasets (tens of thousands of observations).  If you want to use multinomial or ordinal logistic regression, make sure your target is factor. See also \code{\link{SES}} and \code{\link{CondIndTests}} for the tests.
+"testIndReg" for normal linear regression, "testIndBeta" for beta regression, "censIndCR" or "censIndWR" 
+for Cox proportional hazards and Weibull regression respectively, "testIndLogistic" for binomial, multinomial 
+or ordinal regression, "testIndPois" for poisson regression, "testIndNB" for negative binomial regression, 
+"testIndZIP" for zero inflated poisson regression, "testIndRQ" for quantile regression, "testIndGamma" for gamma 
+regression, "testIndNormLog" for linear regression with the log-link (non negative data), "testIndTobit" for Tobit 
+regression and "testIndSpeedglm" for linear, binary or poisson regression with large datasets (tens of thousands of 
+observations). If you want to use multinomial or ordinal logistic regression, make sure your target is factor.
+See also \code{\link{SES}} and \code{\link{CondIndTests}} for the tests.
 }
 \item{wei}{
 A vector of weights to be used for weighted regression. The default value is NULL. It is not suggested when robust is set to TRUE.
@@ -50,23 +59,20 @@ If the current 'test' argument is defined as NULL or "auto" and the user_test ar
 
 \value{
 The output of the algorithm is S3 object including:
+\item{runtime}{
+The run time of the algorithm. A numeric vector. The first element is the user time, the second element is the system time and the third element is the elapsed time.
+}
 \item{mat}{
 A matrix with the variables and their latest test statistics and p-values.
 }
 \item{info}{
 A matrix with the selected variables, and the BIC of the model with that and all the previous variables.
 }
-\item{models}{
-The regression models, one at each step.
-}
-\item{final}{
-The final regression model.
-}
 \item{ci_test}{
 The conditional independence test used. 
 }
-\item{runtime}{
-The run time of the algorithm. A numeric vector. The first element is the user time, the second element is the system time and the third element is the elapsed time.
+\item{final}{
+The final regression model.
 }
 }
 
@@ -93,9 +99,9 @@ dataset <- matrix( runif(1000 * 20, 1, 100), ncol = 20 )
 
 #define a simulated class variable 
 target <- 3 * dataset[, 10] + 2 * dataset[, 15] + 3 * dataset[, 20] + rnorm(1000, 0, 5)
-a1 <- bic.fsreg(target, dataset, robust = FALSE, tol = 4, ncores = 1 ) 
-a2 <- bic.fsreg(target, dataset, robust = TRUE, tol = 4, ncores = 1 ) 
-a3 <- MMPC(target, dataset, robust= FALSE, ncores = 1)
+# a1 <- bic.fsreg(target, dataset, robust = FALSE, tol = 4, ncores = 1 ) 
+# a2 <- bic.fsreg(target, dataset, robust = TRUE, tol = 4, ncores = 1 ) 
+# a3 <- MMPC(target, dataset, robust= FALSE, ncores = 1)
 
 target <- round(target)
 b1 <- bic.fsreg(target, dataset, robust = FALSE, tol = 2, ncores = 1 ) 

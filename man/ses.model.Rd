@@ -1,6 +1,8 @@
 \name{Regression models based on SES and MMPC outputs}
 \alias{ses.model}
 \alias{mmpc.model}
+\alias{waldses.model}
+\alias{waldmmpc.model}
 \title{
 Regression model(s) obtained from SES or MMPC
 }
@@ -13,6 +15,10 @@ One or more regression models obtained from SES or MMPC, are returned.
 ses.model(target, dataset, wei = NULL, sesObject, nsignat = 1, test = NULL)
 
 mmpc.model(target, dataset, wei = NULL, mmpcObject, test = NULL)
+
+waldses.model(target, dataset, wei = NULL, wald.sesObject, nsignat = 1, test = NULL)
+
+waldmmpc.model(target, dataset, wei = NULL, wald.mmpcObject, test = NULL)
 }
 
 \arguments{
@@ -32,6 +38,12 @@ An object with the results of a SES run.
 \item{mmpcObject}{
 An object with the results of an MMPC run.
 }
+\item{wald.sesObject}{
+An object with the results of a wald.ses run.
+}
+\item{wald.mmpcObject}{
+An object with the results of an wald.mmpc run.
+}
 \item{nsignat}{
 How many signatures to use. If nsignat = 1 (default value) the first set of variables will be used for the model. If you want more, then specify the nubmer of signatures you want. If you want the models based on all signatures, specify "all". If you put a number which is higher than the number of signatures, all models will be returned.
 }
@@ -49,7 +61,7 @@ A list including:
 \item{mod}{
 Depending on the number of signatures requested, one or models will be returned.
 }
-\item{signature}{
+\item{ypografi}{
 A matrix (or just one vector if one signature only) with the variables of each signature, along with the BIC of the corresponding regression model.
 }
 }

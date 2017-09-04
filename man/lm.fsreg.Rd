@@ -73,9 +73,9 @@ The final regression model.
 }
 }
 
-\references{
-Tsamardinos I., Aliferis C. F. and Statnikov, A. (2003). Time and sample efficient discovery of Markov blankets and direct causal relations. In Proceedings of the 9th ACM SIGKDD international conference on Knowledge discovery and data mining (pp. 673-678). 
-}
+%\references{
+%Tsamardinos I., Aliferis C. F. and Statnikov, A. (2003). Time and sample efficient discovery of Markov blankets and direct causal relations. In Proceedings of the 9th ACM SIGKDD international conference on Knowledge discovery and data mining (pp. 673-678). 
+%}
 
 
 \author{
@@ -92,16 +92,14 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 set.seed(123)
 
 #simulate a dataset with continuous data
-dataset <- matrix( runif(1000 * 50, 1, 100), ncol = 50 )
+dataset <- matrix( runif(1000 * 30, 1, 100), ncol = 30 )
 
 #define a simulated class variable 
-target <- 3 * dataset[, 10] + 2 * dataset[, 20] + 3 * dataset[, 30] + rnorm(1000, 0, 5)
-a <- lm.fsreg(target, dataset, threshold = 0.05, stopping = "BIC", tol = 2, 
+target <- 3 * dataset[, 10] + 2 * dataset[, 20] + rnorm(1000, 0, 5)
+a1 <- lm.fsreg(target, dataset, threshold = 0.05, stopping = "BIC", tol = 2, 
 robust = FALSE, ncores = 1 ) 
-a <- lm.fsreg_heavy(target, dataset, threshold = 0.05, stopping = "BIC", tol = 2, 
+a2 <- lm.fsreg_heavy(target, dataset, threshold = 0.05, stopping = "BIC", tol = 2, 
 ncores = 1 ) 
-b <- fs.reg(target, dataset, threshold = 0.05, test = NULL, stopping = "BIC", tol = 2, 
-robust = TRUE, ncores = 1 ) 
 }
 
 \keyword{ Markov Blanket }

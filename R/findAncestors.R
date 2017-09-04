@@ -1,5 +1,4 @@
 ## finds ancestors of some given node(s)
-
 findAncestors <- function(G, node = NULL, graph = FALSE) {
 
   n <- dim(G)[1]
@@ -8,7 +7,7 @@ findAncestors <- function(G, node = NULL, graph = FALSE) {
   isAnc <- transitiveClosure(dag)
   
   if ( is.null(node) )  {
-    res <- isAnc
+    res <- list( isAnc = isAnc )
 	
   } else {
     anc <- as.vector( isAnc[, node] )
@@ -24,7 +23,6 @@ findAncestors <- function(G, node = NULL, graph = FALSE) {
   } 
   
   res
-  
 }
 
 

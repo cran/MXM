@@ -1,5 +1,3 @@
-## transitive closure
-
 transitiveClosure <- function(amat) {
   
   n <- nrow(amat)  
@@ -21,24 +19,20 @@ transitiveClosure <- function(amat) {
     }
   }
   
-  for(j in colsToAppend) {
+  for (j in colsToAppend) {
     if ( j < max(colsInv) ) {
       ta <- cbind( ta[, 1:j-1], rep( 0, nrow(ta) ), ta[, j:ncol(ta)] )
-    } else {
-      ta <- cbind( ta[, 1:ncol(ta)], rep( 0, nrow(ta) ) )
-    }
+    } else   ta <- cbind( ta[, 1:ncol(ta)], rep( 0, nrow(ta) ) )
   }
   
   r <- relations::relation( incidence = ta )
   
   closure <- relations::transitive_closure(r)
   relations::relation_incidence(closure)
-  
   # the closure needs to be sorted
   rel <- as.matrix( relations::relation_incidence(closure) )
   sorted <- sort( as.numeric(rownames(rel) ), index.return = TRUE )
   rel <- rel[sorted$ix, ]
   rel <- rel[, sorted$ix]
-  
   rel
 }

@@ -17,7 +17,10 @@ dag2eg(dag, type = NULL)
 The graph matrix as produced from \code{\link{pc.or}} or any other algorithm which produces directed graphs. A DAG in general. 
 }
 \item{type}{
-This can be either NULL or 1 or 2. type = 1 means that the matrix contains 0, 1, 2, 3 where G[i, j] = g[j, i] = 0, means there is no edge between nodes i and j, G[i, j] = g[j, i] = 1, there is an edge between nodes i and j and G[i, j] = 2 and G[j, i] = 3 means that there is an arrow from node i to node j. If type 2, the matrix contains 0 for no edge and 1 for a directed edge. In this case, G[i,j]=1 and G[j,i]=0 means that there is an arrow from node i to node j. If you are not sure of what you have, just leave it NULL, the function will check to which case your matrix belongs.
+This can be either NULL or 1 or 2. type = 1 means that the matrix contains 0, 1, 2, 3 where G[i, j] = g[j, i] = 0, means there is no edge between nodes 
+i and j, G[i, j] = g[j, i] = 1, there is an edge between nodes i and j and G[i, j] = 2 and G[j, i] = 3 means that there is an arrow from node i to node j. 
+If type 2, the matrix contains 0 for no edge and 1 for a directed edge. In this case, G[i,j]=1 and G[j,i]=0 means that there is an arrow from node i to 
+node j. If you are not sure of what you have, just leave it NULL, the function will check to which case your matrix belongs.
 }
 }
 
@@ -36,14 +39,14 @@ Chickering, D.M. (1995). A transformational characterization of equivalent Bayes
 \author{
 Ioannis Tsamardinos and Michail Tsagris
 
-R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr>, Ioannis Tsamardinos <tsamard@csd.uoc.gr> and  and Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Ioannis Tsamardinos <tsamard@csd.uoc.gr> and  and Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 
 %\note{
 %%  ~~further notes~~
 %}
 \seealso{
-\code{ \link{plotnetwork}, \link{nei}, \link{pc.or} 
+\code{ \link{plotnetwork}, \link{is.dag}, \link{topological_sort} 
 }
 }
 
@@ -58,5 +61,5 @@ plotnetwork(tru)
 plotnetwork(eg)
 }
 
-\keyword{ Network plot }
-\keyword{ Neighbour nodes }
+\keyword{ Essential graph }
+\keyword{ equivalence class }

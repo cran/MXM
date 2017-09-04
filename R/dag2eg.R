@@ -8,10 +8,8 @@ dag2eg <- function(dag, type = NULL) {
 
     if ( sum( dag >= 2 ) > 0 ) {
       typos = 1  
-      g3 <- which( dag == 3 )
-      dag[g3] <- 0
-      g2 <- which( dag == 2 )
-      dag[g2] <- 1
+      dag[ dag == 3 ] <- 0
+      dag[ dag == 2 ] <- 1
     } else  typos = 2
     
      ## essential <- ggm::essentialGraph(dag)

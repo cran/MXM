@@ -21,40 +21,40 @@ slopes = FALSE, ncores = 1)
 }
 
 \arguments{
-  \item{target}{
+\item{target}{
 The class variable. Provide a vector with continuous (normal), binary (binomial) or discrete (Poisson) data.
 }
-  \item{reps}{
-  A numeric vector containing the time points of the subjects. It's length is equal to the length of the target variable. If you have clustered data, leave this NULL. 
+\item{reps}{
+A numeric vector containing the time points of the subjects. It's length is equal to the length of the target variable. If you have clustered data, leave this NULL. 
 }
-  \item{group}{
-  A numeric vector containing the subjects or groups. It must be of the same legnth as target. 
+\item{group}{
+A numeric vector containing the subjects or groups. It must be of the same legnth as target. 
 }
-  \item{dataset}{
-The data-set; provide either a data frame or a matrix (columns = variables , rows = samples). Currently, only continuous datasets are supported. Alternatively, provide an ExpressionSet (in which case rows are samples and columns are features, see bioconductor for details).
+\item{dataset}{
+The dataset; provide either a data frame or a matrix (columns = variables , rows = samples). Currently, only continuous datasets are supported. 
 }
-  \item{max_k}{
+\item{max_k}{
 The maximum conditioning set to use in the conditional indepedence test (see Details). Integer, default value is 3.
 }
-  \item{threshold}{
+\item{threshold}{
 Threshold (suitable values in [0, 1]) for assessing p-values significance. Default value is 0.05.
 }
-  \item{test}{
+\item{test}{
 The conditional independence test to use. Default value is NULL. Currently, the only available conditional independence test is the \code{\link{testIndGLMM}}, which fits linear mixed models. 
 }
-  \item{ini}{
+\item{ini}{
 This is a supposed to be a list. After running SES or MMPC with some hyper-parameters you might want to run SES again with different hyper-parameters. To avoid calculating the univariate associations (first step of SES and of MPPC) again, you can extract them from the first run of SES and plug them here. This can speed up the second run (and subequent runs of course) by 50\%. See the details and the argument "univ" in the output values. 
 }
- \item{wei}{
+\item{wei}{
 A vector of weights to be used for weighted regression. The default value is NULL. 
 }
-  \item{user_test}{
+\item{user_test}{
 A user-defined conditional independence test (provide a closure type object). Default value is NULL. If this is defined, the "test" argument is ignored.
 }
-  \item{hash}{
+\item{hash}{
 A boolean variable which indicates whether (TRUE) or not (FALSE) to store the statistics calculated during SES execution in a hash-type object. Default value is FALSE. If TRUE a hashObject is produced.
 }
-  \item{hashObject}{
+\item{hashObject}{
 A List with the hash objects generated in a previous run of SES.temporal. 
 Each time SES runs with "hash=TRUE" it produces a list of hashObjects that can be re-used in order to speed up next runs of SES.
 
@@ -152,9 +152,11 @@ I. Tsamardinos, V. Lagani and D. Pappas (2012). Discovering multiple, equivalent
 
 Tsamardinos, Brown and Aliferis (2006). The max-min hill-climbing Bayesian network structure learning algorithm. Machine learning, 65(1), 31-78.
 
-I. Tsamardinos, M. Tsagris and V. Lagani (2015). Feature selection for longitudinal data. Proceedings of the 10th conference of the Hellenic Society for Computational Biology & Bioinformatics (HSCBB15)
+I. Tsamardinos, M. Tsagris and V. Lagani (2015). Feature selection for longitudinal data. Proceedings of the 10th conference of the Hellenic Society for Computational Biology & Bioinformatics (HSCBB15).
 
-Pinheiro J. and D. Bates. Mixed-effects models in S and S-PLUS. Springer Science \& Business Media, 2006.
+Eugene Demidenko (2013). Mixed Models: Theory and Applications with R, 2nd Edition. New Jersey: Wiley \& Sons.
+
+J. Pinheiro and D. Bates. Mixed-effects models in S and S-PLUS. Springer Science \& Business Media, 2006.
 }
 
 \author{

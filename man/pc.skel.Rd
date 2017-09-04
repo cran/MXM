@@ -10,29 +10,27 @@ The skeleton of a Bayesian network produced by the PC algorithm. No orientations
 }
 
 \usage{
-pc.skel(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 1, graph = FALSE) 
+pc.skel(dataset, method = "pearson", alpha = 0.05, rob = FALSE, R = 1) 
 
-pc.con(dataset, method = "pearson", alpha = 0.05, graph = FALSE) 
+pc.con(dataset, method = "pearson", alpha = 0.05) 
 }
 
 \arguments{
-  \item{dataset}{
-  A matrix with the variables. The user must know if they are continuous or if they are categorical. data.frame or matrix are both supported, as the dataset is converted into a matrix.   
+\item{dataset}{
+A matrix with the variables. The user must know if they are continuous or if they are categorical. data.frame or matrix are both supported, as the dataset is converted into a matrix. \bold{If you have categorical data though, the user must transform the data.frame into a matrix. In addition, the numerical matrix must have values starting from 0. For example, 0, 1, 2, instead of "A", "B" and "C"}.    
 }
-  \item{method}{
-If you have continuous data, you can choose either "pearson", "spearman" or "distcor". The latter uses the distance correlation. If you have categorical data though, this must be "cat". 
+\item{method}{
+If you have continuous data, you can choose either "pearson", "spearman" or "distcor". The latter uses the distance correlation and should not be used with lots of observations as it is by default really slow. If you have categorical data, this must be "cat".  
 }
-  \item{alpha}{
+\item{alpha}{
 The significance level ( suitable values in (0, 1) ) for assessing the p-values. Default value is 0.05.
 }
 \item{rob}{
 A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust version of the statistical test if it is available. It takes more time than a non robust version but it is suggested in case of outliers. Default value is FALSE. This will only be taken into account if method is "pearson". 
 }
 \item{R}{
-The number of permutations to be conducted. This is taken into consideration for the "pc.skel" only. The Pearson correlation coefficient is calculated and the p-value is assessed via permutations.
-}
-\item{graph}{
-Boolean that indicates whether or not to generate a plot with the graph. Package "RgraphViz" is required.
+The number of permutations to be conducted. This is taken into consideration for the "pc.skel" only. The Pearson correlation coefficient is calculated and the p-value is assessed via permutations. There was an extra argument for plotting the skeleton but it does not work with the current visualisation 
+packages, hence we removed the argument. Use \code{\link{plotnetwork}} to plot the skeleton.   
 }
 }
 
@@ -103,7 +101,7 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 %%  ~~further notes~~
 %}
 \seealso{
-\code{ \link{SES}, \link{MMPC}, \link{mmhc.skel} }
+\code{\link{MMPC}, \link{mmhc.skel}, \link{corfs.network}  }
 }
 
 \examples{

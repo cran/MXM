@@ -60,6 +60,10 @@ The final regression model.
 }
 }
 
+\references{
+Tsamardinos, I., Aliferis, C. F., Statnikov, A. R., & Statnikov, E. (2003). Algorithms for Large Scale Markov Blanket Discovery. In FLAIRS conference, pp. 376-380.
+}
+
 \author{
   Michail Tsagris
   

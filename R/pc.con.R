@@ -4,7 +4,7 @@
 #####
 #######################
 #######################
-pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
+pc.con <- function(dataset, method = "pearson", alpha = 0.05) {
   ## dataset contains the data, it must be a matrix 
   ## alpha is the level of significance, set to 0.05 by default
   ## if graph is true, the graph will appear
@@ -12,14 +12,13 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
   title <- deparse( substitute(dataset) )
   dataset <- as.matrix(dataset)
   #check for NA values in the dataset and replace them with the variable mean
-  if( any( is.na(dataset) ) )   {
+  if ( any( is.na(dataset) ) )   {
     #dataset = as.matrix(dataset);
     warning("The dataset contains missing values (NA) and they were replaced automatically by the variable (column) median (for numeric) or by the most frequent level (mode) if the variable is factor")
     dataset = apply( dataset, 2, function(x){ x[ which(is.na(x)) ] = median(x, na.rm = TRUE) ; return(x) } );
   }
-  
   ### if you want to use Spearman, simply use Spearman on the ranks
-  if (method == "spearman")    dataset <- apply(dataset, 2, rank)
+  if ( method == "spearman" )    dataset <- apply(dataset, 2, rank)
   
   dm <- dim(dataset)
   n <- dm[2]
@@ -29,7 +28,6 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
   ## If an element has the number 2 it means there is connection, otherwiser it will have 0
   diag(G) <-  -100
   durat <- proc.time()
-
   ## faster implementation when variables are a few thousands, could be almost twice as fast  
   ## in addition this works even if the required memory is too big and cannot be allocated
   ## In small dimensions, less than 1000 this will be slower than cor(dataset)
@@ -64,7 +62,6 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
   ina <- 1:n 
   sep <- list()
   n.tests <- NULL
-  pval <- list()
   #### some more initial stuff 
   dial <- which( pv <= alpha, arr.ind = TRUE )
   zeu <- cbind( dial, stadf[ dial ], pv[ dial ] )  ## all significant pairs of variables
@@ -88,7 +85,6 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
       met <- matrix(0, duo, k + 2)
       
       dofk <- nu - k - 3
-
       if ( method == "pearson" ) {
         cor.se <-  sqrt(dofk)   
       } else if (method == "spearman") {
@@ -104,19 +100,19 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
         if ( lx >= k )  {
           pvalx <- pvalue[ xyIdx[ 1 ], adjx ]
           infox <- cbind( adjx, pvalx)
-          infox <- infox[ order( - pvalx ), ]
-          if ( !is.matrix(infox) ) {
-            samx <- cbind( infox[1], infox[2] )
-          } else  samx <- cbind( t( combn(infox[, 1], k) ), t( combn(infox[, 2], k) ) )   ## factorial, all possible unordered pairs
+          infox <- infox[ order( - pvalx ), , drop = FALSE ]
+          if ( length(infox[, 1]) == 1 ) {
+          samx <- infox
+          } else    samx <- cbind( t( combn(infox[, 1], k) ), t( combn(infox[, 2], k) ) )   ## factorial, all possible unordered pairs
         } 
         
         if ( ly >= k ) {
           pvaly <- pvalue[ xyIdx[ 2 ], adjy ]
           infoy <- cbind(adjy, pvaly)
-          infoy <- infoy[ order( - pvaly ), ]
-          if ( !is.matrix(infoy) ) {
-            samy <- cbind( infoy[1], infoy[2] )
-          } else  samy <- cbind( t( combn(infoy[, 1], k) ), t( combn(infoy[, 2], k) ) )  ## factorial, all possible unordered pairs
+          infoy <- infoy[ order( - pvaly ), , drop = FALSE]
+          if ( length(infoy[, 1]) == 1 ) {
+            samy <- infoy
+          } else   samy <- cbind( t( combn(infoy[, 1], k) ), t( combn(infoy[, 2], k) ) )  ## factorial, all possible unordered pairs
         }
         
         if ( !is.null(samx) )  sx <- 1   else sx <- 0
@@ -134,24 +130,24 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
         }
 
         pam <- unlist(pam)
-        sam <- sam[ - pam, ] 
+        sam <- sam[ - pam, , drop = FALSE] 
 
-        if ( !is.matrix(sam) ) {
-          sam <- matrix( sam, nrow = 1 ) 
-        } else if ( nrow(sam) == 0 ) {
+        if ( nrow(sam) == 0 ) {
           G <- G 
           
         } else { 
           if ( k == 1 ) {
-            sam <- sam[ order( sam[, 2 ] ), ]
+            sam <- sam[ order( sam[, 2 ] ), , drop = FALSE]
             
           } else {
-            an <- t( apply(sam[, -c(1:2)], 1, sort, decreasing = TRUE) )
-            sam <- cbind(sam[, 1:2], an)
+            an <- t( apply(sam[, -c(1:2), drop = FALSE], 1, sort, decreasing = TRUE) )
+            sam <- cbind(sam[, 1:2, drop = FALSE], an)
             nc <- ncol(sam)
             sam2 <- as.data.frame( sam[, nc:1] )     
             sam2 <- sam2[ do.call( order, as.list( sam2 ) ), ] 
-            sam <- as.matrix( sam2[, nc:1] )
+            if ( is.numeric(sam2) )  {
+              sam <- matrix( sam2[nc:1], nrow = 1 )
+            } else   sam <- as.matrix( sam2[, nc:1] )
           }
         }
 
@@ -217,10 +213,8 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
          sep[[ k ]] <- c( zeu[id, 1:2], met[id, ] )
       } else    sep[[ k ]] <- cbind( zeu[id, 1:2], met[id, ] )
       
-      zeu <- zeu[-id, ]  
-      if ( !is.matrix( class(zeu) ) )   zeu <- matrix(zeu, ncol = 4)
+      zeu <- zeu[-id, , drop = FALSE]  
       duo <- nrow(zeu)
-        
       n.tests[ k + 1 ] <- tes
 
     }  
@@ -230,7 +224,6 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
     durat <- proc.time() - durat
 
     ###### end of the algorithm
-
     for ( l in 1:k ) { 
       
       if ( is.matrix(sep[[ l ]]) ) {
@@ -239,7 +232,6 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
       } else {
         if ( length(sep[[ l ]]) > 0)   names( sep[[ l ]] ) <- c("X", "Y", paste("SepVar", 1:l), "stat", "logged.p-value")
       }
-      
     } 
   #######################
   }
@@ -267,7 +259,6 @@ pc.con <- function(dataset, method = "pearson", alpha = 0.05, graph = FALSE) {
   info <- summary( rowSums(G) )
   density <- sum(G) /  n / ( n - 1 ) 
   
-  if( graph )  plotnetwork(G, paste("Skeleton of the PC algorithm for", title) )
-  
-  list(stat = stata, pvalue = pvalue, runtime = durat, kappa = k, n.tests = n.tests, density = density, info = info, G = G, sepset = sepset, title = title )
+  final <- list(stat = stata, pvalue = pvalue, runtime = durat, kappa = k, n.tests = n.tests, density = density, info = info, G = G, sepset = sepset, title = title )
+  final
 }

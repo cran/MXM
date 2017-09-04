@@ -15,8 +15,8 @@ MMPC and SES can handle even thousands of variables and for some tests, even man
 \tabular{ll}{
 Package: \tab MXM\cr
 Type: \tab Package\cr
-Version: \tab 0.9.9\cr
-Date: \tab 2017-03-26\cr
+Version: \tab 1.0.0\cr
+Date: \tab 2017-09-04\cr
 License: \tab GPL-2\cr
 }
 }
@@ -32,16 +32,22 @@ Michail Tsagris <mtsagris@csd.uoc.gr>
 \references{
 Tsamardinos, Brown and Aliferis (2006). The max-min hill-climbing Bayesian network structure learning algorithm. Machine learning, 65(1), 31-78.
 
-I. Tsamardinos, V. Lagani and D. Pappas (2012) Discovering multiple, equivalent biomarker signatures. In proceedings of the 7th conference of the Hellenic Society for Computational Biology & Bioinformatics - HSCBB12.
+I. Tsamardinos, V. Lagani and D. Pappas (2012) Discovering multiple, equivalent biomarker signatures. In proceedings of the 7th conference of the Hellenic 
+Society for Computational Biology & Bioinformatics - HSCBB12.
 
-Tsamardinos I., Aliferis C. F. and Statnikov, A. (2003). Time and sample efficient discovery of Markov blankets and direct causal relations. In Proceedings of the 9th ACM SIGKDD international conference on Knowledge discovery and data mining p. 673-678. 
+Tsamardinos I., Aliferis C. F. and Statnikov, A. (2003). Time and sample efficient discovery of Markov blankets and direct causal relations. In Proceedingsof the 9th ACM SIGKDD international conference on Knowledge discovery and data mining p. 673-678. 
 }
 
 \note{
 Acknowledgments:
-European Research Council (ERC) project No 617393, "CAUSALPATH - Next Generation Causal Analysis" for funding. 
+The research leading to these results has received funding from the European Research Council under the 
+European Union's Seventh Framework Programme (FP/2007-2013) / ERC Grant Agreement n. 617393.
 
-Michail Tsagris would like to express his acknowledgments to Marios Dimitriadis and Manos Papadakis, undergraduate students in the department of computer science, university of Crete, for their programming tips and advice.
+Michail Tsagris would like to express his acknowledgments to Marios Dimitriadis and Manos Papadakis, 
+undergraduate students in the department of computer science, university of Crete, for their programming tips and advice. 
+Dr David Gomez Cabrero Lopez is greatly acknowledged.
+
+The DOI in the CITATION is for a new JSS publication that will be registered after publication on CRAN.
 }
 
 \keyword{ SES }
