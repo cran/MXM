@@ -2,6 +2,7 @@
 \alias{testIndFisher}
 \alias{testIndSpearman}
 \alias{permFisher}
+\alias{permDcor}
 \title{
 Fisher and Spearman conditional independence test for continuous class variables
 }
@@ -22,6 +23,10 @@ pvalue_hash = NULL, robust = FALSE)
 permFisher(target, dataset, xIndex, csIndex, wei = NULL, statistic = FALSE, 
 dataInfo = NULL, univariateModels = NULL, hash = FALSE, stat_hash = NULL, 
 pvalue_hash = NULL, robust = FALSE, threshold = 0.05, R = 999)
+
+permDcor(target, dataset, xIndex, csIndex, wei = NULL, statistic = FALSE, 
+dataInfo = NULL, univariateModels = NULL, hash = FALSE, stat_hash = NULL, 
+pvalue_hash = NULL, robust = FALSE, threshold = 0.05, R = 499)
 }
 
 \arguments{
@@ -36,10 +41,10 @@ A numeric matrix containing the variables for performing the test. Rows as sampl
 The index of the variable whose association with the target we want to test.
 }
 \item{csIndex}{
-The indices of the variables to condition on.
+The indices of the variables to condition on. If you have no variables set this equal to 0.
 }
 \item{wei}{
-A vector of weights to be used for weighted regression. The default value is NULL. 
+A vector of weights to be used for weighted regression. The default value is NULL. This is not used with "permDcor".
 }
 \item{statistic}{ 
 A boolean variable indicating whether the test statistics (TRUE) or the p-values should be combined (FALSE). See the details about this.
@@ -67,7 +72,7 @@ A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust
 Threshold (suitable values in [0,1]) for assessing p-values significance. Default value is 0.05. This is actually obsolete here, but has to be in order tyo have a concise list of input arguments across the same family of functions.
 }
 \item{R}{
-The number of permutations to use. The default value is 999.
+The number of permutations to use. The default value is 999. For the "permDcor" this is set to 499. 
 }
 }
 
@@ -84,7 +89,7 @@ BE CAREFUL with testIndSpearman. The Pearson's correlation coefficient is actual
 
 When performing the above tests with multiple datasets, the test statistic and the p-values are combined in a meta-analytic way. Is up to the user to decide whether to use the fixed effects model approach and combine the test statistics (statistic = TRUE), or combine the p-values as Fisher suggested (statistic = FALSE). 
 
-The argument R is useful only for the permFisher test. 
+The argument R is useful only for the permFisher and permDcor tests. The permDcor test uses the distance correlation instead of the usual Pearson or Spearman correlations.
 }
 
 \value{
@@ -126,6 +131,10 @@ Peter Spirtes, Clark Glymour, and Richard Scheines. Causation, Prediction, and S
 Lee Rodgers J., and Nicewander W.A. (1988). "Thirteen ways to look at the correlation coefficient." The American Statistician 42(1): 59--66.
 
 Shevlyakov G. and Smirnov P. (2011). Robust Estimation of the Correlation Coefficient: An Attempt of Survey. Austrian Journal of Statistics, 40(1 & 2): 147--156.
+
+Szekely G.J. and Rizzo, M.L. (2014). Partial distance correlation with methods for dissimilarities. The Annals of Statistics, 42(6): 2382--2412.
+
+Szekely G.J. and Rizzo M.L. (2013).  Energy statistics: A class of statistics based on distances. Journal of Statistical Planning and Inference 143(8): 1249--1272.
 }
 
 \author{
@@ -149,7 +158,7 @@ target <- dataset[, 200]
 res1 <- testIndFisher(target, dataset, xIndex = 44, csIndex = 100)
 res2 <- testIndSpearman(target, dataset, xIndex = 44, csIndex = 100)
 res3 <- permFisher(target, dataset, xIndex = 44, csIndex = 100, R = 999)
-
+res4 <- permDcor(target, dataset, xIndex = 44, csIndex = 100, R = 99)
 
 #define class variable (here tha last column of the dataset)
 dataset <- dataset[, -200];

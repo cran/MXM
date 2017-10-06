@@ -6,14 +6,14 @@ univregs <- function(target, dataset, targetID = -1, test = NULL, user_test = NU
   cols <- dm[2]
   if (targetID != -1 ) {
      target <- dataset[, targetID]
-     dataset[, targetID] <- rnorm(rows)
+     dataset[, targetID] <- rbinom(rows, 1, 0.5)
   }   
   id <- NULL
-if ( !identical(test, testIndFisher) & !identical(test, testIndSpearman) ) {
-  ina <- NULL
-  id <- Rfast::check_data(dataset)
-  if ( sum(id > 0) )  dataset[, id] <- rnorm(rows * length(id) )
-}  
+  if ( !identical(test, testIndFisher) & !identical(test, testIndSpearman) ) {
+    ina <- NULL
+    id <- Rfast::check_data(dataset)
+    if ( sum(id > 0) )  dataset[, id] <- rnorm(rows * length(id) )
+  }  
   la <- length( unique(target) )
   
 if ( !is.null(user_test) ) {
@@ -41,6 +41,7 @@ if ( !is.null(user_test) ) {
 
 } else if ( identical(test, gSquare) ) {  ## G^2 test
   z <- cbind(dataset, target)
+  if ( !is.matrix(z) )   z <- as.matrix(z)
   dc <- Rfast::colMaxs(z) + 1
   a <- Rfast::g2tests(data = z, x = 1:cols, y = cols + 1, dc = dc)
   stat <- a$statistic
@@ -126,10 +127,19 @@ if ( !is.null(user_test) ) {
 
 } else if ( identical(test, testIndReg)  &  robust == FALSE  &  is.data.frame(dataset)  &  is.null(wei) ) {  ## linear regression
   if ( min(target) > 0  &  max(target) < 1 )  target = log( target/(1 - target) ) ## logistic normal 
-  mod <- Rfast::regression(dataset, target)
-  univariateModels$stat = mod[1, ]
-  univariateModels$pvalue = pf(mod[1, ], mod[2, ], rows - mod[2, ], lower.tail = F, log.p = TRUE)
-
+  #mod <- Rfast::regression(dataset, target)
+  #univariateModels$stat = mod[1, ]
+  #univariateModels$pvalue = pf(mod[1, ], mod[2, ], rows - mod[2, ], lower.tail = F, log.p = TRUE)
+  stat <- numeric(cols)
+  pval <- numeric(cols)  
+  for (i in 1:cols) {
+    mod <- anova( lm(y ~ dataset[, i]) )
+	  stat[i] <- mod[1, 4]
+    pval[i] <- pf(stat[i], mod[1, 1], mod[2, 1], lower.tail = FALSE, log.p = TRUE)  		   
+  }
+  univariateModels$stat = stat
+  univariateModels$pvalue = pval
+  
 } else if ( identical(test, testIndMVreg)  &  !robust  &  !is.null(wei) ) {  ## Weighted linear regression
   
   univariateModels = list();
@@ -208,10 +218,19 @@ if ( !is.null(user_test) ) {
         if ( min(target) > 0  &  max(target) < 1 )  target = log( target/(1 - target) ) ## logistic normal 
         mod <- Rfast::univglms(target, dataset, oiko = "normal", logged = TRUE) 
       }  
-      if ( is.data.frame(dataset) )   mod <- Rfast::regression(dataset, target)
+      #if ( is.data.frame(dataset) )   mod <- Rfast::regression(dataset, target)
       stat <- mod[1, ]
       pval <- pf(stat, mod[2, ], rows - mod[2, ] - 1, lower.tail = FALSE, log.p = TRUE)
-      
+	  if ( is.data.frame(dataset) ) {
+      stat <- numeric(cols)
+		  pval <- numeric(cols)  
+	    for (i in 1:cols) {
+        mod <- anova( lm(y ~ dataset[, i]) )
+		    stat[i] <- mod[1, 5]
+        pval[i] <- pf(stat[i], mod[1, 1], mod[2, 1], lower.tail = FALSE, log.p = TRUE)  		   
+      } 
+      mat <- cbind(1:cols, pval, stat)	 
+	  } 	 
     } else {
       stat <- dof <- numeric(cols)
       for ( i in 1:cols ) {
@@ -402,16 +421,16 @@ if ( !is.null(user_test) ) {
   }
   
 } else if ( identical(test, testIndNB) ) {  ## Negative binomial regression
-  lik1 <- MASS::glm.nb( target ~ 1, weights = wei )$deviance
+  lik1 <- MASS::glm.nb( target ~ 1, weights = wei )$twologlik
 
   if ( ncores <= 1 | is.null(ncores) ) {
     lik2 <- dof <- numeric(cols)
     for ( i in 1:cols ) {
       fit2 = MASS::glm.nb( target ~ dataset[, i], weights = wei )
-      lik2[i] = fit2$deviance
+      lik2[i] = fit2$twologlik
       dof[i] = length( coef(fit2) ) - 1
     }
-    stat = lik1 - lik2
+    stat = lik2 - lik1
     univariateModels$stat = stat
     univariateModels$pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
 
@@ -420,10 +439,10 @@ if ( !is.null(user_test) ) {
     registerDoParallel(cl)
     mod <- foreach(i = ina, .combine = rbind, .packages = "MASS") %dopar% {
         fit2 = MASS::glm.nb( target ~ dataset[, i], weights = wei )
-        return( c(fit2$deviance, length( coef(fit2) ) - 1 ) )
+        return( c(fit2$twologlik, length( coef(fit2) ) - 1 ) )
     }
     stopCluster(cl)
-    stat <- lik1 - as.vector(mod[, 1])
+    stat <- as.vector(mod[, 1]) - lik1
     univariateModels$stat = stat
     univariateModels$pvalue = pchisq(stat, mod[, 2], lower.tail = FALSE, log.p = TRUE)
   }

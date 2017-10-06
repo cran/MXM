@@ -5,7 +5,7 @@
 reg.fit <- function(y, dataset, event = NULL, reps = NULL, group = NULL, slopes = FALSE, 
                     reml = FALSE, model = NULL, robust = FALSE, wei = NULL, xnew = NULL) {
   ## possible models are "gaussian" (default), "binary", "binomial", "multinomial", "poisson",
-  ## "ordinal", "Cox", "Weibull", "exponential", "zip", "beta", "median", "negbin",
+  ## "ordinal", "Cox", "Weibull", "exponential", "zip", "beta", "median", "negbin", "gamma", "normlog",
   ## "longitudinal" or "grouped".
   ## robust is either TRUE or FALSE
   ## y is the target variable, can be a numerical variable, a matrix, a factor, ordinal factor, percentages, or time to event
@@ -25,7 +25,7 @@ reg.fit <- function(y, dataset, event = NULL, reps = NULL, group = NULL, slopes 
     if ( sum( class(y) == "numeric" ) == 1 & is.null(event) & is.null(reps)  &  is.null(group) )  model <- "gaussian"  
     ## multivariate data
     if ( sum( class(y) == "matrix" ) == 1 ) { 
-      if ( min(y) > 0 &  sd(Rfast::rowsums(y) == 0 ) )  y <- log(y[, -1] / y[, 1])  ## compositional data
+      if ( min(y) > 0 &  Rfast::Var(Rfast::rowsums(y) == 0 ) )  y <- log(y[, -1] / y[, 1])  ## compositional data
       model <- "gaussian"
     }
     ## percentages
@@ -73,7 +73,7 @@ reg.fit <- function(y, dataset, event = NULL, reps = NULL, group = NULL, slopes 
      } else {
        # cont = robust::lmRob.control(mxr = 2000, mxf = 2000, mxs = 2000 )
        # mod <- robust::lmRob(y ~ ., data = as.data.frame(x), control = cont) 
-       mod <- MASS::rlm(y ~., data=as.data.frame(x), maxit = 2000, weights = wei, method = "MM")
+       mod <- MASS::rlm(y ~., data = data.frame(x), maxit = 2000, weights = wei, method = "MM")
      }
 
   } else if ( model == "gaussian"  &  is.matrix(y) ) {
@@ -86,6 +86,15 @@ reg.fit <- function(y, dataset, event = NULL, reps = NULL, group = NULL, slopes 
   } else if ( model == "median" ) {
     mod <- quantreg::rq(y ~ ., data = as.data.frame(x), weights = wei ) 
 
+  } else if ( model == "Gamma" ) {
+    mod <- glm(y ~ ., data = as.data.frame(x), weights = wei, family = Gamma(log) ) 
+    
+  } else if ( model == "normlog" ) {
+    mod <- glm(y ~ ., data = as.data.frame(x), weights = wei, family = gaussian(log) ) 
+    
+  } else if ( model == "tobit" ) {
+    model <- survival::survreg(target ~ ., data = as.data.frame(x), weights = wei, dist = "gaussian" )
+    
     ## binary logistic regression
   } else if ( model == "binary" ) {
     #if ( robust == FALSE ) {

@@ -27,7 +27,7 @@ Threshold (suitable values in (0,1)) for assessing p-values significance. Defaul
 A vector of weights to be used for weighted regression. The default value is NULL. It is not suggested when robust is set to TRUE.
 }
 \item{test}{
-The regression model to use. Available options are most of the tests for SES and MMPC. The ones NOT available are "gSquare", "censIndER", "testIndMVreg", "testIndClogit", "testIndSpearman" and "testIndFisher", "testIndIG" and "testIndTobit". 
+The regression model to use. Available options are most of the tests for SES and MMPC. The ones NOT available are "gSquare", "censIndER", "testIndMVreg", "testIndClogit", "testIndSpearman" and "testIndFisher" and "testIndIGreg". 
 }
 \item{user_test}{
 A user-defined conditional independence test (provide a closure type object). Default value is NULL. If this is defined, the "test" argument is ignored.

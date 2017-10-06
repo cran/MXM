@@ -12,11 +12,11 @@ internaliamb.lmbs <- function(target, dataset, threshold, wei, p, heavy = FALSE,
           stat <- tab[-1, 5]
           mat <- cbind(1:p, pf( stat, df1, df2, lower.tail = FALSE, log.p = TRUE), stat )
         } else {
-          ini <- MASS::rlm( target ~., data = as.data.frame(dataset), weights = wei, maxit = 2000, method = "MM" )
+          ini <- MASS::rlm( target ~., data = data.frame(dataset), weights = wei, maxit = 2000, method = "MM" )
           lik1 <- as.numeric( logLik(ini) )
           dofini <- length( coef(ini) ) 
           for (i in 1:p) {
-            fit2 <- MASS::rlm( target ~., data = as.data.frame(dataset[, -i]), weights = wei, maxit = 2000, method = "MM" )
+            fit2 <- MASS::rlm( target ~., data = data.frame(dataset[, -i]), weights = wei, maxit = 2000, method = "MM" )
             stat[i] <- 2 * abs( lik1 - as.numeric( logLik(fit2) ) ) 
             dof[i] <- dofini - length( coef(fit2) )
           }
@@ -46,7 +46,7 @@ internaliamb.lmbs <- function(target, dataset, threshold, wei, p, heavy = FALSE,
           stat <- tab[-1, 5]
           mat <- cbind(1, pf( stat, df1, df2, lower.tail = FALSE, log.p = TRUE), stat )
         } else  {
-          ini <- MASS::rlm( target ~., data = as.data.frame(dataset), weights = wei, maxit = 2000, method = "MM" )
+          ini <- MASS::rlm( target ~., data = data.frame(dataset), weights = wei, maxit = 2000, method = "MM" )
           mod0 <- MASS::rlm(target ~ 1, weights = wei, maxit = 2000, method = "MM" ) 
           stat <- 2 * abs( as.numeric( logLik(ini) ) - as.numeric( logLik(mod0) ) )
           mat <- cbind(1, pchisq( stat, length( coef(ini) ) - 1, lower.tail = FALSE, log.p = TRUE), stat )
@@ -89,7 +89,7 @@ internaliamb.lmbs <- function(target, dataset, threshold, wei, p, heavy = FALSE,
             stat <- tab[-1, 5]
             pval <- pf(stat, df1, df2, lower.tail = FALSE, log.p = TRUE)
           } else {
-            ini <- MASS::rlm( target ~., data = as.data.frame(dataset), weights = wei, maxit = 2000, method = "MM" )
+            ini <- MASS::rlm( target ~., data = data.frame(dataset), weights = wei, maxit = 2000, method = "MM" )
             mod0 <- MASS::rlm( target ~ 1, weights = wei, maxit = 2000, method = "MM" ) 
             stat <- 2 * abs( as.numeric( logLik(ini) ) - as.numeric( logLik(mod0) ) )
             pval <- pchisq(stat, length( coef(ini) ) - 1, lower.tail = FALSE, log.p = TRUE)
@@ -110,11 +110,11 @@ internaliamb.lmbs <- function(target, dataset, threshold, wei, p, heavy = FALSE,
         if ( !heavy ) {
           if ( !robust ) {
             final <- lm( target ~., data = data.frame(dataset), weights = wei, y = FALSE, model = FALSE )
-          } else    final <- MASS::rlm( target ~., data = as.data.frame(dataset), weights = wei, maxit = 2000, method = "MM" )
+          } else    final <- MASS::rlm( target ~., data = data.frame(dataset), weights = wei, maxit = 2000, method = "MM" )
         } else  final <- speedglm::speedlm( target ~ .,  data = data.frame(dat), weights = wei )
       }
     }
-    info <- info[ info[, 1] > 0, ]
+    info <- info[ info[, 1] > 0, , drop = FALSE]
     
   } else { 
     info <- NULL  

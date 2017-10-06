@@ -59,11 +59,11 @@ lm.fsreg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = N
       
     } else {  ## Robust
       for (i in 1:p) {
-        ww <- MASS::rlm( target ~., data = as.data.frame( dataset[, c(da, pa + i)] ), maxit = 2000, method = "MM") 
+        ww <- MASS::rlm( target ~., data = data.frame( dataset[, c(da, pa + i)] ), maxit = 2000, method = "MM") 
         stat[i] <- 2 * as.numeric( logLik(ww) )
         dof[i] <- length( coef(ww) )
       }
-      fit0 <- MASS::rlm( target ~ ., data = as.data.frame(iniset), maxit = 2000, method = "MM") 
+      fit0 <- MASS::rlm( target ~ ., data = data.frame(iniset), maxit = 2000, method = "MM") 
       stat0 <- 2 * as.numeric( logLik(fit0) )
       difa <- abs( stat - stat0 )
       pval <- pchisq(difa, dof - 1, lower.tail = FALSE, log.p = TRUE)
@@ -88,12 +88,12 @@ lm.fsreg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = N
 	       
     } else {  ## Robust
       
-      fit0 = MASS::rlm( target ~., data = as.data.frame(iniset), maxit = 2000, method = "MM") 
+      fit0 = MASS::rlm( target ~., data = data.frame(iniset), maxit = 2000, method = "MM") 
       stat0 = 2 * logLik(fit0)
       cl <- makePSOCKcluster(ncores)
       registerDoParallel(cl)
       mod <- foreach( i = 1:p, .combine = rbind, .export = "rlm", .packages = "MASS" ) %dopar% {
-        ww = rlm( target ~., data = as.data.frame( dataset[, c(da, pa + i)] ), maxit = 2000, method = "MM") 
+        ww = MASS::rlm( target ~., data = data.frame( dataset[, c(da, pa + i)] ), maxit = 2000, method = "MM") 
         return( c(2 * as.numeric( logLik(ww) ), length( coef(ww) ) ) ) 
       }
       stopCluster(cl)
@@ -123,7 +123,7 @@ lm.fsreg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = N
         tool[k] <- as.numeric( summary( mi )[[ 9 ]] )
 		
       } else {
-        mi = MASS::rlm( target ~., data = as.data.frame( dataset[, c(da, sel) ] ), maxit = 2000, method = "MM")
+        mi = MASS::rlm( target ~., data = data.frame( dataset[, c(da, sel) ] ), maxit = 2000, method = "MM")
         r2 = cor( target, fitted(mi) )^2
         tool[k] = 1 - (1 - r2) * (n - 1) / ( n - length( coef(mi) ) - 1 )
       } 
@@ -133,7 +133,7 @@ lm.fsreg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = N
         mi = lm( target ~., data = as.data.frame( dataset[, c(da, sel) ] ), y = FALSE, model = FALSE )
         tool[k] <- BIC( mi )
       } else {
-        mi = MASS::rlm( target ~., data=as.data.frame( dataset[, c(da, sel) ] ), maxit = 2000, method = "MM")
+        mi = MASS::rlm( target ~., data = data.frame( dataset[, c(da, sel) ] ), maxit = 2000, method = "MM")
         tool[k] <-  BIC(mi)
       }
     }
@@ -165,7 +165,7 @@ lm.fsreg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = N
         sta = dof = numeric(pn)
         
         for (i in 1:pn) {
-          ww = MASS::rlm( target ~., data = as.data.frame( dataset[, c(da, sel, mat[pa + i, 1]) ] ), maxit = 2000, method = "MM")
+          ww = MASS::rlm( target ~., data = data.frame( dataset[, c(da, sel, mat[pa + i, 1]) ] ), maxit = 2000, method = "MM")
           sta[i] = 2 * as.numeric( logLik(ww) )
           dof[i] = length( coef(ww) )
         } 
@@ -196,7 +196,7 @@ lm.fsreg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = N
         cl <- makePSOCKcluster(ncores)
         registerDoParallel(cl)
         mod <- foreach( i = 1:pn, .combine = rbind, .export = c("rlm"), .packages = "MASS" ) %dopar% {
-          ww <- rlm( target ~., data = as.data.frame( dataset[, c(da, sel, mat[pa + i, 1]) ] ), maxit = 2000, method = "MM")
+          ww <- MASS::rlm( target ~., data = data.frame( dataset[, c(da, sel, mat[pa + i, 1]) ] ), maxit = 2000, method = "MM")
           return( c( 2 * as.numeric( logLik(ww) ), length( coef(ww) ) ) )
         }
         stopCluster(cl)
@@ -220,7 +220,7 @@ lm.fsreg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = N
         tool[k] <- as.numeric( summary( ma )[[ 9 ]] )
         
       } else {        
-        ma <- MASS::rlm( target ~., data=as.data.frame( dataset[, c(da, sela, sel) ] ), maxit = 2000, method = "MM")
+        ma <- MASS::rlm( target ~., data = data.frame( dataset[, c(da, sela, sel) ] ), maxit = 2000, method = "MM")
         r2 <- cor( target, fitted(ma) )^2
         tool[k] <- 1 - (1 - r2) * (n - 1) / ( n - length( coef(ma) ) - 1)
       }
@@ -245,7 +245,7 @@ lm.fsreg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = N
          tool[k] <- BIC( ma )
 
       } else {
-        ma <- MASS::rlm(target ~ target ~., data = as.data.frame( dataset[, c(da, sela, sel) ] ), maxit = 2000, method = "MM")
+        ma <- MASS::rlm(target ~ target ~., data = data.frame( dataset[, c(da, sela, sel) ] ), maxit = 2000, method = "MM")
         tool[k] <- BIC(ma)
       }
       if ( tool[ k - 1] - tool[ k ] <= tol ) {
@@ -287,7 +287,7 @@ lm.fsreg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = N
           fr = length( coef( moda[[ k - 1 ]] ) )
           sta = dof = numeric(pn)
           for (i in 1:pn) {
-            ww = MASS::rlm( target ~., data = as.data.frame( dataset[, c(da, sela, mat[pa + i, 1]) ] ), maxit = 2000, method = "MM")
+            ww = MASS::rlm( target ~., data = data.frame( dataset[, c(da, sela, mat[pa + i, 1]) ] ), maxit = 2000, method = "MM")
             sta[i] = 2 * as.numeric( logLik(ww) )
             dof[i] = length( coef(ww) )
           } 
@@ -317,7 +317,7 @@ lm.fsreg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = N
           cl <- makePSOCKcluster(ncores)
           registerDoParallel(cl)
           mod <- foreach( i = 1:pn, .combine = rbind, .export = "rlm", .packages = "MASS" ) %dopar% {
-            ww <- rlm( target ~., data = as.data.frame( dataset[, c(da, sela, mat[pa + i, 1]) ] ), maxit = 2000, method = "MM")
+            ww <- MASS::rlm( target ~., data = data.frame( dataset[, c(da, sela, mat[pa + i, 1]) ] ), maxit = 2000, method = "MM")
             return( c( 2 * as.numeric( logLik(ww) ), length( coef(ww) ) ) )
           }
           stopCluster(cl)  
@@ -340,7 +340,7 @@ lm.fsreg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = N
             tool[k] <- BIC( ma )
 			
           } else {
-            ma <- MASS::rlm( target ~., data = as.data.frame( dataset[, c(da, sela, sel)] ), maxit = 2000, method = "MM")
+            ma <- MASS::rlm( target ~., data = data.frame( dataset[, c(da, sela, sel)] ), maxit = 2000, method = "MM")
             tool[k] <-  BIC(ma)
           }
           
@@ -364,7 +364,7 @@ lm.fsreg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = N
           tool[k] <- as.numeric( summary(ma)[[ 9 ]] )
 		
         } else {
-            ma <- MASS::rlm( target ~., data = as.data.frame( dataset[, c(da, sela, sel)] ), maxit = 2000, method = "MM")
+            ma <- MASS::rlm( target ~., data = data.frame( dataset[, c(da, sela, sel)] ), maxit = 2000, method = "MM")
             r2 <- cor(target, fitted(ma) )^2
             tool[k] = 1 - (1 - r2) * (n - 1) / ( n - length( coef(ma) ) - 1)
         }               
@@ -392,11 +392,11 @@ lm.fsreg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = N
   if (d == 0) {
     if ( !robust ) {
       final <- lm( target ~., data = as.data.frame( iniset ), weights = wei, y = FALSE, model = FALSE )
-    } else  final <- MASS::rlm( target ~., as.data.frame( iniset ), maxit = 2000, method = "MM")    
+    } else  final <- MASS::rlm( target ~., data.frame( iniset ), maxit = 2000, method = "MM")    
   } else {
     if ( !robust ) {
       final <- lm( target ~., data = as.data.frame( dataset[, c(da, sela) ] ), weights = wei, y = FALSE, model = FALSE )
-    } else  final <- MASS::rlm( target ~., as.data.frame( dataset[, c(da, sela) ] ), maxit = 2000, method = "MM")
+    } else  final <- MASS::rlm( target ~., data.frame( dataset[, c(da, sela) ] ), maxit = 2000, method = "MM")
     info <- info[1:d, , drop = FALSE ]
     info <- cbind( info, tool[ 1:d ] ) 
     colnames(info) <- c( "variables", "log.p-value", "stat", stopping )

@@ -25,7 +25,7 @@ The index of the one variable to be considered.
 The index of the other variable to be considered. 
 }
 \item{cs}{
-The index or indices of the conditioning set of variable(s).
+The index or indices of the conditioning set of variable(s). If you have no variables set this equal to 0.
 }
 \item{dat}{
 A matrix with the data. In the case of "cat.ci" the minimum must be 0, i.e. the data must be like 0, 1, 2 and NOT 1, 2, 3... There is a C++ code behind and the minimum must be 0. 
@@ -38,26 +38,21 @@ For "cat.ci" this should be a vector with the levels, the number of distinct (di
 (2 + the number of conditioning variables). 
 }
 \item{rob}{
-If you choose type="pearson" then you can sapecify whether you want a robust version of it (TRUE) or not (FALSE). For "dist.condi" and "cat.ci" this is an obsolete argument but it requires to 
-exist when it is used in the PC algorithm.
+If you choose type="pearson" then you can sapecify whether you want a robust version of it (TRUE) or not (FALSE). For "dist.condi" and "cat.ci" this is an obsolete argument but it requires to exist when it is used in the PC algorithm.
 }
 \item{R}{
-If R = 1 then the asymptotic p-value is calculated. If R > 1 a permutation based p-value is returned. For the distance correlation based test, this is
-set to 499 by default and is used in the partial correlaiton test only. 
+If R = 1 then the asymptotic p-value is calculated. If R > 1 a permutation based p-value is returned. For the distance correlation based test, this is set to 499 by default and is used in the partial correlaiton test only. 
 }
 }
 
 \details{
 This test is currently designed for usage by the PC algorithm. The Fisher conditional independence test which is based on the Pearson or Spearman correlation coefficients is much faster than the distance based (partial) correlation test. 
 
-The distance correlation can handle non linear relationships as well. The p-value for the partial distance correlation is calculated via permutations and is 
-slow. 
+The distance correlation can handle non linear relationships as well. The p-value for the partial distance correlation is calculated via permutations and is slow. 
 }
 
 \value{
-A vector including the test statistic, it's associated p-value and the relevant degrees of freedom. In the case of a permutation based p-value, the returned 
-test statistic is the observed test statistic divided by the relevant degrees of freedom (Pearson and Spearman correlation coefficients only). This is for 
-the case of ties between many permutation based p-values. The PC algorithm choose a pair of variables based on the p-values. If they are equal it will use the test statistic. 
+A vector including the test statistic, it's associated p-value and the relevant degrees of freedom. In the case of a permutation based p-value, the returned test statistic is the observed test statistic divided by the relevant degrees of freedom (Pearson and Spearman correlation coefficients only). This is for the case of ties between many permutation based p-values. The PC algorithm choose a pair of variables based on the p-values. If they are equal it will use the test statistic. 
 }
 
 \references{

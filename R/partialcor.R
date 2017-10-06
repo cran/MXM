@@ -14,5 +14,6 @@ partialcor <- function(R, indx, indy, indz) {
      r <-  - rho[1, 2] / sqrt(rho[1, 1] * rho[2, 2])
   }
     if ( abs(r) > 1 ) r <- 0.99999
+    r
 }
 

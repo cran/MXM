@@ -33,20 +33,21 @@ gammabsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FA
       }
     }
       runtime <- proc.time()
-    
+      dataset <- as.data.frame(dataset)
+      
        if ( !heavy ) {
-          ini <- glm( target ~.,  data = as.data.frame(dataset), family = Gamma(link = log), weights = wei, y = FALSE, model = FALSE )
+          ini <- glm( target ~.,  data = dataset, family = Gamma(link = log), weights = wei, y = FALSE, model = FALSE )
           tab <- drop1( ini, test = "Chisq" )
           dof <- tab[-1, 1]
           stat <- tab[-1, 4]
           
         }  else {
-          ini <- speedglm::speedglm( target ~.,  data = as.data.frame(dataset), family = Gamma(link = log), weights = wei )
+          ini <- speedglm::speedglm( target ~.,  data = dataset, family = Gamma(link = log), weights = wei )
           dofini <- length( coef(ini) )
           stat <- dof <- numeric(p)
           for (i in 1:p) {
-            mod <- speedglm::speedglm( target ~.,  data = as.data.frame(dataset[, -i]), family = Gamma(link = log), weights = wei )
-            stat[i] <- mod$deviance - ini$deviance
+            mod <- speedglm::speedglm( target ~.,  data = dataset[, -i, drop = FALSE], family = Gamma(link = log), weights = wei )
+            stat[i] <- 2 * abs( logLik(ini) - logLik(mod) )
             dof[i] <- dofini - length( coef(mod) ) 
           }
         }	
@@ -60,28 +61,28 @@ gammabsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FA
         sela <- sel 
         
         if ( mat[sel, 2] < threshold ) {
-          res <- list(mat = mat, final = ini  ) 
+          runtime <- proc.time() - runtime
+          res <- list(runtime = runtime, info = matrix(0, 0, 3), mat = mat, ci_test = "testIndGamma", final = ini ) 
           
         } else {
           
           info[1, ] <- mat[sel, ]
           mat <- mat[-sel, , drop = FALSE] 
-          dat <- as.data.frame( dataset[, -sel] ) 
-        } 
-        
+          dat <- dataset[, -sel, drop = FALSE] 
+
         i <- 1  
         
-        if ( info[1, 2] > threshold ) {
+        if ( info[1, 2] > threshold & dim(mat)[1]>0 ) {
           
           if ( !heavy ) {
             
-            while ( info[i, 2] > threshold  &  NCOL(dat) > 0 )  {   
+            while ( info[i, 2] > threshold  &  dim(dat)[2] > 0 )  {   
               i <- i + 1
               k <- p - i + 1
-              ini <- glm( target ~., data = data.frame(dat), family = Gamma(link = log), weights = wei, y = FALSE, model = FALSE )
+              ini <- glm( target ~., data = dat, family = Gamma(link = log), weights = wei, y = FALSE, model = FALSE )
               
               if ( k == 1 ) {
-                mod <- glm(target ~ 1, data = data.frame(dat), family = Gamma(link = log), weights = wei)
+                mod <- glm(target ~ 1, data = dat, family = Gamma(link = log), weights = wei)
                 stat <- 2 * abs( logLik(ini) - logLik(mod) )
                 dof <- length( coef(ini) ) - length( coef(mod) ) 
                 pval <- pchisq( stat, dof, lower.tail = FALSE, log.p = TRUE)
@@ -89,7 +90,7 @@ gammabsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FA
                 if (pval > threshold ) {
                   final <- "No variables were selected"
                   info <- rbind(info, c(mat[, 1], stat, pval) )
-                  dat <- as.data.frame( dataset[, -info[, 1] ] )
+                  dat <- dataset[, -info[, 1], drop = FALSE ]
                   mat <- NULL
                 } else {
                   info <- rbind(info, c(0, -10, -10)) 
@@ -112,21 +113,21 @@ gammabsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FA
                 } else {
                   info <- rbind(info, mat[sel, ] )
                   mat <- mat[-sel, , drop = FALSE] 
-                  dat <- as.data.frame( dataset[, -info[, 1] ] )
+                  dat <- dataset[, -info[, 1], drop = FALSE ]
                 }
               }  
             }  ## end while
             
           } else {
             
-            while ( info[i, 2] > threshold  &  NCOL(dat) > 0 )  {   
+            while ( info[i, 2] > threshold  &  dim(dat)[2] > 0 )  {   
               
               i <- i + 1       
               k <- p - i + 1
-              ini <- speedglm::speedglm( target ~., data = data.frame(dat), family = Gamma(link = log), weights = wei )
+              ini <- speedglm::speedglm( target ~., data = dat, family = Gamma(link = log), weights = wei )
               dofini <- length( coef(ini) ) 
               if ( k == 1 ) {
-                mod <- speedglm::speedglm(target ~ 1, data = data.frame(dat), family = Gamma(link = log), weights = wei)
+                mod <- speedglm::speedglm(target ~ 1, data = dat, family = Gamma(link = log), weights = wei)
                 stat <- 2 * abs( logLik(ini) - logLik(mod) )
                 dof <- dofini - length( coef(mod) ) 
                 pval <- pchisq( stat, dof, lower.tail = FALSE, log.p = TRUE)
@@ -134,7 +135,7 @@ gammabsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FA
                 if (pval > threshold ) {
                   final <- "No variables were selected"
                   info <- rbind(info, c(mat[, 1], stat, pval) )
-                  dat <- as.data.frame( dataset[, -info[, 1] ] )
+                  dat <- dataset[, -info[, 1], drop = FALSE ]
                   mat <- NULL
                 } else {
                   info <- rbind(info, c(0, -10, -10)) 
@@ -146,8 +147,8 @@ gammabsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FA
                 stat <- dof <- numeric(k)
                 
                 for (j in 1:k) {
-                  mod <- speedglm::speedglm( target ~., data = data.frame(dat[, -j]), family = Gamma(link = log), weights = wei )
-                  stat[j] <- mod$deviance - ini$deviance
+                  mod <- speedglm::speedglm( target ~., data = dat[, -j, drop = FALSE], family = Gamma(link = log), weights = wei )
+                  stat[j] <- 2 * abs( logLik(ini) - logLik(mod) )
                   dof[j] <- dofini - length( coef(mod) ) 		   
                 } 
                 
@@ -161,17 +162,22 @@ gammabsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FA
                 } else {
                   info <- rbind(info, mat[sel, ] )
                   mat <- mat[-sel, , drop = FALSE] 
-                  dat <- as.data.frame( dataset[, -info[, 1] ] )
+                  dat <- dataset[, -info[, 1], drop = FALSE ]
                 }
                 
               }	   
             }  ## end while
         }  ## end else 
-      }  else final <- ini
-        
-        info <- info[ info[, 1] > 0, , drop = FALSE ]
-        res <- list(runtime = runtime, info = info, mat = mat, ci_test = "testIndGamma", final = final )       
+        runtime <- proc.time() - runtime		
+        info <- info[ info[, 1] > 0, , drop = FALSE]
+        res <- list(runtime = runtime, info = info, mat = mat, ci_test = "testIndGamma", final = final ) 
+          
+      } else {
+        runtime <- proc.time() - runtime
+        res <- list(runtime = runtime, info = info, mat = NULL, ci_test = "testIndGamma", final = mod ) 
+      }
     }  
+  }  
   res
 
 }    

@@ -15,28 +15,10 @@ zip.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL) {
   } else {
     
     tic <- proc.time()
-    #check for NA values in the dataset and replace them with the variable median or the mode
-    if ( any(is.na(dataset) ) ) {
-      #dataset = as.matrix(dataset);
-      warning("The dataset contains missing values (NA) and they were replaced automatically by the variable (column) median (for numeric) or by the most frequent level (mode) if the variable is factor")
-      if ( is.matrix(dataset) )  {
-        dataset <- apply( dataset, 2, function(x){ x[which(is.na(x))] = median(x, na.rm = TRUE) ; return(x) } ) 
-      } else {
-        poia <- which( is.na(dataset), arr.ind = TRUE )[2]
-        for ( i in poia )  {
-          xi <- dataset[, i]
-          if ( is.numeric(xi) )  {                    
-            xi[ which( is.na(xi) ) ] <- median(xi, na.rm = TRUE) 
-          } else if ( is.factor( xi ) ) {
-            xi[ which( is.na(xi) ) ] <- levels(xi)[ which.max( as.vector( table(xi) ) )]
-          }
-          dataset[, i] <- xi
-        }
-      }
-    }
     ##################################
     # target checking and initialize #
     ################################## 
+    dataset <- as.data.frame(dataset)
     ini <- zip.mod( target,  dataset, wei = wei )
     dofini <- length( ini$be[, 1] )
     likini <- ini$loglik 
@@ -56,19 +38,19 @@ zip.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL) {
     sela <- sel 
     
     if ( mat[sel, 2] < threshold ) {
-      final <- ini 
+      runtime <- runtime - proc.time()
+      res <- list(runtime = runtime, info = matrix(0, 0, 3), mat = mat, ci_test = "testIndZIP", final = ini ) 
       
     } else {
       info[1, ] <- mat[sel, ]
       mat <- mat[-sel, , drop = FALSE] 
-      dat <- as.data.frame( dataset[, -sel] ) 
-    } 
+      dat <- dataset[, -sel, drop = FALSE] 
     
     i <- 1  
     
-    if ( info[1, 2] > threshold ) {
+    if ( info[1, 2] > threshold  &  dim(mat)[1] > 0 ) {
       
-      while ( info[i, 2] > threshold  &  NCOL(dat) > 0 )  {   
+      while ( info[i, 2] > threshold  &  dim(dat)[2] > 0 )  {   
         
         ini <- zip.mod( target, dat, wei = wei )
         likini <- ini$loglik
@@ -114,17 +96,21 @@ zip.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL) {
             
             info <- rbind(info, mat[sel, ] )
             mat <- mat[-sel, , drop = FALSE] 
-            dat <- as.data.frame( dataset[, -info[, 1] ] )
+            dat <- dataset[, -info[, 1], drop = FALSE ]
           }
           
         }
       }
-    }
   
-    runtime <- proc.time() - tic		
-    info <- info[ info[, 1] > 0, ]
-    res <- list(runtime = runtime, info = info, mat = mat, ci_test = "testIndzIP", final = final ) 
-  }
+      runtime <- proc.time() - tic		
+      info <- info[ info[, 1] > 0, , drop = FALSE]
+      res <- list(runtime = runtime, info = info, mat = mat, ci_test = "testIndzIP", final = final ) 
+    } else {
+      runtime <- runtime - proc.time()
+      res <- list(runtime = runtime, info = info, mat = NULL, ci_test = "testIndZIP", final = mod ) 
+    }
+    }  
+  }  
   
   res
 } 

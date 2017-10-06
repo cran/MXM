@@ -5,9 +5,7 @@ score.univregs <- function(target, dataset, test) {
   rows <- dm[1]
   cols <- dm[2]
   id <- NULL
-  ina <- NULL
-  if ( identical(test, testIndLogistic) )  ina <- target
-  id <- Rfast::check_data(dataset, ina)
+  id <- Rfast::check_data(dataset, NULL)
   if ( sum(id > 0) )  dataset[, id] <- rnorm(rows * length(id) )
 
   ## Beta regression 

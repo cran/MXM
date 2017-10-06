@@ -10,15 +10,12 @@ lm.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, 
   p <- dim(dataset)[2]  ## number of variables
   pval <- stat <- dof <- numeric( p )  
   moda <- list()
-  k <- 1   ## counter
+  k <- 1   
   n <- length(target)  ## sample size
   con <- log(n)
   tool <- numeric( min(n, p) )
-  ## percentages
   if ( min( target ) > 0  &  max( target ) < 1 )  target <- log( target / (1 - target) ) 
-  
   ci_test <- "testIndReg"
-  # cont = robust::lmRob.control(mxr = 2000, mxf = 2000, mxs = 2000 )
   runtime <- proc.time()
     
     if (ncores <= 1) {
@@ -30,10 +27,17 @@ lm.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, 
          mat <- cbind(1:p, mat[, 2], mat[, 1])
                   
        } else if ( is.data.frame(dataset)  &  is.null(wei) ) {
-         mod <- Rfast::regression(dataset, target)
-         pval <- pf(mod[1, ], mod[2, ], n - mod[2, ] - 1, lower.tail = FALSE, log.p = TRUE)
-         mat <- cbind(1:p, pval, mod[1, ])
-       
+         #mod <- Rfast::regression(dataset, target)
+         #pval <- pf(mod[1, ], mod[2, ], n - mod[2, ] - 1, lower.tail = FALSE, log.p = TRUE)
+         #mat <- cbind(1:p, pval, mod[1, ])
+	     stat <- numeric(p)
+		   pval <- numeric(p)  
+	     for (i in 1:p) {
+           mod <- anova( lm(y~dataset[, i]) )
+		       stat[i] <- mod[1, 4]
+           pval[i] <- pf(stat[i], mod[1, 1], mod[2, 1], lower.tail = FALSE, log.p = TRUE)  		   
+         }  
+         mat <- cbind(1:p, pval, stat)	 
        } else {
          for (i in 1:p) {
             ww = lm( target ~ dataset[, i], weights = wei, y = FALSE, model = FALSE )
@@ -47,8 +51,6 @@ lm.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, 
       
      } else {  ## Robust
        for (i in 1:p) {
-        # ww = robust::lmRob( target ~ dataset[, i], control = cont )
-        # tab = aovlmrob( ww )
         ww = MASS::rlm( target ~ dataset[, i ], maxit = 2000, method = "MM") 
         stat[i] = 2 * as.numeric( logLik(ww) )
         dof[i] = length( coef(ww) )
@@ -65,14 +67,13 @@ lm.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, 
       if ( !robust ) {  ## Non robust
           cl <- makePSOCKcluster(ncores)
           registerDoParallel(cl)
-          mat <- matrix(0, p, 2)
           mod <- foreach( i = 1:p, .combine = rbind ) %dopar% {
             ww <- lm( target ~ dataset[, i], weights = wei, y = FALSE, model = FALSE )
             tab <- anova( ww )
-            stat[i] <- tab[1, 4] 
+            stat <- tab[1, 4] 
             df1 <- tab[1, 1]   ;  df2 = tab[2, 1]
-            pval[i] <- pf( stat[i], df1, df2, lower.tail = FALSE, log.p = TRUE )
-            mat[i, ] <- c(pval[i], stat[i]) 
+            pval <- pf( stat, df1, df2, lower.tail = FALSE, log.p = TRUE )
+            return( c(pval, stat) ) 
          }
         stopCluster(cl)
 		
@@ -82,13 +83,9 @@ lm.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, 
         
          cl <- makePSOCKcluster(ncores)
          registerDoParallel(cl)
-         mat <- matrix(0, p, 2)
          mod <- foreach( i = 1:p, .combine = rbind, .export = "rlm", .packages = "MASS" ) %dopar% {
-           # ww <- lmRob( target ~ dataset[, i], control = cont )
-           # tab <- aovlmrob( ww )
-           # mat[i, ] <- c(tab[2, 3], tab[2, 2] ) 
            ww = MASS::rlm( target ~ dataset[, i], maxit = 2000, method = "MM") 
-           mat[i, ] = c( 2 * as.numeric( logLik(ww) ), length( coef(ww) ) )
+           return( c( 2 * as.numeric( logLik(ww) ), length( coef(ww) ) ) )
          }
          stopCluster(cl)
          
@@ -139,7 +136,7 @@ lm.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, 
      ######
      ####   k equal to 2
      ######
-    if ( info[k, 2] < threshold  &  nrow(mat) > 0 ) {
+    if ( info[k, 2] < threshold  &  nrow(mat) > 0 )  {
       
       k <- k + 1
       pn <- p - k + 1   
@@ -175,15 +172,13 @@ lm.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, 
 		
            cl <- makePSOCKcluster(ncores)
            registerDoParallel(cl)
-           stat <- pval <- numeric(pn) 
-           mata <- matrix(0, pn, 2)
            mod <- foreach( i = 1:pn, .combine = rbind) %dopar% {
              ww <- lm( target ~ dataset[, sel] + dataset[, mat[i, 1] ], weights = wei, y = FALSE, model = FALSE )
              tab <- anova( ww )
-             stat[i] <- tab[2, 4] 
+             stat <- tab[2, 4] 
              df1 <- tab[2, 3]   ;  df2 = tab[2, 1]
-             pval[i] <- pf( stat[i], df1, df2, lower.tail = FALSE, log.p = TRUE )
-             mata[i, ] <- c(pval[i], stat[i]) 
+             pval <- pf( stat, df1, df2, lower.tail = FALSE, log.p = TRUE )
+             return( c(pval, stat) )
            }
            stopCluster(cl)
 
@@ -262,7 +257,7 @@ lm.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, 
      ######
      ###### k greater than 2
      ######
-    if ( nrow(info) > 1  &  nrow(mat) > 0 ) {
+    if ( nrow(info) > 1  &  nrow(mat) > 0 )  {
       while ( info[k, 2] < threshold  &  k < n - 15 & abs( tool[ k ] - tool[ k - 1 ] ) > tol & nrow(mat) > 0 )  {
          
         k <- k + 1   
@@ -298,15 +293,13 @@ lm.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, 
           if ( !robust ) {  ## Non robust
             cl <- makePSOCKcluster(ncores)
             registerDoParallel(cl)
-            stat <- pval <- numeric(pn)
-            mata <- matrix(0, pn, 2)
             mod <- foreach( i = 1:pn, .combine = rbind) %dopar% {
               ww <- lm( target ~., data = as.data.frame( dataset[, c(sela, mat[ i, 1]) ] ), weights = wei, y = FALSE, model = FALSE )
               tab <- anova(ww)
-              stat[i] <- tab[k, 4] 
+              stat <- tab[k, 4] 
               df1 <- tab[k, 1]   ;  df2 = tab[k + 1, 1]
-              pval[i] <- pf( stat[i], df1, df2, lower.tail = FALSE, log.p = TRUE )
-              mata[i, ] <- c( pval[i], stat[i] ) 
+              pval <- pf( stat, df1, df2, lower.tail = FALSE, log.p = TRUE )
+              return( c( pval, stat ) )
             }
             stopCluster(cl)
 		   
@@ -341,7 +334,7 @@ lm.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, 
 
               } else {
                 # ma = robust::lmRob( target ~., data = as.data.frame( dataset[, c(sela, sel)] ), control = cont )
-                ma = MASS::rlm( target ~., data = as.data.frame( dataset[, c(sela, sel)] ), maxit = 2000, method = "MM")
+                ma = MASS::rlm( target ~., data = data.frame( dataset[, c(sela, sel)] ), maxit = 2000, method = "MM")
                 tool[k] =  BIC(ma)
               }
 
@@ -351,8 +344,7 @@ lm.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, 
               } else { 
                 info <- rbind( info, mat[ina, ] )
                 sela <- info[, 1]
-                mat <- mat[-ina , ] 
-                if ( !is.matrix(mat) )  mat <- matrix(mat, ncol = 3) 
+                mat <- mat[-ina, , drop = FALSE] 
                 moda[[ k ]] <- ma
               }
              
@@ -366,7 +358,7 @@ lm.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, 
                  tool[k] <- as.numeric( summary(ma)[[ 9 ]] )
 				
               } else {
-                ma = MASS::rlm( target ~., data = as.data.frame( dataset[, c(sela, sel)] ), maxit = 2000, method = "MM")
+                ma = MASS::rlm( target ~., data = data.frame( dataset[, c(sela, sel)] ), maxit = 2000, method = "MM")
                 r2 = cor(target, fitted(ma) )^2
                 tool[k] <- 1 - (1 - r2) * (n - 1) / ( n - length( coef(ma) ) - 1)
               }               
@@ -376,8 +368,7 @@ lm.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, 
               } else { 
                 info <- rbind( info, mat[ina, ] )
                 sela <- info[, 1]
-                mat <- mat[-ina , ]
-                if ( !is.matrix(mat) )   mat <- matrix(mat, ncol = 3) 
+                mat <- mat[-ina, , drop = FALSE]
                 moda[[ k ]] <- ma
               }
 
@@ -396,7 +387,7 @@ lm.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, 
     if ( d >= 1 ) {
       if ( !robust ) {
         final <- lm( target ~., data = as.data.frame( dataset[, sela] ), weights = wei, y = FALSE, model = FALSE )
-		  } else   final <- MASS::rlm( target ~., data = as.data.frame( dataset[, sela] ), maxit = 2000, method = "MM")  
+		  } else   final <- MASS::rlm( target ~., data = data.frame( dataset[, sela] ), maxit = 2000, method = "MM")  
     
       info <- info[1:d, , drop = FALSE]
       info <- cbind( info, tool[ 1:d ] ) 

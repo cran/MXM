@@ -15,7 +15,7 @@ bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
   } else {
   
    tic <- proc.time()
-  #check for NA values in the dataset and replace them with the variable median or the mode
+   #check for NA values in the dataset and replace them with the variable median or the mode
    if( any(is.na(dataset)) ) {
      #dataset = as.matrix(dataset);
      warning("The dataset contains missing values (NA) and they were replaced automatically by the variable (column) median (for numeric) or by the most frequent level (mode) if the variable is factor")
@@ -64,7 +64,7 @@ bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
     if (test == "testIndSpeedglm")   heavy <- TRUE
     
     if ( test == "testIndPois"  ||  test == "testIndReg"  ||  ( test == "testIndLogistic"  &  la == 2 )  ||  test == "testIndSpeedglm" || test == "testIndBinom" ) {
-      res <- glm.bsreg(target = target, dataset = dataset, wei = wei, threshold = exp( threshold ), heavy = heavy, robust = robust ) 
+      res <- glm.bsreg(target = target, dataset = dataset, wei = wei, threshold = exp( threshold ), heavy = heavy, robust = robust) 
 	   
     } else if ( test == "testIndBeta" ) {
       res <- beta.bsreg(target = target, dataset = dataset, wei = wei, threshold = exp( threshold ) ) 
@@ -116,13 +116,14 @@ bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
 	  }
     ###################
     ###################
-    ini <- test( target ~.,  data = as.data.frame(dataset), weights = wei )
+    dataset <- as.data.frame(dataset)
+    ini <- test( target ~.,  data = dataset, weights = wei )
 	  dofini <- length( coef(ini) )
 	  likini <- logLik(ini) 
 	  stat <- dof <- numeric(p)
 		
 	  for (j in 1:p) {
-		  mod <- test( target ~.,  data = as.data.frame(dataset[, -j]), weights = wei )
+		  mod <- test( target ~.,  data = dataset[, -j, drop = FALSE], weights = wei )
 		  stat[j] <- 2 * abs( likini - logLik(mod) )
 		  dof[j] <- dofini - length( coef(mod) ) 
 	  }
@@ -136,20 +137,19 @@ bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
       sela <- sel 
 
       if ( mat[sel, 2] < threshold ) {
-        final <- ini 
+        runtime <- proc.time() - tic
+        res <- list(runtime = runtime, info = matrix(0, 0, 3), mat = mat, ci_test = ci_test, final = ini ) 
     
       } else {
         info[1, ] <- mat[sel, ]
         mat <- mat[-sel, , drop = FALSE] 
-        dat <- as.data.frame( dataset[, -sel] ) 
+        dat <- dataset[, -sel, drop = FALSE] 
 
-      } 
-    
-      i <- 1  
+        i <- 1  
 
-      if ( info[1, 2] > threshold ) {
+      if ( info[1, 2] > threshold & dim(mat)[1] > 0) {
          
-         while ( info[i, 2] > threshold  &  NCOL(dat) > 0 )  {   
+         while ( info[i, 2] > threshold  &  dim(dat)[2] > 0 )  {   
 
            ini <- test( target ~., data = dat, weights = wei )
            likini <- logLik(ini) 
@@ -171,7 +171,7 @@ bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
 		        if (pval > threshold ) {
 		          final <- "No variables were selected"
 		          info <- rbind(info, c(mat[, 1], stat, pval) )
-		          dat <- as.data.frame( dataset[, -info[, 1] ] )
+		          dat <- dataset[, -info[, 1], drop = FALSE ]
 		          mat <- NULL
 		        } else {
 		          info <- rbind(info, c(0, -10, -10)) 
@@ -182,7 +182,7 @@ bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
             stat <- dof <- numeric(k)
              
 	          for (j in 1:k) {
-		          mod <- test( target ~.,  data = as.data.frame(dat[, -j]), weights = wei )
+		          mod <- test( target ~.,  data = dat[, -j, drop = FALSE], weights = wei )
 		          stat[j] <- 2 * abs( likini - logLik(mod) )
 		          dof[j] <- dofini - length( coef(mod) ) 
 	          }
@@ -196,18 +196,24 @@ bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
              } else {
                info <- rbind(info, mat[sel, ] )
                mat <- mat[-sel, ,drop = FALSE] 
-               dat <- as.data.frame( dataset[, -info[, 1] ] )
+               dat <- dataset[, -info[, 1], drop = FALSE ]
              }
  
            }
          }
+        runtime <- proc.time() - tic
+        info <- info[ info[, 1] > 0, , drop = FALSE]
+        colnames(mat) <- c("Variables", "log.p-values", "statistic")
+        res <- list(runtime = runtime, info = info, mat = mat, ci_test = ci_test, final = final ) 
+        
+      } else {
+        runtime <- proc.time() - tic
+        res <- list(runtime = runtime, info = info, mat = NULL, ci_test = ci_test, final = mod ) 
       }
-      runtime <- proc.time() - tic		
-      info <- info[ info[, 1] > 0, ]
-      colnames(mat) <- c("Variables", "log.p-values", "statistic")
-      res <- list(runtime = runtime, info = info, mat = mat, ci_test = ci_test, final = final ) 
+
+      }  
     }
-  
+    
   }
   
   res

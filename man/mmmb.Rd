@@ -10,7 +10,7 @@ The MMMB algorithm follows a forward-backward filter approach for feature select
 
 \usage{
 mmmb(target , dataset , max_k = 3 , threshold = 0.05 , test = "testIndFisher", 
-user_test = NULL, robust = FALSE, ncores = 1, hold = FALSE)
+user_test = NULL, robust = FALSE, ncores = 1)
 }
 
 \arguments{
@@ -39,9 +39,6 @@ It takes more time than a non robust version but it is suggested in case of outl
 }
 \item{ncores}{
 How many cores to use. This plays an important role if you have tens of thousands of variables or really large sample sizes and tens of thousands of variables and a regression based test which requires numerical optimisation. In other cammmb it will not make a difference in the overall time (in fact it can be slower). The parallel computation is used in the first step of the algorithm, where univariate associations are examined, those take place in parallel. We have seen a reduction in time of 50\% with 4 cores in comparison to 1 core. Note also, that the amount of reduction is not linear in the number of cores.
-}
-\item{hold}{
-After the MMPC, the backward (or symmetry correction) phase is implemented. This will remove any possibly falsely included variables in the parents and children set of the target variable and it will slow down the algorithm. If hold is TRUE, even if some variables are identified as falsely included, they will remain. If there are highly collinear (or statistically equivalent) variables, this phase tends to remove correctly identified variables, simply because it will identify a variable wich is highly collinear with the target variable. In this case, the hold should be TRUE. Can you know this in advnace? Well, maybe you can run the SES algorithm to get an idea, or be suspicious about it. 
 }
 }
 
@@ -84,8 +81,8 @@ dataset <- matrix( runif(1000 * 50, 1, 100), ncol = 50 )
 #define a simulated class variable 
 target <- 3 * dataset[, 10] + 2 * dataset[, 50] + 3 * dataset[, 20] + rnorm(1000, 0, 5)
 
-aa <- mmmb(target , dataset , max_k = 3 , threshold = 0.05, test= "testIndFisher", robust = FALSE, 
-ncores = 1, hold = FALSE)
+aa <- mmmb(target , dataset , max_k = 3 , threshold = 0.05, test= "testIndFisher", 
+robust = FALSE, ncores = 1,)
 ab <- SES(target, dataset, test="testIndFisher")
 }
 

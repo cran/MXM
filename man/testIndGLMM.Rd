@@ -34,7 +34,7 @@ pvalue_hash=NULL, target_type = 0, slopes = FALSE)
   The index of the variable whose association with the target we want to test.
 }
   \item{csIndex}{
-  The indices of the variables to condition on.
+  The indices of the variables to condition on. If you have no variables set this equal to 0.
 }
   \item{dataInfo}{
   A list object with information on the structure of the data. Default value is NULL.

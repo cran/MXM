@@ -1,17 +1,12 @@
-pc.or <- function(mod) {
+pc.or <- function(mod, prev.cycles = TRUE) {
   ## mod is the outcome of the function pc.con or pc.skel
-  ## method is either "pearson", "spearman" or "cat"
-  ## alpha is the threshold used in the skeleton of the pc
-  ## rob is either TRUE or FALSE
-  ## sim is either TRUE or FALSE
-  ## graph is either TRUE or FALSE
   G <- mod$G  ## the undirected graph
   n <- ncol(G)  ## how many variables are there
   ina <- 1:n 
   sep <- mod$sepset  ## the triples with separating variables
   durat <-  proc.time()
   if ( length(sep) == 0 ) {
-    G <- G 
+    G2 <- G 
     paste("There are no separating sets")
   } else {
  
@@ -29,7 +24,7 @@ pc.or <- function(mod) {
         sepa <- c( sep[[ 1 ]][ 1:3 ], numeric( len - 1 ), sep[[ 1 ]][ 5 ] )
       } else {
         ante <- matrix( numeric( nrow( sep[[ 1 ]] ) * (len - 1) ), ncol = len - 1)
-        sepa <- cbind( sep[[ 1 ]][, 1:3 ], ante, sep[[ 1 ]][, 5] )
+        sepa <- cbind( sep[[ 1 ]][, 1:3, drop = FALSE ], ante, sep[[ 1 ]][, 5, drop = FALSE] )
       }
       for (i in 2:len) {
         if ( !is.matrix( sep[[ i ]] ) ) {
@@ -38,7 +33,7 @@ pc.or <- function(mod) {
         } else {
           ante <- matrix(numeric( NROW( sep[[ i ]] ) * (len - i) ), ncol = len - i )
           if ( sum( dim(ante) ) > 2 ) {
-            la <- cbind( sep[[ i ]][, 1:c(2 + i) ], ante, sep[[ i ]][ , 4 + i ] )
+            la <- cbind( sep[[ i ]][, 1:c(2 + i), drop = FALSE ], ante, sep[[ i ]][ , 4 + i, drop = FALSE ] )
           } else {
             la <- cbind( sep[[ i ]][, 1:c(2 + i), drop = FALSE ], numeric( len - i ), sep[[ i ]][ , 4 + i, drop = FALSE ] )
           }
@@ -52,33 +47,30 @@ pc.or <- function(mod) {
     rownames(sepa) <- colnames(G)[ sepa[, 1] ]
     ## sepa contains all the non significant pairs given at least one variable
     
-    vim <- 1  ## 1st step	
     ### Orientation rule 0: find the triplets (v structures) and orient
     p <- dim(sepa)[2] - 1
-    G1 <- R0(G, ina, sepa[, 1:p, drop = FALSE]) 
+    G1 <- R0(G, ina, sepa[, 1:p, drop = FALSE], prev.cycles = prev.cycles) 
     ## 1st orientation rule: if there is an arrow and then an edge make it arrow
-    G1 <- R1(G1)
+    G1 <- R1(G1, prev.cycles = prev.cycles)
     ## 2nd orientation rule: if there is a directed path connect the beginning with the end
-    G1 <- R2(G1) 
+    G1 <- R2(G1, prev.cycles = prev.cycles) 
     ### 3rd rule, the complicated one with v structures
-    G1 <- R3(G1)
+    G1 <- R3(G1, prev.cycles = prev.cycles)
     ## 1st orientation rule: if there is an arrow and then an edge make it arrow
-    G2 <- R1(G1) 
+    G2 <- R1(G1, prev.cycles = prev.cycles) 
     ## 2nd orientation rule: if there is a directed path connect the beginning with the end
-    G2 <- R2(G2)    
+    G2 <- R2(G2, prev.cycles = prev.cycles)    
     ### 3rd rule, the complicated one with v structures
-    G2 <- R3(G2)
+    G2 <- R3(G2, prev.cycles = prev.cycles)
     
-    vim <- 2 
     while ( sum( abs( G1 - G2 ) ) != 0 ) {
-	  vim <- vim + 1 
       G1 <- G2   
       ## 1st orientation rule: if there is an arrow and then an edge make it arrow
-      G2 <- R1(G1)
+      G2 <- R1(G1, prev.cycles = prev.cycles)
       ## 2nd orientation rule: if there is a directed path connect the beginning with the end
-      G2 <- R2(G2) 
+      G2 <- R2(G2, prev.cycles = prev.cycles) 
       ### 3rd rule, the complicated one with v structures
-      G2 <- R3(G2)
+      G2 <- R3(G2, prev.cycles = prev.cycles)
     }
     
   } ## end of all rules 
@@ -91,22 +83,15 @@ pc.or <- function(mod) {
 }
 
 
-
-
-
-
-
-
-
 #############
 ### Rules  
 #############
 
-R0 <- function(G, ina, sepa) {
+R0 <- function(G, ina, sepa, prev.cycles = TRUE) {
   
     l <- Rfast::rowsums( G == 1 )
     id <- which( l >= 0 ) 
-    
+
     if ( length(id) > 0 ) {
       
       for (i in id) {
@@ -114,30 +99,57 @@ R0 <- function(G, ina, sepa) {
         if ( length(adj) > 1 ) {
           sam <-  as.matrix(  t( combn(adj, 2) ) )
           for ( j in 1:nrow(sam) ) {
-            if ( G[sam[j, 1], sam[j, 2] ] == 0 ) {
+            if ( G[sam[j, 1], sam[j, 2] ] == 0  &  G[sam[j, 1], i ] == 1  &  G[i, sam[j, 2] ] == 1 ) {
               res <- is.sepset( sam[j, ], i, sepa )
               if ( !res ) {
-                if ( G[ sam[j, 1], i ] == 1 ) { 
-                  G[ sam[j, 1], i ] = 2
-                  G[ i, sam[j, 1] ] = 3
-                } 
-                if ( G[ sam[j, 2], i ] == 1 ) {   
-                  G[ sam[j, 2], i ] = 2 
-                  G[ i, sam[j, 2] ] = 3
-                }
-              }   
-            }
+                G[ sam[j, 1], i ] = 2
+                G[ i, sam[j, 1] ] = 3
+                G[ sam[j, 2], i ] = 2 
+                G[ i, sam[j, 2] ] = 3
+                if (prev.cycles) {
+                  if ( !is.dag(G) )  {
+                    G[ sam[j, 1], i ] = 1
+                    G[ i, sam[j, 1] ] = 1
+                    G[ sam[j, 2], i ] = 1 
+                    G[ i, sam[j, 2] ] = 1
+                  }
+                }  
+			        }	 
+            } else if ( G[sam[j, 1], sam[j, 2] ] == 0  &  G[sam[j, 1], i ] == 2  &  G[i, sam[j, 2] ] == 1 ) {
+              res <- is.sepset( sam[j, ], i, sepa )
+              if ( !res ) {
+                G[ sam[j, 2], i ] = 2 
+                G[ i, sam[j, 2] ] = 3
+                if (prev.cycles) {
+                  if ( !is.dag(G) )  {
+                    G[ sam[j, 2], i ] = 1 
+                    G[ i, sam[j, 2] ] = 1
+                  }
+                }  
+			        }
+            } else if ( G[sam[j, 1], sam[j, 2] ] == 0  &  G[sam[j, 1], i ] == 1  &  G[i, sam[j, 2] ] == 2 ) {
+              res <- is.sepset( sam[j, ], i, sepa )
+              if ( !res ) {
+                G[ sam[j, 1], i ] = 2 
+                G[ i, sam[j, 1] ] = 3
+                if (prev.cycles) {
+                  if ( !is.dag(G) )  {
+                    G[ sam[j, 1], i ] = 1 
+                    G[ i, sam[j, 1] ] = 1
+                  }
+                }  
+			        }
+            } 
           }
         }
       } 
-
     }
   G	
 }
     
 	
 	
-R1 <- function(G) {
+R1 <- function(G, prev.cycles = TRUE) {
 
    if ( sum( G == 2 ) > 0  &  sum( G == 1 ) > 0 ) {
       tup <- which( G == 2, arr.ind = TRUE )
@@ -150,6 +162,12 @@ R1 <- function(G) {
         if ( length(geit) > 0 ) {
           G[can, geit] <- 2
           G[geit, can] <- 3
+        }
+        if (prev.cycles) {
+          if ( !is.dag(G) )  {
+            G[ can, geit] = 1
+            G[ geit, can ] = 1
+          }
         }  
       }
    } 
@@ -157,7 +175,7 @@ R1 <- function(G) {
   G
 }   
 
-R2 <- function(G) {
+R2 <- function(G, prev.cycles = TRUE) {
 
    if ( sum( G == 2 ) > 0  &  sum( G == 1 ) > 0 ) {
       tup <- which( G == 2, arr.ind = TRUE )
@@ -169,6 +187,12 @@ R2 <- function(G) {
         if ( sum( G[arxi, geit] == 1 ) > 0 ) {
           G[arxi, geit] <- 2
           G[geit, arxi] <- 3
+        }
+        if (prev.cycles) {
+          if ( !is.dag(G) )  {
+            G[ arxi, geit ] = 1
+            G[ geit, arxi ] = 1
+          }
         }  
       }
    } 
@@ -177,39 +201,67 @@ R2 <- function(G) {
 } 
 
 
-R3 <- function(G) {
-    if ( sum( G == 2 ) > 0 & sum( G == 1 ) > 0 ) {
-        
-       tup <- which( G == 2, arr.ind = TRUE )
-       nup <- nrow(tup) 
-       poia <- as.factor( tup[, 2] )
-       poia <- as.numeric( levels(poia) ) 
-       ela <- NULL
-
-       for ( i in poia ) {
-         b3 <- which(G[i, ] == 1) 
-         if ( length( b3 ) > 0 ) {
-           wa <- tup[ tup[, 2] == i, ]
-           if ( is.matrix(wa) )  ela <- combn( 1:nrow(wa), 2 )
-           if ( !is.null(ela) ) {
-             for ( j in 1:ncol(ela) ) {
-               wa2 <- as.vector( wa[ ela[, j], 1 ] ) 
-               b1 <- which( G[ wa2[1], ] == 2 )
-               b2 <- which( G[ wa2[2], ] == 2 ) 
-               tomi <- intersect( b1, intersect(b3, b2) )
-               if ( length(tomi) > 0 )  {
-                 G[tomi, i] <- 2  
-                 G[i, tomi] <- 3    
-               }
-             }
-           } 
-         }
-
-         ela <- NULL
-	   }  
+R3 <- function(G, prev.cycles = TRUE) {
+  if ( sum( G == 2 ) > 0 & sum( G == 1 ) > 0 ) {
+    a <- which(G == 1, arr.ind = TRUE)
+    a <- a[order(a[,1]), ]
+    id <- unique(a[, 1])
+    b <- as.vector( table(a[, 1]) )
+    b <- id[b > 1]
+    a2 <- list()
+    for (i in b)   a2[[ i ]] <- c( i, a[which(a[, 1] == i), 2] )
+    for ( i in b)  {
+      arxi <- a2[[ i ]][ 1 ]
+      met <- a2[[ i ]][ -1 ]
+      ela <- matrix(0, nrow = 1, ncol = 2)
+      for ( j in 1:length(met) )  {
+        ande <- which( G[ met[j], ] == 2 )
+        if (sum(ande) == 0) {
+          yp <- cbind(met[j], 0 )
+        } else  yp <- cbind(met[j], ande )
+        ela <- rbind(ela, yp)
+      }
+      ela <- cbind(arxi, ela)
+      ela <- ela[-1, ]
+      dipla <- which( as.vector( table(ela[, 3]) ) > 1 )
+      if (length(dipla) > 0) {
+        for ( k in 1:length(dipla) ) {
+          poia <- Rfast::sort_unique(ela[, 3])[ dipla[k] ]
+          poia2 <- ela[ which( ela[, 3] == poia ), ]
+          nr <- dim(poia2)[1]
+          if (nr > 2) {
+            a <- combn(poia2[, 2], 2)
+            for ( m in 1:dim(a)[2] ) {
+              b <- cbind(i, a[, m], poia2[1, 3])
+              if ( G[ b[1, 2], b[2, 2] ] != 1 ) {
+                G[ i, b[1, 3] ] <- 2
+                G[ b[1, 3], i ] <- 3
+                if (prev.cycles) {
+                  if ( !is.dag(G) )  {
+                    G[ b[1, 3], i ] = 1
+                    G[ i, b[1, 3] ] = 1
+                  }
+                }
+              }
+            }
+            
+          } else {
+            if ( G[ poia2[1, 2], poia2[2, 2] ] != 1 ) {
+              G[ i, poia2[1, 3] ] <- 2
+              G[ poia2[1, 3], i ] <- 3
+              if (prev.cycles) {
+                if ( !is.dag(G) )  {
+                  G[ poia2[1, 3], i ] = 1
+                  G[ i, poia2[1, 3] ] = 1
+                }
+              }
+            }
+          }  
+        }
+      }
     }
-	  
-	G 
+  }  
+  G 
 }
 
 

@@ -1,4 +1,4 @@
-MMPC.temporal = function(target, reps = NULL, group, dataset , max_k = 3 , threshold = 0.05 , test = NULL, ini = NULL, wei = NULL, user_test = NULL, hash=FALSE, hashObject=NULL, slopes = FALSE, ncores = 1)
+MMPC.temporal = function(target, reps = NULL, group, dataset, max_k = 3 , threshold = 0.05 , test = NULL, ini = NULL, wei = NULL, user_test = NULL, hash=FALSE, hashObject=NULL, slopes = FALSE, ncores = 1)
 {
  #get the log threshold
   threshold = log(threshold)

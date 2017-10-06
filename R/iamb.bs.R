@@ -50,7 +50,7 @@ iamb.bs <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, 
     }
     
     av_models <- c("testIndReg", "testIndBeta", "censIndCR", "testIndRQ", "censIndWR", "testIndLogistic", "testIndPois", 
-                   "testIndNB", "testIndZIP", "testIndSpeedglm", "testIndGamma", "testIndNormLog");
+                   "testIndNB", "testIndZIP", "testIndSpeedglm", "testIndGamma", "testIndNormLog", "testIndTobit");
     
     ci_test <- test
     test <- match.arg(test, av_models, TRUE);
@@ -74,6 +74,9 @@ iamb.bs <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, 
       
     } else if ( test == "testIndNormLog" ) {
       res <- iamb.normlogbs(target = target, dataset = dataset, wei = wei, threshold = exp(threshold) ) 	
+      
+    } else if ( test == "testIndTobit" ) {
+      res <- iamb.tobitbs(target = target, dataset = dataset, wei = wei, threshold = exp(threshold) ) 	
       
     } else {
       

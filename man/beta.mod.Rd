@@ -1,6 +1,5 @@
 \name{Beta regression}
 \alias{beta.mod}
-\alias{beta.reg}
 \title{
 Beta regression
 }
@@ -11,7 +10,6 @@ Beta regression.
 
 \usage{
 beta.mod(target, dataset, wei = NULL, xnew= NULL) 
-beta.reg(target, dataset, wei = NULL) 
 }
 
 \arguments{

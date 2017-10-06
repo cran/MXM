@@ -45,7 +45,7 @@ zip.fsreg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = 
   }
   
   runtime <- proc.time()
-  
+
   devi = dof = numeric(p)
   if ( pa == 0 ) {
     if ( is.null(wei) ) {
@@ -102,7 +102,7 @@ zip.fsreg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = 
   ############
   ###       k equals 2
   ############   
-  if ( info[k, 2] < threshold  &  nrow(mat) > 0 ) {
+  if ( info[k, 2] < threshold  &  dim(mat)[1] > 0 ) {
     
     k <- 2
     pn <- p - k + 1   
@@ -149,7 +149,7 @@ zip.fsreg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = 
   ############
   ##       k greater than 2
   ############ 
-  if ( nrow(info) > 1  &  nrow(mat) > 0 ) {
+  if ( nrow(info) > 1  &  dim(mat)[1] > 0 ) {
     while ( info[k, 2] < threshold &  k < n - 15  &  tool[ k - 1 ] - tool[ k ] > tol  &  nrow(mat) > 0 )  {
       
       ini <-  2 * moda[[ k ]]$loglik 

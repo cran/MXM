@@ -72,7 +72,7 @@ waldMMreg = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NU
       #if the conditioning set (cs) is empty, we use a simplified formula
       if (length(cs) == 0) {
         fit = MASS::rlm(target ~ x, weights = wei, maxit = 2000, method = "MM")
-      } else  fit = MASS::rlm(target ~ ., data = as.data.frame(dataset[, c(csIndex, xIndex)]), weights = wei, maxit = 2000, method = "MM")
+      } else  fit = MASS::rlm(target ~ ., data = data.frame(dataset[, c(csIndex, xIndex)]), weights = wei, maxit = 2000, method = "MM")
       res = summary(fit)[[ 4 ]]
       pr = dim(res)[1]
       stat = res[pr, 3]^2

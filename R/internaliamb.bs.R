@@ -47,7 +47,7 @@ internaliamb.bs <- function(target, dataset, threshold, test, wei, p, robust) {
         } else final <- mod1
       } else  final <- test(target ~ ., data = data.frame(dat), weights= wei )
     }
-    info <- info[ info[, 1] > 0, ]
+    info <- info[ info[, 1] > 0, , drop = FALSE]
     
   } else { 
     info <- NULL  

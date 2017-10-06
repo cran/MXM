@@ -27,6 +27,8 @@ As for the other tests, they share one thing in common. For all of them, two par
   \tab \tab after logit transformation \tab \cr  
   Proportions \tab Mixed \tab testIndBeta \tab Beta regression \cr 
   Non negative \tab Mixed \tab testIndIGreg \tab Inverse Gaussian regression \cr 
+  Strictly positive \tab Mixed \tab testIndGamma \tab Gamma regression \cr 
+  Non negative \tab Mixed \tab testIndNormLog \tab Gaussian regression with log link \cr 
   Non negative \tab Mixed \tab censIndWR \tab Weibull regression \cr
   Successes \& totals \tab Mixed \tab testIndBinom \tab Binomial regression \cr
   Discrete \tab	Mixed \tab testIndPois \tab Poisson regression \cr 
@@ -48,6 +50,7 @@ As for the other tests, they share one thing in common. For all of them, two par
   Survival	\tab Mixed \tab censIndCR \tab Cox regression \cr
   Survival	\tab Mixed \tab censIndWR \tab Weibull regression \cr
   Survival	\tab Mixed \tab censIndER \tab Exponential regression \cr
+  Left censored	\tab Mixed \tab testIndTobit \tab Tobit regression \cr
   Case-control  \tab Mixed \tab testIndClogit \tab Conditional logistic regression \cr
   Multivariate continuous \tab Mixed \tab testIndMVreg  \tab Multivariate linear regression \cr 
   Compositional data \tab Mixed \tab testIndMVreg \tab Multivariate linear regression \cr 
@@ -72,7 +75,11 @@ As for the other tests, they share one thing in common. For all of them, two par
     
 \item \bold{Alternatives to testIndBeta}. Instead of \bold{testIndBeta} the user has the option to choose all the previous to that mentioned tests by transforming the target variable with the logit transformation. In this way, the support of the target becomes the whole of R^d and then depending on the type of the predictors and whether a robust approach is required or not, there is a variety of alternative to beta regression tests. 
 
-\item \bold{testIndIGreg}. When you have non negative data, i.e. the target variable takes positive values (including 0), a suggested regression is based on the the inverse gaussian distribution. The link function is not the inverse of the square root as expected, but the logarithm. This is to ensure that the fitted values will be always be non negative. The predictor variables can be either continuous, categorical or mixed. The significance between the two models is assessed via the log-likelihood ratio test. Alternatively, the user can use the Weibull regression (\bold{censIndWR}). 
+\item \bold{testIndIGreg}. When you have non negative data, i.e. the target variable takes positive values (including 0), a suggested regression is based on the the inverse gaussian distribution. The link function is not the inverse of the square root as expected, but the logarithm. This is to ensure that the fitted values will be always be non negative. The predictor variables can be either continuous, categorical or mixed. The significance between the two models is assessed via the log-likelihood ratio test. Alternatively, the user can use the Weibull regression (\bold{censIndWR}), gamma regression (\bold{testIndGamma}) or Gaussian regression with log link (\bold{testIndNormLog}). 
+
+\item \bold{testIndGamma}. This is an alternative to \bold{testIndIGreg}.
+
+\item \bold{testIndNormLog}. This is a second alternative to \bold{testIndIGreg}.
 
 \item \bold{testIndPois}. When the target is discrete, and in specific count data, the default test is via the Poisson regression. The predictor variables can be either continuous, categorical or mixed. The procedure is the same as in all the previously regression model based tests, i.e. the log-likelihood ratio test is used to assess the conditional independence of the variable of interest. 
     
@@ -122,7 +129,8 @@ The available tests for wald.ses and wald.mmpc are listed below. Note, that only
   \tab \tab after logit transformation \tab \cr  
   Proportions \tab waldBeta \tab Beta regression \cr 
   Non negative \tab waldIGreg \tab Inverse Gaussian regression \cr 
-  Non negative \tab waldWR \tab Weibull regression \cr
+  Strictly positive \tab waldGamma \tab Gamma regression \cr 
+  Non negative \tab waldNormLog \tab Gaussian regression with log link\cr 
   Successes \& totals \tab testIndBinom \tab Binomial regression \cr
   Discrete \tab waldPois \tab Poisson regression \cr 
   Discrete \tab waldZIP \tab Zero Inflated \cr 
@@ -134,9 +142,46 @@ The available tests for wald.ses and wald.mmpc are listed below. Note, that only
   two levels (ordered) \tab \tab \tab \cr  
   Continuous, proportions, \tab waldSpeedglm \tab binary logistic \cr   
   binary or counts        \tab  \tab  \tab or poisson gression \cr  
+  Left censored \tab waldTobit \tab Tobit regression \cr 
   Survival	 \tab waldCR \tab Cox regression \cr
   Survival	 \tab waldWR \tab Weibull regression \cr
   Survival	 \tab waldER \tab Exponential regression \cr
+}
+}
+
+
+\section{Permutation based tests}{
+
+The available tests for wald.ses and wald.mmpc are listed below. Note, that only continuous predictors are allowed. 
+
+\tabular{llll}{ 
+  \bold{Target variable} \tab \bold{Available tests} \tab	\bold{Short explanation} \cr 
+
+  Continuous  \tab permFisher \tab Pearson correlation \cr  
+  Continuous  \tab permDcor \tab Distance correlation \cr  
+  Continuous  \tab permReg \tab Linear regression \cr  
+  Proportions \tab permMreg \tab Linear regression \cr 
+  \tab \tab after logit transformation \tab \cr  
+  Proportions \tab permBeta \tab Beta regression \cr 
+  Non negative \tab permIGreg \tab Inverse Gaussian regression \cr 
+  Strictly positive \tab permGamma \tab Gamma regression \cr 
+  Non negative \tab permNormLog \tab Gaussian regression with log link\cr 
+  Non negative \tab permWR \tab Weibull regression \cr
+  Successes \& totals \tab permBinom \tab Binomial regression \cr
+  Discrete \tab permPois \tab Poisson regression \cr 
+  Discrete \tab permZIP \tab Zero Inflated \cr 
+   \tab	\tab  \tab Poisson regression \cr 
+  Discrete \tab permNB \tab Negative binomial regression \cr 
+  Factor with two \tab permLogistic \tab Binary logistic regression \cr
+  levels or binary \tab \tab \tab \cr  
+  Factor with more than \tab permLogistic \tab Multinomial logistic regression \cr		 
+  two levels (nominal) \tab \tab \tab \cr 
+  Factor with more than \tab permLogistic \tab Ordinal logistic regression \cr		 
+  two levels (ordered) \tab \tab \tab \cr  
+  Left censored \tab permTobit \tab Tobit regression \cr 
+  Survival	 \tab permCR \tab Cox regression \cr
+  Survival	 \tab permWR \tab Weibull regression \cr
+  Survival	 \tab permER \tab Exponential regression \cr
 }
 }
 
@@ -186,6 +231,10 @@ Scholz, F. W. (2001). Maximum likelihood estimation for type I censored Weibull 
 Smith, R. L. (1991). Weibull regression models for reliability data. Reliability Engineering & System Safety, 34(1), 55-76.
 
 Spirtes P.,  Glymour C. and Scheines R. (2001). Causation, Prediction, and Search. The MIT Press, Cambridge, MA, USA, 3nd edition.
+
+Szekely G.J. and Rizzo, M.L. (2014). Partial distance correlation with methods for dissimilarities. The Annals of Statistics, 42(6): 2382--2412.
+
+Szekely G.J. and Rizzo M.L. (2013).  Energy statistics: A class of statistics based on distances. Journal of Statistical Planning and Inference 143(8): 1249--1272.
 }
 
 \author{

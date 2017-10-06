@@ -156,6 +156,7 @@ fs.reg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, te
     
     devi <- dof <- numeric(p)
     ini <- test( target ~ 1, weights = wei ) 
+    dof1 <- length( coef(ini) )
     if (ci_test == "censIndCR") {
       ini <- 2 * ini$loglik 
     }  else  ini <-  2 * as.numeric( logLik(ini) )  ## initial 
@@ -168,8 +169,11 @@ fs.reg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, te
       }
       
       stat <- abs( devi - ini )
-      if ( ci_test == "censIndCR" )  dof <- dof + 1
-      pval <- pchisq( stat, dof - 1, lower.tail = FALSE, log.p = TRUE )
+      if ( ci_test == "censIndCR" )  {
+        dof <- dof + 1 
+        dof1 <- 0
+      }  
+      pval <- pchisq( stat, dof - dof1, lower.tail = FALSE, log.p = TRUE )
       
     } else {
       cl <- makePSOCKcluster(ncores)
@@ -181,8 +185,11 @@ fs.reg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, te
       stopCluster(cl)
       
       stat <-  abs( mod[, 1] - ini )
-      if ( ci_test == "censIndCR" )  mod[, 2] <- mod[, 2] + 1
-      pval <- pchisq( stat, mod[, 2] - 1, lower.tail = FALSE, log.p = TRUE )
+      if ( ci_test == "censIndCR" )  {
+        mod[, 2] <- mod[, 2] + 1
+        dof1 <- 0
+      }  
+      pval <- pchisq( stat, mod[, 2] - dof1, lower.tail = FALSE, log.p = TRUE )
     }
     
     mat <- cbind(1:p, pval, stat) 
@@ -251,7 +258,7 @@ fs.reg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, te
       } else { 
         info <- rbind(info, c( mat[ina, ] ) )
         sela <- info[, 1]
-        mat <- mat[-ina ,, drop = FALSE ] 
+        mat <- mat[-ina, , drop = FALSE ] 
         moda[[ 2 ]] <- ma
       }
     } else  info <- info  

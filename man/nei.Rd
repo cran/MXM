@@ -42,7 +42,7 @@ Bear in mind that the values can be extracted with the $ symbol, i.e. this is an
 \author{
  Michail Tsagris
 
-R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> and Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 
 %\note{

@@ -7,13 +7,12 @@ perm.univregs <- function(target, dataset, targetID = -1, test = NULL, user_test
   thres <- threshold * R + 1
   if (targetID != -1 ) {
     target <- dataset[, targetID]
-    dataset[, targetID] <- rnorm(rows)
+    dataset[, targetID] <- rbinom(rows, 1, 0.5)
   }   
   id <- NULL
   if ( !identical(test, permFisher) ) {
-    ina <- NULL
     id <- Rfast::check_data(dataset)
-    if ( sum(id > 0) )  dataset[, id] <- rnorm(rows * length(id) )
+    if ( sum(id > 0) )  dataset[, id] <- rbinom(rows * length(id), 1, 0.5 )
   }  
   la <- length( unique(target) )
   
@@ -36,8 +35,18 @@ if ( !is.null(user_test) ) {
   tb <- log( (1 + tb) / (1 - tb) )  ## the test statistic 
   for (i in 1:cols)  pvalue[i] <- ( sum( abs(tb[, i]) > wa[i] ) + 1 ) / (R + 1)  ## bootstrap p-value
   univariateModels$pvalue = pvalue ;
-  univariateModels$flag = numeric(cols) + 1;
-  univariateModels$stat_hash = NULL;
+
+} else if ( identical(test, permDcor) ) { ## Pearson's correlation 
+  if ( min(target) > 0  &  max(target) < 1 )  target = log( target/(1 - target) ) ## logistic normal 
+  stat <- numeric(cols)
+  pvalue <- numeric(cols)
+  for (i in 1:cols) {
+    mod <- energy::dcov.test(target, dataset[, i], R = R)
+    stat[i] <- mod$statistic
+    pvalue[i] <- mod$p.value
+  }  
+  univariateModels$stat = stat ;
+  univariateModels$pvalue = pvalue ;
 
 } else if ( identical(test, permgSquare) ) {  ## G^2 test
   z <- cbind(dataset, target)

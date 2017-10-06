@@ -27,9 +27,17 @@ lm.fsreg_heavy <- function(target, dataset, ini = NULL, threshold = 0.05, wei = 
           mat <- cbind(1:p, mat[, 2], mat[, 1])
           
         } else if ( is.data.frame(dataset)  &  is.null(wei) ) {
-          mod <- Rfast::regression(dataset, target)
-          pval <- pf(mod[1, ], mod[2, ], n - mod[2, ] - 1, lower.tail = FALSE, log.p = TRUE)
-          mat <- cbind(1:p, pval, mod[1, ])
+          #mod <- Rfast::regression(dataset, target)
+          #pval <- pf(mod[1, ], mod[2, ], n - mod[2, ] - 1, lower.tail = FALSE, log.p = TRUE)
+          #mat <- cbind(1:p, pval, mod[1, ])
+		  stat <- numeric(p)
+		  pval <- numeric(p)  
+	      for (i in 1:p) {
+            mod <- anova( lm(y~dataset[, i]) )
+		    stat[i] <- mod[1, 5]
+            pval[i] <- pf(stat[i], mod[1, 1], mod[2, 1], lower.tail = FALSE, log.p = TRUE)  		   
+          } 
+          mat <- cbind(1:p, pval, stat)	 
           
         } else {
           for (i in 1:p) {

@@ -31,7 +31,7 @@ A numeric matrix or a data.frame in case of categorical predictors (factors), co
 The index of the variable whose association with the target we want to test.
 }
 \item{csIndex}{
-The indices of the variables to condition on.
+The indices of the variables to condition on. If you have no variables set this equal to 0.
 }
 \item{wei}{
 A vector of weights to be used for weighted regression. The default value is NULL and it should stay NULL as weights are ignored at the conditional logistic regression. See the \bold{survival} package for more information about conditional logistic regression.

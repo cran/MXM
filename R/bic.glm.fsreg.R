@@ -589,7 +589,7 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
            tool[k] <- mat[ina, 2]
            info <- rbind(info, mat[ina, ] )
            sela <- info[, 1]
-           mat <- mat[-ina , , drop = FALSE]
+           mat <- mat[-ina, , drop = FALSE]
         }
 
       }

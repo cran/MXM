@@ -138,7 +138,7 @@ perm.ses = function(target, dataset , max_k = 3 , threshold = 0.05 , test = NULL
     #available conditional independence tests
     av_tests = c("permFisher", "permReg", "permRQ", "permBeta", "permCR", "permWR", "permER", "permClogit", "permLogistic", 
                  "permPois", "permNB", "permBinom", "permgSquare", "permZIP", "permMVreg", "permIGreg", "permGamma", 
-                 "permNormLog", "permTobit", "auto", NULL);
+                 "permNormLog", "permTobit", "permDcor", "auto", NULL);
     ci_test = test
     #cat(test)
     if(length(test) == 1) {   #avoid vectors, matrices etc
@@ -148,6 +148,11 @@ perm.ses = function(target, dataset , max_k = 3 , threshold = 0.05 , test = NULL
         #an einai posostiaio target
         if ( min(target) > 0  &  max(target) < 1 )   target = log( target/(1 - target) ) 
         test = permFisher;
+
+      } else if (test == "permDcor") {   ## It uMMPC the F test
+        #an einai posostiaio target
+        if ( min(target) > 0 & max(target) < 1 )  target = log(target/(1-target))  
+        test = permDcor;
         
       } else if (test == "permReg") {   ## It uMMPC the F test
         #an einai posostiaio target

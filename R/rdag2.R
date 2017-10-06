@@ -1,4 +1,4 @@
-rdag2 <- function(n, A = NULL, p, nei, low, up) {
+rdag2 <- function(n, A = NULL, p, nei, low = 0.1, up = 1) {
   if ( is.null(A) ) {
     prob <- nei/(p - 1)
     A <- matrix(0, p, p)
@@ -6,9 +6,7 @@ rdag2 <- function(n, A = NULL, p, nei, low, up) {
     A[upper.tri(A)] <- qa
   }  
   
-  d <- dim(A)[1]
   x <- matrix(0, n, p)
-  u <- runif(1)
   x[, 1] <- rnorm(n)
    for (i in 2:p) {
     if ( sum( A[, i] != 0 ) == 0 ) {
@@ -22,7 +20,7 @@ rdag2 <- function(n, A = NULL, p, nei, low, up) {
       x[, i] <- ( x[, i] - mean(x[, i]) ) / Rfast::Var(x[, i], std = TRUE)
     }
   }
-  colnames(A) <- rownames(G) <- paste("X", 1:p)
+  colnames(A) <- rownames(A) <- paste("X", 1:p)
   colnames(x) <- paste("X", 1:p)
   list(G = A, x = x)
 }

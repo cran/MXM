@@ -865,7 +865,7 @@ glm.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL,
         final <- NULL
         if ( d >= 1 ) {
           if ( !heavy ) {
-            final <- glm( target ~., data = as.data.frame( dataset[, c(sela, sel) ] ), family = oiko, weights = wei, y = FALSE, model = FALSE )
+            final <- glm( target ~., data = as.data.frame( dataset[, sela ] ), family = oiko, weights = wei, y = FALSE, model = FALSE )
           } else    final <- speedglm::speedglm( target ~.,  as.data.frame( dataset[, sela] ), family = oiko, weights = wei )
           #} else {
           #  models[[ 1]] <- final <- robust::glmRob( target ~., data = as.data.frame( xx ), family = oiko, maxit = maxit, weights = wei )

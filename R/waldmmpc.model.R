@@ -25,7 +25,7 @@ waldmmpc.model = function(target, dataset, wei = NULL, wald.mmpcObject, test = N
 
   if ( ci_test == "waldMMreg" ) {
     if ( min(target) > 0 & max(target) < 1 )   target <- log( target/(1 - target) ) 
-      mod = MASS::rlm(target ~., data = as.data.frame(dataset[, ypografi ]), maxit = 2000, weights = wei, method = "MM" )
+      mod = MASS::rlm(target ~., data = data.frame(dataset[, ypografi ]), maxit = 2000, weights = wei, method = "MM" )
       bic = BIC( mod )        
 
   } else if ( ci_test == "waldBeta" ) {

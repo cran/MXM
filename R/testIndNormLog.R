@@ -86,15 +86,16 @@ testIndNormLog = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo
     }
   }
   if (length(cs) == 0)  {
-    fit2 = glm(target ~ x, poisson, weights = wei)
-    stat = fit2$null.deviance - fit2$deviance
+    fit1 = glm(target ~ 1, family = gaussian(link = log), weights = wei, model = FALSE)
+    fit2 = glm(target ~ x, family = gaussian(link = log), weights = wei, model = FALSE) 
+    stat <- 2  * as.numeric(logLik(fit2) )  - 2  * as.numeric(logLik(fit1) ) 
     dof = length( coef(fit2) ) - 1   
   } else {
     #if ( robust == FALSE ) {
     fit1 = glm(target ~., data = as.data.frame( dataset[, csIndex] ), family = gaussian(link = log), weights = wei, model = FALSE)
     fit2 = glm(target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ), family = gaussian(link = log), weights = wei, model = FALSE)
-    stat = fit1$deviance - fit2$deviance
-    dof = length( coef(fit2) ) - length( coef(fit1) )
+    stat <- 2  * as.numeric(logLik(fit2) )  - 2  * as.numeric(logLik(fit1) ) 
+    dof <- length( coef(fit2) ) - length( coef(fit1) )
   } 
   pvalue = pchisq( stat, dof, lower.tail = FALSE, log.p = TRUE ) 
   flag = 1;

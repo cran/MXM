@@ -8,7 +8,7 @@ mmpcbackphase <- function(target, dataset, max_k = 3, threshold = 0.05, test = N
     threshold = log(threshold)
     
     if (d == 1) {
-      tes <- test(target, dataset, 1, 2, wei = wei, robust = robust) 
+      tes <- test(target, dataset, 1, 0, wei = wei, robust = robust) 
       pv <- tes$pvalue
       counter <- tes$flag 
       if ( pv > threshold )  met <- 0

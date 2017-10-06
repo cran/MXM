@@ -60,7 +60,7 @@ iamb.normlogbs <- function(target, dataset, threshold = 0.05, wei = NULL, heavy 
       }  
     }
     
-    res <- list(info = ind, mat = a2$mat, ci_test = "testIndGamma", final = a2$final ) 
+    res <- list(info = ind, mat = a2$mat, ci_test = "testIndNormLog", final = a2$final ) 
   }
   
   res

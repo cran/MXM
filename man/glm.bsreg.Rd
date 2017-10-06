@@ -98,8 +98,6 @@ b <- glm.bsreg(target, dataset, threshold = 0.05)
 target <- rgamma(100, 1, 2)
 b1 <- gammabsreg(target, dataset, threshold = 0.05)
 b2 <- normlog.bsreg(target, dataset, threshold = 0.05)
-
-
 }
 
 \keyword{ Markov Blanket }

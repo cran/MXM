@@ -32,30 +32,30 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
         }
       }
     }
+    dataset <- as.data.frame(dataset)
     ##################################
     # target checking and initialize #
     ################################## 
     if ( is.matrix(target)  &  NCOL(target) == 2 )  {
       
       ci_test <- "testIndBinom"
-      runtime <- proc.time()
       wei <- target[, 2]
-      y <- target[, 1] / wei
+      ywei <- target[, 1] / wei
       
       tic <- proc.time()
       if ( !heavy ) {
-        ini <- glm( y ~.,  data = as.data.frame(dataset), family = binomial(logit), weights = wei, y = FALSE, model = FALSE )
+        ini <- glm( ywei ~.,  data = dataset, family = binomial(logit), weights = wei, y = FALSE, model = FALSE )
         tab <- drop1( ini, test = "Chisq" )
         dof <- tab[-1, 1]
         stat <- tab[-1, 4]
         
       }  else {
         ci_test <- "testIndSpeedglm"
-        ini <- speedglm::speedglm( y ~.,  data = data.frame(dataset), family = binomial(logit), weights = wei )
+        ini <- speedglm::speedglm( ywei ~.,  data = dataset, family = binomial(logit), weights = wei )
         dofini <- length( coef(ini) )
         stat <- dof <- numeric(p)
         for (i in 1:p) {
-          mod <- speedglm::speedglm( y ~.,  data = data.frame(dataset[, -i]), family = binomial(logit), weights = wei )
+          mod <- speedglm::speedglm( ywei ~.,  data = dataset[, -i, drop = FALSE], family = binomial(logit), weights = wei )
           stat[i] <- mod$deviance - ini$deviance
           dof[i] <- dofini - length( coef(mod) ) 
         }
@@ -70,27 +70,26 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
       sela <- sel 
       
       if ( mat[sel, 2] < threshold ) {
-        res <- list(mat = mat, final = ini  ) 
+        runtime <- proc.time() - tic
+        res <- list(runtime = runtime, info = matrix(0, 0, 3), mat = mat, ci_test = ci_test, final = ini ) 
         
       } else {
         info[1, ] <- mat[sel, ]
-        mat <- mat[-sel, ] 
-        if ( !is.matrix(mat) )   mat <- matrix(mat, ncol = 3) 
-        dat <- as.data.frame( dataset[, -sel] ) 
-      } 
-      
+        mat <- mat[-sel, , drop = FALSE] 
+        dat <- dataset[, -sel, drop = FALSE]
+
       i <- 1  
-      if ( info[1, 2] > threshold ) {
+      if ( info[1, 2] > threshold & dim(mat)[1] > 0 ) {
         
         if ( !heavy ) {
           
-          while ( info[i, 2] > threshold  &  NCOL(dat) > 0 )  {   
+          while ( info[i, 2] > threshold  &  dim(dat)[2] > 0 )  {   
             
-            ini <- glm( y ~., data = data.frame(dat), family = binomial(logit), weights = wei, y = FALSE, model = FALSE )
+            ini <- glm( ywei ~., data = dat, family = binomial(logit), weights = wei, y = FALSE, model = FALSE )
             i <- i + 1
             k <- p - i + 1
             if ( k == 1 ) {
-              mod <- glm(target ~ 1, family = binomial(logit), weights = wei)
+              mod <- glm(ywei ~ 1, family = binomial(logit), weights = wei)
               stat <- 2 * abs( logLik(ini) - logLik(mod) )
               dof <- length( coef(ini) ) - length( coef(mod) ) 
               pval <- pchisq( stat, dof, lower.tail = FALSE, log.p = TRUE)
@@ -98,7 +97,7 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
               if (pval > threshold ) {
                 final <- "No variables were selected"
                 info <- rbind(info, c(mat[, 1], stat, pval) )
-                dat <- as.data.frame( dataset[, -info[, 1] ] )
+                dat <- dataset[, -info[, 1], drop = FALSE ] 
                 mat <- NULL
               } else {
                 info <- rbind(info, c(0, -10, -10)) 
@@ -119,22 +118,22 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
              } else {
                info <- rbind(info, mat[sel, ] )
                mat <- mat[-sel, , drop = FALSE] 
-               dat <- as.data.frame( dataset[, -info[, 1] ] )
+               dat <- dataset[, -info[, 1], drop = FALSE ] 
             }
            }  
           }
           
         } else {
           
-          while ( info[i, 2] > threshold  &  NCOL(dat) > 0 )  {   
+          while ( info[i, 2] > threshold  &  dim(dat)[2] > 0 )  {   
             
             i <- i + 1       
             k <- p - i + 1
-            ini <- speedglm::speedglm( y ~., data = data.frame(dat), family = binomial(logit), weights = wei )
+            ini <- speedglm::speedglm( ywei ~., data = dat, family = binomial(logit), weights = wei )
             dofini <- length( coef(ini) ) 
             
             if ( k == 1 ) {
-              mod <- speedglm::speedglm(target ~ 1, data = data.frame(dat), family = binomial(logit), weights = wei)
+              mod <- speedglm::speedglm(ywei ~ 1, data = dat, family = binomial(logit), weights = wei)
               stat <- 2 * abs( logLik(ini) - logLik(mod) )
               dof <- dofini - length( coef(mod) ) 
               pval <- pchisq( stat, dof, lower.tail = FALSE, log.p = TRUE)
@@ -142,7 +141,7 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
               if (pval > threshold ) {
                 final <- "No variables were selected"
                 info <- rbind(info, c(mat[, 1], stat, pval) )
-                dat <- as.data.frame( dataset[, -info[, 1] ] )
+                dat <- dataset[, -info[, 1], drop = FALSE ]
                 mat <- NULL
               } else {
                 info <- rbind(info, c(0, -10, -10)) 
@@ -154,7 +153,7 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
               
              stat <- dof <- numeric(k)
              for (j in 1:k) {
-              mod <- speedglm::speedglm( y ~., data = data.frame(dat[, -j]), family = binomial(logit), weights = wei )
+              mod <- speedglm::speedglm( ywei ~., data = dat[, -j, drop = FALSE], family = binomial(logit), weights = wei )
               stat[j] <- mod$deviance - ini$deviance
               dof[j] <- dofini - length( coef(mod) ) 		   
             } 
@@ -170,17 +169,24 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
               
               info <- rbind(info, mat[sel, ] )
               mat <- mat[-sel, , drop = FALSE] 
-              dat <- as.data.frame( dataset[, -info[, 1] ] )
+              dat <- dataset[, -info[, 1], drop = FALSE ]
             }
             
            }	
          }    
           
         }
+        runtime <- proc.time() - tic		
+        info <- info[ info[, 1] > 0, , drop = FALSE]
+        res <- list(runtime = runtime, info = info, mat = mat, ci_test = ci_test, final = final ) 
         
-      }  else final <- ini
+      }  else {
+        runtime <- proc.time() - tic
+        if (ci_test == "testIndLogistic")   mod <- glm(ywei ~ 1, binomial)
+        res <- list(runtime = runtime, info = info, mat = NULL, ci_test = ci_test, final = mod ) 
+      }
       
-      runtime <- proc.time() - tic		
+      }   
       
     } else {  
 
@@ -203,18 +209,18 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
       }
    
       if ( !heavy ) {
-        ini <- glm( target ~.,  data = as.data.frame(dataset), family = oiko, weights = wei, y = FALSE, model = FALSE )
+        ini <- glm( target ~.,  data = dataset, family = oiko, weights = wei, y = FALSE, model = FALSE )
         tab <- drop1( ini, test = "Chisq" )
         dof <- tab[-1, 1]
         stat <- tab[-1, 4]
 		
 	  }  else {
 	     ci_test <- "testIndSpeedglm"
-       ini <- speedglm::speedglm( target ~.,  data = as.data.frame(dataset), family = oiko, weights = wei )
+       ini <- speedglm::speedglm( target ~.,  data = dataset, family = oiko, weights = wei )
 		   dofini <- length( coef(ini) )
 	     stat <- dof <- numeric(p)
 	     for (i in 1:p) {
-		    mod <- speedglm::speedglm( target ~.,  data = as.data.frame(dataset[, -i]), family = oiko, weights = wei )
+		    mod <- speedglm::speedglm( target ~.,  data = dataset[, -i], family = oiko, weights = wei )
 		    stat[i] <- mod$deviance - ini$deviance
 		    dof[i] <- dofini - length( coef(mod) ) 
 		   }
@@ -229,28 +235,28 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
       sela <- sel 
 
       if ( mat[sel, 2] < threshold ) {
-        res <- list(mat = mat, final = ini  ) 
-    
+        runtime <- proc.time() - tic
+        res <- list(runtime = runtime, info = matrix(0, 0, 3), mat = mat, ci_test = ci_test, final = ini ) 
+        
       } else {
        
         info[1, ] <- mat[sel, ]
         mat <- mat[-sel, , drop = FALSE] 
-        dat <- as.data.frame( dataset[, -sel] ) 
-      } 
-    
+        dat <- dataset[, -sel, drop = FALSE] 
+
       i <- 1  
 
-      if ( info[1, 2] > threshold ) {
+      if ( info[1, 2] > threshold  &  dim(mat)[1] > 0 ) {
         
        if ( !heavy ) {
 	   
-         while ( info[i, 2] > threshold  &  NCOL(dat) > 0 )  {   
+         while ( info[i, 2] > threshold  &  dim(dat)[2] > 0 )  {   
            i <- i + 1
            k <- p - i + 1
-           ini <- glm( target ~., data = data.frame(dat), family = oiko, weights = wei, y = FALSE, model = FALSE )
+           ini <- glm( target ~., data = dat, family = oiko, weights = wei, y = FALSE, model = FALSE )
            
            if ( k == 1 ) {
-             mod <- glm(target ~ 1, data = data.frame(dat), family = oiko, weights = wei)
+             mod <- glm(target ~ 1, data = dat, family = oiko, weights = wei)
              stat <- 2 * abs( logLik(ini) - logLik(mod) )
              dof <- length( coef(ini) ) - length( coef(mod) ) 
              pval <- pchisq( stat, dof, lower.tail = FALSE, log.p = TRUE)
@@ -258,7 +264,7 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
              if (pval > threshold ) {
                final <- "No variables were selected"
                info <- rbind(info, c(mat[, 1], stat, pval) )
-               dat <- as.data.frame( dataset[, -info[, 1] ] )
+               dat <- dataset[, -info[, 1], drop = FALSE ]
                mat <- NULL
              } else {
                info <- rbind(info, c(0, -10, -10)) 
@@ -281,21 +287,21 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
              } else {
                info <- rbind(info, mat[sel, ] )
                mat <- mat[-sel, , drop = FALSE] 
-               dat <- as.data.frame( dataset[, -info[, 1] ] )
+               dat <- dataset[, -info[, 1], drop = FALSE ]
              }
            }  
          }
          
 	   } else {
 
-         while ( info[i, 2] > threshold  &  NCOL(dat) > 0 )  {   
+         while ( info[i, 2] > threshold  &  dim(dat)[2] > 0 )  {   
 
            i <- i + 1       
            k <- p - i + 1
-           ini <- speedglm::speedglm( target ~., data = data.frame(dat), family = oiko, weights = wei )
+           ini <- speedglm::speedglm( target ~., data = dat, family = oiko, weights = wei )
 		       dofini <- length( coef(ini) ) 
 		       if ( k == 1 ) {
-		         mod <- speedglm::speedglm(target ~ 1, data = data.frame(dat), family = oiko, weights = wei)
+		         mod <- speedglm::speedglm(target ~ 1, data = dat, family = oiko, weights = wei)
 		         stat <- 2 * abs( logLik(ini) - logLik(mod) )
 		         dof <- dofini - length( coef(mod) ) 
 		         pval <- pchisq( stat, dof, lower.tail = FALSE, log.p = TRUE)
@@ -303,7 +309,7 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
 		         if (pval > threshold ) {
 		           final <- "No variables were selected"
 		           info <- rbind(info, c(mat[, 1], stat, pval) )
-		           dat <- as.data.frame( dataset[, -info[, 1] ] )
+		           dat <- dataset[, -info[, 1], drop = FALSE ]
 		           mat <- NULL
 		         } else {
 		           info <- rbind(info, c(0, -10, -10)) 
@@ -315,7 +321,7 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
              stat <- dof <- numeric(k)
 		   
 		         for (j in 1:k) {
-               mod <- speedglm::speedglm( target ~., data = data.frame(dat[, -j]), family = oiko, weights = wei )
+               mod <- speedglm::speedglm( target ~., data = dat[, -j, drop = FALSE], family = oiko, weights = wei )
 		           stat[j] <- mod$deviance - ini$deviance
 		           dof[j] <- dofini - length( coef(mod) ) 		   
 		        } 
@@ -329,17 +335,25 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
 
              } else {
                info <- rbind(info, mat[sel, ] )
-               mat <- mat[-sel,  ,drop = FALSE] 
-               dat <- as.data.frame( dataset[, -info[, 1] ] )
+               mat <- mat[-sel, , drop = FALSE] 
+               dat <- dataset[, -info[, 1], drop = FALSE]
              }
 
           }	   
         }
 	   }
-	   
-    }   else final <- ini
+      runtime <- proc.time() - tic		
+      info <- info[ info[, 1] > 0, , drop = FALSE]
+      res <- list(runtime = runtime, info = info, mat = mat, ci_test = ci_test, final = final ) 
+        
+    } else {
+      runtime <- proc.time() - runtime
+      if (ci_test == "testIndPois")       mod <- glm(target ~ 1, poisson)
+      if (ci_test == "testIndLogistic")    mod <- glm(target ~ 1, binomial)
+      res <- list(runtime = runtime, info = info, mat = NULL, ci_test = ci_test, final = mod ) 
+    }
       
-    runtime <- proc.time() - tic		
+    }
     ############ 
     ###  Linear regression
     ############
@@ -353,7 +367,7 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
 	  
 	    ci_test <- "testIndReg"  
       if ( !robust ) {
-        ini <- lm( target ~., data = data.frame(dataset), weights = wei, y = FALSE, model = FALSE )
+        ini <- lm( target ~., data = dataset, weights = wei, y = FALSE, model = FALSE )
         df2 <- n - length( coef(ini) )
         tab <- drop1( ini, test = "F" )
         df1 <- tab[-1, 1]
@@ -362,11 +376,11 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
       } else {
 	    	mat <- matrix(ncol = 3, nrow = p)
 	      mat[, 1] <- 1:p
-        ini <- MASS::rlm( target ~., data = as.data.frame(dataset), weights = wei, maxit = 2000)
+        ini <- MASS::rlm( target ~., data = dataset, weights = wei, maxit = 2000)
 		    lik1 <- as.numeric( logLik(ini) )
 		    dofini <- length( coef(ini) ) 
 		    for (j in 1:p) {
-          fit2 <- MASS::rlm( target ~., data = as.data.frame(dataset[, -j]), weights = wei, maxit = 2000 )
+          fit2 <- MASS::rlm( target ~., data = dataset[, -j, drop = FALSE], weights = wei, maxit = 2000 )
           mat[j, 3] <- 2 * abs( lik1 - as.numeric( logLik(fit2) ) ) 
 		      dof <- dofini - length( coef(fit2) )
           mat[j, 2] = pchisq( mat[j, 3], dof, lower.tail = FALSE, log.p = TRUE )  
@@ -377,10 +391,10 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
       ci_test <- "testIndSpeedglm"
 	    mat <- matrix(ncol = 3, nrow = p)
 	    mat[, 1] <- 1:p
-      ini <- speedglm::speedlm( target ~., data = as.data.frame(dataset), weights = wei )
+      ini <- speedglm::speedlm( target ~., data = dataset, weights = wei )
       d1 <- length( coef(ini) )
 	    for (j in 1:p) {
-          fit2 = speedglm::speedlm( target ~., data = as.data.frame(dataset[, -j]), weights = wei )
+          fit2 = speedglm::speedlm( target ~., data = dataset[, -j, drop = FALSE], weights = wei )
           df1 = d1 - length( coef(fit2) )
           df2 = n - d1
           mat[j, 3] = (fit2$RSS - ini$RSS)/df1 / ( ini$RSS /df2 )
@@ -396,26 +410,27 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
       sela <- sel 
 
       if ( mat[sel, 2] < threshold ) {
-        res <- list(mat = mat, final = ini ) 
+        runtime <- proc.time() - tic
+        res <- list(runtime = runtime, info = matrix(0, 0, 3), mat = mat, ci_test = ci_test, final = ini ) 
+        
         
       } else {
         info[1, ] <- mat[sel, ]
         mat <- mat[-sel, , drop = FALSE] 
-        dat <- as.data.frame( dataset[, -sel] ) 
-      } 
-    
+        dat <- dataset[, -sel, drop = FALSE] 
+
       i <- 1  
 
-      if ( info[1, 2] > threshold ) {
+      if ( info[1, 2] > threshold & dim(mat)[1] > 0 ) {
 
         if ( !heavy ) {
       
-          while ( info[i, 2] > threshold  &  NCOL(dat) > 0 )  {   
+          while ( info[i, 2] > threshold  &  dim(dat)[2] > 0 )  {   
             i <- i + 1
             k <- p - i + 1
             
 	        if ( !robust ) {
-            ini <- lm( target ~.,  data = as.data.frame(dat), weights = wei, y = FALSE, model = FALSE )
+            ini <- lm( target ~.,  data = dat, weights = wei, y = FALSE, model = FALSE )
             df2 <- n - length( coef(ini) )
             tab <- drop1( ini, test = "F" )
             df1 <- tab[-1, 1]
@@ -426,7 +441,7 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
               if (pval > threshold ) {
                 final <- "No variables were selected"
                 info <- rbind(info, c(mat[, 1], stat, pval) )
-                dat <- as.data.frame( dataset[, -info[, 1] ] )
+                dat <- dataset[, -info[, 1], drop = FALSE ]
                 mat <- NULL
               } else {
                 info <- rbind(info, c(0, -10, -10)) 
@@ -446,17 +461,17 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
                 
                 info <- rbind(info, mat[sel, ] )
                 mat <- mat[-sel, , drop = FALSE] 
-                dat <- as.data.frame( dataset[, -info[, 1]] )
+                dat <- dataset[, -info[, 1], drop = FALSE] 
               }
             }
             
 			    } else {
-            ini <- MASS::rlm( target ~., data = data.frame(dat), weights = wei, maxit = 2000 )
+            ini <- MASS::rlm( target ~., data = dat, weights = wei, maxit = 2000 )
 			      lik1 <- as.numeric( logLik(ini) )
             dofini <- length( coef(ini) )		
             
             if ( k == 1 ) {
-              mod <- MASS::rlm(target ~ 1, data = data.frame(dat), weights = wei, maxit = 2000)
+              mod <- MASS::rlm(target ~ 1, data = dat, weights = wei, maxit = 2000)
               stat <- 2 * abs( lik1 - logLik(mod) )
               dof <- dofini - length( coef(mod) ) 
               pval <- pchisq( stat, dof, lower.tail = FALSE, log.p = TRUE)
@@ -464,7 +479,7 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
               if (pval > threshold ) {
                 final <- "No variables were selected"
                 info <- rbind(info, c(mat[, 1], stat, pval) )
-                dat <- as.data.frame( dataset[, -info[, 1] ] )
+                dat <- dataset[, -info[, 1], drop = FALSE ]
                 mat <- NULL
               } else {
                 info <- rbind(info, c(0, -10, -10)) 
@@ -474,7 +489,7 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
             } else { 
             
 			        for (j in 1:k) {
-                fit2 <- MASS::rlm( target ~., data = data.frame(dat[, -j]), weights = wei, maxit = 2000 )
+                fit2 <- MASS::rlm( target ~., data = dat[, -j, drop = FALSE], weights = wei, maxit = 2000 )
                 mat[j, 3] <- 2 * abs( lik1 - as.numeric( logLik(fit2) ) ) 
 		            dof <- dofini - length( coef(fit2) )
                 mat[j, 2] <- pchisq( mat[j, 3], dof, lower.tail = FALSE, log.p = TRUE )  
@@ -489,7 +504,7 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
       
                 info <- rbind(info, mat[sel, ] )
                 mat <- mat[-sel, , drop = FALSE] 
-                dat <- as.data.frame( dataset[, -info[, 1]] )
+                dat <- dataset[, -info[, 1] ,drop = FALSE]
               }
 			      }
           } 
@@ -497,15 +512,15 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
           
         } else {
 
-          while ( info[i, 2] > threshold  &  ncol(dat) > 0 )  {   
+          while ( info[i, 2] > threshold  &  dim(dat)[2] > 0 )  {   
             
             i <- i + 1
             k <- p - i + 1
-            ini <- speedglm::speedlm( target ~.,  data = data.frame(dat), weights = wei )	
+            ini <- speedglm::speedlm( target ~.,  data = dat, weights = wei )	
             d1 <- length( coef(ini) )
             
             if ( k == 1 ) {
-              mod <- speedglm::speedlm(target ~ 1, data = data.frame(dat), weights = wei)
+              mod <- speedglm::speedlm(target ~ 1, data = dat, weights = wei)
               stat <- (mod$RSS - ini$RSS)/d1 / ( ini$RSS /(n - d1) )
               pval <- pf( stat, d1 - 1, n - d1, lower.tail = FALSE, log.p = TRUE )
               
@@ -522,7 +537,7 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
             } else {
               
    	          for (j in 1:k) {
-                fit2 = speedglm::speedlm( target ~., data = data.frame(dat[, -j]), weights = wei )
+                fit2 = speedglm::speedlm( target ~., data = dat[, -j, drop = FALSE], weights = wei )
                 df1 = d1 - length( coef(fit2) )
                 df2 = n - d1
                 mat[j, 3] = (fit2$RSS - ini$RSS)/df1 / ( ini$RSS /df2 )
@@ -538,23 +553,29 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
               } else {
                 info <- rbind(info, mat[sel, ] )
                 mat <- mat[-sel, , drop = FALSE] 
-                dat <- as.data.frame( dataset[, -info[, 1]] )
+                dat <- dataset[, -info[, 1], drop = FALSE]
               }
 
             } 		
           }
           
-        }    
-      }	  else final <- ini
+        }
+        
+        runtime <- proc.time() - tic		
+        info <- info[ info[, 1] > 0, , drop = FALSE]
+        res <- list(runtime = runtime, info = info, mat = mat, ci_test = ci_test, final = final ) 
+        
+      }	else {
+        runtime <- proc.time() - tic
+        if (ci_test == "testIndReg")     mod <- lm(target ~ 1, weights = wei)
+        res <- list(runtime = runtime, info = info, mat = NULL, ci_test = ci_test, final = mod ) 
+      }
 
-      runtime <- proc.time() - tic 
-	  
+      }
      }  
     
     }
-    
-    info <- info[ info[, 1] > 0, ]
-    res <- list(runtime = runtime, info = info, mat = mat, ci_test = ci_test, final = final ) 
+
     
   }  
   res

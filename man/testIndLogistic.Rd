@@ -41,7 +41,7 @@ A numeric matrix or data frame, in case of categorical predictors (factors), con
 The index of the variable whose association with the target we want to test.
 }
 \item{csIndex}{
-The indices of the variables to condition on.
+The indices of the variables to condition on. If you have no variables set this equal to 0.
 }
 \item{wei}{
 A vector of weights to be used for weighted regression. The default value is NULL. 

@@ -1,5 +1,7 @@
 min_assoc.temporal = function(target, reps, group, dataset, test,  max_k, cvar, wei, selectedVars, pvalues, stats, univariateModels, selectedVarsOrder, hash, dataInfo, stat_hash, pvalue_hash, slopes = slopes)
 {
+  
+  ma_pvalue = pvalues[[cvar]];   #CHANGE
   ma_stat = stats[[cvar]]; #CHANGE
   selectedVars = which(selectedVars==1);
   k = min(c(max_k , length(selectedVars)));

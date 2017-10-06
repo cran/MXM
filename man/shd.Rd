@@ -25,13 +25,13 @@ The second (partially oriented) DAG. This could also be the equivalence class of
 The structural Hamming distance as proposed by Tsamardinos et al. (2006) is calculated and returned. The cases are listed below
 \tabular{lll}{ 
 \bold{True} \tab  \bold{Estimated}  \tab  \bold{Penalty}  \cr 
-   -                  1  \cr   
-          -           1  \cr   
-   ->                 2  \cr   
-          <-          2  \cr   
-   ->     -           1  \cr   
-   -      <-          1  \cr   
-   ->     <-          2  \cr        
+   -   \tab      \tab   1  \cr   
+       \tab  -   \tab   1  \cr   
+   ->  \tab      \tab   2  \cr   
+       \tab  <-  \tab   2  \cr   
+   ->  \tab  -   \tab   1  \cr   
+   -   \tab  <-  \tab   1  \cr   
+   ->  \tab  <-  \tab   2  \cr        
 }
 }
 

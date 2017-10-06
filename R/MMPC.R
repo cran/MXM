@@ -309,6 +309,7 @@ MMPC = function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini =
         
       } else if(test == "gSquare") {
         test = gSquare;
+        dataset <- as.matrix(dataset)
       }
       #more tests here
     } else {
@@ -343,7 +344,7 @@ MMPC = function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini =
   if ( backward ) {
     varsToIterate = results$selectedVars
     varsOrder = results$selectedVarsOrder
-    bc <- mmpcbackphase(target, dataset[, varsToIterate], test = test, wei = wei, max_k = max_k, threshold = exp(threshold), robust = robust )
+    bc <- mmpcbackphase(target, dataset[, varsToIterate, drop = FALSE], test = test, wei = wei, max_k = max_k, threshold = exp(threshold), robust = robust )
     met <- bc$met
     results$selectedVars = varsToIterate[met]
     results$selectedVarsOrder = varsOrder[met]

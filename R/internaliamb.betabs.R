@@ -52,7 +52,7 @@ internaliamb.betabs <- function(target, dataset, threshold, wei, p) {
         } else final <- mod1
       } else  final <- beta.reg(target, dat, wei = wei)
     }
-    info <- info[ info[, 1] > 0, ]
+    info <- info[ info[, 1] > 0, , drop = FALSE]
     
   } else { 
     info <- NULL  

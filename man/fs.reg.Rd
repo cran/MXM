@@ -33,7 +33,8 @@ A vector of weights to be used for weighted regression. The default value is NUL
 The regression model to use. Available options are most of the tests for SES and MMPC. The ones NOT available are "gSquare", "censIndER", "testIndMVreg", "testIndClogit" and "testIndSpearman". If you have continuous predictor variables in matrix form, you can put "testIndFisher" and this is pretty fast. Instead of calcualting partial F-tests, which requires liear regression models to be fit, it calcualtes partial correlation coefficients and this is much more efficient. 
 }
 \item{user_test}{
-A user-defined conditional independence test (provide a closure type object). Default value is NULL. If this is defined, the "test" argument is ignored.
+A user-defined conditional independence test (provide a closure type object). Default value is NULL. If this is defined, 
+the "test" argument is ignored.
 }
 \item{stopping}{
 The stopping rule. The BIC is always used for all methods. If you have linear regression though you can change this to "adjrsq" and in this case the adjusted R qaured is used.
@@ -91,11 +92,11 @@ The final regression model.
 \author{
 Michail Tsagris
 
-R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 
 \seealso{
-\code{\link{glm.fsreg}, \link{lm.fsreg}, \link{bic.fsreg}, \link{bic.glm.fsreg}. \link{CondIndTests}, \link{MMPC}, \link{SES}}
+\code{\link{glm.fsreg}, \link{lm.fsreg}, \link{bic.fsreg}, \link{bic.glm.fsreg}, \link{CondIndTests}, \link{MMPC}, \link{SES}}
 }
 
 \examples{

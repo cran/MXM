@@ -1,7 +1,6 @@
 min_assoc = function(target, dataset, test, max_k, cvar, wei, selectedVars, pvalues, stats, univariateModels, selectedVarsOrder, hash, dataInfo, stat_hash, pvalue_hash, robust, ncores)
 {
-  #initialization
-  #baseline values
+
   ma_pvalue = pvalues[[cvar]];   #CHANGE
   ma_stat = stats[[cvar]];   #CHANGE
   selectedVars = which( selectedVars == 1 );

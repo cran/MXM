@@ -139,9 +139,8 @@ cv.mmpc <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, alph
       mmpcini <- results@univ
       mmpcHashMap <- results@hashObject;
       variables <- results@selectedVars;
-      #get the data of the reference signature (i.e the selected variables)
+      conf_mmpc[[mmpc_conf_id]]$variables[[k]] <- variables
       curr_sign <- as.vector(variables)
-      #curr_sign <- as.matrix(results@selectedVars) #in case that the signature slot is not returned due to lack of memory. See Internalmmpc final part.
       sign_data <- train_set[, curr_sign, drop = FALSE]
       sign_test <- test_set[, curr_sign, drop = FALSE]
       

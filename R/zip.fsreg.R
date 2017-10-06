@@ -55,7 +55,7 @@ zip.fsreg <- function(target, dataset, threshold = 0.05, wei = NULL, tol = 2, nc
   ############
   ###       k equals 2
   ############ 
-  if ( info[k, 2] < threshold  &  nrow(mat) > 0 ) {
+  if ( info[k, 2] < threshold  &  dim(mat)[1] > 0 ) {
     
     k <- 2
     pn <- p - k + 1   

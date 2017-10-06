@@ -76,8 +76,8 @@ condi <- function(ind1, ind2, cs, dat, type = "pearson", rob = FALSE, R = 1) {
     } else {  ## there are conditioning variables
       
       if ( rob ) { ## robust correlation
-        e1 <- resid( MASS::rlm( x1 ~ ., data = as.data.frame(dat[, cs]), maxit = 2000, method = "MM") )
-        e2 <- resid( MASS::rlm( x2 ~.,  data = as.data.frame(dat[, cs]), maxit = 2000, method = "MM") )
+        e1 <- resid( MASS::rlm( x1 ~ ., data = data.frame(dat[, cs]), maxit = 2000, method = "MM") )
+        e2 <- resid( MASS::rlm( x2 ~.,  data = data.frame(dat[, cs]), maxit = 2000, method = "MM") )
         res <- permcor( cbind(e1, e2), R)
         stat <- abs( res[1] )
         pvalue <- res[2]

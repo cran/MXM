@@ -100,6 +100,40 @@
 \alias{internaliamb.gammabs}
 \alias{internaliamb.normlogbs}
 \alias{bic.tobit.fsreg}
+\alias{iamb.tobitbs}
+\alias{internaliamb.tobitbs}
+\alias{fbed.beta}
+\alias{fbed.cr}
+\alias{fbed.glm}
+\alias{fbed.lm}
+\alias{fbed.mmreg}
+\alias{fbed.multinom}
+\alias{fbed.nb}
+\alias{fbed.ordinal}
+\alias{fbed.tobit}
+\alias{fbed.wr}
+\alias{fbed.zip}
+\alias{ebic.fbed.beta}
+\alias{ebic.fbed.cr}
+\alias{ebic.fbed.glm}
+\alias{ebic.fbed.lm}
+\alias{ebic.fbed.mmreg}
+\alias{ebic.fbed.multinom}
+\alias{ebic.fbed.nb}
+\alias{ebic.fbed.ordinal}
+\alias{ebic.fbed.tobit}
+\alias{ebic.fbed.wr}
+\alias{ebic.fbed.zip}
+\alias{ebic.beta.bsreg}
+\alias{ebic.cr.bsreg}
+\alias{ebic.glm.bsreg}
+\alias{ebic.lm.bsreg}
+\alias{ebic.mm.bsreg}
+\alias{ebic.multinom.bsreg}
+\alias{ebic.ordinal.bsreg}
+\alias{ebic.tobit.bsreg}
+\alias{ebic.wr.bsreg}
+\alias{ebic.zip.bsreg}
 
 \title{ Internal MXM Functions }
 \description{
@@ -207,6 +241,40 @@ Internal functions of Package \pkg{MXM}
 \item internaliamb.gammabs( ... )
 \item internaliamb.normlogbs( ... )
 \item bic.tobit.fsreg( ... )
+\item iamb.tobitbs( ... )
+\item internaliamb.tobitbs( ... )
+\item fbed.beta( ... )
+\item fbed.cr( ... )
+\item fbed.glm( ... )
+\item fbed.lm( ... )
+\item fbed.mmreg( ... )
+\item fbed.multinom( ... )
+\item fbed.nb( ... )
+\item fbed.ordinal( ... )
+\item fbed.tobit( ... )
+\item fbed.wr( ... )
+\item fbed.zip( ... )
+\item ebic.fbed.beta( ... )
+\item ebic.fbed.cr( ... )
+\item ebic.fbed.glm( ... )
+\item ebic.fbed.lm( ... )
+\item ebic.fbed.mmreg( ... )
+\item ebic.fbed.multinom( ... )
+\item ebic.fbed.nb( ... )
+\item ebic.fbed.ordinal( ... )
+\item ebic.fbed.tobit( ... )
+\item ebic.fbed.wr( ... )
+\item ebic.fbed.zip( ... )
+\item ebic.beta.bsreg( ... )
+\item ebic.cr.bsreg( ... )
+\item ebic.glm.bsreg( ... )
+\item ebic.lm.bsreg( ... )
+\item ebic.mm.bsreg( ... )
+\item ebic.multinom.bsreg( ... )
+\item ebic.ordinal.bsreg( ... )
+\item ebic.tobit.bsreg( ... )
+\item ebic.wr.bsreg( ... )
+\item ebic.zip.bsreg( ... )
 }
 }
 \details{

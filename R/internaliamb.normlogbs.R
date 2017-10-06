@@ -68,7 +68,7 @@ internaliamb.normlogbs <- function(target, dataset, threshold, wei, p, heavy = F
         } else  final <- speedglm::speedglm( target ~ .,  data = data.frame(dat), family = gaussian(link = log), weights = wei )
       }
     }
-    info <- info[ info[, 1] > 0, ]
+    info <- info[ info[, 1] > 0, , drop = FALSE]
     
   } else { 
     info <- NULL  

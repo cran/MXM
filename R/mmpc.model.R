@@ -40,7 +40,7 @@ mmpc.model = function(target, dataset, wei = NULL, mmpcObject, test = NULL) {
       if ( min(target) > 0 & max(target) < 1 )   target <- log( target/(1 - target) ) 
       
       if ( rob ) {
-        mod = MASS::rlm(target ~., data = as.data.frame(dataset[, ypografi ]), maxit = 2000, weights = wei )
+        mod = MASS::rlm(target ~., data = data.frame(dataset[, ypografi ]), maxit = 2000, weights = wei )
         bic = BIC( mod )        
       } else {
         mod = lm( target ~ ., data = as.data.frame(dataset[, ypografi ]), weights = wei )

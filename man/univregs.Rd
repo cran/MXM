@@ -3,6 +3,7 @@
 \alias{perm.univregs}
 \alias{wald.univregs}
 \alias{score.univregs}
+\alias{rint.regs}
 \title{
 Univariate regression based tests
 }
@@ -22,6 +23,8 @@ perm.univregs(target, dataset, targetID = -1, test = NULL, user_test = NULL,
 wei = NULL, dataInfo = NULL, robust = FALSE, threshold = 0.05, R = 999, ncores = 1) 
 
 score.univregs(target, dataset, test) 
+
+rint.regs(target, dataset, targetID = -1, id, reps = NULL, tol = 1e-08)
 }
 
 \arguments{
@@ -29,8 +32,7 @@ score.univregs(target, dataset, test)
 The target (dependent) variable. It must be a numerical vector. 
 }
 \item{dataset}{
-The indendent variable(s). For the "univregs" this can be a matrix or a dataframe with continuous only variables, a data frame with mixed or only 
-categorical variables. For the "wald.univregs", "perm.univregs" and "scor.univregs" this can only by a numerical matrix.
+The indendent variable(s). For the "univregs" this can be a matrix or a dataframe with continuous only variables, a data frame with mixed or only categorical variables. For the "wald.univregs", "perm.univregs", "score.univregs" and "rint.regs" this can only by a numerical matrix.
 }
 \item{targetID}{
 This is by default -1. If the target is not a variable but is in included in the dataset, you can specify the column of dataset playing the role of the target. 
@@ -77,10 +79,23 @@ This is for the permutations based regression models. It is the number of permut
 \item{ncores}{
 How many cores to use. This plays an important role if you have tens of thousands of variables or really large sample sizes and tens of thousands of variables and a regression based test which requires numerical optimisation. In other cases it will not make a difference in the overall time (in fact it can be slower). The parallel computation is used in the first step of the algorithm, where univariate associations are examined, those take place in parallel. We have seen a reduction in time of 50\% with 4 cores in comparison to 1 core. Note also, that the amount of reduction is not linear in the number of cores.
 }
+\item{id}{
+A numerical vector of the same length as target with integer valued numbers, such as 1, 2, 3,... (zeros, negative values and factors are not allowed) specifying the clusters or subjects. This argument is for the rint.regs (see details for more information).
+}
+\item{reps}{
+If you have measurements over time (lognitudinal data) you can put the time here (the length must be equal to the length of the target) or set it equal to NULL. (see details for more information).
+}
+\item{tol}{
+The tolerance value to terminate the Newton-Raphson algorithm in the random effects models.
+}
 }
 
 \details{
 This function is more as a help function for SES and MMPC, but it can also be called directly by the user. In some, one should specify the regression model to use and the function will perform all simple regressions, i.e. all regression models between the target and each of the variables in the dataset. 
+
+For the score.univregs, score based tests are used which are extremely fast. 
+
+For the rint.regs, we perform linear mixed models (weights are not allowed) with random intercepts only (no ranodm slopes). This function works for clustered or longitudinal data. The covariance structure we impose is compound symmetry, hence for longitudinal data, this may not be the best option, yet it will work. 
 }
 
 \value{
@@ -90,9 +105,6 @@ The value of the test statistic.
 }
 \item{pvalue}{
 The logged p-value of the test. 
-}
-\item{flag}{
-A number, either 1 (test performed) or 0 (test not performed).
 }
 }
 

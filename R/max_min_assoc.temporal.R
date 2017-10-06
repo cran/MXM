@@ -5,7 +5,7 @@ max_min_assoc.temporal = function(target, reps, group, dataset , test , wei, thr
   selected_stat = 0;
   varsToIterate = which(remainingVars==1);
   for (cvar in varsToIterate) {
-    mma_res = min_assoc.temporal(target, reps, group, dataset , test , max_k , cvar , wei, selectedVars , pvalues , stats , univariateModels , selectedVarsOrder, hash, dataInfo, stat_hash, pvalue_hash, slopes = slopes);
+    mma_res = min_assoc.temporal(target, reps, group, dataset, test, max_k, cvar, wei, selectedVars, pvalues, stats, univariateModels, selectedVarsOrder, hash, dataInfo, stat_hash, pvalue_hash, slopes = slopes);
     pvalues = mma_res$pvalues;
     stats = mma_res$stats;
     stat_hash = mma_res$stat_hash;

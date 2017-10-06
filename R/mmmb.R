@@ -1,136 +1,78 @@
-mmmb = function(target, dataset , max_k = 3 , threshold = 0.05 , test = "testIndFisher" , user_test = NULL, robust = FALSE, ncores = 1, hold = FALSE) {
+mmmb = function(target, dataset , max_k = 3 , threshold = 0.05 , test = "testIndFisher" , user_test = NULL, robust = FALSE, ncores = 1) {
   
   durat <- proc.time()  
   
-  mmpcobject <- MMPC(target, dataset, max_k = max_k, threshold = threshold, test = test , user_test = user_test, hash = TRUE, robust = robust, ncores = 1, backward = FALSE)
-  stat_hash <- mmpcobject@hashObject$stat_hash
-  pvalue_hash  <- mmpcobject@hashObject$pvalue_hash
+  mmpcobject <- MMPC(target, dataset, max_k = max_k, threshold = threshold, test = test, user_test = user_test, robust = robust, ncores = ncores, backward = TRUE)
   varsToIterate <- mmpcobject@selectedVars;
-  met <- 1:length(varsToIterate)
+  pct <- varsToIterate
+  met <- 1:length(pct)
   d <- ncol(dataset) 
   ci_test <- test <- mmpcobject@test
-  
   lista <- list()
+  aa <- NULL
   
-  if ( length(varsToIterate) > 0 ) {
+  if ( length(pct) > 0 ) {
     
-    for ( i in 1:length(met) ) {
-      
-      tar <- dataset[ , varsToIterate[i] ];
+    for ( i in met) {
+      tar <- dataset[, varsToIterate[i] ];
       datas <- cbind( dataset[, -varsToIterate[i] ], target)
-      res <- MMPC(tar, datas, max_k = 3, threshold = threshold, test = test, user_test = user_test, hash = FALSE, robust = robust, ncores = 1, backward = FALSE) 
+      res <- MMPC(tar, datas, max_k = 3, threshold = threshold, test = test, user_test = user_test, robust = robust, ncores = ncores, backward = TRUE) 
       poies <- sort( res@selectedVars )
-      if ( !hold )  if ( d %in% poies == FALSE )   met[i] = 0;
-      poies <- poies[ - which( poies == d ) ]
+      poies <- poies[poies != d ]
       poies[ poies >= varsToIterate[i] ] = poies[ poies >= varsToIterate[i] ] + 1
       lista[[ i ]] <- poies     
-      
     }
-
-    aa <- NULL
 
     if ( length( unlist(lista) ) > 0 ) {
       
-      pct <- varsToIterate[met]
       lista <- unlist( lista[met] )
       lista <- unique(lista)
       lista <- setdiff(lista, pct )  ## remove the target and the PC set from the candidate MB set
       ina <- 1:length(lista)
-           
       ci_test <- test <- mmpcobject@test
       av_tests <- c("testIndFisher", "testIndSpearman", "gSquare", NULL);
       
-      #cat(test)
-      
-      if( length(test) == 1 ) #avoid vectors, matrices etc
-      {
-        test <- match.arg(test , av_tests ,TRUE);
-        #convert to closure type
-        if(test == "testIndFisher")
-        {
+      if ( length(test) == 1 ) {  #avoid vectors, matrices etc
+        test <- match.arg(test, av_tests ,TRUE);
+        if (test == "testIndFisher")   {
           #an einai posostiaio target
           if ( min(target) > 0 & max(target) < 1 )  target = log( target/(1 - target) ) 
-          
           test <- testIndFisher;
-        }
-        else if(test == "testIndSpearman")
-        {
+        }  else if (test == "testIndSpearman")  {
           #an einai posostiaio target
           if ( min(target) > 0 & max(target) < 1 )   target = log( target / (1 - target) ) ## logistic normal 
-          
           target <- rank(target)
           dataset <- apply(dataset, 2, rank)  
           test <- testIndSpearman;  ## Spearman is Pearson on the ranks of the data
           robust <- FALSE
-          
         }
-        else if(test == "gSquare")
-        {
+        else if (test == "gSquare")  {
           test <- gSquare;
           robust <- FALSE
         }
-        #more tests here
-      }else  stop('invalid test option');  
+      } else  stop('invalid test option');
       
-      ps <- mmpcobject@hashObject$pvalue_hash 
       a <- log(threshold)
-      p <- as.matrix( as.list(ps) )
-            
-      ## Phase II of MMMB
-      ## search for s such that Ind(X, T| s)
-      ## For every potential child y if Dep(X, T| s, y), then X belongs to MB
+      mat <- list()
+      for (i in 1:max_k)      mat[[ i ]] <- Rfast::comb_n(pct, i)
       
-      for ( l in ina ) {
+      for ( l in 1:length(lista) ) {
         
-        xIndex <- lista[l]
-        inds <- grep( paste(xIndex, ""), rownames(p) )
-        keys <- rownames(p)[inds]
-        
-        cs <- list()
-        if (length(keys) > 0) {
-          
-          keys <- strsplit(keys," ") 
-          for ( i in 1:length(keys) )
-          {
-            vim <- keys[[i]]
-            #print(key)
-            if ( vim[1] == as.character(xIndex) ) {
-              if ( p[ inds[i], 1 ] > a)  cs[[ i ]] = as.numeric(vim[-1])
-            }
-          }
-        } else  cs[[ i ]] = 0
-        
-        if ( length(cs) > 0 ) {
-          ## need to speed it up here a bit, first the least associated cs and the most associated parents and children
-          trials <- numeric( length(cs) )
-          for ( m in 1:length(pct) ) {
-            ela <- test(target, dataset, xIndex = xIndex, csIndex = as.vector( c( pct[m], trials[[ 1 ]] ) ), dataInfo=NULL, univariateModels=NULL, hash=FALSE, stat_hash=NULL, pvalue_hash=NULL, robust = robust)$pvalue
-            k <- 1
-            while ( ela > 0.05 & k < length(trials) ) {
-              k <- k + 1
-              ela <- test(target, dataset, xIndex = xIndex, csIndex = as.vector( c( pct[m], trials[[ k ]] ) ), dataInfo=NULL, univariateModels=NULL, hash=FALSE, stat_hash=NULL, pvalue_hash=NULL, robust = robust)$pvalue
-            }  
-          }
-          
-        } else {
-          ## need to speed it up here a bit, first the least associated cs and the most associated parents and children
-          for ( m in 1:length(pct) ) {
-            ela <- test(target, dataset, xIndex = xIndex, csIndex = pct[m], dataInfo=NULL, univariateModels=NULL, hash=FALSE, stat_hash=NULL, pvalue_hash=NULL, robust = robust)$pvalue
-            k <- 1
-            while ( ela > 0.05 ) {
-              k <- k + 1
-              ela <- test(target, dataset, xIndex = xIndex, csIndex = pct[m], dataInfo=NULL, univariateModels=NULL, hash=FALSE, stat_hash=NULL, pvalue_hash=NULL, robust = robust)$pvalue
-            }  
-          }
-        }
-        if ( ela > a )  ina[l] = 0
-      }   
-
-	  aa <- unlist( lista[ina] )
-       
-    }
-	
-  } else  aa <- NULL
+        for ( i in 1:max_k ) {
+          condset <- mat[[ i ]]
+          pval <- test(target, dataset, xIndex = lista[l], csIndex = condset[, 1], robust = robust)$pvalue
+          k <- 1
+          dm2 <- dim(condset)[2]
+          while ( pval > a  &  k < dm2 ) {
+            k <- k + 1
+            pval <- test(target, dataset, xIndex = lista[l], csIndex = condset[, k], robust = robust)$pvalue
+          }  ## end  while  
+        }   ##  end  for ( i in 1:max_k )
+        if ( pval > a )   ina[l] = 0
+      }   ##  end  for ( l in 1:length(lista) )
+    }   ##  end if ( length( unlist(lista) ) > 0 )
+	   aa <- lista[ina]
+  }   ##  end if ( length(varsToIterate) > 0 ) 
   
   runtime <- proc.time() - durat   
   

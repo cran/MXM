@@ -113,8 +113,8 @@ testIndReg = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = N
      if (robust) { ##robust estimation
        if ( length(csIndex) == 1 ) {
          fit1 = MASS::rlm(target ~ dataset[,  csIndex], maxit = 2000, weights = wei, method = "MM" )
-       } else  fit1 = MASS::rlm(target ~ ., data = as.data.frame(dataset[,  csIndex]), maxit = 2000, method = "MM" )
-       fit2 = MASS::rlm(target ~ ., data = as.data.frame(dataset[, c(csIndex, xIndex)]), maxit = 2000, method = "MM" )
+       } else  fit1 = MASS::rlm(target ~ ., data = data.frame(dataset[,  csIndex]), maxit = 2000, method = "MM" )
+       fit2 = MASS::rlm(target ~ ., data = data.frame(dataset[, c(csIndex, xIndex)]), maxit = 2000, method = "MM" )
        stat = 2 * as.numeric( logLik(fit2) ) - 2 * as.numeric( logLik(fit1) )
        dof = length( coef(fit2) ) - length( coef(fit1) ) 
        pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
@@ -123,13 +123,12 @@ testIndReg = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = N
        if ( any( is.na(fit2$coefficients) ) ) {
          stat = 0
          pvalue = log(1)
-       } else {   
-         fit1 = lm( target ~., data = as.data.frame( dataset[, csIndex] ), weights = wei )
-         mod = anova(fit1, fit2)
-         stat = as.numeric(mod[2, 5] )  
-         df1 = abs(mod[2, 3])
-         df2 = mod[2, 1]
-         pvalue = pf(stat, df1, df2, lower.tail = FALSE, log.p = TRUE)  
+       } else {  
+         mod <- anova(fit1)
+         da <- dim(mod)[1] - 1
+         stat <- mod[da, 4]
+         df1 <- mod[da, 1]   ;  df2 <- mod[da + 1, 1]
+         pvalue <- pf(stat, df1, df2, lower.tail = FALSE, log.p = TRUE)
        } 
      }
    }

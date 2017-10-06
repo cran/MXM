@@ -139,6 +139,7 @@ cv.permmmpc <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, 
         mmpcini <- results@univ
         mmpcHashMap <- results@hashObject;
         variables <- results@selectedVars;
+        conf_mmpc[[mmpc_conf_id]]$variables[[k]] <- variables
         #get the data of the reference signature (i.e the selected variables)
         curr_sign <- as.vector(variables)
         #curr_sign <- as.matrix(results@selectedVars) #in case that the signature slot is not returned due to lack of memory. See Internalmmpc final part.

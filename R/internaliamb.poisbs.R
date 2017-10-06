@@ -69,7 +69,7 @@ internaliamb.poisbs <- function(target, dataset, threshold, wei, p, heavy = FALS
         } else  final <- speedglm::speedglm( target ~ .,  data = data.frame(dat), family = poisson(log), weights = wei )
       }
     }
-    info <- info[ info[, 1] > 0, ]
+    info <- info[ info[, 1] > 0, , drop = FALSE]
     
   } else { 
     info <- NULL  

@@ -87,8 +87,9 @@ testIndNB = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL
   #if the conditioning set (cs) is empty, we use a simplified formula
   if ( length(cs) == 0 )  {
     #compute the relationship between x,target directly
+    fit1 = MASS::glm.nb( target ~ 1, weights = wei )
     fit2 = MASS::glm.nb( target ~ x, weights = wei )
-    stat = fit2$null.deviance - fit2$deviance
+    stat = fit2$twologlik - fit1$twologlik
     dof = length( coef(fit2) ) - 1
   } else {
     if (length(csIndex) == 1) {
@@ -96,7 +97,7 @@ testIndNB = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL
     } else   fit1 = MASS::glm.nb( target ~., data = as.data.frame( dataset[, csIndex] ), weights = wei )
     fit2 = MASS::glm.nb( target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ), weights = wei )  
     if ( is.null(fit2) )  fit2 = MASS::glm.nb( target ~., data = as.data.frame( dataset[, c(xIndex, csIndex)] ), weights = wei )
-    stat = fit1$deviance - fit2$deviance
+    stat = fit2$twologlik - fit1$twologlik
     dof = length( coef(fit2) ) - length( coef(fit1) )
   }
   pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE) 

@@ -20,7 +20,7 @@ dist.condi <- function(ind1, ind2, cs, dat, type = NULL, rob = FALSE, R = 499) {
     z <- dat[, cs]
     mod <- energy::pdcor.test(x1, x2, z, R)
     stat <- mod$statistic
-    dof <- NA
+    dof <- NCOL(z)
     pvalue <- log( mod$p.value )
   }
   #lets calculate the stat and p-value which are to be returned

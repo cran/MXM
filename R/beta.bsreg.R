@@ -15,30 +15,12 @@ beta.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL) {
   } else {
     
     tic <- proc.time()
-    #check for NA values in the dataset and replace them with the variable median or the mode
-    if( any( is.na(dataset) ) ) {
-      #dataset = as.matrix(dataset);
-      warning("The dataset contains missing values (NA) and they were replaced automatically by the variable (column) median (for numeric) or by the most frequent level (mode) if the variable is factor")
-      if ( is.matrix(dataset) )  {
-        dataset <- apply( dataset, 2, function(x){ x[which(is.na(x))] = median(x, na.rm = TRUE) ; return(x) } ) 
-      }else{
-        poia <- unique( which( is.na(dataset), arr.ind = TRUE )[, 2] )
-        for( i in poia )  {
-          xi <- dataset[, i]
-          if ( is.numeric(xi) )  {                    
-            xi[ which( is.na(xi) ) ] <- median(xi, na.rm = TRUE) 
-          } else if ( is.factor( xi ) ) {
-            xi[ which( is.na(xi) ) ] <- levels(xi)[ which.max( as.vector( table(xi) ) )]
-          }
-          dataset[, i] <- xi
-        }
-      }
-    }
     ##################################
     # target checking and initialize #
     ################################## 
-      ini <- beta.mod( target,  dataset, wei = wei )
-      dofini <- length( ini$be[, 1] )
+      dataset <- as.data.frame(dataset)
+      ini <- beta.reg( target,  dataset, wei = wei )
+      dofini <- length( ini$be )
       likini <- ini$loglik 
       stat <- dof <- numeric(p)
       
@@ -53,26 +35,25 @@ beta.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL) {
       rownames(mat) <- 1:p 
       sel <- which.max( mat[, 2] )
       info <- matrix( c(0, -10, -10) , ncol = 3 )
-      sela <- sel 
-      
+
       if ( mat[sel, 2] < threshold ) {
-        final <- ini 
+        runtime <- proc.time() - tic
+        res <- list(runtime = runtime, info = matrix(0, 0, 3), mat = mat, ci_test = "testIndBeta", final = ini ) 
         
       } else {
         info[1, ] <- mat[sel, ]
-        mat <- mat[-sel, drop = FALSE] 
-        dat <- as.data.frame( dataset[, -sel] ) 
-      } 
-      
+        mat <- mat[-sel, , drop = FALSE] 
+        dat <- dataset[, -sel, drop = FALSE ]  
+
       i <- 1  
       
-      if ( info[1, 2] > threshold ) {
+      if ( info[1, 2] > threshold  &  dim(mat)[1] > 0) {
         
-        while ( info[i, 2] > threshold  &  NCOL(dat) > 0 )  {   
+        while ( info[i, 2] > threshold  &  dim(dat)[2] > 0 )  {   
           
-          ini <- beta.mod( target, dat, wei = wei )
+          ini <- beta.reg( target, dat, wei = wei )
           likini <- ini$loglik
-          dofini <- length(ini$be[, 1])
+          dofini <- length(ini$be)
           i <- i + 1        
           k <- p - i + 1
           
@@ -88,7 +69,7 @@ beta.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL) {
             if (pval > threshold ) {
               final <- "No variables were selected"
               info <- rbind(info, c(mat[, 1], stat, pval) )
-              dat <- as.data.frame( dataset[, -info[, 1] ] )
+              dat <- dataset[, -info[, 1], drop = FALSE ] 
               mat <- NULL
             } else {
               info <- rbind(info, c(0, -10, -10)) 
@@ -114,18 +95,23 @@ beta.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL) {
             } else {
               info <- rbind(info, mat[sel, ] )
               mat <- mat[-sel, , drop = FALSE] 
-              dat <- as.data.frame( dataset[, -info[, 1] ] )
+              dat <- dataset[, -info[, 1], drop = FALSE ]
             }
             
           }
         }
+        
+        runtime <- proc.time() - tic		
+        info <- info[ info[, 1] > 0, , drop = FALSE]
+        res <- list(runtime = runtime, info = info, mat = mat, ci_test = "testIndBeta", final = final ) 
+        
+      } else {
+        runtime <- proc.time() - tic
+        res <- list(runtime = runtime, info = info, mat = NULL, ci_test = "testIndBeta", final = mod ) 
       }
-      
-      runtime <- proc.time() - tic		
-      info <- info[ info[, 1] > 0, ]
-      res <- list(runtime = runtime, info = info, mat = mat, ci_test = "testIndBeta", final = final ) 
+
     }
-    
+  }
   res
 } 
   

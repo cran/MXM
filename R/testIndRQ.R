@@ -100,10 +100,12 @@ testIndRQ = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL
   if (length(cs) == 0) {
     #compute the relationship between x,target directly
     #fit1 = fita
+    options(warn = -1)
     fit1 = quantreg::rq(target ~ 1, weights = wei)
     fit2 = quantreg::rq(target ~ x, weights = wei)
   } else {
     kapa = length( csIndex )
+    options(warn = -1)
     ff1 = as.formula(paste("target ~ ",paste("dataset[,",csIndex[1:kapa],"]",sep="",collapse="+"), sep=""))
     ff2 = as.formula(paste(paste("target ~ ",paste("dataset[,",csIndex[1:kapa],"]",sep="",collapse="+"), sep="") , "+dataset[,",xIndex,"]", sep = ""))
     fit1 = quantreg::rq( ff1, weights = wei )

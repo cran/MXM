@@ -52,7 +52,7 @@ bic.fsreg <- function( target, dataset, test = NULL, wei = NULL, tol = 2, robust
     }
   }
     #available conditional independence tests
-    av_models = c("testIndReg", "testIndRQ", "testIndBeta", "testIndCR", "testIndWR", "testIndLogistic", "testIndPois", "testIndNB", 
+    av_models = c("testIndReg", "testIndRQ", "testIndBeta", "censIndCR", "censIndWR", "testIndLogistic", "testIndPois", "testIndNB", 
                   "testIndZIP", "testIndSpeedglm", "testIndGamma", "testIndNormLog", "testIndTobit"); 
     #cat(test)    
   if ( ( test == "testIndLogistic"  &  length( unique(target) ) == 2 )  ||  test == "testIndPois"  ||  test == "testIndReg" ) {
