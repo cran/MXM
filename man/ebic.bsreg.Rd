@@ -22,7 +22,7 @@ The dataset; provide either a data frame or a matrix (columns = variables, rows 
 \item{test}{
 The available tests: "testIndReg", "testIndPois", "testIndNB", "testIndLogistic", "testIndMMreg" 
 (in the other algorithms this the robust version of "testIndReg"), "testIndBinom", "censIndCR", 
-"censIndWR", "testIndBeta", "testIndZIP", "testIndGamma, "testIndNormLog" and "testIndTobit".
+"censIndWR", "testIndBeta", "testIndZIP", "testIndGamma", "testIndNormLog" and "testIndTobit".
 }
 \item{wei}{
 A vector of weights to be used for weighted regression. The default value is NULL. It is not suggested when robust is set to TRUE.

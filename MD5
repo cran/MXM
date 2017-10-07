@@ -1,4 +1,4 @@
-acd8f8965c77f6bc0e402ba9185da555 *DESCRIPTION
+6c3835ec79eb252180257b7db2f04ae0 *DESCRIPTION
 890030d6ed4dc23b65aa76058ebff701 *NAMESPACE
 cb5df49708bce1f22407d563c70d83ae *R/IdentifyEquivalence.R
 a98007f92a1f6f8140f2b110276ab080 *R/IdentifyEquivalence.ma.R
@@ -282,13 +282,13 @@ d6c45676c79b6c6863ec66652a406ebd *R/zip.regs.R
 05ce1b23c5827c152fbdb225cb13bbc8 *build/vignette.rds
 8267723248be2307717d1e7403da1668 *inst/CITATION
 7e8a12994057627a485d8182d264ce06 *inst/doc/article.ltx
-d81a89446f8f22ecc629edad82e8c7b6 *inst/doc/article.pdf
-e4d3034d67b984a4d4d0d7a4d3a90139 *inst/doc/guide.ltx
-1b36ff5e3ec166855fed6725519cef91 *inst/doc/guide.pdf
+27805a861660a7b2f6edff1465ebc29b *inst/doc/article.pdf
+15c50b04909e23fc55b978a0d133f61f *inst/doc/guide.ltx
+1ec40c3abde3c3098f7e9356c8a355ac *inst/doc/guide.pdf
 041e3a1f44a6cf4c1647af18c7db48bb *man/MMPC.temporal.output-class.Rd
 1000bbed498130a4dce522cd76b359a7 *man/MMPCoutput-class.Rd
 b5551e672d16b6f5068061ab7cdf5aaf *man/MXM-internal.Rd
-f08e8572a3356aea89fda88abdc0e8c5 *man/MXM-package.Rd
+18fe306a532c3b984413d7a9f5625d30 *man/MXM-package.Rd
 1203ed3c7278d1954e9d03f1c6366193 *man/MXMCondIndTests.Rd
 3833b487880a3e4c210b93aa9e0b2416 *man/SES.Rd
 753825155271a7b07634657eb5a4a4d6 *man/SES.temporal.Rd
@@ -306,7 +306,7 @@ a22dcd5aeb25241a24d5cb24c751dddd *man/condi.Rd
 b0e89d249a10e6c43f6afa0db754dc18 *man/corfs.network.Rd
 2f3c18b0909bad6152df82951648c8e1 *man/cv.ses.Rd
 d26b47f0b434131699d2cc289090a5ed *man/dag2eg.Rd
-3344c30121e0c4eb696ccccb92a66abf *man/ebic.bsreg.Rd
+ad88839ef4f158def97bb0f2f2f54e36 *man/ebic.bsreg.Rd
 3383f9962c53fe2864560bbba5be96ac *man/equivdags.Rd
 33dfceda6a7984e772e32951fff6a957 *man/fbed.reg.Rd
 a85f4f88c7a781cdd8848c0d8d869d6b *man/findDescendants.Rd
@@ -327,7 +327,7 @@ ce421ea52ef370631a2e3a0d8181495a *man/is.dag.Rd
 8d0e0609cda89c9640c99c97240356aa *man/mmmb.Rd
 aae672c8a0f3e6688ab4aa8b2a5fa95c *man/mmpc.path.Rd
 2a655dc4cb59e1f691e1eb24aca398c8 *man/mmpc.temporal.model.Rd
-656215e889c0ddf7abe3457000d1ce17 *man/mmpcbackphase.Rd
+6e144b2db49c78ef22987cc033ae5471 *man/mmpcbackphase.Rd
 5ecc8ce50a61f6d005757030093272cb *man/nei.Rd
 3ea99f3c466762fc839fac773486cf6e *man/ordinal.reg.Rd
 e48564f8318fb1c28992e3eb404ec379 *man/partialcor.Rd
@@ -369,5 +369,5 @@ bd44176a801b22a43a778c090c43cf6c *man/univregs.Rd
 f0e519abfc318ddc42f4e9d3c35886da *vignettes/boxplot_perf_ses_lasso.eps
 9e576a034774659c254c26bc5b12477b *vignettes/claim2_boxplot_ses_coefvar-eps-converted-to.pdf
 05816ed1589c6870427b3158eaa25a80 *vignettes/claim2_boxplot_ses_coefvar.eps
-e4d3034d67b984a4d4d0d7a4d3a90139 *vignettes/guide.ltx
+15c50b04909e23fc55b978a0d133f61f *vignettes/guide.ltx
 b9564ddd59a06782310989e8f33db55e *vignettes/jsslogo.jpg

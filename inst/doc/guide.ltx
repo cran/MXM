@@ -1,4 +1,4 @@
-\documentclass[article]{jss}
+\documentclass[a4paper,11pt]{article}
 
 %\VignetteIndexEntry{R packages: LaTeX vignettes}
 %\VignetteEngine{R.rsp::tex}
@@ -8,34 +8,23 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \usepackage{amsmath}
 \usepackage{algorithm}
-\usepackage[noend]{algpseudocode}
+\usepackage{algpseudocode}
 \usepackage{epstopdf}
 \usepackage{float}
 \usepackage{hyperref}
 
-%% almost as usual
-\author{
-        Michail Tsagris\\University of Crete\And\And
-        Vincenzo Lagani\\University of Crete\And\And
-        Ioannis Tsamardinos\\University of Crete
-}
-
-\title{A very brief guide to using MXM}
-
-%% for pretty printing and a nice hypersummary also set:
-\Plainauthor{Michail Tsagris, Vincenzo Lagani, Ioannis Tsamardinos} %% comma-separated
-\Plaintitle{A very brief guide to using MXM} %% without formatting
-
-%% without formatting
-%% at least one keyword must be supplied
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%% for those who use Sweave please include the following line (with % symbols):
-%% need no \usepackage{Sweave.sty}
 \begin{document}
+
+\begin{center}
+\Large{A very brief guide to using MXM}
+\end{center}
+
+\vskip 1cm
+
+\begin{center}
+\Large{Michail Tsagris, Vincenzo Lagani, Ioannis Tsamardinos}
+\end{center}
+
 
 \section{Introduction}
 MXM is an R package which contains functions for \textbf{feature selection}, \textbf{cross-validation} and \textbf{Bayesian Networks}. The main functionalities focus on feature selection for different types of data. We highlight the option for parallel computing and the fact that some of the functions have been either partially or fully implemented in C++. As for the other ones, we always try to make them faster. 
@@ -142,7 +131,7 @@ Once SES or MMPC are finished, the user might want to see the model produced. Fo
 Currently three algorithms for constructing Bayesian Networks (or their skeleton) are offered. 
 \begin{itemize}
 \item MMHC (Max-Min Hill-Climbing) \citep{Tsamardinos2006a}, (\textbf{mmhc.skel}) which constructs the skeleton of the Bayesian Network (BN). 
-\item PC algorithm \citep{Spirtes2001} (\textbf{pc.skel} and \textbf{pc.con}) for which the orientation rules (\textbf{pc.or}) have been implemented as well. Both of these algorithms accept continuous or categorical data only. The skeleton of the PC algorithm has the option for permutation based conditional independence tests \citep{Borboudakis2013}.
+\item PC algorithm \citep{Spirtes2001} (\textbf{pc.skel} for which the orientation rules (\textbf{pc.or}) have been implemented as well. Both of these algorithms accept continuous or categorical data only. The skeleton of the PC algorithm has the option for permutation based conditional independence tests \citep{Borboudakis2013}.
 \item Skeleton of a network with continuous data using forward selection. The command \textbf{corfs.network} does a similar to MMHC task. It goes to every variable and instead applying the MMPC algorithm it applies the forward selection regression. All data must be continuous, since the Pearson correlation is used. The algorithm is fast, since the forward regression with the Pearson correlation is very fast. 
 \end{itemize}
 
@@ -165,7 +154,7 @@ We also have utility functions, such as
 The work was co-funded by the STATegra EU FP7 project, No 306000, by the EPILOGEAS GSRT ARISTEIA II project, No 3446, and by the European Research Council (ERC) project No 617393, "CAUSALPATH - Next Generation Causal Analysis". We sincerely thank Damjan Krstajic and Giorgos Borboudakis for their invaluable comments, suggestions and critical reading of the manuscript.
 
 
-
+\bibliographystyle{apa}             
 \bibliography{biblio}
 
 
