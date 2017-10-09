@@ -1,9 +1,9 @@
 Package: MXM
 Type: Package
 Title: Discovering Multiple, Statistically-Equivalent Signatures
-Version: 1.1.1
+Version: 1.1.5
 URL: http://mensxmachina.org
-Date: 2017-10-07
+Date: 2017-10-09
 Authors@R: c(person("Michail", "Tsagris", role = c("aut", "cre"), email = "mtsagris@csd.uoc.gr"),
            person("Ioannis", "Tsamardinos", role = c("aut"), email = "tsamard.it@gmail.com"),
            person("Vincenzo", "Lagani", role = c("aut"), email = "vlagani@yahoo.it"), 
@@ -20,6 +20,6 @@ Imports: methods, stats, utils, hash, survival, MASS, graphics,
         ordinal, nnet, quantreg, lme4, foreach, doParallel, parallel,
         speedglm, relations, Rfast, visNetwork, energy
 NeedsCompilation: no
-Packaged: 2017-10-07 04:32:51 UTC; user
+Packaged: 2017-10-09 07:17:49 UTC; user
 Repository: CRAN
-Date/Publication: 2017-10-07 14:18:36 UTC
+Date/Publication: 2017-10-09 09:12:55 UTC

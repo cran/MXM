@@ -12,6 +12,7 @@
 \usepackage{epstopdf}
 \usepackage{float}
 \usepackage{hyperref}
+\usepackage{natbib}
 
 \begin{document}
 
@@ -45,7 +46,7 @@ The functionalities or the flexibility offered by all these algorithms is their 
 Similarly to the Wald versions, these two algorithms accept continuous predictor variables only.
 \item \textbf{ma.mmpc and ma.ses}. MMPC and SES for multiple datasets measuring the same variables (dependent and predictors).
 \item \textbf{MMPC.temporal and SES.temporal}. Both of these algorithms are the usual SES and MMPC modified for correlated data, such as clustered or longitudinal. The predictor variables can only be continuous. 
-\item \textbf{fbed.reg}. The FBED feature selection method. The log-likelihood ratio test or the eBIC (BIC is a special case) can be used. 
+\item \textbf{fbed.reg}. The FBED feature selection method \citep{borboudakis2017}. The log-likelihood ratio test or the eBIC (BIC is a special case) can be used. 
 \item \textbf{ebic.bsreg}. Backward selection method using the eBIC. 
 \item \textbf{fs.reg}. Forward regression method for all types of predictor variables and for most of the available tests below.  
 \item \textbf{glm.fsreg} Forward regression method for logistic and Poisson regression in specific. The user can call this directly if he knows his data. 
@@ -131,7 +132,8 @@ Once SES or MMPC are finished, the user might want to see the model produced. Fo
 Currently three algorithms for constructing Bayesian Networks (or their skeleton) are offered. 
 \begin{itemize}
 \item MMHC (Max-Min Hill-Climbing) \citep{Tsamardinos2006a}, (\textbf{mmhc.skel}) which constructs the skeleton of the Bayesian Network (BN). 
-\item PC algorithm \citep{Spirtes2001} (\textbf{pc.skel} for which the orientation rules (\textbf{pc.or}) have been implemented as well. Both of these algorithms accept continuous or categorical data only. The skeleton of the PC algorithm has the option for permutation based conditional independence tests \citep{Borboudakis2013}.
+\item PC algorithm \citep{Spirtes2001} (\textbf{pc.skel} for which the orientation rules (\textbf{pc.or}) have been implemented as well. Both of these algorithms accept continuous or categorical data only. The skeleton of the PC algorithm has the option for permutation based conditional independence tests \citep{Tsamardinos2010}. 
+\item The functions \textbf{ci.mm} and \textbf{ci.fast} perform a symmetric test with mixed data (continuous, ordinal and binary data) \citep{tsagris2017}. This is employed by the PC algorithm as well.
 \item Skeleton of a network with continuous data using forward selection. The command \textbf{corfs.network} does a similar to MMHC task. It goes to every variable and instead applying the MMPC algorithm it applies the forward selection regression. All data must be continuous, since the Pearson correlation is used. The algorithm is fast, since the forward regression with the Pearson correlation is very fast. 
 \end{itemize}
 
@@ -142,7 +144,6 @@ We also have utility functions, such as
 \item \textbf{dag2eg}. Transforming a DAG into an essential (mixed) graph, its class of equivalent DAGs.
 \item \textbf{equivdags}. Checking whether two DAGs are equivalent.
 \item \textbf{is.dag}. In fact this checks whether cycles are present by trying to topologically sort the edges. BNs do not allow for cycles.
-\item \textbf{topological$_$sort}. Topological sort of the edges of a DAG or a CPDAG.
 \item \textbf{mb}. The Markov Blanket of a node (variable) given a Bayesian Network.
 \item \textbf{nei}. The neighbours of a node (variable) given an undirected graph.
 \item \textbf{undir.path}. All paths between two nodes in an undirected graph. 
@@ -151,7 +152,8 @@ We also have utility functions, such as
 \end{enumerate}
 
 \section{Acknowledgments}
-The work was co-funded by the STATegra EU FP7 project, No 306000, by the EPILOGEAS GSRT ARISTEIA II project, No 3446, and by the European Research Council (ERC) project No 617393, "CAUSALPATH - Next Generation Causal Analysis". We sincerely thank Damjan Krstajic and Giorgos Borboudakis for their invaluable comments, suggestions and critical reading of the manuscript.
+The research leading to these results has received funding from the European Research Council under the 
+European Union's Seventh Framework Programme (FP/2007-2013) / ERC Grant Agreement n. 617393.
 
 
 \bibliographystyle{apa}             

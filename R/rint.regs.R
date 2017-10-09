@@ -14,7 +14,7 @@ rint.regs <- function(target, dataset, targetID = -1, id, reps = NULL, tol = 1e-
   if ( sum(poia > 0) )  dataset[, poia] <- rnorm(n * length(poia) )
 
   if ( is.null(reps) ) {
-    mod <- Rfast::rint.regs(y = target, x = dataset, id = id, tol = tol, logged = TRUE)
+    mod <- Rfast::rint.regs(y = target, x = dataset, id = id, tol = tol, logged = TRUE, parallel = TRUE)
     univariateModels$stat <- mod[, 1]
     univariateModels$pvalue <- mod[, 2]
   } else {
@@ -41,7 +41,9 @@ rint.regs <- function(target, dataset, targetID = -1, id, reps = NULL, tol = 1e-
     mod <- optimise(funa, c(0, 70), n = n, ni = ni, ni2 = ni2, S = S, hi2 = hi2, tol = tol)
     d <- mod$minimum 
     b2 <- solve( xx - d * crossprod(sx/(1+ ni * d), sx), sxy - d * crossprod( sx, sy/(1 + ni * d) ) )   
-    while ( sum( abs(b2 - b1) ) > tol ) {
+    k <- 2
+    while ( sum( abs(b2 - b1) ) > tol  &  k < 100) {
+      k <- k + 1
       b1 <- b2
       S <- sum( (target - Xi %*% b1)^2 )
       hi2 <- ( my - mx %*% b1 )^2
