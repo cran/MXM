@@ -122,6 +122,8 @@ ebic.glm.bsreg <- function(target, dataset, wei = NULL, gam = NULL, type = "logi
       }  ## end if ( tool[2] > 0 )
     }  ## end if ( bic0 - mat[sel, 2] < 0  )
    }  ## end  if (M == 0)
+    runtime <- proc.time() - tic
+    res <- list(runtime = runtime, info = info, mat = mat )
   }  ##  end  if ( p > n )
   
   res

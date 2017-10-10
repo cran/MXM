@@ -17,8 +17,8 @@ For more information the reader is addressed to Lagani V., Athineou G., Farcomen
 \tabular{ll}{
 Package: \tab MXM\cr
 Type: \tab Package\cr
-Version: \tab 1.1.5\cr
-Date: \tab 2017-10-09\cr
+Version: \tab 1.2\cr
+Date: \tab 2017-10-10\cr
 License: \tab GPL-2\cr
 }
 }
@@ -47,7 +47,7 @@ European Union's Seventh Framework Programme (FP/2007-2013) / ERC Grant Agreemen
 
 Michail Tsagris would like to express his acknowledgments to Marios Dimitriadis and Manos Papadakis, 
 undergraduate students in the department of computer science, university of Crete, for their programming tips and advice. 
-Dr David Gomez Cabrero Lopez is also greatly acknowledged. Dr Uwe Ligges is greatly acknowledged for his assistance. 
+Dr David Gomez Cabrero Lopez is also greatly acknowledged. Dr Uwe Ligges and Prof Kurt Hornik from the CRAN team are greatly acknowledged for their assistance. 
 
 \bold{Disclaimer:} Professor Tsamardinos is the creator of this package. Dr Lagani supervised Mr Athineou built it
 and Dr Tsagris is the maintainer.

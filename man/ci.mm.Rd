@@ -46,9 +46,9 @@ This is a list with only the dataset and the name must be "dataset". A data.fram
 }
 
 \details{
-The functions "ci.mm" and "ci.fast" are general functions to be used anywhere. The functions "ci.mm2" and "ci.fast2" are designed to be accepted by the command "pc" in the package "pcalg". The functions "ci.mm2" and "ci.fast2" were fed in the "pc" function of the "pcalg" package in order to produce a PDAG with mixed data using the PC algorithm. For more information see the relevant paper in the references.
+The functions "ci.mm" and "ci.fast" are general functions to be used anywhere. The functions "ci.mm2" and "ci.fast2" are designed to be accepted by the command "pc" in the package "pcalg". The functions "ci.mm2" and "ci.fast2" can be fed in the "pc" function of the "pcalg" package in order to produce a PDAG with mixed data using the PC algorithm. For more information see the relevant paper in the references.
 
-The "ci.mm2" and "ci.fast2" functions work with matrix data, whereas the "ci.mm" and "ci.fast" work with data.frame objects. The "ci.mm" and "ci.fast" work with linear, logistic, multinomial and ordinal regression, whereas the "ci.mm2" and "ci.fast2" work with linear, logistic and ordinal regression only.
+The "ci.mm" and "ci.fast" work with linear, logistic, multinomial and ordinal regression, whereas the "ci.mm2" and "ci.fast2" work with linear, logistic and ordinal regression only.
 }
 
 \value{
@@ -84,8 +84,13 @@ ci.mm(1, 5, dat = iris)
 ci.fast(1, 5, dat = iris)
 x <- iris
 x[, 5] <- as.numeric(x[ ,5])  ## Caution:: this will be treated as ordered variable. 
-## ci.mm2 and ci.fast do not perform multinomial regression.
+x[, 5] <- factor(x[, 5], ordered = TRUE)
+## ci.mm2 and ci.fast2 do not perform multinomial regression.
 ci.mm2(1, 5, suffStat = list(dataset = x) )
 ci.fast2(1, 5, suffStat = list(dataset = x) )
+### example for the pcalg package
+## V <- colnames(x) 
+## pcalg::pc(suffStat = list(dataset=x), indepTest = ci.fast2, alpha = 0.01, labels = V, 
+## verbose = TRUE)
 
 }

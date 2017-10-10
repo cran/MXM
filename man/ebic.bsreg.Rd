@@ -9,7 +9,7 @@ Backward selection regression using the eBIC
 }
 
 \usage{
-ebic.bsreg(y, x, test = NULL, wei = NULL, gam = 0) 
+ebic.bsreg(y, x, test = NULL, wei = NULL, gam = NULL) 
 }
 
 \arguments{
@@ -51,7 +51,7 @@ The runtime required.
 \item{info}{
 A matrix with the number of variables and the number of tests performed (or models fitted) at each round (value of K). 
 }
-\item{res}{
+\item{mat}{
 A matrix with the selected variables, their test statistic and the associated p-value.
 }
 \item{back.rem}{

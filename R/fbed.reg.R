@@ -37,7 +37,7 @@ fbed.reg <- function(y, x, test = NULL, alpha = 0.05, wei = NULL, K = 0, method 
     
     } else if (test == "testIndLogistic") {
       
-      if ( length(unique(y) == 2) ) {
+      if ( length(unique(y) ) == 2 ) {
         result <- fbed.glm(y, x, alpha = alpha, wei = wei, K = K, type = "logistic")
       } else if ( !is.ordered(y) ) {
         result <- fbed.multinom(y, x, alpha = alpha, wei = wei, K = K)
@@ -72,7 +72,7 @@ fbed.reg <- function(y, x, test = NULL, alpha = 0.05, wei = NULL, K = 0, method 
     }
     
     result$back.rem <- 0
-    result$back.n.tests. <- 0
+    result$back.n.tests <- 0
     
     if ( backward ) {
       
@@ -84,18 +84,20 @@ fbed.reg <- function(y, x, test = NULL, alpha = 0.05, wei = NULL, K = 0, method 
       if (result$info[1, 1] > 0) {
         a <- bs.reg(y, x[, result$res[, 1], drop = FALSE], threshold = alpha, wei = wei, test = test, robust = robust)
         
-        if ( typeof(a) == "list" ) { 
-          back.rem <- result$res[a$info[, 1], ]
-          back.n.tests <- sum( dim(result$res)[1] : length(a$mat[, 1]) )
-          result$res <- result$res[a$mat[, 1], ]
-          result$info[1, 2] <- result$info[1, 2] 
-          result$back.rem <- back.rem
-          result$back.n.tests. <- back.n.tests
+        if ( typeof(a) == "list" ) {
+          result$back.rem <- result$res[a$info[, 1], 1]
+          back.n.tests <- sum( dim(result$res)[1] : dim(a$mat)[1] )
+          sel <- result$res[a$mat[, 1], 1] 
+          stat <- a$mat[, 3]
+          pval <- a$mat[, 2]
+          result$res <- cbind(sel, stat, pval)
+          result$back.n.tests <- back.n.tests
+          result$runtime <- result$runtime + a$runtime
         } else {
           back.rem <- 0
           back.n.tests <- 0
           result$back.rem <- back.rem
-          result$back.n.tests. <- back.n.tests
+          result$back.n.tests <- back.n.tests
           result$runtime <- result$runtime 
         }  
       }   ## end if (result$info[1, 1] > 0)
@@ -114,7 +116,7 @@ fbed.reg <- function(y, x, test = NULL, alpha = 0.05, wei = NULL, K = 0, method 
       
     } else if (test == "testIndLogistic") {
       
-      if ( length(unique(y) == 2) ) {
+      if ( length(unique(y) ) == 2 ) {
         result <- ebic.fbed.glm(y, x, gam = gam, wei = wei, K = K, type = "logistic")
       } else if ( !is.ordered(y) ) {
         result <- ebic.fbed.multinom(y, x, gam = gam, wei = wei, K = K)
@@ -149,69 +151,28 @@ fbed.reg <- function(y, x, test = NULL, alpha = 0.05, wei = NULL, K = 0, method 
     }
     
     result$back.rem <- 0
-    result$back.n.tests. <- 0
+    result$back.n.tests <- 0
     
     if ( backward ) {
       
       if (result$info[1, 1] > 0) {
-        
-        if (test == "testIndReg") {
-          a <- ebic.lm.bsreg(y, x[, result$res[, 1], drop = FALSE], gam = gam, wei = wei)
-          
-        } else if (test == "testIndPois") {
-          a <- ebic.glm.bsreg(y, x[, result$res[, 1], drop = FALSE], gam = gam, wei = wei, type = "poisson")
-          
-        } else if (test == "testIndNB") {
-          a <- ebic.nb.bsreg(y, x[, result$res[, 1], drop = FALSE], gam = gam, wei = wei)
-          
-        } else if (test == "testIndLogistic") {
-          
-          if ( length(unique(y) == 2) ) {
-            a <- ebic.glm.bsreg(y, x[, result$res[, 1], drop = FALSE], gam = gam, wei = wei, type = "logistic")
-          } else if ( !is.ordered(y) ) {
-            a <- ebic.multinom.bsreg(y, x[, result$res[, 1], drop = FALSE], gam = gam, wei = wei)
-          } else  a <- ebic.ordinal.bsreg(y, x[, result$res[, 1], drop = FALSE], gam = gam, wei = wei)
-          
-        } else if (test == "testIndMMreg") {
-          a <- ebic.mm.bsreg(y, x[, result$res[, 1], drop = FALSE], gam = gam, wei = wei)
-          
-        } else if (test == "testIndBinom") {
-          a <- ebic.glm.bsreg(y, x[, result$res[, 1], drop = FALSE], gam = gam, wei = wei, type = "binomial")
-          
-        } else if (test == "censIndCR") {
-          a <- ebic.cr.bsreg(y, x[, result$res[, 1], drop = FALSE], gam = gam, wei = wei)
-          
-        } else if (test == "censIndWR") {
-          a <- ebic.wr.bsreg(y, x[, result$res[, 1], drop = FALSE], gam = gam, wei = wei)
-          
-        } else if (test == "testIndBeta") {
-          a <- ebic.beta.bsreg(y, x[, result$res[, 1], drop = FALSE], gam = gam, wei = wei)
-          
-        } else if (test == "testIndZIP") {
-          a <- ebic.zip.bsreg(y, x[, result$res[, 1], drop = FALSE], gam = gam, wei = wei)
-          
-        } else if (test == "testIndGamma") {
-          a <- ebic.glm.bsreg(y, x[, result$res[, 1], drop = FALSE], gam = gam, wei = wei, type = "gamma")
-          
-        } else if (test == "testIndNormLog") {
-          a <- ebic.glm.bsreg(y, x[, result$res[, 1], drop = FALSE], gam = gam, wei = wei, type = "gaussian")
-          
-        } else if (test == "testIndTobit") {
-          a <- ebic.tobit.bsreg(y, x[, result$res[, 1], drop = FALSE], gam = gam, wei = wei)
-        }
-        
+        a <- ebic.bsreg(y, x[, result$res[, 1], drop = FALSE], test = test, wei = wei, gam = gam) 
+       
         if ( typeof(a) == "list" ) {
-          back.rem <- result$res[a$info[, 1], ]
           back.n.tests <- sum( dim(result$res)[1] : length(a$mat[, 1]) )
-          result$res <- result$res[a$mat[, 1], ]
-          result$back.rem <- back.rem
-          result$back.n.tests. <- back.n.tests
+          
+          result$back.rem <- result$res[a$info[, 1], 1]
+          sel <- result$res[ a$mat[, 1], 1]
+          val <- a$mat[, 2]
+          result$res <- cbind(sel, val)
+          colnames(result$res) <- c("Vars", "eBIC difference")
+          result$back.n.tests <- back.n.tests
           result$runtime <- result$runtime + a$runtime
         } else {
           back.rem <- 0
           back.n.tests <- 0
           result$back.rem <- back.rem
-          result$back.n.tests. <- back.n.tests
+          result$back.n.tests <- back.n.tests
           result$runtime <- result$runtime 
         }  
       }   ## end if (result$info[1, 1] > 0) 

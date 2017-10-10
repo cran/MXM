@@ -1,4 +1,4 @@
-ebic.bsreg <- function(y, x, test = NULL, wei = NULL, gam = 0) {
+ebic.bsreg <- function(y, x, test = NULL, wei = NULL, gam = NULL) {
   
   #check for NA values in the dataset and replace them with the variable median or the mode
   if ( any( is.na(x) ) ) {
@@ -35,9 +35,9 @@ ebic.bsreg <- function(y, x, test = NULL, wei = NULL, gam = 0) {
   
   } else if (test == "testIndLogistic") {
     
-    if ( length(unique(y) == 2) ) {
-      result <- ebic.glm.bsreg(y, x, gam = gam, wei = wei, type = "logistic")
-    } else if ( length(unique(y) > 2) &  !is.ordered(y) ) {
+    if ( length(unique(y) ) == 2 ) {
+      result <- ebic.glm.bsreg(y, x, wei = wei, gam = gam, type = "logistic")
+    } else if ( length(unique(y) ) > 2 &  !is.ordered(y) ) {
       result <- ebic.multinom.bsreg(y, x, gam = gam, wei = wei)  
     } else  result <- ebic.ordinal.bsreg(y, x, gam = gam, wei = wei)
   
@@ -68,12 +68,12 @@ ebic.bsreg <- function(y, x, test = NULL, wei = NULL, gam = 0) {
   } else if (test == "testIndTobit") {
     result <- ebic.tobit.bsreg(y, x, gam = gam, wei = wei)
   }
-
+  
   back.rem <- result$info[, 1]
-  back.n.tests <- sum( dim(result$mat)[1] : length(result$mat[, 1]) ) 
-  result$res <- result$mat[, 1]
+  back.n.tests <- dim(x)[2]:dim(result$mat)[1] 
+  result$mat <- result$mat
   result$back.rem <- back.rem
-  result$back.n.tests. <- back.n.tests
+  result$back.n.tests <- sum(back.n.tests)
   result$runtime <- result$runtime 
   result
 }   

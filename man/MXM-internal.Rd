@@ -134,6 +134,8 @@
 \alias{ebic.tobit.bsreg}
 \alias{ebic.wr.bsreg}
 \alias{ebic.zip.bsreg}
+\alias{fscore.mxm}
+\alias{euclid_sens.spec.mxm}
 
 \title{ Internal MXM Functions }
 \description{
@@ -275,6 +277,8 @@ Internal functions of Package \pkg{MXM}
 \item ebic.tobit.bsreg( ... )
 \item ebic.wr.bsreg( ... )
 \item ebic.zip.bsreg( ... )
+\item fscore.mxm( ... )
+\item euclid_sens.spec.mxm( ... )
 }
 }
 \details{

@@ -240,10 +240,8 @@ result
 
 
 
-#auc
+# auc (binary)
 auc.mxm <- function(predictions, test_target, theta = NULL) {
-  #predsObj <- prediction(predictions, test_target)
-  #aucValue <- performance(predsObj, measure='auc')@y.values[[1]];
   test_target <- as.numeric( as.factor(test_target) )
   ri <- rank(predictions)
   up <- max(test_target)
@@ -254,8 +252,31 @@ auc.mxm <- function(predictions, test_target, theta = NULL) {
   ( s1 - 0.5 * ( n1 * (n1 + 1) ) ) / (n0 * n1)
 }
 
+# F score (binary)
+fscore.mxm <- function(predictions, test_target, theta = NULL) {
+  test_target <- as.numeric( as.factor(test_target) ) - 1
+  predictions[predictions > 0.5] <- 1
+  predictions[predictions <= 0.5] <- 0
+  tab <- table(test_target, predictions)
+  prec <- tab[2, 2]/(tab[2, 2] + tab[1, 2])
+  rec <- tab[2, 2] / (tab[2, 2,] + tab[2, 1])
+  2 * prec * rec / (prec + rec)
+}
+
+# euclid_sens.spec score (binary)
+euclid_sens.spec.mxm <- function(predictions, test_target, theta = NULL) {
+  test_target <- as.numeric( as.factor(test_target) ) - 1
+  predictions[predictions > 0.5] <- 1
+  predictions[predictions <= 0.5] <- 0
+  tab <- table(test_target, predictions)
+  spec <- tab[1, 1]/(tab[1, 1] + tab[1, 2])
+  sens <- tab[2, 2] / (tab[2, 2,] + tab[2, 1])
+  sqrt( (1 - sens)^2 + (1 - spec)^2 )
+}
+
 #accuracy (binary)
 acc.mxm <- function(predictions, test_target, theta = NULL) {
+  test_target <- as.numeric( as.factor(test_target) ) - 1
   sum( (predictions > 0.5) == test_target ) / length(test_target)
 }
 
