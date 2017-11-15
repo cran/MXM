@@ -32,11 +32,11 @@ internaliamb.zipbs <- function(target, dataset, threshold, wei, p) {
       
       info <- mat[sel, , drop = FALSE]
       mat <- mat[-sel, , drop = FALSE] 
-      dat <- as.data.frame( dataset[, -sel] ) 
+      dat <- dataset[, -sel]
       
       if ( p - length(sel) == 0 ) {
         final <- "No variables were selected"
-        mat <- NULL
+        mat <- matrix(nrow = 0, ncol = 3)
       } else if ( p - length(sel) == 1 ) {
         mod1 <- zip.reg(target, dat, wei = wei )
         if ( is.null(wei) ) {
@@ -46,7 +46,7 @@ internaliamb.zipbs <- function(target, dataset, threshold, wei, p) {
         pval <- pchisq( stat, length( mod1$be ) - 1, lower.tail = FALSE, log.p = TRUE)
         if (pval > threshold ) {
           final <- "No variables were selected"
-          mat <- NULL
+          mat <- matrix(nrow = 0, ncol = 3)
         } else final <- mod1
       } else  final <- zip.reg(target, dat, wei = wei)
     }
@@ -54,7 +54,7 @@ internaliamb.zipbs <- function(target, dataset, threshold, wei, p) {
     
   } else { 
     info <- NULL  
-    mat <- NULL 
+    mat <- matrix(nrow = 0, ncol = 3) 
     final <- "No variables were selected"
   } 
   

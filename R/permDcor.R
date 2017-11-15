@@ -135,10 +135,9 @@ permDcor = function(target, dataset, xIndex, csIndex, wei = NULL, statistic = FA
       finally={}
     )  
     
-    
+    ###########################
     ## meta-analytic approach
-    ##################################
-    
+    ###########################
     
   } else {  
     

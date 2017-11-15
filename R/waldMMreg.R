@@ -40,7 +40,6 @@ waldMMreg = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NU
   #extract the data
   x = dataset[ , xIndex];
   cs = dataset[ , csIndex];
-  n = length(target)
   #if x = any of the cs then pvalue = 1 and flag = 1.
   #That means that the x variable does not add more information to our model due to an exact copy of this in the cs, so it is independent from the target
   if ( length(cs) != 0 ) {

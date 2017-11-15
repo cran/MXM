@@ -62,8 +62,8 @@
 #   if equal_case = 2 then, if we have more than one equivalent vars in z , we select the one with the most minimum pvalue (>a)
 #   else in any other case, if we have more than one equivalent vars in z , we select the first one
 # In this version we support the equal_case = 3.
-SES = function(target, dataset, max_k = 3, threshold = 0.05 , test = NULL, ini = NULL, wei = NULL, user_test = NULL, hash = FALSE, hashObject = NULL, robust = FALSE, ncores = 1)
-{
+SES = function(target, dataset, max_k = 3, threshold = 0.05 , test = NULL, ini = NULL, wei = NULL, user_test = NULL, 
+               hash = FALSE, hashObject = NULL, robust = FALSE, ncores = 1, logged = FALSE) {
   #get the log threshold
   threshold = log(threshold)
   ##############################
@@ -239,12 +239,10 @@ SES = function(target, dataset, max_k = 3, threshold = 0.05 , test = NULL, ini =
       #convert to closure type
       if (test == "testIndFisher") {
         #an einai posostiaio target
-        if ( min(target) > 0  &  max(target) < 1 )  target = log( target/(1 - target) ) ## logistic normal 
         test = testIndFisher;
       }
       else if (test == "testIndSpearman")  {
         #an einai posostiaio target
-        if ( min(target) > 0 & max(target) < 1 )  target = log( target / (1 - target) ) ## logistic normal 
         target <- rank(target)
         dataset <- apply(dataset, 2, rank)  
         test <- testIndSpearman;  ## Spearman is Pearson on the ranks of the data
@@ -252,7 +250,6 @@ SES = function(target, dataset, max_k = 3, threshold = 0.05 , test = NULL, ini =
       else if (test == "testIndReg") ## It uMMPC the F test
       {
         #an einai posostiaio target
-        if ( min(target) > 0 & max(target) < 1 )  target = log(target/(1-target)) ## logistic normal 
         test = testIndReg;
       }
       else if (test == "testIndMVreg") {
@@ -264,7 +261,6 @@ SES = function(target, dataset, max_k = 3, threshold = 0.05 , test = NULL, ini =
         
       } else if (test == "testIndRQ") {  ## quantile regression
         #an einai posostiaio target
-        if ( all( target>0 & target<1 ) )  target = log( target/(1 - target) ) ## logistic normal 
         test = testIndRQ;
         
       } else if (test == "testIndIGreg") { ## Inverse Gaussian regression
@@ -331,8 +327,8 @@ SES = function(target, dataset, max_k = 3, threshold = 0.05 , test = NULL, ini =
 
   if ( !is.null(user_test) )   ci_test = "user_test";
   #call the main SES function after the checks and the initializations
-  results = InternalSES(target, dataset, max_k, threshold, test, ini, wei, equal_case, user_test, dataInfo, hash, varsize, stat_hash, pvalue_hash, targetID, robust = robust, ncores = ncores);
-  SESoutput <-new("SESoutput", selectedVars = results$selectedVars, selectedVarsOrder=results$selectedVarsOrder, queues=results$queues, signatures=results$signatures, hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, univ = results$univ, max_k=results$max_k, threshold = results$threshold, n.tests = results$n.tests, runtime=results$runtime, test=ci_test, rob = robust);
+  results = InternalSES(target, dataset, max_k, threshold, test, ini, wei, equal_case, user_test, dataInfo, hash, varsize, stat_hash, pvalue_hash, targetID, robust = robust, ncores = ncores, logged = logged);
+  SESoutput <- new("SESoutput", selectedVars = results$selectedVars, selectedVarsOrder=results$selectedVarsOrder, queues=results$queues, signatures=results$signatures, hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, univ = results$univ, max_k=results$max_k, threshold = results$threshold, n.tests = results$n.tests, runtime=results$runtime, test=ci_test, rob = robust);
   return(SESoutput);
 }
 

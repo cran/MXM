@@ -29,11 +29,11 @@ iamb.bs <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, 
         }
       }
     }
+    dataset <- as.data.frame(dataset)
+    la <- length( unique(target) )
     ##################################
     # target checking and initialize #
     ################################## 
-    la <- length( unique(target) )
-
     if ( is.null(test)  &  is.null(user_test) ) {
       ## surival data
       if ( sum( class(target) == "Surv" ) == 1 ) {
@@ -119,12 +119,12 @@ iamb.bs <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, 
       if ( length(poies) > 0 ) {
         ind[-poies] <- 0
         ind <- ind[ind > 0]
-        dat <- dataset[, poies ]
+        dat <- dataset[, poies, drop = FALSE ]
         a2 <- internaliamb.bs(target = target, dataset = dat, threshold = threshold, test = test, wei = wei, p = length(ind), robust = robust )  
         poies <- a2$mat[, 1]
         ind[-poies] <- 0
         ind <- ind[ind > 0]
-        if ( length(poies) == 1 )   dat <- dat  else   dat <- dat[, poies]
+        dat <- dat[, poies, drop = FALSE]
         i <- 2
       } else {
         ind <- NULL
@@ -139,7 +139,7 @@ iamb.bs <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, 
         if ( length(poies) > 0 ) {
           ind[-poies] <- 0
           ind <- ind[ind > 0]
-          if ( length(poies) == 1 )   dat <- dat  else   dat <- dat[, poies]
+          dat <- dat[, poies, drop = FALSE]
         } else  {
           dat <- NULL  
           ind <- NULL

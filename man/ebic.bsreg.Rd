@@ -52,7 +52,7 @@ The runtime required.
 A matrix with the number of variables and the number of tests performed (or models fitted) at each round (value of K). 
 }
 \item{mat}{
-A matrix with the selected variables, their test statistic and the associated p-value.
+A matrix with the selected variables and their eBIC.
 }
 \item{back.rem}{
 The variables removed in the backward phase.

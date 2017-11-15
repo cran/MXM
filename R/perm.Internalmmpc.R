@@ -14,7 +14,7 @@ perm.Internalmmpc = function(target, dataset, max_k, threshold, test=NULL, ini=N
   #   pvalue_hash = univariateModels$pvalue_hash;
   #if we dont have any associations , return
   if ( min(pvalues, na.rm = TRUE) > threshold )  {
-    cat('No associations!');
+    #cat('No associations!');
     results = NULL;
     results$selectedVars = c();
     class(results$selectedVars) = "numeric";

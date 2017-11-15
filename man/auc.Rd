@@ -13,8 +13,8 @@ auc(group, preds, roc = FALSE, cutoffs = NULL)
 }
 
 \arguments{
-\item{group}{
-The true labels, either a factor or a numerical vector with two numbers only. 
+\item{group}{z
+A numerical vector with the predicted values of each group as 0 and 1.
 }
 \item{preds}{
 The predicted values of each group. 
@@ -43,10 +43,10 @@ The sensitivity values for each cutoff value.
 The specificity value for each cutoff value.
 }
 \item{youden}{
-The Youden index which is defined as the maximum value of sensitivity - specificity + 1.
+The pair of of 1- specificity and sensitivity where the Youden's J appears on the graph and the Youden index which is defined as the maximum value of sensitivity - specificity + 1. 
 }
 \item{auc}{
-The area under the curve. If "roc" is set to FALSE, this is the only item in the list to be returned.
+The area under the curve, plus a circle with the point where Youden's J is located. If "roc" is set to FALSE, this is the only item in the list to be returned.
 }
 }
 

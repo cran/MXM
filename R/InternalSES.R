@@ -1,5 +1,5 @@
-InternalSES = function(target, dataset, max_k, threshold, test = NULL, ini, wei=NULL, equal_case=3, user_test=NULL, dataInfo=NULL, hash=FALSE, varsize, stat_hash, pvalue_hash, targetID, robust, ncores)
-{
+InternalSES = function(target, dataset, max_k, threshold, test = NULL, ini, wei=NULL, equal_case=3, user_test=NULL, dataInfo=NULL, 
+                       hash = FALSE, varsize, stat_hash, pvalue_hash, targetID, robust, ncores, logged) {
   #get the current time
   runtime = proc.time();
   #######################################################################################
@@ -20,7 +20,7 @@ InternalSES = function(target, dataset, max_k, threshold, test = NULL, ini, wei=
   #   pvalue_hash = univariateModels$pvalue_hash;
   #if we dont have any associations , return
   if ( min(pvalues, na.rm = TRUE) > threshold )  {
-    cat('No associations!');
+    #cat('No associations!');
     
     results = NULL;
     results$selectedVars = c();
@@ -34,8 +34,9 @@ InternalSES = function(target, dataset, max_k, threshold, test = NULL, ini, wei=
     results$hashObject = NULL;
     class(results$hashObject) = 'list';
     class(results$univ) = 'list';
-    
-    results$pvalues = exp(pvalues);
+    if (logged) {
+      results$pvalues = pvalues;
+    } else  results$pvalues = exp(pvalues);
     results$stats = stats;
     results$univ = univariateModels
     results$max_k = max_k;
@@ -134,7 +135,9 @@ InternalSES = function(target, dataset, max_k, threshold, test = NULL, ini, wei=
   hashObject$pvalue_hash = pvalue_hash;
   results$hashObject = hashObject;
   class(results$hashObject) = 'list';
-  results$pvalues = exp(pvalues);
+  if (logged) {
+    results$pvalues = pvalues;
+  } else  results$pvalues = exp(pvalues);
   results$stats = stats;
   results$univ = univariateModels
   #   results$all_queues = all_queues;

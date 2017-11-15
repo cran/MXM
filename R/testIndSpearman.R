@@ -89,15 +89,6 @@ testIndSpearman = function(target, dataset, xIndex, csIndex, wei = NULL, statist
       }
     }
   }
-  #if x or target is constant then there is no point to perform the test
-  # if( Rfast::Var(x)== 0 )  {
-  #   if( hash )  {   #update hash objects
-  #     stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
-  #     pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
-  #   }
-  #   results <- list(pvalue = log(1), stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
-  #   return(results);
-  # }
 #trycatch for dealing with errors
 res <- tryCatch(
 {

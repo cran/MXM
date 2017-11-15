@@ -10,7 +10,7 @@ The skeleton of a Bayesian network produced by MMHC. No orientations are involve
 
 \usage{
 mmhc.skel(dataset, max_k = 3, threshold = 0.05, test = "testIndFisher", type = "MMPC", 
-rob = FALSE, fast = FALSE, symmetry = TRUE, nc = 1) 
+backward = TRUE, rob = FALSE, symmetry = TRUE, nc = 1, ini.pvalue = NULL, hash = FALSE) 
 }
 
 \arguments{
@@ -31,12 +31,12 @@ The conditional independence test to use. Default value is "testIndFisher". This
 The type of variable selection to take place for each variable (or node). The default (and standard) in "MMPC". You can also choose to run it via "SES" and thus allow for multiple signatures of variables to be connected 
 to a variable.
 }
+\item{backward}{
+If TRUE, the backward (or symmetry correction) phase will be implemented. This removes any falsely included variables in the parents and children set of the target variable. It call the \code{link{mmpcbackphase}} for this purpose. For perm.ses and wald.ses this is not yet applicable.
+}
 \item{rob}{
 A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust version of the statistical test if it is available. It takes more time than a non robust version but it is suggested in case of outliers. 
 Default value is FALSE. This will only be taken into account if test is "testIndFisher".
-}
-\item{fast}{
-A bollean variable indicating a faster procedure to take place. By default this is set to FALSE. See details about this. 
 }
 \item{symmetry}{
 In order for an edge to be added, a statistical relationship must have been found from both directions. If you want this symmetry correction to take place, leave this boolean variable to TRUE. If you set it to FALSE, then if 
@@ -46,6 +46,12 @@ a relationship between Y and X is detected but not between X and Y, the edge is 
 How many cores to use. This plays an important role if you have many variables, say thousands or so. You can try with nc = 1 and with nc = 4 for example to see the differences. If you have a multicore machine, this is a must 
 option. There was an extra argument for plotting the skeleton but it does not work with the current visualisation 
 packages, hence we removed the argument. Use \code{\link{plotnetwork}} to plot the skeleton.   
+}
+\item{ini.pvalue}{
+This is a list with the matrix of the univariate p-values. If you want to run mmhc.skel again, the univariate associations need not be calculated again.
+}
+\item{hash}{
+A boolean variable which indicates whether (TRUE) or not (FALSE) to store the statistics calculated during MMPC or SES execution in a hash-type object. Default value is FALSE. If TRUE a hashObject is produced. You should put it to TRUE is you want an accurate count of the the number of tests performed. The only reason I put FLASE is because I want it to pass the CRAN check.
 }
 }
 
@@ -77,6 +83,12 @@ If you run "MMPC" for each variable this is NULL. If you run "SES" is a vector d
 \item{ntests}{
 The number of tests MMPC (or SES) performed at each variable.
 }
+\item{ini.pvalue}{
+A matrix with the p-values of all pairwise univariate assocations.
+}
+\item{pvalue}{
+A matrix with the final p-values. These are the maximum p-values calculated during the process. When the process finishes, the matrix is not symmetric. It becomes symmetric though by keeping the maximum between any two off-diagonal elements. These p-values now can be used to sort the strength of the edges. If you know the true adjacency matrix you can use them and create a ROC curve (see \code{link{bn.skel.utils}} for more information).
+}
 \item{G}{
 The adjancency matrix. A value of 1 in G[i, j] appears in G[j, i] also, indicating that i and j have an edge between them.
 }
@@ -98,7 +110,7 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> and M
 %%  ~~further notes~~
 %}
 \seealso{
-\code{ \link{pc.skel}, \link{pc.or}, \link{corfs.network} }
+\code{ \link{pc.skel}, \link{pc.or}, \link{corfs.network}, \link{bn.skel.utils} }
 }
 
 \examples{
@@ -108,13 +120,11 @@ a1 <- mmhc.skel(dataset, max_k = 3, threshold = 0.05, test = "testIndFisher",
 rob = FALSE, nc = 1) 
 a2 <- mmhc.skel(dataset, max_k = 3, threshold = 0.05, test = "testIndSpearman", 
 type = "SES", rob = FALSE, nc = 1)
-a3 <- pc.con(dataset)
-a4 <- pc.skel(dataset, R = 1) 
+a3 <- pc.skel(dataset, alpha = 0.05)
 
 a1$runtime  
 a2$runtime 
 a3$runtime 
-
 }
 
 \keyword{ MMHC algorithm }

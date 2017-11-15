@@ -13,6 +13,7 @@ tobit.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold 
   k <- 1   ## counter
   tool <- numeric( min(n, p) )
   con <- log(n)
+  threshold <- log(threshold)
   
   if ( is.null(iniset) ) {
     da <- 0
@@ -83,9 +84,9 @@ tobit.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold 
     pn <- p - k + 1   
     ini <- moda[[ 1 ]]$deviance  ## residual deviance
     do <- length( coef( moda[[ 1 ]]  ) ) 
+    devi <- dof <- numeric( pn )  
     
     if ( ncores <= 1 ) {
-      devi <- dof <- numeric(pn)
       for ( i in 1:pn ) {
         ww <- survival::survreg( target ~., data = as.data.frame( dataset[, c(da, sela, mat[pa + i, 1]) ] ), weights = wei, dist = "gaussian" )
         devi[i] <- 2 * logLik(ww)
@@ -104,7 +105,6 @@ tobit.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold 
         return( c( 2 * logLik(ww), length( ww$coefficients ) ) )
       }
       stopCluster(cl)
-      
       stat <- mod[, 1] - ini
       pval <- pchisq( stat, mod[, 2] - do, lower.tail = FALSE, log.p = TRUE )
     }
@@ -143,15 +143,14 @@ tobit.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold 
       do <- length( coef( moda[[ k ]]  ) ) 
       k <- k + 1   
       pn <- p - k  + 1
+      devi <- dof <- numeric( pn )  
       
       if (ncores <= 1) {  
-        devi = dof = numeric(pn) 
         for ( i in 1:pn ) {
           ma <- survival::survreg( target ~., data = as.data.frame( dataset[, c(da, sela, mat[pa + i, 1] ) ] ), weights = wei, dist = "gaussian" )
           devi[i] <- 2 * logLik(ma)
           dof[i] <- length( ma$coefficients ) 
         }
-        
         stat <- devi - ini
         pval <- pchisq( stat, dof - do, lower.tail = FALSE, log.p = TRUE )
         
@@ -163,7 +162,6 @@ tobit.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold 
           return( c( 2 * logLik(ww), length( ww$coefficients ) ) )
         }
         stopCluster(cl)
-        
         stat <- mod[, 1] - ini
         pval <- pchisq( stat, mod[, 2] - do, lower.tail = FALSE, log.p = TRUE ) 
       }
@@ -185,7 +183,7 @@ tobit.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold 
           sela <- info[, 1]
           mat <- mat[-ina, , drop = FALSE]
           moda[[ k ]] <- ma
-        } 
+        }  ## end if ( tool[ k - 1 ] - tool[ k  ] < tol ) 
         
       } else   info <- rbind(info, c( 1e300, 0, 0 ) )
       

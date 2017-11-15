@@ -171,17 +171,16 @@ for(i in 1:1000) {
 require(survival, quietly = TRUE)
 
 #init the Surv object class feature
-  target <- Surv(time = timeToEvent, event = event)
+target <- Surv(time = timeToEvent, event = event)
   
-  #run the censIndCR   conditional independence test
-  res <- censIndCR( target, dataset, xIndex = 12, csIndex = c(5, 7, 4) )
-  res
+#run the censIndCR   conditional independence test
+res <- censIndCR( target, dataset, xIndex = 12, csIndex = c(5, 7, 4) )
+res
   
-  #run the SES algorithm using the censIndCR conditional independence
-  #test for the survival class variable
-  ses1 <- SES(target, dataset, max_k = 1, threshold = 0.05, test = "censIndCR");
-  ses2 <- SES(target, dataset, max_k = 1, threshold = 0.05, test = "censIndWR");
-  ses3 <- SES(target, dataset, max_k = 1, threshold = 0.05, test = "censIndER");
+# run the SES algorithm 
+ses1 <- SES(target, dataset, max_k = 1, threshold = 0.05, test = "censIndCR");
+ses2 <- SES(target, dataset, max_k = 1, threshold = 0.05, test = "censIndWR");
+ses3 <- SES(target, dataset, max_k = 1, threshold = 0.05, test = "censIndER");
 }
 
 \keyword{ Survival }

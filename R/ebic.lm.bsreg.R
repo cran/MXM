@@ -4,7 +4,7 @@ ebic.lm.bsreg <- function(target, dataset, gam = NULL, wei = NULL) {
   n <- dm[1]  ## sample size 
   p <- dm[2]  ## number of variables
   if ( p > n ) {
-    res <- paste("The number of variables is hiher than the sample size. No backward procedure was attempted")
+    res <- paste("The number of variables is higher than the sample size. No backward procedure was attempted")
     
   } else {
     
@@ -17,7 +17,7 @@ ebic.lm.bsreg <- function(target, dataset, gam = NULL, wei = NULL) {
     tool <- numeric(p + 1)
     
     ini <- lm( target ~.,  data = dataset, weights = wei )
-    bic0 <-  BIC(ini)   ## initial BIC  
+    bic0 <-  BIC(ini)   ## initial bic  
     tool[1] <- bic0
     bic <- numeric(p)
     M <- dim(dataset)[2] - 1
@@ -33,8 +33,8 @@ ebic.lm.bsreg <- function(target, dataset, gam = NULL, wei = NULL) {
         mat <- matrix(0, nrow = 0, ncol = 2 )
       }
       runtime <- proc.time() - tic
-      colnames(info) <- c("Variables", "BIC")
-      colnames(mat) <- c("Variables", "BIC")
+      colnames(info) <- c("Variables", "eBIC")
+      colnames(mat) <- c("Variables", "eBIC")
       res <- list(runtime = runtime, info = info, mat = mat )
       
     } else { 
@@ -47,8 +47,8 @@ ebic.lm.bsreg <- function(target, dataset, gam = NULL, wei = NULL) {
     mat <- cbind(1:p, bic )
     sel <- which.min( mat[, 2] )
     info <- matrix( c(0, 0), ncol = 2 )
-    colnames(info) <- c("Variables", "BIC")
-    colnames(mat) <- c("Variables", "BIC")
+    colnames(info) <- c("Variables", "eBIC")
+    colnames(mat) <- c("Variables", "eBIC")
     
     if ( bic0 - mat[sel, 2] < 0  ) {
       runtime <- proc.time() - tic		

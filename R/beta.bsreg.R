@@ -23,13 +23,20 @@ beta.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL) {
       dofini <- length( ini$be )
       likini <- ini$loglik 
       stat <- dof <- numeric(p)
-      
-      for (j in 1:p) {
-        mod <- beta.reg( target, dataset[, -j], wei = wei )
-        stat[j] <- 2 * abs( likini - mod$loglik )
-        dof[j] <- dofini - length( mod$be )
+      if (p == 1) {
+	      if ( is.null(wei) ) {
+          mod <- Rfast::beta.mle(target)
+        } else mod <- betamle.wei(target, wei)
+        stat <- 2 * ( likini - mod$loglik )
+        dof <- dofini - length( mod$be ) 
+        pval <- pchisq( stat, dof, lower.tail = FALSE, log.p = TRUE)
+	    } else {
+        for (j in 1:p) {
+          mod <- beta.reg( target, dataset[, -j], wei = wei )
+          stat[j] <- 2 * ( likini - mod$loglik )
+          dof[j] <- dofini - length( mod$be )
+        }
       }
-      
       mat <- cbind(1:p, pchisq( stat, dof, lower.tail = FALSE, log.p = TRUE), stat )
       colnames(mat) <- c("variable", "log.p-value", "statistic" )
       rownames(mat) <- 1:p 
@@ -62,13 +69,13 @@ beta.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL) {
               mod <- Rfast::beta.mle(target)
             } else mod <- betamle.wei(target, wei)
             
-            stat <- 2 * abs( likini - mod$loglik )
+            stat <- 2 * ( likini - mod$loglik )
             dof <- dofini - length( mod$be ) 
             pval <- pchisq( stat, dof, lower.tail = FALSE, log.p = TRUE)
             
             if (pval > threshold ) {
               final <- "No variables were selected"
-              info <- rbind(info, c(mat[, 1], stat, pval) )
+              info <- rbind(info, c(mat[, 1], pval, stat) )
               dat <- dataset[, -info[, 1], drop = FALSE ] 
               mat <- NULL
             } else {
@@ -82,7 +89,7 @@ beta.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL) {
             stat <- dof <- numeric(k)
             for (j in 1:k) {
               mod <- beta.reg( target,  dat[, -j], wei = wei )
-              stat[j] <- 2 * abs( likini - mod$loglik )
+              stat[j] <- 2 * ( likini - mod$loglik )
               dof[j] <- dofini - length( mod$be ) 
             }
             

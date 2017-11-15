@@ -136,6 +136,19 @@
 \alias{ebic.zip.bsreg}
 \alias{fscore.mxm}
 \alias{euclid_sens.spec.mxm}
+\alias{cat_condis}
+\alias{pearson_condis}
+\alias{pearson_condis.rob}
+\alias{disctor_condis}
+\alias{comb_condis}
+\alias{fbed.glmm}
+\alias{fbed.lmm}
+\alias{ebic.fbed.glmm}
+\alias{ebic.fbed.lmm}
+\alias{lmm.bsreg}
+\alias{clogit.fsreg}
+\alias{clogit.fsreg_2}
+\alias{bic.clogit.fsreg}
 
 \title{ Internal MXM Functions }
 \description{
@@ -279,6 +292,19 @@ Internal functions of Package \pkg{MXM}
 \item ebic.zip.bsreg( ... )
 \item fscore.mxm( ... )
 \item euclid_sens.spec.mxm( ... )
+\item cat_condis( ... )
+\item pearson_condis( ... )
+\item pearson_condis.rob( ... )
+\item disctor_condis( ... )
+\item comb_condis( ... )
+\item fbed.glmm( ... )
+\item fbed.lmm( ... )
+\item ebic.fbed.glmm( ... )
+\item ebic.fbed.lmm( ... )
+\item lmm.bsreg( ... )
+\item clogit.fsreg( ... )
+\item clogit.fsreg_2( ... )
+\item bic.clogit.fsreg( ... )
 }
 }
 \details{

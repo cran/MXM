@@ -20,7 +20,6 @@ if ( !is.null(user_test) ) {
   univariateModels <- perm.univariateScore(target, dataset, test, wei, dataInfo, targetID, robust, threshold, R, ncores)
     
 } else if ( identical(test, permFisher) | ( identical(test, permReg) & is.null(wei) ) & !robust )  { ## Pearson's correlation 
-  if ( min(target) > 0  &  max(target) < 1 )  target = log( target/(1 - target) ) ## logistic normal 
   pvalue <- numeric(cols)
   a <- as.vector( cor(target, dataset) )
   dof <- rows - 3; #degrees of freedom
@@ -37,7 +36,6 @@ if ( !is.null(user_test) ) {
   univariateModels$pvalue = pvalue ;
 
 } else if ( identical(test, permDcor) ) { ## Pearson's correlation 
-  if ( min(target) > 0  &  max(target) < 1 )  target = log( target/(1 - target) ) ## logistic normal 
   stat <- numeric(cols)
   pvalue <- numeric(cols)
   for (i in 1:cols) {
@@ -50,7 +48,7 @@ if ( !is.null(user_test) ) {
 
 } else if ( identical(test, permgSquare) ) {  ## G^2 test
   z <- cbind(dataset, target)
-  dc <- Rfast::colMaxs(z) + 1
+  dc <- Rfast::colrange(z, cont = FALSE)
   a <- Rfast::g2tests_perm(data = z, x = 1:cols, y = cols + 1, dc = dc, nperm = R)
   univariateModels$stat = a$statistic
   univariateModels$pvalue = a$pvalue
@@ -61,7 +59,6 @@ if ( !is.null(user_test) ) {
   univariateModels$pvalue = mod[, 2]
 
 } else if ( identical(test, permReg)  &  robust  ) {  ## M (Robust) linear regression
-  if ( min(target) > 0  &  max(target) < 1 )  target = log( target/(1 - target) ) ## logistic normal 
   fit1 = MASS::rlm(target ~ 1, maxit = 2000, method = "MM")
   lik1 = as.numeric( logLik(fit1) )
   lik2 = numeric(cols)

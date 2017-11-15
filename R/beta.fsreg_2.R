@@ -13,15 +13,10 @@ beta.fsreg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei =
   k <- 1   ## counter
   tool <- numeric( min(n, p) )
   
-  if ( is.null(iniset) ) {
-    da <- 0
-    pa <- 0
-  } else {
-    pa <- NCOL(iniset)
-    da <- 1:pa
-    dataset <- cbind(iniset, dataset)
-  }  
-  
+  pa <- NCOL(iniset)
+  da <- 1:pa
+  dataset <- cbind(iniset, dataset)
+
   threshold <- log(threshold)  ## log of the significance level
   moda <- list()
   k <- 1   ## counter
@@ -47,17 +42,10 @@ beta.fsreg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei =
   runtime <- proc.time()
   
   devi = dof = numeric(p)
-  if ( pa == 0 ) {
-    if ( is.null(wei) ) {
-      ini <-  - 2 * Rfast::beta.mle(target)$loglik + 2 * con 
-    } else ini <-  - 2 * betamle.wei(target, wei)$loglik + 2 * con 
-    do <- 1
-  } else  {
-    ini <- beta.reg(target, iniset, wei = wei )
-    do <- length(mi$be)
-    ini <-   - 2 * mi$loglik + ( do + 1 ) * con
-  }  
-  
+  ini <- beta.reg(target, iniset, wei = wei )
+  do <- length(mi$be)
+  ini <-   - 2 * mi$loglik
+
   if (ncores <= 1) {
     for (i in 1:p) {
       mi <- beta.reg( target, dataset[, c(da, pa + i)], wei = wei )
@@ -86,14 +74,12 @@ beta.fsreg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei =
   colnames(mat) <- c( "variables", "log.p-value", "stat" )
   sel <- which.min(mat[, 2])
   info <- matrix( numeric(3), ncol = 3 )
-  sel <- which.min(pval)
   info <- matrix( c( 1e300, 0, 0 ), ncol = 3 )
-  sela <- sel
+  sela <- pa + sel
   
   if ( mat[sel, 2] < threshold ) {
     info[k, ] <- mat[sel, ]
     mat <- mat[-sel, , drop = FALSE] 
-    #if ( robust == FALSE ) {
     mi <- beta.reg( target, dataset[, c(da, sel) ], wei = wei )
     tool[k] <-  - 2 * mi$loglik + ( length(mi$be) + 1 ) * con
     moda[[ k ]] <- mi
@@ -111,27 +97,27 @@ beta.fsreg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei =
     if ( ncores <= 1 ) {
       devi <- dof <- numeric(pn)
       for ( i in 1:pn ) {
-        ww <- beta.reg( target, dataset[, c(da, sela, mat[pa + i, 1]) ], wei = wei )
+        ww <- beta.reg( target, dataset[, c(da, sela, pa + mat[i, 1]) ], wei = wei )
         devi[i] <- 2 * ww$loglik
         dof[i] <- length( ww$be )          
       }     
-      stat <- abs( devi - ini )
+      stat <- devi - ini
       pval <- pchisq( stat, dof - do, lower.tail = FALSE, log.p = TRUE )
       
     } else {   
       cl <- makePSOCKcluster(ncores)
       registerDoParallel(cl)
       mod <- foreach( i = 1:pn, .combine = rbind, .export = "beta.reg" ) %dopar% {
-        ww <- beta.reg( target, dataset[, c(da, sela, mat[pa + i, 1]) ], wei = wei )
+        ww <- beta.reg( target, dataset[, c(da, sela, pa + mat[i, 1]) ], wei = wei )
         return( c( 2 * ww$loglik, length( ww$be ) ) )
       }     
       stopCluster(cl)  
-      stat <- abs( mod[, 1] - ini )
+      stat <- mod[, 1] - ini
       pval <- pchisq( stat, mod[, 2] - do, lower.tail = FALSE, log.p = TRUE )    
     }
     mat[, 2:3] <- cbind(pval, stat)
     ina <- which.min(mat[, 2])
-    sel <- mat[ina, 1]    
+    sel <- pa + mat[ina, 1]    
     
     if ( mat[ina, 2] < threshold ) {
       ma <- beta.reg( target, dataset[, c(da, sela, sel) ], wei = wei )
@@ -140,7 +126,7 @@ beta.fsreg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei =
         info <- info    
       } else { 
         info <- rbind(info, c( mat[ina, ] ) )
-        sela <- info[, 1]
+        sela <- c(sela, sel)
         mat <- mat[-ina , , drop = FALSE] 
         moda[[ 2 ]] <- ma
       }
@@ -159,27 +145,27 @@ beta.fsreg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei =
       if (ncores <= 1) {  
         devi <- dof <- numeric(pn) 
         for ( i in 1:pn ) {
-          ma <- beta.reg( target, dataset[, c(da, sela, mat[pa + i, 1] ) ], wei = wei )
+          ma <- beta.reg( target, dataset[, c(da, sela, pa + mat[i, 1] ) ], wei = wei )
           devi[i] <-  2 * ma$loglik
           dof[i] <- length( ma$be ) 
         }
-        stat <- abs( devi - ini )
+        stat <- devi - ini 
         pval <- pchisq( stat, dof - do, lower.tail = FALSE, log.p = TRUE )
         
       } else {
         cl <- makePSOCKcluster(ncores)
         registerDoParallel(cl)
         mod <- foreach( i = 1:pn, .combine = rbind, .export = "beta.reg" ) %dopar% {
-          ww <- beta.reg( target, dataset[, c(da, sela, mat[pa + i, 1]) ], wei = wei )
+          ww <- beta.reg( target, dataset[, c(da, sela, pa + mat[i, 1]) ], wei = wei )
           return( c( 2 * ww$loglik, length( ww$be ) ) )
         }
         stopCluster(cl)
-        stat <- abs(mod[, 1] - ini)
+        stat <- mod[, 1] - ini
         pval <- pchisq( stat, mod[, 2] - do, lower.tail = FALSE, log.p = TRUE )
       }
       mat[, 2:3] <- cbind(pval, stat)
       ina <- which.min(mat[, 2])
-      sel <- mat[ina, 1]    
+      sel <- pa + mat[ina, 1]    
       
       if ( mat[ina, 2] < threshold ) {
         ma <- beta.reg( target, dataset[, c(da, sela, sel) ], wei = wei )
@@ -188,7 +174,7 @@ beta.fsreg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei =
           info <- rbind(info, c( 1e300, 0, 0 ) )  
         } else { 
           info <- rbind( info, mat[ina, ] )
-          sela <- info[, 1]
+          sela <- c(sela, sel)
           mat <- mat[-ina , , drop = FALSE]
           moda[[ k ]] <- ma
         }  

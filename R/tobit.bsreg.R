@@ -33,16 +33,23 @@ tobit.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = F
       }
     }
     runtime <- proc.time()
-
-      ini <- survival::survreg( target ~.,  data = as.data.frame(dataset), weights = wei, dist = "gaussian" )
-      dofini <- length( coef(ini) )
+    dataset <- as.data.frame(dataset)
+    
+    if (p == 1) {
+      ini <- survival::survreg( target ~.,  data = dataset, weights = wei, dist = "gaussian" )
+      mod <- anova(ini)
+      stat <- mod[2, 2]
+      dof <- mod[2, 1]
+    } else {
+      ini <- survival::survreg( target ~.,  data = dataset, weights = wei, dist = "gaussian" )
+      dofini <- length( ini$coefficients )
       stat <- dof <- numeric(p)
       for (i in 1:p) {
-        mod <- survival::survreg( target ~.,  data = as.data.frame(dataset[, -i]), weights = wei, dist = "gaussian" )
+        mod <- survival::survreg( target ~.,  data = dataset[, -i ,drop = FALSE], weights = wei, dist = "gaussian" )
         stat[i] <- 2 * abs(logLik(mod) - logLik(ini) )
-        dof[i] <- dofini - length( coef(mod) ) 
+        dof[i] <- dofini - length( mod$coefficients ) 
       }
-
+    }
     mat <- cbind(1:p, pchisq( stat, dof, lower.tail = FALSE, log.p = TRUE), stat )
     colnames(mat) <- c("variable", "log.p-values", "statistic" )
     rownames(mat) <- 1:p 
@@ -57,7 +64,7 @@ tobit.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = F
       
       info[1, ] <- mat[sel, ]
       mat <- mat[-sel, , drop = FALSE] 
-      dat <- as.data.frame( dataset[, -sel] ) 
+      dat <- dataset[, -sel ,drop = FALSE]
     } 
     
     i <- 1  
@@ -69,23 +76,23 @@ tobit.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = F
         while ( info[i, 2] > threshold  &  NCOL(dat) > 0 )  {   
           i <- i + 1
           k <- p - i + 1
-          ini <- survival::survreg( target ~., data = data.frame(dat), weights = wei, dist = "gaussian" )
+          ini <- survival::survreg( target ~., data = dat, weights = wei, dist = "gaussian" )
           
           if ( k == 1 ) {
-            mod <- survival::survreg(target ~ 1, data = data.frame(dat), weights = wei, dist = "gaussian")
+            mod <- survival::survreg(target ~ 1, data = dat, weights = wei, dist = "gaussian")
             stat <- 2 * abs( logLik(ini) - logLik(mod) )
-            dof <- length( coef(ini) ) - length( coef(mod) ) 
+            dof <- length( ini$coefficients ) - length( mod$coefficients ) 
             pval <- pchisq( stat, dof, lower.tail = FALSE, log.p = TRUE)
             
             if (pval > threshold ) {
               final <- "No variables were selected"
-              info <- rbind(info, c(mat[, 1], stat, pval) )
-              dat <- as.data.frame( dataset[, -info[, 1] ] )
+              info <- rbind(info, c(mat[, 1], pval, stat) )
+              dat <- dataset[, -info[, 1], drop = FALSE ]
               mat <- NULL
             } else {
               info <- rbind(info, c(0, -10, -10)) 
               final <- ini
-              mat[, 2:3] <- c(stat, pval)
+              mat[, 2:3] <- c(pval, stat)
             }
             
           } else {
@@ -93,9 +100,9 @@ tobit.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = F
             stat <- dof <- numeric(k)
             
             for (j in 1:k) {
-              mod <- survival::survreg( target ~.,  data = as.data.frame(dat[, -j]), weights = wei, dist = "gaussian" )
+              mod <- survival::survreg( target ~.,  data = dat[, -j, drop = FALSE], weights = wei, dist = "gaussian" )
               stat[j] <- 2 * abs( logLik(mod) - logLik(ini) )
-              dof[j] <- length( coef(ini) ) - length( coef(mod) ) 
+              dof[j] <- length( ini$coefficients ) - length( mod$coefficients ) 
             }
             mat[, 2:3] <- cbind( pchisq( stat, dof, lower.tail = FALSE, log.p = TRUE), stat )
             sel <- which.max( mat[, 2] )
@@ -107,7 +114,7 @@ tobit.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = F
             } else {
               info <- rbind(info, mat[sel, ] )
               mat <- mat[-sel, ,drop = FALSE] 
-              dat <- as.data.frame( dataset[, -info[, 1] ] )
+              dat <- dataset[, -info[, 1], drop = FALSE ] 
             }
           }  
         }  ## end while
@@ -118,32 +125,32 @@ tobit.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = F
           
           i <- i + 1       
           k <- p - i + 1
-          ini <- survival::survreg( target ~., data = data.frame(dat), weights = wei )
-          dofini <- length( coef(ini) ) 
+          ini <- survival::survreg( target ~., data = dat, weights = wei )
+          dofini <- length( ini$coefficients ) 
           if ( k == 1 ) {
-            mod <- survival::survreg(target ~ 1, data = data.frame(dat), weights = wei)
+            mod <- survival::survreg(target ~ 1, data = dat, weights = wei)
             stat <- 2 * abs( logLik(ini) - logLik(mod) )
-            dof <- dofini - length( coef(mod) ) 
+            dof <- dofini - length( mod$coefficients ) 
             pval <- pchisq( stat, dof, lower.tail = FALSE, log.p = TRUE)
             
             if (pval > threshold ) {
               final <- "No variables were selected"
-              info <- rbind(info, c(mat[, 1], stat, pval) )
-              dat <- as.data.frame( dataset[, -info[, 1] ] )
+              info <- rbind(info, c(mat[, 1], pval, stat) )
+              dat <- dataset[, -info[, 1], drop = FALSE ]
               mat <- NULL
             } else {
               info <- rbind(info, c(0, -10, -10)) 
               final <- ini
-              mat[, 2:3] <- c(stat, pval)
+              mat[, 2:3] <- c(pval, stat)
             }  
           } else {		       
             
             stat <- dof <- numeric(k)
             
             for (j in 1:k) {
-              mod <- survival::survreg( target ~., data = data.frame(dat[, -j]), weights = wei )
-              stat[j] <- mod$deviance - ini$deviance
-              dof[j] <- dofini - length( coef(mod) ) 		   
+              mod <- survival::survreg( target ~., data = dat[, -j, drop = FALSE], weights = wei )
+              stat[j] <- 2 * abs( logLik(ini) - logLik(mod) )
+              dof[j] <- dofini - length( mod$coefficients ) 		   
             } 
             
             mat[, 2:3] <- cbind( pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE), stat )
@@ -156,7 +163,7 @@ tobit.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = F
             } else {
               info <- rbind(info, mat[sel, ] )
               mat <- mat[-sel, , drop = FALSE] 
-              dat <- as.data.frame( dataset[, -info[, 1] ] )
+              dat <- dataset[, -info[, 1], drop = FALSE ]
             }
             
           }	   

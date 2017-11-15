@@ -5,7 +5,7 @@ Forward Backward Early Dropping selection regression
 }
 
 \description{
-Forward Backward Early Dropping selection regression
+Forward Backward Early Dropping selection regression.
 }
 
 \usage{

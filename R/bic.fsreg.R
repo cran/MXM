@@ -50,11 +50,13 @@ bic.fsreg <- function( target, dataset, test = NULL, wei = NULL, tol = 2, robust
     } else if ( length( unique(target) ) == 2  &  is.factor(target) ) {
       test <- "testIndLogistic"   
     }
-  }
+  }  ## end if ( is.null(test) )
     #available conditional independence tests
     av_models = c("testIndReg", "testIndRQ", "testIndBeta", "censIndCR", "censIndWR", "testIndLogistic", "testIndPois", "testIndNB", 
                   "testIndZIP", "testIndSpeedglm", "testIndGamma", "testIndNormLog", "testIndTobit"); 
-    #cat(test)    
+  
+  dataset <- as.data.frame(dataset)
+    
   if ( ( test == "testIndLogistic"  &  length( unique(target) ) == 2 )  ||  test == "testIndPois"  ||  test == "testIndReg" ) {
     result <- bic.glm.fsreg( target, dataset, wei = wei, tol = tol, heavy = FALSE, robust = robust, ncores = ncores ) 
   
@@ -81,6 +83,10 @@ bic.fsreg <- function( target, dataset, test = NULL, wei = NULL, tol = 2, robust
   } else if ( test == "testIndTobit" ) {
     
     result <- bic.tobit.fsreg(target, dataset, wei = wei, tol = tol, ncores = ncores )
+    
+  } else if ( test == "testIndClogit" ) {
+    
+    result <- bic.clogit.fsreg(target, dataset, wei = wei, tol = tol, ncores = ncores )
     
   } else {
  
@@ -165,7 +171,7 @@ bic.fsreg <- function( target, dataset, test = NULL, wei = NULL, tol = 2, robust
       if ( ncores <= 1 ) {
         bico <- numeric( pn )
         for ( i in 1:pn ) {
-          ma <- test( target ~., data = as.data.frame( dataset[, c(sel, mat[i, 1]) ] ), weights = wei )
+          ma <- test( target ~., data = dataset[, c(sel, mat[i, 1]) ], weights = wei )
 		      la <- logLik(ma)
           bico[i] <-  - 2 * as.numeric( la ) + attr(la, "df") * con
         }
@@ -175,7 +181,7 @@ bic.fsreg <- function( target, dataset, test = NULL, wei = NULL, tol = 2, robust
         cl <- makePSOCKcluster(ncores)
         registerDoParallel(cl)
         mod <- foreach( i = 1:pn, .combine = rbind) %dopar% {
-          ww <- test( target ~., data = as.data.frame( dataset[, c(sel, mat[i, 1]) ] ), weights = wei )
+          ww <- test( target ~., data = dataset[, c(sel, mat[i, 1]) ], weights = wei )
           la <- logLik(ww)
           return( - 2 * as.numeric( la ) +  attr(la, "df") * con )
         }
@@ -192,7 +198,7 @@ bic.fsreg <- function( target, dataset, test = NULL, wei = NULL, tol = 2, robust
         info <- rbind(info, mat[ina, ] )
         sela <- info[, 1]
         mat <- mat[-ina, , drop = FALSE]
-        mi <- test( target ~., data = as.data.frame( dataset[, sela] ), weights = wei )
+        mi <- test( target ~., data = dataset[, sela], weights = wei )
 	      la <- logLik(mi)
         tool[2] <-  - 2 * as.numeric( la ) +  attr(la, "df") * con
         moda[[ 2 ]] <- mi
@@ -208,7 +214,7 @@ bic.fsreg <- function( target, dataset, test = NULL, wei = NULL, tol = 2, robust
         pn <- p - k + 1
         if (ncores <= 1) {
           for ( i in 1:pn ) {
-            ma <- test( target ~., data = as.data.frame( dataset[, c(sela, mat[i, 1]) ] ), weights = wei )
+            ma <- test( target ~., data = dataset[, c(sela, mat[i, 1]) ], weights = wei )
 		        la <- logLik(ma)
             mat[i, 2] <-  - 2 * as.numeric( la ) +  attr(la, "df") * con
           }
@@ -217,7 +223,7 @@ bic.fsreg <- function( target, dataset, test = NULL, wei = NULL, tol = 2, robust
           cl <- makePSOCKcluster(ncores)
           registerDoParallel(cl)
           mod <- foreach( i = 1:pn, .combine = rbind) %dopar% {
-            ww <- test( target ~., data = as.data.frame( dataset[, c(sela, mat[i, 1]) ] ), weights = wei )
+            ww <- test( target ~., data = dataset[, c(sela, mat[i, 1]) ], weights = wei )
 		      	la <- logLik(ww)
             return( - 2 * as.numeric( la ) +  attr(la, "df") * con )
           }
@@ -236,7 +242,7 @@ bic.fsreg <- function( target, dataset, test = NULL, wei = NULL, tol = 2, robust
           info <- rbind(info, mat[ina, ] )
           sela <- info[, 1]
           mat <- mat[-ina, , drop = FALSE]
-          ma <- test( target ~., data = as.data.frame( dataset[, sela] ), weights = wei )
+          ma <- test( target ~., data = dataset[, sela], weights = wei )
 		      la <- logLik(ma)
           tool[k] <-  - 2 * as.numeric( la ) +  attr(la, "df") * con
           moda[[ k ]] <- ma
@@ -249,7 +255,7 @@ bic.fsreg <- function( target, dataset, test = NULL, wei = NULL, tol = 2, robust
     d <- length(sela)
     final <- NULL
     if ( d >= 1 ) {
-      final <- test( target ~., data = as.data.frame( dataset[, sela] ), weights = wei )
+      final <- test( target ~., data = dataset[, sela, drop = FALSE], weights = wei )
       info <- info[1:d, , drop = FALSE]
       colnames(info) <- c( "variables", "BIC" )
       rownames(info) <- info[, 1]

@@ -62,9 +62,12 @@ fbed.lm <- function(y, x, alpha = 0.05, wei = NULL, K = 0) {
       sel <- which.min(pval) * ( length(s)>0 )
       sa <- c(sa, stat[sel]) 
       pva <- c(pva, pval[sel])
-      sela <- c(sela, sel)
+      sela <- c(sela, sel[sel > 0] )
       s <- s[ - which(s == sel) ]
-      pval <- numeric(p)
+      if (sel > 0) {
+        stat <- numeric(p)
+        pval <- numeric(p)
+      } 
     } ## end while ( sum(s > 0) > 0 )
     
   card <- sum(sela > 0)
@@ -89,7 +92,7 @@ fbed.lm <- function(y, x, alpha = 0.05, wei = NULL, K = 0) {
     sel <- which.min(pval) * ( length(s)>0 )
     sa <- c(sa, stat[sel]) 
     pva <- c(pva, pval[sel])
-    sela <- c(sela, sel)
+    sela <- c(sela, sel[sel > 0] )
     s <- s[ - which(s == sel) ]
     pval <- numeric(p)
     while ( sum(s>0) > 0 ) {
@@ -114,7 +117,10 @@ fbed.lm <- function(y, x, alpha = 0.05, wei = NULL, K = 0) {
       pva <- c(pva, pval[sel])
       sela <- c(sela, sel[sel>0])
       s <- s[ - which(s == sel) ]
-      pval <- numeric(p)
+      if (sel > 0) {
+        stat <- numeric(p)
+        pval <- numeric(p)
+      } 
     } ## end while ( sum(s>0) > 0 ) 
     card <- c(card, sum(sela>0) )
   }  ## end if ( K == 1 ) 
@@ -165,7 +171,10 @@ fbed.lm <- function(y, x, alpha = 0.05, wei = NULL, K = 0) {
       pva <- c(pva, pval[sel])
       sela <- c(sela, sel[sel>0])
       s <- s[ - which(s == sel) ]
-      pval <- numeric(p)
+      if (sel > 0) {
+        stat <- numeric(p)
+        pval <- numeric(p)
+      } 
     } ## end while ( sum(s>0) > 0 ) 
     
     card <- c(card, sum(sela > 0) )
@@ -216,7 +225,10 @@ fbed.lm <- function(y, x, alpha = 0.05, wei = NULL, K = 0) {
         pva <- c(pva, pval[sel])
         sela <- c(sela, sel[sel>0])
         s <- s[ - which(s == sel) ]
-        pval <- numeric(p)
+        if (sel > 0) {
+          stat <- numeric(p)
+          pval <- numeric(p)
+        } 
       } ## end while ( sum(s > 0) > 0 ) 
       card <- c(card, sum(sela>0) )
     }  ## end while ( vim < K )

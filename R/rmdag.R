@@ -5,7 +5,11 @@ rmdag <- function(n, A = NULL, p, nei, low = 0.1, up = 1) {
     G <- matrix(0, p, p)
     qa <- rbinom( 0.5 * p * (p - 1), 1, prob )
     G[upper.tri(G)] <- qa
-  } else G <- A
+    V <- paste("X", 1:p, sep = "")
+  } else {
+    G <- A
+    V <- colnames(G)
+  }  
   
   x <- data.frame(matrix(vector(), n, p) )
   u <- runif(1)
@@ -47,6 +51,8 @@ rmdag <- function(n, A = NULL, p, nei, low = 0.1, up = 1) {
       }
     }
   }
-  colnames(x) <- paste("X", 1:p)
+  if ( is.null(V) )   V <- paste("X", 1:p, sep = "")
+  colnames(x) <- V
+  colnames(G) <- rownames(G) <- V
   list(G = G, x = x)
 }

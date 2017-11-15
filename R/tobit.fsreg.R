@@ -69,6 +69,7 @@ tobit.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NUL
         pn <- p - k + 1   
         ini <- 2 * logLik(mi)   ## residual deviance
         do <- length( mi$coefficients ) 
+        devi <- dof <- numeric( pn )  
         
         if ( ncores <= 1 ) {
           devi <- dof <- numeric(pn)
@@ -85,7 +86,7 @@ tobit.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NUL
           registerDoParallel(cl)
           mod <- foreach( i = 1:pn, .combine = rbind, .export = "survival", .packages = "survreg") %dopar% {
             ww <- survival::survreg( target ~., data = as.data.frame( dataset[, c(sela, mat[i, 1]) ] ), weights = wei, dist = "gaussian" )
-            mata[i, ] <- c( ww$deviance, length( ww$coefficients ) )
+            mata[i, ] <- c( 2 * logLik(ww), length( ww$coefficients ) )
           }
           stopCluster(cl)		  
   

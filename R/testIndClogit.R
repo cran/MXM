@@ -25,9 +25,8 @@ testIndClogit = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=
   clogit_results_full = NULL;
   id = target[, 2] #the patient id
   x = dataset[ , xIndex];
-  case = as.logical(target[, 1]);  ## case control, 0 is the control
-  numCases = length(case);
-  
+  case = target[, 1]  ## case control, 0 is the control
+
   res <- tryCatch(
     {
       if (is.na(csIndex) || length(csIndex) == 0 || csIndex == 0) {

@@ -33,7 +33,7 @@ lm.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, 
 	     stat <- numeric(p)
 		   pval <- numeric(p)  
 	     for (i in 1:p) {
-           mod <- anova( lm(y~dataset[, i]) )
+           mod <- anova( lm(y ~ dataset[, i]) )
 		       stat[i] <- mod[1, 4]
            pval[i] <- pf(stat[i], mod[1, 1], mod[2, 1], lower.tail = FALSE, log.p = TRUE)  		   
          }  

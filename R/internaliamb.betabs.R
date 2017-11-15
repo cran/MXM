@@ -30,15 +30,13 @@ internaliamb.betabs <- function(target, dataset, threshold, wei, p) {
       
     } else {
       
-      info <- mat[sel, ]
-      mat <- mat[-sel, ] 
-      if ( !is.matrix(info) )   info <- matrix(info, ncol = 3) 
-      if ( !is.matrix(mat) )   mat <- matrix(mat, ncol = 3) 
-      dat <- as.data.frame( dataset[, -sel] ) 
+      info <- mat[sel, , drop = FALSE]
+      mat <- mat[-sel, , drop = FALSE] 
+      dat <- as.data.frame( dataset[, -sel, drop = FALSE] ) 
       
       if ( p - length(sel) == 0 ) {
         final <- "No variables were selected"
-        mat <- NULL
+        mat <- matrix(nrow = 0, ncol = 3)
       } else if ( p - length(sel) == 1 ) {
         mod1 <- beta.reg(target, dat, wei = wei )
         if ( is.null(wei) ) {
@@ -48,7 +46,7 @@ internaliamb.betabs <- function(target, dataset, threshold, wei, p) {
         pval <- pchisq( stat, length( mod1$be ) - 1, lower.tail = FALSE, log.p = TRUE)
         if (pval > threshold ) {
           final <- "No variables were selected"
-          mat <- NULL
+          mat <- matrix(nrow = 0, ncol = 3)
         } else final <- mod1
       } else  final <- beta.reg(target, dat, wei = wei)
     }
@@ -56,7 +54,7 @@ internaliamb.betabs <- function(target, dataset, threshold, wei, p) {
     
   } else { 
     info <- NULL  
-    mat <- NULL 
+    mat <- matrix(nrow = 0, ncol = 3)
     final <- "No variables were selected"
   } 
   

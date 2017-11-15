@@ -1,5 +1,5 @@
-InternalMMPC.temporal = function(target, reps, group, dataset, max_k, threshold, test = NULL, ini, wei, user_test = NULL, dataInfo = NULL, hash=FALSE, varsize, stat_hash, pvalue_hash, targetID, slopes, ncores)
-{
+InternalMMPC.temporal = function(target, reps, group, dataset, max_k, threshold, test = NULL, ini, wei, user_test = NULL, dataInfo = NULL, 
+                                 hash=FALSE, varsize, stat_hash, pvalue_hash, targetID, slopes, ncores, logged) {
   #get the current time
   runtime = proc.time();
   #######################################################################################
@@ -28,7 +28,9 @@ InternalMMPC.temporal = function(target, reps, group, dataset, max_k, threshold,
     results$hashObject = NULL;
     class(results$hashObject) = 'list';
     class(results$univ) = 'list';
-    results$pvalues = exp(pvalues);
+    if (logged) {
+      results$pvalues = pvalues;
+    } else  results$pvalues = exp(pvalues);
     results$stats = stats;
     results$univ = univariateModels
     results$max_k = max_k;
@@ -97,7 +99,9 @@ InternalMMPC.temporal = function(target, reps, group, dataset, max_k, threshold,
   results$hashObject = hashObject;
   class(results$hashObject) = 'list';
   class(results$univ) = 'list';
-  results$pvalues = exp(pvalues);
+  if (logged) {
+    results$pvalues = pvalues;
+  } else  results$pvalues = exp(pvalues);
   results$stats = stats;
   results$univ = univariateModels
   results$max_k = max_k;

@@ -39,7 +39,7 @@ condi <- function(ind1, ind2, cs, dat, type = "pearson", rob = FALSE, R = 1) {
       r <- sqrt( abs(b1 * b2) )
     } else {
       e1 <- resid( MASS::rlm( dat[, ind1] ~.,  data = data.frame( dat[, c(ind2, cs) ] ), maxit = 2000, method = "MM") )
-      e2 <- resid( MASS::rlm( dat[, ind2] ~., data = data.frame( dat[, c(ind1, cs) ] ), maxit = 2000,method = "MM" ) )
+      e2 <- resid( MASS::rlm( dat[, ind2] ~., data = data.frame( dat[, c(ind1, cs) ] ), maxit = 2000, method = "MM" ) )
       r <- cor(e1, e2)
     }
   }
@@ -84,7 +84,7 @@ condi <- function(ind1, ind2, cs, dat, type = "pearson", rob = FALSE, R = 1) {
         
       } else {
         er <- lm.fit(cbind(1, dat[, cs]), cbind( x1, x2 )  )$residuals
-		res <- permcor( er, R ) 
+		    res <- permcor( er, R ) 
         stat <- abs( res[1] )
         pvalue <- (res[2])
       }

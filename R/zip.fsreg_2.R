@@ -12,16 +12,10 @@ zip.fsreg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = 
   moda <- list()
   k <- 1   ## counter
   tool <- numeric( min(n, p) )
-  
-  if ( is.null(iniset) ) {
-    da <- 0
-    pa <- 0
-  } else {
-    pa <- NCOL(iniset)
-    da <- 1:pa
-    dataset <- cbind(iniset, dataset)
-  }  
-  
+  pa <- NCOL(iniset)
+  da <- 1:pa
+  dataset <- cbind(iniset, dataset)
+
   threshold <- log(threshold)  ## log of the significance level
   moda <- list()
   k <- 1   ## counter
@@ -47,17 +41,10 @@ zip.fsreg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = 
   runtime <- proc.time()
 
   devi = dof = numeric(p)
-  if ( pa == 0 ) {
-    if ( is.null(wei) ) {
-      ini <-  - 2 * Rfast::zip.mle(target)$loglik + 2 * con 
-    } else ini <-  - 2 * zipmle.wei(target, wei)$loglik + 2 * con 
-    do <- 1
-  } else  {
-    ini <- zip.reg(target, iniset, wei = wei )
-    do <- length(mi$be)
-    ini <-   - 2 * mi$loglik + ( do + 1 ) * con
-  }  
-  
+  ini <- zip.reg(target, iniset, wei = wei )
+  do <- length(mi$be)
+  ini <-   - 2 * mi$loglik 
+
   if (ncores <= 1) {
     for (i in 1:p) {
       mi <- zip.reg( target, dataset[, c(da, pa + i)], wei = wei )
@@ -88,13 +75,12 @@ zip.fsreg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = 
   info <- matrix( numeric(3), ncol = 3 )
   sel <- which.min(pval)
   info <- matrix( c( 1e300, 0, 0 ), ncol = 3 )
-  sela <- sel
+  sela <- pa + sel
   
   if ( mat[sel, 2] < threshold ) {
     info[k, ] <- mat[sel, ]
     mat <- mat[-sel, , drop = FALSE] 
-    #if ( robust == FALSE ) {
-    mi <- zip.reg( target, dataset[, c(da, sel) ], wei = wei )
+    mi <- zip.reg( target, dataset[, c(da, sela) ], wei = wei )
     tool[k] <-  - 2 * mi$loglik + ( length(mi$be) + 1 ) * con
     moda[[ k ]] <- mi
   }
@@ -108,10 +94,12 @@ zip.fsreg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = 
     pn <- p - k + 1   
     ini <- 2 * mi$loglik
     do <- length(mi$be)
+    devi <- dof <- numeric( pn )  
+    
     if ( ncores <= 1 ) {
       devi <- dof <- numeric(pn)
       for ( i in 1:pn ) {
-        ww <- zip.reg( target, dataset[, c(da, sela, mat[pa + i, 1]) ], wei = wei )
+        ww <- zip.reg( target, dataset[, c(da, sela, pa + mat[i, 1]) ], wei = wei )
         devi[i] <- 2 * ww$loglik
         dof[i] <- length( ww$be )          
       }     
@@ -122,7 +110,7 @@ zip.fsreg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = 
       cl <- makePSOCKcluster(ncores)
       registerDoParallel(cl)
       mod <- foreach( i = 1:pn, .combine = rbind, .export = "zip.reg" ) %dopar% {
-        ww <- zip.reg( target, dataset[, c(da, sela, mat[pa + i, 1]) ], wei = wei )
+        ww <- zip.reg( target, dataset[, c(da, sela, pa + mat[i, 1]) ], wei = wei )
         return( c( 2 * ww$loglik, length( ww$be ) ) )
       }     
       stopCluster(cl)  
@@ -131,7 +119,7 @@ zip.fsreg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = 
     }
     mat[, 2:3] <- cbind(pval, stat)
     ina <- which.min(mat[, 2])
-    sel <- mat[ina, 1]    
+    sel <- pa + mat[ina, 1]    
     
     if ( mat[ina, 2] < threshold ) {
       ma <- zip.reg( target, dataset[, c(da, sela, sel) ], wei = wei )
@@ -140,7 +128,7 @@ zip.fsreg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = 
         info <- info    
       } else { 
         info <- rbind(info, c( mat[ina, ] ) )
-        sela <- info[, 1]
+        sela <- c(sela, sel)
         mat <- mat[-ina , , drop = FALSE] 
         moda[[ 2 ]] <- ma
       }
@@ -156,10 +144,12 @@ zip.fsreg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = 
       do <- length( moda[[ k ]]$be )   
       k <- k + 1   
       pn <- p - k  + 1
+      devi <- dof <- numeric( pn )  
+      
       if (ncores <= 1) {  
         devi <- dof <- numeric(pn) 
         for ( i in 1:pn ) {
-          ma <- zip.reg( target, dataset[, c(da, sela, mat[pa + i, 1] ) ], wei = wei )
+          ma <- zip.reg( target, dataset[, c(da, sela, pa + mat[i, 1] ) ], wei = wei )
           devi[i] <-  2 * ma$loglik
           dof[i] <- length( ma$be ) 
         }
@@ -170,7 +160,7 @@ zip.fsreg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = 
         cl <- makePSOCKcluster(ncores)
         registerDoParallel(cl)
         mod <- foreach( i = 1:pn, .combine = rbind, .export = "zip.reg" ) %dopar% {
-          ww <- zip.reg( target, dataset[, c(da, sela, mat[pa + i, 1]) ], wei = wei )
+          ww <- zip.reg( target, dataset[, c(da, sela, pa + mat[i, 1]) ], wei = wei )
           return( c( 2 * ww$loglik, length( ww$be ) ) )
         }
         stopCluster(cl)
@@ -179,7 +169,7 @@ zip.fsreg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = 
       }
       mat[, 2:3] <- cbind(pval, stat)
       ina <- which.min(mat[, 2])
-      sel <- mat[ina, 1]    
+      sel <- pa + mat[ina, 1]    
       
       if ( mat[ina, 2] < threshold ) {
         ma <- zip.reg( target, dataset[, c(da, sela, sel) ], wei = wei )
@@ -188,7 +178,7 @@ zip.fsreg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = 
           info <- rbind(info, c( 1e300, 0, 0 ) )  
         } else { 
           info <- rbind( info, mat[ina, ] )
-          sela <- info[, 1]
+          sela <- c(sela, sel)
           mat <- mat[-ina , , drop = FALSE]
           moda[[ k ]] <- ma
         }  
@@ -204,15 +194,11 @@ zip.fsreg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = 
     info <- NULL
     
   } else {
-    
-    if ( d >= 1 ) {
-      final <- zip.reg( target, dataset[, c(da, sela) ], wei = wei )
-      info <- info[1:d, , drop = FALSE]
-      info <- cbind( info, tool[ 1:d ] ) 
-      colnames(info) <- c( "variables", "log.p-value", "stat", "BIC" )
-      rownames(info) <- info[, 1]
-    }
-    
+    final <- zip.reg( target, dataset[, c(da, sela) ], wei = wei )
+    info <- info[1:d, , drop = FALSE]
+    info <- cbind( info, tool[ 1:d ] ) 
+    colnames(info) <- c( "variables", "log.p-value", "stat", "BIC" )
+    rownames(info) <- info[, 1]
   }    
   
   list( runtime = runtime, mat = t(mat), info = info, ci_test = "testIndzip", final = final ) 

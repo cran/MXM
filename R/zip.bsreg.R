@@ -23,13 +23,20 @@ zip.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL) {
     dofini <- length( ini$be[, 1] )
     likini <- ini$loglik 
     stat <- dof <- numeric(p)
-    
-    for (j in 1:p) {
-      mod <- zip.reg( target, dataset[, -j], wei = wei )
-      stat[j] <- 2 * abs( likini - mod$loglik )
-      dof[j] <- dofini - length( mod$be )
-    }  
-    
+    if ( p == 1) {
+      if ( is.null(wei) ) {
+        mod <- Rfast::zip.mle(target)
+      } else mod <- zipmle.wei(target, wei)
+      stat <- 2 * ( likini - mod$loglik )
+      dof <- dofini - length( mod$be ) 
+      pval <- pchisq( stat, dof, lower.tail = FALSE, log.p = TRUE)      
+    } else {
+      for (j in 1:p) {
+        mod <- zip.reg( target, dataset[, -j], wei = wei )
+        stat[j] <- 2 * ( likini - mod$loglik )
+        dof[j] <- dofini - length( mod$be )
+      }  
+    }
     mat <- cbind(1:p, pchisq( stat, dof, lower.tail = FALSE, log.p = TRUE), stat )
     colnames(mat) <- c("variable", "p-value", "statistic" )
     rownames(mat) <- 1:p 
@@ -62,13 +69,13 @@ zip.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL) {
           if ( is.null(wei) ) {
             mod <- Rfast::zip.mle(target)
           } else mod <- zipmle.wei(target, wei)
-          stat <- 2 * abs( likini - mod$loglik )
+          stat <- 2 * ( likini - mod$loglik )
           dof <- dofini - length( mod$be ) 
           pval <- pchisq( stat, dof, lower.tail = FALSE, log.p = TRUE)
           
           if (pval > threshold ) {
             final <- "No variables were selected"
-            info <- rbind(info, c(mat[, 1], stat, pval) )
+            info <- rbind(info, c(mat[, 1], pval, stat) )
             dat <- as.data.frame( dataset[, -info[, 1] ] )
             mat <- NULL
           } else {
@@ -82,7 +89,7 @@ zip.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL) {
           stat <- dof <- numeric(k)
           for (j in 1:k) {
             mod <- zip.reg( target,  dat[, -j], wei = wei )
-            stat[j] <- 2 * abs( likini - mod$loglik )
+            stat[j] <- 2 * ( likini - mod$loglik )
             dof[j] <- dofini - length( mod$be ) 
           }
           mat[, 2:3] <- cbind( pchisq( stat, dof, lower.tail = FALSE, log.p = TRUE), stat )
@@ -91,13 +98,11 @@ zip.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL) {
           if ( mat[sel, 2] < threshold ) {
             final <- ini
             info <- rbind(info, c(0, -10, -10) )
-            
           } else {
-            
             info <- rbind(info, mat[sel, ] )
             mat <- mat[-sel, , drop = FALSE] 
             dat <- dataset[, -info[, 1], drop = FALSE ]
-          }
+          } ## end if ( mat[sel, 2] < threshold )
           
         }
       }

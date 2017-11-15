@@ -1,10 +1,13 @@
 rdag2 <- function(n, A = NULL, p, nei, low = 0.1, up = 1) {
+  
   if ( is.null(A) ) {
     prob <- nei/(p - 1)
     A <- matrix(0, p, p)
     qa <- rbinom( 0.5 * p * (p - 1), 1, prob )
     A[upper.tri(A)] <- qa
-  }  
+  }
+  V <- colnames(A)
+  if ( is.null(V) )   V <- paste("X", 1:p, sep = "")
   
   x <- matrix(0, n, p)
   x[, 1] <- rnorm(n)
@@ -20,7 +23,7 @@ rdag2 <- function(n, A = NULL, p, nei, low = 0.1, up = 1) {
       x[, i] <- ( x[, i] - mean(x[, i]) ) / Rfast::Var(x[, i], std = TRUE)
     }
   }
-  colnames(A) <- rownames(A) <- paste("X", 1:p)
-  colnames(x) <- paste("X", 1:p)
+  colnames(A) <- rownames(A) <- V
+  colnames(x) <- V
   list(G = A, x = x)
 }

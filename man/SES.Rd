@@ -16,12 +16,13 @@ SES algorithm follows a forward-backward filter approach for feature selection i
 }
 
 \usage{
-SES(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini = NULL, wei = NULL,
-user_test = NULL, hash = FALSE, hashObject = NULL, robust = FALSE, ncores = 1)
+SES(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini = NULL, 
+wei = NULL, user_test = NULL, hash = FALSE, hashObject = NULL, robust = FALSE, 
+ncores = 1, logged = FALSE)
  
-MMPC(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini = NULL, wei = NULL,
-user_test = NULL, hash = FALSE, hashObject = NULL, robust = FALSE, ncores = 1, 
-backward = FALSE)
+MMPC(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini = NULL, 
+wei = NULL, user_test = NULL, hash = FALSE, hashObject = NULL, robust = FALSE, 
+ncores = 1, backward = FALSE, logged = FALSE)
 
 wald.ses(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini = NULL, 
 wei = NULL, user_test = NULL, hash = FALSE, hashObject = NULL, robust = FALSE, 
@@ -32,12 +33,12 @@ wei = NULL, user_test = NULL, hash = FALSE, hashObject = NULL, robust = FALSE,
 ncores = 1, backward = FALSE)
 
 perm.ses(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini = NULL, 
-wei = NULL, user_test = NULL, hash=FALSE, hashObject = NULL, robust = FALSE, R = 999, 
-ncores = 1)
+wei = NULL, user_test = NULL, hash=FALSE, hashObject = NULL, robust = FALSE, 
+R = 999, ncores = 1)
 
 perm.mmpc(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini = NULL, 
-wei = NULL, user_test = NULL, hash=FALSE, hashObject = NULL, robust = FALSE, R = 999, 
-ncores = 1, backward = FALSE)
+wei = NULL, user_test = NULL, hash=FALSE, hashObject = NULL, robust = FALSE, 
+R = 999, ncores = 1, backward = FALSE)
 }
 
 \arguments{
@@ -58,7 +59,7 @@ Threshold (suitable values in [0,1]) for assessing p-values significance. Defaul
 The conditional independence test to use. Default value is NULL. See also \code{\link{CondIndTests}}.
 }
 \item{ini}{
-This is a supposed to be a list. After running SES or MMPC with some hyper-parameters you might want to run SES again with different hyper-parameters. To avoid calculating the univariate associations (first step of SES and of MPPC) again, you can extract them from the first run of SES and plug them here. This can speed up the second run (and subequent runs of course) by 50\%. See the details and the argument "univ" in the output values. 
+This is a supposed to be a list. After running SES or MMPC with some hyper-parameters you might want to run SES again with different hyper-parameters. To avoid calculating the univariate associations (first step of SES and of MMPC) again, you can extract them from the first run of SES and plug them here. This can speed up the second run (and subequent runs of course) by 50\%. See the details and the argument "univ" in the output values. 
 }
 \item{wei}{
 A vector of weights to be used for weighted regression. The default value is NULL. It is not taken into account when robust is set to TRUE.
@@ -87,7 +88,9 @@ How many cores to use. This plays an important role if you have tens of thousand
 \item{backward}{
 If TRUE, the backward (or symmetry correction) phase will be implemented. This removes any falsely included variables in the parents and children set of the target variable. It call the \code{link{mmpcbackphase}} for this purpose. For perm.ses and wald.ses this is not yet applicable.
 }
-
+\item{logged}{
+Do you want the logarithm of the final p-values be returned? Default value is FALSE.
+}
 }
 
 \details{
@@ -146,9 +149,9 @@ If you use testIndSpearman (argument "test"), the ranks of the data calculated a
 As a rule of thumb you can try this. If for example you have counts and want to see which model fits best, there are two ways. Calculate the mean and the variance. If they are similar, 
 use the Poisson instead of the negative binomial as it is much faster. If you are not convinced, you can either use the negative binomial or do the following simulation study.
 
-x <- matrix(rnorm(n * 1000), ncol = 1000)
-a <- Rfast::univglms(y, x)
-hist(a[, 2])  ## histogram of the p-values
+# x <- matrix(rnorm(n * 1000), ncol = 1000)
+# a <- Rfast::univglms(y, x)
+# hist(a[, 2])  ## histogram of the p-values
 
 If the histogram shows a uniform distribution, use the Poisson regression. If the histogram is not uniform, then repeat the simluation but with a negative binomial distribution. 
 If the histogram is again not flat, then another model is necessary. If the data come from a Poisson or negative binomial, the histogram with a negative binomial regressino will be flat.

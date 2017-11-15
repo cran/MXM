@@ -35,12 +35,10 @@ testIndGLMM = function(target, reps = NULL, group, dataset, xIndex, csIndex,  we
     }
   }
   #if the test cannot performed succesfully these are the returned values
-  pvalue = 1;
+  pvalue = log(1);
   stat = 0;
   flag = 0;
   
-  if ( all(target>0 & target<1) )  target = log( target/(1-target) ) 
-
   oikogeneia = c('normal', 'binomial', 'poisson' )
   #if the xIndex is contained in csIndex, x does not bring any new
   #information with respect to cs
@@ -115,7 +113,6 @@ testIndGLMM = function(target, reps = NULL, group, dataset, xIndex, csIndex,  we
     }
   }
   options(warn = -1)
-  n = length(target)  ## sample size
   #binomial or multinomial target?
   yCounts = length( unique(target) );
   if (yCounts == 2)  {
@@ -136,10 +133,10 @@ testIndGLMM = function(target, reps = NULL, group, dataset, xIndex, csIndex,  we
    if ( is.null(reps) ) {
       if ( target_type == 1 ) {
         fit2 = lme4::lmer( target ~ (1|group) + dataset[, xIndex], weights = wei, REML = FALSE )
-      } else  fit2 = lme4::glmer( target ~ (1|group) + dataset[, xIndex], weights = wei, REML = FALSE , family = oikogeneia[target_type] ) 
+      } else  fit2 = lme4::glmer( target ~ (1|group) + dataset[, xIndex], weights = wei, REML = FALSE, family = oikogeneia[target_type] ) 
 
    } else {
-      reps = reps 
+      reps <- reps 
       if ( slopes ) {
       if ( target_type == 1 ) {
         fit2 = lme4::lmer( target ~ reps + (reps|group) + dataset[, xIndex], weights = wei, REML = FALSE ) 
@@ -180,10 +177,10 @@ testIndGLMM = function(target, reps = NULL, group, dataset, xIndex, csIndex,  we
   if ( length(summary(fit2)[[17]]) > 0 ) {
     stat <- 0
     pvalue <- log(1)
-	flag <- 1
+  	flag <- 1
   } else {
     stat = mod[pr, 4]   
-    pvalue = pf(stat, v1, v2, lower.tail = FALSE, log.p=TRUE)
+    pvalue = pf(stat, v1, v2, lower.tail = FALSE, log.p = TRUE)
     flag = 1;
   }	
   #update hash objects

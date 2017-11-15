@@ -5,7 +5,7 @@ fbed.multinom <- function(y, x, alpha = 0.05, wei = NULL, K = 0) {
   sig <- log(alpha)
   fit1 <- nnet::multinom(y ~ 1, weights = wei, trace = FALSE)
   dof1 <- length( coef(fit1) ) 
-  lik1 <- fit1$deviance
+  lik1 <- logLik(fit1)
   lik2 <- numeric(p)
   dof <- numeric(p)
   sela <- NULL
@@ -17,11 +17,11 @@ fbed.multinom <- function(y, x, alpha = 0.05, wei = NULL, K = 0) {
   
   for ( i in ind ) {
     fit2 <- nnet::multinom( y ~ x[, i], weights = wei, trace = FALSE )
-     lik2[i] <- fit2$deviance
-     dof[i] <- length( coef(fit2) ) 
+    lik2[i] <- logLik( fit2 )
+    dof[i] <- length( coef(fit2) ) 
   }
   n.tests <- p
-  stat <- lik1 - lik2
+  stat <- 2 * (lik2 - lik1)
   pval <- pchisq(stat, dof - dof1, lower.tail = FALSE, log.p = TRUE)
   s <- which(pval < sig)
 
@@ -39,11 +39,11 @@ fbed.multinom <- function(y, x, alpha = 0.05, wei = NULL, K = 0) {
       while ( sum(s>0) > 0 ) {
         for ( i in ind[s] )  {
           fit2 <- nnet::multinom( y ~., data = x[, c(sela, i)], weights = wei, trace = FALSE )
-          lik2[i] <- fit2$deviance
+          lik2[i] <- logLik( fit2 )
           dof[i] <- length( coef(fit2) )
         }
         n.tests <- n.tests + length( ind[s] ) 
-        stat <- lik2 - lik1
+        stat <- 2 * (lik2 - lik1)
         pval <- pchisq(stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
         s <- which(pval < sig) 
         sel <- which.min(pval) * ( length(s)>0 )
@@ -64,11 +64,11 @@ fbed.multinom <- function(y, x, alpha = 0.05, wei = NULL, K = 0) {
    if (K == 1) {
      for ( i in ind[-sela] )  {
         fit2 <- nnet::multinom( y ~., data = x[, c(sela, i)], weights = wei, trace = FALSE )
-        lik2[i] <- fit2$deviance
+        lik2[i] <- logLik( fit2 )
         dof[i] <- length( coef(fit2) )
       }
       n.tests[2] <- length( ind[-sela] )
-      stat <- lik2 - lik1
+      stat <- 2 * (lik2 - lik1)
       pval <- pchisq(stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
       s <- which(pval < sig)
       sel <- which.min(pval) * ( length(s)>0 )
@@ -83,11 +83,11 @@ fbed.multinom <- function(y, x, alpha = 0.05, wei = NULL, K = 0) {
       while ( sum(s>0) > 0 ) {
         for ( i in ind[s] )  {
           fit2 <- nnet::multinom( y ~., data = x[, c(sela, i)], weights = wei, trace = FALSE )
-          lik2[i] <- fit2$deviance
+          lik2[i] <- logLik( fit2 )
           dof[i] <- length( coef(fit2) )
         }
         n.tests[2] <- n.tests[2] + length( ind[s] )
-        stat <- lik2 - lik1
+        stat <- 2 * (lik2 - lik1)
         pval <- pchisq(stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
         s <- which(pval < sig)
         sel <- which.min(pval) * ( length(s)>0 )
@@ -109,11 +109,11 @@ fbed.multinom <- function(y, x, alpha = 0.05, wei = NULL, K = 0) {
 
      for ( i in ind[-sela] )  {
         fit2 <- nnet::multinom( y ~., data = x[, c(sela, i)], weights = wei, trace = FALSE )
-        lik2[i] <- fit2$deviance
+        lik2[i] <- logLik( fit2 )
         dof[i] <- length( coef(fit2) )
       }
       n.tests[2] <- length( ind[-sela] ) 
-      stat <- lik2 - lik1
+      stat <- 2 * (lik2 - lik1)
       pval <- pchisq(stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
       s <- which(pval < sig)
       sel <- which.min(pval) * ( length(s)>0 )
@@ -130,11 +130,11 @@ fbed.multinom <- function(y, x, alpha = 0.05, wei = NULL, K = 0) {
       while ( sum(s > 0) > 0 ) {
         for ( i in ind[s] )  {
           fit2 <- nnet::multinom( y ~., data = x[, c(sela, i)], weights = wei, trace = FALSE )
-          lik2[i] <- fit2$deviance
+          lik2[i] <- logLik( fit2 )
           dof[i] <- length( coef(fit2) )
         }
         n.tests[2] <- n.tests[2] + length( ind[s] )  
-        stat <- lik2 - lik1
+        stat <- 2 * (lik2 - lik1)
         pval <- pchisq(stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
         s <- which(pval < sig)
         sel <- which.min(pval) * ( length(s)>0 )
@@ -156,11 +156,11 @@ fbed.multinom <- function(y, x, alpha = 0.05, wei = NULL, K = 0) {
       vim <- vim + 1
       for ( i in ind[-sela] )  {
         fit2 = nnet::multinom( y ~., data = x[, c(sela, i)], weights = wei, trace = FALSE )
-        lik2[i] <- fit2$deviance
+        lik2[i] <- logLik( fit2 )
         dof[i] <- length( coef(fit2) )
       }
       n.tests[vim + 1] <- length( ind[-sela] )
-      stat <- lik2 - lik1
+      stat <- 2 * (lik2 - lik1)
       pval <- pchisq(stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
       s <- which(pval < sig)
       sel <- which.min(pval) * ( length(s)>0 )
@@ -177,11 +177,11 @@ fbed.multinom <- function(y, x, alpha = 0.05, wei = NULL, K = 0) {
        while ( sum(s > 0) > 0 ) {
         for ( i in ind[s] )  {
           fit2 <- nnet::multinom( y ~., data = x[, c(sela, i)], weights = wei, trace = FALSE )
-          lik2[i] <- fit2$deviance
+          lik2[i] <- logLik( fit2 )
           dof[i] <- length( coef(fit2) )
         }
         n.tests[vim + 1] <- n.tests[vim + 1] + length( ind[s] )
-        stat <- lik2 - lik1
+        stat <- 2 * (lik2 - lik1)
         pval <- pchisq(stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
         s <- which(pval < sig)
         sel <- which.min(pval) * ( length(s)>0 )

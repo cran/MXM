@@ -119,17 +119,12 @@ testIndReg = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = N
        dof = length( coef(fit2) ) - length( coef(fit1) ) 
        pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
      } else {
-       fit2 = lm( target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ), weights = wei )
-       if ( any( is.na(fit2$coefficients) ) ) {
-         stat = 0
-         pvalue = log(1)
-       } else {  
-         mod <- anova(fit1)
-         da <- dim(mod)[1] - 1
-         stat <- mod[da, 4]
-         df1 <- mod[da, 1]   ;  df2 <- mod[da + 1, 1]
-         pvalue <- pf(stat, df1, df2, lower.tail = FALSE, log.p = TRUE)
-       } 
+       fit1 <- lm( target ~., data = as.data.frame( dataset[, csIndex] ), weights = wei )
+       fit2 <- lm( target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ), weights = wei )
+       mod <- anova(fit1, fit2) 
+       stat <- mod[2, 5]
+       df1 <- mod[2, 3]    ;   df2 <- mod[2, 1]
+       pvalue <- pf(stat, df1, df2, lower.tail = FALSE, log.p = TRUE)
      }
    }
   flag = 1;

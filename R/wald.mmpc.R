@@ -110,7 +110,6 @@ wald.mmpc = function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, 
         test = waldBeta;
 
       } else if (test == "waldMMreg") {
-        if ( all( target>0 & target<1 ) )  target = log( target/(1 - target) ) 
         test = waldMMreg;
         
       } else if (test == "waldIGreg") {

@@ -1,6 +1,7 @@
 fs.reg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = NULL, test = NULL, user_test = NULL, stopping = "BIC", tol = 2, robust = FALSE, ncores = 1) {
   
-  ## target can be Real valued (normal), binary (binomial) or counts (poisson)
+  threshold <- log(threshold)
+  
   dm <- dim(dataset) 
   if ( is.null(dm) ) {
     n <- length(dataset)
@@ -14,15 +15,11 @@ fs.reg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = NUL
   k <- 1   ## counter
   tool <- numeric( min(n, p) )
   con <- log(n)
-  
-  if ( is.null(iniset) ) {
-    da <- 0
-    pa <- 0
-  } else {
-    pa <- NCOL(iniset)
-    da <- 1:pa
-    dataset <- cbind(iniset, dataset)
-  }  
+
+  pa <- NCOL(iniset)
+  da <- 1:pa
+  dataset <- cbind(iniset, dataset)
+  dataset <- as.data.frame(dataset)
   
   if ( ( test == "testIndLogistic" &  length( unique(target) ) == 2 )  ||  test == "testIndBinom"  || test == "testIndPois" ) {
     
@@ -39,19 +36,23 @@ fs.reg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = NUL
     
   } else if ( test == "testIndZIP" ) {
     
-    result <- zip.fsreg_2(target, dataset, iniset = iniset,threshold = exp(threshold), wei = wei, tol = tol, ncores = ncores) 
+    result <- zip.fsreg_2(target, dataset, iniset = iniset, threshold = exp(threshold), wei = wei, tol = tol, ncores = ncores) 
     
   } else if ( test == "testIndGamma" ) {
     
-    result <- gammafsreg_2(target, dataset, iniset = iniset,threshold = exp(threshold), wei = wei, tol = tol, ncores = ncores) 
+    result <- gammafsreg_2(target, dataset, iniset = iniset, threshold = exp(threshold), wei = wei, tol = tol, ncores = ncores) 
     
   } else if ( test == "testIndNormLog" ) {
     
-    result <- normlog.fsreg_2(target, dataset, iniset = iniset,threshold = exp(threshold), wei = wei, tol = tol, ncores = ncores) 
+    result <- normlog.fsreg_2(target, dataset, iniset = iniset, threshold = exp(threshold), wei = wei, tol = tol, ncores = ncores) 
     
   } else if ( test == "testIndTobit" ) {
     
-    result <- tobit.fsreg_2(target, dataset, iniset = iniset,threshold = exp(threshold), wei = wei, tol = tol, ncores = ncores) 
+    result <- tobit.fsreg_2(target, dataset, iniset = iniset, threshold = exp(threshold), wei = wei, tol = tol, ncores = ncores) 
+    
+  } else if ( test == "testIndClogit" ) {
+    
+    result <- clogit.fsreg_2(target, dataset, iniset = iniset, threshold = exp(threshold), tol = tol, ncores = ncores) 
     
   } else if ( test == "testIndSpeedglm" ) {
     
@@ -106,32 +107,25 @@ fs.reg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = NUL
       test <- user_test 
       ci_test <- "user_test"
     }  
-  }
   
+  dataset <- as.data.frame(dataset)
   runtime <- proc.time()
   
   devi = dof = numeric(p)
-  if ( pa == 0 ) {
-    ini <- test( target ~ 1, weights = wei)  ## residual deviance
-    if (ci_test == "censIndCR") {
-      ini <- 2 * ini$loglik 
-    }  else  ini <-  2 * as.numeric( logLik(ini) )  ## initial 
-    do <- 1 
-  } else {
-    ini <- test(target ~., data = as.data.frame( iniset ), weights = wei)  ## residual deviance
-    do <- length( coef(ini) )
-    if (ci_test == "censIndCR") {
-      ini <- 2 * ini$loglik 
-    }  else  ini <-  2 * as.numeric( logLik(ini) )  ## initial 
-  }
+  ini <- test(target ~., data = as.data.frame( iniset ), weights = wei)  ## residual deviance
+  do <- length( coef(ini) )
+  if (ci_test == "censIndCR") {
+    ini <- 2 * ini$loglik 
+  }  else  ini <-  2 * as.numeric( logLik(ini) )  ## initial 
+
   
   if (ncores <= 1) {
     for (i in 1:p) {
-      mi <- test( target ~ . , as.data.frame( dataset[, c(da, pa + i)] ), weights = wei )
-      devi[i] <- mi$deviance
+      mi <- test( target ~ . , data = dataset[, c(da, pa + i)], weights = wei )
+      devi[i] <- 2 * logLik(mi)
       dof[i] = length( coef( mi ) ) 
     }
-    stat <- abs( ini - devi )
+    stat <- devi - ini
     pval <- pchisq( stat, dof - do, lower.tail = FALSE, log.p = TRUE )
     
   } else {
@@ -139,7 +133,7 @@ fs.reg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = NUL
     cl <- makePSOCKcluster(ncores)
     registerDoParallel(cl)
     mod <- foreach( i = 1:p, .combine = rbind, .packages = c("MASS", "quantreg", "nnet", "survival", "ordinal") ) %dopar% {
-      ww <- test( target ~., data = as.data.frame( dataset[, c(da, pa + i)] ), weights = wei )
+      ww <- test( target ~., data = dataset[, c(da, pa + i)], weights = wei )
       return( c( 2 * as.numeric( logLik(ww) ), length( coef( ww ) ) ) )
     }
     
@@ -153,13 +147,12 @@ fs.reg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = NUL
   rownames(mat) <- 1:p
   sel <- which.min(pval)
   info <- matrix( c( 1e300, 0, 0 ), ncol = 3 )
-  sela <- sel
+  sela <- pa + sel
   
   if ( mat[sel, 2] < threshold ) {
     info[k, ] <- mat[sel, ]
     mat <- mat[-sel, , drop = FALSE] 
-    #if ( robust == FALSE ) {
-    mi <- test( target ~., data = as.data.frame( dataset[, c(da, sel) ] ), weights = wei )
+    mi <- test( target ~., data = dataset[, c(da, sela) ], weights = wei )
     la <- logLik(mi)
     tool[1] <-  - 2 * as.numeric( la ) +  attr(la, "df") * con
     moda[[ 1 ]] <- mi
@@ -173,18 +166,18 @@ fs.reg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = NUL
     
     k <- k + 1
     pn <- p - k + 1   
-    ini <- moda[[ 1 ]]$deviance  ## residual deviance
+    ini <- 2 * logLik(moda[[ 1 ]])
     do <- length( coef( moda[[ 1 ]]  ) ) 
+    devi <- dof <- numeric( pn )  
     
     if ( ncores <= 1 ) {
       devi <- dof <- numeric(pn)
       #if ( robust == FALSE ) {  ## Non robust
       for ( i in 1:pn ) {
-        ww <- test( target ~., data = as.data.frame( dataset[, c(da, sela, mat[pa + i, 1]) ] ), weights = wei )
+        ww <- test( target ~., data = dataset[, c(da, sela, pa + mat[i, 1]) ], weights = wei )
         devi[i] <- 2 * as.numeric( logLik(ww) )
         dof[i] <- length( coef( ww ) )          
       }
-      
       stat <- abs( devi - ini )
       pval <- pchisq( stat, dof - do, lower.tail = FALSE, log.p = TRUE )
       
@@ -193,7 +186,7 @@ fs.reg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = NUL
       cl <- makePSOCKcluster(ncores)
       registerDoParallel(cl)
       mod <- foreach( i = 1:pn, .combine = rbind, .packages = c("MASS", "quantreg", "nnet", "survival", "ordinal") ) %dopar% {
-        ww <- test( target ~., data = as.data.frame( dataset[, c(da, sela, mat[pa + i, 1]) ] ), weights = wei )
+        ww <- test( target ~., data = dataset[, c(da, sela, pa + mat[i, 1]) ], weights = wei )
         return( c( 2 * as.numeric( logLik(ww) ), length( coef( ww ) ) ) )
       }
       
@@ -206,7 +199,7 @@ fs.reg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = NUL
     
     mat[, 2:3] <- cbind(pval, stat)
     ina <- which.min(mat[, 2])
-    sel <- mat[ina, 1]    
+    sel <- pa + mat[ina, 1]    
     
     if ( mat[ina, 2] < threshold ) {
       ma <- test( target ~ dataset[, sela] + dataset[, sel], weights = wei )
@@ -218,7 +211,7 @@ fs.reg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = NUL
         
       } else { 
         info <- rbind(info, c( mat[ina, ] ) )
-        sela <- info[, 1]
+        sela <- c(sela, sel)
         mat <- mat[-ina , , drop = FALSE] 
         moda[[ k ]] <- ma
       }
@@ -238,16 +231,16 @@ fs.reg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = NUL
       do = length( coef( moda[[ k ]]  ) )      
       k <- k + 1   
       pn <- p - k  + 1
+      devi <- dof <- numeric( pn )  
       
       if (ncores <= 1) {  
-        devi = dof = numeric(pn) 
         for ( i in 1:pn ) {
-          ma <- test( target ~., data = as.data.frame( dataset[, c(da, sela, mat[pa + i, 1] ) ] ), weights = wei )
+          ma <- test( target ~., data = dataset[, c(da, sela, pa + mat[i, 1] ) ], weights = wei )
           devi[i] <-  2 * as.numeric( logLik(ma) ) 
           dof[i] <- length( coef( ma ) ) 
         }
         
-        stat <- abs(devi - ini)
+        stat <- devi - ini
         pval <- pchisq( stat, dof - do, lower.tail = FALSE, log.p = TRUE )
         
       } else {
@@ -255,22 +248,22 @@ fs.reg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = NUL
         registerDoParallel(cl)
         devi <- dof <- numeric(pn)
         mod <- foreach( i = 1:pn, .combine = rbind, .packages = c("MASS", "quantreg", "nnet", "survival", "ordinal") ) %dopar% {
-          ww <- test( target ~., data = as.data.frame( dataset[, c(da, sela, mat[pa + i, 1]) ] ), weights = wei )
+          ww <- test( target ~., data = dataset[, c(da, sela, pa + mat[i, 1]) ], weights = wei )
           return( c( 2 * as.numeric( logLik(ww) ), length( coef( ww ) ) ) )
         }
         
         stopCluster(cl)
   
-        stat <- abs( mod[, 1] - ini )
+        stat <- mod[, 1] - ini
         pval <- pchisq( stat, mod[, 2] - do, lower.tail = FALSE, log.p = TRUE )
       }
       
       mat[, 2:3] <- cbind(pval, stat)
       ina <- which.min(mat[, 2])
-      sel <- mat[ina, 1]    
+      sel <- pa + mat[ina, 1]    
       
       if ( mat[ina, 2] < threshold ) {
-        ma <- test( target ~., data = as.data.frame( dataset[, c(da, sela, sel) ] ), weights = wei )
+        ma <- test( target ~., data = dataset[, c(da, sela, sel) ], weights = wei )
         la <- logLik(ma)
         tool[k] <-  - 2 * as.numeric( la ) +  attr(la, "df") * con
         if ( tool[ k - 1 ] - tool[ k  ] < tol ) {
@@ -278,7 +271,7 @@ fs.reg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = NUL
           
         } else { 
           info <- rbind( info, mat[ina, ] )
-          sela <- info[, 1]
+          sela <- c(sela, sel)
           mat <- mat[-ina, , drop = FALSE]
           moda[[ k ]] <- ma
         } 
@@ -299,18 +292,16 @@ fs.reg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = NUL
     info <- NULL
     
   } else {
-    
-    if ( d >= 1 ) {
-      final <- test( target ~., data = as.data.frame( dataset[, c(da, sela) ] ), weights = wei )
-      info <- info[1:d, , drop = FALSE]
-      info <- cbind( info, tool[ 1:d ] ) 
-      colnames(info) <- c( "variables", "log.p-value", "stat", "BIC" )
-      rownames(info) <- info[, 1]
-    }
-    
+    final <- test( target ~., data = dataset[, c(da, sela) ], weights = wei )
+    info <- info[1:d, , drop = FALSE]
+    info <- cbind( info, tool[ 1:d ] ) 
+    colnames(info) <- c( "variables", "log.p-value", "stat", "BIC" )
+    rownames(info) <- info[, 1]
   }    
   
-  list( runtime = runtime, mat = t(mat), info = info, ci_test = ci_test, final = final ) 
+  result <- list( runtime = runtime, mat = t(mat), info = info, ci_test = ci_test, final = final ) 
+  
+  }  
   
 }    
 

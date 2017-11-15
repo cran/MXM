@@ -14,8 +14,8 @@ topological_sort(dag)
 
 \arguments{
 \item{dag}{
-A square matrix representing a directed graph which contains either 0, 1 or 0, 2, and 3. In the first canse where G[i, j] = 1, means there is an arrow from node i to node j. 
-In the second case G[i, j] = 2 and G[j, i] = 3 means that there is an arrow from node i to node j, where the 2 iindcates the arrohead and the 3 inducates the arrowtail. 
+A square matrix representing a directed graph which contains 0s and 1s. If G[i, j] = 1 it 
+means there is an arrow from node i to node j. When there is no edge between nodes i and j G[i, j] = 0.  
 }
 }
 
@@ -28,7 +28,8 @@ A vector with numbers indicating the sorting.
 }
 
 \references{
-Chickering, D.M. (1995). A transformational characterization of equivalent Bayesian network structures. Proceedings of the 11th Conference on Uncertainty in Artificial Intelligence, Montreal, Canada, 87-98. 
+Chickering, D.M. (1995). A transformational characterization of equivalent Bayesian network structures. 
+Proceedings of the 11th Conference on Uncertainty in Artificial Intelligence, Montreal, Canada, 87-98. 
 }
 
 \author{

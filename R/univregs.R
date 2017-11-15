@@ -20,7 +20,6 @@ if ( !is.null(user_test) ) {
   univariateModels <- univariateScore(target, dataset, test = user_test, wei, dataInfo = dataInfo, targetID, robust)
 
 } else if ( identical(test, testIndFisher)  &  robust == FALSE )  { ## Pearson's correlation 
-  if ( min(target) > 0  &  max(target) < 1 )  target = log( target/(1 - target) ) ## logistic normal 
   a <- as.vector( cor(target, dataset) )
   dof <- rows - 3; #degrees of freedom
   wa <- 0.5 * log( (1 + a) / (1 - a) ) * sqrt(dof)
@@ -30,7 +29,6 @@ if ( !is.null(user_test) ) {
   univariateModels$pvalue = log(2) + pt( abs(wa), dof, lower.tail = FALSE, log.p = TRUE) ;
 
 } else if ( identical(test, testIndSpearman) ) {  ## Spearman's correlation
-  if ( min(target) > 0  &  max(target) < 1 )  target = log( target/(1 - target) ) ## logistic normal 
   a <- as.vector( cor(target, dataset) )
   dof <- rows - 3; #degrees of freedom
   wa <- 0.5 * log( (1 + a) / (1 - a) ) * sqrt(dof) / 1.029563
@@ -42,7 +40,7 @@ if ( !is.null(user_test) ) {
 } else if ( identical(test, gSquare) ) {  ## G^2 test
   z <- cbind(dataset, target)
   if ( !is.matrix(z) )   z <- as.matrix(z)
-  dc <- Rfast::colMaxs(z) + 1
+  dc <- Rfast::colrange(z, cont = FALSE)
   a <- Rfast::g2tests(data = z, x = 1:cols, y = cols + 1, dc = dc)
   stat <- a$statistic
   univariateModels$stat = stat
@@ -54,7 +52,6 @@ if ( !is.null(user_test) ) {
   univariateModels$pvalue = mod[, 2]
 
 } else if ( identical(test, testIndReg)  &  robust  ) {  ## M (Robust) linear regression
-  if ( min(target) > 0  &  max(target) < 1 )  target = log( target/(1 - target) ) ## logistic normal 
   fit1 = MASS::rlm(target ~ 1, maxit = 2000, method = "MM")
   lik1 = as.numeric( logLik(fit1) )
   lik2 = numeric(cols)
@@ -120,13 +117,11 @@ if ( !is.null(user_test) ) {
   }   
   
 } else if ( identical(test, testIndReg)  &  robust == FALSE  &  is.matrix(dataset)  &  is.null(wei) ) {  ## linear regression
-  if ( min(target) > 0  &  max(target) < 1 )  target = log( target/(1 - target) ) ## logistic normal 
   mod = Rfast::univglms(target, dataset, logged = TRUE) 
   univariateModels$stat = mod[, 1]
   univariateModels$pvalue = mod[, 2]
 
 } else if ( identical(test, testIndReg)  &  robust == FALSE  &  is.data.frame(dataset)  &  is.null(wei) ) {  ## linear regression
-  if ( min(target) > 0  &  max(target) < 1 )  target = log( target/(1 - target) ) ## logistic normal 
   #mod <- Rfast::regression(dataset, target)
   #univariateModels$stat = mod[1, ]
   #univariateModels$pvalue = pf(mod[1, ], mod[2, ], rows - mod[2, ], lower.tail = F, log.p = TRUE)
@@ -215,7 +210,6 @@ if ( !is.null(user_test) ) {
      
     if ( is.null(wei) ) {
       if ( is.matrix(dataset) )  {
-        if ( min(target) > 0  &  max(target) < 1 )  target = log( target/(1 - target) ) ## logistic normal 
         mod <- Rfast::univglms(target, dataset, oiko = "normal", logged = TRUE) 
       }  
       #if ( is.data.frame(dataset) )   mod <- Rfast::regression(dataset, target)

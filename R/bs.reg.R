@@ -10,7 +10,7 @@ bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
     p <- dm[2]  ## number of variables
   }  
   if ( p > n ) {
-    res <- paste("The number of variables is hiher than the sample size. No backward procedure was attempted")
+    res <- paste("The number of variables is higher than the sample size. No backward procedure was attempted")
   
   } else {
   
@@ -52,8 +52,8 @@ bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
     }
   }
    
-  av_models = c("testIndReg", "testIndBeta", "censIndCR", "testIndRQ", "censIndWR", "testIndLogistic", "testIndPois", "testIndNB", "testIndZIP", "testIndSpeedglm", 
-                "testIndBinom", "testIndGamma", "testIndNormLog", "testIndTobit");
+  av_models = c("testIndReg", "testIndBeta", "censIndCR", "testIndRQ", "censIndWR", "testIndLogistic", "testIndPois", "testIndNB", 
+                "testIndZIP", "testIndSpeedglm", "testIndBinom", "testIndGamma", "testIndNormLog", "testIndTobit", "testIndClogit");
   
   ci_test <- test
   test <- match.arg(test, av_models, TRUE);
@@ -79,7 +79,10 @@ bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
       res <- normlog.bsreg(target = target, dataset = dataset, wei = wei, threshold = exp( threshold ), heavy = heavy ) 	
  
     } else if ( test == "testIndTobit" ) {
-      res <- tobit.bsreg(target = target, dataset = dataset, wei = wei, threshold = exp( threshold ), heavy = heavy ) 	
+      res <- tobit.bsreg(target = target, dataset = dataset, wei = wei, threshold = exp( threshold ) ) 	
+      
+    } else if ( test == "testIndClogit" ) {
+      res <- clogit.bsreg(target = target, dataset = dataset, threshold = exp( threshold ) ) 	
       
     } else {
 	   
@@ -121,20 +124,23 @@ bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
 	  dofini <- length( coef(ini) )
 	  likini <- logLik(ini) 
 	  stat <- dof <- numeric(p)
-		
-	  for (j in 1:p) {
+	  if (p == 1) {
+		mod <- test( target ~1, weights = wei )
+		stat <- 2 * ( likini - logLik(mod) )
+		dof <- dofini - length( coef(mod) ) 	  
+	  }	else {
+	    for (j in 1:p) {
 		  mod <- test( target ~.,  data = dataset[, -j, drop = FALSE], weights = wei )
-		  stat[j] <- 2 * abs( likini - logLik(mod) )
+		  stat[j] <- 2 * ( likini - logLik(mod) )
 		  dof[j] <- dofini - length( coef(mod) ) 
-	  }
-	    
-	    if ( ci_test == "censIndCR")   dof <- dof + 1
+	    }
+	  }  
+	  if ( ci_test == "censIndCR")   dof <- dof + 1
       mat <- cbind(1:p, pchisq( stat, dof, lower.tail = FALSE, log.p = TRUE), stat )
       colnames(mat) <- c("variable", "log.p-values", "statistic" )
       rownames(mat) <- 1:p 
       sel <- which.max( mat[, 2] )
       info <- matrix( c(0, -10, -10) , ncol = 3 )
-      sela <- sel 
 
       if ( mat[sel, 2] < threshold ) {
         runtime <- proc.time() - tic
@@ -161,18 +167,18 @@ bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
 		        mod <- test(target ~ 1, weights = wei)
 		        if ( ci_test == "censIndCR")  {
 		          dof <- dof + 1
-		          stat <- 2 * abs( likini - mod$loglik )
+		          stat <- 2 * ( likini - mod$loglik )
 		        } else {
-		          stat <- 2 * abs( likini - logLik(mod) )
+		          stat <- 2 * ( likini - logLik(mod) )
 		          dof <- dofini - length( coef(mod) ) 
 		        }  
 		        pval <- pchisq( stat, dof, lower.tail = FALSE, log.p = TRUE)
 		      
 		        if (pval > threshold ) {
 		          final <- "No variables were selected"
-		          info <- rbind(info, c(mat[, 1], stat, pval) )
+		          info <- rbind(info, c(mat[, 1], pval, stat) )
 		          dat <- dataset[, -info[, 1], drop = FALSE ]
-		          mat <- NULL
+		          mat <- matrix(nrow = 0, ncol = 3)
 		        } else {
 		          info <- rbind(info, c(0, -10, -10)) 
 		          final <- ini
@@ -183,7 +189,7 @@ bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
              
 	          for (j in 1:k) {
 		          mod <- test( target ~.,  data = dat[, -j, drop = FALSE], weights = wei )
-		          stat[j] <- 2 * abs( likini - logLik(mod) )
+		          stat[j] <- 2 * ( likini - logLik(mod) )
 		          dof[j] <- dofini - length( coef(mod) ) 
 	          }
             mat[, 2:3] <- cbind( pchisq( stat, dof, lower.tail = FALSE, log.p = TRUE), stat )
@@ -195,7 +201,7 @@ bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
 
              } else {
                info <- rbind(info, mat[sel, ] )
-               mat <- mat[-sel, ,drop = FALSE] 
+               mat <- mat[-sel, , drop = FALSE] 
                dat <- dataset[, -info[, 1], drop = FALSE ]
              }
  

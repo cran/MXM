@@ -12,12 +12,12 @@ SES.temporal algorithm follows a forward-backward filter approach for feature se
 
 \usage{
 SES.temporal(target, reps = NULL, group, dataset, max_k = 3, threshold = 0.05, 
-test = NULL, ini = NULL, wei = NULL, user_test = NULL, hash = FALSE, hashObject = NULL, 
-slopes = FALSE, ncores = 1)
+test = NULL, ini = NULL, wei = NULL, user_test = NULL, hash = FALSE, 
+hashObject = NULL, slopes = FALSE, ncores = 1, logged = FALSE)
 
 MMPC.temporal(target, reps = NULL, group, dataset, max_k = 3, threshold = 0.05, 
-test = NULL, ini = NULL, wei = NULL, user_test = NULL, hash = FALSE, hashObject = NULL, 
-slopes = FALSE, ncores = 1)
+test = NULL, ini = NULL, wei = NULL, user_test = NULL, hash = FALSE, 
+hashObject = NULL, slopes = FALSE, ncores = 1, logged = FALSE)
 }
 
 \arguments{
@@ -63,9 +63,11 @@ Important: the generated hashObjects should be used only when the same dataset i
 \item{slopes}{
 Should random slopes for the ime effect be fitted as well? Default value is FALSE. 
 }
-
 \item{ncores}{
 How many cores to use. This plays an important role if you have tens of thousands of variables or really large sample sizes and tens of thousands of variables and a regression based test which requires numerical optimisation. In other cases it will not make a difference in the overall time (in fact it can be slower). The parallel computation is used in the first step of the algorithm, where univariate associations are examined, those take place in parallel. We have seen a reduction in time of 50\% with 4 cores in comparison to 1 core. Note also, that the amount of reduction is definetely not linear in the number of cores.
+}
+\item{logged}{
+Do you want the logarithm of the final p-values be returned? Default value is FALSE.
 }
 }
 

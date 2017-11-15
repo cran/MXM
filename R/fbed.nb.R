@@ -48,7 +48,7 @@ fbed.nb <- function(y, x, alpha = 0.05, wei = NULL, K = 0) {
         sel <- which.min(pval) * ( length(s)>0 )
         sa <- c(sa, stat[sel]) 
         pva <- c(pva, pval[sel])
-        sela <- c(sela, sel)
+        sela <- c(sela, sel[sel > 0] )
         s <- s[ - which(s == sel) ]
         if (sel > 0) {
           lik1 <- lik2[sel] 
@@ -73,7 +73,7 @@ fbed.nb <- function(y, x, alpha = 0.05, wei = NULL, K = 0) {
       sel <- which.min(pval) * ( length(s)>0 )
       sa <- c(sa, stat[sel]) 
       pva <- c(pva, pval[sel])
-      sela <- c(sela, sel)
+      sela <- c(sela, sel[sel > 0] )
       s <- s[ - which(s == sel) ]
       if (sel > 0) {
         lik1 <- lik2[sel] 
@@ -94,7 +94,7 @@ fbed.nb <- function(y, x, alpha = 0.05, wei = NULL, K = 0) {
         sel <- which.min(pval) * ( length(s)>0 )
         sa <- c(sa, stat[sel]) 
         pva <- c(pva, pval[sel])
-        sela <- c(sela, sel)
+        sela <- c(sela, sel[sel > 0] )
         s <- s[ - which(s == sel) ]
         if (sel > 0) {
           lik1 <- lik2[sel] 
@@ -120,7 +120,7 @@ fbed.nb <- function(y, x, alpha = 0.05, wei = NULL, K = 0) {
       sel <- which.min(pval) * ( length(s)>0 )
       sa <- c(sa, stat[sel]) 
       pva <- c(pva, pval[sel])
-      sela <- c(sela, sel)
+      sela <- c(sela, sel[sel > 0] )
       s <- s[ - which(s == sel) ]
       if (sel > 0) {
         lik1 <- lik2[sel] 
@@ -141,7 +141,7 @@ fbed.nb <- function(y, x, alpha = 0.05, wei = NULL, K = 0) {
         sel <- which.min(pval) * ( length(s)>0 )
         sa <- c(sa, stat[sel]) 
         pva <- c(pva, pval[sel])
-        sela <- c(sela, sel)
+        sela <- c(sela, sel[sel > 0] )
         s <- s[ - which(s == sel) ]
         if (sel > 0) {
           lik1 <- lik2[sel] 
@@ -167,7 +167,7 @@ fbed.nb <- function(y, x, alpha = 0.05, wei = NULL, K = 0) {
       sel <- which.min(pval) * ( length(s)>0 )
       sa <- c(sa, stat[sel]) 
       pva <- c(pva, pval[sel])
-      sela <- c(sela, sel)
+      sela <- c(sela, sel[sel > 0] )
       s <- s[ - which(s == sel) ]
       if (sel > 0) {
         lik1 <- lik2[sel] 
@@ -188,7 +188,7 @@ fbed.nb <- function(y, x, alpha = 0.05, wei = NULL, K = 0) {
         sel <- which.min(pval) * ( length(s)>0 )
         sa <- c(sa, stat[sel]) 
         pva <- c(pva, pval[sel])
-        sela <- c(sela, sel)
+        sela <- c(sela, sel[sel > 0] )
         s <- s[ - which(s == sel) ]
         if (sel > 0) {
           lik1 <- lik2[sel] 

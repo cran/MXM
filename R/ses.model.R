@@ -36,7 +36,6 @@ ses.model = function(target, dataset, wei = NULL, sesObject, nsignat = 1, test =
     # mat1 <- mat2 <- numeric(p)
     
    if ( ci_test == "testIndFisher"  ||  ci_test == "testIndReg" ) {
-     if ( min(target) > 0 & max(target) < 1 )  target = log( target/(1 - target) ) 
 
      if ( rob ) {
        mod = MASS::rlm(target ~., data = data.frame(dataset[, ypografi ]), maxit = 2000, weights = wei )
@@ -48,8 +47,6 @@ ses.model = function(target, dataset, wei = NULL, sesObject, nsignat = 1, test =
      }  
      
    } else if ( ci_test == "testIndSpearman"  ||  ci_test == "testIndRQ" ) {
-       if ( all( target>0 & target<1 ) )  target = log( target/(1 - target) ) 
-      
       mod <- quantreg::rq( target ~., data = data.frame(dataset[, ypografi ]), weights = wei )
 	    la <- logLik(mod)
       bic <-  - 2 * as.numeric( la ) + attr(la, "df") * log( length(target) )
@@ -165,8 +162,6 @@ ses.model = function(target, dataset, wei = NULL, sesObject, nsignat = 1, test =
     for ( i in 1:nsignat ) {
 	
      if ( ci_test == "testIndFisher" || ci_test == "testIndReg" ) {
-      if ( min(target) > 0 & max(target) < 1 )  target = log( target/(1 - target) ) 
-
       if ( rob ) {
         mod[[ i ]] = MASS::rlm(target~., data = data.frame( dataset[, ypografi[i, ] ] ), maxit = 2000, weights = wei )
         bic[i] = BIC( mod[[ i ]] ) 
@@ -176,7 +171,6 @@ ses.model = function(target, dataset, wei = NULL, sesObject, nsignat = 1, test =
       }
 
      } else if ( ci_test == "testIndSpearman"  ||  ci_test == "testIndRQ" ) {
-       if ( all( target>0 & target<1 ) )  target = log( target/(1 - target) ) 
        mod[[ i ]] = quantreg::rq( target ~., data = data.frame( dataset[, ypografi[i, ] ] ), weights = wei )
 	     la <- logLik( mod[[ i ]] ) 
        bic[i] <-  - 2 * as.numeric( la ) + attr(la, "df") * con
@@ -283,8 +277,6 @@ ses.model = function(target, dataset, wei = NULL, sesObject, nsignat = 1, test =
     for ( i in 1:nrow(ypografi) ) {
 	
      if ( ci_test == "testIndFisher" || ci_test == "testIndReg" ) {
-      if ( min(target) > 0 & max(target) < 1 )  target = log( target / (1 - target) ) 
- 
       if ( rob ) {
         mod[[ i ]] = MASS::rlm(target~., data = data.frame( dataset[, ypografi[i, ] ] ), maxit = 2000, weights = wei)
         bic[[ i ]] = BIC( mod[[ i ]] )
@@ -294,9 +286,8 @@ ses.model = function(target, dataset, wei = NULL, sesObject, nsignat = 1, test =
       }
 
      } else if ( ci_test == "testIndSpearman"  ||  ci_test == "testIndRQ" ) {
-       if ( all( target > 0 & target < 1 ) )  target = log( target/(1 - target) ) 
        mod[[ i ]] = quantreg::rq( target ~., data = data.frame( dataset[, ypografi[i, ] ] ), weights = wei )
-	   la <- logLik( mod[[ i ]] )
+	     la <- logLik( mod[[ i ]] )
        bic[i] <-  - 2 * as.numeric( la ) + attr(la, "df") * con
 
      } else if ( ci_test == "testIndBeta" ) {

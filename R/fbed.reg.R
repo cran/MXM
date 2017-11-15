@@ -69,6 +69,9 @@ fbed.reg <- function(y, x, test = NULL, alpha = 0.05, wei = NULL, K = 0, method 
       
     } else if (test == "testIndTobit") {
       result <- fbed.tobit(y, x, alpha = alpha, wei = wei, K = K)
+      
+    } else if (test == "testIndClogit") {
+      result <- fbed.clogit(y, x, alpha = alpha, wei = wei, K = K)
     }
     
     result$back.rem <- 0
@@ -148,6 +151,9 @@ fbed.reg <- function(y, x, test = NULL, alpha = 0.05, wei = NULL, K = 0, method 
       
     } else if (test == "testIndTobit") {
       result <- ebic.fbed.tobit(y, x, gam = gam, wei = wei, K = K)
+      
+    } else if (test == "testIndClogit") {
+      result <- ebic.fbed.clogit(y, x, gam = gam, wei = wei, K = K)
     }
     
     result$back.rem <- 0
@@ -160,7 +166,6 @@ fbed.reg <- function(y, x, test = NULL, alpha = 0.05, wei = NULL, K = 0, method 
        
         if ( typeof(a) == "list" ) {
           back.n.tests <- sum( dim(result$res)[1] : length(a$mat[, 1]) )
-          
           result$back.rem <- result$res[a$info[, 1], 1]
           sel <- result$res[ a$mat[, 1], 1]
           val <- a$mat[, 2]

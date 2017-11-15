@@ -15,7 +15,6 @@ ridgereg.cv <- function( target, dataset, K = 10, lambda = seq(0, 2, by = 0.1),
   ## Otherwise, a K-fold cross validation is performed
   ## seed is boolean. Should the same K-folds be used always or not?
   ## ncores specifies how many cores to be used
-
   target <- as.vector(target)
   dataset <- as.matrix(dataset)
   n <- length(target)
@@ -52,16 +51,11 @@ ridgereg.cv <- function( target, dataset, K = 10, lambda = seq(0, 2, by = 0.1),
       for (vim in 1:K) {
         ytest <- as.vector( target[ mat[, vim] ] )  ## test set dependent vars
         ytrain <- as.vector( target[ -mat[, vim] ] )  ## train set dependent vars
-        my <- sum(ytrain) / (n - rmat)
-        xtrain <- as.matrix( dataset[ -mat[, vim], ] )  ## train set independent vars
-        xtest <- as.matrix( dataset[ mat[, vim], ] )  ## test set independent vars
-        mx <- as.vector( Rfast::colmeans(xtrain) )
-        yy <- ytrain - my  ## center the dependent variables
-        s <- Rfast::colVars(xtrain, std = TRUE) 
-        xtest <- t( ( t(xtest) - mx ) / s ) ## standardize the independent variable values 
-        xx <- t( ( t(xtrain) - mx ) / s )
-        
-        sa <- svd(xx)
+        my <- mean(ytrain) 
+		    yy <- ytrain - my
+        xtrain <- dataset[ -mat[, vim], , drop = FALSE]  ## train set independent vars
+        xtest <- dataset[ mat[, vim], , drop = FALSE]  ## test set independent vars
+        sa <- svd(xtrain)
         d <- sa$d    ;    v <- t(sa$v)    ;     tu <- t(sa$u)  
         d2 <- d^2    ;    A <- d * tu %*% yy
         
@@ -88,15 +82,10 @@ ridgereg.cv <- function( target, dataset, K = 10, lambda = seq(0, 2, by = 0.1),
         ytest <- as.vector( target[mat[, vim] ] )  ## test set dependent vars
         ytrain <- as.vector( target[-mat[, vim] ] )  ## train set dependent vars
         my <- sum(ytrain) / (n - rmat)
-        xtrain <- as.matrix( dataset[-mat[, vim], ] )  ## train set independent vars
-        xtest <- as.matrix( dataset[mat[, vim], ] )  ## test set independent vars
-        mx <- as.vector( Rfast::colmeans(xtrain) )
+        xtrain <- dataset[-mat[, vim], , drop = FALSE]  ## train set independent vars
+        xtest <- dataset[mat[, vim], , drop = FALSE]  ## test set independent vars
         yy <- ytrain - my  ## center the dependent variables
-        s <- Rfast::colVars(xtrain, std = TRUE) 
-        xx <- t( ( t(xtrain) - mx ) / s )
-        xtest <- t( ( t(xtest) - mx ) / s ) ## standardize the newdata values   
-
-        sa <- svd(xx)
+        sa <- svd(xtrain)
         d <- sa$d    ;    v <- t(sa$v)    ;     tu <- t(sa$u)  
         d2 <- d^2    ;    A <- d * tu %*% yy
         
@@ -108,9 +97,7 @@ ridgereg.cv <- function( target, dataset, K = 10, lambda = seq(0, 2, by = 0.1),
         }
         return(pe)
       }
-	  
       stopCluster(cl)
-	  
       runtime <- proc.time() - runtime
     }
 
@@ -120,22 +107,11 @@ ridgereg.cv <- function( target, dataset, K = 10, lambda = seq(0, 2, by = 0.1),
     estb <- mean( bias )  ## TT estimate of bias
     names(mspe) <- lambda
     lam <- lambda[ which.min(mspe) ]
-    
     plot(lambda, mspe, xlab = expression(paste(lambda, " values")), ylab = "MSPE", type = "b")
     names(mspe) <- lambda
-    
     performance <- c( min(mspe) + estb, estb)
     names(performance) <- c("Estimated MSPE", "Estimated bias")
   }
   
   list(mspe = mspe, lambda = lam, performance = performance, runtime = runtime)
 }
-
-
-### References
-### Hoerl, A.E. and R.W. Kennard (1970). Ridge regression: Biased estimation for nonorthogonal problems". Technometrics, 12(1):55?67.
-
-### Brown, P. J. (1994). Measurement, Regression and Calibration. Oxford Science Publications.
-
-### Tibshirani Ryan J., and Tibshirani Robert (2009). A bias correction for the minimum error rate in cross-validation.
-#The Annals of Applied Statistics 3(2): 822-829.

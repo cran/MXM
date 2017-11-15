@@ -5,14 +5,21 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.01, rob = FALSE, R = 
   ## alpha is the level of significance, set to 0.05 by default
   ## rob is TRUE or FALSE and is supported by type = "pearson" only, i.e. it is to be used
   ## for robust estimation of Pearson correlation coefficient only
-  ## if graph is true, the graph will appear
   title <- deparse( substitute(dataset) )
-  #if ( !is.matrix(dataset) )   dataset <- Rfast::data.frame.to_matrix(dataset);
-  
+  nam <- colnames(dataset)
+  n <- dim(dataset)[2]
   if ( method != "distcor"  &  method != "comb.fast" &  method != "comb.mm"  &  rob == FALSE )  {
     res <- Rfast::pc.skel(dataset = dataset, method = method, alpha = alpha, R = R)
+    if ( is.null( nam ) ) {
+      colnames(res$G) = rownames(res$G) = paste("X", 1:n, sep = "")
+      colnames(res$stat) = rownames(res$stat) = paste("X", 1:n, sep = "")
+      colnames(res$pvalue) = rownames(res$pvalue) = paste("X", 1:n, sep = "")
+    } else {
+      colnames(res$G) = rownames(res$G) = nam
+      colnames(res$stat) = rownames(res$stat) = nam
+      colnames(res$pvalue) = rownames(res$pvalue) = nam
+    }  
     info <- summary( Rfast::rowsums(res$G) )
-    n <- dim(dataset)[2]
     density <- sum(res$G) / n / ( n - 1 ) 
     res$density = density
     res$info = info
@@ -21,7 +28,7 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.01, rob = FALSE, R = 
   } else {
     
     alpha <- log(alpha)
-    if( any(is.na(dataset)) ) {
+    if ( any( is.na(dataset) ) ) {
       #dataset = as.matrix(dataset);
       warning("The dataset contains missing values (NA) and they were replaced automatically by the variable (column) median (for numeric) or by the most frequent level (mode) if the variable is factor")
       if ( is.matrix(dataset) )  {
@@ -36,7 +43,7 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.01, rob = FALSE, R = 
           dataset[, i] <- xi
         }
       }
-    }
+    }  ## end if ( any(is.na(dataset)) ) 
     if ( method == "pearson" ) {
       ci.test <- condi 
       type <- method
@@ -74,11 +81,10 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.01, rob = FALSE, R = 
           pv[i, j] = ro[2]
           pv[j, i] = ro[2]
         }
-      }
+      }  ## end for ( i in 1:c(n - 1) )
       pvalue = pv  ## p-values
-      stata = stat
       dof = matrix(m - 3, n, n)
-      stadf = stata / dof
+      stadf = stat / dof
       
     } else if ( method == "distcor" )  {
       
@@ -91,10 +97,9 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.01, rob = FALSE, R = 
           pv[i, j] <- ro[2]
           pv[j, i] <- ro[2]
         }
-      }
+      }  ## end for ( i in 1:c(n - 1) )
       pvalue <- pv  ## p-values
-      stata <- stat
-      stadf <- stata 
+      stadf <- stat 
       
     } else if ( method == "comb.fast" )  {
       
@@ -107,10 +112,9 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.01, rob = FALSE, R = 
           pv[i, j] <- ro[2]
           pv[j, i] <- ro[2]
         }
-      }
+      }  ## end for ( i in 1:c(n - 1) )
       pvalue <- pv  ## p-values
-      stata <- stat
-      stadf <- stata 
+      stadf <- stat 
     } else if ( method == "comb.mm" )  {
       
       stat = pv = matrix(0, n, n)
@@ -122,19 +126,14 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.01, rob = FALSE, R = 
           pv[i, j] <- ro[2]
           pv[j, i] <- ro[2]
         }
-      }
+      }  ## end for ( i in 1:c(n - 1) )
       pvalue <- pv  ## p-values
-      stata <- stat
-      stadf <- stata 
+      stadf <- stat 
     } 
     pv <- pvalue
     #stat[ lower.tri(stat) ] = 2
     pv[ lower.tri(pv) ] = 2 
     G[pvalue > alpha] <- 0   ## removes edges from non significantly related pairs
-    
-    if ( is.null( colnames(dataset) ) ) {
-      colnames(G) = rownames(G) = paste("X", 1:n, sep = "")
-    } else colnames(G) = rownames(G) = colnames(dataset)
     
     diag(pvalue) = diag(pv) = 0
     ina = 1:n 
@@ -160,26 +159,27 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.01, rob = FALSE, R = 
         met <- matrix(0, duo, k + 2)
         
         for ( i in 1:nrow(zeu) ) {
-          adjx = ina[ G[ zeu[i, 1], ] == 2 ]   ;   lx = length(adjx)  ## adjacents to x
-          adjy = ina[ G[ zeu[i, 2], ] == 2 ]   ;   ly = length(adjy)  ## adjacents to y
+          candpair <- zeu[i, 1:2]
+          adjx = ina[ G[ candpair[1], ] == 2 ]   ;   lx = length(adjx)  ## adjacents to x
+          adjy = ina[ G[ candpair[2], ] == 2 ]   ;   ly = length(adjy)  ## adjacents to y
           
           if ( lx >= k )  {
-            pvalx = pvalue[ zeu[i, 1], adjx ]
+            pvalx = pvalue[ candpair[1], adjx ]
             infox = cbind( adjx, pvalx)
             infox = infox[ order( - pvalx ), ]
             if ( !is.matrix(infox) ) {
               samx = cbind( infox[1], infox[2] )
             } else  samx = cbind( t( combn(infox[, 1], k) ), t( combn(infox[, 2], k) ) )  ## factorial, all possible unordered pairs
-          }
+          }  ## end if ( lx >= k )
           
           if ( ly >= k ) {
-            pvaly = pvalue[ zeu[i, 2], adjy ]
+            pvaly = pvalue[ candpair[2], adjy ]
             infoy = cbind(adjy, pvaly)
             infoy = infoy[ order( - pvaly ), ]
             if ( !is.matrix(infoy) ) {
               samy = cbind( infoy[1], infoy[2] )
             } else  samy = cbind( t( combn(infoy[, 1], k) ), t( combn(infoy[, 2], k) ) )  ## factorial, all possible unordered pairs
-          }
+          }  ## end if ( ly >= k )
           
           if ( !is.null(samx) ) sx = 1  else sx = 0
           if ( !is.null(samy) ) sy = 1  else sy = 0 
@@ -193,7 +193,7 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.01, rob = FALSE, R = 
             for ( j in 1:length(rem) ) {
               pam[[ j ]] = as.vector( which(sam == rem[j], arr.ind = TRUE)[, 1] ) 
             }
-          }
+          }  ## end if ( length(rem) > 0 )
           
           pam = unlist(pam)
           sam = sam[ - pam, ] 
@@ -213,36 +213,38 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.01, rob = FALSE, R = 
               sam2 <- as.data.frame( sam[, nc:1] )     
               sam2 <- sam2[ do.call( order, as.list( sam2 ) ), ] 
               sam <- as.matrix( sam2[, nc:1] )
-            }
-          }
+            }  ##  end if (k == 1) 
+          }  ## end if if ( !is.matrix(sam) )
           
           if ( dim(sam)[1] == 0 ) {
             G = G  
           } else {
-            a = ci.test( zeu[i, 1], zeu[i, 2], sam[1, 1:k], dataset, type = type, rob = rob, R = R )
+            a = ci.test( candpair[1], candpair[2], sam[1, 1:k], dataset, type = type, rob = rob, R = R )
+            b <- a[2]
             if ( a[2] > alpha ) {
-              G[ zeu[i, 1], zeu[i, 2] ] = 0  ## remove the edge between two variables
-              G[ zeu[i, 2], zeu[i, 1] ] = 0  ## remove the edge between two variables 
+              G[ candpair[1], candpair[2] ] = 0  ## remove the edge between two variables
+              G[ candpair[2], candpair[1] ] = 0  ## remove the edge between two variables 
               met[i, ] = c( sam[1, 1:k], a[1:2] )
               tes = tes + 1 
-              
             } else {
               m = 1
               while ( a[2] < alpha  &  m < nrow(sam) ) {
                 m = m + 1
-                a = ci.test( zeu[i, 1], zeu[i, 2], sam[m, 1:k], dataset, type = type, rob = rob, R = R )
+                a = ci.test( candpair[1], candpair[2], sam[m, 1:k], dataset, type = type, rob = rob, R = R )
+                b <- c(b, a[2])
                 tes = tes + 1
-              }
-              
+              }  ## end while ( a[2] < alpha  &  m < nrow(sam) )
               if (a[2] > alpha) {
-                G[ zeu[i, 1], zeu[i, 2] ] = 0  ## remove the edge between two variables
-                G[ zeu[i, 2], zeu[i, 1] ] = 0  ## remove the edge between two variables
+                G[ candpair[1], candpair[2] ] = 0  ## remove the edge between two variables
+                G[ candpair[2], candpair[1] ] = 0  ## remove the edge between two variables
                 met[i, ] = c( sam[m, 1:k], a[1:2] ) 
-              }
-            }
-          }
+              }  ## end if (a[2] > alpha)
+            }  ## end if ( a[2] > alpha )
+            pvalue[ candpair[1], candpair[2] ] = max(b, pvalue[ candpair[1], candpair[2] ] )
+            pvalue[ candpair[2], candpair[1] ] = max(b, pvalue[ candpair[1], candpair[2] ] )
+          }  ## end if ( dim(sam)[1] == 0 ) 
           sam = samx = samy = NULL
-        }  
+        }  ## end for ( i in 1:nrow(zeu) )
         
         ax = ay = list()
         lx = ly = numeric( duo )
@@ -258,7 +260,7 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.01, rob = FALSE, R = 
         zeu = zeu[-id, , drop = FALSE]  
         duo <- dim(zeu)[1]
         n.tests[ k + 1 ] = tes
-      }
+      }  ## end while ( k <= ell & duo > 0 )
       
       G <- G/2
       diag(G) = 0
@@ -271,7 +273,7 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.01, rob = FALSE, R = 
         } else {
           if ( length(sep[[ l ]]) > 0)   names( sep[[ l ]] ) <- c("X", "Y", paste("SepVar", 1:l), "stat", "logged.p-value")
         }
-      } 
+      }   ## end for ( l in 1:k ) 
       #######################
     }  
     n.tests = n.tests[ n.tests>0 ]
@@ -287,11 +289,20 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.01, rob = FALSE, R = 
           if ( nu > 0 ) sepset[[ l ]] <- sep[[ l ]][1:nu, ]
         } else sepset[[ l ]] = sep[[ l ]]    
       }
-    }  
+    }  ## end if (k == 0) 
     names(n.tests) = paste("k=", 0:k, sep ="")
     info <- summary( Rfast::rowsums(G) )
     density <- sum(G) / n / ( n - 1 ) 
-    res <- list(stat = stata, pvalue = pvalue, runtime = durat, kappa = k, n.tests = n.tests, density = density, info = info, G = G, sepset = sepset, title = title )
+    if ( is.null( colnames(dataset) ) ) {
+      colnames(G) = rownames(G) = paste("X", 1:n, sep = "")
+      colnames(stat) = rownames(stat) = paste("X", 1:n, sep = "")
+      colnames(pvalue) = rownames(pvalue) = paste("X", 1:n, sep = "")
+    } else {
+      colnames(G) = rownames(G) = nam
+      colnames(stat) = rownames(stat) = nam
+      colnames(pvalue) = rownames(pvalue) = nam
+    }  
+    res <- list(stat = stat, pvalue = pvalue, runtime = durat, kappa = k, n.tests = n.tests, density = density, info = info, G = G, sepset = sepset, title = title )
   }  ## end if ( method != distcor & rob = FALSE )
   ##################
   res

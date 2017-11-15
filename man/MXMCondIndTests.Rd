@@ -134,7 +134,7 @@ The available tests for wald.ses and wald.mmpc are listed below. Note, that only
   Successes \& totals \tab testIndBinom \tab Binomial regression \cr
   Discrete \tab waldPois \tab Poisson regression \cr 
   Discrete \tab waldZIP \tab Zero Inflated \cr 
-   \tab	\tab  \tab Poisson regression \cr 
+  \tab	\tab  \tab Poisson regression \cr 
   Discrete \tab waldNB \tab Negative binomial regression \cr 
   Factor with two \tab waldBinary \tab Binary logistic regression \cr
   levels or binary \tab \tab \tab \cr  
@@ -143,6 +143,7 @@ The available tests for wald.ses and wald.mmpc are listed below. Note, that only
   Continuous, proportions, \tab waldSpeedglm \tab binary logistic \cr   
   binary or counts        \tab  \tab  \tab or poisson gression \cr  
   Left censored \tab waldTobit \tab Tobit regression \cr 
+  Case-control  \tab Mixed \tab testIndClogit \tab Conditional logistic regression \cr
   Survival	 \tab waldCR \tab Cox regression \cr
   Survival	 \tab waldWR \tab Weibull regression \cr
   Survival	 \tab waldER \tab Exponential regression \cr
@@ -152,7 +153,7 @@ The available tests for wald.ses and wald.mmpc are listed below. Note, that only
 
 \section{Permutation based tests}{
 
-The available tests for wald.ses and wald.mmpc are listed below. Note, that only continuous predictors are allowed. 
+The available tests for perm.ses and perm.mmpc are listed below. Note, that only continuous predictors are allowed. 
 
 \tabular{llll}{ 
   \bold{Target variable} \tab \bold{Available tests} \tab	\bold{Short explanation} \cr 
@@ -170,7 +171,7 @@ The available tests for wald.ses and wald.mmpc are listed below. Note, that only
   Successes \& totals \tab permBinom \tab Binomial regression \cr
   Discrete \tab permPois \tab Poisson regression \cr 
   Discrete \tab permZIP \tab Zero Inflated \cr 
-   \tab	\tab  \tab Poisson regression \cr 
+  \tab	\tab  \tab Poisson regression \cr 
   Discrete \tab permNB \tab Negative binomial regression \cr 
   Factor with two \tab permLogistic \tab Binary logistic regression \cr
   levels or binary \tab \tab \tab \cr  

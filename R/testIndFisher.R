@@ -117,7 +117,7 @@ testIndFisher = function(target, dataset, xIndex, csIndex, wei = NULL, statistic
             b1 = coef( MASS::rlm(target ~ x, maxit = 2000, method = "MM" ) )[2]
             b2 = coef( MASS::rlm(x ~ target, maxit = 2000, mehtod = "MM" ) )[2]
             stat = sqrt( abs (b1 * b2) ) 
-          } else  stat = cor(x, target);
+          } else  stat <- cor(x, target);
         } else {
           #perform the test with the cs
           if ( robust ) { ## robust correlation

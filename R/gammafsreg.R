@@ -4,7 +4,7 @@ gammafsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL
     result <- gammafsreg_2(target, dataset, iniset = ini, wei = wei, threshold = threshold, tol = tol, heavy = heavy, robust = FALSE, ncores = ncores) 
     
   } else {  ## else do the classical forward regression
-    
+  
     threshold <- log(threshold)  ## log of the significance level
     p <- dim(dataset)[2]  ## number of variables
     devi <- dof <- numeric( p )  
@@ -13,10 +13,11 @@ gammafsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL
     n <- length(target)  ## sample size
     con <- log(n)
     tool <- numeric( min(n, p) )
+    datatset <- as.data.frame(dataset)
 
     runtime <- proc.time()
       if (heavy) {
-        ini <- 2 * logLik( speedglm::speedglm( target ~ 1, data = as.data.frame(dataset), family = Gamma(link = log), weights = wei ) )
+        ini <- 2 * logLik( speedglm::speedglm( target ~ 1, data = dataset, family = Gamma(link = log), weights = wei ) )
       } else  ini <- 2 * logLik( glm( target ~ 1, family = Gamma(link = log), weights = wei, y = FALSE, model = FALSE ) )
  
       if (ncores <= 1) {
@@ -29,7 +30,7 @@ gammafsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL
           }
         } else {
           for (i in 1:p) {
-            mi <- speedglm::speedglm( target ~ dataset[, i], data = as.data.frame(dataset), family = Gamma(link = log), weights = wei )
+            mi <- speedglm::speedglm( target ~ dataset[, i], data = dataset, family = Gamma(link = log), weights = wei )
             devi[i] <- 2 * as.numeric( logLik(mi) )
             dof[i] <- length( mi$coefficients ) 
           }
@@ -51,7 +52,7 @@ gammafsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL
           cl <- makePSOCKcluster(ncores)
           registerDoParallel(cl)
           mod <- foreach( i = 1:p, .combine = rbind, .export = "speedglm", .packages = "speedglm") %dopar% {
-            ww <- speedglm::speedglm( target ~ dataset[, i], data = as.data.frame(dataset), family = Gamma(link = log), weights = wei )
+            ww <- speedglm::speedglm( target ~ dataset[, i], data = dataset, family = Gamma(link = log), weights = wei )
             return( c( 2 * as.numeric( logLik(ww) ), length( ww$coefficients ) ) )
           }
           stopCluster(cl)	  	  
@@ -73,7 +74,7 @@ gammafsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL
             mi <- glm( target ~ dataset[, sel], family = Gamma(link = log), weights = wei, y = FALSE, model = FALSE )
             tool[1] <- BIC( mi )
           } else {
-            mi <- speedglm::speedglm( target ~ dataset[, sel], data = as.data.frame(dataset), family = Gamma(link = log), weights = wei )
+            mi <- speedglm::speedglm( target ~ dataset[, sel], data = dataset, family = Gamma(link = log), weights = wei )
             tool[1] <-  - 2 * as.numeric( logLik(mi) ) + length( mi$coefficients ) * con 		
           }
           moda[[ 1 ]] <- mi
@@ -90,19 +91,20 @@ gammafsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL
           pn <- p - k + 1   
           ini <- 2 * as.numeric( logLik(mi) )
           do <- length( mi$coefficients ) 
+          devi <- dof <- numeric( pn )  
           
           if ( ncores <= 1 ) {
             devi <- dof <- numeric(pn)
             if ( !heavy ) {
               for ( i in 1:pn ) {
-                ww <- glm( target ~., data = as.data.frame( dataset[, c(sela, mat[i, 1]) ] ), family = Gamma(link = log), weights = wei, y = FALSE, model = FALSE )
+                ww <- glm( target ~., data = dataset[, c(sela, mat[i, 1]) ], family = Gamma(link = log), weights = wei, y = FALSE, model = FALSE )
                 devi[i] <- 2 * as.numeric( logLik(ww) )
                 dof[i] <- length( ww$coefficients )          
               }
               
             } else {
               for ( i in 1:pn ) {
-                ww <- speedglm::speedglm( target ~., data = as.data.frame( dataset[, c(sela, mat[i, 1]) ] ), family = Gamma(link = log), weights = wei )
+                ww <- speedglm::speedglm( target ~., data = dataset[, c(sela, mat[i, 1]) ], family = Gamma(link = log), weights = wei )
                 devi[i] <- 2 * as.numeric( logLik(ww) )
                 dof[i] <- length( ww$coefficients )          
               }		  
@@ -116,7 +118,7 @@ gammafsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL
               cl <- makePSOCKcluster(ncores)
               registerDoParallel(cl)
               mod <- foreach( i = 1:pn, .combine = rbind) %dopar% {
-                ww <- glm( target ~., data = as.data.frame( dataset[, c(sela, mat[i, 1]) ] ), family = Gamma(link = log), weights = wei, y = FALSE, model = FALSE )
+                ww <- glm( target ~., data = dataset[, c(sela, mat[i, 1]) ], family = Gamma(link = log), weights = wei, y = FALSE, model = FALSE )
                 return( c( 2 * as.numeric( logLik(ww) ), length( ww$coefficients ) ) )
               }
               stopCluster(cl)
@@ -125,7 +127,7 @@ gammafsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL
               cl <- makePSOCKcluster(ncores)
               registerDoParallel(cl)
               mod <- foreach( i = 1:pn, .combine = rbind, .export = "speedglm", .packages = "speedglm") %dopar% {
-                ww <- speedglm( target ~., data = as.data.frame( dataset[, c(sela, mat[i, 1]) ] ), family = Gamma(link = log), weights = wei )
+                ww <- speedglm( target ~., data = dataset[, c(sela, mat[i, 1]) ], family = Gamma(link = log), weights = wei )
                 return( c( 2 * as.numeric( logLik(ww) ), length( ww$coefficients ) ) )
               }
               stopCluster(cl)		  
@@ -143,7 +145,7 @@ gammafsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL
               ma <- glm( target ~ dataset[, sela] + dataset[, sel], family = Gamma(link = log), weights = wei, y = FALSE, model = FALSE )
               tool[k] <- BIC( ma )
             } else {
-              ma <- speedglm::speedglm( target ~ dataset[, sela] + dataset[, sel], data = as.data.frame(dataset), family = Gamma(link = log), weights = wei )
+              ma <- speedglm::speedglm( target ~ dataset[, sela] + dataset[, sel], data = dataset, family = Gamma(link = log), weights = wei )
               tool[k] <-  - 2 * as.numeric( logLik(ma) ) + length( ma$coefficients ) * con		  
             }	
             
@@ -170,19 +172,20 @@ gammafsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL
             do = length( coef( moda[[ k ]]  ) ) 
             k <- k + 1   
             pn <- p - k  + 1
+            devi <- dof <- numeric( pn )  
             
             if (ncores <= 1) {  
               devi = dof = numeric(pn) 
               #if ( robust == FALSE ) {  ## Non robust
               if ( !heavy ) {
                 for ( i in 1:pn ) {
-                  ma <- glm( target ~., data = as.data.frame( dataset[, c(sela, mat[i, 1] ) ] ), family = Gamma(link = log), weights = wei, y = FALSE, model = FALSE )
+                  ma <- glm( target ~., data = dataset[, c(sela, mat[i, 1] ) ], family = Gamma(link = log), weights = wei, y = FALSE, model = FALSE )
                   devi[i] <- 2 * as.numeric( logLik(ma) )
                   dof[i] <- length( ma$coefficients ) 
                 }
               } else {
                 for ( i in 1:pn ) {
-                  ma <- speedglm( target ~., data = as.data.frame( dataset[, c(sela, mat[i, 1] ) ] ), family = Gamma(link = log), weights = wei )
+                  ma <- speedglm( target ~., data = dataset[, c(sela, mat[i, 1] ) ], family = Gamma(link = log), weights = wei )
                   devi[i] <- 2 * as.numeric( logLik(ma) )
                   dof[i] <- length( ma$coefficients ) 
                 }
@@ -197,7 +200,7 @@ gammafsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL
                 cl <- makePSOCKcluster(ncores)
                 registerDoParallel(cl)
                 mod <- foreach( i = 1:pn, .combine = rbind) %dopar% {
-                  ww <- glm( target ~., data = as.data.frame( dataset[, c(sela, mat[i, 1]) ] ), family = Gamma(link = log), weights = wei, y = FALSE, model = FALSE )
+                  ww <- glm( target ~., data = dataset[, c(sela, mat[i, 1]) ], family = Gamma(link = log), weights = wei, y = FALSE, model = FALSE )
                   return( c( 2 * as.numeric( logLik(ww) ), length( ww$coefficients ) ) )
                 }
                 stopCluster(cl)
@@ -206,7 +209,7 @@ gammafsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL
                 cl <- makePSOCKcluster(ncores)
                 registerDoParallel(cl)
                 mod <- foreach( i = 1:pn, .combine = rbind, .export = "speedglm", .packages = "speedglm") %dopar% {
-                  ww <- speedglm( target ~., data = as.data.frame( dataset[, c(sela, mat[i, 1]) ] ), family = Gamma(link = log), weights = wei )
+                  ww <- speedglm( target ~., data = dataset[, c(sela, mat[i, 1]) ], family = Gamma(link = log), weights = wei )
                   return( c( 2 * as.numeric( logLik(ww) ), length( ww$coefficients ) ) )
                 }
                 stopCluster(cl)
@@ -249,8 +252,8 @@ gammafsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL
     
       if ( d >= 1 ) {
         if ( !heavy ) {
-          final <- glm( target ~., data = as.data.frame( dataset[, sela] ), family = Gamma(link = log), weights = wei, y = FALSE, model = FALSE )
-        } else   final <- speedglm::speedglm( target ~., data = as.data.frame( dataset[, sela] ), family = Gamma(link = log), weights = wei )
+          final <- glm( target ~., data = dataset[, sela, dro = FALSE], family = Gamma(link = log), weights = wei, y = FALSE, model = FALSE )
+        } else   final <- speedglm::speedglm( target ~., data = dataset[, sela, drop = FALSE], family = Gamma(link = log), weights = wei )
         info <- info[1:d, , drop = FALSE]
         info <- cbind( info, tool[ 1:d ] ) 
         colnames(info) <- c( "variables", "log.p-values", "stat", "BIC" )

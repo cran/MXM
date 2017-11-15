@@ -18,7 +18,7 @@ rdag <- function(n, p, s, a = 0, m = NULL, A = NULL, seed = FALSE) {
     A <- A
     p <- ncol(A)
   }
-   
+     
   Ip <- diag(p)
   sigma <- solve( Ip - A )
   sigma <- tcrossprod( sigma ) 
@@ -36,7 +36,9 @@ rdag <- function(n, p, s, a = 0, m = NULL, A = NULL, seed = FALSE) {
   G[ G > 0 ] <- 2
   ind <- which( t(G) == 2 )
   G[ind] <- 3
-  V <- paste("X", 1:p, sep = "")
+  
+  V <- colnames(A)
+  if ( is.null(V) )   V <- paste("X", 1:p, sep = "")
   colnames(x) <- V
   colnames(G) <- rownames(G) <- V
   colnames(A) <- rownames(A) <- V

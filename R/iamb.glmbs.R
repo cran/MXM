@@ -7,25 +7,6 @@ iamb.glmbs <- function(target, dataset, threshold = 0.05, wei = NULL, test = NUL
   if ( p > n ) {
     res <- paste("The number of variables is hiher than the sample size. No backward procedure was attempted")
   } else {
-    #check for NA values in the dataset and replace them with the variable median or the mode
-    if ( any(is.na(dataset)) ) {
-      #dataset = as.matrix(dataset);
-      warning("The dataset contains missing values (NA) and they were replaced automatically by the variable (column) median (for numeric) or by the most frequent level (mode) if the variable is factor")
-      if ( is.matrix(dataset) )  {
-        dataset <- apply( dataset, 2, function(x){ x[which(is.na(x))] = median(x, na.rm = TRUE) ; return(x) } ) 
-      } else {
-        poia <- unique( which( is.na(dataset), arr.ind = TRUE )[, 2] )
-        for ( i in poia )  {
-          xi <- dataset[, i]
-          if ( is.numeric(xi) )  {                    
-            xi[ which( is.na(xi) ) ] <- median(xi, na.rm = TRUE) 
-          } else if ( is.factor( xi ) ) {
-            xi[ which( is.na(xi) ) ] <- levels(xi)[ which.max( as.vector( table(xi) ) )]
-          }
-          dataset[, i] <- xi
-        }
-      }
-    }
     ##################################
     # target checking and initialize #
     ################################## 
@@ -64,12 +45,12 @@ iamb.glmbs <- function(target, dataset, threshold = 0.05, wei = NULL, test = NUL
     if ( length(poies) > 0 ) {
       ind[-poies] <- 0
       ind <- ind[ind > 0]
-      dat <- dataset[, poies ]
+      dat <- dataset[, poies, drop = FALSE ]
       a2 <- funa(target = target, dataset = dat, threshold = threshold, wei = wei, p = length(ind), heavy = heavy, robust = robust )  
       poies <- a2$mat[, 1]
       ind[-poies] <- 0
       ind <- ind[ind > 0]
-      if ( length(poies) == 1 )   dat <- dat  else   dat <- dat[, poies]
+      dat <- dat[, poies, drop = FALSE]
       i <- 2
     } else {
       ind <- NULL
@@ -83,7 +64,7 @@ iamb.glmbs <- function(target, dataset, threshold = 0.05, wei = NULL, test = NUL
       if ( length(poies) > 0 ) {
         ind[-poies] <- 0
         ind <- ind[ind > 0]
-        if ( length(poies) == 1 )   dat <- dat  else   dat <- dat[, poies]
+        dat <- dat[, poies, drop = FALSE]
       } else {
         ind <- NULL
         dat <- NULL  

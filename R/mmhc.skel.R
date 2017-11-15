@@ -1,4 +1,5 @@
-mmhc.skel <- function(dataset, max_k = 3, threshold = 0.05, test = "testIndFisher", type = "MMPC", rob = FALSE, fast = FALSE, symmetry = TRUE, nc = 1) {
+mmhc.skel <- function(dataset, max_k = 3, threshold = 0.05, test = "testIndFisher", type = "MMPC", backward = TRUE, rob = FALSE, 
+                      symmetry = TRUE, nc = 1, ini.pvalue = NULL, hash = FALSE) {
   ## dataset is either conitnuous or categorical data  
   ## max_k is the maximum number of variables upon which to condition
   ## threshold is the level of significance to reject the independence
@@ -6,149 +7,143 @@ mmhc.skel <- function(dataset, max_k = 3, threshold = 0.05, test = "testIndFishe
   ## OR gSquare (default) for categorical data
   ## rob is for robust correlation
   ## nc is the number of cores to use, set to 1 by default
-  if ( is.data.frame(dataset) )   dataset <- Rfast::data.frame.to_matrix(dataset) - 1
-  n <- dim(dataset)[2]
+  dm <- dim(dataset)
+  n <- dm[2]
+  m <- dm[1]
   G <- matrix(0, n, n)
+  pvalue <- matrix(1, n, n)
   ntests <- numeric(n)
+  initial.tests <- 0
+  ini <- NULL
+  nam <- colnames(dataset)
+  initial.tests <- 0
+  
+  if ( is.null(ini.pvalue) ) {
+    initial.tests <- 0.5 * n * (n - 1)
+    if ( test == "testIndSpearman" ) {
+      x <- apply(dataset, 2, rank)
+      R <- Rfast::cora(x)
+      options(warn = -1)
+      stat <- 0.5 * log( (1 + R)/( (1 - R) ) ) * sqrt(m - 3) / 1.029563
+      ini.pvalue <- log(2) + pt( abs(stat), m - 3, lower.tail = FALSE, log.p = TRUE)
+      diag(ini.pvalue) <- 0
+      R <- NULL
+      stat <- NULL
+    } else if ( test == "testIndFisher" ) {
+      R <- Rfast::cora(dataset)
+      options(warn = -1)
+      stat <- 0.5 * log( (1 + R)/( (1 - R) ) ) * sqrt(m - 3) 
+      ini.pvalue <- log(2) + pt( abs(stat), m - 3, lower.tail = FALSE, log.p = TRUE)
+      diag(ini.pvalue) <- 0
+      R <- NULL
+      stat <- NULL
+    } else  if ( test == "gSquare" ) {
+      dc <- Rfast::colrange(dataset, cont = FALSE)
+      stat <- Rfast::g2Test_univariate(dataset, dc)
+      ini.pvalue <- pchisq(stat$statistic, stat$df, lower.tail = FALSE, log.p = TRUE)
+      ini.pvalue <- Rfast::squareform(ini.pvalue)
+    } else  ini.pvalue <- NULL
+  }
+  
   ############
   #### MMPC
   ############
   if ( type == "MMPC" ) {
     ms <- NULL
+    if ( !is.null(ini.pvalue) ) {
+      ini <- list()
+      ini$stat <- rnorm(n)
+    }  
     
-    if ( fast ) {  
-    
+    if (nc <= 1  ||  is.null(nc) ) {
       pa <- proc.time()
-      a <- MMPC(1, dataset, max_k = max_k, test = test, threshold = threshold, robust = rob)
-      sel <- a@selectedVars
-      G[1, sel] <- 1 
-      ntests[1] <- a@n.tests
-      
-      for ( i in 2:n ) {
-        ina <- 1:n
-        che <- which( G[ 1:c(i - 1), i ] == 0 ) 
-        ina[c(i, che)] <- 0   ;  ina <- ina[ina>0]
-        a <- MMPC(dataset[, i], as.matrix(dataset[, -c(i, che)]), max_k = max_k, test = test, threshold = threshold, robust = rob)
-        if ( !is.null(a) ) {
-          sel <- a@selectedVars
-          sela <- ina[sel]
-          G[i, sela] <- 1 
-        }  else  G[i, ] <- 0
+      for (i in 1:n) {
+        if ( !is.null(ini.pvalue) )   ini$pvalue <- ini.pvalue[i, ]
+        a <- MMPC(i, dataset, max_k = max_k, test = test, threshold = threshold, robust = rob, hash = hash, backward = backward, ini = ini, logged = TRUE )
+        if ( !is.null(ini.pvalue) )   ini.pvalue[i, ] <- a@univ$pvalue
+        pvalue[i, ] <- a@pvalues
+        sel <- a@selectedVars
+        G[i, sel] <- 1
         ntests[i] <- a@n.tests
-      }
+      } 
       runtime <- proc.time() - pa
     
     } else {
     
-      if (nc <= 1  ||  is.null(nc) ) {
-      
-        pa <- proc.time()
-        for (i in 1:n) {
-          a <- MMPC(i, dataset, max_k = max_k, test = test, threshold = threshold, robust = rob)
-          sel <- a@selectedVars
-          G[i, sel] <- 1
-          ntests[i] <- a@n.tests
-        } 
-        runtime <- proc.time() - pa
-      
-      }  else {
-      
-        pa <- proc.time() 
-        cl <- makePSOCKcluster(nc)
-        registerDoParallel(cl)
+      pa <- proc.time() 
+      cl <- makePSOCKcluster(nc)
+      registerDoParallel(cl)
+      mod <- foreach(i = 1:n, .combine = rbind, .export = c("MMPC") ) %dopar% {
         sel <- numeric(n)
-        mod <- foreach(i = 1:n, .combine = rbind, .export = c("MMPC") ) %dopar% {
-          ## arguments order for any CI test are fixed
-          sel <- numeric(n)
-          a <- MMPC(i, dataset, max_k = max_k, test = test, threshold = threshold, robust = rob)
-          sel[a@selectedVars] <- 1
-          return( c(a@n.tests, sel) )
-        }
-      
-        stopCluster(cl)
-        G <- as.matrix(mod[, -1])
-        ntests <- as.vector(mod[, 1])
-        runtime <- proc.time() - pa
+        if ( !is.null(ini.pvalue) )   ini$pvalue <- ini.pvalue[i, ]
+        a <- MMPC(i, dataset, max_k = max_k, test = test, threshold = threshold, robust = rob, hash = hash, backward = backward, ini = ini, logged = TRUE )
+        sel[a@selectedVars] <- 1
+        return( c(a@n.tests, sel, a@pvalues) )
       }
-    
+      
+      stopCluster(cl)
+      G <- as.matrix(mod[, 2:(n + 1) ])
+      pvalue <- as.matrix( mod[ , -c(1:(n + 1) ) ] )
+      ntests <- as.vector(mod[, 1])
+      runtime <- proc.time() - pa
     }
     
   } else if (type == "SES") {
-    
     ms <- numeric(n)
-    if ( fast ) {  
+    if (nc <= 1  ||  is.null(nc) ) {
+      if ( !is.null(ini.pvalue) )   ini$stat <- rnorm(n)
       
       pa <- proc.time()
-      a <- SES(1, dataset, max_k = max_k, test = test, threshold = threshold, robust = rob)
-      poies <- a@signatures
-      ms[i] <- dim(poies)[1]
-      sel <- unique(poies)
-      G[1, sel] <- 1 
-      ntests[1] <- a@n.tests
-      
-      for ( i in 2:n ) {
-        ina <- 1:n
-        che <- which( G[ 1:c(i - 1), i ] == 0 ) 
-        ina[c(i, che)] <- 0   ;  ina <- ina[ina>0]
-        a <- SES(dataset[, i], as.matrix(dataset[, -c(i, che)]), max_k = max_k, test = test, threshold = threshold, robust = rob)
-        if ( !is.null(a) ) {
-          poies <- a@signatures
-          ms[i] <- dim(poies)[1]
-          sel <- unique(poies)
-          sela <- ina[sel]
-          G[i, sela] <- 1 
-        }  else  G[i, ] <- 0
+      for (i in 1:n) {
+        if ( !is.null(ini.pvalue) )   ini$pvalue <- ini.pvalue[i, ]
+        a <- SES(i, dataset, max_k = max_k, test = test, threshold = threshold, hash = hash, robust = rob, ini = ini, logged = TRUE)
+        if ( !is.null(ini.pvalue) )   ini.pvalue[i, ] <- a@univ$pvalue
+        poies <- a@signatures
+        ms[i] <- dim(poies)[1]
+        sel <- unique(poies)
+        G[i, sel] <- 1 
         ntests[i] <- a@n.tests
-      }
+        pvalue[i, ] <- a@pvalues
+      } 
       runtime <- proc.time() - pa
-      
+        
     } else {
-      
-      if (nc <= 1  ||  is.null(nc) ) {
         
-        pa <- proc.time()
-        for (i in 1:n) {
-          a <- SES(i, dataset, max_k = max_k, test = test, threshold = threshold, robust = rob)
-          poies <- a@signatures
-          ms[i] <- dim(poies)[1]
-          sel <- unique(poies)
-          G[i, sel] <- 1 
-          ntests[i] <- a@n.tests
-        } 
-        runtime <- proc.time() - pa
-        
-      }  else {
-        
-        pa <- proc.time() 
-        cl <- makePSOCKcluster(nc)
-        registerDoParallel(cl)
+      pa <- proc.time() 
+      cl <- makePSOCKcluster(nc)
+      registerDoParallel(cl)
+      if ( !is.null(ini.pvalue) )   ini$stat <- rnorm(n)
+      mod <- foreach(i = 1:n, .combine = rbind, .export = c("SES") ) %dopar% {
+        ## arguments order for any CI test are fixed
         sel <- numeric(n)
-        mod <- foreach(i = 1:n, .combine = rbind, .export = c("SES") ) %dopar% {
-          ## arguments order for any CI test are fixed
-          sel <- numeric(n)
-          a <- SES(i, dataset, max_k = max_k, test = test, threshold = threshold, robust = rob)
-          poies <- a@signatures
-          sel[ unique(poies) ] <- 1
-          return( c(a@n.tests, dim(poies)[1], sel) ) 
-        }
-        
-        stopCluster(cl)
-        G <- as.matrix(mod[, -1])
-        ntests <- as.vector(mod[, 1])
-        ms <- as.vector(mod[, 2])
-        runtime <- proc.time() - pa
+        if ( !is.null(ini.pvalue) )   ini$pvalue <- ini.pvalue[i, ]
+        a <- SES(i, dataset, max_k = max_k, test = test, threshold = threshold, hash = hash, robust = rob, ini = ini, logged = TRUE)
+        poies <- a@signatures
+        sel[ unique(poies) ] <- 1
+        return( c(a@n.tests, dim(poies)[1], sel, a@pvalues) ) 
       }
-      
+        
+      stopCluster(cl)
+      G <- as.matrix(mod[, 3:(n + 2) ])
+      pvalue <- as.matrix( mod[ , -c(1:(n + 1) ) ] )
+      ntests <- as.vector(mod[, 1])
+      ms <- as.vector(mod[, 2])
+      runtime <- proc.time() - pa
     }
-    ms <- rbind(which(ms>1), ms[ms>1])
-    
-  }    
+    ms <- rbind( which(ms>1), ms[ms>1] )
+    rownames(ms) <- c("Nodes", "No of equivalent signatures")  
+  }  ## end if (type == "MMPC")    
   
   diag(G) <- 0
   
   if ( symmetry ) {
     a <- which( G == 1  &  t(G) == 1 ) 
     G[ -a ] <- 0
+    p1 <- pvalue[lower.tri(pvalue)]
+    p2 <- pvalue[upper.tri(pvalue)]
+    pval <- Rfast::Pmax(p1, p2)
+    pvalue <- Rfast::squareform(pval)
+    diag(pvalue) <- 1
   } else {
     G <- G + t(G)
     G[ G > 0 ] <- 1
@@ -157,9 +152,17 @@ mmhc.skel <- function(dataset, max_k = 3, threshold = 0.05, test = "testIndFishe
   info <- summary( Rfast::rowsums(G) )
   density <- sum(G) / n / ( n - 1 ) 
   
-  if (is.null( colnames(dataset) ) ) {
+  if ( is.null( nam) ) {
     colnames(G) <- rownames(G) <- paste("X", 1:n, sep = "")
-  } else  colnames(G) <- rownames(G) <- colnames(dataset)
-   
-  list(runtime = runtime, density = density, info = info, ms = ms, ntests = ntests, G = G)
+    colnames(pvalue) <- rownames(pvalue) <- paste("X", 1:n, sep = "")
+    names(ntests) <- paste("X", 1:n, sep = "")
+  } else  {
+    colnames(G) <- rownames(G) <- nam
+    colnames(pvalue) <- rownames(pvalue) <- nam
+    names(ntests) <- nam
+  } 
+  
+  ntests <- c(initial.tests, ntests)
+  names(ntests) <- c("univariate tests", nam)
+  list(runtime = runtime, density = density, info = info, ms = ms, ntests = ntests, ini.pvalue = ini.pvalue, pvalue = pvalue, G = G)
 }

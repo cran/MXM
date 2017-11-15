@@ -136,7 +136,7 @@ bic.betafsreg <- function( target, dataset, wei = NULL, tol = 2, ncores = 1 ) {
     d <- length(sela)
     final <- NULL
     if ( d >= 1 ) {
-      final <- beta.reg( target, as.data.frame( dataset[, sela] ), wei = wei )
+      final <- beta.reg( target, dataset[, sela], wei = wei )
       info <- info[1:d, , drop = FALSE]
       colnames(info) <- c( "variables", "BIC" )
       rownames(info) <- info[, 1]

@@ -159,17 +159,14 @@ perm.mmpc = function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, 
       #convert to closure type
       if (test == "permFisher") {
         #an einai posostiaio target
-        if ( min(target) > 0  &  max(target) < 1 )   target = log( target/(1 - target) ) 
         test = permFisher;
         
       } else if (test == "permDcor") {   ## It uMMPC the F test
         #an einai posostiaio target
-        if ( min(target) > 0 & max(target) < 1 )  target = log(target/(1-target))  
         test = permDcor;
         
       } else if (test == "permReg") {   ## It uMMPC the F test
         #an einai posostiaio target
-        if ( min(target) > 0 & max(target) < 1 )  target = log(target/(1-target))  
         test = permReg;
         
       } else if(test == "permMVreg") {
@@ -181,7 +178,6 @@ perm.mmpc = function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, 
         
       } else if(test == "permRQ") {   ## quantile regression
         #an einai posostiaio target
-        if ( all( target>0 & target<1 ) )  target = log( target/(1 - target) ) 
         test = permRQ;
         
       } else if (test == "permIGreg")  {   

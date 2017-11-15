@@ -61,6 +61,7 @@ zip.fsreg <- function(target, dataset, threshold = 0.05, wei = NULL, tol = 2, nc
     pn <- p - k + 1   
     ini <-  2 * mi$loglik
     do <- length(mi$be)
+    devi <- dof <- numeric( pn )  
     
     if ( ncores <= 1 ) {
       devi <- dof <- numeric(pn)
@@ -112,6 +113,7 @@ zip.fsreg <- function(target, dataset, threshold = 0.05, wei = NULL, tol = 2, nc
       do <- length( moda[[ k ]]$be ) 
       k <- k + 1   
       pn <- p - k  + 1
+      devi <- dof <- numeric( pn )  
       
       if (ncores <= 1) {  
         devi = dof = numeric(pn) 

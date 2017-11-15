@@ -25,7 +25,7 @@ Threshold (suitable values in [0,1]) for assessing p-values significance. Defaul
 }
 \item{test}{
 The regression model to use. Available options are most of the tests for SES and MMPC. 
-The ones NOT available are "gSquare", "censIndER", "testIndMVreg", "testIndClogit", 
+The ones NOT available are "gSquare", "censIndER", "testIndMVreg",  
 "testIndSpearman" and "testIndFisher". If you want to use multinomial or ordinal logistic regression, 
 make sure your target is factor. See also \code{\link{SES}} and \code{\link{CondIndTests}} for the tests.
 }
@@ -43,7 +43,7 @@ A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust
     %}
 }
 \details{
-This functions currently implements only linear, binary logistic and Poisson regression. If the sample size is less than the number of variables a meesage will appear and no backward regression is performed. 
+If the sample size is less than the number of variables a meesage will appear and no backward regression is performed. 
 }
 
 \value{

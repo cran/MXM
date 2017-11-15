@@ -51,8 +51,8 @@
 # example: test(target, data, xIndex, csIndex, dataInfo=NULL, univariateModels=NULL, hash=FALSE, stat_hash=NULL, pvalue_hash=NULL, robust)
 # output of each test: LIST of the generated pvalue, stat, flag and the updated hash objects.
 
-MMPC = function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini = NULL, wei = NULL, user_test = NULL, hash=FALSE, hashObject=NULL, robust = FALSE, ncores = 1, backward = FALSE)
-{
+MMPC = function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini = NULL, wei = NULL, user_test = NULL, 
+                hash = FALSE, hashObject = NULL, robust = FALSE, ncores = 1, backward = FALSE, logged = FALSE) {
   #get the log threshold
   threshold = log(threshold)
   ##############################
@@ -136,7 +136,7 @@ MMPC = function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini =
     target <- dataset[ , targetID];
   }
   #checking if target is a single number
-  if (is.numeric(target) & length(target) == 1){
+  if ( is.numeric(target)  &  length(target) == 1) {
     if (target > dim(dataset)[2]){
       warning('Target index larger than the number of variables');
       return(NULL);
@@ -231,19 +231,16 @@ MMPC = function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini =
       #convert to closure type
       if (test == "testIndFisher") {
         #an einai posostiaio target
-        if ( min(target) > 0  &  max(target) < 1 )   target = log( target/(1 - target) ) ## logistic normal 
         test = testIndFisher;
         
       } else if(test == "testIndSpearman")  {
         #an einai posostiaio target
-        if ( min(target) > 0 & max(target) < 1 )  target = log( target / (1 - target) ) ## logistic normal 
         target <- rank(target)
         dataset <- apply(dataset, 2, rank)  
         test <- testIndSpearman;  ## Spearman is Pearson on the ranks of the data
         
       } else if (test == "testIndReg") {   ## It uMMPC the F test
         #an einai posostiaio target
-        if ( min(target) > 0 & max(target) < 1 )  target = log(target/(1-target)) ## logistic normal 
         test = testIndReg;
       }
       else if(test == "testIndMVreg") {
@@ -257,7 +254,6 @@ MMPC = function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini =
       else if(test == "testIndRQ") ## quantile regression
       {
         #an einai posostiaio target
-        if ( all( target>0 & target<1 ) )  target = log( target/(1 - target) ) ## logistic normal 
         test = testIndRQ;
 #        if(requireNamespace("quantreg", quietly = TRUE, warn.conflicts = FALSE)==FALSE)
 #        {
@@ -309,7 +305,6 @@ MMPC = function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini =
         
       } else if(test == "gSquare") {
         test = gSquare;
-        dataset <- as.matrix(dataset)
       }
       #more tests here
     } else {
@@ -334,20 +329,24 @@ MMPC = function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini =
   if ( !is.null(user_test) )  ci_test = "user_test";
   #call the main MMPC function after the checks and the initializations
   options(warn = -1)
-  results = InternalMMPC(target, dataset, max_k, threshold, test, ini, wei, user_test, dataInfo, hash, varsize, stat_hash, pvalue_hash, targetID, robust = robust, ncores = ncores);
+  results = InternalMMPC(target, dataset, max_k, threshold, test, ini, wei, user_test, dataInfo, hash, varsize, stat_hash, pvalue_hash, targetID, robust = robust, ncores = ncores, logged = logged);
   #for testing backward phase
   #   results$selectedVars = c(results$selectedVars,15)
   #   results$selectedVarsOrder = c(results$selectedVarsOrder,15)
   #   print(results$selectedVars)
   #   print(results$selectedVarsOrder)
   #backward phase
-  if ( backward ) {
-    varsToIterate = results$selectedVars
-    varsOrder = results$selectedVarsOrder
+  varsToIterate = results$selectedVars
+  
+  if ( backward  & length( varsToIterate ) > 0  ) {
+    varsOrder <- results$selectedVarsOrder
     bc <- mmpcbackphase(target, dataset[, varsToIterate, drop = FALSE], test = test, wei = wei, max_k = max_k, threshold = exp(threshold), robust = robust )
     met <- bc$met
     results$selectedVars = varsToIterate[met]
     results$selectedVarsOrder = varsOrder[met]
+    if (logged) {
+      results$pvalues[varsToIterate] = bc$pvalue
+    } else  results$pvalues[varsToIterate] = exp(bc$pvalue);
     results$n.tests <- results$n.tests + bc$counter
   }
   MMPCoutput <-new("MMPCoutput", selectedVars = results$selectedVars, selectedVarsOrder = results$selectedVarsOrder, hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, univ=results$univ, max_k=results$max_k, threshold = results$threshold, n.tests = results$n.tests, runtime=results$runtime, test=ci_test, rob = robust);

@@ -19,7 +19,9 @@ An object with the results of the PC algorithm, as produced by \code{\link{pc.sk
 skeleton but it does not work with the current visualisation packages, hence we removed the argument. Use \code{\link{plotnetwork}} to plot the skeleton.   
 }
 \item{prev.cycles}{
-If you want to prevent cycles leave this to its default value, TRUE. After executing an orientation rule, the graph is tested for cycles. If cycles are created, the edge(s) are left unoriented.
+This is no longer an option, but I did not want to remove it and make the code of someone fail with a next update of the package. After executing an orientation rule, 
+the graph is tested for cycles. 
+If cycles are created, the edge(s) are left unoriented.
 }
 }
 
@@ -33,8 +35,8 @@ orient X - Y - Z as X -> Y <- Z if and only if Y is not in Sepset(X, Z).
 \item \bold{Rule 3}. If there is a directed path from A to B, and an edge between A and B, then orient A - B as A -> B.
 \item \bold{Rule 4}. This was added by Zhang (2008). If A -> B <- C, A - D - C, A and C are not adjacent, and D - B, then orient D - B as D -> B. 
 }
-The first rule is applied once. Rules 2-4 are applied repeatedly until no more edges can be oriented. If however the argument "prve.cycles" is set to TRUE, then at any rule a 
-cycle is detected, the rule is cancelled.  
+The first rule is applied once. Rules 2-4 are applied repeatedly until no more edges can be oriented. If however the argument "prve.cycles" is set to TRUE, then at 
+any rule a cycle is detected, the rule is cancelled. Also, when applying Rules 1-3 we try to avoid thr ecreation of new v-structures (X -> Y <- Z). 
 }
 
 \value{
@@ -54,7 +56,8 @@ The run time of the algorithm. A numeric vector. The first element is the user t
 \references{
 Spirtes P.,  Glymour C. and Scheines R. (2001). Causation, Prediction, and Search. The MIT Press, Cambridge, MA, USA, 3nd edition.
 
-Zhang, Jiji. (2008). On the completeness of orientation rules for causal discovery in the presence of latent confounders and selection bias. Artificial Intelligence 172(16): 1873--1896.
+Zhang, Jiji. (2008). On the completeness of orientation rules for causal discovery in the presence of latent confounders and selection bias. 
+Artificial Intelligence 172(16): 1873--1896.
 }
 
 \author{

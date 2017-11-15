@@ -9,10 +9,10 @@ iamb <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, use
   } else {
     
     if ( back == "iambbs" ) {
-      mod2 <- iamb.bs(target, dataset[, poies], threshold, wei, test, user_test, robust)
+      mod2 <- iamb.bs(target, dataset[, poies, drop = FALSE], threshold, wei, test, user_test, robust)
       sel <- mod2$mat[, 1]
     } else {
-      mod2 <- bs.reg(target, dataset[, poies], threshold, wei, test, user_test, robust)
+      mod2 <- bs.reg(target, dataset[, poies, drop = FALSE], threshold, wei, test, user_test, robust)
       sel <- mod2$mat[, 1]
     }  
     poies <- poies[sel]

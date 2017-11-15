@@ -94,6 +94,7 @@ normlog.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = N
           pn <- p - k + 1   
           ini <- 2 * logLik(mi)
           do <- length( mi$coefficients ) 
+          devi <- dof <- numeric( pn )  
           
           if ( ncores <= 1 ) {
             devi <- dof <- numeric(pn)
@@ -174,9 +175,9 @@ normlog.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = N
             do = length( coef( moda[[ k ]]  ) ) 
             k <- k + 1   
             pn <- p - k  + 1
+            devi = dof = numeric(pn) 
             
             if (ncores <= 1) {  
-              devi = dof = numeric(pn) 
               #if ( robust == FALSE ) {  ## Non robust
               if ( !heavy ) {
                 for ( i in 1:pn ) {
@@ -253,8 +254,8 @@ normlog.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = N
     
       if ( d >= 1 ) {
          if ( !heavy ) {
-           final <- glm( target ~., data = dataset[, sela], family = gaussian(link = log), weights = wei, y = FALSE, model = FALSE )
-         } else   final <- speedglm::speedglm( target ~., data = dataset[, sela], family = gaussian(link = log), weights = wei )
+           final <- glm( target ~., data = dataset[, sela, drop = FALSE], family = gaussian(link = log), weights = wei, y = FALSE, model = FALSE )
+         } else   final <- speedglm::speedglm( target ~., data = dataset[, sela, drop = FALSE], family = gaussian(link = log), weights = wei )
           info <- info[1:d, , drop = FALSE]
           info <- cbind( info, tool[ 1:d ] ) 
           colnames(info) <- c( "variables", "log.p-values", "stat", "BIC" )

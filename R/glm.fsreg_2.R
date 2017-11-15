@@ -13,7 +13,7 @@ glm.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold = 
   moda <- list()
   k <- 1   ## counter
   tool <- numeric( min(n, p) )
-  con <- log(n)
+  threshold <- log(threshold)
   
   #########
   ## if it is binomial or poisson regression
@@ -129,12 +129,11 @@ glm.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold = 
       
       k <- k + 1
       pn <- p - k + 1   
-      
       ini <- moda[[ 1 ]]$deviance  ## residual deviance
       do <- length( coef( moda[[ 1 ]]  ) ) 
+      devi <- dof <- numeric( pn )  
       
       if ( ncores <= 1 ) {
-        devi <- dof <- numeric(pn)
         #if ( robust == FALSE ) {  ## Non robust
         for ( i in 1:pn ) {
           ww <- glm( ywei ~., data = as.data.frame( dataset[, c(da, sela, mat[pa + i, 1]) ] ), weights = wei, family = binomial, y = FALSE, model = FALSE )
@@ -208,13 +207,9 @@ glm.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold = 
       } else   info <- info
       
     }
-    
-    
     ############
     ###       k greater than 2
     ############ 
-    
-    
     if ( nrow(info) > 1  &  nrow(mat) > 0 ) {
       while ( info[k, 2] < threshold &  k < n - 15  &  tool[ k - 1 ] - tool[ k ] > tol  &  nrow(mat) > 0  )  {
         
@@ -222,9 +217,9 @@ glm.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold = 
         do <- length( coef( moda[[ k ]]  ) ) 
         k <- k + 1   
         pn <- p - k  + 1
+        devi <- dof <- numeric( pn )  
         
         if (ncores <= 1) {  
-          devi = dof = numeric(pn) 
           #if ( robust == FALSE ) {  ## Non robust
           for ( i in 1:pn ) {
             ma <- glm( ywei ~., data = as.data.frame( dataset[, c(da, sela, mat[pa + i, 1] ) ] ), weights = wei, family = binomial, y = FALSE, model = FALSE )

@@ -32,8 +32,8 @@ fbed.glm <- function(y, x, alpha = 0.05, wei = NULL, K = 0, type = "logistic") {
     dof[i] <- length(fit2$coefficients)
   }
   n.tests <- p
-  stat <- lik2 - lik1
-  pval <- pchisq(2 * stat, dof - 1, lower.tail = FALSE, log.p = TRUE)
+  stat <- 2 * (lik2 - lik1)
+  pval <- pchisq(stat, dof - 1, lower.tail = FALSE, log.p = TRUE)
   s <- which(pval < sig)
   
   if ( length(s) > 0 ) {
@@ -54,8 +54,8 @@ fbed.glm <- function(y, x, alpha = 0.05, wei = NULL, K = 0, type = "logistic") {
         dof[i] <- length(fit2$coefficients)
       }
       n.tests <- n.tests + length( ind[s] ) 
-      stat <- lik2 - lik1
-      pval <- pchisq(2 * stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
+      stat <- 2 * (lik2 - lik1)
+      pval <- pchisq(stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
       s <- which(pval < sig) 
       sel <- which.min(pval) * ( length(s)>0 )
       sa <- c(sa, stat[sel]) 
@@ -79,8 +79,8 @@ fbed.glm <- function(y, x, alpha = 0.05, wei = NULL, K = 0, type = "logistic") {
       dof[i] <- length(fit2$coefficients)
     }
     n.tests[2] <- length( ind[-sela] )
-    stat <- lik2 - lik1
-    pval <- pchisq(2 * stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
+    stat <- 2 * (lik2 - lik1)
+    pval <- pchisq(stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
     s <- which(pval < sig)
     sel <- which.min(pval) * ( length(s)>0 )
     sa <- c(sa, stat[sel]) 
@@ -100,8 +100,8 @@ fbed.glm <- function(y, x, alpha = 0.05, wei = NULL, K = 0, type = "logistic") {
         dof[i] <- length(fit2$coefficients)
       }
       n.tests[2] <- n.tests[2] + length( ind[s] )
-      stat <- lik2 - lik1
-      pval <- pchisq(2 * stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
+      stat <- 2 * (lik2 - lik1)
+      pval <- pchisq(stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
       s <- which(pval < sig)
       sel <- which.min(pval) * ( length(s)>0 )
       sa <- c(sa, stat[sel]) 
@@ -126,8 +126,8 @@ fbed.glm <- function(y, x, alpha = 0.05, wei = NULL, K = 0, type = "logistic") {
       dof[i] <- length(fit2$coefficients)
     }
     n.tests[2] <- length( ind[-sela] ) 
-    stat <- lik2 - lik1
-    pval <- pchisq(2 * stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
+    stat <- 2 * (lik2 - lik1)
+    pval <- pchisq(stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
     s <- which(pval < sig)
     sel <- which.min(pval) * ( length(s)>0 )
     sa <- c(sa, stat[sel]) 
@@ -147,8 +147,8 @@ fbed.glm <- function(y, x, alpha = 0.05, wei = NULL, K = 0, type = "logistic") {
         dof[i] <- length(fit2$coefficients)
       }
       n.tests[2] <- n.tests[2] + length( ind[s] )  
-      stat <- lik2 - lik1
-      pval <- pchisq(2 * stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
+      stat <- 2 * (lik2 - lik1)
+      pval <- pchisq(stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
       s <- which(pval < sig)
       sel <- which.min(pval) * ( length(s)>0 )
       sa <- c(sa, stat[sel]) 
@@ -173,8 +173,8 @@ fbed.glm <- function(y, x, alpha = 0.05, wei = NULL, K = 0, type = "logistic") {
         dof[i] <- length(fit2$coefficients)
       }
       n.tests[vim + 1] <- length( ind[-sela] )
-      stat <- lik2 - lik1
-      pval <- pchisq(2 * stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
+      stat <- 2 * (lik2 - lik1)
+      pval <- pchisq(stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
       s <- which(pval < sig)
       sel <- which.min(pval) * ( length(s)>0 )
       sa <- c(sa, stat[sel]) 
@@ -194,8 +194,8 @@ fbed.glm <- function(y, x, alpha = 0.05, wei = NULL, K = 0, type = "logistic") {
           dof[i] <- length(fit2$coefficients)
         }
         n.tests[vim + 1] <- n.tests[vim + 1] + length( ind[s] )
-        stat <- lik2 - lik1
-        pval <- pchisq(2 * stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
+        stat <- 2 * (lik2 - lik1)
+        pval <- pchisq(stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
         s <- which(pval < sig)
         sel <- which.min(pval) * ( length(s)>0 )
         sa <- c(sa, stat[sel]) 

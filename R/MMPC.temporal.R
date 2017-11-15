@@ -1,5 +1,5 @@
-MMPC.temporal = function(target, reps = NULL, group, dataset, max_k = 3 , threshold = 0.05 , test = NULL, ini = NULL, wei = NULL, user_test = NULL, hash=FALSE, hashObject=NULL, slopes = FALSE, ncores = 1)
-{
+MMPC.temporal = function(target, reps = NULL, group, dataset, max_k = 3 , threshold = 0.05 , test = NULL, ini = NULL, wei = NULL, user_test = NULL, 
+                         hash=FALSE, hashObject=NULL, slopes = FALSE, ncores = 1, logged = FALSE) {
  #get the log threshold
   threshold = log(threshold)
   ##############################
@@ -114,7 +114,7 @@ MMPC.temporal = function(target, reps = NULL, group, dataset, max_k = 3 , thresh
   #######################################################################################
   if( !is.null(user_test) )  ci_test = "user_test";
   #call the main MMPC.temporal function after the checks and the initializations
-  results = InternalMMPC.temporal(target, reps, group, dataset, max_k, threshold, test, ini, wei, user_test, dataInfo, hash, varsize, stat_hash, pvalue_hash, targetID, slopes = slopes, ncores = ncores);
+  results = InternalMMPC.temporal(target, reps, group, dataset, max_k, threshold, test, ini, wei, user_test, dataInfo, hash, varsize, stat_hash, pvalue_hash, targetID, slopes = slopes, ncores = ncores, logged = logged);
   
   MMPC.temporal.output <-new("MMPC.temporal.output", selectedVars = results$selectedVars, selectedVarsOrder=results$selectedVarsOrder, hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, univ = results$univ, max_k=results$max_k, threshold = results$threshold, runtime=results$runtime, test=ci_test, slope = slopes);
   

@@ -163,7 +163,7 @@ bic.zipfsreg <- function( target, dataset, wei = NULL, tol = 2, ncores = 1 ) {
 
   if ( d >= 1 ) {
     colnames(xx) <- paste("V", sela, sep = "")
-    final <- zip.reg( target, as.data.frame( dataset[, sela] ), wei = wei )
+    final <- zip.reg( target, dataset[, sela], wei = wei )
     info <- info[1:d, , drop = FALSE ]
     colnames(info) <- c( "variables", "BIC" )
     rownames(info) <- info[, 1]

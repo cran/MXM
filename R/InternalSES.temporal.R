@@ -1,4 +1,5 @@
-InternalSES.temporal = function(target, reps, group, dataset, max_k = 3, threshold = 0.05, test = NULL, ini, wei = NULL, equal_case = 3, user_test = NULL , dataInfo = NULL , hash=FALSE, varsize, stat_hash, pvalue_hash, targetID, slopes, ncores)
+InternalSES.temporal = function(target, reps, group, dataset, max_k = 3, threshold = 0.05, test = NULL, ini, wei = NULL, equal_case = 3, user_test = NULL, dataInfo = NULL, 
+                                hash = FALSE, varsize, stat_hash, pvalue_hash, targetID, slopes, ncores, logged)
 {
   #get the current time
   runtime = proc.time();
@@ -13,9 +14,8 @@ InternalSES.temporal = function(target, reps, group, dataset, max_k = 3, thresho
   stat_hash = univariateModels$stat_hash;
   pvalue_hash = univariateModels$pvalue_hash;
   #if we dont have any associations , return
-  if ( min(pvalues , na.rm = TRUE) > threshold ) {  #or min(pvalues, na.rm=TRUE)
-    cat('No associations!');
-    
+  if ( min(pvalues , na.rm = TRUE) > threshold ) { 
+    #cat('No associations!');
     results = NULL;
     results$selectedVars = c();
     class(results$selectedVars) = "numeric";
@@ -28,7 +28,9 @@ InternalSES.temporal = function(target, reps, group, dataset, max_k = 3, thresho
     results$hashObject = NULL;
     class(results$hashObject) = 'list';
     class(results$univ) = 'list';
-    results$pvalues = exp(pvalues);
+    if (logged) {
+      results$pvalues = pvalues;
+    } else  results$pvalues = exp(pvalues);
     results$stats = stats;
     results$univ = univariateModels;
     results$max_k = max_k;
@@ -122,7 +124,9 @@ InternalSES.temporal = function(target, reps, group, dataset, max_k = 3, thresho
   hashObject$pvalue_hash = pvalue_hash;
   results$hashObject = hashObject;
   class(results$hashObject) = 'list';
-  results$pvalues = exp(pvalues);
+  if (logged) {
+    results$pvalues = pvalues;
+  } else  results$pvalues = exp(pvalues);
   results$stats = stats;
   results$univ = univariateModels;
   #   results$all_queues = all_queues;

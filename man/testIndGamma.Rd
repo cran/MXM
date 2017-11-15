@@ -82,13 +82,11 @@ The number of permutations, set to 999 by default. There is a trick to avoind do
 }
 
 \details{
-If hash = TRUE, all three tests require the arguments 'stat_hash' and 'pvalue_hash' for the hash-based implementation of the statistic test. These hash Objects are produced or updated by each run of SES (if hash == TRUE) and they can be reused in order to speed up next runs of the current statistic test. If "SESoutput" is the output of a SES run, then these objects can be retrieved by SESoutput@hashObject$stat_hash and the SESoutput@hashObject$pvalue_hash.
+If hash = TRUE, all three tests require the arguments 'stat_hash' and 'pvalue_hash' for the hash-based implementation of the statistic test. These hash Objects are produced or updated by each run of SES (if hash = TRUE) and they can be reused in order to speed up next runs of the current statistic test. If "SESoutput" is the output of a SES run, then these objects can be retrieved by SESoutput@hashObject$stat_hash and the SESoutput@hashObject$pvalue_hash.
   
 Important: Use these arguments only with the same dataset that was used at initialization. For all the available conditional independence tests that are currently included on the package, please see "?CondIndTests".
   
-  If you have overdispersion, the variance is higher than the mean, a negative binomial is to be used. If you have more zeros than expected under a Poisson model, not overdispersion, then zero inlfated Poisson is to be used. Bear in mind that if you have a small number of zeros, there is no reason to use this model. If for example you have count data but no, or 1 zeros, this will not work.
-  
-  The log-likelihood ratio test used in "testIndPois", "testIndNB" and "testIndZIP" requires the fitting of two models. The Wald test used in "waldPois", "waldNB" and "waldZIP" requires fitting of only one model, the full one. The significance of the variable is examined only. Only continuous (or binary) predictor variables are currently accepted in this test. 
+For the testIndGamma and testIndNormLog the F test is used and not the log-likelihood ratio test because both of these regression models have a nusiance parameter. 
 }
 
 \value{
@@ -133,10 +131,8 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 dataset <- matrix(rnorm(400 * 50, 1, 5), ncol = 50 ) 
 #the target feature is the last column of the dataset as a vector
 target <- rgamma(400, 1, 3)
-result <- testIndGamma(target, dataset, xIndex = 24, csIndex = 10)
-result
-result2 <- testIndNormLog(target, dataset, xIndex = 24, csIndex = 10)
-result
+testIndGamma(target, dataset, xIndex = 24, csIndex = 10)
+testIndNormLog(target, dataset, xIndex = 24, csIndex = 10)
 #run the SES algorithm using the testIndPois conditional independence test
 sesObject <- SES(target, dataset, max_k = 3, threshold = 0.05, test = "testIndGamma");
 sesObject2 <- SES(target, dataset, max_k = 3, threshold = 0.05, test = "testIndNormLog");

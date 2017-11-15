@@ -45,11 +45,17 @@ gammabsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FA
           ini <- speedglm::speedglm( target ~.,  data = dataset, family = Gamma(link = log), weights = wei )
           dofini <- length( coef(ini) )
           stat <- dof <- numeric(p)
-          for (i in 1:p) {
-            mod <- speedglm::speedglm( target ~.,  data = dataset[, -i, drop = FALSE], family = Gamma(link = log), weights = wei )
-            stat[i] <- 2 * abs( logLik(ini) - logLik(mod) )
-            dof[i] <- dofini - length( coef(mod) ) 
-          }
+		      if (p == 1) {
+            mod <- speedglm::speedglm( target ~ 1,  data = dataset, family = Gamma(link = log), weights = wei )
+            stat <- 2 * ( logLik(ini) - logLik(mod) )
+            dof <- dofini - length( coef(mod) ) 		  
+		      } else {
+            for (i in 1:p) {
+              mod <- speedglm::speedglm( target ~.,  data = dataset[, -i, drop = FALSE], family = Gamma(link = log), weights = wei )
+              stat[i] <- 2 * ( logLik(ini) - logLik(mod) )
+              dof[i] <- dofini - length( coef(mod) ) 
+            }
+		      }
         }	
         
         mat <- cbind(1:p, pchisq( stat, dof, lower.tail = FALSE, log.p = TRUE), stat )
@@ -83,19 +89,19 @@ gammabsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FA
               
               if ( k == 1 ) {
                 mod <- glm(target ~ 1, data = dat, family = Gamma(link = log), weights = wei)
-                stat <- 2 * abs( logLik(ini) - logLik(mod) )
+                stat <- 2 * ( logLik(ini) - logLik(mod) )
                 dof <- length( coef(ini) ) - length( coef(mod) ) 
                 pval <- pchisq( stat, dof, lower.tail = FALSE, log.p = TRUE)
                 
                 if (pval > threshold ) {
                   final <- "No variables were selected"
-                  info <- rbind(info, c(mat[, 1], stat, pval) )
+                  info <- rbind(info, c(mat[, 1], pval, stat) )
                   dat <- dataset[, -info[, 1], drop = FALSE ]
                   mat <- NULL
                 } else {
                   info <- rbind(info, c(0, -10, -10)) 
                   final <- ini
-                  mat[, 2:3] <- c(stat, pval)
+                  mat[, 2:3] <- c(pval, stat)
                 }
                 
               } else {
@@ -128,19 +134,19 @@ gammabsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FA
               dofini <- length( coef(ini) ) 
               if ( k == 1 ) {
                 mod <- speedglm::speedglm(target ~ 1, data = dat, family = Gamma(link = log), weights = wei)
-                stat <- 2 * abs( logLik(ini) - logLik(mod) )
+                stat <- 2 * ( logLik(ini) - logLik(mod) )
                 dof <- dofini - length( coef(mod) ) 
                 pval <- pchisq( stat, dof, lower.tail = FALSE, log.p = TRUE)
                 
                 if (pval > threshold ) {
                   final <- "No variables were selected"
-                  info <- rbind(info, c(mat[, 1], stat, pval) )
+                  info <- rbind(info, c(mat[, 1], pval, stat) )
                   dat <- dataset[, -info[, 1], drop = FALSE ]
                   mat <- NULL
                 } else {
                   info <- rbind(info, c(0, -10, -10)) 
                   final <- ini
-                  mat[, 2:3] <- c(stat, pval)
+                  mat[, 2:3] <- c(pval, stat)
                 }  
               } else {		       
                 
@@ -148,7 +154,7 @@ gammabsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FA
                 
                 for (j in 1:k) {
                   mod <- speedglm::speedglm( target ~., data = dat[, -j, drop = FALSE], family = Gamma(link = log), weights = wei )
-                  stat[j] <- 2 * abs( logLik(ini) - logLik(mod) )
+                  stat[j] <- 2 * ( logLik(ini) - logLik(mod) )
                   dof[j] <- dofini - length( coef(mod) ) 		   
                 } 
                 

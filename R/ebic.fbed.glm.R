@@ -195,7 +195,7 @@ ebic.fbed.glm <- function(y, x, gam = NULL, wei = NULL, K = 0, type = "logistic"
     info <- matrix(c(0, p), ncol = 2)
   }
 
-  colnames(res) <- c("Vars", "eBIC difference")
+  colnames(res) <- c("Vars", "eBIC")
   rownames(info) <- paste("K=", 1:length(card)- 1, sep = "")
   colnames(info) <- c("Number of vars", "Number of tests")
   list(res = res, info = info, runtime = runtime)

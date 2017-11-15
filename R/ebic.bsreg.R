@@ -67,6 +67,9 @@ ebic.bsreg <- function(y, x, test = NULL, wei = NULL, gam = NULL) {
   
   } else if (test == "testIndTobit") {
     result <- ebic.tobit.bsreg(y, x, gam = gam, wei = wei)
+    
+  } else if (test == "testIndClogit") {
+    result <- ebic.clogit.bsreg(y, x, gam = gam, wei = wei)
   }
   
   back.rem <- result$info[, 1]

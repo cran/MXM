@@ -24,13 +24,14 @@ bic.normlog.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FAL
     }
   }
   
+  dataset <- as.data.frame(dataset)
   if ( heavy )  con <- log(n)
   
   durat <- proc.time()
   if ( !heavy ) {
     ini = BIC( glm( target ~ 1, weights = wei, family = gaussian(link = log), y = FALSE, model = FALSE ) )   ## initial BIC
   } else {
-    inimod <- speedglm::speedglm( target ~ 1, data = data.frame(dataset), family = gaussian(link = log), weights = wei )
+    inimod <- speedglm::speedglm( target ~ 1, data = dataset, family = gaussian(link = log), weights = wei )
     ini <-  - 2 * inimod$logLik + con   ## initial BIC
     ci_test <- "testIndNormLog"
   }	
@@ -44,7 +45,7 @@ bic.normlog.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FAL
       }
     } else {
       for (i in 1:p) { 
-        mi <- speedglm::speedglm( target ~ dataset[, i], data = data.frame( dataset[, i] ), family = gaussian(link = log), weights = wei )
+        mi <- speedglm::speedglm( target ~ dataset[, i], data = dataset[, i], family = gaussian(link = log), weights = wei )
         bico[i] <-  - 2 * mi$logLik + length( mi$coefficients ) * con   ## initial BIC
       }	
     }  
@@ -65,7 +66,7 @@ bic.normlog.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FAL
       cl <- makePSOCKcluster(ncores)
       registerDoParallel(cl)
       mod <- foreach( i = 1:p, .combine = rbind, .export = "speedglm", .packages = "speedglm") %dopar% {
-        ww <- speedglm::speedglm( target ~ dataset[, i], data = data.frame(dataset[, i]), family =  gaussian(link = log), weights = wei )
+        ww <- speedglm::speedglm( target ~ dataset[, i], data = dataset[, i], family =  gaussian(link = log), weights = wei )
         return( -2 * ww$logLik + (length( coef(ww) ) + 1) * con )   ## initial BIC
       }
       stopCluster(cl)
@@ -88,7 +89,7 @@ bic.normlog.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FAL
       mi <- glm( target ~ dataset[, sel], family =  gaussian(link = log), weights = wei, y = FALSE, model = FALSE )
       tool[1] <- BIC( mi )
     } else {
-      mi <- speedglm::speedglm( target ~ dataset[, sel], data = data.frame(dataset[, sel]), family =  gaussian(link = log), weights = wei )
+      mi <- speedglm::speedglm( target ~ dataset[, sel], data = dataset[, sel], family =  gaussian(link = log), weights = wei )
       tool[1] <-  - 2 * mi$logLik + (length( mi$coefficients ) + 1) * con   ## initial BIC
     }  
 
@@ -110,12 +111,12 @@ bic.normlog.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FAL
       bico <- numeric( pn )
       if ( !heavy ) {
         for ( i in 1:pn ) {
-          ma <- glm( target ~., data = data.frame( dataset[, c(sel, mat[i, 1]) ] ), family =  gaussian(link = log), y = FALSE, model = FALSE )
+          ma <- glm( target ~., data = dataset[, c(sel, mat[i, 1]) ], family =  gaussian(link = log), y = FALSE, model = FALSE )
           bico[i] <- BIC( ma )
         }
       } else {
         for ( i in 1:pn ) {
-          ma <- speedglm::speedglm( target ~., data = data.frame( dataset[, c(sel, mat[i, 1]) ] ), family = gaussian(link = log), weights = wei )
+          ma <- speedglm::speedglm( target ~., data = dataset[, c(sel, mat[i, 1]) ], family = gaussian(link = log), weights = wei )
           bico[i] <-  - 2 * ma$logLik + ( length( ma$coefficients ) + 1) * con
         }		  
       }
@@ -136,7 +137,7 @@ bic.normlog.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FAL
         cl <- makePSOCKcluster(ncores)
         registerDoParallel(cl)
         mod <- foreach( i = 1:pn, .combine = rbind, export = "speedglm", .packages = "speedglm") %dopar% {
-          ww <- speedglm::speedglm( target ~ dataset[, sel ] + dataset[, mat[i, 1] ], data = data.frame(dataset), family = gaussian(link = log), weights = wei )
+          ww <- speedglm::speedglm( target ~ dataset[, sel ] + dataset[, mat[i, 1] ], data = dataset, family = gaussian(link = log), weights = wei )
           return( - 2 * ww$logLik + (length( ww$coefficients ) + 1) * con )
         }
         stopCluster(cl)		  
@@ -169,12 +170,12 @@ bic.normlog.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FAL
       if (ncores <= 1) {
         if ( !heavy ) {
           for ( i in 1:pn ) {
-            ma <- glm( target ~., data = as.data.frame( dataset[, c(sela, mat[i, 1]) ] ), family = gaussian(link = log), weights = wei, y = FALSE, model = FALSE )
+            ma <- glm( target ~., data = dataset[, c(sela, mat[i, 1]) ], family = gaussian(link = log), weights = wei, y = FALSE, model = FALSE )
             mat[i, 2] <- BIC( ma )
           }
         } else {
           for ( i in 1:pn ) {
-            ma <- speedglm::speedglm( target ~., data = data.frame( dataset[, c(sela, mat[i, 1]) ] ), family = gaussian(link = log), weights = wei )
+            ma <- speedglm::speedglm( target ~., data = dataset[, c(sela, mat[i, 1]) ], family = gaussian(link = log), weights = wei )
             mat[i, 2] <-  - 2 * ma$logLik + ( length( ma$coefficients ) + 1 ) * con
           }		  
         }   
@@ -185,7 +186,7 @@ bic.normlog.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FAL
           registerDoParallel(cl)
           bico <- numeric(pn)
           mod <- foreach( i = 1:pn, .combine = rbind) %dopar% {
-            ww <- glm( target ~., data = as.data.frame( dataset[, c(sela, mat[i, 1]) ] ), family = gaussian(link = log), weights = wei )
+            ww <- glm( target ~., data = dataset[, c(sela, mat[i, 1]) ], family = gaussian(link = log), weights = wei )
             bico[i] <- BIC( ww )
           }
           stopCluster(cl)
@@ -193,7 +194,7 @@ bic.normlog.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FAL
           cl <- makePSOCKcluster(ncores)
           registerDoParallel(cl)
           mod <- foreach( i = 1:pn, .combine = rbind, .export = "speedglm", .packages = "speedglm") %dopar% {
-            ww <- speedglm::speedglm( target ~., data = data.frame( dataset[, c(sela, mat[i, 1]) ] ), family = gaussian(link = log), weights = wei )
+            ww <- speedglm::speedglm( target ~., data = dataset[, c(sela, mat[i, 1]) ], family = gaussian(link = log), weights = wei )
             return( - 2 * ww$logLik + ( length( ww$coefficients ) + 1 ) * con )
           }
           stopCluster(cl)		  
@@ -227,8 +228,8 @@ bic.normlog.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FAL
   
   if ( d >= 1 ) {
     if ( !heavy ) {
-      final <- glm( target ~., data = as.data.frame( dataset[, sela] ), weights = wei, family = gaussian(link = log), model = FALSE )
-    } else  final <- speedglm::speedlm( target ~., data = as.data.frame( dataset[, sela] ), family = gaussian(link = log), weights = wei )	 
+      final <- glm( target ~., data = dataset[, sela], weights = wei, family = gaussian(link = log), model = FALSE )
+    } else  final <- speedglm::speedlm( target ~., data = dataset[, sela], family = gaussian(link = log), weights = wei )	 
   }
   info <- info[1:d, , drop = FALSE]
   colnames(info) <- c( "variables", "BIC" )

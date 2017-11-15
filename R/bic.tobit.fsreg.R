@@ -35,7 +35,7 @@ bic.tobit.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE
       
        for (i in 1:p) {
          mi <- survival::survreg( target ~ dataset[, i], weights = wei, dist = "gaussian" )
-		 la <- logLik(mi)
+		     la <- logLik(mi)
          bico[i] <-  - 2 * as.numeric( la ) + attr(la, "df") * con
        }
        mat <- cbind(1:p, bico)
@@ -45,7 +45,7 @@ bic.tobit.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE
         registerDoParallel(cl)
         mod <- foreach( i = 1:p, .combine = rbind, .export = "survreg", .packages = "survival") %dopar% {
          ww <- survival::survreg( target ~ dataset[, i], weights = wei, dist = "gaussian" )
-		 la <- logLik(ww)
+		     la <- logLik(ww)
          return( - 2 * as.numeric( la ) + attr(la, "df") * con )
         }
         stopCluster(cl)
@@ -63,7 +63,7 @@ bic.tobit.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE
       info[1, ] <- mat[sel, ]
       mat <- mat[-sel, , drop = FALSE]
       mi <- survival::survreg( target ~ dataset[, sel], weights = wei, dist = "gaussian" )
-	  la <- logLik(mi)
+	    la <- logLik(mi)
       tool[1] <-  - 2 * as.numeric( la ) + attr(la, "df") * con
       moda[[ 1 ]] <- mi
 	  
@@ -82,11 +82,11 @@ bic.tobit.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE
       
       if ( ncores <= 1 ) {
         bico <- numeric( pn )
-          for ( i in 1:pn ) {
-			ma <- survival::survreg( target ~., data = data.frame( dataset[, c(sel, mat[i, 1]) ] ), weights = wei, dist = "gaussian" )
-		    la <- logLik(mi)
-            bico[i] <-  - 2 * as.numeric( la ) + attr(la, "df") * con
-          }
+        for ( i in 1:pn ) {
+			    ma <- survival::survreg( target ~., data = dataset[, c(sel, mat[i, 1]) ], weights = wei, dist = "gaussian" )
+		      la <- logLik(mi)
+          bico[i] <-  - 2 * as.numeric( la ) + attr(la, "df") * con
+        }
         mat[, 2] <- bico
         
       } else {
@@ -125,17 +125,17 @@ bic.tobit.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE
         pn <- p - k + 1
         
         if (ncores <= 1) {
-            for ( i in 1:pn ) {
-              ma <- survival::survreg( target ~., data = as.data.frame( dataset[, c(sela, mat[i, 1]) ] ), weights = wei, dist = "gaussian" )
-			  la <- logLik(ma)
-              mat[i, 2] <-  - 2 * as.numeric( la ) + attr(la, "df") * con 
-            }
+          for ( i in 1:pn ) {
+            ma <- survival::survreg( target ~., data = dataset[, c(sela, mat[i, 1]) ], weights = wei, dist = "gaussian" )
+			      la <- logLik(ma)
+            mat[i, 2] <-  - 2 * as.numeric( la ) + attr(la, "df") * con 
+          }
           
         } else {
             cl <- makePSOCKcluster(ncores)
             registerDoParallel(cl)
             mod <- foreach( i = 1:pn, .combine = rbind, .export = "survreg", .packages = "survival") %dopar% {
-              ww <- survival::survreg( target ~., data = as.data.frame( dataset[, c(sela, mat[i, 1]) ] ), weights = wei, dist = "gaussian" )
+              ww <- survival::survreg( target ~., data = dataset[, c(sela, mat[i, 1]) ], weights = wei, dist = "gaussian" )
               la <- logLik(ww)
               return( - 2 * as.numeric( la ) + attr(la, "df") * con )
             }
@@ -167,7 +167,7 @@ bic.tobit.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE
   final <- NULL
   
   if ( d >= 1 ) {
-      final <- survival::survreg( target ~., data = as.data.frame( dataset[, sela] ), weights = wei, dist = "gaussian" )
+      final <- survival::survreg( target ~., data = dataset[, sela, drop = FALSE], weights = wei, dist = "gaussian" )
   }
   info <- info[1:d, , drop = FALSE]
   colnames(info) <- c( "variables", "BIC" )

@@ -26,6 +26,7 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
     }
   }
   
+  dataset <- as.data.frame(dataset)
   if ( heavy )  con <- log(n)
   #########
   ## if it is binomial or poisson regression
@@ -47,7 +48,7 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
 	  if ( !heavy ) {
         ini = BIC( glm( target ~ 1, family = oiko, weights = wei, y = FALSE, model = FALSE ) )   ## initial BIC
 	  } else {
-	    inimod <- speedglm::speedglm( target ~ 1, data = data.frame(dataset), family = oiko, weights = wei )
+	    inimod <- speedglm::speedglm( target ~ 1, data = dataset, family = oiko, weights = wei )
 	    ini <-  - 2 * inimod$logLik + con   ## initial BIC
 	    ci_test <- "testIndSpeedglm"
 	  }	
@@ -65,7 +66,7 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
           }
 		  } else {
         for (i in 1:p) { 
-          mi <- speedglm::speedglm( target ~ dataset[, i], data = data.frame( dataset[, i] ), family = oiko, weights = wei )
+          mi <- speedglm::speedglm( target ~ dataset[, i], data = dataset[, i], family = oiko, weights = wei )
 	        bico[i] <-  - 2 * mi$logLik + length( coef(mi) ) * con   ## initial BIC
 		    }	
 		  }  
@@ -95,7 +96,7 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
          registerDoParallel(cl)
          bico <- numeric(p)
          mod <- foreach( i = 1:p, .combine = rbind, .export = "speedglm", .packages = "speedglm") %dopar% {
-            ww <- speedglm( target ~ dataset[, i], data = data.frame(dataset[, i]), family = oiko, weights = wei )
+            ww <- speedglm( target ~ dataset[, i], data = dataset[, i], family = oiko, weights = wei )
  	          bico[i] <-  -2 * ww$logLik + length( coef(ww) ) * con   ## initial BIC
          }
          stopCluster(cl)
@@ -132,7 +133,7 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
           mi <- glm( target ~ dataset[, sel], family = oiko, weights = wei, y = FALSE, model = FALSE )
           tool[1] <- BIC( mi )
 		   } else {
-          mi <- speedglm::speedglm( target ~ dataset[, sel], data = data.frame(dataset[, sel]), family = oiko, weights = wei )
+          mi <- speedglm::speedglm( target ~ dataset[, sel], data = dataset[, sel], family = oiko, weights = wei )
           tool[1] <-  - 2 * mi$logLik + length( coef(mi) ) * con   ## initial BIC
 		   }  
       #} else {
@@ -159,12 +160,12 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
         #if ( robust == FALSE ) {  ## Non robust
 		    if ( !heavy ) {
           for ( i in 1:pn ) {
-            ma <- glm( target ~., data = data.frame( dataset[, c(sel, mat[i, 1]) ] ), family = oiko, weights = wei, y = FALSE, model = FALSE )
+            ma <- glm( target ~., data =  dataset[, c(sel, mat[i, 1]) ], family = oiko, weights = wei, y = FALSE, model = FALSE )
             bico[i] <- BIC( ma )
           }
         } else {
           for ( i in 1:pn ) {
-            ma <- speedglm::speedglm( target ~., data = data.frame( dataset[, c(sel, mat[i, 1]) ] ), family = oiko, weights = wei )
+            ma <- speedglm::speedglm( target ~., data = dataset[, c(sel, mat[i, 1]) ], family = oiko, weights = wei )
             bico[i] <-  - 2 * ma$logLik + length( coef(ma) ) * con
           }		  
 		    }
@@ -193,7 +194,7 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
           registerDoParallel(cl)
           bico <- numeric(pn)
           mod <- foreach( i = 1:pn, .combine = rbind, export = "speedglm", .packages = "speedglm") %dopar% {
-            ww <- speedglm( target ~ dataset[, sel ] + dataset[, mat[i, 1] ], data = data.frame(dataset), family = oiko, weights = wei )
+            ww <- speedglm( target ~ dataset[, sel ] + dataset[, mat[i, 1] ], data = dataset, family = oiko, weights = wei )
             bico[i] <-  - 2 * ww$logLik + length( coef(ww) ) * con
           }
             stopCluster(cl)		  
@@ -237,12 +238,12 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
           #if ( robust == FALSE ) {  ## Non robust
 		      if ( !heavy ) {
             for ( i in 1:pn ) {
-              ma <- glm( target ~., data = as.data.frame( dataset[, c(sela, mat[i, 1]) ] ), family = oiko, weights = wei, y = FALSE, model = FALSE )
+              ma <- glm( target ~., data = dataset[, c(sela, mat[i, 1]) ], family = oiko, weights = wei, y = FALSE, model = FALSE )
               mat[i, 2] <- BIC( ma )
             }
           } else {
             for ( i in 1:pn ) {
-              ma <- speedglm::speedglm( target ~., data = data.frame( dataset[, c(sela, mat[i, 1]) ] ), family = oiko, weights = wei )
+              ma <- speedglm::speedglm( target ~., data = dataset[, c(sela, mat[i, 1]) ], family = oiko, weights = wei )
               mat[i, 2] <-  - 2 * ma$logLik + length( coef(ma) ) * con
             }		  
 		      }   
@@ -260,7 +261,7 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
             registerDoParallel(cl)
             bico <- numeric(pn)
             mod <- foreach( i = 1:pn, .combine = rbind) %dopar% {
-              ww <- glm( target ~., data = as.data.frame( dataset[, c(sela, mat[i, 1]) ] ), family = oiko, weights = wei )
+              ww <- glm( target ~., data = dataset[, c(sela, mat[i, 1]) ], family = oiko, weights = wei )
               bico[i] <- BIC( ww )
             }
             stopCluster(cl)
@@ -269,7 +270,7 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
             registerDoParallel(cl)
             bico <- numeric(pn)
             mod <- foreach( i = 1:pn, .combine = rbind, .export = "speedglm", .packages = "speedglm") %dopar% {
-              ww <- speedglm( target ~., data = data.frame( dataset[, c(sela, mat[i, 1]) ] ), family = oiko, weights = wei )
+              ww <- speedglm( target ~., data = dataset[, c(sela, mat[i, 1]) ], family = oiko, weights = wei )
               bico[i] <-  - 2 * ww$logLik + length( coef(ww) ) * con
             }
             stopCluster(cl)		  
@@ -322,16 +323,14 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
   
     durat <- proc.time()
       
-	  if ( min(target) > 0  &  max(target) < 1 )    target <- log( target / (1 - target) )
-	  
-      if ( !robust ) {  ## Non robust
+    if ( !robust ) {  ## Non robust
 	      if ( !heavy ) {
 	        ci_test <- "testIndReg"
           mi <- lm( target ~ 1, y = FALSE, model = FALSE )
           ini <- BIC( mi )
 	    	} else {
 	    	  ci_test <- "testIndSpeedglm"
-		      mi <- speedglm::speedlm(target ~ 1, data = data.frame(dataset) )
+		      mi <- speedglm::speedlm(target ~ 1, data = dataset )
 		      ini <- BIC(mi)
 		    }  
 
@@ -351,7 +350,7 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
           }
         } else {
           for (i in 1:p) {
-            mi <- speedglm::speedlm( target ~ dataset[, i], data = data.frame(dataset[, i]) )
+            mi <- speedglm::speedlm( target ~ dataset[, i], data = dataset[, i] )
             bico[i] <- BIC(mi)
           }		
 		    }
@@ -380,7 +379,7 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
           registerDoParallel(cl)
           bico <- numeric(p)
           mod <- foreach( i = 1:p, .combine = rbind, .export = "speedlm", .packages = "speedglm" ) %dopar% {
-            ww <- speedglm::speedlm( target ~ dataset[, i], data = data.frame(dataset[, i]), weights = wei )
+            ww <- speedglm::speedlm( target ~ dataset[, i], data = dataset, weights = wei )
             bico[i] <- BIC(ww)
           }
           stopCluster(cl)		
@@ -412,7 +411,7 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
           mi <- lm( target ~ dataset[, sel], weights = wei, y = FALSE, model = FALSE )
           tool[1] <- BIC( mi )
 		    } else {
-          mi <- speedglm::speedlm( target ~ dataset[, sel], data = data.frame(dataset[, sel]), weight = wei)
+          mi <- speedglm::speedlm( target ~ dataset[, sel], data = dataset[, sel], weight = wei)
           tool[1] <- BIC(mi)	
 		    }
       } else {
@@ -441,18 +440,18 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
         if ( !robust ) {
 		      if ( !heavy ) {
              for (i in 1:pn) {
-               ma <- lm( target ~., data = data.frame( dataset[, c(sel, mat[i, 1]) ] ), weights = wei, y = FALSE, model = FALSE )
+               ma <- lm( target ~., data = dataset[, c(sel, mat[i, 1]) ], weights = wei, y = FALSE, model = FALSE )
                mat[i, 2] <- BIC( ma )
              }
 		      } else {
              for (i in 1:pn) {
-               ma <- speedglm::speedlm( target ~., data = data.frame( dataset[, c(sel, mat[i, 1]) ] ), weights = wei )
+               ma <- speedglm::speedlm( target ~., data = dataset[, c(sel, mat[i, 1]) ], weights = wei )
                mat[i, 2] <- BIC(ma)
              }		   
 		      } 	 
         } else {
           for (i in 1:pn) {
-            ma <- MASS::rlm( target ~., data = data.frame( dataset[, c(sel, mat[i, 1]) ] ), maxit = 2000, method = "MM")
+            ma <- MASS::rlm( target ~., data = dataset[, c(sel, mat[i, 1]) ], maxit = 2000, method = "MM")
             mat[i, 2] <- BIC( ma )
           }
         }
@@ -465,7 +464,7 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
            registerDoParallel(cl)
            bico <- numeric(pn)
            mod <- foreach( i = 1:pn, .combine = rbind) %dopar% {
-             ww <- lm( target ~., data = as.data.frame( dataset[, c(sel, mat[i, 1]) ] ), weights = wei, y = FALSE, model = FALSE )
+             ww <- lm( target ~., data = dataset[, c(sel, mat[i, 1]) ], weights = wei, y = FALSE, model = FALSE )
              bico[i] <- BIC( ww )
            }
            stopCluster(cl)
@@ -474,7 +473,7 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
            registerDoParallel(cl)
            bico <- numeric(pn)
            mod <- foreach( i = 1:pn, .combine = rbind, .export = "speedlm", .packages = "speedglm") %dopar% {
-             ww <- speedglm::speedlm( target ~., data = data.frame( dataset[, c(sel, mat[i, 1]) ] ), weights = wei )
+             ww <- speedglm::speedlm( target ~., data = dataset[, c(sel, mat[i, 1]) ], weights = wei )
              bico[i] <- BIC(ww)
            }
            stopCluster(cl)		 
@@ -485,7 +484,7 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
           registerDoParallel(cl)
           bico <- numeric(pn)
           mod <- foreach( i = 1:pn, .combine = rbind, export = "rlm", .packages = "MASS" ) %dopar% {
-            ww <- MASS::rlm( target ~., data = data.frame( dataset[, c(sel, mat[i, 1]) ] ), maxit = 2000, method = "MM")
+            ww <- MASS::rlm( target ~., data = dataset[, c(sel, mat[i, 1])], maxit = 2000, method = "MM")
             bico[i] <- BIC( ww )
           }
           stopCluster(cl)
@@ -523,19 +522,19 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
            if ( !robust ) {
 		         if ( !heavy ) { 
                for ( i in 1:pn ) {
-                 ma <- lm( target ~., data = data.frame( dataset[, c(sela, mat[i, 1]) ] ), weights = wei, y = FALSE, model = FALSE )
+                 ma <- lm( target ~., data = dataset[, c(sela, mat[i, 1]) ], weights = wei, y = FALSE, model = FALSE )
                  mat[i, 2] <- BIC( ma )
                }
 			       } else {
                for ( i in 1:pn ) {
-                 ma <- speedglm::speedlm( target ~., data = data.frame( dataset[, c(sela, mat[i, 1]) ] ), weights = wei )
+                 ma <- speedglm::speedlm( target ~., data = dataset[, c(sela, mat[i, 1]) ], weights = wei )
                  mat[i, 2] <- BIC(ww)
                }			 
 			       }  
 
            } else {
              for ( i in 1:pn ) {
-               ma <- MASS::rlm( target ~., data = data.frame( dataset[, c(sela, mat[i, 1]) ] ), maxit = 2000, method = "MM")
+               ma <- MASS::rlm( target ~., data = dataset[, c(sela, mat[i, 1]) ], maxit = 2000, method = "MM")
                mat[i, 2] <- BIC( ma )
              }
            }
@@ -547,7 +546,7 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
                registerDoParallel(cl)
                bico <- numeric(pn)
                mod <- foreach( i = 1:pn, .combine = rbind) %dopar% {
-                 ww <- lm( target ~., data = data.frame( dataset[, c(sela, mat[i, 1]) ] ), weights = wei, y = FALSE, model = FALSE )
+                 ww <- lm( target ~., data = dataset[, c(sela, mat[i, 1]) ], weights = wei, y = FALSE, model = FALSE )
                  bico[i] <- BIC( ww )
                }
                stopCluster(cl)
@@ -556,7 +555,7 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
                registerDoParallel(cl)
                bico <- numeric(pn)
                mod <- foreach( i = 1:pn, .combine = rbind, .export = "speedlm", .packages = "speedlm") %dopar% {
-                 ww <- speedglm::speedlm( target ~., data = data.frame( dataset[, c(sela, mat[i, 1]) ] ), weights = wei )
+                 ww <- speedglm::speedlm( target ~., data = dataset[, c(sela, mat[i, 1]) ], weights = wei )
                  bico[i] <- BIC(ww)
                }
                stopCluster(cl)			
@@ -567,7 +566,7 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
              registerDoParallel(cl)
              bico <- numeric(pn)
              mod <- foreach( i = 1:p, .combine = rbind, export = "rlm", .packages = "MASS" ) %dopar% {
-               ww <- MASS::rlm( target ~., data = data.frame( dataset[, c(sela, mat[i, 1]) ] ), maxit = 2000, method = "MM")
+               ww <- MASS::rlm( target ~., data = dataset[, c(sela, mat[i, 1]) ], maxit = 2000, method = "MM")
                bico[i] <- BIC( ww )
              }
              stopCluster(cl)
@@ -606,15 +605,15 @@ bic.glm.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, 
       if ( is.null(oiko) ) {
         if ( !robust ) {
           if ( !heavy ) {
-            final <- lm( target ~., data = as.data.frame( dataset[, sela] ), weights = wei, y = FALSE, model = FALSE )
-	        } else  final <- speedglm::speedlm( target ~., data = as.data.frame( dataset[, sela] ), weights = wei )	 
-        } else  final <- MASS::rlm( target ~., data = data.frame( dataset[, sela] ), maxit = 2000, method = "MM")
+            final <- lm( target ~., data = dataset[, sela], weights = wei, y = FALSE, model = FALSE )
+	        } else  final <- speedglm::speedlm( target ~., data = dataset[, sela], weights = wei )	 
+        } else  final <- MASS::rlm( target ~., data = dataset[, sela], maxit = 2000, method = "MM")
       #if ( robust == FALSE ) {
      
       } else {
         if ( !heavy ) {
-          final <- glm( target ~., data = as.data.frame( dataset[, sela] ), family = oiko, weights = wei, y = FALSE, model = FALSE )
-        } else  final <- speedglm::speedglm( target ~., data = data.frame( dataset[, sela] ), family = oiko, weights = wei )		  
+          final <- glm( target ~., data = dataset[, sela], family = oiko, weights = wei, y = FALSE, model = FALSE )
+        } else  final <- speedglm::speedglm( target ~., data = dataset[, sela], family = oiko, weights = wei )		  
       }
       #} else {
       #  models <- final <- robust::glmRob( target ~., data = as.data.frame( xx ), family = oiko, maxit = maxit )

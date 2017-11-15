@@ -1,4 +1,5 @@
-SES.temporal = function(target, reps = NULL, group, dataset, max_k = 3, threshold = 0.05, test = NULL, ini = NULL, wei = NULL, user_test = NULL, hash=FALSE, hashObject=NULL, slopes = FALSE, ncores = 1)
+SES.temporal = function(target, reps = NULL, group, dataset, max_k = 3, threshold = 0.05, test = NULL, ini = NULL, wei = NULL, user_test = NULL, 
+                        hash=FALSE, hashObject=NULL, slopes = FALSE, ncores = 1, logged = FALSE)
 {
   #get the log threshold
   threshold = log(threshold)
@@ -94,7 +95,6 @@ SES.temporal = function(target, reps = NULL, group, dataset, max_k = 3, threshol
       test = match.arg(test , av_tests ,TRUE);
       #convert to closure type
       if (test == "testIndGLMM") {
-        if ( all(target > 0 & target < 1) )  target = log( target/(1 - target) ) ## logistic normal 
         test = testIndGLMM;
       }
       
@@ -115,7 +115,7 @@ SES.temporal = function(target, reps = NULL, group, dataset, max_k = 3, threshol
   if( !is.null(user_test) )  ci_test = "user_test";
   #######################################################################################
   #call the main SES function after the checks and the initializations
-  results = InternalSES.temporal(target, reps, group, dataset, max_k, threshold, test, ini, wei, equal_case, user_test, dataInfo, hash, varsize, stat_hash, pvalue_hash, targetID, slopes, ncores);
+  results = InternalSES.temporal(target, reps, group, dataset, max_k, threshold, test, ini, wei, equal_case, user_test, dataInfo, hash, varsize, stat_hash, pvalue_hash, targetID, slopes, ncores, logged = logged);
   SES.temporal.output <-new("SES.temporal.output", selectedVars = results$selectedVars, selectedVarsOrder=results$selectedVarsOrder, queues=results$queues, signatures=results$signatures, hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, univ = results$uni, max_k=results$max_k, threshold = results$threshold, runtime=results$runtime, test=ci_test, slope = results$slope);
   
   return(SES.temporal.output);

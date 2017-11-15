@@ -214,10 +214,8 @@ Internalmases = function(targ , data, statistic, max_k, threshold , test = NULL 
   #   stat_hash = univariateModels$stat_hash;
   #   pvalue_hash = univariateModels$pvalue_hash;
   #if we dont have any associations , return
-  if ( min(pvalues, na.rm=TRUE) > threshold ) 
-  {
-    cat('No associations!');
-    
+  if ( min(pvalues, na.rm=TRUE) > threshold ) {
+    #cat('No associations!');
     results = NULL;
     results$selectedVars = c();
     class(results$selectedVars) = "numeric";
