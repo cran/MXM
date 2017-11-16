@@ -159,11 +159,7 @@ results
 #run the SES algorithm using the testIndPois conditional independence test
 sesObject <- SES(target, dataset, max_k = 3, threshold = 0.05, test = "testIndPois");
 sesObject2 <- SES(target, dataset, max_k = 3, threshold = 0.05, test = "testIndNB");
-#print summary of the SES output
 summary(sesObject);
-# plot the SES output
-# plot(sesObject, mode = "all");
-
 }
 
 \keyword{ Poisson regression }

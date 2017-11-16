@@ -78,12 +78,8 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 
 \examples{
 set.seed(123)
-#simulate a dataset with continuous data
 dataset <- matrix( runif(1000 * 10, 1, 100), ncol = 10 )
-
-#define a simulated class variable 
 target <- rnorm(1000)
-
 a <- bs.reg(target, dataset, threshold = 0.05, test = "testIndRQ") 
 b <- bs.reg(target, dataset, threshold = 0.05, test = "testIndReg") 
 }

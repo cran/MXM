@@ -89,15 +89,10 @@ R implementation and documentation: Giorgos Aathineou <athineou@csd.uoc.gr> Mich
 
 \examples{
 set.seed(123)
-
-#simulate a dataset with continuous data
 dataset <- matrix( runif(1000 * 50, 1, 100), ncol = 50 )
-
-#define a simulated class variable 
 target <- 3 * dataset[, 10] + 2 * dataset[, 20] + 3 * dataset[, 30] + rnorm(1000, 0, 5)
 a1 <- bic.glm.fsreg(target, dataset, robust = FALSE, tol = 2, ncores = 1 ) 
 a2 <- bic.glm.fsreg( round(target), dataset, robust = FALSE, tol = 2, ncores = 1 ) 
-
 y <- target   ;   me <- median(target)  ;   y[ y < me ] <- 0   ;   y[ y >= me ] <- 1
 a3 <- bic.glm.fsreg( y, dataset, robust = FALSE, tol = 2, ncores = 1 ) 
 }

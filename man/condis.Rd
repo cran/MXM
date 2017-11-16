@@ -61,7 +61,7 @@ This way, we can measure the proportion of times the possible collider Y was in 
 }
 
 \value{
-A matrix with two columns. The second one is the logarithm of the p-value. The first one contains 0s and 1s. The value of 0 means that the candidata collider was not in that set which produced the relevant p-value, whereas a value of 1 indicates that it was a member of that conditioning set. 
+A matrix with two columns. The second one is the logarithm of the p-value. The first one contains 0s and 1s. The value of 0 means that the candidate collider was not in that set which produced the relevant p-value, whereas a value of 1 indicates that it was a member of that conditioning set. 
 }
 
 \references{

@@ -88,9 +88,4 @@ x[, 5] <- factor(x[, 5], ordered = TRUE)
 ## ci.mm2 and ci.fast2 do not perform multinomial regression.
 ci.mm2(1, 5, suffStat = list(dataset = x) )
 ci.fast2(1, 5, suffStat = list(dataset = x) )
-### example for the pcalg package
-## V <- colnames(x) 
-## pcalg::pc(suffStat = list(dataset=x), indepTest = ci.fast2, alpha = 0.01, labels = V, 
-## verbose = TRUE)
-
 }

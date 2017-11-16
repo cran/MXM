@@ -127,8 +127,6 @@ a1 <- SES(target, dataset, max_k = 3, threshold = 0.05, test = "testIndClogit");
 a2 <- MMPC(target, dataset, max_k = 3, threshold = 0.05, test = "testIndClogit");
 # print summary of the SES output
 summary(a1);
-# plot the SES output
-# plot(a1, mode = "all");
 }
 
 \keyword{ Conditional logistic regression}

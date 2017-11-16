@@ -93,20 +93,13 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> Micha
 
 \examples{
 set.seed(123)
-
-#simulate a dataset with continuous data
 dataset <- matrix( runif(1000 * 20, 1, 100), ncol = 20 )
-
-#define a simulated class variable 
 target <- 3 * dataset[, 10] + 2 * dataset[, 15] + 3 * dataset[, 20] + rnorm(1000, 0, 5)
-# a1 <- bic.fsreg(target, dataset, robust = FALSE, tol = 4, ncores = 1 ) 
-# a2 <- bic.fsreg(target, dataset, robust = TRUE, tol = 4, ncores = 1 ) 
-# a3 <- MMPC(target, dataset, robust= FALSE, ncores = 1)
 
+a1 <- bic.fsreg(target, dataset, robust = FALSE, tol = 4, ncores = 1 ) 
+a3 <- MMPC(target, dataset, robust= FALSE, ncores = 1)
 target <- round(target)
 b1 <- bic.fsreg(target, dataset, robust = FALSE, tol = 2, ncores = 1 ) 
-b2 <- bic.fsreg(target, dataset, robust = TRUE, tol = 2, ncores = 1 ) 
-# b3 <- MMPC(target, dataset, robust= FALSE, ncores = 1)  ## takes more time
 }
 
 \keyword{ Markov Blanket }

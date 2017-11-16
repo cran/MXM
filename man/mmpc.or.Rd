@@ -1,4 +1,4 @@
-\name{mmpc.or}
+\name{Bayesian Network construction using a hybrid of MMPC and PC}
 \alias{mmpc.or}
 \title{
 Bayesian Network construction using a hybrid of MMPC and PC

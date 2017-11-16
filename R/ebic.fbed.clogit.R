@@ -37,8 +37,10 @@ ebic.fbed.clogit <- function(y, x, gam = NULL, wei = NULL, K = 0) {
     while ( sum(s > 0) > 0 ) {
       M <- length(sela) + 1
       for ( i in ind[s] )  {
-        fit2 <- survival::coxph( case ~ . + strata(id), data = x[, c(sela, i)] )
-        lik2[i] <-  BIC(fit2) + con * lchoose(p, M)
+        fit2 <- try( survival::clogit( case ~ . + strata(id), data = x[, c(sela, i)] ), silent = TRUE)
+        if ( sum( class(fit2) == "try-error" ) == 1 ) {
+          lik2[i] <- lik1
+        } else  lik2[i] <-  BIC(fit2) + con * lchoose(p, M)
       }
       n.tests <- n.tests + length(ind[s])
       stat <- lik1 - lik2
@@ -58,8 +60,10 @@ ebic.fbed.clogit <- function(y, x, gam = NULL, wei = NULL, K = 0) {
     if (K == 1) {
       M <- length(sela) + 1
       for ( i in ind[-sela] )  {
-        fit2 <- survival::coxph( case ~ . + strata(id), data = x[, c(sela, i)] )
-        lik2[i] <-  BIC(fit2) + con * lchoose(p, M)
+        fit2 <- try( survival::clogit( case ~ . + strata(id), data = x[, c(sela, i)] ), silent = TRUE)
+        if ( sum( class(fit2) == "try-error" ) == 1 ) {
+          lik2[i] <- lik1
+        } else  lik2[i] <-  BIC(fit2) + con * lchoose(p, M)
       }
       n.tests[2] <- length( ind[-sela] )
       stat <- lik1 - lik2
@@ -75,8 +79,10 @@ ebic.fbed.clogit <- function(y, x, gam = NULL, wei = NULL, K = 0) {
       while ( sum(s > 0) > 0 ) {
         M <- length(sela) + 1
         for ( i in ind[s] )  {
-          fit2 <- survival::coxph( case ~ . + strata(id), data = x[, c(sela, i)] )
-          lik2[i] <-  BIC(fit2) + con * lchoose(p, M)
+          fit2 <- try( survival::clogit( case ~ . + strata(id), data = x[, c(sela, i)] ), silent = TRUE)
+          if ( sum( class(fit2) == "try-error" ) == 1 ) {
+            lik2[i] <- lik1
+          } else  lik2[i] <-  BIC(fit2) + con * lchoose(p, M)
         }
         n.tests[2] <- n.tests[2] + length( ind[s] )
         stat <- lik1 - lik2
@@ -96,8 +102,10 @@ ebic.fbed.clogit <- function(y, x, gam = NULL, wei = NULL, K = 0) {
     if ( K > 1) {
       M <- length(sela) + 1
       for ( i in ind[-sela] )  {
-        fit2 <- survival::coxph( case ~ . + strata(id), data = x[, c(sela, i)] )
-        lik2[i] <-  BIC(fit2) + con * lchoose(p, M)
+        fit2 <- try( survival::clogit( case ~ . + strata(id), data = x[, c(sela, i)] ), silent = TRUE)
+        if ( sum( class(fit2) == "try-error" ) == 1 ) {
+          lik2[i] <- lik1
+        } else  lik2[i] <-  BIC(fit2) + con * lchoose(p, M)
       }
       n.tests[2] <- length(ind[-sela])
       stat <- lik1 - lik2
@@ -113,8 +121,10 @@ ebic.fbed.clogit <- function(y, x, gam = NULL, wei = NULL, K = 0) {
       while ( sum(s > 0) > 0 ) {
         M <- length(sela) + 1
         for ( i in ind[s] )  {
-          fit2 <- survival::coxph( case ~ . + strata(id), data = x[, c(sela, i)] )
-          lik2[i] <-  BIC(fit2) + con * lchoose(p, M)
+          fit2 <- try( survival::clogit( case ~ . + strata(id), data = x[, c(sela, i)] ), silent = TRUE)
+          if ( sum( class(fit2) == "try-error" ) == 1 ) {
+            lik2[i] <- lik1
+          } else  lik2[i] <-  BIC(fit2) + con * lchoose(p, M)
         }
         n.tests[2] <- n.tests[2] + length(ind[s])
         stat <- lik1 - lik2
@@ -135,8 +145,10 @@ ebic.fbed.clogit <- function(y, x, gam = NULL, wei = NULL, K = 0) {
         vim <- vim + 1
         M <- length(sela) + 1
         for ( i in ind[-sela] )  {
-          fit2 <- survival::coxph( case ~ . + strata(id), data = x[, c(sela, i)] )
-          lik2[i] <-  BIC(fit2) + con * lchoose(p, M)
+          fit2 <- try( survival::clogit( case ~ . + strata(id), data = x[, c(sela, i)] ), silent = TRUE)
+          if ( sum( class(fit2) == "try-error" ) == 1 ) {
+            lik2[i] <- lik1
+          } else  lik2[i] <-  BIC(fit2) + con * lchoose(p, M)
         }
         n.tests[vim + 1] <- length(ind[-sela])
         stat <- lik1 - lik2
@@ -152,8 +164,10 @@ ebic.fbed.clogit <- function(y, x, gam = NULL, wei = NULL, K = 0) {
         while ( sum(s > 0) > 0 ) {
           M <- length(sela) + 1
           for ( i in ind[s] )  {
-            fit2 <- survival::coxph( case ~ . + strata(id), data = x[, c(sela, i)] )
-            lik2[i] <-  BIC(fit2) + con * lchoose(p, M)
+            fit2 <- try( survival::clogit( case ~ . + strata(id), data = x[, c(sela, i)] ), silent = TRUE)
+            if ( sum( class(fit2) == "try-error" ) == 1 ) {
+              lik2[i] <- lik1
+            } else  lik2[i] <-  BIC(fit2) + con * lchoose(p, M)
           }
           n.tests[vim + 1] <- n.tests[vim + 1] + length(ind[s])
           stat <- lik1 - lik2

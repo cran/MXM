@@ -87,17 +87,10 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 set.seed(123)
 dataset <- matrix( runif(100 * 100, 1, 100), ncol = 100 )
 target <- rnorm(100)
-# heavy = robust = FALSE ; threshold = 0.05 ; wei = user_test = NULL ; 
-# ncores = 1 ; test = NULL ; stopping = "BIC" ; tol = 0
 
 target = rpois(100, 10)
 a1 <- iamb(target, dataset, threshold = 0.05, stopping = "BIC", tol = 0, back = "iambbs")
 a2 <- iamb(target, dataset, threshold = 0.05, stopping = "BIC", tol = 0, back = "bs")
-
-#a1 <- iamb(target, dataset, threshold = 0.05, test = "testIndReg", 
-#stopping = "BIC", tol = 0, back = "iambbs")
-#a2 <- iamb(target, dataset, threshold = 0.05, test = "testIndReg", 
-#stopping = "BIC", tol = 0, back = "bs") 
 }
 
 \keyword{ Backward regression }

@@ -177,12 +177,14 @@ The only package required for the SES.temporal and MMPC.temporal algorithm opera
 }
 
 \examples{
-## require(lme4)
-## data(sleepstudy)
-## attach(sleepstudy)
-## x <- matrix(rnorm(180 * 100),ncol = 100) ## unrelated preidctor variables
-## m1 <- SES.temporal(Reaction, Days, Subject, x)
-## m2 <- MMPC.temporal(Reaction, Days, Subject, x)
+\dontrun{
+require(lme4)
+data(sleepstudy)
+attach(sleepstudy)
+x <- matrix(rnorm(180 * 100),ncol = 100) ## unrelated preidctor variables
+m1 <- SES.temporal(Reaction, Days, Subject, x)
+m2 <- MMPC.temporal(Reaction, Days, Subject, x)
+}
 }
 
 \keyword{ SES }

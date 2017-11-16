@@ -126,8 +126,6 @@ results
 sesObject <- SES(target, dataset, max_k = 3, threshold = 0.05, test = "testIndBeta");
 #print summary of the SES output
 summary(sesObject);
-#plot the SES output
-# plot(sesObject, mode = "all");
 }
 
 \keyword{Beta regression}

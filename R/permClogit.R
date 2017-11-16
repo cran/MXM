@@ -32,7 +32,7 @@ permClogit = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NUL
   res <- tryCatch(
     {
     if (is.na(csIndex) || length(csIndex) == 0 || csIndex == 0) {
-    #perform the test. If the coxph function launches a warning, the
+    #perform the test. If the clogit function launches a warning, the
     #function returns "flag=0", that means "the test cannot be performed"
     #fitting the model
       clogit_results <- survival::clogit(case ~ x + strata(id) )

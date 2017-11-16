@@ -23,7 +23,7 @@ The indendent variable(s). It can be a vector, a matrix or a dataframe with cont
 A vector of weights to be used for weighted regression. The default value is NULL. 
 }
 \item{xnew}{
-If you have new values for the predictor variables (dataset) whose target variable you want to predict insert them here. If you put the "dataset" or leave it NULL it will calculate the regression fitted values.
+If you have new values for the predictor variables (dataset) whose target variable you want to predict insert them here. If you put the "dataset" or leave it NULL.
 }
 }
 
@@ -33,17 +33,17 @@ The beta regression is fitted. The "beta.reg" is an internal wrapper function an
 
 \value{
 A list including:
-\item{iters}{
-The iterations required until convergence.
+\item{be}{
+The estimated coefficients of the model.
 }
 \item{phi}{
 The estimated precision parameter. 
 }
-\item{be}{
-The estimated coefficients of the model.
-}
 \item{loglik}{
 The log-likelihood of the regression model. 
+}
+\item{est}{
+The estimated values if xnew is not NULL.
 }
 }
 

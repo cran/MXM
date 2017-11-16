@@ -199,8 +199,6 @@ dataset_b <- dataset_b[, -50]
   test = "testIndLogistic");
   #print summary of the SES output
   summary(sesObject);
-  # plot the SES output
-  # plot(sesObject, mode = "all");
 }
 
 \keyword{ Binary logistic regression }

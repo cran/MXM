@@ -136,8 +136,6 @@ sesObject2 <- SES(target, dataset, max_k = 3, threshold = 0.05, test = "testIndL
 #print summary of the SES output
 summary(sesObject);
 summary(sesObject2);
-# plot the SES output
-# plot(sesObject, mode = "all");
 }
 
 \keyword{ \eqn{G^2} test }

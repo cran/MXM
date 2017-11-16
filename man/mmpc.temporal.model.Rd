@@ -75,14 +75,16 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 
 \examples{
-## require(lme4)
-## data(sleepstudy)
-## attach(sleepstudy)
-## x <- matrix(rnorm(180 * 100),ncol = 100) ## unrelated predictor variables
-## m1 <- SES.temporal(Reaction, Days, Subject, x)
-## m2 <- MMPC.temporal(Reaction, Days, Subject, x)
-## mod <- mmpc.temporal.model(target, dataset = x, reps = Days, group = Subject, slopes = FALSE, 
-## mmpctemporal.Object = m2) 
+\dontrun{
+require(lme4)
+data(sleepstudy)
+attach(sleepstudy)
+x <- matrix(rnorm(180 * 100),ncol = 100) ## unrelated predictor variables
+m1 <- SES.temporal(Reaction, Days, Subject, x)
+m2 <- MMPC.temporal(Reaction, Days, Subject, x)
+mod <- mmpc.temporal.model(target, dataset = x, reps = Days, group = Subject, slopes = FALSE, 
+mmpctemporal.Object = m2) 
+}
 }
 
 

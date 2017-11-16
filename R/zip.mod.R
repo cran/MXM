@@ -49,7 +49,7 @@ zip.mod <- function(target, dataset, wei = NULL, xnew = NULL) {
     if ( !is.null(xnew) ) {
       xnew <- model.matrix(~., data.frame(xnew) )
       est <- exp( as.vector( xnew %*% be[, 1] ) )
-    } else  est <- exp( as.vector( x %*% be[, 1]) )
+    } else  est <- NULL
       
      res<- list(be = be, prop = prop, loglik = - lik2$value - lgy, est = est)      
   }   

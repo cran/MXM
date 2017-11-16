@@ -119,10 +119,6 @@ a2 <- fs.reg(y, dataset, threshold = 0.05, test = "censIndWR", stopping = "BIC",
 robust = FALSE, ncores = 1 ) 
 a3 <- MMPC(target, dataset)
 
-target <- rbinom(1000, 1, 0.6)
-b1 <- fs.reg(target, dataset, threshold = 0.05, test = NULL, stopping = "BIC", tol = 2, 
-robust = FALSE, ncores = 1 ) 
-
 target <- factor( rbinom(1000, 2, 0.6) )
 b2 <- fs.reg(target, dataset, threshold = 0.05, test = NULL, stopping = "BIC", tol = 2, 
 robust = FALSE, ncores = 1 ) 

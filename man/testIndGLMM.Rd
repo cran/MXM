@@ -108,11 +108,10 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.gr>, Vincenzo
 }
 
 \examples{
-#data(sleepstudy)
-#attach(sleepstudy)
-#target <- Reaction
-#x <- matrix(rnorm(180 * 10),ncol = 10) ## unrelated preidctor variables
-#testIndGLMM(target, Days, Subject, x, 1,0,target_type = 1)
+y <- rnorm(150)
+x <- matrix(rnorm(150 * 5), ncol = 5)
+id <- sample(1:20, 150, replace = TRUE)
+testIndGLMM(y, group=id, dataset=x, xIndex=1, csIndex=3, target_type = 1)
 }
 
 \keyword{ Linear mixed model }

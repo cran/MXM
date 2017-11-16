@@ -17,8 +17,8 @@ For more information the reader is addressed to Lagani V., Athineou G., Farcomen
 \tabular{ll}{
 Package: \tab MXM\cr
 Type: \tab Package\cr
-Version: \tab 1.2.5\cr
-Date: \tab 2017-11-14\cr
+Version: \tab 1.3.0\cr
+Date: \tab 2017-11-16\cr
 License: \tab GPL-2\cr
 }
 }
@@ -34,8 +34,7 @@ Michail Tsagris <mtsagris@csd.uoc.gr>
 \references{
 Tsamardinos, Brown and Aliferis (2006). The max-min hill-climbing Bayesian network structure learning algorithm. Machine learning, 65(1), 31-78.
 
-I. Tsamardinos, V. Lagani and D. Pappas (2012) Discovering multiple, equivalent biomarker signatures. In proceedings of the 7th conference of the Hellenic 
-Society for Computational Biology & Bioinformatics - HSCBB12.
+I. Tsamardinos, V. Lagani and D. Pappas (2012) Discovering multiple, equivalent biomarker signatures. In proceedings of the 7th conference of the Hellenic Society for Computational Biology & Bioinformatics - HSCBB12.
 
 Tsamardinos I., Aliferis C. F. and Statnikov, A. (2003). Time and sample efficient discovery of Markov blankets and direct causal relations. In Proceedingsof the 9th ACM SIGKDD international conference on Knowledge discovery and data mining p. 673-678. 
 }

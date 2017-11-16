@@ -187,9 +187,6 @@ sesObject2 <- SES(target, dataset, max_k = 3, threshold = 0.05, test = "testIndR
 
 summary(sesObject);
 summary(sesObject2);
-# plot the SES output
-# plot(sesObject, mode = "all");
-
 }
 
 \keyword{ Linear regression test}

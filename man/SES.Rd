@@ -247,11 +247,7 @@ The packages required by the SES and MMPC algorithm operations are:
 
 \bold{quantreg}: for the quantile (median) regression
 
-\bold{betareg}: for beta regression
-
 \bold{MASS}: for negative binomial regression
-
-\bold{pscl}: for zero inlfated poisson regression
 
 \bold{nnet} : also require(stats) and require(MASS) for the testIndLogistic test
 
@@ -261,6 +257,9 @@ and \bold{ordinal} : also require(stats) and require(MASS) for the testIndLogist
 
 \bold{doParallel}: for parallel computations
 
+\bold{lme4}: for (generalised) linear mixed models
+
+\bold{Rfast}: for many fast functions.
 }
 
 \seealso{

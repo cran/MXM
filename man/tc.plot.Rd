@@ -70,11 +70,11 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> Micha
 }
 
 \examples{
-## require(lme4)
-## data(sleepstudy)
-## attach(sleepstudy)
-## tc.plot(Reaction, Days, Subject)
-## tc.plot(Reaction, Days, Subject, type = "b")
+y <- rnorm(70)
+Days <- rep(1:7, each = 10)
+id <- rep(1:10, 7)
+tc.plot(y, Days, id)
+tc.plot(y, Days, id, type = "b")
 }
 
 \keyword{ Longitudinal data }

@@ -98,11 +98,13 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 
 \examples{
-## require(lme4)
-## data(sleepstudy)
-## attach(sleepstudy)
-## x <- matrix(rnorm(180 * 20),ncol = 20) ## unrelated preidctor variables
-## m1 <- fbed.glmm.reg(Reaction, x, Subject) 
-## m2 <- MMPC.temporal(target = Reaction, group = Subject, dataset = x)
+\dontrun{
+require(lme4)
+data(sleepstudy)
+attach(sleepstudy)
+x <- matrix(rnorm(180 * 20),ncol = 20) ## unrelated preidctor variables
+m1 <- fbed.glmm.reg(Reaction, x, Subject) 
+m2 <- MMPC.temporal(target = Reaction, group = Subject, dataset = x)
+}
 }
 

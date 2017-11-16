@@ -37,9 +37,6 @@ The zero inflated Poisson regression as suggested by Lambert (1992) is fitted. U
 
 \value{
 A list including:
-\item{iters}{
-The iterations required until convergence of the EM algorithm.
-}
 \item{be}{
 The estimated coefficients of the model.
 }
@@ -48,6 +45,9 @@ The estimated proportion of zeros.
 }
 \item{loglik}{
 The log-likelihood of the regression model. 
+}
+\item{est}{
+The estimated values if xnew is not NULL.
 }
 }
 

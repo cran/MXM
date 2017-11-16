@@ -72,7 +72,5 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 y <- rdag2(300, p = 25, nei = 3)
 x <- y$x
 a <- pc.skel( x, method = "comb.fast", alpha = 0.05 ) 
-bn.skel.utils(a, y$G, roc = FALSE, alpha = 0.05) 
+bn.skel.utils(a, y$G, roc = FALSE, alpha = 0.01) 
 }
-
-\keyword{ pc algorithm }
