@@ -14,25 +14,32 @@ zip.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL) {
     
   } else {
     
-    tic <- proc.time()
+    runtime <- proc.time()
     ##################################
     # target checking and initialize #
     ################################## 
-    dataset <- as.data.frame(dataset)
     ini <- zip.mod( target,  dataset, wei = wei )
     dofini <- length( ini$be[, 1] )
     likini <- ini$loglik 
     stat <- dof <- numeric(p)
+    if ( is.null(wei) ) {
+      lgy <- sum( lgamma(target + 1) )  
+    } else  lgy <- sum( wei * gamma(target + 1) )  
+
     if ( p == 1) {
       if ( is.null(wei) ) {
         mod <- Rfast::zip.mle(target)
-      } else mod <- zipmle.wei(target, wei)
+        lgy <- sum( lgamma(target + 1) )  
+      } else {
+        mod <- zipmle.wei(target, wei)
+        lgy <- sum( wei * gamma(target + 1) )  
+      }  
       stat <- 2 * ( likini - mod$loglik )
-      dof <- dofini - length( mod$be ) 
+      dof <- dofini - 1 
       pval <- pchisq( stat, dof, lower.tail = FALSE, log.p = TRUE)      
     } else {
       for (j in 1:p) {
-        mod <- zip.reg( target, dataset[, -j], wei = wei )
+        mod <- zip.reg( target, dataset[, -j], wei = wei, lgy = lgy )
         stat[j] <- 2 * ( likini - mod$loglik )
         dof[j] <- dofini - length( mod$be )
       }  
@@ -88,7 +95,7 @@ zip.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL) {
           
           stat <- dof <- numeric(k)
           for (j in 1:k) {
-            mod <- zip.reg( target,  dat[, -j], wei = wei )
+            mod <- zip.reg( target,  dat[, -j], wei = wei, lgy = lgy )
             stat[j] <- 2 * ( likini - mod$loglik )
             dof[j] <- dofini - length( mod$be ) 
           }
@@ -107,7 +114,7 @@ zip.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL) {
         }
       }
   
-      runtime <- proc.time() - tic		
+      runtime <- proc.time() - runtime	
       info <- info[ info[, 1] > 0, , drop = FALSE]
       res <- list(runtime = runtime, info = info, mat = mat, ci_test = "testIndzIP", final = final ) 
     } else {

@@ -1,10 +1,13 @@
 \name{Conditional independence tests for positive data}
 \alias{testIndGamma}
 \alias{testIndNormLog}
+\alias{testIndIGreg}
 \alias{permGamma}
 \alias{permNormLog}
+\alias{permIGreg}
 \alias{waldGamma}
 \alias{waldNormLog}
+\alias{waldIGreg}
 \title{
 Regression conditional independence test for positive response variables.
 }
@@ -22,6 +25,10 @@ testIndNormLog(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL,
 univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
 robust = FALSE)
 
+testIndIGreg(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
+robust = FALSE)
+
 permGamma(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
 univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
 robust = FALSE, threshold = 0.05, R = 999)
@@ -30,11 +37,19 @@ permNormLog(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL,
 univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
 robust = FALSE, threshold = 0.05, R = 999)
 
+permIGreg(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
+robust = FALSE, threshold = 0.05, R = 999)
+
 waldGamma(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
 univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
 robust = FALSE) 
 
 waldNormLog(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL,
+robust = FALSE) 
+
+waldIGreg(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
 univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL,
 robust = FALSE) 
 }
@@ -86,7 +101,9 @@ If hash = TRUE, all three tests require the arguments 'stat_hash' and 'pvalue_ha
   
 Important: Use these arguments only with the same dataset that was used at initialization. For all the available conditional independence tests that are currently included on the package, please see "?CondIndTests".
   
-For the testIndGamma and testIndNormLog the F test is used and not the log-likelihood ratio test because both of these regression models have a nusiance parameter. 
+For the testIndGamma and testIndNormLog the F test is used and not the log-likelihood ratio test because both of these regression models have a nuisance parameter. The testIndNormLog can be seen as a non linear Gaussian model where the conditional mean is related with the covariate(s) via an exponential function.
+
+TestIndIGreg fits an inverse gaussian distribution with a log link. The testIndIGreg has some problems due to problems in R's implementation of the inverse gaussian regression with a log link.  
 }
 
 \value{

@@ -14,12 +14,15 @@ ebic.fbed.zip <- function(y, x, gam = NULL, wei = NULL, K = 0) {
   } else con <- 2 * gam
   if ( is.null(wei) ) {
     lik1 <-  - 2 * Rfast::zip.mle(y)$loglik + 2 * logn
-  } else lik1 <-  - 2 * zipmle.wei(y, wei)$loglik + 2 * logn 
-  
+    lgy <- sum( lgamma(y + 1) )  
+  } else {
+    lik1 <-  - 2 * zipmle.wei(y, wei)$loglik + 2 * logn 
+    lgy <- sum( wei * lgamma(y + 1) )  
+  }  
   runtime <- proc.time()
   
   for ( i in ind ) {
-    fit2 <- zip.reg( y, x[, i], wei = wei ) 
+    fit2 <- zip.reg( y, x[, i], wei = wei, lgy = lgy ) 
     lik2[i] <-  -2 * fit2$loglik + (length(fit2$be) + 1) * logn + con * log(p)
   }
   n.tests <- p
@@ -37,7 +40,7 @@ ebic.fbed.zip <- function(y, x, gam = NULL, wei = NULL, K = 0) {
       while ( sum(s > 0) > 0 ) {
 	  	M <- length(sela) + 1
         for ( i in ind[s] )  {
-          fit2 <- zip.reg( y, x[, c(sela, i)], wei = wei )
+          fit2 <- zip.reg( y, x[, c(sela, i)], wei = wei, lgy = lgy )
           lik2[i] <-  -2 * fit2$loglik + (length(fit2$be) + 1) * logn + con * lchoose(p, M)
         }
         n.tests <- n.tests + length(ind[s])
@@ -58,7 +61,7 @@ ebic.fbed.zip <- function(y, x, gam = NULL, wei = NULL, K = 0) {
    if (K == 1) {
      M <- length(sela) + 1
      for ( i in ind[-sela] )  {
-        fit2 <- zip.reg( y, x[, c(sela, i)], wei = wei )
+        fit2 <- zip.reg( y, x[, c(sela, i)], wei = wei, lgy = lgy )
         lik2[i] <-  -2 * fit2$loglik + (length(fit2$be) + 1) * logn + con * lchoose(p, M)
       }
       n.tests[2] <- length( ind[-sela] )
@@ -75,7 +78,7 @@ ebic.fbed.zip <- function(y, x, gam = NULL, wei = NULL, K = 0) {
       while ( sum(s > 0) > 0 ) {
   	 	M <- length(sela) + 1
         for ( i in ind[s] )  {
-          fit2 <- zip.reg( y, x[, c(sela, i)], wei = wei )
+          fit2 <- zip.reg( y, x[, c(sela, i)], wei = wei, lgy = lgy )
           lik2[i] <-  -2 * fit2$loglik + (length(fit2$be) + 1) * logn + con * lchoose(p, M)
         }
         n.tests[2] <- n.tests[2] + length( ind[s] )
@@ -96,7 +99,7 @@ ebic.fbed.zip <- function(y, x, gam = NULL, wei = NULL, K = 0) {
   if ( K > 1) {
  	M <- length(sela) + 1
     for ( i in ind[-sela] )  {
-      fit2 <- zip.reg( y, x[, c(sela, i)], wei = wei )
+      fit2 <- zip.reg( y, x[, c(sela, i)], wei = wei, lgy = lgy )
       lik2[i] <-  -2 * fit2$loglik + (length(fit2$be) + 1) * logn + con * lchoose(p, M)
     }
     n.tests[2] <- length(ind[-sela])
@@ -113,7 +116,7 @@ ebic.fbed.zip <- function(y, x, gam = NULL, wei = NULL, K = 0) {
     while ( sum(s > 0) > 0 ) {
 	  M <- length(sela) + 1
       for ( i in ind[s] )  {
-        fit2 <- zip.reg( y, x[, c(sela, i)], wei = wei )
+        fit2 <- zip.reg( y, x[, c(sela, i)], wei = wei, lgy = lgy )
         lik2[i] <-  -2 * fit2$loglik + (length(fit2$be) + 1) * logn + con * lchoose(p, M)
       }
       n.tests[2] <- n.tests[2] + length(ind[s])
@@ -135,7 +138,7 @@ ebic.fbed.zip <- function(y, x, gam = NULL, wei = NULL, K = 0) {
       vim <- vim + 1
 	  M <- length(sela) + 1
       for ( i in ind[-sela] )  {
-        fit2 <- zip.reg( y, x[, c(sela, i)], wei = wei )
+        fit2 <- zip.reg( y, x[, c(sela, i)], wei = wei, lgy = lgy )
         lik2[i] <-  -2 * fit2$loglik + (length(fit2$be) + 1) * logn + con * lchoose(p, M)
       }
       n.tests[vim + 1] <- length(ind[-sela])
@@ -152,7 +155,7 @@ ebic.fbed.zip <- function(y, x, gam = NULL, wei = NULL, K = 0) {
       while ( sum(s > 0) > 0 ) {
 	    M <- length(sela) + 1
         for ( i in ind[s] )  {
-          fit2 <- zip.reg( y, x[, c(sela, i)], wei = wei )
+          fit2 <- zip.reg( y, x[, c(sela, i)], wei = wei, lgy = lgy )
           lik2[i] <-  -2 * fit2$loglik + (length(fit2$be) + 1) * logn + con * lchoose(p, M)
         }
         n.tests[vim + 1] <- n.tests[vim + 1] + length(ind[s])

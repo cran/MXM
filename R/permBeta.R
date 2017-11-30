@@ -62,7 +62,7 @@ permBeta = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL,
   #That means that the x variable does not add more information to our model due to an exact copy of this in the cs, so it is independent from the target
   if ( length(cs) != 0 )  {
     if ( is.null(dim(cs)[2]) )  {    #cs is a vector
-      if (any(x != cs) == FALSE)  {      #if(!any(x == cs) == FALSE)
+      if ( identical(x, cs) )  {      #if(!any(x == cs) == FALSE)
         if ( hash )  {    #update hash objects
           stat_hash[[key]] <- 0;     #.set(stat_hash , key , 0)
           pvalue_hash[[key]] <- 1;     #.set(pvalue_hash , key , 1)
@@ -72,12 +72,12 @@ permBeta = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL,
       }
     } else { #more than one var
       for (col in 1:dim(cs)[2]) {
-        if (any(x != cs[,col]) == FALSE)  {    #if(!any(x == cs) == FALSE)
+        if ( identical(x, cs[, col]) )  {    #if(!any(x == cs) == FALSE)
           if ( hash )  {    #update hash objects
             stat_hash[[key]] <- 0;    #.set(stat_hash , key , 0)
             pvalue_hash[[key]] <- 1;    #.set(pvalue_hash , key , 1)
           }
-          results <- list(pvalue = 1, stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+          results <- list(pvalue = 1, stat = 0, flag = 1, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
           return(results);
         }
       }

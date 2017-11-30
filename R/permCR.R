@@ -35,7 +35,7 @@ permCR = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL, u
       if (is.na(csIndex) || length(csIndex) == 0 || csIndex == 0) {
         cox_results <- survival::coxph(target ~ x, weights = wei )
         stat <- anova(cox_results)[2, 2]
-		if (stat > 0) {
+		    if (stat > 0) {
           step <- 0
           j <- 1		
           n <- length(x)
@@ -48,12 +48,12 @@ permCR = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL, u
           pvalue <- (step + 1) / (R + 1) 
 		}  
       } else {
-	    options(warn = -1)
+	      options(warn = -1)
         cox_results_full <- survival::coxph(target ~ ., data = as.data.frame(  dataset[ , c(csIndex, xIndex)] ), weights = wei) 
         res = anova(cox_results_full)
         pr = nrow(res)
         stat = res[pr, 2]
-		if (stat > 0) {
+		    if (stat > 0) {
           j <- 1		
           step <- 0
           n <- length(x)

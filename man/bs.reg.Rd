@@ -26,7 +26,7 @@ Threshold (suitable values in [0,1]) for assessing p-values significance. Defaul
 \item{test}{
 The regression model to use. Available options are most of the tests for SES and MMPC. 
 The ones NOT available are "gSquare", "censIndER", "testIndMVreg",  
-"testIndSpearman" and "testIndFisher". If you want to use multinomial or ordinal logistic regression, 
+"testIndSpearman". If you want to use multinomial or ordinal logistic regression, 
 make sure your target is factor. See also \code{\link{SES}} and \code{\link{CondIndTests}} for the tests.
 }
 \item{wei}{
@@ -82,6 +82,7 @@ dataset <- matrix( runif(1000 * 10, 1, 100), ncol = 10 )
 target <- rnorm(1000)
 a <- bs.reg(target, dataset, threshold = 0.05, test = "testIndRQ") 
 b <- bs.reg(target, dataset, threshold = 0.05, test = "testIndReg") 
+b2 <- bs.reg(target, dataset, threshold = 0.05, test = "testIndFisher") 
 }
 
 \keyword{ Backward regression }

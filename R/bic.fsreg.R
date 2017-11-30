@@ -121,8 +121,12 @@ bic.fsreg <- function( target, dataset, test = NULL, wei = NULL, tol = 2, robust
     runtime <- proc.time()
       
     ini <- test( target ~ 1 )
-    la <- logLik(ini)
-    ini <-  - 2 * as.numeric( la ) + attr(la, "df") * con   ## initial BIC  
+    if ( ci_test == "censIndCR" ) {
+      ini <-  - 2 * ini$loglik
+    } else {  
+      la <- logLik(ini)
+      ini <-  - 2 * as.numeric( la ) + attr(la, "df") * con   ## initial BIC  
+    }   
     if (ncores <= 1) {
         for (i in 1:p) {
           mi <- test( target ~ dataset[, i], weights = wei )

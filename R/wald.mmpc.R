@@ -79,10 +79,8 @@ wald.mmpc = function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, 
         if ( is.ordered(target) & la > 2 )  {
           dataInfo$target_type = "ordinal";
           test = waldOrdinal
-          cat('\nTarget variable type: Ordinal')
         } else {
           dataInfo$target_type = "binary"
-          cat('\nTarget variable type: Binomial')
           test = waldBinary
         }
         

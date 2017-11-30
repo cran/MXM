@@ -13,8 +13,11 @@ fbed.zip <- function(y, x, alpha = 0.05, wei = NULL, K = 0) {
   
   if ( is.null(wei) ) {
     mo <- 2 * Rfast::zip.mle(y)$loglik
-  } else  mo <- 2 * zipmle.wei(y, wei)$loglik    
-
+    lgy <- sum( lgamma(y + 1) )  
+  } else  {
+    mo <- 2 * zipmle.wei(y, wei)$loglik    
+    lgy <- sum( wei * lgamma(y + 1) )  
+  }
   runtime <- proc.time()
   
   mod <- zip.regs(y, x, wei, logged = TRUE)
@@ -36,7 +39,7 @@ fbed.zip <- function(y, x, alpha = 0.05, wei = NULL, K = 0) {
       #########
       while ( sum(s>0) > 0 ) {
         for ( i in ind[s] )  {
-          fit2 <- zip.reg( y, x[, c(sela, i)], wei = wei )
+          fit2 <- zip.reg( y, x[, c(sela, i)], wei = wei, lgy = lgy )
           lik2[i] <- 2 * fit2$loglik
           dof[i] <- length( fit2$be )
         }
@@ -61,7 +64,7 @@ fbed.zip <- function(y, x, alpha = 0.05, wei = NULL, K = 0) {
 
    if (K == 1) {
      for ( i in ind[-sela] )  {
-        fit2 <- zip.reg( y, x[, c(sela, i)], wei = wei )
+        fit2 <- zip.reg( y, x[, c(sela, i)], wei = wei, lgy = lgy )
         lik2[i] <- 2 * fit2$loglik
         dof[i] <- length( fit2$be )
       }
@@ -82,7 +85,7 @@ fbed.zip <- function(y, x, alpha = 0.05, wei = NULL, K = 0) {
       }  
       while ( sum(s>0) > 0 ) {
         for ( i in ind[s] )  {
-          fit2 <- zip.reg( y, x[, c(sela, i)], wei = wei )
+          fit2 <- zip.reg( y, x[, c(sela, i)], wei = wei, lgy = lgy )
           lik2[i] <- 2 * fit2$loglik
           dof[i] <- length( fit2$be )
         }
@@ -108,7 +111,7 @@ fbed.zip <- function(y, x, alpha = 0.05, wei = NULL, K = 0) {
   if ( K > 1) {
 
      for ( i in ind[-sela] )  {
-        fit2 <- zip.reg( y, x[, c(sela, i)], wei = wei )
+        fit2 <- zip.reg( y, x[, c(sela, i)], wei = wei, lgy = lgy )
         lik2[i] <- 2 * fit2$loglik
         dof[i] <- length( fit2$be )
       }
@@ -129,7 +132,7 @@ fbed.zip <- function(y, x, alpha = 0.05, wei = NULL, K = 0) {
       }  
       while ( sum(s > 0) > 0 ) {
         for ( i in ind[s] )  {
-          fit2 <- zip.reg( y, x[, c(sela, i)], wei = wei )
+          fit2 <- zip.reg( y, x[, c(sela, i)], wei = wei, lgy = lgy )
           lik2[i] <- 2 * fit2$loglik
           dof[i] <- length( fit2$be )
         }
@@ -155,7 +158,7 @@ fbed.zip <- function(y, x, alpha = 0.05, wei = NULL, K = 0) {
     while ( vim < K  & card[vim + 1] - card[vim] > 0 ) {
       vim <- vim + 1
       for ( i in ind[-sela] )  {
-        fit2 = zip.reg( y, x[, c(sela, i)], wei = wei )
+        fit2 = zip.reg( y, x[, c(sela, i)], wei = wei, lgy = lgy )
         lik2[i] <- 2 * fit2$loglik
         dof[i] <- length( fit2$be )
       }
@@ -176,7 +179,7 @@ fbed.zip <- function(y, x, alpha = 0.05, wei = NULL, K = 0) {
       }     
        while ( sum(s > 0) > 0 ) {
         for ( i in ind[s] )  {
-          fit2 <- zip.reg( y, x[, c(sela, i)], wei = wei )
+          fit2 <- zip.reg( y, x[, c(sela, i)], wei = wei, lgy = lgy )
           lik2[i] <- 2 * fit2$loglik
           dof[i] <- length( fit2$be )
         }

@@ -34,7 +34,7 @@ zip.regs <- function(target, dataset, wei = NULL, check = FALSE, logged = FALSE,
     } else { 
       wei <- wei / sum(wei)
       w0 <- wei[poia]    ;   w1 <- wei[-poia] 
-      lgy <- sum( lgamma(target1 + 1) )  
+      lgy <- sum( w1 * lgamma(target1 + 1) )  
       ini <- 2 * zipmle.wei(target, wei)$loglik
 
       for (i in 1:D) {

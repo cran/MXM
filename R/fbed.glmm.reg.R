@@ -44,7 +44,7 @@ fbed.glmm.reg <- function(y, x, id, alpha = 0.05, wei = NULL, K = 0, method = "L
   } else {
     
     if (type == "gaussian") {
-      result <- ebic.fbed.lmm(y, x, gam = gam, wei = wei, K = K)
+      result <- ebic.fbed.lmm(y, x, id, gam = gam, wei = wei, K = K)
     } else {
       result <- ebic.fbed.glmm(y, x, id, gam = gam, wei = wei, K = K, type = type) 
     } 

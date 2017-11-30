@@ -27,7 +27,7 @@ The maximum conditioning set to use in the conditional indepedence test (see Det
 Threshold ( suitable values in (0, 1) ) for assessing p-values significance. Default value is 0.05.
 }
 \item{test}{
-The conditional independence test to use. Default value is "testIndFisher". This procedure allows for "testIndFisher", "testIndSPearman" for continuous variables and "gSquare" for categorical variables. 
+The conditional independence test to use. Default value is "testIndFisher". This procedure allows for "testIndFisher", "testIndSPearman" for continuous variables and "gSquare" for categorical variables. Or in general, if the dataset is a data.frame with different types of data, leave this NULL. See also \code{link{MMPC}} for the automatic choice of tests.
 }
 \item{rob}{
 A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust version of the statistical test if it is available. It takes more time than a non robust version but it is suggested in case of outliers. 

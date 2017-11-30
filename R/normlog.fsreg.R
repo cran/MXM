@@ -7,7 +7,7 @@ normlog.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = N
     
     threshold <- log(threshold)  ## log of the significance level
     p <- dim(dataset)[2]  ## number of variables
-    devi <- dof <- numeric( p )  
+    devi <- dof <- phi <- numeric( p )  
     moda <- list()
     k <- 1   ## counter
     n <- length(target)  ## sample size
@@ -25,28 +25,29 @@ normlog.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = N
            if ( !heavy ) {  		
               for (i in 1:p) {
                 mi <- glm( target ~ dataset[, i], family = gaussian(link = log), weights = wei, y = FALSE, model = FALSE )
-                devi[i] <- 2 * as.numeric( logLik(mi) )
+                devi[i] <- 2 * as.numeric( logLik(mi) ) 
+                phi[i] <- summary(mi)[[ 14 ]]
                 dof[i] <- length( mi$coefficients ) 
               }
               
             } else {
               for (i in 1:p) {
                 mi <- speedglm::speedglm( target ~ dataset[, i], data = dataset, family = gaussian(link = log), weights = wei )
-                devi[i] <- 2 * as.numeric( logLik(mi) )
+                devi[i] <- 2 * as.numeric( logLik(mi) ) 
                 dof[i] <- length( mi$coefficients ) 
+                phi[i] <- mi$RSS/mi$df
               }
             }  
-            stat <- devi - ini
-            pval <- pchisq( stat, dof - 1, lower.tail = FALSE, log.p = TRUE )
+            stat <- (devi - ini)/phi
+            pval <- pf( stat, dof - 1, n - dof, lower.tail = FALSE, log.p = TRUE )
         } else {
           #if ( robust == FALSE ) {  ## Non robust
           if ( !heavy )	 {
             cl <- makePSOCKcluster(ncores)
             registerDoParallel(cl)
-            mata <- matrix(0, p, 2)
             mod <- foreach( i = 1:p, .combine = rbind) %dopar% {
               ww <- glm( target ~ dataset[, i], family = gaussian(link = log), weights = wei, y = FALSE, model = FALSE )
-              mata[i, ] <- c( 2 * as.numeric( logLik(ww) ), length( coef( ww ) )  )
+              return( c( 2 * as.numeric( logLik(ww) ), length( ww$coefficients ), summary(ww)[[ 14 ]] ) )
             }
             stopCluster(cl)
             
@@ -55,12 +56,12 @@ normlog.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = N
             registerDoParallel(cl)
             mod <- foreach( i = 1:p, .combine = rbind, .export = "speedglm", .packages = "speedglm") %dopar% {
               ww <- speedglm( target ~ dataset[, i], data = dataset, family = gaussian(link = log), weights = wei )
-              return( c( 2 * as.numeric( logLik(ww) ), length( coef( ww ) ) ) )
+              return( c( 2 * as.numeric( logLik(ww) ), length( ww$coefficients ), ww$RSS/ww$df ) )
             }
             
             stopCluster(cl)	  	  
-            stat = mod[, 1] - ini
-            pval = pchisq( stat, mod[, 2] - 1, lower.tail = FALSE, log.p = TRUE )
+            stat <- (mod[, 1] - ini) / mod[, 3]
+            pval <- pf( stat, mod[, 2] - 1, n - mod[, 2], lower.tail = FALSE, log.p = TRUE )
           }
         }  
         mat <- cbind(1:p, pval, stat) 
@@ -94,26 +95,27 @@ normlog.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = N
           pn <- p - k + 1   
           ini <- 2 * logLik(mi)
           do <- length( mi$coefficients ) 
-          devi <- dof <- numeric( pn )  
-          
+
           if ( ncores <= 1 ) {
-            devi <- dof <- numeric(pn)
+            devi <- dof <- phi <- numeric(pn)
             if ( !heavy ) {
               for ( i in 1:pn ) {
                 ww <- glm( target ~., data = dataset[, c(sela, mat[i, 1]) ], family = gaussian(link = log), weights = wei, y = FALSE, model = FALSE )
                 devi[i] <- 2 * as.numeric( logLik(ww) )
-                dof[i] <- length( ww$coefficients )          
+                dof[i] <- length( ww$coefficients ) 
+                phi[i] <- summary(ww)[[ 14 ]]
               }
               
             } else {
               for ( i in 1:pn ) {
                 ww <- speedglm::speedglm( target ~., data = dataset[, c(sela, mat[i, 1]) ], family = gaussian(link = log), weights = wei )
                 devi[i] <- 2 * as.numeric( logLik(ww) )
-                dof[i] <- length( ww$coefficients )          
+                dof[i] <- length( ww$coefficients ) 
+                phi[i] <- ww$RSS/ww$df
               }		  
             }
-            stat <- devi - ini
-            pval <- pchisq( stat, dof - do, lower.tail = FALSE, log.p = TRUE )
+            stat <- (devi - ini)/phi
+            pval <- pf( stat, dof - do, n - dof, lower.tail = FALSE, log.p = TRUE )
             
           } else {
             
@@ -122,7 +124,7 @@ normlog.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = N
               registerDoParallel(cl)
               mod <- foreach( i = 1:pn, .combine = rbind) %dopar% {
                 ww <- glm( target ~., data = dataset[, c(sela, mat[i, 1]) ], family = gaussian(link = log), weights = wei, y = FALSE, model = FALSE )
-                return( c( 2 * as.numeric( logLik(ww) ), length( coef( ww ) ) ) )
+                return( c( 2 * as.numeric( logLik(ww) ), length( ww$coefficients ), summary(ww)[[ 14 ]] ) )
               }
               stopCluster(cl)
               
@@ -131,17 +133,17 @@ normlog.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = N
               registerDoParallel(cl)
               mod <- foreach( i = 1:pn, .combine = rbind, .export = "speedglm", .packages = "speedglm") %dopar% {
                 ww <- speedglm( target ~., data = dataset[, c(sela, mat[i, 1]) ], family = gaussian(link = log), weights = wei )
-                return( c( 2 * as.numeric( logLik(ww) ), length( coef( ww ) ) ) )
+                return( c( 2 * as.numeric( logLik(ww) ), length( ww$coefficients ), ww$RSS/ww$df ) )
               }
               stopCluster(cl)		  
             }
-            stat <- mod[, 1] - ini
-            pval <- pchisq( stat, mod[, 2] - do, lower.tail = FALSE, log.p = TRUE )
+            stat <- (mod[, 1] - ini)/mod[, 3]
+            pval <- pf( stat, mod[, 2] - do, n - mod[, 2], lower.tail = FALSE, log.p = TRUE )
           }
           
           mat[, 2:3] <- cbind(pval, stat)
           ina <- which.min(mat[, 2])
-          sel <- mat[ina, 1]    
+          sel <- mat[ina, 1]     
           
           if ( mat[ina, 2] < threshold ) {
             if ( !heavy ) {
@@ -175,7 +177,7 @@ normlog.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = N
             do = length( coef( moda[[ k ]]  ) ) 
             k <- k + 1   
             pn <- p - k  + 1
-            devi = dof = numeric(pn) 
+            devi = dof = phi = numeric(pn) 
             
             if (ncores <= 1) {  
               #if ( robust == FALSE ) {  ## Non robust
@@ -183,18 +185,20 @@ normlog.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = N
                 for ( i in 1:pn ) {
                   ma <- glm( target ~., data = dataset[, c(sela, mat[i, 1] ) ], family = gaussian(link = log), weights = wei, y = FALSE, model = FALSE )
                   devi[i] <- 2 * as.numeric( logLik(ma) )
-                  dof[i] = length( ma$coefficients ) 
+                  dof[i] <- length( ma$coefficients ) 
+                  phi[i] <- summary(ma)[[ 14 ]] 
                 }
               } else {
                 for ( i in 1:pn ) {
                   ma <- speedglm( target ~., data = dataset[, c(sela, mat[i, 1] ) ], family = gaussian(link = log), weights = wei )
                   devi[i] <- 2 * as.numeric( logLik(ma) )
-                  dof[i] = length( coef( ma ) ) 
+                  dof[i] <- length( ma$coefficients ) 
+                  phi[i] <- ma$RSS/ma$df 
                 }
                 
               }
-              stat = devi - ini
-              pval = pchisq( stat, dof - do, lower.tail = FALSE, log.p = TRUE )
+              stat <- (devi - ini) / phi
+              pval <- pf( stat, dof - do, n - dof, lower.tail = FALSE, log.p = TRUE )
               
             } else {
               #if ( robust == FALSE ) {  ## Non robust
@@ -203,7 +207,7 @@ normlog.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = N
                 registerDoParallel(cl)
                 mod <- foreach( i = 1:pn, .combine = rbind) %dopar% {
                   ww <- glm( target ~., data = dataset[, c(sela, mat[i, 1]) ], family = gaussian(link = log), weights = wei, y = FALSE, model = FALSE )
-                  return( c( 2 * as.numeric( logLik(ww) ), length( coef( ww ) ) ) )
+                  return( c( 2 * as.numeric( logLik(ww) ), length( ww$coefficients ), summary(ww)[[ 14 ]] ) )
                 }
                 stopCluster(cl)
                 
@@ -212,12 +216,12 @@ normlog.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = N
                 registerDoParallel(cl)
                 mod <- foreach( i = 1:pn, .combine = rbind, .export = "speedglm", .packages = "speedglm") %dopar% {
                   ww <- speedglm( target ~., data = dataset[, c(sela, mat[i, 1]) ], family = gaussian(link = log), weights = wei )
-                  return( c( 2 * as.numeric( logLik(ww) ), length( coef( ww ) ) ) )
+                  return( c( 2 * as.numeric( logLik(ww) ), length( ww$coefficients ), ww$RSS/ww$df ) )
                 }
                 stopCluster(cl)
               }
-              stat <- mod[, 1] - ini
-              pval <- pchisq( stat, mod[, 2] - do, lower.tail = FALSE, log.p = TRUE )
+              stat <- (mod[, 1] - ini)/mod[, 3]
+              pval <- pf( stat, mod[, 2] - do, n - mod[, 2], lower.tail = FALSE, log.p = TRUE )
             }
             
             mat[, 2:3] <- cbind(pval, stat)

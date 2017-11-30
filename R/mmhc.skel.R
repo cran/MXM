@@ -17,34 +17,36 @@ mmhc.skel <- function(dataset, max_k = 3, threshold = 0.05, test = "testIndFishe
   ini <- NULL
   nam <- colnames(dataset)
   initial.tests <- 0
+  ini.pval <- matrix(0, n, n)
   
-  if ( is.null(ini.pvalue) ) {
-    initial.tests <- 0.5 * n * (n - 1)
-    if ( test == "testIndSpearman" ) {
-      x <- apply(dataset, 2, rank)
-      R <- Rfast::cora(x)
-      options(warn = -1)
-      stat <- 0.5 * log( (1 + R)/( (1 - R) ) ) * sqrt(m - 3) / 1.029563
-      ini.pvalue <- log(2) + pt( abs(stat), m - 3, lower.tail = FALSE, log.p = TRUE)
-      diag(ini.pvalue) <- 0
-      R <- NULL
-      stat <- NULL
-    } else if ( test == "testIndFisher" ) {
-      R <- Rfast::cora(dataset)
-      options(warn = -1)
-      stat <- 0.5 * log( (1 + R)/( (1 - R) ) ) * sqrt(m - 3) 
-      ini.pvalue <- log(2) + pt( abs(stat), m - 3, lower.tail = FALSE, log.p = TRUE)
-      diag(ini.pvalue) <- 0
-      R <- NULL
-      stat <- NULL
-    } else  if ( test == "gSquare" ) {
-      dc <- Rfast::colrange(dataset, cont = FALSE)
-      stat <- Rfast::g2Test_univariate(dataset, dc)
-      ini.pvalue <- pchisq(stat$statistic, stat$df, lower.tail = FALSE, log.p = TRUE)
-      ini.pvalue <- Rfast::squareform(ini.pvalue)
-    } else  ini.pvalue <- NULL
-  }
-  
+  if ( !is.null(test) ) {
+    if ( is.null(ini.pvalue)  & ( test == "testIndSpearman" | test == "testIndFisher" | test == "gSquare") ) {
+      initial.tests <- 0.5 * n * (n - 1)
+      if ( test == "testIndSpearman" ) {
+        x <- Rfast::colRanks(x)
+        R <- Rfast::cora(x)
+        options(warn = -1)
+        stat <- 0.5 * log( (1 + R)/( (1 - R) ) ) * sqrt(m - 3) / 1.029563
+        ini.pvalue <- log(2) + pt( abs(stat), m - 3, lower.tail = FALSE, log.p = TRUE)
+        diag(ini.pvalue) <- 0
+        R <- NULL
+        stat <- NULL
+      } else if ( test == "testIndFisher" ) {
+        R <- Rfast::cora(dataset)
+        options(warn = -1)
+        stat <- 0.5 * log( (1 + R)/( (1 - R) ) ) * sqrt(m - 3) 
+        ini.pvalue <- log(2) + pt( abs(stat), m - 3, lower.tail = FALSE, log.p = TRUE)
+        diag(ini.pvalue) <- 0
+        R <- NULL
+        stat <- NULL
+      } else  if ( test == "gSquare" ) {
+        dc <- Rfast::colrange(dataset, cont = FALSE)
+        stat <- Rfast::g2Test_univariate(dataset, dc)
+        ini.pvalue <- pchisq(stat$statistic, stat$df, lower.tail = FALSE, log.p = TRUE)
+        ini.pvalue <- Rfast::squareform(ini.pvalue)
+      }  
+    }  ## end if ( is.null(ini.pvalue)  & ( test == "testIndSpearman" | test == "testIndFisher" | test == "gSquare") )
+  }  ## end if ( !is.null(test) )
   ############
   #### MMPC
   ############
@@ -60,7 +62,7 @@ mmhc.skel <- function(dataset, max_k = 3, threshold = 0.05, test = "testIndFishe
       for (i in 1:n) {
         if ( !is.null(ini.pvalue) )   ini$pvalue <- ini.pvalue[i, ]
         a <- MMPC(i, dataset, max_k = max_k, test = test, threshold = threshold, robust = rob, hash = hash, backward = backward, ini = ini, logged = TRUE )
-        if ( !is.null(ini.pvalue) )   ini.pvalue[i, ] <- a@univ$pvalue
+        ini.pval[i, ] <- a@univ$pvalue
         pvalue[i, ] <- a@pvalues
         sel <- a@selectedVars
         G[i, sel] <- 1
@@ -78,12 +80,13 @@ mmhc.skel <- function(dataset, max_k = 3, threshold = 0.05, test = "testIndFishe
         if ( !is.null(ini.pvalue) )   ini$pvalue <- ini.pvalue[i, ]
         a <- MMPC(i, dataset, max_k = max_k, test = test, threshold = threshold, robust = rob, hash = hash, backward = backward, ini = ini, logged = TRUE )
         sel[a@selectedVars] <- 1
-        return( c(a@n.tests, sel, a@pvalues) )
+        return( c(a@n.tests, sel, a@pvalues, a@univ$pvalue) )
       }
       
       stopCluster(cl)
       G <- as.matrix(mod[, 2:(n + 1) ])
-      pvalue <- as.matrix( mod[ , -c(1:(n + 1) ) ] )
+      pvalue <- as.matrix( mod[ , (n + 2):(2 * n + 1) ] )
+      ini.pval <- as.matrix( mod[, (2 * n + 2):(3 * n + 1) ] )
       ntests <- as.vector(mod[, 1])
       runtime <- proc.time() - pa
     }
@@ -97,7 +100,7 @@ mmhc.skel <- function(dataset, max_k = 3, threshold = 0.05, test = "testIndFishe
       for (i in 1:n) {
         if ( !is.null(ini.pvalue) )   ini$pvalue <- ini.pvalue[i, ]
         a <- SES(i, dataset, max_k = max_k, test = test, threshold = threshold, hash = hash, robust = rob, ini = ini, logged = TRUE)
-        if ( !is.null(ini.pvalue) )   ini.pvalue[i, ] <- a@univ$pvalue
+        ini.pval[i, ] <- a@univ$pvalue
         poies <- a@signatures
         ms[i] <- dim(poies)[1]
         sel <- unique(poies)
@@ -120,12 +123,13 @@ mmhc.skel <- function(dataset, max_k = 3, threshold = 0.05, test = "testIndFishe
         a <- SES(i, dataset, max_k = max_k, test = test, threshold = threshold, hash = hash, robust = rob, ini = ini, logged = TRUE)
         poies <- a@signatures
         sel[ unique(poies) ] <- 1
-        return( c(a@n.tests, dim(poies)[1], sel, a@pvalues) ) 
+        return( c(a@n.tests, dim(poies)[1], sel, a@pvalues, a@univ$pvalue) ) 
       }
         
       stopCluster(cl)
       G <- as.matrix(mod[, 3:(n + 2) ])
-      pvalue <- as.matrix( mod[ , -c(1:(n + 1) ) ] )
+      pvalue <- as.matrix( mod[ , (n + 3):(2 * n + 2) ] )
+      ini.pval <- as.matrix( mod[, (2 * n + 3):(3 * n + 2) ] )
       ntests <- as.vector(mod[, 1])
       ms <- as.vector(mod[, 2])
       runtime <- proc.time() - pa
@@ -139,14 +143,11 @@ mmhc.skel <- function(dataset, max_k = 3, threshold = 0.05, test = "testIndFishe
   if ( symmetry ) {
     a <- which( G == 1  &  t(G) == 1 ) 
     G[ -a ] <- 0
-    p1 <- pvalue[lower.tri(pvalue)]
-    p2 <- pvalue[upper.tri(pvalue)]
-    pval <- Rfast::Pmax(p1, p2)
-    pvalue <- Rfast::squareform(pval)
-    diag(pvalue) <- 1
+    pvalue <- pmax( pvalue, t(pvalue) )
   } else {
     G <- G + t(G)
     G[ G > 0 ] <- 1
+    pvalue <- pmin( pvalue, t(pvalue) )
   }
   
   info <- summary( Rfast::rowsums(G) )
@@ -164,5 +165,6 @@ mmhc.skel <- function(dataset, max_k = 3, threshold = 0.05, test = "testIndFishe
   
   ntests <- c(initial.tests, ntests)
   names(ntests) <- c("univariate tests", nam)
+  if ( is.null(ini.pvalue) )  ini.pvalue <- ini.pval
   list(runtime = runtime, density = density, info = info, ms = ms, ntests = ntests, ini.pvalue = ini.pvalue, pvalue = pvalue, G = G)
 }

@@ -134,8 +134,6 @@
 \alias{ebic.tobit.bsreg}
 \alias{ebic.wr.bsreg}
 \alias{ebic.zip.bsreg}
-\alias{fscore.mxm}
-\alias{euclid_sens.spec.mxm}
 \alias{cat_condis}
 \alias{pearson_condis}
 \alias{pearson_condis.rob}
@@ -290,8 +288,6 @@ Internal functions of Package \pkg{MXM}
 \item ebic.tobit.bsreg( ... )
 \item ebic.wr.bsreg( ... )
 \item ebic.zip.bsreg( ... )
-\item fscore.mxm( ... )
-\item euclid_sens.spec.mxm( ... )
 \item cat_condis( ... )
 \item pearson_condis( ... )
 \item pearson_condis.rob( ... )

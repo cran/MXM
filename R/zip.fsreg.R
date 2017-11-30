@@ -33,7 +33,11 @@ zip.fsreg <- function(target, dataset, threshold = 0.05, wei = NULL, tol = 2, nc
   
   if ( is.null(wei) ) {
     ini <-  - 2 * Rfast::zip.mle(target)$loglik + 2 * con 
-  } else ini <-  - 2 * zipmle.wei(target, wei)$loglik + 2 * con 
+    lgy <- sum( lgamma(target + 1) )  
+  } else  { 
+    ini <-  - 2 * zipmle.wei(target, wei)$loglik + 2 * con 
+    lgy <- sum( wei * lgamma(target + 1) )  
+  }  
   mod <- zip.regs(target, dataset, wei, logged = TRUE, ncores = ncores)[, 1:2]
   mat <- cbind(1:p, mod[, 2], mod[, 1])
   rownames(mat) <- 1:p
@@ -45,7 +49,7 @@ zip.fsreg <- function(target, dataset, threshold = 0.05, wei = NULL, tol = 2, nc
     info[1, ] <- mat[sel, ]
     mat <- mat[-sel, , drop = FALSE] 
     sela <- sel
-    mi <- zip.reg( target, dataset[, sel], wei = wei )
+    mi <- zip.reg( target, dataset[, sel], wei = wei, lgy = lgy )
     tool[1] <-  - 2 * mi$loglik + ( length(mi$be) + 1 ) * con
     moda[[ 1 ]] <- mi
   }  else  {
@@ -66,7 +70,7 @@ zip.fsreg <- function(target, dataset, threshold = 0.05, wei = NULL, tol = 2, nc
     if ( ncores <= 1 ) {
       devi <- dof <- numeric(pn)
       for ( i in 1:pn ) {
-        ww <- zip.reg( target, dataset[, c(sela, mat[i, 1]) ], wei = wei )
+        ww <- zip.reg( target, dataset[, c(sela, mat[i, 1]) ], wei = wei, lgy = lgy )
         devi[i] <-  2 * ww$loglik
         dof[i] <- length( ww$be )          
       }
@@ -78,7 +82,7 @@ zip.fsreg <- function(target, dataset, threshold = 0.05, wei = NULL, tol = 2, nc
       registerDoParallel(cl)
       mata <- matrix(0, pn, 2)  
       mod <- foreach( i = 1:pn, .combine = rbind, .export = "zip.reg" ) %dopar% {
-        ww <- zip.reg( target, dataset[, c(sela, mat[i, 1]) ], wei = wei )
+        ww <- zip.reg( target, dataset[, c(sela, mat[i, 1]) ], wei = wei, lgy = lgy )
         mata[i, ] <- c( 2 * ww$loglik, length( ww$be )  )
       }
       stopCluster(cl)
@@ -90,7 +94,7 @@ zip.fsreg <- function(target, dataset, threshold = 0.05, wei = NULL, tol = 2, nc
     sel <- mat[ina, 1]    
   
     if ( mat[ina, 2] < threshold ) {
-      ma <- zip.reg( target, dataset[, c(sela, sel)], wei = wei )
+      ma <- zip.reg( target, dataset[, c(sela, sel)], wei = wei, lgy = lgy )
       tool[2] <-  - 2 * ma$loglik + ( length(ma$be) + 1 ) * con
     
       if ( tool[ 1 ] - tool[ 2 ] <= tol ) {
@@ -118,7 +122,7 @@ zip.fsreg <- function(target, dataset, threshold = 0.05, wei = NULL, tol = 2, nc
       if (ncores <= 1) {  
         devi = dof = numeric(pn) 
         for ( i in 1:pn ) {
-          ma <- zip.reg( target, dataset[, c(sela, mat[i, 1] ) ], wei = wei )
+          ma <- zip.reg( target, dataset[, c(sela, mat[i, 1] ) ], wei = wei, lgy = lgy )
           devi[i] <-  2 * ma$loglik
           dof[i] = length( ma$be ) 
         }
@@ -129,7 +133,7 @@ zip.fsreg <- function(target, dataset, threshold = 0.05, wei = NULL, tol = 2, nc
         cl <- makePSOCKcluster(ncores)
         registerDoParallel(cl)
         mod <- foreach( i = 1:pn, .combine = rbind, .export = "zip.reg" ) %dopar% {
-          ww <- zip.reg( target, dataset[, c(sela, mat[i, 1]) ], wei = wei )
+          ww <- zip.reg( target, dataset[, c(sela, mat[i, 1]) ], wei = wei, lgy = lgy )
           return( c( 2 * ww$loglik, length( ww$be ) ) )
         }
         stopCluster(cl)
@@ -141,7 +145,7 @@ zip.fsreg <- function(target, dataset, threshold = 0.05, wei = NULL, tol = 2, nc
       sel <- mat[ina, 1]    
       
       if ( mat[ina, 2] < threshold ) {
-        ma <- zip.reg( target, dataset[, c(sela, sel) ], wei = wei )
+        ma <- zip.reg( target, dataset[, c(sela, sel) ], wei = wei, lgy = lgy )
         tool[k] <-  - 2 * ma$loglik + ( length(ma$be) + 1 ) * con
         if ( tool[ k - 1 ] - tool[ k  ] <= tol ) {
           info <- rbind(info, c( 1e300, 0, 0 ) )   
@@ -160,7 +164,7 @@ zip.fsreg <- function(target, dataset, threshold = 0.05, wei = NULL, tol = 2, nc
   d <- length(sela)
   final <- NULL
   if ( d >= 1 ) {
-    final <- zip.reg( target, dataset[, sela], wei = wei ) 
+    final <- zip.reg( target, dataset[, sela], wei = wei, lgy = lgy ) 
     info <- info[1:d, , drop = FALSE]
     info <- cbind( info, tool[ 1:d ] ) 
     colnames(info) <- c( "variables", "p-value", "stat", "BIC" )

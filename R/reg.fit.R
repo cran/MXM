@@ -171,7 +171,7 @@ reg.fit <- function(y, dataset, event = NULL, reps = NULL, group = NULL, slopes 
     colnames(xnew) <- colnames(x)
     pred <- predict(mod, xnew) 	
     result <- list(mod = mod, pred = pred)
-  } else result <- list(mod = mod) 
+  } else result <- list(mod = mod, pred = pred) 
 
   result 
 

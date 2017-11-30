@@ -46,7 +46,7 @@ testIndZIP = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NUL
   #That means that the x variable does not add more information to our model due to an exact copy of this in the cs, so it is independent from the target
   if ( length(cs) != 0 ) {
     if ( is.null(dim(cs)[2]) ) { #cs is a vector
-      if (any(x != cs) == FALSE) { #if(!any(x == cs) == FALSE)
+      if ( identical(x, cs) ) { #if(!any(x == cs) == FALSE)
         if (hash) {#update hash objects
           stat_hash[[key]] <- 0;    #.set(stat_hash , key , 0)
           pvalue_hash[[key]] <- log(1);     #.set(pvalue_hash , key , 1)
@@ -56,7 +56,7 @@ testIndZIP = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NUL
       }
     } else { #more than one var
       for (col in 1:dim(cs)[2]) {
-        if (any(x != cs[,col]) == FALSE) { #if(!any(x == cs) == FALSE)
+        if ( identical(x, cs[,col]) ) { #if(!any(x == cs) == FALSE)
           if (hash) {  #update hash objects
             stat_hash[[key]] <- 0;    #.set(stat_hash , key , 0)
             pvalue_hash[[key]] <- log(1);    #.set(pvalue_hash , key , 1)
@@ -83,16 +83,15 @@ testIndZIP = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NUL
       if (length(cs) == 0) {
         #compute the relationship between x,target directly
         if ( !is.null(wei) )  lik1 <- zipmle.wei(target, wei)  else  lik1 <- Rfast::zip.mle(target)
-        fit2 <- zip.reg(target, x, wei = wei, lgy = NULL) 
+        fit2 <- zip.reg(target, x, wei = wei) 
         stat <- 2 * abs( lik1 - fit2$loglik )
         dof <- length( fit2$be ) - 1
         pvalue <- pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)   
         flag <- 1;
 
       } else {
-        lgy <- sum( lgamma(target + 1) )
-        fit1 <- zip.reg(target, as.data.frame( dataset[, csIndex] ), wei = wei, lgy = lgy) 
-        fit2 <- zip.reg(target, as.data.frame( dataset[, c(csIndex, xIndex)] ), wei = wei, lgy = lgy) 
+        fit1 <- zip.reg( target, as.data.frame( dataset[, csIndex] ), wei = wei ) 
+        fit2 <- zip.reg( target, as.data.frame( dataset[, c(csIndex, xIndex)] ), wei = wei ) 
         stat <- 2 * abs( fit1$loglik - fit2$loglik )
         dof <- length( fit2$be ) - length( fit1$be )
         pvalue <- pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)   

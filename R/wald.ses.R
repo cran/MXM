@@ -78,12 +78,10 @@ wald.ses = function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, i
       if ( is.factor(target) & la == 2  | la == 2 )  {
         dataInfo$target_type = "binary"
         test = "waldBinary";
-        cat('\nTarget variable type: Binary')
       } else if (is.factor(target) & la > 2) {
         dataInfo$target_type = "ordinal"
         test = "waldOrdinal";
-        cat('\nTarget variable type: Ordinal')
-        
+
       } else if ( ( is.numeric(target) || is.integer(target) ) & survival::is.Surv(target) == FALSE ) {
         
         if ( sum( floor(target) - target ) == 0  &  la > 2 )  test = "waldPois";

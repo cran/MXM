@@ -2,14 +2,9 @@
 \alias{testIndReg}
 \alias{testIndRQ}
 \alias{testIndMVreg}
-\alias{testIndIGreg}
-\alias{waldIGreg}
-\alias{waldMMreg}
 \alias{permReg}
 \alias{permRQ}
 \alias{permMVreg}
-\alias{permIGreg}
-\alias{waldIGreg}
 \alias{waldMMreg}
 
 \title{
@@ -33,16 +28,8 @@ testIndMVreg(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL,
 univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
 robust = FALSE)
 
-testIndIGreg(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
-univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
-robust = FALSE)
-
 waldMMreg(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
 univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
-robust = FALSE) 
-
-waldIGreg(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
-univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL,
 robust = FALSE) 
 
 permReg(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
@@ -54,10 +41,6 @@ univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL,
 robust = FALSE, threshold = 0.05, R = 999)
 
 permMVreg(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
-univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
-robust = FALSE, threshold = 0.05, R = 999)
-
-permIGreg(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
 univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
 robust = FALSE, threshold = 0.05, R = 999)
 }
@@ -115,11 +98,11 @@ TestIndRQ offers quantile (median) regression as a robust alternative to linear 
 
 In both cases, if the dependent variable consists of proportions (values between 0 and 1) the logit transformation is applied and the tests are applied then. 
 
-testIndMVreg is for multivariate continuous response variables. Compositional data are positive multivariate data and each vector (observation) sums to the same constant, usually taken 1 for convenience. A check is performed and if such data are found, the additive log-ratio (multivariate logit) transformation (Aitchison, 1986) is applied beforehand. Zeros are not allowed. TestIndIGreg is for non negative data. It fits an inverse gaussian distribution with a log link. Or you cound see it as a non linear Gaussian model where the conditional mean is related with the covariate(s) via an exponential function. 
+testIndMVreg is for multivariate continuous response variables. Compositional data are positive multivariate data and each vector (observation) sums to the same constant, usually taken 1 for convenience. A check is performed and if such data are found, the additive log-ratio (multivariate logit) transformation (Aitchison, 1986) is applied beforehand. Zeros are not allowed. 
 
 For all the available conditional independence tests that are currently included on the package, please see "?CondIndTests".
 
-The Wald test used in "waldIGreg" and "waldMMReg" requires fitting of only one model, the full one. The significance of the variable is examined only. Only continuous (or binary) predictor variables are currently accepted in this test. 
+The Wald test used in "waldMMReg" requires fitting of only one model, the full one. The significance of the variable is examined only. Only continuous (or binary) predictor variables are currently accepted in this test. 
 }
 
 \value{

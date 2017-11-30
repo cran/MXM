@@ -41,13 +41,16 @@ zip.fsreg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = 
   runtime <- proc.time()
 
   devi = dof = numeric(p)
-  ini <- zip.reg(target, iniset, wei = wei )
+  if ( is.null(wei) ) {
+    lgy <- sum( lgamma(target + 1) )  
+  } else   lgy <- sum( wei * lgamma(target + 1) )  
+  ini <- zip.reg(target, iniset, wei = wei, lgy = lgy )
   do <- length(mi$be)
   ini <-   - 2 * mi$loglik 
 
   if (ncores <= 1) {
     for (i in 1:p) {
-      mi <- zip.reg( target, dataset[, c(da, pa + i)], wei = wei )
+      mi <- zip.reg( target, dataset[, c(da, pa + i)], wei = wei, lgy = lgy )
       devi[i] <- 2 * mi$loglik
       dof[i] = length(mi$be) 
     }
@@ -60,7 +63,7 @@ zip.fsreg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = 
     cl <- makePSOCKcluster(ncores)
     registerDoParallel(cl)
     mod <- foreach( i = 1:p, .combine = rbind, .export = "zip.reg" ) %dopar% {
-      ww <- zip.reg( target, dataset[, c(da, pa + i)], wei = wei )
+      ww <- zip.reg( target, dataset[, c(da, pa + i)], wei = wei, lgy = lgy )
       return( c( 2* ww$loglik, length( ww$be ) ) )
     }
     
@@ -80,7 +83,7 @@ zip.fsreg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = 
   if ( mat[sel, 2] < threshold ) {
     info[k, ] <- mat[sel, ]
     mat <- mat[-sel, , drop = FALSE] 
-    mi <- zip.reg( target, dataset[, c(da, sela) ], wei = wei )
+    mi <- zip.reg( target, dataset[, c(da, sela) ], wei = wei, lgy = lgy )
     tool[k] <-  - 2 * mi$loglik + ( length(mi$be) + 1 ) * con
     moda[[ k ]] <- mi
   }
@@ -99,7 +102,7 @@ zip.fsreg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = 
     if ( ncores <= 1 ) {
       devi <- dof <- numeric(pn)
       for ( i in 1:pn ) {
-        ww <- zip.reg( target, dataset[, c(da, sela, pa + mat[i, 1]) ], wei = wei )
+        ww <- zip.reg( target, dataset[, c(da, sela, pa + mat[i, 1]) ], wei = wei, lgy = lgy )
         devi[i] <- 2 * ww$loglik
         dof[i] <- length( ww$be )          
       }     
@@ -110,7 +113,7 @@ zip.fsreg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = 
       cl <- makePSOCKcluster(ncores)
       registerDoParallel(cl)
       mod <- foreach( i = 1:pn, .combine = rbind, .export = "zip.reg" ) %dopar% {
-        ww <- zip.reg( target, dataset[, c(da, sela, pa + mat[i, 1]) ], wei = wei )
+        ww <- zip.reg( target, dataset[, c(da, sela, pa + mat[i, 1]) ], wei = wei, lgy = lgy )
         return( c( 2 * ww$loglik, length( ww$be ) ) )
       }     
       stopCluster(cl)  
@@ -122,7 +125,7 @@ zip.fsreg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = 
     sel <- pa + mat[ina, 1]    
     
     if ( mat[ina, 2] < threshold ) {
-      ma <- zip.reg( target, dataset[, c(da, sela, sel) ], wei = wei )
+      ma <- zip.reg( target, dataset[, c(da, sela, sel) ], wei = wei, lgy = lgy )
       tool[2] <-  - 2 * ma$loglik + ( length(ma$be) + 1 ) * con
       if ( tool[ 1 ] - tool[ 2 ] <= tol ) {
         info <- info    
@@ -149,7 +152,7 @@ zip.fsreg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = 
       if (ncores <= 1) {  
         devi <- dof <- numeric(pn) 
         for ( i in 1:pn ) {
-          ma <- zip.reg( target, dataset[, c(da, sela, pa + mat[i, 1] ) ], wei = wei )
+          ma <- zip.reg( target, dataset[, c(da, sela, pa + mat[i, 1] ) ], wei = wei, lgy = lgy )
           devi[i] <-  2 * ma$loglik
           dof[i] <- length( ma$be ) 
         }
@@ -160,7 +163,7 @@ zip.fsreg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = 
         cl <- makePSOCKcluster(ncores)
         registerDoParallel(cl)
         mod <- foreach( i = 1:pn, .combine = rbind, .export = "zip.reg" ) %dopar% {
-          ww <- zip.reg( target, dataset[, c(da, sela, pa + mat[i, 1]) ], wei = wei )
+          ww <- zip.reg( target, dataset[, c(da, sela, pa + mat[i, 1]) ], wei = wei, lgy = lgy )
           return( c( 2 * ww$loglik, length( ww$be ) ) )
         }
         stopCluster(cl)
@@ -172,7 +175,7 @@ zip.fsreg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = 
       sel <- pa + mat[ina, 1]    
       
       if ( mat[ina, 2] < threshold ) {
-        ma <- zip.reg( target, dataset[, c(da, sela, sel) ], wei = wei )
+        ma <- zip.reg( target, dataset[, c(da, sela, sel) ], wei = wei, lgy = lgy )
         tool[k] <-  - 2 * ma$loglik + ( length(ma$be) + 1 ) * con  
         if ( tool[ k - 1 ] - tool[ k  ] <= tol ) {
           info <- rbind(info, c( 1e300, 0, 0 ) )  
@@ -190,11 +193,11 @@ zip.fsreg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = 
   final <- NULL
   
   if ( d == 0 ) {
-    final <- zip.reg( target, iniset, wei = wei )
+    final <- zip.reg( target, iniset, wei = wei, lgy = lgy )
     info <- NULL
     
   } else {
-    final <- zip.reg( target, dataset[, c(da, sela) ], wei = wei )
+    final <- zip.reg( target, dataset[, c(da, sela) ], wei = wei, lgy = lgy )
     info <- info[1:d, , drop = FALSE]
     info <- cbind( info, tool[ 1:d ] ) 
     colnames(info) <- c( "variables", "log.p-value", "stat", "BIC" )

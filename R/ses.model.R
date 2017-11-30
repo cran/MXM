@@ -53,7 +53,7 @@ ses.model = function(target, dataset, wei = NULL, sesObject, nsignat = 1, test =
       
     } else if ( ci_test == "testIndBeta" ) {     
       mod <- beta.mod( target, dataset[, ypografi ], wei = wei )
-      bic <- - 2 * mod$loglik + ( length( coef(mod$be) ) + 1 ) * log( length(target) )
+      bic <- - 2 * mod$loglik + ( length( mod$be ) + 1 ) * log( length(target) )
       
     } else if ( ci_test == "testIndSpeedglm" ) {
       la <- unique(target) 
@@ -102,7 +102,7 @@ ses.model = function(target, dataset, wei = NULL, sesObject, nsignat = 1, test =
       
     } else if ( ci_test == "testIndTobit" ) {
       mod <- survival::survreg( target ~ ., data = as.data.frame(dataset[, ypografi ]), weights = wei, dist = "gaussian" )
-      bic <-  - 2 * as.numeric( logLik(mod) ) + ( p + 1 ) * log( dim(dataset)[1] )
+      bic <-  - 2 * logLik(mod) + (length(mod$coefficients) + 1) * log( NROW(dataset)  )
       
     } else if (ci_test == "censIndCR") {
       mod = survival::coxph( target ~ ., data = data.frame(dataset[, ypografi ]), weights = wei )
@@ -110,11 +110,11 @@ ses.model = function(target, dataset, wei = NULL, sesObject, nsignat = 1, test =
       
     } else if (ci_test == "censIndWR") {
       mod = survival::survreg( target ~ ., data = as.data.frame(dataset[, ypografi ]), weights = wei )
-      bic = BIC(mod)
+      bic =  - 2 * logLik(mod) + (length(mod$coefficients) + 1) * log( NROW(dataset)  )
 
     } else if (ci_test == "censIndER") {
       mod = survival::survreg( target ~ ., data = data.frame(dataset[, ypografi ]), weights = wei, dist = "exponential" )
-      bic = BIC(mod)
+      bic = - 2 * logLik(mod) + (length(mod$coefficients) + 1) * log( NROW(dataset)  )
       
     } else if (ci_test == "testIndClogit") {
       case = as.logical(target[, 1]);  
@@ -153,7 +153,7 @@ ses.model = function(target, dataset, wei = NULL, sesObject, nsignat = 1, test =
       
      if ( nsignat > nrow(sesObject@signatures) )  nsignat = nrow(sesObject@signatures)
 
-	   con <- log( dim(dataset)[1] )
+	   con <- log( NROW(dataset) )
      bic <- numeric(nsignat)
      ypografi <- sesObject@signatures[1:nsignat, ] 
      ypografi <- as.matrix(ypografi)
@@ -177,7 +177,7 @@ ses.model = function(target, dataset, wei = NULL, sesObject, nsignat = 1, test =
 	  
      } else if ( ci_test == "testIndBeta" ) {
        mod[[ i ]] <- beta.mod( target, dataset[, ypografi[i, ] ], wei = wei )
-       bic[i] <-  - 2 * mod[[ i ]]$loglik + ( length( coef(mod[[ i ]]$be) ) + 1 ) * log( length(target) )
+       bic[i] <-  - 2 * mod[[ i ]]$loglik + ( length( mod[[ i ]]$be ) + 1 ) * con
 
      } else if ( ci_test == "testIndSpeedglm" ) {
        la <- length( unique(target) )  
@@ -204,7 +204,7 @@ ses.model = function(target, dataset, wei = NULL, sesObject, nsignat = 1, test =
 
      } else if ( ci_test == "testIndZIP" ) {
        mod[[ i ]] <- zip.mod( target, dataset[, ypografi[i, ] ], wei = wei )
-       bic[i] <-  -2 * mod[[ i ]]$loglik + ( length( coef(mod[[ i ]]$be) ) + 1) * log( length(target) )
+       bic[i] <-  -2 * mod[[ i ]]$loglik + ( length( coef(mod[[ i ]]$be) ) + 1) * con
 
      } else if ( is.matrix(target)  || ci_test == "testIndMVreg" ) {
        if ( all(target > 0 & target < 1)  &  Rfast::Var( Rfast::rowsums(target) ) == 0 )   target = log( target[, -1]/(target[, 1]) ) 
@@ -233,11 +233,11 @@ ses.model = function(target, dataset, wei = NULL, sesObject, nsignat = 1, test =
 
      } else if (ci_test == "censIndWR") {
        mod[[ i ]] = survival::survreg( target ~ ., data = data.frame( dataset[, ypografi[i, ] ] ), weights = wei )
-       bic[i] = BIC( mod[[ i ]] )
+       bic[i] = - 2 * logLik(mod[[ i ]]) + (length(mod[[ i ]]$coefficients) + 1) * con
 
      } else if (ci_test == "censIndER") {
        mod[[ i ]] = survival::survreg( target ~ ., data = data.frame( dataset[, ypografi[i, ] ] ), weights = wei, dist = "exponential" )
-       bic[i] = BIC( mod[[ i ]] )
+       bic[i] = - 2 * logLik(mod[[ i ]]) + (length(mod[[ i ]]$coefficients) + 1) * con
        
      } else if (ci_test == "testIndClogit") {
        case = as.logical(target[, 1]);  
@@ -272,7 +272,7 @@ ses.model = function(target, dataset, wei = NULL, sesObject, nsignat = 1, test =
     ypografi = sesObject@signatures
     bic = numeric( nrow(ypografi) )
     mod = list()
-    con <- log( dim(dataset)[1] )
+    con <- log( NROW(dataset) )
 	
     for ( i in 1:nrow(ypografi) ) {
 	
@@ -292,7 +292,7 @@ ses.model = function(target, dataset, wei = NULL, sesObject, nsignat = 1, test =
 
      } else if ( ci_test == "testIndBeta" ) {
        mod[[ i ]] <- beta.mod( target, dataset[, ypografi[i, ] ], wei = wei )
-       bic[i] <-  - 2 * mod[[ i ]]$loglik + ( length( coef(mod[[ i ]]$be) ) + 1 ) * log( length(target) )
+       bic[i] <-  - 2 * mod[[ i ]]$loglik + ( length( coef(mod[[ i ]]$be) ) + 1 ) * con
        
      } else if ( ci_test == "testIndSpeedglm" ) {
        if ( length( unique(target) )  == 2 ) {
@@ -347,7 +347,7 @@ ses.model = function(target, dataset, wei = NULL, sesObject, nsignat = 1, test =
 
      } else if (ci_test == "censIndWR") {
        mod[[ i ]] = survival::survreg( target ~ ., data = data.frame( dataset[, ypografi[i, ] ] ), weights = wei )
-       bic[i] = BIC( mod[[ i ]] )
+       bic[i] = - 2 * logLik(mod[[ i ]]) + (length(mod[[ i ]]$coefficients) + 1) * con
 	   
      } else if (ci_test == "censIndER") {
        mod[[ i ]] = survival::survreg( target ~ ., data = data.frame( dataset[, ypografi[i, ] ] ), weights = wei, dist = "exponential" )

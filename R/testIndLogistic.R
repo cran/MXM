@@ -37,12 +37,12 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, wei = NULL, dataInf
   }
   x = dataset[ , xIndex];
   cs = dataset[ , csIndex];
-  if(length(cs) == 0 || is.na(cs) )  cs = NULL;
+  if (length(cs) == 0 || is.na(cs) )  cs = NULL;
   #if x = any of the cs then pvalue = 1 and flag = 1.
   #That means that the x variable does not add more information to our model due to an exact copy of this in the cs, so it is independent from the target
   if ( length(cs) != 0 )  {
     if ( is.null(dim(cs)[2]) ) {  #cs is a vector
-      if ( any(x != cs) == FALSE) {  #if(!any(x == cs) == FALSE)
+      if ( identical(x, cs) ) {  # if(!any(x == cs) == FALSE)
         if (hash) {  #update hash objects
           stat_hash[[key]] <- 0;    #.set(stat_hash , key , 0)
           pvalue_hash[[key]] <- log(1);    #.set(pvalue_hash , key , 1)
@@ -52,7 +52,7 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, wei = NULL, dataInf
       }
     } else { #more than one var
       for ( col in 1:dim(cs)[2] ) {
-        if ( any(x != cs[,col]) == FALSE ) {  #if(!any(x == cs) == FALSE)
+        if ( identical( x, cs[, col] ) ) {  #if(!any(x == cs) == FALSE)
           if (hash) {    #update hash objects
             stat_hash[[key]] <- 0;   #.set(stat_hash , key , 0)
             pvalue_hash[[key]] <- log(1);   #.set(pvalue_hash , key , 1)
@@ -97,7 +97,7 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, wei = NULL, dataInf
     if ( target_type == 1 ) { # binomial
         fit2 = glm(target ~ x, binomial, weights = wei, model = FALSE)
         stat = fit2$null.deviance - fit2$deviance
-        dof = length( coef(fit2) ) - 1
+        dof = length( fit2$coefficients ) - 1
     } else if ( target_type == 2 ) {  # nominal
       #Fitting multinomial Logistic regression
       fit1 <- nnet::multinom(target ~ 1, trace = FALSE, weights = wei)
@@ -114,22 +114,22 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, wei = NULL, dataInf
     }
   } else {
     if ( target_type == 1 ) { # binomial
-      fit1 <- glm(target ~., data = as.data.frame( dataset[, csIndex] ), binomial, weights = wei, model = FALSE)
-      fit2 <- glm(target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ), binomial, weights = wei, model = FALSE)
+      fit1 <- glm(target ~., data = data.frame( dataset[, csIndex] ), binomial, weights = wei, model = FALSE)
+      fit2 <- glm(target ~., data = data.frame( dataset[, c(csIndex, xIndex)] ), binomial, weights = wei, model = FALSE)
       stat <- fit1$deviance - fit2$deviance  
-      dof <- length( coef(fit2) ) - length( coef(fit1) )
+      dof <- length( fit2$coefficients ) - length( fit1$coefficients )
     }
     else if ( target_type == 2 ) { # nominal
       #Fitting multinomial Logistic regression
-      fit1 <- nnet::multinom( target ~., data = as.data.frame( dataset[, csIndex] ), trace = FALSE, weights = wei)
-      fit2 <- nnet::multinom(target ~.,  data = as.data.frame( dataset[, c(xIndex, csIndex)] ), trace = FALSE, weights = wei)
+      fit1 <- nnet::multinom( target ~., data = data.frame( dataset[, csIndex] ), trace = FALSE, weights = wei)
+      fit2 <- nnet::multinom(target ~.,  data = data.frame( dataset[, c(xIndex, csIndex)] ), trace = FALSE, weights = wei)
       stat <- deviance(fit1) - deviance(fit2)
       dof <- length( coef(fit2) ) - length( coef(fit1) )
     }
     else if ( target_type == 3 ) { # ordinal
       #Fitting ordinal Logistic regression
-      fit1 = ordinal::clm( target ~., data = as.data.frame( dataset[, csIndex] ), weights = wei )
-      fit2 <- ordinal::clm(target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ), weights = wei )
+      fit1 = ordinal::clm( target ~., data = data.frame( dataset[, csIndex] ), weights = wei )
+      fit2 <- ordinal::clm(target ~., data = data.frame( dataset[, c(csIndex, xIndex)] ), weights = wei )
       stat <- 2 * fit2$logLik - 2 * fit1$logLik
       dof <- length( coef(fit2) ) - length( coef(fit1) )
     }

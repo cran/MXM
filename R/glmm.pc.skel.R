@@ -1,4 +1,4 @@
-glmm.pc.skel <- function(dataset, id, method = "comb.mm", alpha = 0.01) {
+glmm.pc.skel <- function(dataset, id, method = "comb.mm", alpha = 0.01, stat = NULL, ini.pvalue = NULL) {
   ## dataset contains the data, it must be a matrix 
   ## type can be either "pearson" or "spearman" for continuous variables OR
   ## "cat" for categorical variables
@@ -16,16 +16,19 @@ glmm.pc.skel <- function(dataset, id, method = "comb.mm", alpha = 0.01) {
     diag(G) = -100
     durat = proc.time()
     stat = pv = matrix(0, n, n)
+    if ( is.null(stat) | is.null(ini.pvalue) ) {
+      for ( i in 1:c(n - 1) ) {
+        for ( j in c(i + 1):n ) {
+          ro <- glmm.ci.mm(i, j, cs = NULL, dataset, id) 
+          stat[i, j] <- ro[1]
+          stat[j, i] <- ro[1]
+          pv[i, j] <- ro[2]
+          pv[j, i] <- ro[2]
+        }
+      }   ## end for ( i in 1:c(n - 1) )  
+    } else  pv <- ini.pvalue   
+    ini.pvalue <- pv
     
-    for ( i in 1:c(n - 1) ) {
-      for ( j in c(i + 1):n ) {
-        ro <- glmm.ci.mm(i, j, cs = NULL, dataset, id) 
-        stat[i, j] <- ro[1]
-        stat[j, i] <- ro[1]
-        pv[i, j] <- ro[2]
-        pv[j, i] <- ro[2]
-      }
-    }   ## end for ( i in 1:c(n - 1) )  
     pvalue <- pv  ## p-values
     #stat[ lower.tri(stat) ] = 2
     pv[ lower.tri(pv) ] = 2 
@@ -195,7 +198,7 @@ glmm.pc.skel <- function(dataset, id, method = "comb.mm", alpha = 0.01) {
     names(n.tests) = paste("k=", 0:k, sep ="")
     info <- summary( Rfast::rowsums(G) )
     density <- sum(G) / n / ( n - 1 ) 
-    res <- list(stat = stat, pvalue = pvalue, runtime = durat, kappa = k, n.tests = n.tests, density = density, info = info, G = G, sepset = sepset, title = title )
+    res <- list(stat = stat, ini.pvalue = ini.pvalue, pvalue = pvalue, runtime = durat, kappa = k, n.tests = n.tests, density = density, info = info, G = G, sepset = sepset, title = title )
   ##################
   res
 }

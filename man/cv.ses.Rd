@@ -11,6 +11,8 @@
 \alias{mse.mxm}
 \alias{ci.mxm}
 \alias{ciwr.mxm}
+\alias{fscore.mxm}
+\alias{euclid_sens.spec.mxm}
 \alias{glm.mxm}
 \alias{lm.mxm}
 \alias{rq.mxm}
@@ -88,15 +90,15 @@ metric = NULL, modeler = NULL, mmpc_test = NULL, R = 999, ncores = 1)
 }
   \item{metric}{
   A metric function provided by the user. If NULL the following functions will be used: auc.mxm, mse.mxm, ci.mxm for classification, regression and survival analysis tasks, respectively. See details for more.
- If you know what you have put it here to avoid the function chopsing somehting else. \bold{Note} that you put these words as they are, without "".  
+ If you know what you have put it here to avoid the function choosing somehting else. \bold{Note} that you put these words as they are, without "".  
 }
   \item{modeler}{
   A modeling function provided by the user. If NULL the following functions will be used: glm.mxm, lm.mxm, coxph.mxm for classification, regression and survival analysis tasks, respectively. See details for more.
-   If you know what you have put it here to avoid the function chopsing somehting else. \bold{Note} that you put these words as they are, without "". 
+   If you know what you have put it here to avoid the function choosing somehting else. \bold{Note} that you put these words as they are, without "". 
 }
   \item{ses_test}{
   A function object that defines the conditional independence test used in the SES function (see also SES help page). If NULL, "testIndFisher", "testIndLogistic" and "censIndCR" 
-  are used for classification, regression and survival analysis tasks, respectively. If you know what you have put it here to avoid the function chopsing somehting else. 
+  are used for classification, regression and survival analysis tasks, respectively. If you know what you have put it here to avoid the function choosing somehting else. 
   Not all tests can be included here. "testIndClogit", "testIndMVreg", "testIndIG", "testIndGamma", "testIndZIP" and "testIndTobit" are anot available at the moment.  
 }
 \item{mmpc_test}{
@@ -123,13 +125,17 @@ The output of a metric function is a single numeric value. \bold{Higher values i
 
 The metric functions that are currently supported are:
 \itemize{
-\item auc.mxm: "area under the receiver operator characteristic curve" metric, as provided in the package ROCR.
-\item acc.mxm: accuracy metric.
+\item auc.mxm: "area under the receiver operator characteristic curve" metric for binary logistic regression.
+\item acc.mxm: accuracy for binary logistic regression.
+\item fscore.mxm: F score for binary logistic regression.
+\item euclid_sens.spec.mxm: Euclidean norm of 1 - sensititivy and 1 - specificity for binary logistic regression.
+\item acc_multinom.mxm: accuracy or multinomial logistic regression.
 \item mse.mxm: -1 * (mean squared error), for robust and non robust linear regression and median (quantile) regression.
-\item ci.mxm: 1 - concordance index as provided in the rcorr.cens function from the Hmisc package. This is to be used with the Cox proportional hazards model only.
-\item ciwr.mxm concordance index as provided in the rcorr.cens function from the Hmisc package. This is to be used with the Weibull regression model only.
+\item ci.mxm: 1 - concordance index as provided in the rcorr.cens function from the suvriva package. This is to be used with the Cox proportional hazards model only.
+\item ciwr.mxm concordance index as provided in the rcorr.cens function from the survival package. This is to be used with the Weibull regression model only.
 \item poisdev.mxm: Poisson regression deviance.
 \item nbdev.mxm: Negative binomial regression deviance. 
+\item binomdev.mxm: Negative binomial regression deviance. 
 \item ord_mae.mxm: Ordinal regression mean absolute error. 
 }
 Usage: metric(predictions, test_target)

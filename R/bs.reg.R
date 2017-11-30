@@ -53,7 +53,8 @@ bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
   }
    
   av_models = c("testIndReg", "testIndBeta", "censIndCR", "testIndRQ", "censIndWR", "testIndLogistic", "testIndPois", "testIndNB", 
-                "testIndZIP", "testIndSpeedglm", "testIndBinom", "testIndGamma", "testIndNormLog", "testIndTobit", "testIndClogit");
+                "testIndZIP", "testIndSpeedglm", "testIndBinom", "testIndGamma", "testIndNormLog", "testIndTobit", "testIndClogit",
+                "testIndFisher");
   
   ci_test <- test
   test <- match.arg(test, av_models, TRUE);
@@ -65,7 +66,10 @@ bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
     
     if ( test == "testIndPois"  ||  test == "testIndReg"  ||  ( test == "testIndLogistic"  &  la == 2 )  ||  test == "testIndSpeedglm" || test == "testIndBinom" ) {
       res <- glm.bsreg(target = target, dataset = dataset, wei = wei, threshold = exp( threshold ), heavy = heavy, robust = robust) 
-	   
+      
+    } else  if ( test == "testIndFisher" ) {
+      res <- cor.bsreg(target, dataset, threshold = exp( threshold ) ) 
+        
     } else if ( test == "testIndBeta" ) {
       res <- beta.bsreg(target = target, dataset = dataset, wei = wei, threshold = exp( threshold ) ) 
 	  

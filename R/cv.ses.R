@@ -259,7 +259,7 @@ fscore.mxm <- function(predictions, test_target, theta = NULL) {
   predictions[predictions <= 0.5] <- 0
   tab <- table(test_target, predictions)
   prec <- tab[2, 2]/(tab[2, 2] + tab[1, 2])
-  rec <- tab[2, 2] / (tab[2, 2,] + tab[2, 1])
+  rec <- tab[2, 2] / (tab[2, 2] + tab[2, 1])
   2 * prec * rec / (prec + rec)
 }
 
@@ -270,7 +270,7 @@ euclid_sens.spec.mxm <- function(predictions, test_target, theta = NULL) {
   predictions[predictions <= 0.5] <- 0
   tab <- table(test_target, predictions)
   spec <- tab[1, 1]/(tab[1, 1] + tab[1, 2])
-  sens <- tab[2, 2] / (tab[2, 2,] + tab[2, 1])
+  sens <- tab[2, 2] / (tab[2, 2] + tab[2, 1])
   sqrt( (1 - sens)^2 + (1 - spec)^2 )
 }
 
@@ -342,10 +342,6 @@ nbdev.mxm <- function(predictions, test_target, theta) {
 
 ## binary logistic regression
 glm.mxm <- function(train_target, sign_data, sign_test, wei) {
-#   if(dim(sign_data)[2] == 1)
-#   {
-#     return(NULL);
-#   }else{
     #using this variable x to overcome the structure naming problems when we have just one variable as a sign_data. For more on this contact athineo ;)
     x <- sign_data
     sign_model <- glm( train_target ~ ., data = data.frame(x), family = binomial(), weights = wei );
@@ -461,10 +457,3 @@ weibreg.mxm <- function(train_target, sign_data, sign_test, wei) {
   list(preds = preds, theta = NULL)
 }
 
-exporeg.mxm <- function(train_target, sign_data, sign_test, wei) {
-  x <- sign_data
-  sign_model <- survreg(train_target~., data = data.frame(x), dist = "exponential", weights = wei)
-  x <- sign_test
-  preds <- predict(sign_model, newdata = data.frame(x) )
-  list(preds = preds, theta = NULL)
-}

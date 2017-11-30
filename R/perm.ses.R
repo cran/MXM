@@ -90,14 +90,11 @@ perm.ses = function(target, dataset , max_k = 3 , threshold = 0.05 , test = NULL
         test = "permLogistic";
         if( is.ordered(target) ) {
           dataInfo$target_type = "ordinal";
-          cat('\nTarget variable type: Ordinal')
         } else {
           if ( la == 2 ) {
             dataInfo$target_type = "binary"
-            cat('\nTarget variable type: Binomial')
           } else {
             dataInfo$target_type = "nominal"
-            cat('\nTarget variable type: Nominal')
           }
         }
         
@@ -124,14 +121,11 @@ perm.ses = function(target, dataset , max_k = 3 , threshold = 0.05 , test = NULL
     if ( test == "permLogistic") {
       if( is.ordered(target) )  {
         dataInfo$target_type = "ordinal";
-        cat('\nTarget variable type: Ordinal')
       } else {
         if ( la == 2 )  {
           dataInfo$target_type = "binary"
-          cat('\nTarget variable type: Binomial')
         } else {
           dataInfo$target_type = "nominal"
-          cat('\nTarget variable type: Nominal')
         }
       }
     }

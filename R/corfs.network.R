@@ -13,7 +13,7 @@ corfs.network <- function(x, threshold = 0.05, tolb = 2, tolr = 0.02, stopping =
          a <- Rfast::cor.fsreg(x[, i], x[, -i], threshold = threshold, tolb = tolb, tolr = tolr, stopping = stopping)[, 1]
          sel <- id[a]        
          G[i, sel] <- 1 
-		 counter <- counter + sum(D - 0:a)
+		     counter <- counter + sum(D - 0:a)
        } 
        runtime <- proc.time() - pa
    
@@ -33,7 +33,7 @@ corfs.network <- function(x, threshold = 0.05, tolb = 2, tolr = 0.02, stopping =
     }    
     stopCluster(cl)
     G <- as.matrix(mod[, -1])
-	counter <- sum(mod[, 1])
+	  counter <- sum(mod[, 1])
     runtime <- proc.time() - pa
   }	   
   

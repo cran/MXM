@@ -48,7 +48,6 @@ mmpc.model = function(target, dataset, wei = NULL, mmpcObject, test = NULL) {
       }  
       
     } else if ( ci_test == "testIndSpearman" || ci_test == "testIndRQ" ) {
-      if ( all( target>0 & target<1 ) )  target = log( target/(1 - target) ) 
 
       mod <- quantreg::rq( target ~., data = as.data.frame(dataset[, ypografi ]), weights = wei  )
   	  la <- logLik(mod)
@@ -56,7 +55,7 @@ mmpc.model = function(target, dataset, wei = NULL, mmpcObject, test = NULL) {
 
     } else if ( ci_test == "testIndBeta" ) {
       mod <- beta.mod( target, dataset[, ypografi ], wei = wei )
-      bic <-  - 2 * mod$loglik + ( length( coef(mod$be) ) + 1 ) * log( length(target) )
+      bic <-  - 2 * mod$loglik + ( length( mod$be ) + 1 ) * log( length(target) )
       
     } else if ( ci_test == "testIndSpeedglm" ) {
       la <- length( unique(target) )
@@ -69,16 +68,16 @@ mmpc.model = function(target, dataset, wei = NULL, mmpcObject, test = NULL) {
         bic <-  - 2 * as.numeric( logLik(mod) ) + length( coef(mod) ) * log( length(target) )
 		
       } else {
-        mod <- speedglm::speedlm( target ~ ., data = as.data.frame(dataset[, ypografi ]), weights = wei )
+        mod <- speedglm::speedlm( target ~ ., data = data.frame(dataset[, ypografi ]), weights = wei )
         bic <-  - 2 * as.numeric( logLik(mod) ) + ( length( coef(mod) ) + 1 ) * log( length(target) )
       }  
       
     } else if ( ci_test == "testIndPois") {
-      mod <- glm( target ~ ., data = as.data.frame(dataset[, ypografi ]), family = poisson, weights = wei )
+      mod <- glm( target ~ ., data = data.frame(dataset[, ypografi ]), family = poisson, weights = wei )
       bic <- BIC( mod )
 
     } else if ( ci_test == "testIndNB" ) {
-      mod <- MASS::glm.nb( target ~ ., data = as.data.frame(dataset[, ypografi ]), weights = wei )
+      mod <- MASS::glm.nb( target ~ ., data = data.frame(dataset[, ypografi ]), weights = wei )
       bic <- BIC(mod)
       
     } else if ( ci_test == "testIndZIP" ) {
@@ -86,46 +85,46 @@ mmpc.model = function(target, dataset, wei = NULL, mmpcObject, test = NULL) {
       bic <-  -2 * mod$loglik + ( length( coef(mod$be) ) + 1) * log( length(target) )
       
     } else if (ci_test == "testIndIGreg") {
-      mod <- glm(target ~., data = as.data.frame( dataset[, ypografi] ), family = inverse.gaussian(log), weights = wei)
+      mod <- glm(target ~., data = data.frame( dataset[, ypografi] ), family = inverse.gaussian(log), weights = wei)
       bic <- BIC(mod)
       
     } else if ( is.matrix(target)  & ci_test == "testIndMVreg" ) {
       if ( all(target > 0 & target < 1)  &  Rfast::Var( Rfast::rowsums(target) ) == 0 )   target = log( target[, -1]/(target[, 1]) ) 
-      mod <- lm( target ~., data = as.data.frame(dataset[, ypografi ]), weights = wei )
+      mod <- lm( target ~., data = data.frame(dataset[, ypografi ]), weights = wei )
       bic <- NULL
       
     } else if ( is.matrix(target)   &  ci_test == "testIndBinom" ) {
-      mod <- glm( target[, 1] /target[, 2] ~., data = as.data.frame(dataset[, ypografi ]), weights = target[, 2], family = binomial )
+      mod <- glm( target[, 1] /target[, 2] ~., data = data.frame(dataset[, ypografi ]), weights = target[, 2], family = binomial )
       bic <- BIC(mod)
       
     } else if ( ci_test == "testIndGamma" ) {
-      mod <- glm( target ~ ., data = as.data.frame(dataset[, ypografi ]), weights = wei, family = Gamma(link = log) )
+      mod <- glm( target ~ ., data = data.frame(dataset[, ypografi ]), weights = wei, family = Gamma(link = log) )
       bic <- BIC(mod)
       
     } else if ( ci_test == "testIndNormLog" ) {
-      mod <- glm( target ~ ., data = as.data.frame(dataset[, ypografi ]), weights = wei, family = gaussian(link = log) )
+      mod <- glm( target ~ ., data = data.frame(dataset[, ypografi ]), weights = wei, family = gaussian(link = log) )
       bic <- BIC(mod)
       
     } else if ( ci_test == "testIndTobit" ) {
-      mod <- survival::survreg( target ~ ., data = as.data.frame(dataset[, ypografi ]), weights = wei, dist = "gaussian" )
-      bic <-  - 2 * as.numeric( logLik(mod) ) + ( p + 1 ) * log( dim(dataset)[1] )
+      mod <- survival::survreg( target ~ ., data = data.frame(dataset[, ypografi ]), weights = wei, dist = "gaussian" )
+      bic <-  - 2 * as.numeric( logLik(mod) ) + ( length( mod$coefficients ) + 1 ) * log( NROW(dataset) )
       
     } else if (ci_test == "censIndCR") {
-      mod <- survival::coxph( target ~ ., data = as.data.frame(dataset[, ypografi ]), weights = wei )
+      mod <- survival::coxph( target ~ ., data = data.frame(dataset[, ypografi ]), weights = wei )
       bic <- BIC(mod)
       
     } else if (ci_test == "censIndWR") {
-      mod <- survival::survreg( target ~ ., data = as.data.frame(dataset[, ypografi ]), weights = wei )
-      bic <- BIC(mod)
-
+      mod <- survival::survreg( target ~ ., data = data.frame(dataset[, ypografi ]), weights = wei )
+      bic <-  - 2 * as.numeric( logLik(mod) ) + ( length( mod$coefficients ) + 1 ) * log( NROW(dataset) )
+      
     } else if (ci_test == "censIndER") {
-      mod <- survival::survreg( target ~ ., data = as.data.frame(dataset[, ypografi ]), weights = wei, distribution = "exponential" )
-      bic <- BIC(mod)
+      mod <- survival::survreg( target ~ ., data = data.frame(dataset[, ypografi ]), weights = wei, distribution = "exponential" )
+      bic <-  - 2 * as.numeric( logLik(mod) ) + ( length( mod$coefficients ) + 1 ) * log( NROW(dataset) )
       
     } else if (ci_test == "testIndClogit") {
       case <- as.logical(target[, 1]);  
       id <- target[, 2]
-      mod <- survival::clogit(case ~ . + strata(id), data = as.data.frame( dataset[ , ypografi] ) )  ## wieghts are ignored here anyway
+      mod <- survival::clogit(case ~ . + strata(id), data = data.frame( dataset[ , ypografi] ) )  ## wieghts are ignored here anyway
       bic <- BIC(mod)
       
     } else if ( ci_test == "testIndLogistic" || ci_test == "gSquare" ) {

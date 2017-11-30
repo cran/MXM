@@ -172,14 +172,11 @@ MMPC = function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini =
         test = "testIndLogistic";
         if ( is.ordered(target) )  {
           dataInfo$target_type = "ordinal";
-          cat('\nTarget variable type: Ordinal')
         } else {
           if ( la == 2 ) {
             dataInfo$target_type = "binary"
-            cat('\nTarget variable type: Binomial')
           } else {
             dataInfo$target_type = "nominal"
-            cat('\nTarget variable type: Nominal')
           }
         }
         
@@ -206,15 +203,12 @@ MMPC = function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini =
     if (test == "testIndLogistic") {
       if ( is.ordered(target) )  {
         dataInfo$target_type = "ordinal";
-        cat('\nTarget variable type: Ordinal')
 
       } else {
         if ( la == 2 ) {
           dataInfo$target_type = "binary"
-          cat('\nTarget variable type: Binomial')
         } else {
           dataInfo$target_type = "nominal"
-          cat('\nTarget variable type: Nominal')
         }
       }
     }
@@ -336,13 +330,13 @@ MMPC = function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini =
   #   print(results$selectedVars)
   #   print(results$selectedVarsOrder)
   #backward phase
-  varsToIterate = results$selectedVars
+  varsToIterate <- results$selectedVarsOrder
   
   if ( backward  & length( varsToIterate ) > 0  ) {
     varsOrder <- results$selectedVarsOrder
-    bc <- mmpcbackphase(target, dataset[, varsToIterate, drop = FALSE], test = test, wei = wei, max_k = max_k, threshold = exp(threshold), robust = robust )
+    bc <- mmpcbackphase(target, dataset[, varsToIterate, drop = FALSE], test = test, wei = wei, max_k = max_k, threshold = exp(threshold), dataInfo = dataInfo, robust = robust )
     met <- bc$met
-    results$selectedVars = varsToIterate[met]
+    results$selectedVars <- varsOrder[met]
     results$selectedVarsOrder = varsOrder[met]
     if (logged) {
       results$pvalues[varsToIterate] = bc$pvalue

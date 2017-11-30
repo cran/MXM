@@ -47,7 +47,7 @@ permLogistic = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo =
   #That means that the x variable does not add more information to our model due to an exact copy of this in the cs, so it is independent from the target
   if ( length(cs) != 0 )  {
     if ( is.null(dim(cs)[2]) ) {  #cs is a vector
-      if ( any(x != cs) == FALSE) {  #if(!any(x == cs) == FALSE)
+      if ( identical(x, cs) ) {  #if(!any(x == cs) == FALSE)
         if (hash) {  #update hash objects
           stat_hash[[key]] <- 0;    #.set(stat_hash , key , 0)
           pvalue_hash[[key]] <- 1;    #.set(pvalue_hash , key , 1)
@@ -57,12 +57,12 @@ permLogistic = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo =
       }
     } else { #more than one var
       for ( col in 1:dim(cs)[2] ) {
-        if ( any(x != cs[,col]) == FALSE ) {  #if(!any(x == cs) == FALSE)
+        if ( identical(x, cs[, col]) ) {  #if(!any(x == cs) == FALSE)
           if (hash) {    #update hash objects
             stat_hash[[key]] <- 0;   #.set(stat_hash , key , 0)
             pvalue_hash[[key]] <- 1;   #.set(pvalue_hash , key , 1)
           }
-          results <- list(pvalue = 1, stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+          results <- list(pvalue = 1, stat = 0, flag = 1, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
           return(results);
         }
       }
@@ -94,7 +94,7 @@ permLogistic = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo =
       fit2 = glm(target ~ x, binomial, weights = wei, model = FALSE)
       dev2 <- fit2$deviance
       stat = fit2$null.deviance - dev2
-	  if ( stat > 0 ) {
+	    if ( stat > 0 ) {
         step <- 0
         j <- 1		
         n <- length(target)
@@ -112,7 +112,7 @@ permLogistic = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo =
       fit2 <- nnet::multinom(target ~ x, trace = FALSE, weights = wei)
       dev2 <- fit2$deviance
       stat <- fit1$deviance - dev2
-	  if ( stat > 0 ) {  
+	    if ( stat > 0 ) {  
         step <- 0
         j <- 1		
         n <- length(target)
@@ -131,7 +131,7 @@ permLogistic = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo =
       fit2 <- ordinal::clm(target ~ x, weights = wei )
       lik2 <- as.numeric( fit2$logLik )
       stat <- 2 * lik2 - 2 * fit1$logLik
- 	  if ( stat > 0 ) {
+ 	    if ( stat > 0 ) {
         step <- 0
         j <- 1		
         n <- length(target)
@@ -150,7 +150,7 @@ permLogistic = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo =
       fit2 <- glm(target ~ cs + x, binomial, weights = wei, model = FALSE)
       dev2 <- fit2$deviance  
       stat <- fit1$deviance - dev2
-	  if (stat > 0) {
+	    if (stat > 0) {
         step <- 0
         j <- 1		
         n <- length(target)
@@ -169,7 +169,7 @@ permLogistic = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo =
       fit2 <- nnet::multinom(target ~ cs + x, trace = FALSE, weights = wei)
       dev2 <- deviance(fit2)
       stat <- deviance(fit1) - dev2
- 	  if (stat > 0) {
+ 	    if (stat > 0) {
         step <- 0
         j <- 1		
         n <- length(x)

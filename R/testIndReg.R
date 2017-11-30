@@ -64,7 +64,7 @@ testIndReg = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = N
   #That means that the x variable does not add more information to our model due to an exact copy of this in the cs, so it is independent from the target
   if ( length(cs) != 0 ) {
     if ( is.null(dim(cs)[2]) ) {   #cs is a vector
-      if (any(x != cs) == FALSE) {   #if(!any(x == cs) == FALSE)
+      if (identical(x, cs) ) {   #if(!any(x == cs) == FALSE)
         if (hash) {    #update hash objects
           stat_hash[[key]] <- 0;   #.set(stat_hash , key , 0)
           pvalue_hash[[key]] <- log(1);   #.set(pvalue_hash , key , 1)
@@ -74,7 +74,7 @@ testIndReg = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = N
       }
     } else {     #more than one var
       for ( col in 1:dim(cs)[2] ) {
-        if (any(x != cs[,col]) == FALSE) {    #if(!any(x == cs) == FALSE)
+        if (identical(x, cs[, col]) ) {    #if(!any(x == cs) == FALSE)
           if (hash) {     #update hash objects
             stat_hash[[key]] <- 0;    #.set(stat_hash , key , 0)
             pvalue_hash[[key]] <- log(1);    #.set(pvalue_hash , key , 1)
@@ -94,7 +94,7 @@ testIndReg = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = N
        fit1 = MASS::rlm(target ~ 1, weights = wei, maxit= 2000, method = "MM")
        fit2 = MASS::rlm(target ~ x, weights = wei, maxit = 2000, method = "MM")
        stat = 2 * as.numeric( logLik(fit2) ) - 2 * as.numeric( logLik(fit1) )
-       dof = length( coef(fit2) ) - 1
+       dof = length( fit2$coefficients ) - 1
        pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
       
     } else {
@@ -116,14 +116,14 @@ testIndReg = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = N
        } else  fit1 = MASS::rlm(target ~ ., data = data.frame(dataset[,  csIndex]), maxit = 2000, method = "MM" )
        fit2 = MASS::rlm(target ~ ., data = data.frame(dataset[, c(csIndex, xIndex)]), maxit = 2000, method = "MM" )
        stat = 2 * as.numeric( logLik(fit2) ) - 2 * as.numeric( logLik(fit1) )
-       dof = length( coef(fit2) ) - length( coef(fit1) ) 
+       dof = length( fit2$coefficients ) - length( fit1$coefficients ) 
        pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
      } else {
        fit1 <- lm( target ~., data = as.data.frame( dataset[, csIndex] ), weights = wei )
-       fit2 <- lm( target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ), weights = wei )
-       mod <- anova(fit1, fit2) 
+       mod <- add1(fit1, ~. + dataset[, xIndex], test = "F")
        stat <- mod[2, 5]
-       df1 <- mod[2, 3]    ;   df2 <- mod[2, 1]
+       df1 <- mod[2, 1]   
+       df2 <-  fit1$df.residual - df1
        pvalue <- pf(stat, df1, df2, lower.tail = FALSE, log.p = TRUE)
      }
    }

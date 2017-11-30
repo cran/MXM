@@ -40,7 +40,8 @@ perm.Internalmmpc = function(target, dataset, max_k, threshold, test=NULL, ini=N
   selectedVarsOrder = numeric(varsize);
   #select the variable with the highest association
   #selectedVar = which(flags == 1 & stats == stats[[which.max(stats)]]);
-  selectedVar = which(flags == 1 & pvalues == pvalues[[which.min(pvalues)]]);
+  poio <- which( flags == 1 & pvalues == pvalues[[ which.min(pvalues) ]] )
+  selectedVar <- poio[ which.max( stats[poio] ) ];
   selectedVars[selectedVar] = 1;
   selectedVarsOrder[selectedVar] = 1; #CHANGE
   #print(paste("rep: ",0,", selected var: ",selectedVar,", pvalue = ",pvalues[selectedVar]))

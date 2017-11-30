@@ -69,12 +69,12 @@ fs.reg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, te
     
     result <- glm.fsreg( target, dataset, wei = wei, threshold = exp(threshold), tol = tol, robust = robust, ncores = ncores) 
 
-  } else if ( test == "testIndFisher"  &  is.matrix(dataset)  &  is.null(wei) & is.null(ini) ) {
+  } else if ( test == "testIndFisher"  &  is.matrix(dataset)  &  is.null(wei) ) {
     
-	if (stopping == "adjrsq")  stopping = "ar2"
+	  if (stopping == "adjrsq")  stopping = "ar2"
     result <- Rfast::cor.fsreg(target, dataset, threshold = exp(threshold), tolb = tol, tolr = tol, stopping = stopping)
     
-  } else if ( test == "testIndReg" || ( test == "testIndFisher"  &  !is.matrix(dataset) )  || (test == "testIndFisher"  &  !is.null(wei) ) ) {
+  } else if ( test == "testIndReg" || ( test == "testIndFisher"  &  !is.matrix(dataset) ) ) {
     
     result <- lm.fsreg( target, dataset, wei = wei, threshold = exp(threshold), stopping = stopping, tol = tol, robust = robust, ncores = ncores ) 
   

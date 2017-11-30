@@ -38,8 +38,11 @@ bic.zipfsreg <- function( target, dataset, wei = NULL, tol = 2, ncores = 1 ) {
   
   if ( is.null(wei) ) {
     ini <-  - 2 * Rfast::zip.mle(target)$loglik + 2 * con 
-  } else ini <-  - 2 * zipmle.wei(target, wei)$loglik + 2 * con 
-  
+    lgy <- sum( gamma(target + 1) ) 
+  } else {
+    ini <-  - 2 * zipmle.wei(target, wei)$loglik + 2 * con 
+    lgy <- sum( wei * gamma(target + 1) ) 
+  }
   bico <- zip.regs(target, dataset, wei, logged = TRUE, ncores = ncores)[, 3]
   mat <- cbind(1:p, bico)
   bico <- NULL

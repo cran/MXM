@@ -6,10 +6,10 @@ compare_p_values = function(pval, pval2, stat, stat2) {
       pval2 = 0.0;
       return(FALSE);#(pval < pval2);
     } else {
-      if (pval == pval2 ){
-        return(stat > stat2);
+      if ( pval == pval2 ) {
+        return (stat > stat2);
       } else {
-       return(pval < pval2);
+       return ( pval < pval2);
       }
     }
   }

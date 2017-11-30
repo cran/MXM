@@ -13,7 +13,7 @@ auc(group, preds, roc = FALSE, cutoffs = NULL)
 }
 
 \arguments{
-\item{group}{z
+\item{group}{
 A numerical vector with the predicted values of each group as 0 and 1.
 }
 \item{preds}{

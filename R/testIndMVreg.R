@@ -64,22 +64,22 @@ testIndMVreg = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=N
   #That means that the x variable does not add more information to our model due to an exact copy of this in the cs, so it is independent from the target
   if ( length(cs) != 0 ) {
     if ( is.null(dim(cs)[2]) )  {     #cs is a vector
-      if ( any(x != cs) == FALSE)  {    #if(!any(x == cs) == FALSE)
+      if ( identical(x, cs) )  {    #if(!any(x == cs) == FALSE)
         if ( hash )  {    #update hash objects
           stat_hash$key <- 0;#.set(stat_hash , key , 0)
           pvalue_hash$key <- log(1);#.set(pvalue_hash , key , 1)
         }
-        results <- list(pvalue = log(1), stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+        results <- list(pvalue = log(1), stat = 0, flag = 1, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
         return(results);
       }
     } else { #more than one var
       for (col in 1:dim(cs)[2])  {
-        if (any(x != cs[,col]) == FALSE)  {   #if(!any(x == cs) == FALSE)
+        if ( identical(x, cs[, col]) )  {   #if(!any(x == cs) == FALSE)
           if ( hash )  {    #update hash objects
             stat_hash$key <- 0;#.set(stat_hash , key , 0)
             pvalue_hash$key <- log(1);#.set(pvalue_hash , key , 1)
           }
-          results <- list(pvalue = log(1), stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+          results <- list(pvalue = log(1), stat = 0, flag = 1, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
           return(results);
         }
       }
@@ -91,25 +91,25 @@ testIndMVreg = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=N
       pvalue = univariateModels$pvalue[[xIndex]];
       stat = univariateModels$stat[[xIndex]];
       flag = univariateModels$flag[[xIndex]];
-      results <- list(pvalue = pvalue, stat = stat, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+      results <- list(pvalue = pvalue, stat = stat, flag = flag, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
       return(results);
     }
     #compute the relationship between x,target directly
     fit2 = lm(target ~ x, weights = wei)
-  } else  fit2 = lm(target ~., data = as.data.frame(dataset[ , c(csIndex, xIndex)] ), weights = wei )  
-    if ( any( is.na( coef(fit2) ) ) ) {
+  } else  fit2 = lm(target ~., data = data.frame(dataset[ , c(csIndex, xIndex)] ), weights = wei )  
+    if ( any( is.na( fit2$coefficients ) ) ) {
     stat <- 0
-	pvalue <- log(1)
-	flag <- 1
+	  pvalue <- log(1)
+	  flag <- 1
 	} else {
-	  fit1 = lm(target ~., data = as.data.frame(dataset[ , csIndex] ), weights = wei )  
-      mod = anova( fit1, fit2 ) 
-      stat = mod[2, 5]     ## aproximate F test
-      df1 = abs(mod[2, 2])
-      df2 = mod[2, 1]
-      pvalue = pf(stat, df1, df2, lower.tail= FALSE, log.p = TRUE)
-      flag = 1;
-    }
+	  fit1 = lm(target ~., data = data.frame(dataset[ , csIndex] ), weights = wei )  
+    mod = anova( fit1, fit2 ) 
+    stat = mod[2, 5]     ## aproximate F test
+    df1 = abs(mod[2, 2])
+    df2 = mod[2, 1]
+    pvalue = pf(stat, df1, df2, lower.tail= FALSE, log.p = TRUE)
+    flag = 1;
+  }
   #last error check
   if ( is.na(pvalue) || is.na(stat) ) {
     pvalue = log(1);

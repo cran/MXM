@@ -1,4 +1,4 @@
-pc.skel <- function(dataset, method = "pearson", alpha = 0.01, rob = FALSE, R = 1) {
+pc.skel <- function(dataset, method = "pearson", alpha = 0.01, rob = FALSE, R = 1, stat = NULL, ini.pvalue = NULL) {
   ## dataset contains the data, it must be a matrix 
   ## type can be either "pearson" or "spearman" for continuous variables OR
   ## "cat" for categorical variables
@@ -72,66 +72,72 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.01, rob = FALSE, R = 
     
     if ( method == "pearson") {
       
-      stat = pv = matrix(0, n, n)
-      for ( i in 1:c(n - 1) ) {
-        for ( j in c(i + 1):n ) {
-          ro <- condi(i, j, 0, dataset, type = "pearson", rob = TRUE) 
-          stat[i, j] = ro[1]
-          stat[j, i] = ro[1]
-          pv[i, j] = ro[2]
-          pv[j, i] = ro[2]
-        }
-      }  ## end for ( i in 1:c(n - 1) )
+      if ( is.null(stat) | is.null(ini.pvalue) ) {
+        stat = pv = matrix(0, n, n)
+        for ( i in 1:c(n - 1) ) {
+          for ( j in c(i + 1):n ) {
+            ro <- condi(i, j, 0, dataset, type = "pearson", rob = TRUE) 
+            stat[i, j] = ro[1]
+            stat[j, i] = ro[1]
+            pv[i, j] = ro[2]
+            pv[j, i] = ro[2]
+          }
+        }  ## end for ( i in 1:c(n - 1) )
+      } else    pv <- ini.pvalue
       pvalue = pv  ## p-values
       dof = matrix(m - 3, n, n)
       stadf = stat / dof
       
     } else if ( method == "distcor" )  {
-      
-      stat = pv = matrix(0, n, n)
-      for ( i in 1:c(n - 1) ) {
-        for ( j in c(i + 1):n ) {
-          ro <- dist.condi(i, j, 0, dataset, R = R) 
-          stat[i, j] <- ro[1]
-          stat[j, i] <- ro[1]
-          pv[i, j] <- ro[2]
-          pv[j, i] <- ro[2]
-        }
-      }  ## end for ( i in 1:c(n - 1) )
-      pvalue <- pv  ## p-values
-      stadf <- stat 
-      
+      if ( is.null(stat) | is.null(ini.pvalue) ) {
+        stat = pv = matrix(0, n, n)
+        for ( i in 1:c(n - 1) ) {
+          for ( j in c(i + 1):n ) {
+            ro <- dist.condi(i, j, 0, dataset, R = R) 
+            stat[i, j] <- ro[1]
+            stat[j, i] <- ro[1]
+            pv[i, j] <- ro[2]
+            pv[j, i] <- ro[2]
+          }
+        }  ## end for ( i in 1:c(n - 1) )
+        pvalue <- pv  ## p-values
+        stadf <- stat 
+      } else  pv <- ini.pvalue
     } else if ( method == "comb.fast" )  {
       
-      stat = pv = matrix(0, n, n)
-      for ( i in 1:c(n - 1) ) {
-        for ( j in c(i + 1):n ) {
-          ro <- ci.fast(i, j, NULL, dataset) 
-          stat[i, j] <- ro[1]
-          stat[j, i] <- ro[1]
-          pv[i, j] <- ro[2]
-          pv[j, i] <- ro[2]
-        }
-      }  ## end for ( i in 1:c(n - 1) )
-      pvalue <- pv  ## p-values
-      stadf <- stat 
+      if ( is.null(stat) | is.null(ini.pvalue) ) {
+        stat = pv = matrix(0, n, n)
+        for ( i in 1:c(n - 1) ) {
+          for ( j in c(i + 1):n ) {
+            ro <- ci.fast(i, j, NULL, dataset) 
+            stat[i, j] <- ro[1]
+            stat[j, i] <- ro[1]
+            pv[i, j] <- ro[2]
+            pv[j, i] <- ro[2]
+          }
+        }  ## end for ( i in 1:c(n - 1) )
+        pvalue <- pv  ## p-values
+        stadf <- stat 
+      } else  pv <- ini.pvalue
     } else if ( method == "comb.mm" )  {
-      
-      stat = pv = matrix(0, n, n)
-      for ( i in 1:c(n - 1) ) {
-        for ( j in c(i + 1):n ) {
-          ro <- ci.mm(i, j, NULL, dataset) 
-          stat[i, j] <- ro[1]
-          stat[j, i] <- ro[1]
-          pv[i, j] <- ro[2]
-          pv[j, i] <- ro[2]
-        }
-      }  ## end for ( i in 1:c(n - 1) )
-      pvalue <- pv  ## p-values
-      stadf <- stat 
-    } 
+      if ( is.null(stat) | is.null(ini.pvalue) ) {
+        stat = pv = matrix(0, n, n)
+        for ( i in 1:c(n - 1) ) {
+          for ( j in c(i + 1):n ) {
+            ro <- ci.mm(i, j, NULL, dataset) 
+            stat[i, j] <- ro[1]
+            stat[j, i] <- ro[1]
+            pv[i, j] <- ro[2]
+            pv[j, i] <- ro[2]
+          }
+        }  ## end for ( i in 1:c(n - 1) )
+        pvalue <- pv  ## p-values
+        stadf <- stat 
+      } else  pv <- ini.pvalue
+    }
+    ini.pvalue <- pv
+
     pv <- pvalue
-    #stat[ lower.tri(stat) ] = 2
     pv[ lower.tri(pv) ] = 2 
     G[pvalue > alpha] <- 0   ## removes edges from non significantly related pairs
     
@@ -302,7 +308,7 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.01, rob = FALSE, R = 
       colnames(stat) = rownames(stat) = nam
       colnames(pvalue) = rownames(pvalue) = nam
     }  
-    res <- list(stat = stat, pvalue = pvalue, runtime = durat, kappa = k, n.tests = n.tests, density = density, info = info, G = G, sepset = sepset, title = title )
+    res <- list(stat = stat, ini.pvalue = ini.pvalue, pvalue = pvalue, runtime = durat, kappa = k, n.tests = n.tests, density = density, info = info, G = G, sepset = sepset, title = title )
   }  ## end if ( method != distcor & rob = FALSE )
   ##################
   res

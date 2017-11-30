@@ -29,6 +29,9 @@ fbed.reg <- function(y, x, test = NULL, alpha = 0.05, wei = NULL, K = 0, method 
     if (test == "testIndReg") {
       result <- fbed.lm(y, x, alpha = alpha, wei = wei, K = K)
       
+    } else if (test == "testIndFisher") {
+      result <- Rfast::cor.fbed(y, as.matrix(x), alpha = alpha, K = K)
+      
     } else if (test == "testIndPois") {
       result <- fbed.glm(y, x, alpha = alpha, wei = wei, K = K, type = "poisson")
 

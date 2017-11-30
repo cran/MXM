@@ -22,7 +22,11 @@ ebic.zip.bsreg <- function(target, dataset, wei = NULL, gam = NULL) {
     } else con <- 2 * gam
     tool <- numeric(p + 1)
     
-    ini <- zip.reg( target, dataset, wei = wei )
+    if ( is.null(wei) ) {
+      lgy <- sum( lgamma(target + 1) )  
+    } else  lgy <- sum( wei * lgamma(target + 1) )  
+    
+    ini <- zip.reg( target, dataset, wei = wei, lgy = lgy )
     bic0 <-  - 2 * ini$loglik + (length(ini$be) + 1) * logn    ## initial bic  
     tool[1] <- bic0
     bic <- numeric(p)
@@ -48,7 +52,7 @@ ebic.zip.bsreg <- function(target, dataset, wei = NULL, gam = NULL) {
     } else { 
       ###########  
     for (j in 1:p) {
-      mod <- zip.reg( target, dataset[, -j, drop = FALSE], wei = wei )
+      mod <- zip.reg( target, dataset[, -j, drop = FALSE], wei = wei, lgy = lgy )
       bic[j] <-  - 2 * mod$loglik + (length(mod$be) + 1) * logn + con * lchoose(p, M)
     }
     
@@ -74,7 +78,7 @@ ebic.zip.bsreg <- function(target, dataset, wei = NULL, gam = NULL) {
         
         while ( tool[i - 1] - tool[i ] > 0  &  NCOL(dat) > 0 )  {   
           
-          ini <- zip.reg( target, dat, wei = wei )
+          ini <- zip.reg( target, dat, wei = wei, lgy = lgy )
           M <- dim(dat)[2]
           bic0 <-  - 2 * ini$loglik + (length(ini$be) + 1) * logn + con * lchoose(p, M)
           i <- i + 1        
@@ -100,7 +104,7 @@ ebic.zip.bsreg <- function(target, dataset, wei = NULL, gam = NULL) {
             bic <- numeric(M)
             M <- dim(dat)[2] - 1
             for ( j in 1:(M + 1) ) {
-              mod <- zip.reg( target, dat[, -j, drop = FALSE], wei = wei )
+              mod <- zip.reg( target, dat[, -j, drop = FALSE], wei = wei, lgy = lgy )
               bic[j] <-  - 2 * mod$loglik + (length(mod$be) + 1) * logn + con * lchoose(p, M)
             }
             mat[, 2] <- bic

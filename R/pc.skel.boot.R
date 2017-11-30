@@ -15,7 +15,7 @@ pc.skel.boot <- function(dataset, method = "pearson", alpha = 0.01, R = 199, nco
     for (i in 1:R) {
       id <- sample(n, n, replace = TRUE)
       gb <- Rfast::pc.skel(dataset = dataset[id, ], method = method, alpha = alpha, R = 1)$G
-      gbbot[i, ] <- as.vector(gb)
+      gboot[i, ] <- as.vector(gb)
     }  ## end for (i in 1:R)
 
   } else {  ## parallel computations

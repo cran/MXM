@@ -54,7 +54,7 @@ testIndIGreg = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo =
   #check input validity
   if ( xIndex < 0 || csIndex < 0 ) {
     message(paste("error in testIndPois : wrong input of xIndex or csIndex"))
-    results <- list(pvalue = pvalue, stat = stat, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+    results <- list(pvalue = pvalue, stat = stat, flag = flag, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
     return(results);
   }
   
@@ -67,22 +67,22 @@ testIndIGreg = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo =
   #That means that the x variable does not add more information to our model due to an exact copy of this in the cs, so it is independent from the target
   if ( length(cs) != 0 ) {
     if ( is.null(dim(cs)[2]) ) {  #cs is a vector
-      if (any(x != cs) == FALSE) { #if(!any(x == cs) == FALSE)
+      if ( identical(x, cs) ) { #if(!any(x == cs) == FALSE)
         if (hash) {  #update hash objects
           stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
           pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
         }
-        results <- list(pvalue = log(1), stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+        results <- list(pvalue = log(1), stat = 0, flag = 1, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
         return(results);
       }
     } else { #more than one var
       for (col in 1:dim(cs)[2]) {
-        if (any(x != cs[,col]) == FALSE) {  #if(!any(x == cs) == FALSE)
+        if ( identical(x, cs[, col]) ) {  #if(!any(x == cs) == FALSE)
           if (hash) {  #update hash objects
             stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
             pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
           }
-          results <- list(pvalue = log(1), stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+          results <- list(pvalue = log(1), stat = 0, flag = 1, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
           return(results);
         }
       }
@@ -110,7 +110,7 @@ testIndIGreg = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo =
         fit1 = glm(target ~., data = as.data.frame( dataset[, csIndex] ), family = inverse.gaussian(log), weights = wei)
         fit2 = glm(target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ), family = inverse.gaussian(log), weights = wei)
         stat <- fit1$deviance - fit2$deviance
-        dof <- length( coef(fit2) ) - length( coef(fit1) )
+        dof <- length( fit2$coefficients ) - length( fit1$coefficients )
       } 
       pvalue = pchisq( stat, dof, lower.tail = FALSE, log.p = TRUE ) 
       flag = 1;

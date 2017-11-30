@@ -12,13 +12,15 @@ The skeleton of a Bayesian network produced by the PC algorithm. No orientations
 }
 
 \usage{
-pc.skel(dataset, method = "pearson", alpha = 0.01, rob = FALSE, R = 1) 
+pc.skel(dataset, method = "pearson", alpha = 0.01, rob = FALSE, R = 1, stat = NULL, 
+ini.pvalue = NULL) 
 
 pc.con(dataset, method = "pearson", alpha = 0.01) 
 
 pc.skel.boot(dataset, method = "pearson", alpha = 0.01, R = 199, ncores = 1)
 
-glmm.pc.skel(dataset, id, method = "comb.mm", alpha = 0.01)
+glmm.pc.skel(dataset, id, method = "comb.mm", alpha = 0.01, stat = NULL, 
+ini.pvalue = NULL)
 }
 
 \arguments{
@@ -54,6 +56,12 @@ In the pc.skel.boot this is the number of bootstrap resamples to draw. The PC al
 \item{ncores}{
 The number of cores to use. By default this is set to 1.
 }
+\item{stat}{
+If you have the initial test statistics (univariate associations) values supply them here.
+}
+\item{ini.pvalue}{
+If you have the initial p-values of the univariate associations supply them here.
+}
 }
 
 \details{
@@ -85,6 +93,9 @@ For all cases, except for method = c("pearson", "spearman", "cat") with R = 1, o
 A list including:
 \item{stat}{
 The test statistics of the univariate associations. 
+}
+\item{ini.pvalue}{
+The initival univariate associations p-values.
 }
 \item{pvalue}{
 The logarithm of the maximum p-values from every conditional independence test. Note also, that if there is a log p-value smaller that 
@@ -157,8 +168,9 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 
 \examples{
 # simulate a dataset with continuous data
-y <- rdag2(100, p = 40, nei = 3)
-x <- y$x
+y <- rdag2(500, p = 20, nei = 3)
+ind <- sample(1:20, 20)
+x <- y$x[, ind]
 a <- mmhc.skel(x, max_k = 3, threshold = 0.05, test = "testIndFisher" ) 
 b <- pc.skel( x, method = "comb.fast", alpha = 0.05 ) 
 a$runtime ## 

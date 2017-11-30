@@ -76,7 +76,7 @@ waldGamma = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NU
   } else {	
     mod = summary(fit)[[ 12 ]]
     pr = dim(mod)[1]
-    stat = mod[pr, 3]^2
+    stat = mod[pr, 3]^2 / summary(fit)[[ 14 ]]
     pvalue = pchisq( stat, 1, lower.tail = FALSE, log.p = TRUE ) 
   }	
   flag = 1;

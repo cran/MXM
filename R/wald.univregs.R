@@ -113,7 +113,7 @@ wald.univregs <- function(target, dataset, targetID = - 1, test = NULL, user_tes
       stat = numeric(cols)
       for ( i in 1:cols ) {
         fit = glm( target ~ dataset[, i], family = Gamma(link = log), weights = wei )
-        stat[i] = summary(fit)[[ 12 ]][2, 3]^2
+        stat[i] = summary(fit)[[ 12 ]][2, 3]^2 / summary(fit)[[ 14 ]]
       }
       univariateModels$stat = stat
       univariateModels$pvalue = pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
@@ -123,7 +123,7 @@ wald.univregs <- function(target, dataset, targetID = - 1, test = NULL, user_tes
       registerDoParallel(cl)
       mod <- foreach(i = 1:cols, .combine = rbind) %dopar% {
         fit <- glm( target ~ dataset[, i], family = Gamma(link = log), weights = wei )
-        return( summary(fit)[[ 12 ]]  [2, 3]^2 )
+        return( summary(fit)[[ 12 ]]  [2, 3]^2 / summary(fit)[[ 14 ]] )
       }
       stopCluster(cl)
       univariateModels$stat = mod
@@ -136,7 +136,7 @@ wald.univregs <- function(target, dataset, targetID = - 1, test = NULL, user_tes
       stat = numeric(cols)
       for ( i in 1:cols ) {
         fit = glm( target ~ dataset[, i], family = gaussian(link = log), weights = wei )
-        stat[i] = summary(fit)[[ 12 ]][2, 3]^2
+        stat[i] = summary(fit)[[ 12 ]][2, 3]^2 / summary(fit)[[ 14 ]]
       }
       univariateModels$stat = stat
       univariateModels$pvalue = pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
@@ -146,7 +146,7 @@ wald.univregs <- function(target, dataset, targetID = - 1, test = NULL, user_tes
       registerDoParallel(cl)
       mod <- foreach(i = 1:cols, .combine = rbind) %dopar% {
         fit <- glm( target ~ dataset[, i], family = gaussian(link = log), weights = wei )
-        return( summary(fit)[[ 12 ]]  [2, 3]^2 )
+        return( summary(fit)[[ 12 ]]  [2, 3]^2 / summary(fit)[[ 14 ]] )
       }
       stopCluster(cl)
       univariateModels$stat = mod

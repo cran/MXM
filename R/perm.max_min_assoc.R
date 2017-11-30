@@ -12,7 +12,7 @@ perm.max_min_assoc = function(target, dataset, test, wei, threshold, max_k, sele
     stats = mma_res$stats;
     stat_hash = mma_res$stat_hash;
     pvalue_hash = mma_res$pvalue_hash;
-    if (mma_res$pvalue > threshold)  remainingVars[[cvar]] = 0;
+    if ( mma_res$pvalue > threshold )  remainingVars[[cvar]] = 0;
     if ( compare_p_values(mma_res$pvalue, selected_pvalue, mma_res$stat, selected_stat) ) {
       selected_var = cvar;
       selected_pvalue = mma_res$pvalue;

@@ -98,6 +98,7 @@ dataset <- matrix( runif(100 * 50, 1, 100), ncol = 50 )
 target <- rt(100, 10)
 
 a1 <- fbed.reg(target, dataset, alpha = 0.05, test = "testIndReg") 
+a2 <- fbed.reg(target, dataset, alpha = 0.05, test = "testIndFisher") 
 y <- rpois(100, 10)
 a2 <- fbed.reg(y, dataset, alpha = 0.05, test = "testIndPois") 
 a3 <- MMPC(y, dataset)

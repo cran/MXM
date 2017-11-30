@@ -8,11 +8,14 @@ bn.skel.utils <- function(mod, G = NULL, roc = TRUE, alpha = 0.01) {
   }  
   p <- exp(preds)
   sig.p <- p[ which(p <= alpha) ]
-  fdr <- length(p) / length(sig.p) * max(sig.p)
+  fdr <- min(1, length(p) / length(sig.p) * max(sig.p) )
   theseis <- which( mod$pvalue < log(alpha), arr.ind = TRUE )
-  sig.p <- cbind(theseis, preds[ preds < log(alpha) ] )
+  sig.p <- cbind(theseis, mod$pvalue[theseis])
+  sig.p <- Rfast::sort_mat(sig.p, by.row = TRUE)
+  sig.p <- unique(sig.p)
+  sig.p <- cbind(sig.p[, 2:3], sig.p[, 1] )
   sig.p <- sig.p[order(sig.p[, 3]), ]
   sig.p[, 3] <- exp(sig.p[, 3])
   theseis <- NULL
-  list(area = area, fdr = fdr,sig.pvales = sig.p)
+  list(area = area, fdr = fdr, sig.pvalues = sig.p)
 }

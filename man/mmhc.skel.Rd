@@ -25,7 +25,7 @@ The maximum conditioning set to use in the conditional indepedence test (see Det
 Threshold ( suitable values in (0, 1) ) for assessing p-values significance. Default value is 0.05.
 }
 \item{test}{
-The conditional independence test to use. Default value is "testIndFisher". This procedure allows for "testIndFisher", "testIndSPearman" for continuous variables and "gSquare" for categorical variables. 
+The conditional independence test to use. Default value is "testIndFisher". This procedure allows for "testIndFisher", "testIndSPearman" for continuous variables and "gSquare" for categorical variables. In case the dataset is a dta.frame with mixed types of data leave this NULL and an appropriate test will be selected. See \code{link{MMPC}} for the automatic choice of tests.
 }
 \item{type}{
 The type of variable selection to take place for each variable (or node). The default (and standard) in "MMPC". You can also choose to run it via "SES" and thus allow for multiple signatures of variables to be connected 
@@ -98,6 +98,8 @@ Bear in mind that the values can be extracted with the $ symbol, i.e. this is an
 
 \references{
 Tsamardinos, Brown and Aliferis (2006). The max-min hill-climbing Bayesian network structure learning algorithm. Machine learning, 65(1), 31-78.
+
+Brown L. E., Tsamardinos I., and Aliferis C. F. (2004). A novel algorithm for scalable and accurate Bayesian network learning. Medinfo, 711-715.
 }
 
 \author{
@@ -115,16 +117,13 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> and M
 
 \examples{
 # simulate a dataset with continuous data
-dataset <- matrix(runif(1000 * 30, 1, 100), nrow = 1000 ) 
-a1 <- mmhc.skel(dataset, max_k = 3, threshold = 0.05, test = "testIndFisher", 
-rob = FALSE, nc = 1) 
-a2 <- mmhc.skel(dataset, max_k = 3, threshold = 0.05, test = "testIndSpearman", 
-type = "SES", rob = FALSE, nc = 1)
-a3 <- pc.skel(dataset, alpha = 0.05)
-
-a1$runtime  
-a2$runtime 
-a3$runtime 
+y <- rdag2(500, p = 20, nei = 3)
+x <- y$x
+a <- mmhc.skel(x, max_k = 5, threshold = 0.01, test = "testIndFisher" ) 
+b <- pc.skel( x, alpha = 0.01 ) 
+a$runtime ## 
+b$runtime ## 
+ 
 }
 
 \keyword{ MMHC algorithm }

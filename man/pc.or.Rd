@@ -76,20 +76,19 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 
 \examples{
 # simulate a dataset with continuous data
-y <- rdag(1000, 15, 0.3)
-tru <- y$G 
-x <- y$x
+y <- rdag2(2000, p = 20, nei = 3)
+ind <- sample(1:20, 20)
+tru <- y$G[ind, ind] 
+x <- y$x[, ind]
 mod <- pc.con(x)
 mod$runtime
 
-b <- pc.or(mod)
 plotnetwork(tru) 
-dev.new()
+
+b <- pc.or(mod)
 plotnetwork(b$G)
 
-dev.off()
 plotnetwork( dag2eg(tru) )  ## essential graph
-dev.new()
 plotnetwork(b$G)
 }
 

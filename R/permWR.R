@@ -33,7 +33,7 @@ permWR = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL, u
       if (is.na(csIndex) || length(csIndex) == 0 || csIndex == 0) {
         weibull_results <- survival::survreg(target ~ x, weights = wei)
         stat = 2 * abs( diff(weibull_results$loglik) )
-		if (stat > 0) {
+		     if (stat > 0) {
           step <- 0
           j <- 1	
           n <- length(x)
@@ -52,7 +52,7 @@ permWR = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL, u
         weibull_results_full <- survival::survreg(target ~ ., data = as.data.frame(  dataset[ , c(csIndex, xIndex)] ), weights = wei )
         res = anova(weibull_results, weibull_results_full)
         stat = abs( res[2, 6] );
-		if (stat > 0) {
+		    if (stat > 0) {
           j <- 1	
           step <- 0
           n <- length(x)

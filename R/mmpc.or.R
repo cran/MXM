@@ -38,7 +38,7 @@ mmpc.or <- function(x, max_k = 5, threshold = 0.01, test = "testIndFisher", back
       stat <- Rfast::g2Test_univariate(x, dc)
       ini.pvalue <- pchisq(stat$statistic, stat$df, lower.tail = FALSE, log.p = TRUE)
       ini.pvalue <- Rfast::squareform(ini.pvalue)
-    } else  ini.pvalue <- NULL
+    } 
   }
   
   if ( !is.null(ini.pvalue) ) {

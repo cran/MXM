@@ -7,7 +7,7 @@ gammafsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL
   
     threshold <- log(threshold)  ## log of the significance level
     p <- dim(dataset)[2]  ## number of variables
-    devi <- dof <- numeric( p )  
+    devi <- dof <- phi <- numeric( p )  
     moda <- list()
     k <- 1   ## counter
     n <- length(target)  ## sample size
@@ -27,16 +27,18 @@ gammafsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL
             mi <- glm( target ~ dataset[, i], family = Gamma(link = log), weights = wei, y = FALSE, model = FALSE )
             devi[i] <- 2 * as.numeric( logLik(mi) )
             dof[i] <- length( mi$coefficients ) 
+            phi <- summary(mi)[[ 14 ]]
           }
         } else {
           for (i in 1:p) {
             mi <- speedglm::speedglm( target ~ dataset[, i], data = dataset, family = Gamma(link = log), weights = wei )
             devi[i] <- 2 * as.numeric( logLik(mi) )
             dof[i] <- length( mi$coefficients ) 
+            phi[i] <- mi$RSS/mi$df
           }
         }  
-          stat <- devi - ini
-          pval <- pchisq( stat, dof - 1, lower.tail = FALSE, log.p = TRUE )
+          stat <- (devi - ini)/phi
+          pval <- pf( stat, dof - 1, n - dof , lower.tail = FALSE, log.p = TRUE )
       } else {
         #if ( robust == FALSE ) {  ## Non robust
         if ( !heavy )	 {
@@ -44,7 +46,7 @@ gammafsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL
           registerDoParallel(cl)
           mod <- foreach( i = 1:p, .combine = rbind) %dopar% {
             ww <- glm( target ~ dataset[, i], family = Gamma(link = log), weights = wei, y = FALSE, model = FALSE )
-            return( c( 2 * as.numeric( logLik(ww) ), length( ww$coefficients ) ) )
+            return( c( 2 * as.numeric( logLik(ww) ), length( ww$coefficients ), summary(ww)[[ 14 ]] ) )
           }
           stopCluster(cl)
           
@@ -53,11 +55,11 @@ gammafsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL
           registerDoParallel(cl)
           mod <- foreach( i = 1:p, .combine = rbind, .export = "speedglm", .packages = "speedglm") %dopar% {
             ww <- speedglm::speedglm( target ~ dataset[, i], data = dataset, family = Gamma(link = log), weights = wei )
-            return( c( 2 * as.numeric( logLik(ww) ), length( ww$coefficients ) ) )
+            return( c( 2 * as.numeric( logLik(ww) ), length( ww$coefficients ), ww$RSS/ww$df ) )
           }
           stopCluster(cl)	  	  
-          stat = mod[, 1] - ini
-          pval = pchisq( stat, mod[, 2] - 1, lower.tail = FALSE, log.p = TRUE )
+          stat = (mod[, 1] - ini) / mod[, 3]
+          pval = pf( stat, mod[, 2] - 1, n - mod[, 2], lower.tail = FALSE, log.p = TRUE )
         }
       }
         mat <- cbind(1:p, pval, stat) 
@@ -91,7 +93,7 @@ gammafsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL
           pn <- p - k + 1   
           ini <- 2 * as.numeric( logLik(mi) )
           do <- length( mi$coefficients ) 
-          devi <- dof <- numeric( pn )  
+          devi <- dof <- phi <- numeric( pn )  
           
           if ( ncores <= 1 ) {
             devi <- dof <- numeric(pn)
@@ -99,7 +101,8 @@ gammafsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL
               for ( i in 1:pn ) {
                 ww <- glm( target ~., data = dataset[, c(sela, mat[i, 1]) ], family = Gamma(link = log), weights = wei, y = FALSE, model = FALSE )
                 devi[i] <- 2 * as.numeric( logLik(ww) )
-                dof[i] <- length( ww$coefficients )          
+                dof[i] <- length( ww$coefficients )
+                phi[i] <- summary(ww)[[ 14 ]]
               }
               
             } else {
@@ -107,10 +110,11 @@ gammafsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL
                 ww <- speedglm::speedglm( target ~., data = dataset[, c(sela, mat[i, 1]) ], family = Gamma(link = log), weights = wei )
                 devi[i] <- 2 * as.numeric( logLik(ww) )
                 dof[i] <- length( ww$coefficients )          
+                phi[i] <- ww$RSS/ww$df
               }		  
             }
-            stat <- devi - ini
-            pval <- pchisq( stat, dof - do, lower.tail = FALSE, log.p = TRUE )
+            stat <- (devi - ini) / phi
+            pval <- pf( stat, dof - do, n - dof, lower.tail = FALSE, log.p = TRUE )
             
           } else {
             
@@ -119,7 +123,7 @@ gammafsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL
               registerDoParallel(cl)
               mod <- foreach( i = 1:pn, .combine = rbind) %dopar% {
                 ww <- glm( target ~., data = dataset[, c(sela, mat[i, 1]) ], family = Gamma(link = log), weights = wei, y = FALSE, model = FALSE )
-                return( c( 2 * as.numeric( logLik(ww) ), length( ww$coefficients ) ) )
+                return( c( 2 * as.numeric( logLik(ww) ), length( ww$coefficients ), summary(ww)[[ 14 ]] ) )
               }
               stopCluster(cl)
               
@@ -128,12 +132,12 @@ gammafsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL
               registerDoParallel(cl)
               mod <- foreach( i = 1:pn, .combine = rbind, .export = "speedglm", .packages = "speedglm") %dopar% {
                 ww <- speedglm( target ~., data = dataset[, c(sela, mat[i, 1]) ], family = Gamma(link = log), weights = wei )
-                return( c( 2 * as.numeric( logLik(ww) ), length( ww$coefficients ) ) )
+                return( c( 2 * as.numeric( logLik(ww) ), length( ww$coefficients ), ww$RSS/ww$df ) )
               }
               stopCluster(cl)		  
             }
-            stat <- mod[, 1] - ini
-            pval <- pchisq( stat, mod[, 2] - do, lower.tail = FALSE, log.p = TRUE )
+            stat <- (mod[, 1] - ini) / mod[, 3]
+            pval <- pf( stat, mod[, 2] - do, n - mod[, 2], lower.tail = FALSE, log.p = TRUE )
           }
           
           mat[, 2:3] <- cbind(pval, stat)
@@ -172,7 +176,7 @@ gammafsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL
             do = length( coef( moda[[ k ]]  ) ) 
             k <- k + 1   
             pn <- p - k  + 1
-            devi <- dof <- numeric( pn )  
+            devi <- dof <- phi <- numeric( pn )  
             
             if (ncores <= 1) {  
               devi = dof = numeric(pn) 
@@ -182,17 +186,19 @@ gammafsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL
                   ma <- glm( target ~., data = dataset[, c(sela, mat[i, 1] ) ], family = Gamma(link = log), weights = wei, y = FALSE, model = FALSE )
                   devi[i] <- 2 * as.numeric( logLik(ma) )
                   dof[i] <- length( ma$coefficients ) 
+                  phi[i] <- summary(ma)[[ 14 ]]
                 }
               } else {
                 for ( i in 1:pn ) {
                   ma <- speedglm( target ~., data = dataset[, c(sela, mat[i, 1] ) ], family = Gamma(link = log), weights = wei )
                   devi[i] <- 2 * as.numeric( logLik(ma) )
                   dof[i] <- length( ma$coefficients ) 
+                  phi[i] <- ma$RR/ma$df
                 }
                 
               }
-              stat = devi - ini
-              pval = pchisq( stat, dof - do, lower.tail = FALSE, log.p = TRUE )
+              stat = (devi - ini)/phi
+              pval = pf( stat, dof - do, n - dof, lower.tail = FALSE, log.p = TRUE )
               
             } else {
               #if ( robust == FALSE ) {  ## Non robust
@@ -201,7 +207,7 @@ gammafsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL
                 registerDoParallel(cl)
                 mod <- foreach( i = 1:pn, .combine = rbind) %dopar% {
                   ww <- glm( target ~., data = dataset[, c(sela, mat[i, 1]) ], family = Gamma(link = log), weights = wei, y = FALSE, model = FALSE )
-                  return( c( 2 * as.numeric( logLik(ww) ), length( ww$coefficients ) ) )
+                  return( c( 2 * as.numeric( logLik(ww) ), length( ww$coefficients ), summary(ww)[[ 14 ]] ) )
                 }
                 stopCluster(cl)
                 
@@ -210,12 +216,12 @@ gammafsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL
                 registerDoParallel(cl)
                 mod <- foreach( i = 1:pn, .combine = rbind, .export = "speedglm", .packages = "speedglm") %dopar% {
                   ww <- speedglm( target ~., data = dataset[, c(sela, mat[i, 1]) ], family = Gamma(link = log), weights = wei )
-                  return( c( 2 * as.numeric( logLik(ww) ), length( ww$coefficients ) ) )
+                  return( c( 2 * as.numeric( logLik(ww) ), length( ww$coefficients ), ww$RSS/ww$df ) )
                 }
                 stopCluster(cl)
               }
-              stat <- mod[, 1] - ini
-              pval <- pchisq( stat, mod[, 2] - do, lower.tail = FALSE, log.p = TRUE )
+              stat <- (mod[, 1] - ini)/mod[, 3]
+              pval <- pf( stat, mod[, 2] - do, n - mod[, 2], lower.tail = FALSE, log.p = TRUE )
             }
             
             mat[, 2:3] <- cbind(pval, stat)

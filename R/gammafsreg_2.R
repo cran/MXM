@@ -19,7 +19,7 @@ gammafsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold =
   dataset <- cbind(iniset, dataset)
   runtime <- proc.time()
     
-    devi = dof = numeric(p)
+    devi <- dof <- phi <- numeric(p)
     mi <- glm(target ~., data = as.data.frame( iniset ), weights = wei, family = Gamma(link = log), y = FALSE, model = FALSE )
     do <- length( mi$coefficients )
     ini <- 2 * as.numeric( logLik(mi) ) 
@@ -29,10 +29,11 @@ gammafsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold =
         mi <- glm( target ~ . , data = dataset[, c(da, pa + i)], weights = wei, family = Gamma(link = log), y = FALSE, model = FALSE )
         devi[i] <- 2 * as.numeric( logLik(mi) )
         dof[i] <- length( mi$coefficients ) 
+        phi[i] <- summary(mi)[[ 14 ]]
       }
 
-      stat <- devi - ini
-      pval <- pchisq( stat, dof - do, lower.tail = FALSE, log.p = TRUE )
+      stat <- (devi - ini)/phi
+      pval <- pf( stat, dof - do, n - dof, lower.tail = FALSE, log.p = TRUE )
       
     } else {
       #if ( robust == FALSE ) {  ## Non robust
@@ -40,12 +41,12 @@ gammafsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold =
       registerDoParallel(cl)
       mod <- foreach( i = 1:p, .combine = rbind) %dopar% {
         ww <- glm( target ~., data = dataset[, c(da, pa + i)], weights = wei, family = Gamma(link = log) )
-        return( c( 2 * as.numeric( logLik(ww) ), length( ww$coefficients ) ) )
+        return( c( 2 * as.numeric( logLik(ww) ), length( ww$coefficients ), summary(ww)[[ 14 ]] ) )
       }
       
       stopCluster(cl)
-      stat <- mod[, 1] - ini
-      pval <- pchisq( stat, mod[, 2] - 1, lower.tail = FALSE, log.p = TRUE )
+      stat <- (mod[, 1] - ini)/mod[, 3]
+      pval <- pf( stat, mod[, 2] - do, n - mod[, 2], lower.tail = FALSE, log.p = TRUE )
     }
     
     mat <- cbind(1:p, pval, stat) 
@@ -72,17 +73,18 @@ gammafsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold =
       pn <- p - k + 1   
       ini <- 2 * as.numeric( logLik(moda[[ 1 ]]) )
       do <- length( coef( moda[[ 1 ]]  ) ) 
-      devi <- dof <- numeric( pn )  
+      devi <- dof <- phi <- numeric( pn )  
       
       if ( ncores <= 1 ) {
         #if ( robust == FALSE ) {  ## Non robust
         for ( i in 1:pn ) {
           ww <- glm( target ~., data = dataset[, c(da, sela, pa + mat[i, 1]) ], weights = wei, family = Gamma(link = log), y = FALSE, model = FALSE )
           devi[i] <- 2 * as.numeric( logLik(ww) )
-          dof[i] <- length( ww$coefficients )          
+          dof[i] <- length( ww$coefficients ) 
+          phi[i] <- summary(ww)[[ 14 ]]
         }
-        stat <- devi - ini
-        pval <- pchisq( stat, dof - do, lower.tail = FALSE, log.p = TRUE )
+        stat <- (devi - ini)/phi
+        pval <- pf( stat, dof - do, , n - dof, lower.tail = FALSE, log.p = TRUE )
         
       } else {
         
@@ -90,11 +92,11 @@ gammafsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold =
         registerDoParallel(cl)
         mod <- foreach( i = 1:pn, .combine = rbind) %dopar% {
           ww <- glm( target ~., data = dataset[, c(da, sela, pa + mat[i, 1]) ], weights = wei, family = Gamma(link = log) )
-          return( c( 2 * as.numeric( logLik(ww) ), length( coef( ww ) ) ) )
+          return( c( 2 * as.numeric( logLik(ww) ), length( ww$coefficients ), summary(ww)[[ 14 ]] ) )
         }
         stopCluster(cl)
-        stat <- mod[, 1] - ini
-        pval <- pchisq( stat, mod[, 2] - do, lower.tail = FALSE, log.p = TRUE )
+        stat <- (mod[, 1] - ini)/mod[, 3]
+        pval <- pf( stat, mod[, 2] - do, n - mod[, 2], lower.tail = FALSE, log.p = TRUE )
       }
       
       mat[, 2:3] <- cbind(pval, stat)
@@ -130,29 +132,30 @@ gammafsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold =
         do <- length( coef( moda[[ k ]]  ) ) 
         k <- k + 1   
         pn <- p - k  + 1
-        devi <- dof <- numeric( pn )  
+        devi <- dof <- phi <- numeric( pn )  
         
         if (ncores <= 1) {  
           for ( i in 1:pn ) {
             ma <- glm( target ~., data = dataset[, c(da, sela, pa + mat[i, 1] ) ], weights = wei, family = Gamma(link = log), y = FALSE, model = FALSE )
             devi[i] <- 2 * as.numeric( logLik(ma) )
             dof[i] <- length( ma$coefficients ) 
+            phi[i] <- summary(ma)[[ 14 ]]
           }
 
-          stat <- devi - ini
-          pval <- pchisq( stat, dof - do, lower.tail = FALSE, log.p = TRUE )
+          stat <- (devi - ini)/phi
+          pval <- pf( stat, dof - do, n - dof, lower.tail = FALSE, log.p = TRUE )
           
         } else {
           cl <- makePSOCKcluster(ncores)
           registerDoParallel(cl)
           mod <- foreach( i = 1:pn, .combine = rbind) %dopar% {
             ww <- glm( target ~., data = dataset[, c(da, sela, pa + mat[i, 1]) ], weights = wei, family = Gamma(link = log), y = FALSE, model = FALSE )
-            return( c( 2 * as.numeric( logLik(ww) ), length( ww$coefficients ) ) )
+            return( c( 2 * as.numeric( logLik(ww) ), length( ww$coefficients ), summary(ww)[[ 14 ]] ) )
           }
           
           stopCluster(cl)
-          stat <- mod[, 1] - ini
-          pval <- pchisq( stat, mod[, 2] - do, lower.tail = FALSE, log.p = TRUE )
+          stat <- (mod[, 1] - ini)/mod[, 3]
+          pval <- pf( stat, mod[, 2] - do, n - mod[, 2], lower.tail = FALSE, log.p = TRUE )
         }
         
         mat[, 2:3] <- cbind(pval, stat)

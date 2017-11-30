@@ -372,9 +372,7 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FAL
     } else { 
       
 	    tic <- proc.time()
-      ## percentages
-      if ( min( target ) > 0 & max( target ) < 1 )  target <- log( target / (1 - target) )       
-      
+
 	  if ( !heavy ) {
 	  
 	    ci_test <- "testIndReg"  

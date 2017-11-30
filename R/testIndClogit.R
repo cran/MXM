@@ -35,8 +35,8 @@ testIndClogit = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=
         stat = 2 * abs( diff(clogit_results$loglik) )
         pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE);
       } else {
-        clogit_results <- survival::clogit(case ~ . + strata(id), data = as.data.frame( dataset[ , c(csIndex)] ) )
-        clogit_results_full <- survival::clogit(case ~ . + strata(id), data = as.data.frame(  dataset[ , c(csIndex, xIndex)] ) )
+        clogit_results <- survival::clogit(case ~ . + strata(id), data = data.frame( dataset[ , c(csIndex)] ) )
+        clogit_results_full <- survival::clogit(case ~ . + strata(id), data = data.frame(  dataset[ , c(csIndex, xIndex)] ) )
         res = anova(clogit_results_full, clogit_results)
         stat = res[2, 2]
         dF = res[2, 3]

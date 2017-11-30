@@ -101,14 +101,11 @@ perm.mmpc = function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, 
         test = "permLogistic";
         if ( is.ordered(target) )  {
           dataInfo$target_type = "ordinal";
-          cat('\nTarget variable type: Ordinal')
         } else {
           if ( la == 2 ) {
             dataInfo$target_type = "binary"
-            cat('\nTarget variable type: Binomial')
           } else {
             dataInfo$target_type = "nominal"
-            cat('\nTarget variable type: Nominal')
           }
         }
         
@@ -135,15 +132,12 @@ perm.mmpc = function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, 
     if (test == "permLogistic") {
       if ( is.ordered(target) )  {
         dataInfo$target_type = "ordinal";
-        cat('\nTarget variable type: Ordinal')
-        
+
       } else {
         if ( la == 2 ) {
           dataInfo$target_type = "binary"
-          cat('\nTarget variable type: Binomial')
         } else {
           dataInfo$target_type = "nominal"
-          cat('\nTarget variable type: Nominal')
         }
       }
     }
@@ -231,11 +225,11 @@ perm.mmpc = function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, 
   # options checking and initialize #
   ###################################
   #extracting the parameters
-  max_k = floor(max_k);
-  varsize = dim(dataset)[2];
+  max_k <- floor(max_k);
+  varsize <- dim(dataset)[2];
   #option checking
   if ( (typeof(max_k) != "double") || max_k < 1 )   stop('invalid max_k option');
-  if ( max_k > varsize)   max_k = varsize;
+  if ( max_k > varsize)   max_k <- varsize;
   if ( (typeof(threshold) != "double") || threshold <= 0  || threshold >= 1 )    stop('invalid threshold option');
   # if(typeof(equal_case)!="double")
   # {
@@ -252,13 +246,15 @@ perm.mmpc = function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, 
   #   print(results$selectedVars)
   #   print(results$selectedVarsOrder)
   #backward phase
-  if ( backward ) {
-    varsToIterate = results$selectedVars
-    varsOrder = results$selectedVarsOrder
-    bc <- mmpcbackphase(target, dataset[, varsToIterate], max_k = max_k, threshold = threshold, test = test, wei = wei, dataInfo = NULL, robust = robust, R = R ) 
+  
+  varsToIterate <- results$selectedVarsOrder
+  
+  if ( backward & length( varsToIterate ) > 0 ) {
+    varsOrder <- results$selectedVarsOrder
+    bc <- mmpcbackphase(target, dataset[, varsToIterate], max_k = max_k, threshold = threshold, test = test, wei = wei, dataInfo = dataInfo, robust = robust, R = R ) 
     met <- bc$met
-    results$selectedVars = varsToIterate[met]
-    results$selectedVarsOrder = varsOrder[met]
+    results$selectedVars <- varsToIterate[met]
+    results$selectedVarsOrder <- varsOrder[met]
     results$n.tests <- results$n.tests + bc$counter
   }
   MMPCoutput <-new("MMPCoutput", selectedVars = results$selectedVars, selectedVarsOrder=results$selectedVarsOrder, hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, univ=results$univ, max_k=results$max_k, threshold = results$threshold, n.tests = results$n.tests, runtime=results$runtime, test=ci_test, rob = robust);

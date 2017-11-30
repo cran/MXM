@@ -116,25 +116,16 @@ if ( !is.null(user_test) ) {
     univariateModels$pvalue = mod[, 2]
   }   
   
-} else if ( identical(test, testIndReg)  &  robust == FALSE  &  is.matrix(dataset)  &  is.null(wei) ) {  ## linear regression
+} else if ( identical(test, testIndReg)  &  !robust &  is.matrix(dataset)  &  is.null(wei) ) {  ## linear regression
   mod = Rfast::univglms(target, dataset, logged = TRUE) 
   univariateModels$stat = mod[, 1]
   univariateModels$pvalue = mod[, 2]
 
-} else if ( identical(test, testIndReg)  &  robust == FALSE  &  is.data.frame(dataset)  &  is.null(wei) ) {  ## linear regression
-  #mod <- Rfast::regression(dataset, target)
-  #univariateModels$stat = mod[1, ]
-  #univariateModels$pvalue = pf(mod[1, ], mod[2, ], rows - mod[2, ], lower.tail = F, log.p = TRUE)
-  stat <- numeric(cols)
-  pval <- numeric(cols)  
-  for (i in 1:cols) {
-    mod <- anova( lm(y ~ dataset[, i]) )
-	  stat[i] <- mod[1, 4]
-    pval[i] <- pf(stat[i], mod[1, 1], mod[2, 1], lower.tail = FALSE, log.p = TRUE)  		   
-  }
-  univariateModels$stat = stat
-  univariateModels$pvalue = pval
-  
+} else if ( identical(test, testIndReg)  &  !robust &  is.data.frame(dataset) ) {  ## linear regression
+  mod <- Rfast::regression(dataset, target, logged = TRUE)
+  univariateModels$stat = mod[, 1]
+  univariateModels$pvalue = mod[, 2]
+
 } else if ( identical(test, testIndMVreg)  &  !robust  &  !is.null(wei) ) {  ## Weighted linear regression
   
   univariateModels = list();
@@ -219,7 +210,7 @@ if ( !is.null(user_test) ) {
       stat <- numeric(cols)
 		  pval <- numeric(cols)  
 	    for (i in 1:cols) {
-        mod <- anova( lm(y ~ dataset[, i]) )
+        mod <- anova( lm(target ~ dataset[, i]) )
 		    stat[i] <- mod[1, 5]
         pval[i] <- pf(stat[i], mod[1, 1], mod[2, 1], lower.tail = FALSE, log.p = TRUE)  		   
       } 
@@ -447,28 +438,30 @@ if ( !is.null(user_test) ) {
   lik2 = numeric(cols)
   dof = numeric(cols)
   ina <- 1:cols
+  phi <- numeric(cols)
   
   if ( ncores <= 1 | is.null(ncores) ) {
     for ( i in ina ) {
       fit2 = glm( target ~ dataset[, i], family = gaussian(link = log), weights = wei )
       lik2[i] = fit2$deviance
-      dof[i] = length( coef(fit2) ) - 1
+      phi[i] <- summary(fit2)[[14]] 
+      dof[i] = length( fit2$coefficients )
     }
-    stat = lik1 - lik2
+    stat = (lik1 - lik2 ) / (dof - 1) / phi 
     univariateModels$stat = stat
-    univariateModels$pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
+    univariateModels$pvalue = pf(stat, dof - 1, rows - dof, lower.tail = FALSE, log.p = TRUE)
     
   } else {
     cl <- makePSOCKcluster(ncores)
     registerDoParallel(cl)
     mod <- foreach(i = ina, .combine = rbind) %dopar% {
       fit2 = glm( target ~ dataset[, i], family = gaussian(link = log), weights = wei )
-      return( c(fit2$deviance, length( coef(fit2) ) - 1 ) )
+      return( c(fit2$deviance, length( fit2$coefficients ), summary(fit2)[[14]] ) )
     }
     stopCluster(cl)
-    stat = as.vector( lik1 - mod[, 1] )
+    stat = as.vector( lik1 - mod[, 1] ) / (mod[, 2] - 1) / mod[, 3] 
     univariateModels$stat = stat
-    univariateModels$pvalue = pchisq(stat, mod[, 2], lower.tail = FALSE, log.p = TRUE)
+    univariateModels$pvalue = pf(stat, mod[, 2] - 1, rows - mod[, 2], lower.tail = FALSE, log.p = TRUE)
   }
    
 } else if ( identical(test, testIndGamma)   ) {  ## Gamma regression
@@ -477,28 +470,30 @@ if ( !is.null(user_test) ) {
   lik2 = numeric(cols)
   dof = numeric(cols)
   ina <- 1:cols
+  phi <- numeric(cols)
   
   if ( ncores <= 1 | is.null(ncores) ) {
     for ( i in ina ) {
       fit2 = glm( target ~ dataset[, i], family = Gamma(link = log), weights = wei )
       lik2[i] = fit2$deviance
-      dof[i] = length( coef(fit2) ) - 1
+      phi[i] = summary(fit2)[[ 14 ]]
+      dof[i] = length( fit2$coefficients)
     }
-    stat = lik1 - lik2
+    stat = (lik1 - lik2) / (dof - 1) / phi
     univariateModels$stat = stat
-    univariateModels$pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
+    univariateModels$pvalue = pf(stat, dof - 1, rows - dof, lower.tail = FALSE, log.p = TRUE)
     
   } else {
     cl <- makePSOCKcluster(ncores)
     registerDoParallel(cl)
     mod <- foreach(i = ina, .combine = rbind) %dopar% {
       fit2 = glm( target ~ dataset[, i], family = Gamma(link = log), weights = wei )
-      return( c(fit2$deviance, length( coef(fit2) ) - 1 ) )
+      return( c(fit2$deviance, length( fit2$coefficients ), summary(fit2)[[14]] ) )
     }
     stopCluster(cl)
-    stat = as.vector( lik1 - mod[, 1] )
+    stat = as.vector( lik1 - mod[, 1] ) / (mod[, 2] - 1) / mod[, 3] 
     univariateModels$stat = stat
-    univariateModels$pvalue = pchisq(stat, mod[, 2], lower.tail = FALSE, log.p = TRUE)
+    univariateModels$pvalue = pf(stat, mod[, 2] - 1, rows - mod[, 2], lower.tail = FALSE, log.p = TRUE)
   } 
   
 } else if ( identical(test, testIndZIP) ) {  ## Zero-inflated Poisson regression

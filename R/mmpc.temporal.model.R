@@ -25,7 +25,7 @@ mmpc.temporal.model = function(target, dataset, reps = NULL, group, slopes = FAL
   p <- length(ypografi)
   
   if ( ci_test == "testIndGLMM" ) {
-    if ( min(target) > 0 & max(target) < 1 )   target <- log( target/(1 - target) ) 
+    
     if ( length( unique(target) ) == 2 ) {
       if ( is.null(reps) ) {
         mod = lme4::glmer( target ~ dataset[, ypografi] + (1|group), weights = wei, REML = FALSE , family = binomial ) 
@@ -56,15 +56,17 @@ mmpc.temporal.model = function(target, dataset, reps = NULL, group, slopes = FAL
           mod = lme4::lmer( target ~ reps + dataset[, ypografi] + (1|group), weights = wei, REML = FALSE )        
         }
       }   
-    }   
-  }
+    }
+    
+    bic <- BIC(mod)
+    if ( is.null( colnames(dataset) ) ) {
+      names(ypografi) = paste("Var", ypografi, sep = " ")
+    } else  names(ypografi) = colnames(dataset)[ypografi]
+    ypografi <- c(ypografi, bic)
+    names(ypografi)[length(ypografi)] = "bic"
+    
+  }  ## end if ( ci_test == "testIndGLMM" )
   
-  if ( is.null( colnames(dataset) ) ) {
-    names(ypografi) = paste("Var", ypografi, sep = " ")
-  } else  names(ypografi) = colnames(dataset)[ypografi]
-  
-  ypografi <- c(ypografi, bic)
-  names(ypografi)[length(ypografi)] = "bic"
   list(mod = mod, ypografi = ypografi)  
 }
 
