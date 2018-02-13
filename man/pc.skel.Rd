@@ -43,9 +43,9 @@ This is to be used in the glmm.pc.skel only. It is a vector for identifying the 
 The significance level ( suitable values in (0, 1) ) for assessing the p-values. Default value is 0.01.
 }
 \item{rob}{
-A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust version of the statistical test if it is available. It takes more time than a 
-non robust version but it is suggested in case of outliers. Default value is FALSE. This will only be taken into account if method is "pearson". 
+This is for robust estimation of the Pearson correlation coefficient. Default value is FALSE.
 }
+
 \item{R}{
 The number of permutations to be conducted. This is taken into consideration for the "pc.skel" only. The Pearson correlation coefficient 
 is calculated and the p-value is assessed via permutations. There was an extra argument for plotting the skeleton but it does not work 
@@ -138,8 +138,11 @@ Spirtes P.,  Glymour C. and Scheines R. (2001). Causation, Prediction, and Searc
 
 Tsamardinos, Ioannis, and Laura E. Brown. Bounding the False Discovery Rate in Local Bayesian Network Learning. AAAI, 2008.
 
-Tsagris M., Borboudakis G., Lagani V. and Tsamardinos I. (2017). Constraint-based Causal Discovery with Mixed Data. 
-The 2017 ACM SIGKDD Workshop on Causal Discovery, Halifax, Nova Scotia, Canada. 
+Tsagris M., Borboudakis G., Lagani V. and Tsamardinos I. (2018). Constraint-based Causal Discovery with Mixed Data. 
+International Journal of Data Science and Analytics. 
+
+https://link.springer.com/content/pdf/10.1007%2Fs41060-018-0097-y.pdf
+ 
 http://nugget.unisa.edu.au/CD2017/papersonly/constraint-based-causal-r1.pdf
 
 Sedgewick, A. J., Ramsey, J. D., Spirtes, P., Glymour, C., & Benos, P. V. (2017). Mixed Graphical Models for Causal Analysis of 
@@ -172,7 +175,7 @@ y <- rdag2(500, p = 20, nei = 3)
 ind <- sample(1:20, 20)
 x <- y$x[, ind]
 a <- mmhc.skel(x, max_k = 3, threshold = 0.05, test = "testIndFisher" ) 
-b <- pc.skel( x, method = "comb.fast", alpha = 0.05 ) 
+b <- pc.skel( x, method = "pearson", alpha = 0.05 ) 
 a$runtime ## 
 b$runtime ## 
 

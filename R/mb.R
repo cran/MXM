@@ -4,7 +4,7 @@
 #####
 ############################
 ############################
-mb <- function(G, node, graph = FALSE) {
+mb <- function(G, node) {
   ## G is the adjacency matrix of an UN-DIRECTED graph
   ## node is a number between 1 and the number of nodes
   ## it is a node whose neighbors you want to find
@@ -33,7 +33,6 @@ mb <- function(G, node, graph = FALSE) {
   blanket <- unique(blanket)
   
   if ( length(blanket) == 0 ) {
-    graph <- FALSE
   } else {  
     Grel <- G[c(node, blanket), c(node, blanket)]
     aa <- which(Grel == 1 & t(Grel) == 1, arr.ind = TRUE)
@@ -41,7 +40,5 @@ mb <- function(G, node, graph = FALSE) {
     Grel[Grel != 2] <- 0
   }
   
-  if ( graph )  plotnetwork(Grel, titlos = paste("Completed partially directed graph" ) )
-    
   list( parents = parents, children = children, spouses = spouses, relatives = relatives, markov.blanket = blanket )
 }

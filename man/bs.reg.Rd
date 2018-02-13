@@ -9,8 +9,7 @@ Variable selection in regression models with backward selection
 }
 
 \usage{
-bs.reg(target, dataset, threshold = 0.05, wei = NULL, test = NULL, user_test = NULL, 
-robust = FALSE)
+bs.reg(target, dataset, threshold = 0.05, wei = NULL, test = NULL, user_test = NULL)
 }
 
 \arguments{
@@ -30,13 +29,10 @@ The ones NOT available are "gSquare", "censIndER", "testIndMVreg",
 make sure your target is factor. See also \code{\link{SES}} and \code{\link{CondIndTests}} for the tests.
 }
 \item{wei}{
-A vector of weights to be used for weighted regression. The default value is NULL. It is not suggested when robust is set to TRUE.
+A vector of weights to be used for weighted regression. The default value is NULL. 
 }
 \item{user_test}{
 A user-defined conditional independence test (provide a closure type object). Default value is NULL. If this is defined, the "test" argument is ignored.
-}
-\item{robust}{
-A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust version of the statistical test if it is available.  It takes more time than a non robust version but it is suggested in case of outliers. Default value is FALSE.
 }
   %\item{maxit}{
     %The maximum number of iterations required by the MM estimators in the robust binary or poisson regrression. This argument is %taken into account only if the argument robust is set to TRUE.

@@ -38,7 +38,7 @@ For "cat.ci" this should be a vector with the levels, the number of distinct (di
 (2 + the number of conditioning variables). 
 }
 \item{rob}{
-If you choose type="pearson" then you can sapecify whether you want a robust version of it (TRUE) or not (FALSE). For "dist.condi" and "cat.ci" this is an obsolete argument but it requires to exist when it is used in the PC algorithm.
+If you choose type="pearson" then you can sapecify whether you want a robust version of it. For "dist.condi" and "cat.ci" this is an obsolete argument but it requires to exist when it is used in the PC algorithm.
 }
 \item{R}{
 If R = 1 then the asymptotic p-value is calculated. If R > 1 a permutation based p-value is returned. For the distance correlation based test, this is set to 499 by default and is used in the partial correlaiton test only. 

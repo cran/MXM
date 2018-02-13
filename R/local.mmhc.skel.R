@@ -1,4 +1,4 @@
-local.mmhc.skel = function(dataset, node, max_k = 3, threshold = 0.05, test = "testIndFisher", rob = FALSE) {
+local.mmhc.skel = function(dataset, node, max_k = 3, threshold = 0.05, test = "testIndFisher") {
   
   durat <- proc.time()  
   
@@ -13,7 +13,7 @@ local.mmhc.skel = function(dataset, node, max_k = 3, threshold = 0.05, test = "t
     colnames(G) <- rownames(G) <- nam  
   }
 
-  a <- MMPC(node, dataset, max_k = max_k, threshold = threshold, test = test, robust = rob, backward = TRUE)
+  a <- MMPC(node, dataset, max_k = max_k, threshold = threshold, test = test, backward = TRUE)
   pct <- a@selectedVars;
   G[node, pct] <- 1
   ntests <- list()
@@ -24,7 +24,7 @@ local.mmhc.skel = function(dataset, node, max_k = 3, threshold = 0.05, test = "t
   if ( length(pct) > 0 ) {
     
     for ( i in pct) {
-      res <- MMPC(i, dataset, max_k = max_k, threshold = threshold, test = test, robust = rob, backward = TRUE) 
+      res <- MMPC(i, dataset, max_k = max_k, threshold = threshold, test = test, backward = TRUE) 
       ntests[[ i ]] <- res@n.tests
       poies <- res@selectedVars
       lista[[ i ]] <- poies

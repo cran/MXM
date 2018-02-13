@@ -1,4 +1,4 @@
-testIndClogit = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL, univariateModels=NULL, hash = FALSE, stat_hash=NULL, pvalue_hash=NULL,robust=FALSE){
+testIndClogit = function(target, dataset, xIndex, csIndex, wei = NULL, univariateModels=NULL, hash = FALSE, stat_hash=NULL, pvalue_hash=NULL){
   # Conditional independence test based on the Log Likelihood ratio test
   if ( !is.matrix(target) || ( is.matrix(target)  &  ncol(target) != 2 ) )   stop('The testIndClogit test can not be performed without a 2 column matrix target');
   csIndex[which(is.na(csIndex))] = 0;
@@ -11,16 +11,14 @@ testIndClogit = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=
     if( !is.null(stat_hash[[key]]) )  {
       stat = stat_hash[[key]];
       pvalue = pvalue_hash[[key]];
-      flag = 1;
-      results <- list(pvalue = pvalue, stat = stat, flag = flag, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+      results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
       return(results);
     }
   }
   #initialization: these values will be returned whether the test cannot be carried out
   pvalue = log(1);
   stat = 0;
-  flag = 0;
-  results <- list(pvalue = pvalue, stat = stat, flag = flag, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+  results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
   clogit_results = NULL;
   clogit_results_full = NULL;
   id = target[, 2] #the patient id
@@ -42,11 +40,9 @@ testIndClogit = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=
         dF = res[2, 3]
         pvalue = pchisq(stat, dF, lower.tail = FALSE, log.p = TRUE)
       }  
-      flag = 1;
       if ( is.na(pvalue) || is.na(stat) ) {
         pvalue = log(1);
         stat = 0;
-        flag = 0;
       } else {
         #update hash objects
         if( hash )  {
@@ -55,7 +51,7 @@ testIndClogit = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=
         }
       }
       #testerrorcaseintrycatch(4);
-      results <- list(pvalue = pvalue, stat = stat, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+      results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
       return(results);
       
     },
@@ -72,8 +68,7 @@ testIndClogit = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=
       #error case
       pvalue = log(1);
       stat = 0;
-      flag = 0;
-      results <- list(pvalue = pvalue, stat = stat, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+      results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
       return(results);
     },
     finally={}

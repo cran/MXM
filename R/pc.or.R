@@ -1,4 +1,4 @@
-pc.or <- function(mod, prev.cycles = TRUE) {
+pc.or <- function(mod) {
   ## mod is the outcome of the function pc.con or pc.skel
   G <- mod$G  ## the undirected graph
   n <- ncol(G)  ## how many variables are there

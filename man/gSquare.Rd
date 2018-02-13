@@ -11,13 +11,13 @@ from 'TARGET' given a conditioning set CS. This test is based on the log likelih
 }
 
 \usage{
-gSquare(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
+gSquare(target, dataset, xIndex, csIndex, wei = NULL,  
 univariateModels = NULL, hash = FALSE, stat_hash = NULL, 
-pvalue_hash = NULL, robust = FALSE)
+pvalue_hash = NULL)
 
-permgSquare(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
+permgSquare(target, dataset, xIndex, csIndex, wei = NULL,
 univariateModels = NULL, hash = FALSE, stat_hash = NULL, 
-pvalue_hash = NULL, robust = FALSE,  threshold = 0.05, R = 999)
+pvalue_hash = NULL, threshold = 0.05, R = 999)
 }
 
 \arguments{
@@ -34,31 +34,24 @@ The index of the variable whose association with the target we want to test.
 The indices of the variables to condition on.
 }
 \item{wei}{
-A vector of weights to be used for weighted regression. The default value is NULL. It is not suggested when robust is set to TRUE.
-}
-\item{dataInfo}{
-A list object with information on the structure of the data. Default value is NULL.
+This argument is not used in this test. 
 }
 \item{univariateModels}{
 Fast alternative to the hash object for univariate tests. List with vectors "pvalues" (p-values), "stats" (statistics) and 
 "flags" (flag = TRUE if the test was succesful) representing the univariate association of each variable with the target. 
 Default value is NULL.
 }
-  \item{hash}{
+\item{hash}{
 A boolean variable which indicates whether (TRUE) or not (FALSE) to use the hash-based implementation of the statistics of SES. 
 Default value is FALSE. If TRUE you have to specify the stat_hash argument and the pvalue_hash argument.
 }
-  \item{stat_hash}{
+\item{stat_hash}{
 A hash object (hash package required) which contains the cached generated statistics of a SES run in the current dataset, 
 using the current test.
 }
-  \item{pvalue_hash}{
+\item{pvalue_hash}{
 A hash object (hash package required) which contains the cached generated p-values of a SES run in the current dataset, 
 using the current test.
-}
-  \item{robust}{
-A boolean variable which indicates whether (TRUE) or not (FALSE) 
-to use a robust test. Currently it is not available for this test.
 }
 \item{threshold}{
 Threshold (suitable values in [0,1]) for assessing p-values significance. Default value is 0.05. This is actually obsolete here, but has to be in order to have a concise list of input arguments across the same family of functions.
@@ -89,9 +82,6 @@ A numeric value that represents the logarithm of the generated p-value of the \e
 }
 \item{stat}{
 A numeric value that represents the generated statistic of the \eqn{G^2} test (see reference below).
-}
-\item{flag}{
-A numeric value (control flag) which indicates whether the test was succesful (0) or not (1).
 }
 \item{stat_hash}{
 The current hash object used for the statistics. See argument stat_hash and details. If argument hash = FALSE this is NULL.

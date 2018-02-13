@@ -1,6 +1,7 @@
 \name{Conditional independence tests for count data }
 \alias{testIndPois}
 \alias{testIndNB}
+\alias{testIndQPois}
 \alias{testIndZIP}
 \alias{permPois}
 \alias{permNB}
@@ -17,76 +18,67 @@ The main task of this test is to provide a p-value PVALUE for the null hypothesi
 }
 
 \usage{
-testIndPois(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
-univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
-robust = FALSE)
+testIndPois(target, dataset, xIndex, csIndex, wei = NULL,  
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL)
 
-testIndNB(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
-univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
-robust = FALSE)
+testIndNB(target, dataset, xIndex, csIndex, wei = NULL, 
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL)
 
-testIndZIP(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
-univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
-robust = FALSE)
+testIndZIP(target, dataset, xIndex, csIndex, wei = NULL, 
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL)
 
-permPois(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
-univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
-robust = FALSE, threshold = 0.05, R = 999)
+testIndQPois(target, dataset, xIndex, csIndex, wei = NULL,
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL)
 
-permNB(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
+permPois(target, dataset, xIndex, csIndex, wei = NULL,
 univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
-robust = FALSE, threshold = 0.05, R = 999)
+threshold = 0.05, R = 999)
 
-permZIP(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
+permNB(target, dataset, xIndex, csIndex, wei = NULL,  
 univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
-robust = FALSE, threshold = 0.05, R = 999)
+threshold = 0.05, R = 999)
 
-waldPois(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
+permZIP(target, dataset, xIndex, csIndex, wei = NULL,  
 univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
-robust = FALSE) 
+threshold = 0.05, R = 999)
 
-waldNB(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
-univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
-robust = FALSE) 
+waldPois(target, dataset, xIndex, csIndex, wei = NULL,  
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL) 
 
-waldZIP(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
-univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL,
-robust = FALSE) 
+waldNB(target, dataset, xIndex, csIndex, wei = NULL, 
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL) 
+
+waldZIP(target, dataset, xIndex, csIndex, wei = NULL,  
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL) 
 }
 
 \arguments{
-  \item{target}{
-  A numeric vector containing the values of the target variable.
+\item{target}{
+A numeric vector containing the values of the target variable.
 }
-  \item{dataset}{
-  A numeric matrix or data frame, in case of categorical predictors (factors), containing the variables for performing the test. Rows as samples and columns as features. In the cases of "waldPois", "waldNB" and "waldZIP" this is strictly a matrix. 
+\item{dataset}{
+A numeric matrix or data frame, in case of categorical predictors (factors), containing the variables for performing the test. Rows as samples and columns as features. In the cases of "waldPois", "waldNB" and "waldZIP" this is strictly a matrix. 
 }
-  \item{xIndex}{
-  The index of the variable whose association with the target we want to test.
+\item{xIndex}{
+The index of the variable whose association with the target we want to test.
 }
-  \item{csIndex}{
-  The indices of the variables to condition on. If you have no variables set this equal to 0.
+\item{csIndex}{
+The indices of the variables to condition on. If you have no variables set this equal to 0.
 }
-  \item{wei}{
-  A vector of weights to be used for weighted regression. The default value is NULL. 
+\item{wei}{
+A vector of weights to be used for weighted regression. The default value is NULL. 
 }
-  \item{dataInfo}{
-  A list object with information on the structure of the data. Default value is NULL.
+\item{univariateModels}{
+Fast alternative to the hash object for univariate test. List with vectors "pvalues" (p-values), "stats" (statistics) and "flags" (flag = TRUE if the test was succesful) representing the univariate association of each variable with the target. Default value is NULL.
 }
-  \item{univariateModels}{
-  Fast alternative to the hash object for univariate test. List with vectors "pvalues" (p-values), "stats" (statistics) and "flags" (flag = TRUE if the test was succesful) representing the univariate association of each variable with the target. Default value is NULL.
-}
-  \item{hash}{
+\item{hash}{
 A boolean variable which indicates whether (TRUE) or not (FALSE) to use tha hash-based implementation of the statistics of SES. Default value is FALSE. If TRUE you have to specify the stat_hash argument and the pvalue_hash argument.
 }
-  \item{stat_hash}{
+\item{stat_hash}{
 A hash object (hash package required) which contains the cached generated statistics of a SES run in the current dataset, using the current test.
 }
-  \item{pvalue_hash}{
+\item{pvalue_hash}{
 A hash object (hash package required) which contains the cached generated p-values of a SES run in the current dataset, using the current test.
-}
-  \item{robust}{
-A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust version of the statistical test if it is available. It takes more time than non robust version but it is suggested in case of outliers. Default value is FALSE as it is currently nor supported.
 }
 \item{threshold}{
 Threshold (suitable values in [0,1]) for assessing p-values significance. 
@@ -104,6 +96,8 @@ Important: Use these arguments only with the same dataset that was used at initi
 If you have overdispersion, the variance is higher than the mean, a negative binomial is to be used. If you have more zeros than expected under a Poisson model, not overdispersion, then zero inlfated Poisson is to be used. Bear in mind that if you have a small number of zeros, there is no reason to use this model. If for example you have count data but no, or 1 zeros, this will not work.
 
 The log-likelihood ratio test used in "testIndPois", "testIndNB" and "testIndZIP" requires the fitting of two models. The Wald test used in "waldPois", "waldNB" and "waldZIP" requires fitting of only one model, the full one. The significance of the variable is examined only. Only continuous (or binary) predictor variables are currently accepted in this test. 
+
+The testIndQPois does quasi Poisson regression. The benefit of this regression is that it works for over and under dispersed data. Negative Binomial works for over dispersed data, but not for under dispersed data. In addition it is fast.
 }
 
 \value{
@@ -113,9 +107,6 @@ A numeric value that represents the logarithm of the generated p-value due to th
 }
 \item{stat}{
 A numeric value that represents the generated statistic due to Poisson regression(see reference below).
-}
-\item{flag}{
-A numeric value (control flag) which indicates whether the test was succesful (0) or not (1).
 }
 \item{stat_hash}{
 The current hash object used for the statistics. See argument stat_hash and details. If argument hash = FALSE this is NULL.
@@ -144,7 +135,7 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr>, Vinc
 %}
 
 \seealso{
-\code{\link{testIndSpeedglm}, \link{testIndNB}, \link{testIndZIP}, \link{gSquare}, \link{CondIndTests}}
+\code{\link{testIndReg}, \link{testIndNB}, \link{testIndZIP}, \link{gSquare}, \link{CondIndTests}}
 }
 
 \examples{

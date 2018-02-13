@@ -135,7 +135,7 @@ cv.permmmpc <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, 
         threshold <- mmpc_configurations[[mmpc_conf_id]]$a;
         max_k <- mmpc_configurations[[mmpc_conf_id]]$max_k;
         #running mmpc
-        results <- perm.mmpc(train_target, train_set, max_k, threshold, test = test, ini = mmpcini, wei = wtrain, hash = TRUE, hashObject = mmpcHashMap, robust = FALSE, R = R)
+        results <- perm.mmpc(train_target, train_set, max_k, threshold, test = test, ini = mmpcini, wei = wtrain, hash = TRUE, hashObject = mmpcHashMap, R = R)
         mmpcini <- results@univ
         mmpcHashMap <- results@hashObject;
         variables <- results@selectedVars;
@@ -196,11 +196,9 @@ cv.permmmpc <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, 
     
     opti <- Rfast::rowmeans(mat)
     bestpar <- which.max(opti)
-    estb <- abs( sum( mat[bestpar, ] - Rfast::colMaxs(mat, value = TRUE) ) / kfolds )  ## apply(mat, 2, max) ) ) / kfolds 
     
     best_model$best_configuration = conf_mmpc[[bestpar]]$configuration
     best_model$best_performance <- max( opti )
-    best_model$BC_best_perf <- best_model$best_performance - estb
     best_model$runtime <- proc.time() - tic 
     result = best_model
   }

@@ -16,9 +16,6 @@ importFrom("survival", is.Surv, coxph, Surv, survreg, clogit, strata, survConcor
 #testIndGLMM
 importFrom("lme4", "lmer", "glmer")
 
-#testIndSpeedglm
-importFrom("speedglm", "speedlm", "speedglm")
-
 #robust glms
 #importFrom("robust", glmRob, lmsreg)
 
@@ -29,6 +26,8 @@ importFrom("MASS", lm.ridge)
 
 importFrom("hash", "hash")
 
+importFrom("geepack", "geeglm", "ordgee")
+
 #more
 importFrom("methods", "new", "as")
 importFrom("stats", "predict", "pt", "pf", "binomial", "family", "predict.lm", "BIC", "logLik", "median", 
@@ -36,7 +35,7 @@ importFrom("stats", "predict", "pt", "pf", "binomial", "family", "predict.lm", "
             "Gamma", "gaussian", "nlm", "optim", "rnorm", "glm", "anova", "lm", "model.frame", "model.matrix", 
             "glm.fit", "lm.fit", "deviance", "as.formula", "pchisq", "lm.wfit",  "coef", "resid", "cor","cov", 
             "pnorm", "mahalanobis", "var", ".lm.fit","contrasts", "model.response", "optimise", "add1", 
-            "quantile", "smooth.spline", "qchisq")
+            "quantile", "smooth.spline", "qchisq", "quasibinomial", "quasipoisson")
 
 importFrom("grDevices", "dev.new")
   
@@ -50,7 +49,8 @@ importFrom("Rfast", colVars, univglms, colmeans, g2Test_univariate, g2Test_univa
            g2Test, g2Test_perm, sort_mat, which_isFactor, standardise, colrange, regression, zip.mle, beta.mle, 
            rmvnorm, rowMaxs, rowsums, colsums, score.glms, score.betaregs, score.weibregs, score.multinomregs, 
            score.negbinregs, score.gammaregs, sort_unique, Var, data.frame.to_matrix, fs.reg, check_data, colMaxs, 
-           cor.fsreg, pc.skel, group.sum, squareform, cora, rint.regs, spdinv, cor.fbed, colRanks)
+           cor.fsreg, pc.skel, group.sum, squareform, cora, spdinv, cor.fbed, colRanks, logistic_only, 
+           poisson_only, mvbetas, ompr, glm_logistic, glm_poisson, prop.reg, normlog.reg, mvnorm.mle, normlog.mle)
 
 
 import("doParallel")
@@ -59,24 +59,30 @@ import("foreach")
 
 
 export(SES, InternalSES, MMPC, InternalMMPC, SES.temporal, InternalSES.temporal, MMPC.temporal, InternalMMPC.temporal, mmhc.skel, 
-       pc.skel, pc.con, censIndCR, censIndWR, censIndER, gSquare, testIndFisher, testIndLogistic, testIndRQ, testIndGLMM, 
-       testIndMVreg, testIndBeta, testIndNB, testIndClogit, testIndPois, testIndReg, testIndSpearman, testIndZIP, testIndSpeedglm, 
-       testIndBinom, cv.ses, auc.mxm, acc.mxm, acc_multinom.mxm, fscore.mxm, euclid_sens.spec.mxm, mse.mxm, ci.mxm, ciwr.mxm,ord_mae.mxm, 
-	   poisdev.mxm, nbdev.mxm, glm.mxm, lm.mxm, pois.mxm, nb.mxm, multinom.mxm, rq.mxm, lmrob.mxm, ordinal.mxm, coxph.mxm, beta.mxm, 
-	   weibreg.mxm, ridge.reg, ridgereg.cv, ridge.plot, ses.model, mmpc.model, nei, reg.fit, pc.or, undir.path, rdag, mb, mmmb, permcor, 
-	   findAncestors, findDescendants, transitiveClosure, dag2eg, bic.fsreg, bic.glm.fsreg, fs.reg, glm.fsreg, lm.fsreg, glm.bsreg, 
-	   tc.plot, cv.mmpc, mmpc.path, condi, cat.ci, partialcor, auc, generatefolds, ma.ses, ma.mmpc, equivdags, testIndIGreg, bs.reg, 
-	   zip.mod, zip.reg, zip.regs, beta.regs, beta.mod, plotnetwork, univregs, iamb.bs, iamb, dist.condi, permFisher, permcorrels, 
-	   lm.fsreg_heavy, score.univregs, perm.univregs, perm.zipregs, perm.betaregs, wald.poissonregs, wald.logisticregs, rdag2, 
-	   wald.univregs, wald.betaregs, wald.zipregs, waldBeta, waldBinary, waldBinom, waldCR, waldER, waldWR, waldIGreg, waldMMreg, 
-	   waldNB, waldPois, waldOrdinal, waldZIP, permgSquare, permBeta, permLogistic, permBinom, permCR, permER, permWR, permClogit, 
-	   permReg, permMVreg, permRQ, permIGreg, permNB, permPois, permZIP, perm.mmpc, perm.ses, wald.mmpc, wald.ses, cv.waldses, 
-	   cv.waldmmpc, cv.permses, cv.permmmpc, waldses.model, waldmmpc.model, waldmmpc.path, mmpc.temporal.model, mmpcbackphase, shd, 
-	   is.dag, topological_sort, corfs.network, testIndGamma, waldGamma, permGamma, testIndNormLog, waldNormLog, permNormLog, 
-	   gammafsreg, normlog.fsreg, gammabsreg, normlog.bsreg, bic.gammafsreg, bic.normlog.fsreg, testIndTobit, waldTobit, permTobit, 
-	   permDcor, rint.regs, ordinal.reg, fbed.reg, ebic.bsreg, ci.mm, ci.fast, ci.mm2, ci.fast2, rmdag, mmpc.or, condis, local.mmhc.skel, 
-	   pc.skel.boot, fbed.glmm.reg, ebic.glmm.bsreg, glmm.bsreg, glmm.pc.skel, glmm.ci.mm, bn.skel.utils, bn.skel.utils2, conf.edge.lower, 
-	   pi0est, Ness, pval.mixbeta, cor.drop1)
+       pc.skel, pc.con, censIndCR, censIndWR, censIndER, gSquare, testIndFisher, testIndLogistic, testIndRQ, testIndGLMMReg, 
+       testIndGLMMPois, testIndGLMMLogistic, testIndMVreg, testIndBeta, testIndNB, testIndClogit, testIndPois, testIndReg, 
+       testIndSpearman, testIndZIP, testIndBinom, cv.ses, auc.mxm, acc.mxm, acc_multinom.mxm, fscore.mxm, euclid_sens.spec.mxm, 
+       mse.mxm, ci.mxm, ciwr.mxm,ord_mae.mxm, poisdev.mxm, nbdev.mxm, glm.mxm, lm.mxm, pois.mxm, nb.mxm, multinom.mxm, rq.mxm, 
+       lmrob.mxm, ordinal.mxm, coxph.mxm, beta.mxm, weibreg.mxm, ridge.reg, ridgereg.cv, ridge.plot, ses.model, mmpc.model, nei, 
+       reg.fit, pc.or, undir.path, rdag, mb, mmmb, permcor, findAncestors, findDescendants, transitiveClosure, dag2eg, bic.fsreg, 
+       bic.glm.fsreg, fs.reg, glm.fsreg, lm.fsreg, glm.bsreg, tc.plot, cv.mmpc, mmpc.path, condi, cat.ci, partialcor, auc, 
+       generatefolds, ma.ses, ma.mmpc, equivdags, testIndIGreg, bs.reg, zip.mod, zip.reg, zip.regs, beta.regs, beta.mod, plotnetwork, 
+       univregs, iamb.bs, iamb, dist.condi, permFisher, permcorrels, score.univregs, perm.univregs, perm.zipregs, perm.betaregs, 
+       wald.poissonregs, wald.logisticregs, rdag2, wald.univregs, wald.betaregs, wald.zipregs, waldBeta, waldLogistic, waldBinom, 
+       waldCR, waldER, waldWR, waldIGreg, waldMMReg, waldNB, waldPois, waldOrdinal, waldZIP, permgSquare, permBeta, permLogistic, 
+       permBinom, permCR, permER, permWR, permClogit, permReg, permMVreg, permRQ, permIGreg, permNB, permPois, permZIP, perm.mmpc, 
+       perm.ses, wald.mmpc, wald.ses, cv.waldses, cv.waldmmpc, cv.permses, cv.permmmpc, waldses.model, waldmmpc.model, waldmmpc.path, 
+       mmpc.temporal.model, mmpcbackphase, shd, is.dag, topological_sort, corfs.network, testIndGamma, waldGamma, permGamma, 
+       testIndNormLog, waldNormLog, permNormLog, gammafsreg, normlog.fsreg, gammabsreg, normlog.bsreg, bic.gammafsreg, 
+       bic.normlog.fsreg, testIndTobit, waldTobit, permTobit, permDcor, rint.regs, ordinal.reg, fbed.reg, ebic.bsreg, ci.mm, ci.fast, 
+       ci.mm2, ci.fast2, rmdag, mmpc.or, condis, local.mmhc.skel, pc.skel.boot, fbed.glmm.reg, ebic.glmm.bsreg, glmm.bsreg, 
+       glmm.pc.skel, glmm.ci.mm, bn.skel.utils, bn.skel.utils2, conf.edge.lower, pi0est, Ness, pval.mixbeta, cor.drop1, 
+       triangles.search, testIndQBinom, testIndQPois, testIndLMM, fbedreg.bic, ida, fbed.gee.reg, testIndMMReg, testIndMMFisher, 
+       permMMReg, permMMFisher, testIndMultinom, testIndOrdinal, permMultinom, permOrdinal, bic.mm.fsreg, certificate.of.exclusion, 
+       ebic.univregs, testIndGEEReg, testIndGEEPois, testIndGEELogistic, testIndGEEGamma, testIndGEENormLog, testIndGEEOrdinal, omp, 
+       MMPC.gee, InternalMMPC.gee, ses.temporal.model, SES.gee, InternalSES.gee, mmpc.gee.model, ses.gee.model ,group.mvbetas, 
+       testIndTimeLogistic, testIndTimeMultinom, MMPC.timeclass, SES.timeclass, glmm.gee.univregs, mmpc.timeclass.model, 
+       ses.timeclass.model )
 
 exportClasses("SESoutput")
 exportClasses("MMPCoutput")
@@ -84,6 +90,4 @@ exportClasses("mases.output")
 exportClasses("mammpc.output")
 exportClasses("SES.temporal.output")
 exportClasses("MMPC.temporal.output")
-#exportClasses("perm.mmpc.output")
-#exportClasses("wald.mmpc.output")
-exportMethods("plot", "summary")
+exportMethods("plot")

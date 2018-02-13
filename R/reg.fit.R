@@ -1,12 +1,9 @@
-##########
 ### A generic regression model accepting many regression models
-###
-##########
 reg.fit <- function(y, dataset, event = NULL, reps = NULL, group = NULL, slopes = FALSE, 
-                    reml = FALSE, model = NULL, robust = FALSE, wei = NULL, xnew = NULL) {
+                    reml = FALSE, model = NULL, wei = NULL, xnew = NULL) {
   ## possible models are "gaussian" (default), "binary", "binomial", "multinomial", "poisson",
   ## "ordinal", "Cox", "Weibull", "exponential", "zip", "beta", "median", "negbin", "gamma", "normlog",
-  ## "longitudinal" or "grouped".
+  ##  "longitudinal", "grouped", "tobit", "qpois", "qbinom" or "MM".
   ## robust is either TRUE or FALSE
   ## y is the y variable, can be a numerical variable, a matrix, a factor, ordinal factor, percentages, or time to event
   ## dataset is the indendent variable(s). It can be a vector, a matrix or a dataframe with continuous only variables, 
@@ -26,11 +23,6 @@ reg.fit <- function(y, dataset, event = NULL, reps = NULL, group = NULL, slopes 
     ## multivariate data
     if ( sum( class(y) == "matrix" ) == 1 ) { 
       if ( min(y) > 0 &  Rfast::Var(Rfast::rowsums(y) == 0 ) )  y <- log(y[, -1] / y[, 1])  ## compositional data
-      model <- "gaussian"
-    }
-    ## percentages
-    if ( is.vector(y) )  {
-      if ( all(y >0 & y < 1) )  y <- log( y / (1 - y) ) 
       model <- "gaussian"
     }
     ## surival data
@@ -68,14 +60,11 @@ reg.fit <- function(y, dataset, event = NULL, reps = NULL, group = NULL, slopes 
  
      ## univariate gaussian model
   if ( model == "gaussian"  &  is.vector(y) ) {
-     if ( !robust ) {
-       mod <- lm(y ~ ., data = x, weights = wei )
-     } else {
-       # cont = robust::lmRob.control(mxr = 2000, mxf = 2000, mxs = 2000 )
-       # mod <- robust::lmRob(y ~ ., data = as.data.frame(x), control = cont) 
-       mod <- MASS::rlm(y ~., data = x, maxit = 2000, weights = wei, method = "MM")
-     }
+     mod <- lm(y ~ ., data = x, weights = wei )
 
+  } else if ( model == "MM" ) {
+    mod <- MASS::rlm(y ~., data = x, maxit = 2000, method = "MM")
+    
   } else if ( model == "gaussian"  &  is.matrix(y) ) {
     mod <- lm(y ~ ., data = x )
  
@@ -107,10 +96,18 @@ reg.fit <- function(y, dataset, event = NULL, reps = NULL, group = NULL, slopes 
   } else if ( model == "ordinal" ) {
     mod <- ordinal::clm(y ~ ., data = x, weights = wei )
 
-    ## poisson regression
+    ## Poisson regression
   } else if ( model == "poisson" ) {
     mod <- glm(y ~ ., data = x, poisson, weights = wei)
 
+    ## quasi Poisson regression
+  } else if ( model == "qpois" ) {
+    mod <- glm(y ~ ., data = x, quasipoisson, weights = wei)
+    
+    ## quasi binomial regression
+  } else if ( model == "qbinom" ) {
+    mod <- glm(y ~ ., data = x, quasibinomial, weights = wei)
+    
     ## negative binomial regression
   } else if ( model == "negbin" ) {
     mod <- MASS::glm.nb(y ~ ., data = x, weights = wei )

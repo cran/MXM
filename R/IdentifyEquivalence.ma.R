@@ -1,4 +1,4 @@
-IdentifyEquivalence.ma = function(equal_case, queues, target, dataset, test, threshold, statistic, max_k, selectedVars, pvalues, stats, remainingVars, univariateModels, selectedVarsOrder, hash, dataInfo, stat_hash, pvalue_hash, robust = robust, ncores = ncores)
+IdentifyEquivalence.ma = function(queues, target, dataset, test, threshold, statistic, max_k, selectedVars, pvalues, stats, remainingVars, univariateModels, selectedVarsOrder, hash, stat_hash, pvalue_hash)
 { 
   varsToBeConsidered = which(selectedVars==1 | remainingVars==1); #CHANGE
   lastvar = which(selectedVarsOrder == max(selectedVarsOrder))[1]; #CHANGE
@@ -7,12 +7,10 @@ IdentifyEquivalence.ma = function(equal_case, queues, target, dataset, test, thr
   for (cvar in varsToBeConsidered) {
     #if var is the last one added, no sense to perform the check
     if (cvar == lastvar)  next;
-    
     #the maximum conditioning set
     selectedVarsIDs = which(selectedVars == 1);
     cs = setdiff(selectedVarsIDs , cvar);
     k = min( c(max_k , length(cs)) );
-    
     #for all possible subsets at most k size
     #problem in 1:k if K=0 - solve with while temporary
     klimit = 1;
@@ -33,7 +31,7 @@ IdentifyEquivalence.ma = function(equal_case, queues, target, dataset, test, thr
         z = subsetcsk[,i];
         z = t(t(z));
         
-        cur_results = test(target = target, dataset = dataset, xIndex = cvar, csIndex = z, statistic = statistic, dataInfo=dataInfo, univariateModels = univariateModels, hash = hash, stat_hash = stat_hash, pvalue_hash = pvalue_hash, robust=robust);
+        cur_results = test(target = target, dataset = dataset, xIndex = cvar, csIndex = z, statistic = statistic, univariateModels = univariateModels, hash = hash, stat_hash = stat_hash, pvalue_hash = pvalue_hash);
         stat_hash = cur_results$stat_hash;
         pvalue_hash = cur_results$pvalue_hash;
         #check if the pvalues and stats should be updated
@@ -45,10 +43,10 @@ IdentifyEquivalence.ma = function(equal_case, queues, target, dataset, test, thr
         #then let's throw away var; moreover, we also look for
         #equivalent variables. Note that we stop after the first 
         #z such that pvalue_{var, y | z} > threshold
-        if (cur_results$flag & cur_results$pvalue > threshold) {
+        if ( cur_results$pvalue > threshold ) {
           remainingVars[[cvar]] = 0;
           selectedVars[[cvar]] = 0;
-          queues = identifyTheEquivalent.ma(equal_case, queues, target, dataset, cvar, z, test, threshold, statistic, univariateModels, pvalues, hash, dataInfo, stat_hash, pvalue_hash, robust = robust, ncores = ncores);
+          queues = identifyTheEquivalent.ma(queues, target, dataset, cvar, z, test, threshold, statistic, univariateModels, pvalues, hash, stat_hash, pvalue_hash);
           breakFlag = TRUE;
           break;
         }
@@ -61,6 +59,6 @@ IdentifyEquivalence.ma = function(equal_case, queues, target, dataset, test, thr
       }
     }
   }
-  results <- list(pvalues = pvalues, stats = stats, queues = queues, selectedVars = selectedVars, remainingVars = remainingVars, stat_hash = stat_hash, pvalue_hash = pvalue_hash, rob = robust);
+  results <- list(pvalues = pvalues, stats = stats, queues = queues, selectedVars = selectedVars, remainingVars = remainingVars, stat_hash = stat_hash, pvalue_hash = pvalue_hash);
   return(results);
 }

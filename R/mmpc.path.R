@@ -1,6 +1,6 @@
-mmpc.path <- function(target , dataset , wei = NULL, max_ks = NULL , thresholds = NULL , test = NULL , user_test = NULL, robust = FALSE, ncores = 1){
+mmpc.path <- function(target, dataset, wei = NULL, max_ks = NULL , alphas = NULL , test = NULL , user_test = NULL, ncores = 1) {
   
-  if( is.null(thresholds) )  alphas <- c(0.1, 0.05, 0.01)
+  if( is.null(alphas) )  alphas <- c(0.1, 0.05, 0.01)
   if( is.null(max_ks) )   max_ks <- c(4, 3, 2)  
   
   alphas = sort(alphas, decreasing = TRUE)
@@ -26,7 +26,7 @@ mmpc.path <- function(target , dataset , wei = NULL, max_ks = NULL , thresholds 
       iniset <- results@univ
       inihash <- results@hashObject;
       
-      a <- mmpc.model(target, dataset, wei = wei, results)$ypografi 
+      a <- mmpc.model(target, dataset, wei = wei, results)$signature 
       
       if ( !is.null(a) ) {
       bic[i, j] <- a[length(a)]    

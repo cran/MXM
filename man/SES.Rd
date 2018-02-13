@@ -17,27 +17,27 @@ SES algorithm follows a forward-backward filter approach for feature selection i
 
 \usage{
 SES(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini = NULL, 
-wei = NULL, user_test = NULL, hash = FALSE, hashObject = NULL, robust = FALSE, 
-ncores = 1, logged = FALSE)
+wei = NULL, user_test = NULL, hash = FALSE, hashObject = NULL,
+ncores = 1)
  
 MMPC(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini = NULL, 
-wei = NULL, user_test = NULL, hash = FALSE, hashObject = NULL, robust = FALSE, 
-ncores = 1, backward = FALSE, logged = FALSE)
+wei = NULL, user_test = NULL, hash = FALSE, hashObject = NULL, 
+ncores = 1, backward = FALSE)
 
 wald.ses(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini = NULL, 
-wei = NULL, user_test = NULL, hash = FALSE, hashObject = NULL, robust = FALSE, 
+wei = NULL, user_test = NULL, hash = FALSE, hashObject = NULL, 
 ncores = 1)
 
 wald.mmpc(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini = NULL, 
-wei = NULL, user_test = NULL, hash = FALSE, hashObject = NULL, robust = FALSE, 
+wei = NULL, user_test = NULL, hash = FALSE, hashObject = NULL,  
 ncores = 1, backward = FALSE)
 
 perm.ses(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini = NULL, 
-wei = NULL, user_test = NULL, hash=FALSE, hashObject = NULL, robust = FALSE, 
+wei = NULL, user_test = NULL, hash=FALSE, hashObject = NULL, 
 R = 999, ncores = 1)
 
 perm.mmpc(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini = NULL, 
-wei = NULL, user_test = NULL, hash=FALSE, hashObject = NULL, robust = FALSE, 
+wei = NULL, user_test = NULL, hash=FALSE, hashObject = NULL,
 R = 999, ncores = 1, backward = FALSE)
 }
 
@@ -47,7 +47,6 @@ The class variable. Provide either a string, an integer, a numeric value, a vect
 }
 \item{dataset}{
 The data-set; provide either a data frame or a matrix (columns = variables , rows = samples).
-Alternatively, provide an ExpressionSet (in which case rows are samples and columns are features, see bioconductor for details).
 }
 \item{max_k}{
 The maximum conditioning set to use in the conditional indepedence test (see Details). Integer, default value is 3.
@@ -62,7 +61,7 @@ The conditional independence test to use. Default value is NULL. See also \code{
 This is a supposed to be a list. After running SES or MMPC with some hyper-parameters you might want to run SES again with different hyper-parameters. To avoid calculating the univariate associations (first step of SES and of MMPC) again, you can extract them from the first run of SES and plug them here. This can speed up the second run (and subequent runs of course) by 50\%. See the details and the argument "univ" in the output values. 
 }
 \item{wei}{
-A vector of weights to be used for weighted regression. The default value is NULL. It is not taken into account when robust is set to TRUE.
+A vector of weights to be used for weighted regression. The default value is NULL. 
 }
 \item{user_test}{
 A user-defined conditional independence test (provide a closure type object). Default value is NULL. If this is defined, the "test" argument is ignored.
@@ -76,9 +75,6 @@ Each time SES runs with "hash=TRUE" it produces a list of hashObjects that can b
 
 Important: the generated hashObjects should be used only when the same dataset is re-analyzed, possibly with different values of max_k and threshold.
 }
-\item{robust}{
-A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust version of the statistical test if it is available. It takes more time than a non robust version but it is suggested in case of outliers. Default value is FALSE. This is obsolete for the Wald and prmutation based SES and MMPC, but we left it for consistency across all signatures of the different versions of the algorithms. 
-}
 \item{R}{
 The number of permutations, set to 999 by default. There is a trick to avoind doing all permutations. As soon as the number of times the permuted test statistic is more than the observed test statistic is more than 50 (if threshold = 0.05 and R = 999), the p-value has exceeded the signifiance level (threshold value) and hence the predictor variable is not significant. There is no need to continue do the extra permutations, as a decision has already been made. 
 }
@@ -87,9 +83,6 @@ How many cores to use. This plays an important role if you have tens of thousand
 }
 \item{backward}{
 If TRUE, the backward (or symmetry correction) phase will be implemented. This removes any falsely included variables in the parents and children set of the target variable. It call the \code{link{mmpcbackphase}} for this purpose. For perm.ses and wald.ses this is not yet applicable.
-}
-\item{logged}{
-Do you want the logarithm of the final p-values be returned? Default value is FALSE.
 }
 }
 
@@ -100,11 +93,11 @@ http://www.mensxmachina.org/publications/discovering-multiple-equivalent-biomark
 The MMPC function mplements the MMPC algorithm as presented in "Tsamardinos, Brown and Aliferis. The max-min hill-climbing Bayesian network structure learning algorithm" 
 http://www.dsl-lab.org/supplements/mmhc_paper/paper_online.pdf
 
-For faster computations in the internal SES functions, install the suggested package \bold{gRbase}. In addition, the output value "univ" along with the output value "hashObject" 
+he output value "univ" along with the output value "hashObject" 
 can speed up the computations of subesequent runs of SES and MMPC. The first run with a specific pair of hyper-parameters (threshold and max_k) the univariate associations tests 
 and the conditional independence tests (test statistic and logarithm of their corresponding p-values) are stored and returned. In the next run(s) with different pair(s) of 
-hyper-parameters you can use this information to save time. With a few thousands of variables you will see the difference, which can be up to 50\%. For the non robust correlation 
-based tests, the difference may not be significant though, because a Fortran code is used to extract the (unconditional) correlation coefficients. 
+hyper-parameters you can use this information to save time. With a few thousands of variables you will see the difference, which can be up to 50\%. For the non robust correlation based tests, 
+the difference may not be significant though, because the unconditional correlation coefficients are calculated very efficiently.s. 
 
 The max_k option: the maximum size of the conditioning set to use in the conditioning independence test. Larger values provide more accurate results, at the cost of higher 
 computational times. When the sample size is small (e.g., \eqn{<50} observations) the max_k parameter should be \eqn{ \leq 5}, otherwise the conditional independence test may 
@@ -208,14 +201,9 @@ The run time of the algorithm. A numeric vector. The first element is the user t
 \item{test}{
 The character name of the statistic test used.
 }
-\item{rob}{
-The value of the robust option, either TRUE or FALSE.
-}
 
 Generic Functions implemented for SESoutput Object:
-\item{summary(x=SESoutput)}{
-Summary view of the SESoutput object.
-}
+
 \item{plot(object=SESoutput, mode="all")}{
 Plots the generated pvalues (using barplot) of the current SESoutput object in comparison to the threshold.
 

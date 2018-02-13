@@ -63,12 +63,12 @@ condi <- function(ind1, ind2, cs, dat, type = "pearson", rob = FALSE, R = 1) {
 
         e1 <- resid( MASS::rlm( x1 ~ x2, maxit = 2000, method = "MM" ) )
         e2 <- resid( MASS::rlm( x2 ~ x1, maxit = 2000, method = "MM" ) )       
-        res <- permcor( cbind(e1, e2), R )
+        res <- permcor( e1, e2, R )
         stat <- abs( res[1] )
         pvalue <- res[2]
         
       }else{
-        res <- permcor( cbind(x1, x2), R )
+        res <- permcor( x1, x2, R )
         stat <- abs( res[1] )
         pvalue <- res[2]
       }
@@ -78,13 +78,13 @@ condi <- function(ind1, ind2, cs, dat, type = "pearson", rob = FALSE, R = 1) {
       if ( rob ) { ## robust correlation
         e1 <- resid( MASS::rlm( x1 ~ ., data = data.frame(dat[, cs]), maxit = 2000, method = "MM") )
         e2 <- resid( MASS::rlm( x2 ~.,  data = data.frame(dat[, cs]), maxit = 2000, method = "MM") )
-        res <- permcor( cbind(e1, e2), R)
+        res <- permcor( e1, e2, R)
         stat <- abs( res[1] )
         pvalue <- res[2]
         
       } else {
         er <- lm.fit(cbind(1, dat[, cs]), cbind( x1, x2 )  )$residuals
-		    res <- permcor( er, R ) 
+		    res <- permcor( er[, 1], er[, 2], R ) 
         stat <- abs( res[1] )
         pvalue <- (res[2])
       }

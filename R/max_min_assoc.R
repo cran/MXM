@@ -1,5 +1,5 @@
-max_min_assoc = function(target, dataset, test, wei, threshold, max_k, selectedVars, pvalues, stats, remainingVars, univariateModels, selectedVarsOrder, hash, dataInfo, stat_hash, pvalue_hash, robust, ncores)
-{
+max_min_assoc = function(target, dataset, test, wei, threshold, max_k, selectedVars, pvalues, stats, remainingVars, 
+                         univariateModels, selectedVarsOrder, hash, stat_hash, pvalue_hash) {
   #Initialize
   selected_var = -1;
   selected_pvalue = 2;
@@ -8,7 +8,7 @@ max_min_assoc = function(target, dataset, test, wei, threshold, max_k, selectedV
   varsToIterate = which(remainingVars==1);
   
   for (cvar in varsToIterate) {
-    mma_res = min_assoc(target, dataset, test, max_k, cvar, wei, selectedVars, pvalues, stats, univariateModels, selectedVarsOrder, hash, dataInfo, stat_hash, pvalue_hash, robust = robust, ncores = ncores);
+    mma_res = min_assoc(target, dataset, test, max_k, cvar, wei, selectedVars, pvalues, stats, univariateModels, selectedVarsOrder, hash, stat_hash, pvalue_hash);
     pvalues = mma_res$pvalues;
     stats = mma_res$stats;
     stat_hash = mma_res$stat_hash;
@@ -21,6 +21,6 @@ max_min_assoc = function(target, dataset, test, wei, threshold, max_k, selectedV
     }
   }
   
-  results <- list(selected_var = selected_var , selected_pvalue = selected_pvalue , remainingVars = remainingVars , pvalues = pvalues , stats = stats, stat_hash=stat_hash, pvalue_hash = pvalue_hash, rob = robust);
+  results <- list(selected_var = selected_var , selected_pvalue = selected_pvalue, remainingVars = remainingVars , pvalues = pvalues , stats = stats, stat_hash=stat_hash, pvalue_hash = pvalue_hash);
   return(results); 
 }

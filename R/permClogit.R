@@ -1,5 +1,5 @@
-permClogit = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL, univariateModels=NULL, hash = FALSE, stat_hash=NULL, pvalue_hash=NULL,
-                         robust=FALSE, threshold = 0.05, R = 999) {
+permClogit = function(target, dataset, xIndex, csIndex, wei = NULL, univariateModels=NULL, hash = FALSE, stat_hash=NULL, pvalue_hash=NULL,
+                      threshold = 0.05, R = 999) {
 
   csIndex[which(is.na(csIndex))] = 0;
   thres <- threshold * R + 1
@@ -12,16 +12,14 @@ permClogit = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NUL
     if ( !is.null(stat_hash[[key]]) )  {
       stat = stat_hash[[key]];
       pvalue = pvalue_hash[[key]];
-      flag = 1;
-      results <- list(pvalue = pvalue, stat = stat, flag = flag, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+      results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
       return(results);
     }
   }
   #initialization: these values will be returned whether the test cannot be carried out
-  pvalue = 1;
+  pvalue = log(1)
   stat = 0;
-  flag = 0;
-  results <- list(pvalue = pvalue, stat = stat, flag = flag, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+  results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
   clogit_results = NULL;
   clogit_results_full = NULL;
   id = target[, 2] #the patient id
@@ -32,9 +30,6 @@ permClogit = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NUL
   res <- tryCatch(
     {
     if (is.na(csIndex) || length(csIndex) == 0 || csIndex == 0) {
-    #perform the test. If the clogit function launches a warning, the
-    #function returns "flag=0", that means "the test cannot be performed"
-    #fitting the model
       clogit_results <- survival::clogit(case ~ x + strata(id) )
       #retrieve the p value and stat.
       dof = length( coef(clogit_results) ) 
@@ -55,7 +50,6 @@ permClogit = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NUL
         stat_hash[[key]] <- stat;   #.set(stat_hash , key , stat)
         pvalue_hash[[key]] <- pvalue;   #.set(pvalue_hash , key , pvalue)
       }
-      flag = 1;
     
     } else {
       clogit_results <- survival::clogit(case ~ . + strata(id), data = as.data.frame( dataset[ , c(csIndex)] ) ) 
@@ -72,31 +66,19 @@ permClogit = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NUL
         step <- step + ( anova(bit2, clogit_results)[2, 2] > stat )
         j <- j + 1
       }
-      pvalue <- (step + 1) / (R + 1) 
+      pvalue <- log( (step + 1) / (R + 1) )
       if( hash )  {                #update hash objects
         stat_hash[[key]] <- stat;             #.set(stat_hash , key , stat)
         pvalue_hash[[key]] <- pvalue;         #.set(pvalue_hash , key , pvalue)
       }
-      flag = 1;
     }
-    results = list(pvalue = pvalue, stat = stat, flag = flag, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+    results = list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
     return(results);
   },
   error=function(cond) {
-    #   message(paste("error in try catch of the testIndZIP test"))
-    #   message("Here's the original error message:")
-    #   message(cond)
-    #   #        #for debug
-    #   #        print("\nxIndex = \n");
-    #   #        print(xIndex);
-    #   #        print("\ncsindex = \n");
-    #   #        print(csIndex);
-    #   stop();
-    #error case
     pvalue = log(1);
     stat = 0;
-    flag = 0;
-    results <- list(pvalue = pvalue, stat = stat, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+    results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
     return(results);
   },  
     finally={}

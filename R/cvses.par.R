@@ -15,7 +15,7 @@
 #cv_results_all: a list with the predictions, performances and the signatures for each fold of each configuration (i.e cv_results_all[[3]]$performances[1] indicates the performance of the 1st fold with the 3d configuration of SES)
 #best_performance: numeric, the best average performance
 #best_configuration: the best configuration of SES (a list with the slots id, a, max_k)
-cvses.par <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, alphas = NULL, max_ks = NULL, task = NULL, metric = NULL, modeler = NULL, ses_test = NULL, robust = FALSE, ncores = 2)
+cvses.par <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, alphas = NULL, max_ks = NULL, task = NULL, metric = NULL, modeler = NULL, ses_test = NULL, ncores = 2)
 {
   
   if ( is.null(alphas) )  alphas <- c(0.1, 0.05, 0.01)
@@ -133,7 +133,7 @@ cvses.par <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, al
       threshold <- SES_configurations[[ses_conf_id]]$a;
       max_k <- SES_configurations[[ses_conf_id]]$max_k;
       #running SES
-      results <- SES(train_target, train_set, max_k, threshold, test = test, ini = sesini, wei = wtrain, hash = TRUE, hashObject = SESHashMap, robust = robust)
+      results <- SES(train_target, train_set, max_k, threshold, test = test, ini = sesini, wei = wtrain, hash = TRUE, hashObject = SESHashMap)
       sesini <- results@univ
       SESHashMap <- results@hashObject;
       signatures <- results@signatures;
@@ -194,14 +194,11 @@ cvses.par <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, al
   
   opti <- as.vector( Rfast::colmeans(mat) )
   bestpar <- which.max(opti)
-  estb <- abs( mean( mat[, bestpar] - apply(mat, 1, max) ) )  ## Rfast::rowMaxs(mat, value = TRUE) ) ) 
   best_model <- NULL
   
   best_model$cv_results_all = mat
   best_model$best_performance <- max( opti )
-  best_model$BC_best_perf <- best_model$best_performance + estb 
   best_model$best_configuration = SES_configurations[[ bestpar ]]
-  best_model$BC_best_perf <- best_model$best_performance - estb
   best_model$runtime <- proc.time() - tic 
   
   return(best_model)

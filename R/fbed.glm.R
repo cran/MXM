@@ -1,4 +1,4 @@
-fbed.glm <- function(y, x, alpha = 0.05, wei = NULL, K = 0, type = "logistic") { 
+fbed.glm <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0, type = "logistic") { 
   if (type == "logistic") {
     oiko <- binomial(logit)
   } else if (type == "binomial") {  
@@ -6,12 +6,8 @@ fbed.glm <- function(y, x, alpha = 0.05, wei = NULL, K = 0, type = "logistic") {
     oiko <- binomial(logit)
   } else if (type == "poisson") {
     oiko <- poisson(log)
-  } else if (type == "gamma") {
-    oiko <- Gamma(log)
-  } else if (type == "normlog") {
-    oiko <- gaussian(log)
   } 
-    
+  
   dm <- dim(x)
   p <- dm[2]
   ind <- 1:p
@@ -26,14 +22,23 @@ fbed.glm <- function(y, x, alpha = 0.05, wei = NULL, K = 0, type = "logistic") {
   
   runtime <- proc.time()
   
-  for ( i in ind ) {
-    fit2 <- glm( y ~ x[, i], family = oiko, weights = wei )
-    lik2[i] <- logLik( fit2 )
-    dof[i] <- length(fit2$coefficients)
-  }
-  n.tests <- p
-  stat <- 2 * (lik2 - lik1)
-  pval <- pchisq(stat, dof - 1, lower.tail = FALSE, log.p = TRUE)
+  if ( is.null(univ) ) {
+    for ( i in ind ) {
+      fit2 <- glm( y ~ x[, i], family = oiko, weights = wei )
+      lik2[i] <- logLik( fit2 )
+      dof[i] <- length(fit2$coefficients)
+    }
+    n.tests <- p
+    stat <- 2 * (lik2 - lik1)
+    pval <- pchisq(stat, dof - 1, lower.tail = FALSE, log.p = TRUE)
+    univ$stat <- stat
+    univ$pvalue <- pval
+  } else {
+    stat <- univ$stat
+    pval <- univ$pvalue
+    n.tests <- 0
+    lik2 <- univ$stat + 2 * lik1
+  }  
   s <- which(pval < sig)
   
   if ( length(s) > 0 ) {
@@ -41,7 +46,7 @@ fbed.glm <- function(y, x, alpha = 0.05, wei = NULL, K = 0, type = "logistic") {
     sela <- sel
     s <- s[ - which(s == sel) ]
     lik1 <- lik2[sel] 
-    d1 <- dof[sel] 
+    d1 <- dim( model.matrix( y~., data.frame(x[, sel]) ) )[2] - 1
     sa <- stat[sel]
     pva <- pval[sel]
     lik2 <- rep( lik1, p )
@@ -70,109 +75,15 @@ fbed.glm <- function(y, x, alpha = 0.05, wei = NULL, K = 0, type = "logistic") {
       } 
     } ## end while ( sum(s > 0) > 0 )
     
-  card <- sum(sela > 0)
-  
-  if (K == 1) {
-    for ( i in ind[-sela] )  {
-      fit2 <- glm( y ~., data = x[, c(sela, i)], family = oiko, weights = wei, model = FALSE )
-      lik2[i] <- logLik( fit2 )
-      dof[i] <- length(fit2$coefficients)
-    }
-    n.tests[2] <- length( ind[-sela] )
-    stat <- 2 * (lik2 - lik1)
-    pval <- pchisq(stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
-    s <- which(pval < sig)
-    sel <- which.min(pval) * ( length(s)>0 )
-    sa <- c(sa, stat[sel]) 
-    pva <- c(pva, pval[sel])
-    sela <- c(sela, sel[sel>0])
-    s <- s[ - which(s == sel) ]
-    if (sel > 0) {
-      lik1 <- lik2[sel] 
-      d1 <- dof[sel]
-      lik2 <- rep(lik1, p)
-      dof <- rep(10000, p)
-    } 
-    while ( sum(s>0) > 0 ) {
-      for ( i in ind[s] )  {
-        fit2 <- glm( y ~., data = x[, c(sela, i)], family = oiko, weights = wei, model = FALSE )
-        lik2[i] <- logLik( fit2 )
-        dof[i] <- length(fit2$coefficients)
-      }
-      n.tests[2] <- n.tests[2] + length( ind[s] )
-      stat <- 2 * (lik2 - lik1)
-      pval <- pchisq(stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
-      s <- which(pval < sig)
-      sel <- which.min(pval) * ( length(s)>0 )
-      sa <- c(sa, stat[sel]) 
-      pva <- c(pva, pval[sel])
-      sela <- c(sela, sel[sel>0])
-      s <- s[ - which(s == sel) ]
-      if (sel > 0) {
-        lik1 <- lik2[sel] 
-        d1 <- dof[sel]
-        lik2 <- rep(lik1, p)
-        dof <- rep(10000, p)
-      } 
-    } ## end while ( sum(s>0) > 0 ) 
-    card <- c(card, sum(sela>0) )
-  }  ## end if ( K == 1 ) 
-  
-  if ( K > 1) {
+    card <- sum(sela > 0)
     
-    for ( i in ind[-sela] )  {
-      fit2 <- glm( y ~., data = x[, c(sela, i)], family = oiko, weights = wei, model = FALSE )
-      lik2[i] <- logLik( fit2 )
-      dof[i] <- length(fit2$coefficients)
-    }
-    n.tests[2] <- length( ind[-sela] ) 
-    stat <- 2 * (lik2 - lik1)
-    pval <- pchisq(stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
-    s <- which(pval < sig)
-    sel <- which.min(pval) * ( length(s)>0 )
-    sa <- c(sa, stat[sel]) 
-    pva <- c(pva, pval[sel])
-    sela <- c(sela, sel[sel>0])
-    s <- s[ - which(s == sel) ]
-    if (sel > 0) {
-      lik1 <- lik2[sel] 
-      d1 <- dof[sel]
-      lik2 <- rep(lik1, p)
-      dof <- rep(10000, p)
-    } 
-    while ( sum(s > 0) > 0 ) {
-      for ( i in ind[s] )  {
-        fit2 <- glm( y ~., data = x[, c(sela, i)], family = oiko, weights = wei, model = FALSE )
-        lik2[i] <- logLik( fit2 )
-        dof[i] <- length(fit2$coefficients)
-      }
-      n.tests[2] <- n.tests[2] + length( ind[s] )  
-      stat <- 2 * (lik2 - lik1)
-      pval <- pchisq(stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
-      s <- which(pval < sig)
-      sel <- which.min(pval) * ( length(s)>0 )
-      sa <- c(sa, stat[sel]) 
-      pva <- c(pva, pval[sel])
-      sela <- c(sela, sel[sel>0])
-      s <- s[ - which(s == sel) ]
-      if (sel > 0) {
-        lik1 <- lik2[sel] 
-        d1 <- dof[sel]
-        lik2 <- rep(lik1, p)
-        dof <- rep(10000, p)
-      } 
-    } ## end while ( sum(s>0) > 0 ) 
-    
-    card <- c(card, sum(sela > 0) )
-    vim <- 1
-    while ( vim < K  & card[vim + 1] - card[vim] > 0 ) {
-      vim <- vim + 1
+    if (K == 1) {
       for ( i in ind[-sela] )  {
         fit2 <- glm( y ~., data = x[, c(sela, i)], family = oiko, weights = wei, model = FALSE )
         lik2[i] <- logLik( fit2 )
         dof[i] <- length(fit2$coefficients)
       }
-      n.tests[vim + 1] <- length( ind[-sela] )
+      n.tests[2] <- length( ind[-sela] )
       stat <- 2 * (lik2 - lik1)
       pval <- pchisq(stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
       s <- which(pval < sig)
@@ -186,14 +97,14 @@ fbed.glm <- function(y, x, alpha = 0.05, wei = NULL, K = 0, type = "logistic") {
         d1 <- dof[sel]
         lik2 <- rep(lik1, p)
         dof <- rep(10000, p)
-      }    
-      while ( sum(s > 0) > 0 ) {
+      } 
+      while ( sum(s>0) > 0 ) {
         for ( i in ind[s] )  {
           fit2 <- glm( y ~., data = x[, c(sela, i)], family = oiko, weights = wei, model = FALSE )
           lik2[i] <- logLik( fit2 )
           dof[i] <- length(fit2$coefficients)
         }
-        n.tests[vim + 1] <- n.tests[vim + 1] + length( ind[s] )
+        n.tests[2] <- n.tests[2] + length( ind[s] )
         stat <- 2 * (lik2 - lik1)
         pval <- pchisq(stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
         s <- which(pval < sig)
@@ -207,11 +118,105 @@ fbed.glm <- function(y, x, alpha = 0.05, wei = NULL, K = 0, type = "logistic") {
           d1 <- dof[sel]
           lik2 <- rep(lik1, p)
           dof <- rep(10000, p)
-        }  
-      } ## end while ( sum(s > 0) > 0 ) 
-       card <- c(card, sum(sela>0) )
-    }  ## end while ( vim < K )
-  } ## end if ( K > 1)
+        } 
+      } ## end while ( sum(s>0) > 0 ) 
+      card <- c(card, sum(sela>0) )
+    }  ## end if ( K == 1 ) 
+    
+    if ( K > 1) {
+      
+      for ( i in ind[-sela] )  {
+        fit2 <- glm( y ~., data = x[, c(sela, i)], family = oiko, weights = wei, model = FALSE )
+        lik2[i] <- logLik( fit2 )
+        dof[i] <- length(fit2$coefficients)
+      }
+      n.tests[2] <- length( ind[-sela] ) 
+      stat <- 2 * (lik2 - lik1)
+      pval <- pchisq(stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
+      s <- which(pval < sig)
+      sel <- which.min(pval) * ( length(s)>0 )
+      sa <- c(sa, stat[sel]) 
+      pva <- c(pva, pval[sel])
+      sela <- c(sela, sel[sel>0])
+      s <- s[ - which(s == sel) ]
+      if (sel > 0) {
+        lik1 <- lik2[sel] 
+        d1 <- dof[sel]
+        lik2 <- rep(lik1, p)
+        dof <- rep(10000, p)
+      } 
+      while ( sum(s > 0) > 0 ) {
+        for ( i in ind[s] )  {
+          fit2 <- glm( y ~., data = x[, c(sela, i)], family = oiko, weights = wei, model = FALSE )
+          lik2[i] <- logLik( fit2 )
+          dof[i] <- length(fit2$coefficients)
+        }
+        n.tests[2] <- n.tests[2] + length( ind[s] )  
+        stat <- 2 * (lik2 - lik1)
+        pval <- pchisq(stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
+        s <- which(pval < sig)
+        sel <- which.min(pval) * ( length(s)>0 )
+        sa <- c(sa, stat[sel]) 
+        pva <- c(pva, pval[sel])
+        sela <- c(sela, sel[sel>0])
+        s <- s[ - which(s == sel) ]
+        if (sel > 0) {
+          lik1 <- lik2[sel] 
+          d1 <- dof[sel]
+          lik2 <- rep(lik1, p)
+          dof <- rep(10000, p)
+        } 
+      } ## end while ( sum(s>0) > 0 ) 
+      
+      card <- c(card, sum(sela > 0) )
+      vim <- 1
+      while ( vim < K  & card[vim + 1] - card[vim] > 0 ) {
+        vim <- vim + 1
+        for ( i in ind[-sela] )  {
+          fit2 <- glm( y ~., data = x[, c(sela, i)], family = oiko, weights = wei, model = FALSE )
+          lik2[i] <- logLik( fit2 )
+          dof[i] <- length(fit2$coefficients)
+        }
+        n.tests[vim + 1] <- length( ind[-sela] )
+        stat <- 2 * (lik2 - lik1)
+        pval <- pchisq(stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
+        s <- which(pval < sig)
+        sel <- which.min(pval) * ( length(s)>0 )
+        sa <- c(sa, stat[sel]) 
+        pva <- c(pva, pval[sel])
+        sela <- c(sela, sel[sel>0])
+        s <- s[ - which(s == sel) ]
+        if (sel > 0) {
+          lik1 <- lik2[sel] 
+          d1 <- dof[sel]
+          lik2 <- rep(lik1, p)
+          dof <- rep(10000, p)
+        }    
+        while ( sum(s > 0) > 0 ) {
+          for ( i in ind[s] )  {
+            fit2 <- glm( y ~., data = x[, c(sela, i)], family = oiko, weights = wei, model = FALSE )
+            lik2[i] <- logLik( fit2 )
+            dof[i] <- length(fit2$coefficients)
+          }
+          n.tests[vim + 1] <- n.tests[vim + 1] + length( ind[s] )
+          stat <- 2 * (lik2 - lik1)
+          pval <- pchisq(stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
+          s <- which(pval < sig)
+          sel <- which.min(pval) * ( length(s)>0 )
+          sa <- c(sa, stat[sel]) 
+          pva <- c(pva, pval[sel])
+          sela <- c(sela, sel[sel>0])
+          s <- s[ - which(s == sel) ]
+          if (sel > 0) {
+            lik1 <- lik2[sel] 
+            d1 <- dof[sel]
+            lik2 <- rep(lik1, p)
+            dof <- rep(10000, p)
+          }  
+        } ## end while ( sum(s > 0) > 0 ) 
+        card <- c(card, sum(sela>0) )
+      }  ## end while ( vim < K )
+    } ## end if ( K > 1)
   } ## end if ( length(s) > 0 )
   
   runtime <- proc.time() - runtime
@@ -228,5 +233,5 @@ fbed.glm <- function(y, x, alpha = 0.05, wei = NULL, K = 0, type = "logistic") {
   colnames(res) <- c("Vars", "stat", "log p-value")
   rownames(info) <- paste("K=", 1:length(card)- 1, sep = "")
   colnames(info) <- c("Number of vars", "Number of tests")
-  list(res = res, info = info, runtime = runtime)
+  list(univ = univ, res = res, info = info, runtime = runtime)
 }

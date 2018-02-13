@@ -1,31 +1,14 @@
 ######## Internal for Poisson regression
-internaliamb.poisbs <- function(target, dataset, threshold, wei, p, heavy = FALSE, robust = FALSE) {
+internaliamb.poisbs <- function(target, dataset, threshold, wei, p) {
   if ( !is.null(dataset) |  p > 0 ) {
     if ( p > 1 ) {
-      if ( !heavy ) {
-        ini <- glm( target ~.,  data = dataset, family = poisson(log), weights = wei, y = FALSE, model = FALSE )
-        tab <- drop1( ini, test = "Chisq" )
-        dof <- tab[-1, 1]
-        stat <- tab[-1, 4]
-        
-      } else {
-        ini <- speedglm::speedglm( target ~.,  data = dataset, family = poisson(log), weights = wei )
-        dofini <- length( coef(ini) )
-        stat <- dof <- numeric(p)
-        for (i in 1:p) {
-          mod <- speedglm::speedglm( target ~.,  data = dataset[, -i, drop = FALSE], family = poisson(log), weights = wei )
-          stat[i] <- mod$deviance - ini$deviance
-          dof[i] <- dofini - length( coef(mod) ) 
-        }
-      }	
+      ini <- glm( target ~.,  data = dataset, family = poisson(log), weights = wei, y = FALSE, model = FALSE )
+      tab <- drop1( ini, test = "Chisq" )
+      dof <- tab[-1, 1]
+      stat <- tab[-1, 4]
     } else {
-      if ( !heavy ) {
-        ini <- glm( target ~.,  data = dataset, family = poisson(log), weights = wei, y = FALSE, model = FALSE )
-        mod0 <- glm(target ~ 1, family = poisson(log), weights = wei, y = FALSE, model = FALSE)
-      } else {
-        ini <- speedglm::speedglm( target ~.,  data = dataset, family = poisson(log), weights = wei )
-        mod0 <- speedglm::speedglm( target ~ 1,  data = dataset, family = poisson(log), weights = wei )
-      }  
+      ini <- glm( target ~.,  data = dataset, family = poisson(log), weights = wei, y = FALSE, model = FALSE )
+      mod0 <- glm(target ~ 1, family = poisson(log), weights = wei, y = FALSE, model = FALSE)
       stat <- mod0$deviance - ini$deviance
       dof <- length( coef(ini) ) - 1
     }
@@ -33,7 +16,6 @@ internaliamb.poisbs <- function(target, dataset, threshold, wei, p, heavy = FALS
     mat <- cbind(1:p, pchisq( stat, dof, lower.tail = FALSE, log.p = TRUE), stat )
     colnames(mat) <- c("variable", "log.p-values", "statistic" )
     rownames(mat) <- 1:p  
-    
     info <- matrix( c(0, -10, -10) , ncol = 3 )
     sel <- which( mat[, 2] > threshold ) 
     
@@ -41,7 +23,6 @@ internaliamb.poisbs <- function(target, dataset, threshold, wei, p, heavy = FALS
       final <- ini 
       
     } else {
-      
       info <- mat[sel, , drop = FALSE]
       mat <- mat[-sel, , drop = FALSE] 
       dat <- dataset[, -sel, drop = FALSE] 
@@ -50,13 +31,8 @@ internaliamb.poisbs <- function(target, dataset, threshold, wei, p, heavy = FALS
         final <- "No variables were selected"
         mat <- NULL
       } else if ( p - length(sel) == 1 ) {
-        if ( !heavy ) {
-          mod1 <- glm(target ~., data = dat, family = poisson(log), weights = wei, y = FALSE, model = FALSE)
-          mod0 <- glm(target ~ 1, family = poisson(log), weights = wei, y = FALSE, model = FALSE)
-        } else  {
-          mod1 <- speedglm::speedglm( target ~ .,  data = dat, family = poisson(log), weights = wei )
-          mod0 <- speedglm::speedglm( target ~ 1,  data = dat, family = poisson(log), weights = wei )
-        }  
+        mod1 <- glm(target ~., data = dat, family = poisson(log), weights = wei, y = FALSE, model = FALSE)
+        mod0 <- glm(target ~ 1, family = poisson(log), weights = wei, y = FALSE, model = FALSE)
         stat <- abs( mod1$deviance - mod0$deviance )
         pval <- pchisq( stat, length( coef(mod1) ) - 1, lower.tail = FALSE, log.p = TRUE)
         if (pval > threshold ) {
@@ -64,9 +40,7 @@ internaliamb.poisbs <- function(target, dataset, threshold, wei, p, heavy = FALS
           mat <- matrix(nrow = 0, ncol = 3)
         } else final <- mod1
       } else {
-        if ( !heavy ) {
-          final <- glm(target ~., data = dat, family = poisson(log), weights = wei, y = FALSE, model = FALSE)
-        } else  final <- speedglm::speedglm( target ~ .,  data = dat, family = poisson(log), weights = wei )
+        final <- glm(target ~., data = dat, family = poisson(log), weights = wei, y = FALSE, model = FALSE)
       }
     }
     info <- info[ info[, 1] > 0, , drop = FALSE]

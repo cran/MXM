@@ -1,4 +1,4 @@
-internaliamb.tobitbs <- function(target, dataset, threshold, wei, p, heavy = FALSE) {
+internaliamb.tobitbs <- function(target, dataset, threshold, wei, p) {
   if ( !is.null(dataset) |  p > 0 ) {
     if ( p > 1 ) {
         ma <- survival::survreg( target ~.,  data = dataset, weights = wei, dist = "gaussian" )

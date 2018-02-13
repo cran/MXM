@@ -159,7 +159,7 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.01, rob = FALSE, R = 
       
       ell = 2
       ## Execute PC algorithm: main loop
-      while ( k <= ell & duo > 0 )  {
+      while ( k < ell & duo > 0 )  {
         k = k + 1   ## size of the seperating set will change now
         tes = 0
         met <- matrix(0, duo, k + 2)

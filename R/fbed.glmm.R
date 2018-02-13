@@ -1,7 +1,7 @@
-fbed.glmm <- function(y, x, id, alpha = 0.05, wei = NULL, K = 0, type = "logistic") { 
-  if (type == "logistic") {
+fbed.glmm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0, test = "testIndGLMMLogistic") { 
+  if (test == "testIndGLMMLogistic") {
     oiko <- binomial(logit)
-  } else if (type == "poisson") {  
+  } else if (test == "testIndGLMMPois") {  
     oiko <- poisson(log)
   } 
   
@@ -10,7 +10,7 @@ fbed.glmm <- function(y, x, id, alpha = 0.05, wei = NULL, K = 0, type = "logisti
   n <- dm[1]
   ind <- 1:p
   sig <- log(alpha)
-  lik1 <- logLik( lme4::glmer(y ~ 1 + (1|id), family = oiko, weights = wei) )
+  lik1 <- 2 * logLik( lme4::glmer(y ~ 1 + (1|id), family = oiko, weights = wei) )
   lik2 <- numeric(p)
   sela <- NULL
   card <- 0
@@ -22,13 +22,23 @@ fbed.glmm <- function(y, x, id, alpha = 0.05, wei = NULL, K = 0, type = "logisti
   
   runtime <- proc.time()
   
-  for ( i in ind ) {
-    fit2 <- lme4::glmer( y ~ x[, i] + (1|id), family = oiko, weights = wei )
-    lik2[i] <- logLik( fit2 )
-  }
-  n.tests <- p
-  stat <- lik2 - lik1
-  pval <- pchisq(2 * stat, 1, lower.tail = FALSE, log.p = TRUE)
+  if ( is.null(univ) ) {
+    for ( i in ind ) {
+      fit2 <- lme4::glmer( y ~ x[, i] + (1|id), family = oiko, weights = wei )
+      lik2[i] <- logLik( fit2 )
+    }
+    n.tests <- p
+    stat <- 2 * lik2 - lik1
+    pval <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
+    univ <- list()
+    univ$stat <- stat
+    univ$pvalue <- pval
+  } else {
+    n.tests <- 0
+    stat <- univ$stat
+    pval <- univ$pvalue
+    lik2 <- stat + lik1
+  }  
   s <- which(pval < sig)
   
   if ( length(s) > 0 ) {
@@ -200,5 +210,5 @@ fbed.glmm <- function(y, x, id, alpha = 0.05, wei = NULL, K = 0, type = "logisti
   colnames(res) <- c("Vars", "stat", "log p-value")
   rownames(info) <- paste("K=", 1:length(card)- 1, sep = "")
   colnames(info) <- c("Number of vars", "Number of tests")
-  list(res = res, info = info, runtime = runtime)
+  list(univ = univ, res = res, info = info, runtime = runtime)
 }

@@ -15,7 +15,7 @@ topological_sort(dag)
 \arguments{
 \item{dag}{
 A square matrix representing a directed graph which contains 0s and 1s. If G[i, j] = 1 it 
-means there is an arrow from node i to node j. When there is no edge between nodes i and j G[i, j] = 0.  
+means there is an arrow from node i to node j. When there is no edge between nodes i and j if G[i, j] = 0.  
 }
 }
 

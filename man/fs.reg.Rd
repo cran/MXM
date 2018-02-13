@@ -10,7 +10,7 @@ Variable selection in regression models with forward selection
 
 \usage{
 fs.reg(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, test = NULL, 
-user_test = NULL, stopping = "BIC", tol = 2, robust = FALSE, ncores = 1) 
+user_test = NULL, stopping = "BIC", tol = 2, ncores = 1) 
 }
 
 \arguments{
@@ -27,10 +27,12 @@ If you have a set of variables already start with this one. Otherwise leave it N
 Threshold (suitable values in [0,1]) for asmmmbsing p-values significance. Default value is 0.05.
 }
 \item{wei}{
-A vector of weights to be used for weighted regression. The default value is NULL. It is not suggested when robust is set to TRUE.
+A vector of weights to be used for weighted regression. The default value is NULL. 
 }
 \item{test}{
-The regression model to use. Available options are most of the tests for SES and MMPC. The ones NOT available are "gSquare", "censIndER", "testIndMVreg", "testIndClogit" and "testIndSpearman". If you have continuous predictor variables in matrix form, you can put "testIndFisher" and this is pretty fast. Instead of calcualting partial F-tests, which requires liear regression models to be fit, it calcualtes partial correlation coefficients and this is much more efficient. 
+The regression model to use. Available options are most of the tests for SES and MMPC. The ones NOT available are "gSquare", "censIndER", "testIndMVreg", "testIndClogit" and "testIndSpearman". 
+If you have continuous predictor variables in matrix form, you can put "testIndFisher" and this is pretty fast. Instead of calcualting partial F-tests, which requires liear regression models to be fit, 
+it calcualtes partial correlation coefficients and this is much more efficient. 
 }
 \item{user_test}{
 A user-defined conditional independence test (provide a closure type object). Default value is NULL. If this is defined, 
@@ -41,10 +43,6 @@ The stopping rule. The BIC is always used for all methods. If you have linear re
 }
 \item{tol}{
 The difference bewtween two successive values of the stopping rule. By default this is is set to 2. If for example, the BIC difference between two succesive models is less than 2, the process stops and the last variable, even though significant does not enter the model.
-}
-\item{robust}{
-A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust version of the statistical test if it is available. 
-It takes more time than a non robust version but it is suggested in case of outliers. Default value is FALSE.
 }
 \item{ncores}{
 How many cores to use. This plays an important role if you have tens of thousands of variables or really large sample sizes and tens of thousands of variables and a regression based test which requires numerical optimisation. In other cases it will not make a difference in the overall time (in fact it can be slower). The parallel computation is used in the first step of the algorithm, where univariate associations are examined, those take place in parallel. We have seen a reduction in time of 50\% with 4 cores in comparison to 1 core. Note also, that the amount of reduction is not linear in the number of cores.
@@ -66,7 +64,7 @@ If the current 'test' argument is defined as NULL or "auto" and the user_test ar
 }
 
 \value{
-In the case of test="testIndreg", robust = FALSE and class(dataset) = matrix, just one matrix is returned with the index of the selected variable(s), the p-value, the test statistic and the BIC value of each model. For all other cases, the output of the algorithm is S3 object including:
+In the case of test="testIndMMReg" and class(dataset) = matrix, just one matrix is returned with the index of the selected variable(s), the p-value, the test statistic and the BIC value of each model. For all other cases, the output of the algorithm is S3 object including:
 \item{runtime}{
 The run time of the algorithm. A numeric vector. The first element is the user time, the second element is the system time and the third element is the elapsed time.
 }
@@ -108,20 +106,17 @@ dataset <- matrix( runif(1000 * 20, 1, 100), ncol = 20 )
 #define a simulated class variable 
 target <- rt(1000, 10)
 
-a0 <- fs.reg(target, dataset, threshold = 0.05, stopping = "BIC", tol = 2, 
-robust = FALSE, ncores = 1 ) 
+a0 <- fs.reg(target, dataset, threshold = 0.05, stopping = "BIC", tol = 2) 
 
-a1 <- fs.reg(target, dataset, threshold = 0.05, test = "testIndRQ", stopping = "BIC", tol = 2, 
-robust = FALSE, ncores = 1 ) 
+a1 <- fs.reg(target, dataset, threshold = 0.05, test = "testIndRQ", stopping = "BIC", 
+tol = 2) 
 
 y <- survival::Surv(rexp(1000), rep(1,1000) )
-a2 <- fs.reg(y, dataset, threshold = 0.05, test = "censIndWR", stopping = "BIC", tol = 2, 
-robust = FALSE, ncores = 1 ) 
+a2 <- fs.reg(y, dataset, threshold = 0.05, test = "censIndWR", stopping = "BIC", tol = 2) 
 a3 <- MMPC(target, dataset)
 
-target <- factor( rbinom(1000, 2, 0.6) )
-b2 <- fs.reg(target, dataset, threshold = 0.05, test = NULL, stopping = "BIC", tol = 2, 
-robust = FALSE, ncores = 1 ) 
+target <- factor( rbinom(1000, 1, 0.6) )
+b2 <- fs.reg(target, dataset, threshold = 0.05, test = NULL, stopping = "BIC", tol = 2) 
 }
 
 \keyword{ Markov Blanket }

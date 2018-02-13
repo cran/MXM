@@ -27,11 +27,11 @@ The structural Hamming distance as proposed by Tsamardinos et al. (2006) is calc
 \bold{True} \tab  \bold{Estimated}  \tab  \bold{Penalty}  \cr 
    -   \tab      \tab   1  \cr   
        \tab  -   \tab   1  \cr   
-   ->  \tab      \tab   2  \cr   
-       \tab  <-  \tab   2  \cr   
+   ->  \tab      \tab   1  \cr   
+       \tab  <-  \tab   1  \cr   
    ->  \tab  -   \tab   1  \cr   
    -   \tab  <-  \tab   1  \cr   
-   ->  \tab  <-  \tab   2  \cr        
+   ->  \tab  <-  \tab   1  \cr        
 }
 }
 

@@ -4,7 +4,7 @@
 \alias{SES.temporal.output-class}
 \alias{SES.temporal.output}
 \alias{plot,SES.temporal.output-method}
-\alias{summary,SES.temporal.output-method}
+\alias{SES.temporal.output-method}
 \alias{plot,SES.temporal.output,ANY-method}
 
 
@@ -36,7 +36,6 @@ Objects can be created by calls of the form \code{new("SES.temporal.output", ...
 
 \section{Methods}{
   \describe{
-    \item{summary}{\code{summary(object = "SES.temporal.output")}: Generic function for summarizing the results of the SES.temporal. output }
     \item{plot}{\code{plot(x = "SES.temporal.output", mode = "all")}: Generic function for plotting the generated pvalues of the SES.temporal.output object. Argument mode = "all" for plotting all the pvalues or mode="partial" for partial plotting the first 500 pvalues }
 	 }
 }

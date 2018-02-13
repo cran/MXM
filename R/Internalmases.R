@@ -1,9 +1,8 @@
-Internalmases = function(targ , data, statistic, max_k, threshold , test = NULL , ini, equal_case = 3 , user_test = NULL , dataInfo = NULL , hash=FALSE, varsize, stat_hash, pvalue_hash, targetID, robust, ncores)
+Internalmases = function(targ , data, statistic, max_k, threshold , test = NULL , ini, user_test = NULL, hash=FALSE, varsize, stat_hash, pvalue_hash, targetID, ncores)
 {
   #get the current time
   runtime = proc.time()
   #######################################################################################
-  ## if testIndFisher is selected and the user has put robust =TRUE, the robust is not taken into consideration. 
   #univariate feature selection test
   D = length(targ) 
   
@@ -13,7 +12,7 @@ Internalmases = function(targ , data, statistic, max_k, threshold , test = NULL 
     sta = pval = matrix(0, D, cols)
     univariateModels = list()
     
-    if ( identical(test, testIndFisher)  &  !robust ) {    ## Pearson's correlation 
+    if ( identical(test, testIndFisher) ) {    ## Pearson's correlation 
       
       for ( l in 1:D ) {  
         target = targ[[ l ]]
@@ -28,7 +27,6 @@ Internalmases = function(targ , data, statistic, max_k, threshold , test = NULL 
       }  
       univariateModels$stat = - 2 * Rfast::colsums(pval);
       univariateModels$pvalue = pchisq(univariateModels$stat, 2 * D, lower.tail = FALSE, log.p = TRUE) ;
-      univariateModels$flag = numeric(cols) + 1;
       univariateModels$stat_hash = stat_hash;
       univariateModels$pvalue_hash = pvalue_hash;
       
@@ -47,14 +45,13 @@ Internalmases = function(targ , data, statistic, max_k, threshold , test = NULL 
       }  
       univariateModels$stat = - 2 * Rfast::colsums(pval);
       univariateModels$pvalue = pchisq(univariateModels$stat, 2 * D, lower.tail = FALSE, log.p = TRUE) ;
-      univariateModels$flag = numeric(cols) + 1;
       univariateModels$stat_hash = stat_hash;
       univariateModels$pvalue_hash = pvalue_hash;    
       
-    } else if ( identical(test, testIndReg)  & robust ) {  ## M (Robust) linear regression
+    } else if ( identical(test, testIndMMReg) ) {  ##  MM (Robust) linear regression
       
       univariateModels = list();
-      fit1 = MASS::rlm(target ~ 1)
+      fit1 = MASS::rlm(target ~ 1, method = "MM", maxit = 2000)
       lik2 = numeric(cols)
       dof = numeric(cols)
       
@@ -67,7 +64,7 @@ Internalmases = function(targ , data, statistic, max_k, threshold , test = NULL 
           
           for ( i in 1:cols ) {
             if ( i != targetID ) {
-              fit2 = MASS::rlm(target ~ dataset[, i] )
+              fit2 = MASS::rlm(target ~ dataset[, i], method = "MM", maxit = 2000 )
               lik2[i] = as.numeric( logLik(fit2) )
               dof[i] = length( coef(fit2) ) - 1
             } else lik2[i] = lik1
@@ -80,7 +77,6 @@ Internalmases = function(targ , data, statistic, max_k, threshold , test = NULL 
         
         univariateModels$stat = - 2 * Rfast::colsums(pval)
         univariateModels$pvalue = pchisq(univariateModels$stat, 2 * D, lower.tail = FALSE, log.p = TRUE) ;
-        univariateModels$flag = numeric(cols) + 1;
         univariateModels$stat_hash = stat_hash;
         univariateModels$pvalue_hash = pvalue_hash;
         
@@ -96,7 +92,7 @@ Internalmases = function(targ , data, statistic, max_k, threshold , test = NULL 
           mod <- foreach(i = 1:cols, .combine = rbind, .packages = "MASS") %dopar% {
             
             if ( i != targetID ) {
-              fit2 = rlm(target ~ dataset[, i] )
+              fit2 = rlm(target ~ dataset[, i], method = "MM", maxit = 2000 )
               lik2 = as.numeric( logLik(fit2) )
               
               return( c(lik2, length( coef(fit2) ) ) )
@@ -116,7 +112,6 @@ Internalmases = function(targ , data, statistic, max_k, threshold , test = NULL 
         
         univariateModels$stat = - 2 * Rfast::colsums(pval)
         univariateModels$pvalue = pchisq(univariateModels$stat, 2 * D, lower.tail = FALSE, log.p = TRUE) ;
-        univariateModels$flag = numeric(cols) + 1
         univariateModels$stat_hash = NULL
         univariateModels$pvalue_hash = NULL   
       }   
@@ -159,7 +154,6 @@ Internalmases = function(targ , data, statistic, max_k, threshold , test = NULL 
         
         univariateModels$stat = - 2 * Rfast::colsums(pval)
         univariateModels$pvalue = pchisq(univariateModels$stat, 2 * D, lower.tail = FALSE, log.p = TRUE) ;
-        univariateModels$flag = numeric(cols) + 1;
         univariateModels$stat_hash = stat_hash;
         univariateModels$pvalue_hash = pvalue_hash;
         
@@ -195,13 +189,12 @@ Internalmases = function(targ , data, statistic, max_k, threshold , test = NULL 
         
         univariateModels$stat = - 2 * Rfast::colsums(pval)
         univariateModels$pvalue = pchisq(univariateModels$stat, 2 * D, lower.tail = FALSE, log.p = TRUE) ;
-        univariateModels$flag = numeric(cols) + 1
         univariateModels$stat_hash = NULL
         univariateModels$pvalue_hash = NULL   
       }
       
     } else {  
-      univariateModels = univariateScore.ma(targ, data, test, statistic = FALSE, dataInfo = dataInfo, hash=hash, stat_hash=stat_hash, pvalue_hash=pvalue_hash, targetID=targetID, robust=robust, ncores=ncores);
+      univariateModels = univariateScore.ma(targ, data, test, statistic = FALSE, hash=hash, stat_hash=stat_hash, pvalue_hash=pvalue_hash, targetID=targetID, ncores=ncores);
     }
     
   } else {
@@ -210,9 +203,6 @@ Internalmases = function(targ , data, statistic, max_k, threshold , test = NULL 
   
   pvalues = univariateModels$pvalue;      
   stats = univariateModels$stat;
-  flags = univariateModels$flag;
-  #   stat_hash = univariateModels$stat_hash;
-  #   pvalue_hash = univariateModels$pvalue_hash;
   #if we dont have any associations , return
   if ( min(pvalues, na.rm=TRUE) > threshold ) {
     #cat('No associations!');
@@ -229,15 +219,13 @@ Internalmases = function(targ , data, statistic, max_k, threshold , test = NULL 
     class(results$hashObject) = 'list';
     class(results$univ) = 'list';
     
-    results$pvalues = exp(pvalues);
+    results$pvalues = pvalues;
     results$stats = stats;
     results$univ = univariateModels
     results$max_k = max_k;
-    results$threshold = exp(threshold);
+    results$threshold = threshold;
     runtime = proc.time() - runtime;
     results$runtime = runtime;
-    results$rob = robust
-    
     return(results);
   }
   #Initialize the data structs
@@ -246,13 +234,9 @@ Internalmases = function(targ , data, statistic, max_k, threshold , test = NULL 
   queues = vector('list' , varsize);
   queues <- lapply(1:varsize , function(i){queues[[i]] = i;})
   #select the variable with the highest association
-  #selectedVar = which(flags == 1 & stats == stats[[which.max(stats)]]);
-  selectedVar = which(flags == 1 & pvalues == pvalues[[which.min(pvalues)]]);
+  selectedVar = which( pvalues == pvalues[[which.min(pvalues)]] );
   selectedVars[selectedVar] = 1;
   selectedVarsOrder[selectedVar] = 1; #CHANGE
-  #print(paste("rep: ",0,", selected var: ",selectedVar,", pvalue = ",exp(pvalues[selectedVar])))
-  #lets check the first selected var
-  #cat('First selected var: %d, p-value: %.6f\n', selectedVar, pvalues[selectedVar]);
   #remaining variables to be considered
   remainingVars = numeric(varsize) + 1;
   remainingVars[selectedVar] = 0;
@@ -266,7 +250,7 @@ Internalmases = function(targ , data, statistic, max_k, threshold , test = NULL 
   #rep = 1;
   while (loop) {
     #lets find the equivalences
-    IdEq_results <- IdentifyEquivalence.ma(equal_case, queues, targ, data, test, threshold, statistic, max_k, selectedVars, pvalues, stats, remainingVars, univariateModels, selectedVarsOrder, hash=hash, dataInfo, stat_hash=stat_hash, pvalue_hash=pvalue_hash, robust = robust, ncores = ncores);
+    IdEq_results <- IdentifyEquivalence.ma(queues, targ, data, test, threshold, statistic, max_k, selectedVars, pvalues, stats, remainingVars, univariateModels, selectedVarsOrder, hash=hash, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
     queues = IdEq_results$queues;
     selectedVars = IdEq_results$selectedVars;
     remainingVars = IdEq_results$remainingVars;
@@ -275,7 +259,7 @@ Internalmases = function(targ , data, statistic, max_k, threshold , test = NULL 
     stat_hash=IdEq_results$stat_hash;
     pvalue_hash=IdEq_results$pvalue_hash;
     #lets find the variable with the max min association
-    max_min_results = max_min_assoc.ma(targ, data, test, threshold, statistic, max_k, selectedVars, pvalues, stats, remainingVars, univariateModels, selectedVarsOrder, hash=hash, dataInfo, stat_hash=stat_hash, pvalue_hash=pvalue_hash, robust = robust, ncores = ncores);
+    max_min_results = max_min_assoc.ma(targ, data, test, threshold, statistic, max_k, selectedVars, pvalues, stats, remainingVars, univariateModels, selectedVarsOrder, hash=hash, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
     selectedVar = max_min_results$selected_var;
     selectedPvalue = max_min_results$selected_pvalue;
     remainingVars = max_min_results$remainingVars;
@@ -297,7 +281,7 @@ Internalmases = function(targ , data, statistic, max_k, threshold , test = NULL 
   }
   
   #lets find the variables to be discarded
-  IdEq_results <- IdentifyEquivalence.ma(equal_case, queues, targ, data, test, threshold, statistic, max_k, selectedVars, pvalues, stats, remainingVars, univariateModels, selectedVarsOrder, hash=hash, dataInfo, stat_hash=stat_hash, pvalue_hash=pvalue_hash, robust = robust, ncores = ncores);
+  IdEq_results <- IdentifyEquivalence.ma(queues, targ, data, test, threshold, statistic, max_k, selectedVars, pvalues, stats, remainingVars, univariateModels, selectedVarsOrder, hash=hash, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
   queues = IdEq_results$queues;
   selectedVars = IdEq_results$selectedVars;
   pvalues = IdEq_results$pvalues;
@@ -331,19 +315,12 @@ Internalmases = function(targ , data, statistic, max_k, threshold , test = NULL 
   hashObject$pvalue_hash = pvalue_hash;
   results$hashObject = hashObject;
   class(results$hashObject) = 'list';
-  results$pvalues = exp(pvalues);
+  results$pvalues = pvalues;
   results$stats = stats;
   results$univ = univariateModels
-  #   results$all_queues = all_queues;
-  #   already known
-  #   results$data = dataset;
-  #   results$target = target;
-  #   results$test = test;
   results$max_k = max_k;
-  results$threshold = exp(threshold);
+  results$threshold = threshold;
   runtime = proc.time() - runtime;
   results$runtime = runtime;
-  results$rob = robust
-  
   return(results);
 }

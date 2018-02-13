@@ -1,11 +1,10 @@
-mmhc.skel <- function(dataset, max_k = 3, threshold = 0.05, test = "testIndFisher", type = "MMPC", backward = TRUE, rob = FALSE, 
+mmhc.skel <- function(dataset, max_k = 3, threshold = 0.05, test = "testIndFisher", type = "MMPC", backward = TRUE,  
                       symmetry = TRUE, nc = 1, ini.pvalue = NULL, hash = FALSE) {
   ## dataset is either conitnuous or categorical data  
   ## max_k is the maximum number of variables upon which to condition
   ## threshold is the level of significance to reject the independence
   ## test can be either testIndFisher (default) or testIndSpearman for continuous data
   ## OR gSquare (default) for categorical data
-  ## rob is for robust correlation
   ## nc is the number of cores to use, set to 1 by default
   dm <- dim(dataset)
   n <- dm[2]
@@ -61,7 +60,7 @@ mmhc.skel <- function(dataset, max_k = 3, threshold = 0.05, test = "testIndFishe
       pa <- proc.time()
       for (i in 1:n) {
         if ( !is.null(ini.pvalue) )   ini$pvalue <- ini.pvalue[i, ]
-        a <- MMPC(i, dataset, max_k = max_k, test = test, threshold = threshold, robust = rob, hash = hash, backward = backward, ini = ini, logged = TRUE )
+        a <- MMPC(i, dataset, max_k = max_k, test = test, threshold = threshold, hash = hash, backward = backward, ini = ini )
         ini.pval[i, ] <- a@univ$pvalue
         pvalue[i, ] <- a@pvalues
         sel <- a@selectedVars
@@ -78,7 +77,7 @@ mmhc.skel <- function(dataset, max_k = 3, threshold = 0.05, test = "testIndFishe
       mod <- foreach(i = 1:n, .combine = rbind, .export = c("MMPC") ) %dopar% {
         sel <- numeric(n)
         if ( !is.null(ini.pvalue) )   ini$pvalue <- ini.pvalue[i, ]
-        a <- MMPC(i, dataset, max_k = max_k, test = test, threshold = threshold, robust = rob, hash = hash, backward = backward, ini = ini, logged = TRUE )
+        a <- MMPC(i, dataset, max_k = max_k, test = test, threshold = threshold, hash = hash, backward = backward, ini = ini )
         sel[a@selectedVars] <- 1
         return( c(a@n.tests, sel, a@pvalues, a@univ$pvalue) )
       }
@@ -99,7 +98,7 @@ mmhc.skel <- function(dataset, max_k = 3, threshold = 0.05, test = "testIndFishe
       pa <- proc.time()
       for (i in 1:n) {
         if ( !is.null(ini.pvalue) )   ini$pvalue <- ini.pvalue[i, ]
-        a <- SES(i, dataset, max_k = max_k, test = test, threshold = threshold, hash = hash, robust = rob, ini = ini, logged = TRUE)
+        a <- SES(i, dataset, max_k = max_k, test = test, threshold = threshold, hash = hash, ini = ini)
         ini.pval[i, ] <- a@univ$pvalue
         poies <- a@signatures
         ms[i] <- dim(poies)[1]
@@ -120,7 +119,7 @@ mmhc.skel <- function(dataset, max_k = 3, threshold = 0.05, test = "testIndFishe
         ## arguments order for any CI test are fixed
         sel <- numeric(n)
         if ( !is.null(ini.pvalue) )   ini$pvalue <- ini.pvalue[i, ]
-        a <- SES(i, dataset, max_k = max_k, test = test, threshold = threshold, hash = hash, robust = rob, ini = ini, logged = TRUE)
+        a <- SES(i, dataset, max_k = max_k, test = test, threshold = threshold, hash = hash, ini = ini)
         poies <- a@signatures
         sel[ unique(poies) ] <- 1
         return( c(a@n.tests, dim(poies)[1], sel, a@pvalues, a@univ$pvalue) ) 

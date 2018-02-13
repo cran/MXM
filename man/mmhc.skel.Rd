@@ -10,7 +10,7 @@ The skeleton of a Bayesian network produced by MMHC. No orientations are involve
 
 \usage{
 mmhc.skel(dataset, max_k = 3, threshold = 0.05, test = "testIndFisher", type = "MMPC", 
-backward = TRUE, rob = FALSE, symmetry = TRUE, nc = 1, ini.pvalue = NULL, hash = FALSE) 
+backward = TRUE, symmetry = TRUE, nc = 1, ini.pvalue = NULL, hash = FALSE) 
 }
 
 \arguments{
@@ -33,10 +33,6 @@ to a variable.
 }
 \item{backward}{
 If TRUE, the backward (or symmetry correction) phase will be implemented. This removes any falsely included variables in the parents and children set of the target variable. It call the \code{link{mmpcbackphase}} for this purpose. For perm.ses and wald.ses this is not yet applicable.
-}
-\item{rob}{
-A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust version of the statistical test if it is available. It takes more time than a non robust version but it is suggested in case of outliers. 
-Default value is FALSE. This will only be taken into account if test is "testIndFisher".
 }
 \item{symmetry}{
 In order for an edge to be added, a statistical relationship must have been found from both directions. If you want this symmetry correction to take place, leave this boolean variable to TRUE. If you set it to FALSE, then if 

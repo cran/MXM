@@ -1,4 +1,4 @@
-mmpcbackphase <- function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, wei = NULL, dataInfo = NULL, robust = FALSE, R = 1 ) {
+mmpcbackphase <- function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, wei = NULL, R = 1 ) {
   d <- NCOL(dataset)
   met <- 1:d
   counter <- 0
@@ -8,18 +8,18 @@ mmpcbackphase <- function(target, dataset, max_k = 3, threshold = 0.05, test = N
     threshold = log(threshold)
     
     if (d == 1) {
-      tes <- test(target, dataset, 1, 0, wei = wei, dataInfo = dataInfo, robust = robust) 
+      tes <- test(target, dataset, 1, 0, wei = wei) 
       pv <- tes$pvalue
-      counter <- tes$flag 
+      counter <- 1
       if ( pv > threshold )  met <- 0
       pvalue <- pv
     
     } else  if ( d == 2  ) {
-      tes1 <- test(target, dataset, 1, 2, wei = wei, dataInfo = dataInfo, robust = robust)
-      tes2 <- test(target, dataset, 2, 1, wei = wei, dataInfo = dataInfo, robust = robust)
+      tes1 <- test(target, dataset, 1, 2, wei = wei)
+      tes2 <- test(target, dataset, 2, 1, wei = wei)
       pv1 <- tes1$pvalue
       pv2 <- tes2$pvalue
-      counter <- tes1$flag + tes2$flag
+      counter <- 2
       if ( pv1 > threshold )  met[1] <- 0  
       if ( pv2 > threshold )  met[2] <- 0  
       pvalue <- c(pv1, pv2)
@@ -38,10 +38,10 @@ mmpcbackphase <- function(target, dataset, max_k = 3, threshold = 0.05, test = N
           j <- 0
           while ( j < dim(ze)[2]  &  pval < threshold ) {
             j <- j + 1
-            tes <- test(target, dataset, i, ze[, j], wei = wei, dataInfo = dataInfo, robust = robust)
+            tes <- test(target, dataset, i, ze[, j], wei = wei)
             pval <- tes$pvalue
             b[j] <- pval
-            counter <- counter + tes$flag
+            counter <- counter + 1
           }  ## end while ( j < dim(ze)[2]  &  pval < threshold )
         }  ##end  while ( k < d - 1  &  k < max_k & pval < threshold )
         if ( pval > threshold )  met[i] <- 0
@@ -52,18 +52,18 @@ mmpcbackphase <- function(target, dataset, max_k = 3, threshold = 0.05, test = N
   } else {
     
     if (d == 1) {
-      tes <- test(target, dataset, 1, 2, wei = wei, dataInfo = dataInfo, robust = robust, threshold = threshold, R = R)
+      tes <- test(target, dataset, 1, 2, wei = wei, threshold = threshold, R = R)
       pv <- tes$pvalue
-      counter <- tes$flag
+      counter <- 1
       if ( pv > threshold )  met <- 0
       pvalue <- pv
       
     } else if ( d == 2  ) {
-      tes1 <- test(target, dataset, 1, 2, wei = wei, dataInfo = dataInfo, robust = robust, threshold = threshold, R = R)
-      tes2 <- test(target, dataset, 2, 1, wei = wei, dataInfo = dataInfo, robust = robust, threshold = threshold, R = R)
+      tes1 <- test(target, dataset, 1, 2, wei = wei, threshold = threshold, R = R)
+      tes2 <- test(target, dataset, 2, 1, wei = wei, threshold = threshold, R = R)
       pv1 <- tes1$pvalue
       pv2 <- tes2$pvalue
-      counter <- tes1$flag + tes2$flag
+      counter <- 2
       if ( pv1 > threshold )  met[1] <- 0  
       if ( pv2 > threshold )  met[2] <- 0  
       pvalue <- c(pv1, pv2)
@@ -82,10 +82,10 @@ mmpcbackphase <- function(target, dataset, max_k = 3, threshold = 0.05, test = N
           j <- 0
           while ( j < dim(ze)[2]  &  pval < threshold ) {
             j <- j + 1
-            tes <- test(target, dataset, i, ze[, j], wei = wei, dataInfo = dataInfo, robust = robust, threshold = threshold, R = R)
+            tes <- test(target, dataset, i, ze[, j], wei = wei, threshold = threshold, R = R)
             pval <- tes$pvalue
             b[j] <- pval
-            counter <- counter + tes$flag
+            counter <- counter + 1
           }  ## end while ( j < dim(ze)[2]  &  pval < threshold )
         }  ## end while ( k < d - 1  &  k < max_k & pval < threshold )
         if ( pval > threshold )   met[i] <- 0

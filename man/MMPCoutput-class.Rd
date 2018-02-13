@@ -4,7 +4,7 @@
 \alias{MMPCoutput-class}
 \alias{MMPCoutput}
 \alias{plot,MMPCoutput-method}
-\alias{summary,MMPCoutput-method}
+\alias{MMPCoutput-method}
 \alias{plot,MMPCoutput,ANY-method}
 
 
@@ -28,11 +28,10 @@ Objects can be created by calls of the form \code{new("MMPCoutput", ...)}.
     \item{\code{n.tests}:}{Object of class \code{"numeric"}}
     \item{\code{runtime}:}{Object of class \code{"proc_time"}}
     \item{\code{test}:}{Object of class \code{"character"}}
-    \item{\code{rob}:}{Object of class \code{"logical"}}  }
+}
 }
 \section{Methods}{
   \describe{
-    \item{summary}{\code{summary(object = "MMPCoutput")}: Generic function for summarizing the results of the MMPC output }
     \item{plot}{\code{plot(x = "MMPCoutput", mode = "all")}: Generic function for plotting the generated pvalues of the MMPCoutput object. Argument mode = "all" for plotting all the pvalues or mode="partial" for partial plotting the first 500 pvalues }
 	 }
 }

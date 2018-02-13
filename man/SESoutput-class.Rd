@@ -4,7 +4,7 @@
 \alias{SESoutput-class}
 \alias{SESoutput}
 \alias{plot,SESoutput-method}
-\alias{summary,SESoutput-method}
+\alias{SESoutput-method}
 \alias{plot,SESoutput,ANY-method}
 
 
@@ -30,11 +30,10 @@ Objects can be created by calls of the form \code{new("SESoutput", ...)}.
     \item{\code{n.tests}:}{Object of class \code{"numeric"}}
     \item{\code{runtime}:}{Object of class \code{"proc_time"}}
     \item{\code{test}:}{Object of class \code{"character"}}
-    \item{\code{rob}:}{Object of class \code{"logical"}}  }
+}
 }
 \section{Methods}{
   \describe{
-    \item{summary}{\code{summary(object = "SESoutput")}: Generic function for summarizing the results of the SES output }
     \item{plot}{\code{plot(x = "SESoutput", mode = "all")}: Generic function for plotting the generated pvalues of the SESoutput object. Argument mode = "all" for plotting all the pvalues or mode="partial" for partial plotting the first 500 pvalues }
 	 }
 }

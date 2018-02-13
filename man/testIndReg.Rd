@@ -2,10 +2,12 @@
 \alias{testIndReg}
 \alias{testIndRQ}
 \alias{testIndMVreg}
+\alias{testIndMMReg}
 \alias{permReg}
+\alias{permMMReg}
 \alias{permRQ}
 \alias{permMVreg}
-\alias{waldMMreg}
+\alias{waldMMReg}
 
 \title{
 Linear (and non-linear) regression conditional independence test for continous univariate and multivariate response variables
@@ -16,68 +18,65 @@ The main task of this test is to provide a p-value PVALUE for the null hypothesi
 }
 
 \usage{
-testIndReg(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
-univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
-robust = FALSE)
+testIndReg(target, dataset, xIndex, csIndex, wei = NULL, 
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL)
 
-testIndRQ(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
-univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
-robust = FALSE)
+testIndRQ(target, dataset, xIndex, csIndex, wei = NULL,
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL)
 
-testIndMVreg(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
-univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
-robust = FALSE)
+testIndMVreg(target, dataset, xIndex, csIndex, wei = NULL,
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL)
 
-waldMMreg(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
-univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
-robust = FALSE) 
+testIndMMReg(target, dataset, xIndex, csIndex, wei = NULL,  
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL)
 
-permReg(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
-univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
-robust = FALSE, threshold = 0.05, R = 999)
+waldMMReg(target, dataset, xIndex, csIndex, wei = NULL, 
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL) 
 
-permRQ(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
+permReg(target, dataset, xIndex, csIndex, wei = NULL, 
 univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
-robust = FALSE, threshold = 0.05, R = 999)
+threshold = 0.05, R = 999)
 
-permMVreg(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
+permMMReg(target, dataset, xIndex, csIndex, wei = NULL, 
 univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
-robust = FALSE, threshold = 0.05, R = 999)
+threshold = 0.05, R = 999)
+
+permRQ(target, dataset, xIndex, csIndex, wei = NULL, 
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
+threshold = 0.05, R = 999)
+
+permMVreg(target, dataset, xIndex, csIndex, wei = NULL,
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
+threshold = 0.05, R = 999)
 }
 
 \arguments{
-  \item{target}{
-  A numeric vector containing the values of the target variable. If the values are proportions or percentages, i.e. strictly within 0 and 1 they are mapped into R using log( target/(1 - target) ). In the case of testIndMVreg, the same takes place true. See details for more information.
+\item{target}{
+A numeric vector containing the values of the target variable. If the values are proportions or percentages, i.e. strictly within 0 and 1 they are mapped into R using log( target/(1 - target) ). In the case of testIndMVreg, the same takes place true. See details for more information.
 }
-  \item{dataset}{
-  A numeric matrix or data frame, in case of categorical predictors (factors), containing the variables for performing the test. Rows as samples and columns as features. In the cases of "waldIGreg" and "waldMMReg" this is strictly a matrix. 
+\item{dataset}{
+A numeric matrix or data frame, in case of categorical predictors (factors), containing the variables for performing the test. Rows as samples and columns as features. In the cases of "waldIGreg" and "waldMMreg" this is strictly a matrix. 
 }
-  \item{xIndex}{
-  The index of the variable whose association with the target we want to test.
+\item{xIndex}{
+The index of the variable whose association with the target we want to test.
 }
-  \item{csIndex}{
-  The indices of the variables to condition on. If you have no variables set this equal to 0.
+\item{csIndex}{
+The indices of the variables to condition on. If you have no variables set this equal to 0.
 }
-  \item{wei}{
-  A vector of weights to be used for weighted regression. The default value is NULL. They are not take into account when robust = TRUE (robust regression via MM estimation).
+\item{wei}{
+A vector of weights to be used for weighted regression. The default value is NULL. They are not take into account in the robust regression via MM estimation (testIndMMReg and permMMreg).
 }
-  \item{dataInfo}{
-  A list object with information on the structure of the data. Default value is NULL.
+\item{univariateModels}{
+Fast alternative to the hash object for univariate test. List with vectors "pvalues" (p-values) and "stats" (statistics) representing the univariate association of each variable with the target. Default value is NULL.
 }
-  \item{univariateModels}{
-  Fast alternative to the hash object for univariate test. List with vectors "pvalues" (p-values), "stats" (statistics) and "flags" (flag = TRUE if the test was succesful) representing the univariate association of each variable with the target. Default value is NULL.
-}
-  \item{hash}{
+\item{hash}{
 A boolean variable which indicates whether (TRUE) or not (FALSE) to use tha hash-based implementation of the statistics of SES. Default value is FALSE. If TRUE you have to specify the stat_hash argument and the pvalue_hash argument.
 }
-  \item{stat_hash}{
+\item{stat_hash}{
 A hash object (hash package required) which contains the cached generated statistics of a SES run in the current dataset, using the current test.
 }
-  \item{pvalue_hash}{
+\item{pvalue_hash}{
 A hash object (hash package required) which contains the cached generated p-values of a SES run in the current dataset, using the current test.
-}
-\item{robust}{
-A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust regression via MM-estimation available from  \code{\link{rlm}} in the package "MASS".  It takes more time than non robust version but it is suggested in case of outliers. Default value is FALSE. This is only used in testIndReg. Quantile regression is robust by default and for multivariate regression this has not been incorporated yet.
 }
 \item{threshold}{
 Threshold (suitable values in [0,1]) for assessing p-values significance. 
@@ -92,7 +91,9 @@ If hash = TRUE, all three tests require the arguments 'stat_hash' and 'pvalue_ha
 
 Important: Use these arguments only with the same dataset that was used at initialization.
 
-TestIndReg offers linear and robust linear (via M estimation) regression. 
+TestIndReg offers linear regression. 
+
+testIndMMReg offers robust linear MM estimation regression. 
 
 TestIndRQ offers quantile (median) regression as a robust alternative to linear regression. 
 
@@ -112,9 +113,6 @@ A numeric value that represents the logarithm of the generated p-value due to li
 }
 \item{stat}{
 A numeric value that represents the generated statistic due to linear regression (see reference below).
-}
-\item{flag}{
-A numeric value (control flag) which indicates whether the test was succesful (0) or not (1).
 }
 \item{stat_hash}{
 The current hash object used for the statistics. See argument stat_hash and details. If argument hash = FALSE this is NULL.
@@ -147,7 +145,7 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.gr>, Vincenzo
 %}
 
 \seealso{
-\code{\link{testIndSpeedglm}, \link{testIndRQ}, \link{testIndFisher}, \link{testIndSpearman}, \link{CondIndTests}}
+\code{ \link{testIndRQ}, \link{testIndFisher}, \link{testIndSpearman}, \link{CondIndTests}}
 }
 
 \examples{
@@ -158,7 +156,7 @@ target <- dataset[, 100]
 dataset <- dataset[, -100]
 
 testIndReg(target, dataset, xIndex = 44, csIndex = 50)
-testIndReg(target, dataset, xIndex = 44, csIndex = 50, robust = TRUE)
+testIndMMReg(target, dataset, xIndex = 44, csIndex = 50)
 testIndRQ(target, dataset, xIndex = 44, csIndex = 50)
 testIndIGreg(target, dataset, xIndex = 44, csIndex = 50)
 

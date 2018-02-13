@@ -1,5 +1,5 @@
 mmpc.or <- function(x, max_k = 5, threshold = 0.01, test = "testIndFisher", backward = TRUE, 
-                    rob = FALSE,  symmetry = TRUE, ini.pvalue = NULL) {
+                   symmetry = TRUE, ini.pvalue = NULL) {
   dm <- dim(x)
   p <- dm[2]
   n <- dm[1]
@@ -48,7 +48,7 @@ mmpc.or <- function(x, max_k = 5, threshold = 0.01, test = "testIndFisher", back
   
   for (j in 1:p) {
     if ( !is.null(ini.pvalue) )   ini$pvalue <- ini.pvalue[j, ]
-    a <- MMPC(j, x, max_k = max_k, threshold = threshold, test = test, robust = rob, backward = backward, hash = TRUE, ini = ini, logged = TRUE)
+    a <- MMPC(j, x, max_k = max_k, threshold = threshold, test = test, backward = backward, hash = TRUE, ini = ini)
     if ( !is.null(ini.pvalue) )   ini.pvalue[j, ] <- a@univ$pvalue
     sel <- a@selectedVars
     G[j, sel] <- 1
@@ -135,7 +135,9 @@ mmpc.or <- function(x, max_k = 5, threshold = 0.01, test = "testIndFisher", back
   mod$runtime <- runtime
   mod$G <- G
   mod$sepset <- a
+  tic <- proc.time()
   mod$G <- pc.or(mod)$G
+  mod$runtime.or <- proc.time() - tic
   mod$Gini <- G
   mod
 }

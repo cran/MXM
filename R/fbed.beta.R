@@ -1,10 +1,9 @@
-fbed.beta <- function(y, x, alpha = 0.05, wei = NULL, K = 0) { 
+fbed.beta <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) { 
   dm <- dim(x)
   p <- dm[2]
   ind <- 1:p
   sig <- log(alpha)
   lik2 <- numeric(p)
-  dof <- numeric(p)
   sela <- NULL
   card <- 0
   sa <- NULL
@@ -15,11 +14,19 @@ fbed.beta <- function(y, x, alpha = 0.05, wei = NULL, K = 0) {
   } else  mo <- 2 * betamle.wei(y, wei)$loglik    
   
   runtime <- proc.time()
-  
-  mod <- beta.regs(y, x, wei, logged = TRUE)
-  n.tests <- p
-  stat <- mod[, 1]
-  pval <- mod[, 2]
+  if ( is.null(univ) ) {
+    mod <- beta.regs(y, x, wei, logged = TRUE)
+    n.tests <- p
+    stat <- mod[, 1]
+    pval <- mod[, 2]
+    univ <- list()
+    univ$stat <- stat
+    univ$pvalue <- pval
+  } else {
+    n.tests <- 0
+    stat <- univ$stat
+    pval <- univ$pvalue
+  }  
   s <- which(pval < sig)
   
   if ( length(s) > 0 ) {
@@ -27,7 +34,7 @@ fbed.beta <- function(y, x, alpha = 0.05, wei = NULL, K = 0) {
     sela <- sel
     s <- s[ - which(s == sel) ]
     lik1 <- stat[sel] + mo 
-    d1 <- dof[sel] 
+    d1 <- dim( model.matrix( y~., data.frame(x[, sel]) ) )[2] - 1
     sa <- stat[sel]
     pva <- pval[sel]
     lik2 <- rep( lik1, p )
@@ -214,5 +221,5 @@ fbed.beta <- function(y, x, alpha = 0.05, wei = NULL, K = 0) {
   colnames(res) <- c("Vars", "stat", "log p-value")
   rownames(info) <- paste("K=", 1:length(card)- 1, sep = "")
   colnames(info) <- c("Number of vars", "Number of tests")
-  list(res = res, info = info, runtime = runtime)
+  list(univ = univ, res = res, info = info, runtime = runtime)
 }

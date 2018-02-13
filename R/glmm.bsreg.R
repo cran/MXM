@@ -1,12 +1,12 @@
-glmm.bsreg <- function(target, dataset, id, threshold = 0.05, wei = NULL, type = "gaussian") {
+glmm.bsreg <- function(target, dataset, id, threshold = 0.05, wei = NULL, test = "testIndGLMMReg") {
   
-  if (type == "gaussian") {
+  if (test == "testIndGLMMReg") {
     res <- lmm.bsreg(target, dataset, id, threshold = threshold, wei = wei) 
   } else {
     
-    if (type == "logistic") {
+    if (test == "testIndGLMMLogistic") {
       oiko <- binomial(logit)
-    } else if (type == "poisson") {
+    } else if (test == "testIndGLMMPois") {
       oiko <- poisson(log)
     } 
     
@@ -30,10 +30,6 @@ glmm.bsreg <- function(target, dataset, id, threshold = 0.05, wei = NULL, type =
       warning("The dataset contains missing values (NA) and they were replaced automatically by the variable (column) median (for numeric) or by the most frequent level (mode) if the variable is factor")
       dataset <- apply( dataset, 2, function(x){ x[which(is.na(x))] = median(x, na.rm = TRUE) ; return(x) } ) 
     }
-    la <- length( unique(target) )
-    if  (la == 2) {
-        oiko <- binomial(logit)
-    } else  oiko <- poisson(log)
     ###################
     ###################
     ini <- lme4::glmer( target ~ dataset + (1 | id), family = oiko, weights = wei )
@@ -124,7 +120,7 @@ glmm.bsreg <- function(target, dataset, id, threshold = 0.05, wei = NULL, type =
     }  ## end  if ( mat[sel, 2] < threshold ) 
   }  ## end if ( p > n )
   
-  } ## end if (type == "gaussian")
+  } ## end if (test == "testIndGLMMReg")
   res
 }  
 

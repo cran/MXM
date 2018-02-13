@@ -1,80 +1,94 @@
-fbed.reg <- function(y, x, test = NULL, alpha = 0.05, wei = NULL, K = 0, method = "LR", gam = NULL, backward = TRUE) {
+fbed.reg <- function(target, dataset, ini = NULL, test = NULL, threshold = 0.05, wei = NULL, K = 0, method = "LR", gam = NULL, backward = TRUE) {
   
   #check for NA values in the dataset and replace them with the variable median or the mode
-  if ( any( is.na(x) ) ) {
+  if ( any( is.na(dataset) ) ) {
     #dataset = as.matrix(dataset);
     warning("The dataset contains missing values (NA) and they were replaced automatically by the variable (column) median (for numeric) or by the most frequent level (mode) if the variable is factor")
-    if ( is.matrix(x) )  {
-      x <- apply( x, 2, function(za){ za[which(is.na(za))] = median(za, na.rm = TRUE) ; return(za) } ) 
+    if ( is.matrix(dataset) )  {
+      dataset <- apply( dataset, 2, function(za){ za[which(is.na(za))] = median(za, na.rm = TRUE) ; return(za) } ) 
     } else {
-       poia <- unique( which( is.na(x), arr.ind = TRUE )[, 2] )
+       poia <- unique( which( is.na(dataset), arr.ind = TRUE )[, 2] )
       for ( i in poia )  {
-        xi <- x[, i]
+        xi <- dataset[, i]
         if ( is.numeric(xi) ) {                    
           xi[ which( is.na(xi) ) ] <- median(xi, na.rm = TRUE) 
         } else if ( is.factor( xi ) ) {
           xi[ which( is.na(xi) ) ] <- levels(xi)[ which.max( as.vector( table(xi) ) )]
         }
-        x[, i] <- xi
+        dataset[, i] <- xi
       }
     }
   }
   
-  id <- Rfast::check_data(x)
-  if ( sum(id>0) > 0 )  x[, id] <- rnorm( dim(x)[1] * length(id) )
-  x <- as.data.frame(x)
+  id <- Rfast::check_data(dataset)
+  if ( sum(id>0) > 0 )  dataset[, id] <- rnorm( dim(dataset)[1] * length(id) )
+  dataset <- as.data.frame(dataset)
   
+  if ( length(K) > 1 ) {
+    
+    result <- kfbed.reg(y = target, x = dataset, univ = ini, test = test, alpha = threshold, wei = NULL, K = K, method = method, gam = gam, backward = backward)
+  
+  } else {
+   
   if (method == "LR") {
     
     if (test == "testIndReg") {
-      result <- fbed.lm(y, x, alpha = alpha, wei = wei, K = K)
+      result <- fbed.lm(target, dataset, alpha = threshold, univ = ini, wei = wei, K = K)
       
     } else if (test == "testIndFisher") {
-      result <- Rfast::cor.fbed(y, as.matrix(x), alpha = alpha, K = K)
+      result <- Rfast::cor.fbed(target, as.matrix(dataset), alpha = threshold, K = K)
+      result$univ <- NULL
       
     } else if (test == "testIndPois") {
-      result <- fbed.glm(y, x, alpha = alpha, wei = wei, K = K, type = "poisson")
-
+      result <- fbed.glm(target, dataset, alpha = threshold, univ = ini, wei = wei, K = K, type = "poisson")
+      
     } else if (test == "testIndNB") {
-      result <- fbed.nb(y, x, alpha = alpha, wei = wei, K = K)
+      result <- fbed.nb(target, dataset, alpha = threshold, univ = ini, wei = wei, K = K)
     
     } else if (test == "testIndLogistic") {
+      result <- fbed.glm(target, dataset,alpha = threshold, univ = ini, wei = wei, K = K, type = "logistic")
       
-      if ( length(unique(y) ) == 2 ) {
-        result <- fbed.glm(y, x, alpha = alpha, wei = wei, K = K, type = "logistic")
-      } else if ( !is.ordered(y) ) {
-        result <- fbed.multinom(y, x, alpha = alpha, wei = wei, K = K)
-      } else  result <- fbed.ordinal(y, x, alpha = alpha, wei = wei, K = K)
+    } else if ( test == "testIndMultinom" ) {
+      result <- fbed.multinom(target, dataset, alpha = threshold, univ = ini, wei = wei, K = K)
+      
+    } else  if (test == "testIndOrdinal") {
+      result <- fbed.ordinal(target, dataset, alpha = threshold, univ = ini, wei = wei, K = K)
     
-    } else if (test == "testIndMMreg") {
-      result <- fbed.mmreg(y, x, alpha = alpha, wei = wei, K = K)
+    } else if (test == "testIndMMReg") {
+      result <- fbed.mmreg(target, dataset, alpha = threshold, univ = ini, wei = wei, K = K)
       
     } else if (test == "testIndBinom") {
-      result <- fbed.glm(y, x, alpha = alpha, wei = wei, K = K, type = "binomial")
+      result <- fbed.glm(target, dataset, alpha = threshold, univ = ini, wei = wei, K = K, type = "binomial")
       
     } else if (test == "censIndCR") {
-      result <- fbed.cr(y, x, alpha = alpha, wei = wei, K = K)
+      result <- fbed.cr(target, dataset, alpha = threshold, univ = ini, wei = wei, K = K)
       
     } else if (test == "censIndWR") {
-      result <- fbed.wr(y, x, alpha = alpha, wei = wei, K = K)
+      result <- fbed.wr(target, dataset, alpha = threshold, univ = ini, wei = wei, K = K)
 
     } else if (test == "testIndBeta") {
-      result <- fbed.beta(y, x, alpha = alpha, wei = wei, K = K)
+      result <- fbed.beta(target, dataset, alpha = threshold, univ = ini, wei = wei, K = K)
       
     } else if (test == "testIndZIP") {
-      result <- fbed.zip(y, x, alpha = alpha, wei = wei, K = K)
+      result <- fbed.zip(target, dataset, alpha = threshold, univ = ini, wei = wei, K = K)
       
     } else if (test == "testIndGamma") {
-      result <- fbed.glm(y, x, alpha = alpha, wei = wei, K = K, type = "gamma")
+      result <- fbed.glm2(target, dataset, alpha = threshold, univ = ini, wei = wei, K = K, type = "gamma")
       
     } else if (test == "testIndNormLog") {
-      result <- fbed.glm(y, x, alpha = alpha, wei = wei, K = K, type = "normlog")
+      result <- fbed.glm2(target, dataset, alpha = threshold, univ = ini, wei = wei, K = K, type = "normlog")
       
     } else if (test == "testIndTobit") {
-      result <- fbed.tobit(y, x, alpha = alpha, wei = wei, K = K)
+      result <- fbed.tobit(target, dataset, alpha = threshold, univ = ini, wei = wei, K = K)
       
     } else if (test == "testIndClogit") {
-      result <- fbed.clogit(y, x, alpha = alpha, wei = wei, K = K)
+      result <- fbed.clogit(target, dataset, alpha = threshold, univ = ini, wei = wei, K = K)
+      
+    } else if (test == "testIndQBinom") {
+      result <- fbed.glm2(target, dataset, alpha = threshold, univ = ini, wei = wei, K = K, type = "quasibinomial")
+      
+    } else if (test == "testIndQPois") {
+      result <- fbed.glm2(target, dataset, alpha = threshold, univ = ini, wei = wei, K = K, type = "quasipoisson")
     }
     
     result$back.rem <- 0
@@ -82,13 +96,8 @@ fbed.reg <- function(y, x, test = NULL, alpha = 0.05, wei = NULL, K = 0, method 
     
     if ( backward ) {
       
-      if (test == "testIndMMreg") {
-        test <- "testIndReg"
-        robust <- TRUE
-      } else robust =  FALSE
-      
       if (result$info[1, 1] > 0) {
-        a <- bs.reg(y, x[, result$res[, 1], drop = FALSE], threshold = alpha, wei = wei, test = test, robust = robust)
+        a <- bs.reg(target, dataset[, result$res[, 1], drop = FALSE], threshold = threshold, wei = wei, test = test)
         
         if ( typeof(a) == "list" ) {
           result$back.rem <- result$res[a$info[, 1], 1]
@@ -111,52 +120,54 @@ fbed.reg <- function(y, x, test = NULL, alpha = 0.05, wei = NULL, K = 0, method 
     
   } else {
     
-    if (test == "testIndReg") {
-      result <- ebic.fbed.lm(y, x, gam = gam, wei = wei, K = K) 
+    if (test == "testIndReg"  |  test == "testIndFisher") {
+      test <- "testIndReg"
+      result <- ebic.fbed.lm(target, dataset, univ = ini, gam = gam, wei = wei, K = K) 
       
     } else if (test == "testIndPois") {
-      result <- ebic.fbed.glm(y, x, gam = gam, wei = wei, K = K, type = "poisson")
+      result <- ebic.fbed.glm(target, dataset, univ = ini, gam = gam, wei = wei, K = K, type = "poisson")
       
     } else if (test == "testIndNB") {
-      result <- ebic.fbed.nb(y, x, gam = gam, wei = wei, K = K)
+      result <- ebic.fbed.nb(target, dataset, univ = ini, gam = gam, wei = wei, K = K)
       
     } else if (test == "testIndLogistic") {
+      result <- ebic.fbed.glm(target, dataset, univ = ini, gam = gam, wei = wei, K = K, type = "logistic")
       
-      if ( length(unique(y) ) == 2 ) {
-        result <- ebic.fbed.glm(y, x, gam = gam, wei = wei, K = K, type = "logistic")
-      } else if ( !is.ordered(y) ) {
-        result <- ebic.fbed.multinom(y, x, gam = gam, wei = wei, K = K)
-      } else  result <- ebic.fbed.ordinal(y, x, gam = gam, wei = wei, K = K)
+    } else if (test == "testInMultinom") {  
+      result <- ebic.fbed.multinom(target, dataset, univ = ini, gam = gam, wei = wei, K = K)
+        
+    } else if (test == "testIndOrdinal") {
+      result <- ebic.fbed.ordinal(target, dataset, univ = ini, gam = gam, wei = wei, K = K)
       
-    } else if (test == "testIndMMreg") {
-      result <- ebic.fbed.mmreg(y, x, gam = gam, wei = wei, K = K)
+    } else if (test == "testIndMMReg") {
+      result <- ebic.fbed.mmreg(target, dataset, univ = ini, gam = gam, wei = wei, K = K)
       
     } else if (test == "testIndBinom") {
-      result <- ebic.fbed.glm(y, x, gam = gam, wei = wei, K = K, type = "binomial")
+      result <- ebic.fbed.glm(target, dataset, univ = ini, gam = gam, wei = wei, K = K, type = "binomial")
       
     } else if (test == "censIndCR") {
-      result <- ebic.fbed.cr(y, x, gam = gam, wei = wei, K = K)
+      result <- ebic.fbed.cr(target, dataset, univ = ini, gam = gam, wei = wei, K = K)
       
     } else if (test == "censIndWR") {
-      result <- ebic.fbed.wr(y, x, gam = gam, wei = wei, K = K)
+      result <- ebic.fbed.wr(target, dataset, univ = ini, gam = gam, wei = wei, K = K)
 
     } else if (test == "testIndBeta") {
-      result <- ebic.fbed.beta(y, x, gam = gam, wei = wei, K = K)
+      result <- ebic.fbed.beta(target, dataset, univ = ini, gam = gam, wei = wei, K = K)
       
     } else if (test == "testIndZIP") {
-      result <- ebic.fbed.zip(y, x, gam = gam, wei = wei, K = K)
+      result <- ebic.fbed.zip(target, dataset, univ = ini, gam = gam, wei = wei, K = K)
       
     } else if (test == "testIndGamma") {
-      result <- ebic.fbed.glm(y, x, gam = gam, wei = wei, K = K, type = "gamma")
+      result <- ebic.fbed.glm(target, dataset, univ = ini, gam = gam, wei = wei, K = K, type = "gamma")
       
     } else if (test == "testIndNormLog") {
-      result <- ebic.fbed.glm(y, x, gam = gam, wei = wei, K = K, type = "gaussian")
+      result <- ebic.fbed.glm(target, dataset, univ = ini, gam = gam, wei = wei, K = K, type = "gaussian")
       
     } else if (test == "testIndTobit") {
-      result <- ebic.fbed.tobit(y, x, gam = gam, wei = wei, K = K)
+      result <- ebic.fbed.tobit(target, dataset, univ = ini, gam = gam, wei = wei, K = K)
       
     } else if (test == "testIndClogit") {
-      result <- ebic.fbed.clogit(y, x, gam = gam, wei = wei, K = K)
+      result <- ebic.fbed.clogit(target, dataset, univ = ini, gam = gam, wei = wei, K = K)
     }
     
     result$back.rem <- 0
@@ -165,7 +176,7 @@ fbed.reg <- function(y, x, test = NULL, alpha = 0.05, wei = NULL, K = 0, method 
     if ( backward ) {
       
       if (result$info[1, 1] > 0) {
-        a <- ebic.bsreg(y, x[, result$res[, 1], drop = FALSE], test = test, wei = wei, gam = gam) 
+        a <- ebic.bsreg(target, dataset[, result$res[, 1], drop = FALSE], test = test, wei = wei, gam = gam) 
        
         if ( typeof(a) == "list" ) {
           back.n.tests <- sum( dim(result$res)[1] : length(a$mat[, 1]) )
@@ -188,6 +199,8 @@ fbed.reg <- function(y, x, test = NULL, alpha = 0.05, wei = NULL, K = 0, method 
     }  ## end if ( backward )
     
   } 
+  
+  }  ## end if ( length(K) > 1 )
   
   result
 }

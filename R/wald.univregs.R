@@ -1,4 +1,4 @@
-wald.univregs <- function(target, dataset, targetID = - 1, test = NULL, user_test = NULL, wei = NULL, dataInfo = NULL, ncores = 1) {
+wald.univregs <- function(target, dataset, targetID = - 1, test = NULL, user_test = NULL, wei = NULL, ncores = 1) {
   
   la <- length( unique(target) )
   univariateModels <- list();
@@ -15,14 +15,14 @@ wald.univregs <- function(target, dataset, targetID = - 1, test = NULL, user_tes
   if ( sum(id > 0) )  dataset[, id] <- rnorm(rows * length(id) )
   
   if ( !is.null(user_test) ) {
-    univariateModels <- wald.univariateScore(target, dataset, test = user_test, wei, dataInfo = dataInfo, targetID)
+    univariateModels <- wald.univariateScore(target, dataset, test = user_test, wei, targetID)
     
   } else if ( identical(test, waldBeta) ) {  ## Beta regression
     mod <- wald.betaregs(target, dataset, wei, logged = TRUE, ncores = ncores)
     univariateModels$stat = mod[, 1]
     univariateModels$pvalue = mod[, 2]
 
-  } else if ( identical(test, waldMMreg) ) {  ## M (Robust) linear regression
+  } else if ( identical(test, waldMMReg) ) {  ## M (Robust) linear regression
     if ( ncores <= 1 | is.null(ncores) ) {
       stat <- numeric(cols)
       for ( i in 1:cols ) {
@@ -46,7 +46,7 @@ wald.univregs <- function(target, dataset, targetID = - 1, test = NULL, user_tes
       univariateModels$pvalue = pchisq(mod, 1, lower.tail = FALSE, log.p = TRUE)
     }   
 
-  } else if ( identical(test, waldBinary) ) {  ## logistic regression
+  } else if ( identical(test, waldLogistic) ) {  ## logistic regression
     
     mod <- wald.logisticregs(target, dataset, wei = wei, logged = TRUE) 
     univariateModels$stat = mod[, 1]
@@ -66,7 +66,7 @@ wald.univregs <- function(target, dataset, targetID = - 1, test = NULL, user_tes
     } else {
       cl <- makePSOCKcluster(ncores)
       registerDoParallel(cl)
-      mod <- foreach(i = 1:cols, .combine = rbind, .packages = "MASS") %dopar% {
+      mod <- foreach(i = 1:cols, .combine = rbind, .packages = "ordinal") %dopar% {
         fit = ordinal::clm(target ~ dataset[, i], weights = wei)
         return( summary(fit)[[ 5 ]][2, 3]^2 )
       }
@@ -74,7 +74,7 @@ wald.univregs <- function(target, dataset, targetID = - 1, test = NULL, user_tes
       univariateModels$stat = mod
       univariateModels$pvalue = pchisq(mod, 1, lower.tail = FALSE, log.p = TRUE)
     }
-    
+
   } else if ( identical(test, waldBinom)  ) {  ## Logistic regression
     wei <- target[, 2] 
     y <- target[, 1] / wei
@@ -299,7 +299,6 @@ wald.univregs <- function(target, dataset, targetID = - 1, test = NULL, user_tes
   } else   univariateModels <- NULL
   
   if ( !is.null(univariateModels) )  {
-    univariateModels$flag = numeric(cols) + 1  
     if (targetID != - 1) {
       univariateModels$stat[targetID] = 0
       univariateModels$pvalue[targetID] = log(1)

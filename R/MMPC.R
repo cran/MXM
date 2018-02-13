@@ -17,7 +17,6 @@
 #   "testIndRQ" : Conditional Independence Test based on quantile (median) regression for numerical class variables and mixed predictors (F test)
 #   "testIndLogistic" : Conditional Independence Test based on logistic regression for binary,categorical or ordinal class variables and mixed predictors
 #   "testIndPois" : Conditional Independence Test based on Poisson regression for discrete class variables and mixed predictors (log-likelihood ratio test)
-#   "testIndSpeedglm" : Conditional Independence Test based on linear, binary logistic and poisson regression with mixed predictors (log-likelihood ratio test)
 #   "testIndZIP" : Conditional Independence Test based on zero inflated poisson regression for discrete class variables and mixed predictors (log-likelihood ratio test)
 #   "testIndNB" : Conditional Independence Test based on negative binomial regression for discrete class variables and mixed predictors (log-likelihood ratio test)
 #   "testIndBeta" : Conditional Independence Test based on beta regression for proportions and mixed predictors (log likelihood ratio test)
@@ -29,7 +28,6 @@
 # hashObject : a List with the hash objects (hash package) on which we have cached the generated statistics. 
 #              MMPC requires this Object for the hash-based implementation of the statistics. This hashObject is produced or 
 # updated by each run  of MMPC (if hash == TRUE) and it can be reused in next runs of MMPC.
-# robust : Should the Fisher or the normal regression be robustly estimated? TRUE or FALSE 
 # there are default values for all of the parameters of the algorithm.
 # OUTPUT <LIST>
 # The output of the algorithm is a LIST with the following quantities (14) :
@@ -45,16 +43,12 @@
 # threshold : the threshold option used in the current run.
 # runtime : the run time of the algorithm.
 # Conditional independence test arguments have to be in this exact fixed order : 
-# target(target variable), data(dataset), xIndex(x index), csIndex(cs index), dataInfo(list), 
+# target(target variable), data(dataset), xIndex(x index), csIndex(cs index), 
 # univariateModels(cached statistics for the univariate indepence test), hash(hash booleab), stat_hash(hash object), 
-# pvalue_hash(hash object), robust=robust
-# example: test(target, data, xIndex, csIndex, dataInfo=NULL, univariateModels=NULL, hash=FALSE, stat_hash=NULL, pvalue_hash=NULL, robust)
-# output of each test: LIST of the generated pvalue, stat, flag and the updated hash objects.
-
+# example: test(target, data, xIndex, csIndex, univariateModels=NULL, hash=FALSE, stat_hash=NULL, pvalue_hash=NULL)
+# output of each test: LIST of the generated pvalue, stat and the updated hash objects.
 MMPC = function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini = NULL, wei = NULL, user_test = NULL, 
-                hash = FALSE, hashObject = NULL, robust = FALSE, ncores = 1, backward = FALSE, logged = FALSE) {
-  #get the log threshold
-  threshold = log(threshold)
+                hash = FALSE, hashObject = NULL, ncores = 1, backward = FALSE) {
   ##############################
   # initialization part of MMPC 
   #############################
@@ -77,7 +71,6 @@ MMPC = function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini =
       return(NULL);
     }
   }
-  dataInfo = NULL;
   ###################################
   # dataset checking and initialize #
   ###################################
@@ -149,7 +142,6 @@ MMPC = function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini =
     if (ncol(target) >= 2 & class(target) != "Surv") {
       if ( (is.null(test) || test == "auto") & (is.null(user_test)) ) {
         test = "testIndMVreg"
-        warning("Multivariate target (ncol(target) >= 2) requires a multivariate test of conditional independence. The testIndMVreg was used. For a user-defined multivariate test, please provide one in the user_test argument.");
       }
     }
   }
@@ -169,16 +161,11 @@ MMPC = function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini =
       
       #if target is a factor then use the Logistic test
       if ( "factor" %in% class(target) )  {
-        test = "testIndLogistic";
-        if ( is.ordered(target) )  {
-          dataInfo$target_type = "ordinal";
-        } else {
-          if ( la == 2 ) {
-            dataInfo$target_type = "binary"
-          } else {
-            dataInfo$target_type = "nominal"
-          }
-        }
+        if ( is.ordered(target) & length( unique(target) ) > 2 ) {
+          test = "testIndOrdinal"
+        } else if ( !is.ordered(target) & length( unique(target) ) > 2 ) {
+          test = "testIndMultinom" 
+        } else test = "testIndLogistic"
         
       } else if ( ( is.numeric(target) || is.integer(target) ) & survival::is.Surv(target) == FALSE ) {
         
@@ -199,80 +186,59 @@ MMPC = function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini =
         test = "censIndCR";
       } else   stop('Target must be a factor, vector, matrix with at least 2 columns column or a Surv object');
     }
-    
-    if (test == "testIndLogistic") {
-      if ( is.ordered(target) )  {
-        dataInfo$target_type = "ordinal";
 
-      } else {
-        if ( la == 2 ) {
-          dataInfo$target_type = "binary"
-        } else {
-          dataInfo$target_type = "nominal"
-        }
-      }
-    }
-    #cat("\nConditional independence test used: ");cat(test);cat("\n");
-    #available conditional independence tests
     av_tests = c("testIndFisher", "testIndSpearman", "testIndReg", "testIndRQ", "testIndBeta", "censIndCR", "censIndWR", "censIndER", 
                  "testIndClogit", "testIndLogistic", "testIndPois", "testIndNB", "testIndBinom", "gSquare", "auto" , "testIndZIP" , 
-                 "testIndSpeedglm", "testIndMVreg", "testIndIGreg", "testIndGamma", "testIndNormLog", "testIndTobit", NULL);
+                 "testIndMVreg", "testIndIGreg", "testIndGamma", "testIndNormLog", "testIndTobit", "testIndQPois", "testdIndQBinom", 
+                 "testIndMMReg", "testIndMMFisher", "testIndMultinom", "testIndOrdinal", "testIndTimeLogistic", "testIndTimeMultinom", NULL);
     ci_test = test
-    #cat(test)
     
     if(length(test) == 1) {   #avoid vectors, matrices etc
       test = match.arg(test, av_tests, TRUE);
       #convert to closure type
       if (test == "testIndFisher") {
-        #an einai posostiaio target
         test = testIndFisher;
         
       } else if(test == "testIndSpearman")  {
-        #an einai posostiaio target
         target <- rank(target)
-        dataset <- apply(dataset, 2, rank)  
+        dataset <- Rfast::colRanks(dataset)  
         test <- testIndSpearman;  ## Spearman is Pearson on the ranks of the data
         
       } else if (test == "testIndReg") {   ## It uMMPC the F test
-        #an einai posostiaio target
         test = testIndReg;
-      }
-      else if(test == "testIndMVreg") {
-        if ( min(target) > 0  &  sd( Rfast::rowsums(target) ) == 0 )  target = log( target[, -1]/target[, 1] ) 
+        
+      } else if (test == "testIndMMFisher") {   ## It uMMPC the F test
+        test = testIndMMFisher;
+      
+      } else if(test == "testIndMVreg") {
+        if ( min(target) > 0  &  Rfast::Var( Rfast::rowsums(target) ) == 0 )  target = log( target[, -1]/target[, 1] ) 
         test = testIndMVreg;
         
-      } else if(test == "testIndBeta") 
-      {
+      } else if(test == "testIndBeta") {
         test = testIndBeta;
-      }
-      else if(test == "testIndRQ") ## quantile regression
-      {
+        
+      } else if(test == "testIndRQ")  {   ## quantile regression
         #an einai posostiaio target
         test = testIndRQ;
-#        if(requireNamespace("quantreg", quietly = TRUE, warn.conflicts = FALSE)==FALSE)
-#        {
-#          cat("The testIndRQ requires the quantreg package. Please install it.");
-#          return(NULL);
-#        }
-      }
-      else if (test == "testIndIGreg") { ## Inverse Gaussian regression
+        
+      } else if (test == "testIndIGreg") { ## Inverse Gaussian regression
         test = testIndIGreg;
+		
+      } else if (test == "testIndMMReg") { ## Inverse Gaussian regression
+        test = testIndMMReg;
         
       } else if (test == "testIndPois") {  ## Poisson regression
         test = testIndPois;
-        
-      } else if (test == "testIndSpeedglm") { ## Poisson regression
-        test = testIndSpeedglm;
-        
+
       } else if (test == "testIndNB") {  ## Negative binomial regression
         test = testIndNB;
         
-      } else if (test == "testIndGamma") { ## Gamma regression
+      } else if (test == "testIndGamma") {  ## Gamma regression
         test = testIndGamma;
-        
-      } else if (test == "testIndNormLog") {  ## Normal regression with a log link
+
+      } else if (test == "testIndNormLog") { ## Normal regression with a log link
         test = testIndNormLog;
-        
+
       } else if (test == "testIndZIP") {  ## Zero inflated Poisson regression
         test = testIndZIP;
         
@@ -296,9 +262,22 @@ MMPC = function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini =
         
       } else if(test == "testIndLogistic") {
         test = testIndLogistic;
+
+      } else if(test == "testIndMultinom") {
+        test = testIndMultinom;	
+		
+      } else if(test == "testIndOrdinal") {
+        test = testIndOrdinal;	
+        
+      } else if(test == "testIndQBinom") {
+        test = testIndQBinom;
+        
+      } else if(test == "testIndQPois") {
+        test = testIndQPois;
         
       } else if(test == "gSquare") {
         test = gSquare;
+
       }
       #more tests here
     } else {
@@ -314,16 +293,12 @@ MMPC = function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini =
   #option checking
   if ( (typeof(max_k)!="double") || max_k < 1 )   stop('invalid max_k option');
   if ( max_k > varsize )   max_k = varsize;
-  if ( (typeof(threshold) != "double") || exp(threshold) >= 1 )   stop('invalid threshold option');
-  # if(typeof(equal_case)!="double")
-  # {
-  #   stop('invalid equal_case option');
-  # }
+  if ( (typeof(threshold) != "double") || threshold < 0 || threshold >= 1 )   stop('invalid threshold option');
   #######################################################################################
   if ( !is.null(user_test) )  ci_test = "user_test";
   #call the main MMPC function after the checks and the initializations
   options(warn = -1)
-  results = InternalMMPC(target, dataset, max_k, threshold, test, ini, wei, user_test, dataInfo, hash, varsize, stat_hash, pvalue_hash, targetID, robust = robust, ncores = ncores, logged = logged);
+  results = InternalMMPC(target, dataset, max_k, log(threshold), test, ini, wei, user_test, hash, varsize, stat_hash, pvalue_hash, targetID, ncores = ncores);
   #for testing backward phase
   #   results$selectedVars = c(results$selectedVars,15)
   #   results$selectedVarsOrder = c(results$selectedVarsOrder,15)
@@ -334,16 +309,16 @@ MMPC = function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini =
   
   if ( backward  & length( varsToIterate ) > 0  ) {
     varsOrder <- results$selectedVarsOrder
-    bc <- mmpcbackphase(target, dataset[, varsToIterate, drop = FALSE], test = test, wei = wei, max_k = max_k, threshold = exp(threshold), dataInfo = dataInfo, robust = robust )
+    bc <- mmpcbackphase(target, dataset[, varsToIterate, drop = FALSE], test = test, wei = wei, max_k = max_k, threshold = threshold)
     met <- bc$met
     results$selectedVars <- varsOrder[met]
     results$selectedVarsOrder = varsOrder[met]
-    if (logged) {
-      results$pvalues[varsToIterate] = bc$pvalue
-    } else  results$pvalues[varsToIterate] = exp(bc$pvalue);
+    results$pvalues[varsToIterate] = bc$pvalue
     results$n.tests <- results$n.tests + bc$counter
   }
-  MMPCoutput <-new("MMPCoutput", selectedVars = results$selectedVars, selectedVarsOrder = results$selectedVarsOrder, hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, univ=results$univ, max_k=results$max_k, threshold = results$threshold, n.tests = results$n.tests, runtime=results$runtime, test=ci_test, rob = robust);
+  MMPCoutput <-new("MMPCoutput", selectedVars = results$selectedVars, selectedVarsOrder = results$selectedVarsOrder, 
+                   hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, univ=results$univ, 
+                   max_k=results$max_k, threshold = results$threshold, n.tests = results$n.tests, runtime=results$runtime, test=ci_test);
   return(MMPCoutput);
 }
 

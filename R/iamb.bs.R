@@ -1,4 +1,4 @@
-iamb.bs <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, user_test = NULL, robust = FALSE) {
+iamb.bs <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, user_test = NULL) {
   
   threshold <- log(threshold)
   dm <- dim(dataset)
@@ -50,18 +50,17 @@ iamb.bs <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, 
     }
     
     av_models <- c("testIndReg", "testIndBeta", "censIndCR", "testIndRQ", "censIndWR", "testIndLogistic", "testIndPois", 
-                   "testIndNB", "testIndZIP", "testIndSpeedglm", "testIndGamma", "testIndNormLog", "testIndTobit");
+                   "testIndNB", "testIndZIP", "testIndGamma", "testIndNormLog", "testIndTobit", "testIndMMReg", 
+				   "testIndMultinom", "testIndOrdinal");
     
     ci_test <- test
     test <- match.arg(test, av_models, TRUE);
     ############ 
     ###  GLMs 
     ############
-    heavy <- FALSE
-    if (test == "testIndSpeedglm")   heavy <- TRUE
     
-    if ( test == "testIndPois"  ||  test == "testIndReg"  ||  ( test == "testIndLogistic"  &  la == 2 )  ||  test == "testIndSpeedglm" ) {
-      res <- iamb.glmbs(target = target, dataset = dataset, wei = wei, threshold = exp(threshold), heavy = heavy, robust = robust ) 
+    if ( test == "testIndPois"  ||  test == "testIndReg"  ||  ( test == "testIndLogistic"  &  la == 2 ) ) {
+      res <- iamb.glmbs(target = target, dataset = dataset, wei = wei, threshold = exp(threshold) ) 
       
     } else if ( test == "testIndBeta" ) {
       res <- iamb.betabs(target = target, dataset = dataset, wei = wei, threshold = exp(threshold) ) 
@@ -82,37 +81,28 @@ iamb.bs <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, 
       
       if ( test == "censIndCR" ) {
         test <- survival::coxph 
-        robust <- FALSE
-        
+
       } else if ( test == "censIndWR" ) {
         test <- survival::survreg 
-        robust <- FALSE
-        
-      } else if ( test == "testIndLogistic" ) {
-        
-        if ( is.ordered(target) )  {
-          test <- ordinal::clm
-          robust <- FALSE
-          
-        } else {
+
+      } else if ( test == "testIndOrdinal" ) {
+        test <- ordinal::clm
+
+      } else if (test == "testIndMultinom") {
           test <- nnet::multinom
-          robust <- FALSE
-        }
         
       } else if ( test == "testIndNB" ) {
         test <- MASS::glm.nb
-        robust <- FALSE
-        
+
       } else if ( test == "testIndRQ" ) {
         test <- quantreg::rq
-        robust <- FALSE
 
       } else if ( !is.null(user_test) ) {
         test <- user_test
       }
       ###################
       ###################
-      a1 <- internaliamb.bs( target = target, dataset = dataset, threshold = threshold, test = test, wei = wei, p = p, robust = robust ) 
+      a1 <- internaliamb.bs( target = target, dataset = dataset, threshold = threshold, test = test, wei = wei, p = p ) 
       ind <- 1:p
       a2 <- list()
       poies <- a1$mat[, 1]
@@ -120,7 +110,7 @@ iamb.bs <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, 
         ind[-poies] <- 0
         ind <- ind[ind > 0]
         dat <- dataset[, poies, drop = FALSE ]
-        a2 <- internaliamb.bs(target = target, dataset = dat, threshold = threshold, test = test, wei = wei, p = length(ind), robust = robust )  
+        a2 <- internaliamb.bs(target = target, dataset = dat, threshold = threshold, test = test, wei = wei, p = length(ind))  
         poies <- a2$mat[, 1]
         ind[-poies] <- 0
         ind <- ind[ind > 0]
@@ -134,7 +124,7 @@ iamb.bs <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, 
       while ( length(a1$mat[, 1]) - length(a2$mat[, 1]) != 0 ) {
         i <- i + 1
         a1 <- a2
-        a2 <- internaliamb.bs( target = target, dataset = dat, threshold = threshold, test = test, wei = wei, p = length(ind), robust = robust ) 
+        a2 <- internaliamb.bs( target = target, dataset = dat, threshold = threshold, test = test, wei = wei, p = length(ind) ) 
         poies <- a2$mat[, 1]
         if ( length(poies) > 0 ) {
           ind[-poies] <- 0

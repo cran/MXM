@@ -1,4 +1,4 @@
-ebic.fbed.tobit <- function(y, x, gam = NULL, wei = NULL, K = 0) { 
+ebic.fbed.tobit <- function(y, x, univ = NULL, gam = NULL, wei = NULL, K = 0) { 
   dm <- dim(x)
   n <- dm[1]
   p <- dm[2]
@@ -10,19 +10,27 @@ ebic.fbed.tobit <- function(y, x, gam = NULL, wei = NULL, K = 0) {
   
   if ( is.null(gam) ) {
     con <- 2 - log(p) / logn
-    if ( (con) < 0 )  con <- 0
   } else con <- 2 * gam
+  if ( (con) < 0 )  con <- 0
   mod1 <- survival::survreg(y ~ 1, weights = wei, dist = "gaussian") 
   lik1 <-  - 2 * logLik(mod1) + 2 * log(n)
     
   runtime <- proc.time()
   
-  for ( i in ind ) {
-    fit2 <- survival::survreg( y ~ x[, i], weights = wei, dist = "gaussian" ) 
-    lik2[i] <-  - 2 * logLik(fit2) + (length(fit2$coefficients) + 1) * logn + con * log(p)
-  }
-  n.tests <- p
-  stat <- lik1 - lik2
+  if ( is.null(univ) ) {
+    for ( i in ind ) {
+      fit2 <- survival::survreg( y ~ x[, i], weights = wei, dist = "gaussian" ) 
+      lik2[i] <-  - 2 * logLik(fit2) + (length(fit2$coefficients) + 1) * logn + con * log(p)
+    }
+    n.tests <- p
+    stat <- lik1 - lik2
+    univ <- list()
+    univ$ebic <- lik2
+  } else {  
+    n.tests <- 0
+    lik2 <- univ$ebic
+    stat <- lik1 - lik2
+  } 
   s <- which(stat > 0)
 
     if ( length(s) > 0 ) {
@@ -183,9 +191,9 @@ ebic.fbed.tobit <- function(y, x, gam = NULL, wei = NULL, K = 0) {
     info <- matrix(c(0, p), ncol = 2)
   }
 
-  colnames(res) <- c("Vars", "eBIC")
+  colnames(res) <- c("Vars", "eBIC difference")
   rownames(info) <- paste("K=", 1:length(card)- 1, sep = "")
   colnames(info) <- c("Number of vars", "Number of tests")
-  list(res = res, info = info, runtime = runtime)
+  list(univ = univ, res = res, info = info, runtime = runtime)
 }
  

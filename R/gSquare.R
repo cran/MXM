@@ -1,5 +1,5 @@
-gSquare = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL, univariateModels=NULL, hash = FALSE, 
-stat_hash=NULL, pvalue_hash=NULL,robust=FALSE) {
+gSquare = function(target, dataset, xIndex, csIndex, wei = NULL, univariateModels=NULL, hash = FALSE, 
+stat_hash=NULL, pvalue_hash=NULL) {
   #Conditional Independence test based on the G test of independence (log likelihood ratio  test)
   csIndex[which(is.na(csIndex))] = 0;
   
@@ -11,8 +11,7 @@ stat_hash=NULL, pvalue_hash=NULL,robust=FALSE) {
     if (is.null(stat_hash[[key]]) == FALSE ) {
       stat = stat_hash[[key]];
       pvalue = pvalue_hash[[key]];
-      flag = 1;
-      results <- list(pvalue = pvalue, stat = stat, flag = flag, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+      results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
       return(results);
     }
   }
@@ -27,8 +26,7 @@ stat_hash=NULL, pvalue_hash=NULL,robust=FALSE) {
       }
       pvalue = log(1);
       stat = 0;
-      flag = 1;
-      results <- list(pvalue = pvalue, stat = stat, flag = flag, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+      results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
       return(results);
     }
     
@@ -45,7 +43,6 @@ stat_hash=NULL, pvalue_hash=NULL,robust=FALSE) {
     mod <- cat.ci(1, 2, 0, zz, type = dc )
     stat <- mod[1]
     pvalue <- mod[2]
-    flag = 1;
   } else {
     zz <- cbind(target, dataset[, c(xIndex, csIndex)] )
     dc <- Rfast::colrange(zz, cont = FALSE)  ##  as.numeric( apply(zz, 2, function(x) { length(unique(x)) } ) )
@@ -53,7 +50,6 @@ stat_hash=NULL, pvalue_hash=NULL,robust=FALSE) {
     mod <- cat.ci(1, 2, c(1:dim(zz)[2])[-c(1:2)], zz, type = dc )
     stat <- mod[1]
     pvalue <- mod[2]
-    flag = 1;
   }
   
   if ( hash ) {
@@ -61,7 +57,7 @@ stat_hash=NULL, pvalue_hash=NULL,robust=FALSE) {
     pvalue_hash[[key]] <- pvalue;     #.set(pvalue_hash , key , pvalue)
   }
   
-  results <- list(pvalue = pvalue, stat = stat, flag = flag, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+  results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
   return(results);
 }
 

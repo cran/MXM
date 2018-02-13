@@ -10,7 +10,7 @@ Bayesian Network construction using a hybrid of MMPC and PC.
 
 \usage{
 mmpc.or(x, max_k = 5, threshold = 0.01, test = "testIndFisher", backward = TRUE, 
-rob = FALSE,  symmetry = TRUE, ini.pvalue = NULL)
+symmetry = TRUE, ini.pvalue = NULL)
 }
 
 \arguments{
@@ -31,10 +31,6 @@ The conditional independence test to use. Default value is "testIndFisher". This
 \item{backward}{
 If TRUE, the backward (or symmetry correction) phase will be implemented. This removes any falsely included variables in the parents and children set of the target variable. It calls the \code{link{mmpcbackphase}} 
 for this purpose. For perm.ses and wald.ses this is not yet applicable.
-}
-\item{rob}{
-A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust version of the statistical test if it is available. It takes more time than a non robust version but it is suggested in case of outliers. 
-Default value is FALSE. This will only be taken into account if test is "testIndFisher".
 }
 \item{symmetry}{
 In order for an edge to be added, a statistical relationship must have been found from both directions. If you want this symmetry correction to take place, leave this boolean variable to TRUE. If you set it to FALSE, then if 
@@ -68,7 +64,10 @@ Some summary statistics about the edges, minimum, maximum, mean, median number o
 The number of edges divided by the total possible number of edges, that is #edges / \eqn{n(n-1)/2}, where \eqn{n} is the number of variables.
 }
 \item{runtime}{
-The run time of the algorithm. A numeric vector. The first element is the user time, the second element is the system time and the third element is the elapsed time.
+The run time of the skeleton phase of the algorithm. A numeric vector. The first element is the user time, the second element is the system time and the third element is the elapsed time.
+}
+\item{runtime.or}{
+The run time of the PC orientation rules. A numeric vector. The first element is the user time, the second element is the system time and the third element is the elapsed time.
 }
 \item{Gini}{
 The adjancency matrix. A value of 1 in G[i, j] appears in G[j, i] also, indicating that i and j have an edge between them.

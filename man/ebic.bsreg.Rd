@@ -9,23 +9,23 @@ Backward selection regression using the eBIC
 }
 
 \usage{
-ebic.bsreg(y, x, test = NULL, wei = NULL, gam = NULL) 
+ebic.bsreg(target, dataset, test = NULL, wei = NULL, gam = NULL) 
 }
 
 \arguments{
-\item{y}{
+\item{target}{
 The class variable. Provide either a string, an integer, a numeric value, a vector, a factor, an ordered factor or a Surv object. 
 }
-\item{x}{
+\item{dataset}{
 The dataset; provide either a data frame or a matrix (columns = variables, rows = samples). 
 }
 \item{test}{
-The available tests: "testIndReg", "testIndPois", "testIndNB", "testIndLogistic", "testIndMMreg" 
-(in the other algorithms this the robust version of "testIndReg"), "testIndBinom", "censIndCR", 
-"censIndWR", "testIndBeta", "testIndZIP", "testIndGamma", "testIndNormLog" and "testIndTobit".
+The available tests: "testIndReg", "testIndPois", "testIndNB", "testIndLogistic", "testIndMMReg", 
+"testIndBinom", "censIndCR", "censIndWR", "testIndBeta", "testIndZIP", "testIndGamma", "testIndNormLog" 
+and "testIndTobit".
 }
 \item{wei}{
-A vector of weights to be used for weighted regression. The default value is NULL. It is not suggested when robust is set to TRUE.
+A vector of weights to be used for weighted regression. The default value is NULL. It is not suggested when testIndMMReg is used.
 }
 \item{gam}{
 In case the method is chosen to be "eBIC" one can also specify the \eqn{gamma} parameter. The default value is "NULL", so that the value is 

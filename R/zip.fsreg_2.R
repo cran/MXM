@@ -59,7 +59,6 @@ zip.fsreg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = 
     pval = pchisq( stat, dof - do, lower.tail = FALSE, log.p = TRUE )
     
   } else {
-    #if ( robust == FALSE ) {  ## Non robust
     cl <- makePSOCKcluster(ncores)
     registerDoParallel(cl)
     mod <- foreach( i = 1:p, .combine = rbind, .export = "zip.reg" ) %dopar% {

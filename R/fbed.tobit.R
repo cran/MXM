@@ -1,9 +1,9 @@
-fbed.tobit <- function(y, x, alpha = 0.05, wei = NULL, K = 0) { 
+fbed.tobit <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) { 
   dm <- dim(x)
   p <- dm[2]
   ind <- 1:p
   sig <- log(alpha)
-  lik1 <- survival::survreg(y ~ 1, weights = wei, dist = "gaussian")$loglik[2]
+  lik1 <- 2 * survival::survreg(y ~ 1, weights = wei, dist = "gaussian")$loglik[2]
   lik2 <- numeric(p)
   dof <- numeric(p)
   sela <- NULL
@@ -13,21 +13,31 @@ fbed.tobit <- function(y, x, alpha = 0.05, wei = NULL, K = 0) {
   
   runtime <- proc.time()
   
-  for ( i in ind ) {
-    fit2 <- survival::survreg( y ~ x[, i], weights = wei, dist = "gaussian" )
-    lik2[i] <- fit2$loglik[2]
-    dof[i] <- length(fit2$coefficients)
-  }
-  n.tests <- p
-  stat <- lik2 - lik1
-  pval <- pchisq(2 * stat, dof - 1, lower.tail = FALSE, log.p = TRUE)
+  if ( is.null(univ) ) {
+    for ( i in ind ) {
+      fit2 <- survival::survreg( y ~ x[, i], weights = wei, dist = "gaussian" )
+      lik2[i] <- fit2$loglik[2]
+      dof[i] <- length(fit2$coefficients)
+    }
+    n.tests <- p
+    stat <- 2 * lik2 - lik1
+    pval <- pchisq(stat, dof - 1, lower.tail = FALSE, log.p = TRUE)
+    univ <- list()
+    univ$stat <- stat
+    univ$pvalue <- pval
+  } else {
+    stat <- univ$stat
+    pval <- univ$pvalue
+    n.tests <- 0
+    lik2 <- univ$stat + lik1
+  }  
   s <- which(pval < sig)
 
     if ( length(s) > 0 ) {
       sel <- which.min(pval)
       sela <- sel
       s <- s[ - which(s == sel) ]
-      lik1 <- lik2[sel] 
+      d1 <- dim( model.matrix( y~., data.frame(x[, sel]) ) )[2] - 1
       d1 <- dof[sel] 
       sa <- stat[sel]
       pva <- pval[sel]
@@ -215,6 +225,6 @@ fbed.tobit <- function(y, x, alpha = 0.05, wei = NULL, K = 0) {
   colnames(res) <- c("Vars", "stat", "log p-value")
   rownames(info) <- paste("K=", 1:length(card)- 1, sep = "")
   colnames(info) <- c("Number of vars", "Number of tests")
-  list(res = res, info = info, runtime = runtime)
+  list(univ = univ, res = res, info = info, runtime = runtime)
 }
  

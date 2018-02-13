@@ -1,4 +1,4 @@
-perm.univregs <- function(target, dataset, targetID = -1, test = NULL, user_test = NULL, wei = NULL, dataInfo = NULL, robust = FALSE, threshold = 0.05, R = 999, ncores = 1) {
+perm.univregs <- function(target, dataset, targetID = -1, test = NULL, user_test = NULL, wei = NULL, threshold = 0.05, R = 999, ncores = 1) {
   
   univariateModels <- list();
   dm <- dim(dataset)
@@ -17,9 +17,12 @@ perm.univregs <- function(target, dataset, targetID = -1, test = NULL, user_test
   la <- length( unique(target) )
   
 if ( !is.null(user_test) ) {
-  univariateModels <- perm.univariateScore(target, dataset, test, wei, dataInfo, targetID, robust, threshold, R, ncores)
-    
-} else if ( identical(test, permFisher) | ( identical(test, permReg) & is.null(wei) ) & !robust )  { ## Pearson's correlation 
+  univariateModels <- perm.univariateScore(target, dataset, test, wei, targetID, threshold, R, ncores)
+
+} else if ( identical(test, permMMFisher) )  { 
+  univariateModels <- perm.univariateScore(target, dataset, test, wei, targetID, threshold, R, ncores)
+  
+} else if ( identical(test, permFisher) | ( identical(test, permReg) & is.null(wei) ) )  { ## Pearson's correlation 
   pvalue <- numeric(cols)
   a <- as.vector( cor(target, dataset) )
   dof <- rows - 3; #degrees of freedom
@@ -58,7 +61,7 @@ if ( !is.null(user_test) ) {
   univariateModels$stat = mod[, 1]
   univariateModels$pvalue = mod[, 2]
 
-} else if ( identical(test, permReg)  &  robust  ) {  ## M (Robust) linear regression
+} else if ( identical(test, permMMReg)) {  ## M (Robust) linear regression
   fit1 = MASS::rlm(target ~ 1, maxit = 2000, method = "MM")
   lik1 = as.numeric( logLik(fit1) )
   lik2 = numeric(cols)
@@ -105,7 +108,7 @@ if ( !is.null(user_test) ) {
     univariateModels$pvalue = (mod[, 2] + 1) / (R + 1) 
   }   
   
-} else if ( identical(test, permReg)  &  !robust  &  !is.null(wei) ) {  ## Weighted linear regression
+} else if ( identical(test, permReg)  &  !is.null(wei) ) {  ## Weighted linear regression
   
   univariateModels = list();
   stat = pval = numeric(cols)
@@ -956,15 +959,16 @@ if ( !is.null(user_test) ) {
   
 } else   univariateModels <- NULL
   
+  
   if ( !is.null(univariateModels) )  {
-    univariateModels$flag = numeric(cols) + 1  
+    univariateModels$pvalue <- log( univariateModels$pvalue )
     if (targetID != - 1) {
       univariateModels$stat[targetID] = 0
-      univariateModels$pvalue[targetID] = 1
+      univariateModels$pvalue[targetID] = log(1)
     }
     if ( sum(id>0) > 0 ) {
       univariateModels$stat[id] = 0
-      univariateModels$pvalue[id] = 1
+      univariateModels$pvalue[id] = log(1)
     }
   }
   

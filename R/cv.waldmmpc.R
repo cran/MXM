@@ -72,7 +72,7 @@ cv.waldmmpc <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, 
       
     } else if (task == 'R') {
       
-      #Regression task (logistic regression)
+      #Regression task 
       if ( is.null(metric) ) {
         metricFunction <- mse.mxm;
       } else  metricFunction <- metric;
@@ -82,7 +82,7 @@ cv.waldmmpc <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, 
       } else  modelerFunction <- modeler;
       
       if (is.null(mmpc_test) ) {
-        test = 'waldMMreg';
+        test = 'waldMMReg';
       } else  test <- mmpc_test;
       
     } else if(task == 'S') {
@@ -196,11 +196,9 @@ cv.waldmmpc <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, 
     
     opti <- Rfast::rowmeans(mat)
     bestpar <- which.max(opti)
-    estb <- abs( sum( mat[bestpar, ] - Rfast::colMaxs(mat, value = TRUE) ) / kfolds )  ## apply(mat, 2, max) ) ) / kfolds 
     
     best_model$best_configuration = conf_mmpc[[bestpar]]$configuration
     best_model$best_performance <- max( opti )
-    best_model$BC_best_perf <- best_model$best_performance - estb
     best_model$runtime <- proc.time() - tic 
     result = best_model
   }

@@ -1,5 +1,5 @@
-permTobit = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL, univariateModels=NULL, hash = FALSE, stat_hash=NULL, pvalue_hash=NULL,
-                  robust=FALSE, threshold = 0.05, R = 999){
+permTobit = function(target, dataset, xIndex, csIndex, wei = NULL, univariateModels=NULL, hash = FALSE, stat_hash=NULL, pvalue_hash=NULL,
+                  threshold = 0.05, R = 999){
   # Conditional independence test based on the Log Likelihood ratio test
   if (!survival::is.Surv(target) )   stop('The survival test can not be performed without a Surv object target');
   csIndex[which(is.na(csIndex))] = 0;
@@ -12,16 +12,14 @@ permTobit = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL
     if (is.null(stat_hash[[key]]) == FALSE) {
       stat = stat_hash[[key]];
       pvalue = pvalue_hash[[key]];
-      flag = 1;
-      results <- list(pvalue = pvalue, stat = stat, flag = flag, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+      results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
       return(results);
     }
   }
   #initialization: these values will be returned whether the test cannot be carried out
-  pvalue = 1;
+  pvalue = log(1)
   stat = 0;
-  flag = 0;
-  results <- list(pvalue = pvalue, stat = stat, flag = flag, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+  results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
   x <- dataset[ , xIndex]
   if (is.na(csIndex) || length(csIndex) == 0 || csIndex == 0) {
     tob <- survival::survreg(target ~ x, weights = wei, dist = "gaussian")
@@ -37,7 +35,7 @@ permTobit = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL
         step <- step + ( stat2 > stat )
         j <- j + 1
       }
-      pvalue <- (step + 1) / (R + 1)         
+      pvalue <- log( (step + 1) / (R + 1) )        
     }  
     
   } else {
@@ -58,11 +56,9 @@ permTobit = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL
       pvalue <- (step + 1) / (R + 1)
     }  
   }  
-  flag = 1;
   if ( is.na(pvalue) || is.na(stat) ) {
-    pvalue = 1;
+    pvalue = log(1)
     stat = 0;
-    flag = 0;
   } else {
     #update hash objects
     if( hash )  {
@@ -71,6 +67,6 @@ permTobit = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL
     }
   }
   #testerrorcaseintrycatch(4);
-  results <- list(pvalue = pvalue, stat = stat, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+  results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
   return(results);
 }

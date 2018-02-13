@@ -10,7 +10,7 @@ Plot of longitudinal data.
 
 \usage{
 tc.plot(target, tp, id, type = "l", ylab = "Values", xlab = "Time points",
-       col = 2, lwd = 1, lty = 2, pch = 1)
+       col = 2, lwd = 1, lty = 2, pch = 1, main = "Spaghetti plot")
 }
 
 \arguments{
@@ -44,6 +44,9 @@ This is a graphical parameter. The type of line, e.g. dashed, dotted, etc.
 \item{pch}{
 This is a graphical parameter. If the type is "b", then you can specify if you want different signs, for example circles, crosses, diamonds etc. 
 }
+\item{main}{
+This is a graphical parameter. The title of the graph. 
+}
 }
 
 \details{
@@ -66,7 +69,7 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> Micha
 }
 
 \seealso{
-\code{\link{testIndGLMM}, \link{SES.temporal} }
+\code{\link{testIndGLMMReg}, \link{SES.temporal} }
 }
 
 \examples{

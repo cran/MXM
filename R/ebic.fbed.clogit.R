@@ -1,4 +1,4 @@
-ebic.fbed.clogit <- function(y, x, gam = NULL, wei = NULL, K = 0) { 
+ebic.fbed.clogit <- function(y, x, univ = NULL, gam = NULL, wei = NULL, K = 0) { 
   dm <- dim(x)
   n <- dm[1]
   p <- dm[2]
@@ -11,19 +11,27 @@ ebic.fbed.clogit <- function(y, x, gam = NULL, wei = NULL, K = 0) {
   
   if ( is.null(gam) ) {
     con <- 2 - log(p) / log(n)
-    if ( (con) < 0 )  con <- 0
   } else con <- 2 * gam
+  if ( con < 0 )  con <- 0
   mod1 <- survival::clogit( case ~ x[, 1] + strata(id) ) 
   lik1 <-  - 2 * mod1$loglik[1]
   
   runtime <- proc.time()
   
-  for ( i in ind ) {
-    fit2 <- survival::clogit( case ~ x[, i] + strata(id) ) 
-    lik2[i] <-  BIC(fit2) + con * log(p)
-  }
-  n.tests <- p
-  stat <- lik1 - lik2
+  if ( is.null(univ) ) {
+    for ( i in ind ) {
+      fit2 <- survival::clogit( case ~ x[, i] + strata(id) ) 
+      lik2[i] <-  BIC(fit2) + con * log(p)  
+    }
+    n.tests <- p
+    stat <- lik1 - lik2
+    univ <- list()
+    univ$ebic <- lik2
+  } else {  
+    n.tests <- 0
+    lik2 <- univ$ebic
+    stat <- lik1 - lik2
+  }  
   s <- which(stat > 0)
   
   if ( length(s) > 0 ) {
@@ -38,7 +46,7 @@ ebic.fbed.clogit <- function(y, x, gam = NULL, wei = NULL, K = 0) {
       M <- length(sela) + 1
       for ( i in ind[s] )  {
         fit2 <- try( survival::clogit( case ~ . + strata(id), data = x[, c(sela, i)] ), silent = TRUE)
-        if ( sum( class(fit2) == "try-error" ) == 1 ) {
+          if ( identical( class(fit2), "try-error" ) ) {
           lik2[i] <- lik1
         } else  lik2[i] <-  BIC(fit2) + con * lchoose(p, M)
       }
@@ -61,7 +69,7 @@ ebic.fbed.clogit <- function(y, x, gam = NULL, wei = NULL, K = 0) {
       M <- length(sela) + 1
       for ( i in ind[-sela] )  {
         fit2 <- try( survival::clogit( case ~ . + strata(id), data = x[, c(sela, i)] ), silent = TRUE)
-        if ( sum( class(fit2) == "try-error" ) == 1 ) {
+          if ( identical( class(fit2), "try-error" ) ) {
           lik2[i] <- lik1
         } else  lik2[i] <-  BIC(fit2) + con * lchoose(p, M)
       }
@@ -80,7 +88,7 @@ ebic.fbed.clogit <- function(y, x, gam = NULL, wei = NULL, K = 0) {
         M <- length(sela) + 1
         for ( i in ind[s] )  {
           fit2 <- try( survival::clogit( case ~ . + strata(id), data = x[, c(sela, i)] ), silent = TRUE)
-          if ( sum( class(fit2) == "try-error" ) == 1 ) {
+          if ( identical( class(fit2), "try-error" ) ) {
             lik2[i] <- lik1
           } else  lik2[i] <-  BIC(fit2) + con * lchoose(p, M)
         }
@@ -103,7 +111,7 @@ ebic.fbed.clogit <- function(y, x, gam = NULL, wei = NULL, K = 0) {
       M <- length(sela) + 1
       for ( i in ind[-sela] )  {
         fit2 <- try( survival::clogit( case ~ . + strata(id), data = x[, c(sela, i)] ), silent = TRUE)
-        if ( sum( class(fit2) == "try-error" ) == 1 ) {
+          if ( identical( class(fit2), "try-error" ) ) {
           lik2[i] <- lik1
         } else  lik2[i] <-  BIC(fit2) + con * lchoose(p, M)
       }
@@ -122,7 +130,7 @@ ebic.fbed.clogit <- function(y, x, gam = NULL, wei = NULL, K = 0) {
         M <- length(sela) + 1
         for ( i in ind[s] )  {
           fit2 <- try( survival::clogit( case ~ . + strata(id), data = x[, c(sela, i)] ), silent = TRUE)
-          if ( sum( class(fit2) == "try-error" ) == 1 ) {
+          if ( identical( class(fit2), "try-error" ) ) {
             lik2[i] <- lik1
           } else  lik2[i] <-  BIC(fit2) + con * lchoose(p, M)
         }
@@ -146,7 +154,7 @@ ebic.fbed.clogit <- function(y, x, gam = NULL, wei = NULL, K = 0) {
         M <- length(sela) + 1
         for ( i in ind[-sela] )  {
           fit2 <- try( survival::clogit( case ~ . + strata(id), data = x[, c(sela, i)] ), silent = TRUE)
-          if ( sum( class(fit2) == "try-error" ) == 1 ) {
+          if ( identical( class(fit2), "try-error" ) ) {
             lik2[i] <- lik1
           } else  lik2[i] <-  BIC(fit2) + con * lchoose(p, M)
         }
@@ -165,7 +173,7 @@ ebic.fbed.clogit <- function(y, x, gam = NULL, wei = NULL, K = 0) {
           M <- length(sela) + 1
           for ( i in ind[s] )  {
             fit2 <- try( survival::clogit( case ~ . + strata(id), data = x[, c(sela, i)] ), silent = TRUE)
-            if ( sum( class(fit2) == "try-error" ) == 1 ) {
+            if ( identical( class(fit2), "try-error" ) ) {
               lik2[i] <- lik1
             } else  lik2[i] <-  BIC(fit2) + con * lchoose(p, M)
           }
@@ -197,8 +205,8 @@ ebic.fbed.clogit <- function(y, x, gam = NULL, wei = NULL, K = 0) {
     res <- matrix(c(0, 0), ncol = 2)
     info <- matrix(c(0, p), ncol = 2)
   }  
-  colnames(res) <- c("Vars", "eBIC")
+  colnames(res) <- c("Vars", "eBIC difference")
   rownames(info) <- paste("K=", 1:length(card)- 1, sep = "")
   colnames(info) <- c("Number of vars", "Number of tests")
-  list(res = res, info = info, runtime = runtime)
+  list(univ = univ, res = res, info = info, runtime = runtime)
 }

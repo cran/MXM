@@ -15,11 +15,11 @@
 #cv_results_all: a list with the predictions, performances and the signatures for each fold of each configuration (i.e cv_results_all[[3]]$performances[1] indicates the performance of the 1st fold with the 3d configuration of SES)
 #best_performance: numeric, the best average performance
 #best_configuration: the best configuration of SES (a list with the slots id, a, max_k)
-cv.ses <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, alphas = c(0.1, 0.05, 0.01), max_ks = c(3, 2), task = NULL, metric = NULL, modeler = NULL, ses_test = NULL, robust = FALSE, ncores = 1)
+cv.ses <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, alphas = c(0.1, 0.05, 0.01), max_ks = c(3, 2), task = NULL, metric = NULL, modeler = NULL, ses_test = NULL, ncores = 1)
 {
     
   if ( ncores > 1 ) {  ## multi-threaded task
-    result = cvses.par(target, dataset, wei = wei, kfolds = kfolds, folds = folds, alphas = alphas, max_ks = max_ks, task = task, metric = metric, modeler = modeler, ses_test = ses_test, robust = robust, ncores = ncores)
+    result = cvses.par(target, dataset, wei = wei, kfolds = kfolds, folds = folds, alphas = alphas, max_ks = max_ks, task = task, metric = metric, modeler = modeler, ses_test = ses_test, ncores = ncores)
 
   } else { ## one core task     
   
@@ -137,7 +137,7 @@ cv.ses <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, alpha
       threshold <- SES_configurations[[ses_conf_id]]$a;
       max_k <- SES_configurations[[ses_conf_id]]$max_k;
       #running SES
-      results <- SES(train_target, train_set, max_k, threshold, test = test, ini = sesini, wei = wtrain, hash = TRUE, hashObject = SESHashMap, robust = robust)
+      results <- SES(train_target, train_set, max_k, threshold, test = test, ini = sesini, wei = wtrain, hash = TRUE, hashObject = SESHashMap)
       sesini <- results@univ
       SESHashMap <- results@hashObject;
       signatures <- results@signatures;
@@ -199,11 +199,9 @@ cv.ses <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, alpha
   
   opti <- Rfast::rowmeans(mat)
   bestpar <- which.max(opti)
-  estb <- abs( sum( mat[bestpar, ] - Rfast::colMaxs(mat, value = TRUE) ) / kfolds )    ##   apply(mat, 2, max) ) ) / kfolds 
   
   best_model$best_configuration <- conf_ses[[bestpar]]$configuration
   best_model$best_performance <- max( opti )
-  best_model$BC_best_perf <- best_model$best_performance - estb
   best_model$runtime <- proc.time() - tic 
     
   result <- best_model
@@ -400,8 +398,7 @@ ordinal.mxm <- function(train_target, sign_data, sign_test, wei) {
   x <- sign_data
   sign_model <- ordinal::clm( train_target ~ ., data = data.frame(x), trace = FALSE, weights = wei );
   x <- sign_test
-  preds <- predict( sign_model, newdata = data.frame(x) )$fit
-  preds <- max.col(preds)  
+  preds <- predict( sign_model, newdata = data.frame(x), type = "class" )
   list(preds = preds, theta = NULL)
 }
 

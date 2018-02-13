@@ -10,16 +10,22 @@ The main task of this test is to provide a p-value PVALUE for the null hypothesi
 }
 
 \usage{
-permcor(x, R = 999) 
+permcor(x1, x2, R = 999) 
 permcorrels(y, x, R = 999)
 }
 
 \arguments{
-\item{x}{
-For the case of "permcor" this is a matrix with two columns, two continuous variables. In the case of "permcorrels" this is a matrix with many variables. 
+\item{x1}{
+A numerical vector.
+}
+\item{x2}{
+A numerical vector of the same size as x1.
 }
 \item{y}{
 A vector whose length is equal to the number of rows of x.
+}
+\item{x}{
+This is a matrix with many variables. 
 }
 \item{R}{
 The number of permutations to be conducted; set to 999 by default. 
@@ -27,7 +33,7 @@ The number of permutations to be conducted; set to 999 by default.
 }
 
 \details{
-This is a computational non parametric correlation coefficient test and is advised to be used when a small sample size is available. If you want to use the Spearman correlation instead, simply provide the ranks of x or of y and x. 
+This is a computational non parametric (permutation based) correlation coefficient test and is advised to be used when a small sample size is available. If you want to use the Spearman correlation instead, simply provide the ranks of x or of y and x. 
 }
 
 \value{
@@ -53,8 +59,7 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 
 \examples{
-permcor(iris[, 1:2])
-permcor(iris[, 1:2], R = 9999)
+MXM::permcor(iris[, 1], iris[, 2], R = 9999)
 x <- matrix(rnorm(50 * 2000), ncol = 2000)
 a <- permcorrels(iris[1:50, 1], x)
 }

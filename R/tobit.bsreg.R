@@ -1,4 +1,4 @@
-tobit.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FALSE, robust = FALSE) {
+tobit.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL) {
   
   threshold <- log(threshold)
   dm <- dim(dataset)
@@ -70,9 +70,7 @@ tobit.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = F
     i <- 1  
     
     if ( info[1, 2] > threshold ) {
-      
-      if ( !heavy ) {
-        
+             
         while ( info[i, 2] > threshold  &  NCOL(dat) > 0 )  {   
           i <- i + 1
           k <- p - i + 1
@@ -118,57 +116,6 @@ tobit.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = F
             }
           }  
         }  ## end while
-        
-      } else {
-        
-        while ( info[i, 2] > threshold  &  NCOL(dat) > 0 )  {   
-          
-          i <- i + 1       
-          k <- p - i + 1
-          ini <- survival::survreg( target ~., data = dat, weights = wei )
-          dofini <- length( ini$coefficients ) 
-          if ( k == 1 ) {
-            mod <- survival::survreg(target ~ 1, data = dat, weights = wei)
-            stat <- 2 * abs( logLik(ini) - logLik(mod) )
-            dof <- dofini - length( mod$coefficients ) 
-            pval <- pchisq( stat, dof, lower.tail = FALSE, log.p = TRUE)
-            
-            if (pval > threshold ) {
-              final <- "No variables were selected"
-              info <- rbind(info, c(mat[, 1], pval, stat) )
-              dat <- dataset[, -info[, 1], drop = FALSE ]
-              mat <- NULL
-            } else {
-              info <- rbind(info, c(0, -10, -10)) 
-              final <- ini
-              mat[, 2:3] <- c(pval, stat)
-            }  
-          } else {		       
-            
-            stat <- dof <- numeric(k)
-            
-            for (j in 1:k) {
-              mod <- survival::survreg( target ~., data = dat[, -j, drop = FALSE], weights = wei )
-              stat[j] <- 2 * abs( logLik(ini) - logLik(mod) )
-              dof[j] <- dofini - length( mod$coefficients ) 		   
-            } 
-            
-            mat[, 2:3] <- cbind( pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE), stat )
-            sel <- which.max( mat[, 2] )
-            
-            if ( mat[sel, 2] < threshold ) {
-              final <- ini
-              info <- rbind(info, c(0, -10, -10) )
-              
-            } else {
-              info <- rbind(info, mat[sel, ] )
-              mat <- mat[-sel, , drop = FALSE] 
-              dat <- dataset[, -info[, 1], drop = FALSE ]
-            }
-            
-          }	   
-        }  ## end while
-      }  ## end else 
     }  else final <- ini
     
   }  

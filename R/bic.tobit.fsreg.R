@@ -1,4 +1,4 @@
-bic.tobit.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, robust = FALSE, ncores = 1) {
+bic.tobit.fsreg <- function( target, dataset, wei = NULL, tol = 0, ncores = 1) {
   
   p <- dim(dataset)[2]  ## number of variables
   bico <- numeric( p )
@@ -24,7 +24,8 @@ bic.tobit.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE
       }
     }
   }
-  
+    
+    dataset <- as.data.frame(dataset)
     durat <- proc.time()
     mi <- survival::survreg( target ~ 1, weights = wei, dist = "gaussian" ) ## initial BIC
     la <- logLik(mi)

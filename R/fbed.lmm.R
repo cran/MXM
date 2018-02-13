@@ -1,11 +1,11 @@
-fbed.lmm <- function(y, x, id, alpha = 0.05, wei = NULL, K = 0) { 
+fbed.lmm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0) { 
 
   dm <- dim(x)
   p <- dm[2]
   n <- dm[1]
   ind <- 1:p
   sig <- log(alpha)
-  lik2 <- numeric(p)
+  stat <- numeric(p)
   sela <- NULL
   card <- 0
   sa <- NULL
@@ -16,37 +16,41 @@ fbed.lmm <- function(y, x, id, alpha = 0.05, wei = NULL, K = 0) {
   
   runtime <- proc.time()
   
-  if ( min(y) > 0  &  max(y) < 1 )  y = log( y/(1 - y) )
-  
-  for ( i in ind ) {
-    fit2 <- lme4::lmer( y ~ x[, i] + (1|id), REML = FALSE, weights = wei )
-    lik2[i] <- summary(fit2)[[ 10 ]][2, 3]^2
-  }
-  n.tests <- p
-  stat <- lik2
-  pval <- pf(stat, 1, n - 4, lower.tail = FALSE, log.p = TRUE)
+  if ( is.null(univ) ) {
+    for ( i in ind ) {
+      fit2 <- lme4::lmer( y ~ x[, i] + (1|id), REML = FALSE, weights = wei )
+      stat[i] <- summary(fit2)[[ 10 ]][2, 3]^2
+    }
+    n.tests <- p
+    pval <- pf(stat, 1, n - 4, lower.tail = FALSE, log.p = TRUE)
+    univ <- list()
+    univ$stat <- stat
+    univ$pvalue <- pval
+  } else {
+    n.tests <- 0
+    stat <- univ$stat
+    pval <- univ$pvalue
+  }  
   s <- which(pval < sig)
   
   if ( length(s) > 0 ) {
     sel <- which.min(pval)
     sela <- sel
     s <- s[ - which(s == sel) ]
-    lik1 <- lik2[sel] 
     sa <- stat[sel]
     pva <- pval[sel]
-    lik2 <- rep( 0, p )
-    param <- rep(0, p)
+    stat <- numeric(p )
+    param <- numeric(p)
     #########
     while ( sum(s>0) > 0 ) {
       d0 <- length(sela)
       for ( i in ind[s] )  {
         fit2 <- lme4::lmer( y ~ x[, c(sela, i)] + (1|id), REML = FALSE, weights = wei )
         d1 <- summary(fit2)[[3]]$dims[3]
-        lik2[i] <- summary(fit2)[[ 10 ]][d1, 3]^2
+        stat[i] <- summary(fit2)[[ 10 ]][d1, 3]^2
         param[i] <- d1 - d0
       }
       n.tests <- n.tests + length( ind[s] ) 
-      stat <- lik2
       pval <- pf(stat, 1, n - param - 2, lower.tail = FALSE, log.p = TRUE)
       s <- which(pval < sig) 
       sel <- which.min(pval) * ( length(s) > 0 )
@@ -54,7 +58,7 @@ fbed.lmm <- function(y, x, id, alpha = 0.05, wei = NULL, K = 0) {
       pva <- c(pva, pval[sel])
       sela <- c(sela, sel[sel>0])
       s <- s[ - which(s == sel) ]
-      if (sel > 0)  lik2 <- rep(0, p)
+      if (sel > 0)  stat <- numeric(p)
     } ## end while ( sum(s > 0) > 0 )
     
     card <- sum(sela > 0)
@@ -64,11 +68,10 @@ fbed.lmm <- function(y, x, id, alpha = 0.05, wei = NULL, K = 0) {
       for ( i in ind[-sela] )  {
         fit2 <- lme4::lmer( y ~ x[, c(sela, i)] + (1|id), REML = FALSE, weights = wei )
         d1 <- summary(fit2)[[3]]$dims[3]
-        lik2[i] <- summary(fit2)[[ 10 ]][d1, 3]^2
+        stat[i] <- summary(fit2)[[ 10 ]][d1, 3]^2
         param[i] <- d1 - d0
       }
       n.tests[2] <- length( ind[-sela] )
-      stat <- lik2
       pval <- pf(stat, 1, n - param - 2, lower.tail = FALSE, log.p = TRUE)
       s <- which(pval < sig)
       sel <- which.min(pval) * ( length(s)>0 )
@@ -76,16 +79,16 @@ fbed.lmm <- function(y, x, id, alpha = 0.05, wei = NULL, K = 0) {
       pva <- c(pva, pval[sel])
       sela <- c(sela, sel[sel>0])
       s <- s[ - which(s == sel) ]
+      if (sel > 0)   stat <- numeric(p)
       while ( sum(s>0) > 0 ) {
         d0 <- length(sela)
         for ( i in ind[s] )  {
           fit2 <- lme4::lmer( y ~ x[, c(sela, i)] + (1|id), REML = FALSE, weights = wei )
           d1 <- summary(fit2)[[3]]$dims[3]
-          lik2[i] <- summary(fit2)[[ 10 ]][d1, 3]^2
+          stat[i] <- summary(fit2)[[ 10 ]][d1, 3]^2
           param[i] <- d1 - d0
         }
         n.tests[2] <- n.tests[2] + length( ind[s] )
-        stat <- lik2 - lik1
         pval <- pf(stat, 1, n - param - 2, lower.tail = FALSE, log.p = TRUE)
         s <- which(pval < sig)
         sel <- which.min(pval) * ( length(s)>0 )
@@ -104,11 +107,10 @@ fbed.lmm <- function(y, x, id, alpha = 0.05, wei = NULL, K = 0) {
       for ( i in ind[-sela] )  {
         fit2 <- lme4::lmer( y ~ x[, c(sela, i)] + (1|id), REML = FALSE, weights = wei )
         d1 <- summary(fit2)[[3]]$dims[3]
-        lik2[i] <- summary(fit2)[[ 10 ]][d1, 3]^2
+        stat[i] <- summary(fit2)[[ 10 ]][d1, 3]^2
         param[i] <- d1 - d0
       }
       n.tests[2] <- length( ind[-sela] )
-      stat <- lik2
       pval <- pf(stat, 1, n - param - 2, lower.tail = FALSE, log.p = TRUE)
       s <- which(pval < sig)
       sel <- which.min(pval) * ( length(s)>0 )
@@ -116,18 +118,17 @@ fbed.lmm <- function(y, x, id, alpha = 0.05, wei = NULL, K = 0) {
       pva <- c(pva, pval[sel])
       sela <- c(sela, sel[sel>0])
       s <- s[ - which(s == sel) ]
-      if (sel > 0)  lik2 <- rep(0, p)
+      if (sel > 0)  stat <- numeric(p)
       
       while ( sum(s > 0) > 0 ) {
         d0 <- length(sela)
         for ( i in ind[s] )  {
           fit2 <- lme4::lmer( y ~ x[, c(sela, i)] + (1|id), REML = FALSE, weights = wei )
           d1 <- summary(fit2)[[3]]$dims[3]
-          lik2[i] <- summary(fit2)[[ 10 ]][d1, 3]^2
+          stat[i] <- summary(fit2)[[ 10 ]][d1, 3]^2
           param[i] <- d1 - d0
         }
         n.tests[2] <- n.tests[2] + length( ind[s] )  
-        stat <- lik2
         pval <- pf(stat, 1, n - param - 2, lower.tail = FALSE, log.p = TRUE)
         s <- which(pval < sig)
         sel <- which.min(pval) * ( length(s)>0 )
@@ -135,7 +136,7 @@ fbed.lmm <- function(y, x, id, alpha = 0.05, wei = NULL, K = 0) {
         pva <- c(pva, pval[sel])
         sela <- c(sela, sel[sel>0])
         s <- s[ - which(s == sel) ]
-        if (sel > 0)  lik2 <- rep(0, p)
+        if (sel > 0)  stat <- numeric(p)
       } ## end while ( sum(s>0) > 0 ) 
       
       card <- c(card, sum(sela > 0) )
@@ -146,11 +147,10 @@ fbed.lmm <- function(y, x, id, alpha = 0.05, wei = NULL, K = 0) {
         for ( i in ind[-sela] )  {
           fit2 <- lme4::lmer( y ~ x[, c(sela, i)] + (1|id), REML = FALSE, weights = wei )
           d1 <- summary(fit2)[[3]]$dims[3]
-          lik2[i] <- summary(fit2)[[ 10 ]][d1, 3]^2
+          stat[i] <- summary(fit2)[[ 10 ]][d1, 3]^2
           param[i] <- d1 - d0
         }
         n.tests[vim + 1] <- length( ind[-sela] )
-        stat <- lik2 
         pval <- pf(stat, 1, n - param - 2, lower.tail = FALSE, log.p = TRUE)
         s <- which(pval < sig)
         sel <- which.min(pval) * ( length(s)>0 )
@@ -158,18 +158,16 @@ fbed.lmm <- function(y, x, id, alpha = 0.05, wei = NULL, K = 0) {
         pva <- c(pva, pval[sel])
         sela <- c(sela, sel[sel>0])
         s <- s[ - which(s == sel) ]
-        if (sel > 0)  lik2 <- rep(0, p)
-        
+        if (sel > 0)  stat <- numeric(p)
         while ( sum(s > 0) > 0 ) {
           d0 <- length(sela)
           for ( i in ind[s] )  {
             fit2 <- lme4::lmer( y ~ x[, c(sela, i)] + (1|id), REML = FALSE, weights = wei )
             d1 <- summary(fit2)[[3]]$dims[3]
-            lik2[i] <- summary(fit2)[[ 10 ]][d1, 3]^2
+            stat[i] <- summary(fit2)[[ 10 ]][d1, 3]^2
             param[i] <- d1 - d0
           }
           n.tests[vim + 1] <- n.tests[vim + 1] + length( ind[s] )
-          stat <- lik2 - lik1
           pval <- pf(stat, 1, n - param - 2, lower.tail = FALSE, log.p = TRUE)
           s <- which(pval < sig)
           sel <- which.min(pval) * ( length(s)>0 )
@@ -177,7 +175,7 @@ fbed.lmm <- function(y, x, id, alpha = 0.05, wei = NULL, K = 0) {
           pva <- c(pva, pval[sel])
           sela <- c(sela, sel[sel>0])
           s <- s[ - which(s == sel) ]
-          if (sel > 0)  lik2 <- rep(0, p)
+          if (sel > 0)  stat <- numeric(p)
         } ## end while ( sum(s > 0) > 0 ) 
         card <- c(card, sum(sela>0) )
       }  ## end while ( vim < K )
@@ -198,5 +196,5 @@ fbed.lmm <- function(y, x, id, alpha = 0.05, wei = NULL, K = 0) {
   colnames(res) <- c("Vars", "stat", "log p-value")
   rownames(info) <- paste("K=", 1:length(card)- 1, sep = "")
   colnames(info) <- c("Number of vars", "Number of tests")
-  list(res = res, info = info, runtime = runtime)
+  list(univ = univ, res = res, info = info, runtime = runtime)
 }

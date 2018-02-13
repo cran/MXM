@@ -1,15 +1,15 @@
 \name{Neighbours of nodes in an undirected graph}
 \alias{nei}
 \title{
-Returns and plots, if asked, the node(s) and their neighbour(s), if there are any.
+Returns the node(s) and their neighbour(s), if there are any.
 }
 
 \description{
-Returns and plots, if asked, the node(s) and their neighbour(s) of one or more nodes (if there are any).
+Returns the node(s) and their neighbour(s) of one or more nodes (if there are any).
 }
 
 \usage{
-nei(G, node, graph = TRUE)
+nei(G, node)
 }
 
 \arguments{
@@ -18,9 +18,6 @@ The adjacency matrix of an undirected graph as produced by \code{\link{mmhc.skel
 }
 \item{node}{
 A vector with one or more numbers indicating the seleted node(s) (or variable(s)). 
-}
-\item{graph}{
-A boolean variable. If TRUE the relevane graph will appear (if there are neighbours). 
 }
 }
 
@@ -60,7 +57,6 @@ G <- pc.con(dataset)$G
 plotnetwork(G)
 dev.new()
 nei( G, c(3, 4) )
-dev.new()
 nei( G, c(1, 3) )
 }
 

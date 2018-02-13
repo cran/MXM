@@ -1,7 +1,9 @@
 \name{Correlation based conditonal independence tests}
 \alias{testIndFisher}
 \alias{testIndSpearman}
+\alias{testIndMMFisher}
 \alias{permFisher}
+\alias{permMMFisher}
 \alias{permDcor}
 \title{
 Fisher and Spearman conditional independence test for continuous class variables
@@ -13,20 +15,28 @@ The main task of this test is to provide a p-value PVALUE for the null hypothesi
 
 \usage{
 testIndFisher(target, dataset, xIndex, csIndex, wei = NULL, statistic = FALSE, 
-dataInfo = NULL, univariateModels = NULL, hash = FALSE, stat_hash = NULL, 
-pvalue_hash = NULL, robust = FALSE)
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, 
+pvalue_hash = NULL)
+
+testIndMMFisher(target, dataset, xIndex, csIndex, wei = NULL, statistic = FALSE, 
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, 
+pvalue_hash = NULL)
 
 testIndSpearman(target, dataset, xIndex, csIndex, wei = NULL, statistic = FALSE, 
-dataInfo = NULL, univariateModels = NULL, hash = FALSE, stat_hash = NULL, 
-pvalue_hash = NULL, robust = FALSE)
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, 
+pvalue_hash = NULL)
 
 permFisher(target, dataset, xIndex, csIndex, wei = NULL, statistic = FALSE, 
-dataInfo = NULL, univariateModels = NULL, hash = FALSE, stat_hash = NULL, 
-pvalue_hash = NULL, robust = FALSE, threshold = 0.05, R = 999)
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, 
+pvalue_hash = NULL, threshold = 0.05, R = 999)
+
+permMMFisher(target, dataset, xIndex, csIndex, wei = NULL, statistic = FALSE, 
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, 
+pvalue_hash = NULL, threshold = 0.05, R = 999)
 
 permDcor(target, dataset, xIndex, csIndex, wei = NULL, statistic = FALSE, 
-dataInfo = NULL, univariateModels = NULL, hash = FALSE, stat_hash = NULL, 
-pvalue_hash = NULL, robust = FALSE, threshold = 0.05, R = 499)
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, 
+pvalue_hash = NULL, threshold = 0.05, R = 499)
 }
 
 \arguments{
@@ -50,9 +60,6 @@ A vector of weights to be used for weighted regression. The default value is NUL
 A boolean variable indicating whether the test statistics (TRUE) or the p-values should be combined (FALSE). See the details about this.
 For the permFisher test this is not taken into account.
 }
-\item{dataInfo}{
-A list object with information on the structure of the data. Default value is NULL.
-}
 \item{univariateModels}{
 Fast alternative to the hash object for univariate test. List with vectors "pvalues" (p-values), "stats" (statistics) and "flags" (flag = TRUE if the test was succesful) representing the univariate association of each variable with the target. Default value is NULL.
 }
@@ -64,9 +71,6 @@ A hash object (hash package required) which contains the cached generated statis
 }
 \item{pvalue_hash}{
 A hash object (hash package required) which contains the cached generated p-values of a SES run in the current dataset, using the current test.
-}
-\item{robust}{
-A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robustified version of Fisher's correlation coefficient via MM-estimation available from \code{\link{rlm}} in the package "MASS". Two regressions are fitted and the square root ot the absolute value of the beta coefficients is used to calculate the correlation coefficient (Shevlyakov and Smirnov, 2011). For the conditional correlation the correlation of the residuals of the two robust regressions is calcualted. For more ways of calculating the correlation coefficient see the references. It takes more time than non robust version but it is suggested in case of outliers. Default value is FALSE. In the case of testIndSpearman, this is not used, as Spearman correlation is robust by default.
 }
 \item{threshold}{
 Threshold (suitable values in [0,1]) for assessing p-values significance. Default value is 0.05. This is actually obsolete here, but has to be in order tyo have a concise list of input arguments across the same family of functions.
@@ -90,6 +94,8 @@ BE CAREFUL with testIndSpearman. The Pearson's correlation coefficient is actual
 When performing the above tests with multiple datasets, the test statistic and the p-values are combined in a meta-analytic way. Is up to the user to decide whether to use the fixed effects model approach and combine the test statistics (statistic = TRUE), or combine the p-values as Fisher suggested (statistic = FALSE). 
 
 The argument R is useful only for the permFisher and permDcor tests. The permDcor test uses the distance correlation instead of the usual Pearson or Spearman correlations.
+
+TestIndMMFisher does a robust estimation of the correlation via MM regression.
 }
 
 \value{
@@ -99,9 +105,6 @@ A numeric value that represents the logarithm of the generated p-value due to Fi
 }
 \item{stat}{
 A numeric value that represents the generated statistic due to Fisher's method (see reference below).
-}
-\item{flag}{
-A numeric value (control flag) which indicates whether the test was succesful (0) or not (1).
 }
 \item{stat_hash}{
 The current hash object used for the statistics. See argument stat_hash and details. If argument hash = FALSE this is NULL.

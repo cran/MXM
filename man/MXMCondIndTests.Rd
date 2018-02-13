@@ -13,40 +13,40 @@ As for the other tests, they share one thing in common. For all of them, two par
 \tabular{llll}{ 
   \bold{Target variable} \tab	\bold{Predictor variables} \tab \bold{Available tests} \tab	\bold{Short explanation} \cr 
   
-  Continuous \tab Continuous \tab testIndFisher (robust) \tab Partial correlation \cr 
+  Continuous \tab Continuous \tab testIndFisher \tab Partial correlation \cr 
+  Continuous \tab Continuous \tab testIndMMFisher \tab Robust partial correlation \cr 
   Continuous \tab Continuous \tab testIndSpearman \tab Partial correlation \cr 
-  Continuous \tab Mixed \tab testIndReg (robust) \tab MM regression \cr 
+  Continuous \tab Mixed \tab testIndMMReg \tab MM regression \cr  
   Continuous \tab Mixed \tab testIndRQ \tab Median regression \cr  
-  Proportions \tab Continuous \tab testIndFisher (robust) \tab Partial correlation \cr 
-  \tab \tab after logit transformation \tab \cr
+  Proportions \tab Continuous \tab testIndFisher \tab Partial correlation \cr 
+  Proportions \tab Continuous \tab testIndMMFisher \tab Robust partial correlation \cr 
   Proportions \tab Continuous \tab testIndSpearman \tab Partial correlation \cr 
-  \tab \tab after logit transformation \tab \cr
-  Proportions \tab Mixed \tab testIndReg(robust) \tab Linear regression \cr 
-  \tab \tab after logit transformation \tab \cr  
+  Proportions \tab Mixed \tab testIndReg \tab Linear regression \cr 
+  Proportions \tab Mixed \tab testIndMMReg \tab MM regression \cr 
   Proportions \tab Mixed \tab testIndRQ \tab Median regression \cr 
-  \tab \tab after logit transformation \tab \cr  
   Proportions \tab Mixed \tab testIndBeta \tab Beta regression \cr 
-  Non negative \tab Mixed \tab testIndIGreg \tab Inverse Gaussian regression \cr 
+  Strictly positive \tab Mixed \tab testIndIGreg \tab Inverse Gaussian regression \cr 
   Strictly positive \tab Mixed \tab testIndGamma \tab Gamma regression \cr 
   Non negative \tab Mixed \tab testIndNormLog \tab Gaussian regression with log link \cr 
-  Non negative \tab Mixed \tab censIndWR \tab Weibull regression \cr
+  Strictly Positive \tab Mixed \tab censIndWR \tab Weibull regression \cr
   Successes \& totals \tab Mixed \tab testIndBinom \tab Binomial regression \cr
   Discrete \tab	Mixed \tab testIndPois \tab Poisson regression \cr 
   Discrete \tab	Mixed \tab testIndZIP \tab Zero Inflated \cr 
-   \tab	\tab  \tab Poisson regression \cr 
+  \tab	\tab  \tab Poisson regression \cr 
   Discrete \tab Mixed \tab testIndNB \tab Negative binomial regression \cr 
+  Discrete \tab Mixed \tab testIndQPois \tab Quasi Poisson regression \cr 
   Factor with two \tab Mixed \tab testIndLogistic \tab Binary logistic regression \cr
-  levels or binary \tab \tab \tab \cr  
-  Factor with more \tab Mixed \tab  testIndLogistic  \tab Multinomial logistic regression  \cr		 
+  levels or binary \tab \tab \tab \cr 
+  Factor with two \tab Mixed \tab testIndQBinom \tab Quasi binomial regression \cr
+  levels or binary \tab \tab \tab \cr 
+  Factor with more \tab Mixed \tab  testIndMultinom  \tab Multinomial logistic regression  \cr		 
   than two levels \tab  \tab  \tab  \cr		 
   (unordered) \tab \tab \tab  \cr		   
-  Factor with more than \tab Mixed \tab testIndLogistic \tab Ordinal logistic regression \cr		 
+  Factor with more than \tab Mixed \tab testIndOrdinal \tab Ordinal logistic regression \cr		 
   two levels (ordered) \tab \tab \tab \cr  
   Categorical \tab Categorical \tab gSquare \tab G-squared test of independence \cr  
-  Categorical \tab Categorical \tab testIndLogistic \tab Multinomial logistic regression \cr  
-  Categorical \tab Categorical \tab testIndLogistic \tab Ordinal logistic regression \cr  
-  Continuous, proportions, \tab Mixed \tab testIndSpeedglm \tab Linear, binary logistic \cr   
-  binary or counts        \tab  \tab  \tab or poisson gression \cr  
+  Categorical \tab Categorical \tab testIndMultinom \tab Multinomial logistic regression \cr  
+  Categorical \tab Categorical \tab testIndOrdinal \tab Ordinal logistic regression \cr  
   Survival	\tab Mixed \tab censIndCR \tab Cox regression \cr
   Survival	\tab Mixed \tab censIndWR \tab Weibull regression \cr
   Survival	\tab Mixed \tab censIndER \tab Exponential regression \cr
@@ -56,8 +56,10 @@ As for the other tests, they share one thing in common. For all of them, two par
   Compositional data \tab Mixed \tab testIndMVreg \tab Multivariate linear regression \cr 
   (no zeros) \tab  \tab after multivariate \tab  \cr 
   \tab \tab logit transformation \tab \cr
-  Longitudinal	\tab Continuous \tab testIndGLMM \tab (Generalised) linear \cr
-   	\tab \tab \tab mixed models \cr
+  Longitudinal	\tab Continuous \tab testIndLMMReg \tab Linear mixed models \cr
+  Binary	\tab Continuous \tab testIndLMMLogistic \tab Logistic mixed regression \cr
+  Discrete	\tab Continuous \tab testIndLMMPois \tab Poisson mixed regression \cr
+
 }
 }
 
@@ -87,15 +89,13 @@ As for the other tests, they share one thing in common. For all of them, two par
 
 \item \bold{testIndZIP}. When the number of zeros is more than expected under a Poisson model, the zero inflated poisson regression is to be employed. The predictor variables can be either continuous, categorical or mixed. 
     
-\item \bold{testIndLogistic} (Binomial). When the target is categorical with only two outcomes, success or failure for example, then a binary logistic regression is to be used. Whether regression or classification is the task of interest, this method is applicable. The advantage of this over a linear or quadratic discriminant analysis is that it allows for categorical predictor variables as well and for mixed types of predictors.
+\item \bold{testIndLogistic}. When the target is categorical with only two outcomes, success or failure for example, then a binary logistic regression is to be used. Whether regression or classification is the task of interest, this method is applicable. The advantage of this over a linear or quadratic discriminant analysis is that it allows for categorical predictor variables as well and for mixed types of predictors.
     
-\item \bold{testIndLogistic} (Un-ordered multinomial). If the target has more than two outcomes, but it is of nominal type, there is no ordering of the outcomes, multinomial logistic regression will be employed. Again, this regression is suitable for classification purposes as well and it to allows for categorical predictor variables.
+\item \bold{testIndMultinom}. If the target has more than two outcomes, but it is of nominal type, there is no ordering of the outcomes, multinomial logistic regression will be employed. Again, this regression is suitable for classification purposes as well and it to allows for categorical predictor variables.
     
-\item \bold{testIndLogistic} (Ordered multinomial). This is a special case of multinomial regression, in which case the outcomes have an ordering, such as \bold{not satisfied}, \bold{neutral}, \bold{satisfied}. The appropriate method is ordinal logistic regression. 
+\item \bold{testIndOrdinal}. This is a special case of multinomial regression, in which case the outcomes have an ordering, such as \bold{not satisfied}, \bold{neutral}, \bold{satisfied}. The appropriate method is ordinal logistic regression. 
     
 \item \bold{testIndBinom}. When the target variable is a matrix of two columns, where the first one is the number of successes and the second one is the number of trials, binomial regression is to be used. 
-    
-\item \bold{testIndSpeedglm}. If you have a few tens of thousands of observations, the default functions for linear, binary logistic and poisson regression will be slow causing the computer to jamm. For this reason, memory efficient handling regressions should be used.
     
 \item \bold{gSquare}. If all variables, both the target and predictors are categorical the default test is the G-square test of independence. It is similar to the chi-squared test of independence, but instead of using the chi-squared metric between the observed and estimated frequencies in contingency tables, the Kullback-Leibler divergence of the observed from the estimated frequencies is used. The asymptotic distribution of the test statistic is a chi-squared distribution on some appropriate degrees of freedom. The target variable can be either ordered or unordered with two or more outcomes. 
     
@@ -109,10 +109,9 @@ As for the other tests, they share one thing in common. For all of them, two par
 
 \item \bold{testIndClogit}. When the data come from a case-control study, the suitable test is via conditional logistic regression. 
 
-\item \bold{testIndMVReg}. In the case of multivariate continuous targets, the suggested test is via a multivariate linear regression.  The target variable can be compositional data as well. These are positive data, whose vectors sum to 1.  They can sum to any constant, as long as it the same, but for convenience reasons we assume that they are normalised to sum to 1.  In this case the additive log-ratio transformation (multivariate logit transformation) is applied beforehand. 
+\item \bold{testIndMVreg}. In the case of multivariate continuous targets, the suggested test is via a multivariate linear regression.  The target variable can be compositional data as well. These are positive data, whose vectors sum to 1.  They can sum to any constant, as long as it the same, but for convenience reasons we assume that they are normalised to sum to 1.  In this case the additive log-ratio transformation (multivariate logit transformation) is applied beforehand. 
 
 \item \bold{testIndGLMM}. In the case of a longitudinal or clustered targets (continuous, proportions, binary or counts), the suggested test is via a (generalised) linear mixed model.   
-
 }
 }
 
@@ -125,7 +124,7 @@ The available tests for wald.ses and wald.mmpc are listed below. Note, that only
   \bold{Target variable} \tab \bold{Available tests} \tab	\bold{Short explanation} \cr 
   
   Continuous  \tab waldMMReg \tab MM regression \cr  
-  Proportions \tab waldMMreg \tab MM regression \cr 
+  Proportions \tab waldMMReg \tab MM regression \cr 
   \tab \tab after logit transformation \tab \cr  
   Proportions \tab waldBeta \tab Beta regression \cr 
   Non negative \tab waldIGreg \tab Inverse Gaussian regression \cr 
@@ -133,15 +132,14 @@ The available tests for wald.ses and wald.mmpc are listed below. Note, that only
   Non negative \tab waldNormLog \tab Gaussian regression with log link\cr 
   Successes \& totals \tab testIndBinom \tab Binomial regression \cr
   Discrete \tab waldPois \tab Poisson regression \cr 
+  Discrete \tab waldSpeedPois \tab Poisson regression \cr 
   Discrete \tab waldZIP \tab Zero Inflated \cr 
   \tab	\tab  \tab Poisson regression \cr 
   Discrete \tab waldNB \tab Negative binomial regression \cr 
-  Factor with two \tab waldBinary \tab Binary logistic regression \cr
+  Factor with two \tab waldLogistic \tab Logistic regression \cr
   levels or binary \tab \tab \tab \cr  
   Factor with more than \tab waldOrdinal \tab Ordinal logistic regression \cr		 
   two levels (ordered) \tab \tab \tab \cr  
-  Continuous, proportions, \tab waldSpeedglm \tab binary logistic \cr   
-  binary or counts        \tab  \tab  \tab or poisson gression \cr  
   Left censored \tab waldTobit \tab Tobit regression \cr 
   Case-control  \tab Mixed \tab testIndClogit \tab Conditional logistic regression \cr
   Survival	 \tab waldCR \tab Cox regression \cr
@@ -159,9 +157,10 @@ The available tests for perm.ses and perm.mmpc are listed below. Note, that only
   \bold{Target variable} \tab \bold{Available tests} \tab	\bold{Short explanation} \cr 
 
   Continuous  \tab permFisher \tab Pearson correlation \cr  
+  Continuous  \tab permMMFisher \tab Robust Pearson correlation \cr  
   Continuous  \tab permDcor \tab Distance correlation \cr  
   Continuous  \tab permReg \tab Linear regression \cr  
-  Proportions \tab permMreg \tab Linear regression \cr 
+  Proportions \tab permReg \tab Linear regression \cr 
   \tab \tab after logit transformation \tab \cr  
   Proportions \tab permBeta \tab Beta regression \cr 
   Non negative \tab permIGreg \tab Inverse Gaussian regression \cr 
@@ -175,9 +174,9 @@ The available tests for perm.ses and perm.mmpc are listed below. Note, that only
   Discrete \tab permNB \tab Negative binomial regression \cr 
   Factor with two \tab permLogistic \tab Binary logistic regression \cr
   levels or binary \tab \tab \tab \cr  
-  Factor with more than \tab permLogistic \tab Multinomial logistic regression \cr		 
+  Factor with more than \tab permMultinom \tab Multinomial logistic regression \cr		 
   two levels (nominal) \tab \tab \tab \cr 
-  Factor with more than \tab permLogistic \tab Ordinal logistic regression \cr		 
+  Factor with more than \tab permOrdinal \tab Ordinal logistic regression \cr		 
   two levels (ordered) \tab \tab \tab \cr  
   Left censored \tab permTobit \tab Tobit regression \cr 
   Survival	 \tab permCR \tab Cox regression \cr

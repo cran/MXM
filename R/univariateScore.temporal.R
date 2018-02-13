@@ -1,4 +1,4 @@
-univariateScore.temporal = function(target, reps = NULL, group, dataset, test, wei, dataInfo, targetID, slopes, ncores) {
+univariateScore.temporal = function(target, reps = NULL, group, dataset, test, wei, targetID, slopes, ncores) {
   univariateModels <- list();
   dm <- dim(dataset)
   rows <- dm[1]
@@ -23,31 +23,26 @@ univariateScore.temporal = function(target, reps = NULL, group, dataset, test, w
     univariateModels = NULL;
     univariateModels$pvalue = numeric(nTests) 
     univariateModels$stat = numeric(nTests)
-    univariateModels$flag = numeric(nTests);
     test_results = NULL;
     if ( ncores == 1 | is.null(ncores) | ncores <= 0 ) {
     
       for(i in 1:nTests) {
-        test_results = test(target, reps, group, dataset, i, 0, wei = wei, dataInfo = dataInfo, slopes = slopes)
+        test_results = test(target, reps, group, dataset, i, 0, wei = wei, slopes = slopes)
         univariateModels$pvalue[[i]] = test_results$pvalue;
         univariateModels$stat[[i]] = test_results$stat;
-        univariateModels$flag[[i]] = test_results$flag;
-        univariateModels$stat_hash = test_results$stat_hash
-        univariateModels$pvalue_hash = test_results$pvalue_hash      
       } 
     } else {
       #require(doParallel, quiet = TRUE, warn.conflicts = FALSE)  
-      cl <- makePSOCKcluster(4)
+      cl <- makePSOCKcluster(ncores)
       registerDoParallel(cl)
       test = test
       mod <- foreach(i = 1:nTests, .combine = rbind, .export = "lmer", .packages = "lme4") %dopar% {
-        test_results = test(target, reps, group, dataset, i, 0, wei = wei, dataInfo=dataInfo, slopes = slopes)
-        return( c(test_results$pvalue, test_results$stat, test_results$flag, test_results$stat_hash, test_results$pvalue_hash) )
+        test_results = test(target, reps, group, dataset, i, 0, wei = wei, slopes = slopes)
+        return( c(test_results$pvalue, test_results$stat, test_results$stat_hash, test_results$pvalue_hash) )
       }
       stopCluster(cl)
       univariateModels$pvalue = as.vector( mod[, 1] )
       univariateModels$stat = as.vector( mod[, 2] )
-      univariateModels$flag = as.vector( mod[, 3] )
     }
 
     if ( sum(poia>0) > 0 ) {
@@ -57,7 +52,6 @@ univariateScore.temporal = function(target, reps = NULL, group, dataset, test, w
     
   }
   if ( !is.null(univariateModels) )  {
-    univariateModels$flag = numeric(cols) + 1  
     if (targetID != - 1) {
       univariateModels$stat[targetID] = 0
       univariateModels$pvalue[targetID] = log(1)

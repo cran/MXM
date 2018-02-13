@@ -1,7 +1,7 @@
-\name{ROC and area under the curve}
+\name{ROC and AUC}
 \alias{auc}
 \title{
-ROC and area under the curve
+ROC and AUC
 }
 
 \description{

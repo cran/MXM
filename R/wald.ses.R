@@ -1,11 +1,8 @@
-wald.ses = function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini = NULL, wei = NULL, user_test = NULL, hash = FALSE, hashObject = NULL, robust = FALSE, ncores = 1)
-{
-  #get the log threshold
-  threshold = log(threshold)
+wald.ses = function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini = NULL, wei = NULL, user_test = NULL, 
+                    hash = FALSE, hashObject = NULL, ncores = 1) {
   ##############################
   # initialization part of SES #
   ##############################
-  equal_case = 3;
   stat_hash = NULL;
   pvalue_hash = NULL;
   if ( hash )  {
@@ -22,8 +19,6 @@ wald.ses = function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, i
       return(NULL);
     }
   }
-  
-  dataInfo = NULL;
   ###################################
   # dataset checking and initialize #
   ###################################
@@ -76,10 +71,8 @@ wald.ses = function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, i
       if ( la == 2 )   target <- as.factor(target)
       #if target is a factor then use the Logistic test
       if ( is.factor(target) & la == 2  | la == 2 )  {
-        dataInfo$target_type = "binary"
-        test = "waldBinary";
+        test = "waldLogistic";
       } else if (is.factor(target) & la > 2) {
-        dataInfo$target_type = "ordinal"
         test = "waldOrdinal";
 
       } else if ( ( is.numeric(target) || is.integer(target) ) & survival::is.Surv(target) == FALSE ) {
@@ -91,9 +84,9 @@ wald.ses = function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, i
       } else   stop('Target must be a factor, vector or a Surv object');
     }
     #available conditional independence tests
-    av_tests = c("waldBeta", "waldCR", "waldWR", "waldER", "waldClogit", "waldBinary", "waldPois", "waldNB", 
-                 "waldBinom", "auto", "waldZIP", "waldSpeedglm", "waldMMreg", "waldIGreg", "waldOrdinal", 
-                 "waldGamma", "waldNormLog", "waldTobit", NULL);
+    av_tests = c("waldBeta", "waldCR", "waldWR", "waldER", "waldClogit", "waldLogistic", "waldPois", "waldNB", 
+                 "waldBinom", "auto", "waldZIP", "waldMMReg", "waldIGreg", "waldOrdinal", "waldGamma", 
+				 "waldNormLog", "waldTobit", "waldQPois", "waldQBinom", NULL);
     ci_test = test
     #cat(test)
     if (length(test) == 1) {      #avoid vectors, matrices etc
@@ -102,19 +95,15 @@ wald.ses = function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, i
       if (test == "waldBeta") {
         test = waldBeta;
         
-      } else if (test == "waldMMreg") {
-        if ( all( target>0 & target<1 ) )  target = log( target/(1 - target) ) 
-        test = waldMMreg;
+      } else if (test == "waldMMReg") {
+        test = waldMMReg;
         
       } else if (test == "waldIGreg") {
         test = waldIGreg;
         
       } else if (test == "waldPois") { 
         test = waldPois;
-        
-      } else if (test == "waldSpeedglm") {
-        test = waldSpeedglm;
-        
+
       } else if (test == "waldNB") {
         test = waldNB;
         
@@ -142,11 +131,17 @@ wald.ses = function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, i
       } else if (test == "waldBinom") {
         test = waldBinom;
         
-      } else if (test == "waldBinary") {
-        test = waldBinary;
+      } else if (test == "waldLogistic") {
+        test = waldLogistic;
         
       } else if (test == "waldOrdinal") {
         test = waldOrdinal;
+        
+      } else if (test == "waldQPois") {
+        test = waldQPois;
+        
+      } else if (test == "waldQBinom") {
+        test = waldQBinom;
       }
       #more tests here
     } else {
@@ -162,13 +157,12 @@ wald.ses = function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, i
   #option checking
   if ( (typeof(max_k)!="double") || max_k < 1 )   stop('invalid max_k option');
   if ( max_k > varsize )    max_k = varsize;
-  if ( (typeof(threshold) != "double" ) || exp(threshold) == 0  || exp(threshold) > 1 )    stop('invalid threshold option');
-  if ( typeof(equal_case) != "double" )    stop('invalid equal_case option');
+  if ( (typeof(threshold) != "double" ) || threshold <= 0  || threshold > 1 )    stop('invalid threshold option');
   
   if ( !is.null(user_test) )   ci_test = "user_test";
   #call the main SES function after the checks and the initializations
-  results = wald.Internalses(target, dataset, max_k, threshold, test, ini, wei, equal_case, user_test, dataInfo, hash, varsize, stat_hash, pvalue_hash, targetID, robust = robust, ncores = ncores);
-  SESoutput <-new("SESoutput", selectedVars = results$selectedVars, selectedVarsOrder=results$selectedVarsOrder, queues=results$queues, signatures=results$signatures, hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, univ = results$univ, max_k=results$max_k, threshold = results$threshold, n.tests = results$n.tests, runtime=results$runtime, test=ci_test, rob = robust);
+  results = wald.Internalses(target, dataset, max_k, log(threshold), test, ini, wei, user_test, hash, varsize, stat_hash, pvalue_hash, targetID, ncores = ncores);
+  SESoutput <-new("SESoutput", selectedVars = results$selectedVars, selectedVarsOrder=results$selectedVarsOrder, queues=results$queues, signatures=results$signatures, hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, univ = results$univ, max_k=results$max_k, threshold = results$threshold, n.tests = results$n.tests, runtime=results$runtime, test=ci_test);
   return(SESoutput);
 }
 

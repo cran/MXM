@@ -5,23 +5,17 @@ The orientations part of the PC algorithm.
 }
 
 \description{
-The function takes the outcome of the PC algorithm, as produced by \code{\link{pc.skel}} or \code{\link{pc.con}} and performes the 4 orientation rules. 
-A graph is also possible to visualize.
+The function takes the outcome of the PC algorithm, as produced by \code{\link{pc.skel}} or \code{\link{pc.con}} and performes the 4 orientation rules. A graph is also possible to visualize.
 }
 
 \usage{
-pc.or(mod, prev.cycles = TRUE) 
+pc.or(mod) 
 }
 
 \arguments{
 \item{mod}{
 An object with the results of the PC algorithm, as produced by \code{\link{pc.skel}} or \code{\link{pc.con}}. There was an extra argument for plotting the 
 skeleton but it does not work with the current visualisation packages, hence we removed the argument. Use \code{\link{plotnetwork}} to plot the skeleton.   
-}
-\item{prev.cycles}{
-This is no longer an option, but I did not want to remove it and make the code of someone fail with a next update of the package. After executing an orientation rule, 
-the graph is tested for cycles. 
-If cycles are created, the edge(s) are left unoriented.
 }
 }
 

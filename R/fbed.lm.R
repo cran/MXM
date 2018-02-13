@@ -1,4 +1,4 @@
-fbed.lm <- function(y, x, alpha = 0.05, wei = NULL, K = 0) { 
+fbed.lm <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) { 
   dm <- dim(x)
   n <- dm[1]
   p <- dm[2]
@@ -14,24 +14,33 @@ fbed.lm <- function(y, x, alpha = 0.05, wei = NULL, K = 0) {
   
   runtime <- proc.time()
   
-  if ( is.null(wei) ) {
-    for ( i in ind ) {
-      X <- model.matrix(y ~ x[, i])
-      fit2 <- .lm.fit( X, y)
-      lik2[i] <- sum(fit2$residuals^2)
-      dof[i] <- length(fit2$coefficients)
+  if ( is.null(univ) ) {
+    if ( is.null(wei) ) {
+      for ( i in ind ) {
+        X <- model.matrix(y ~ x[, i])
+        fit2 <- .lm.fit( X, y)
+        lik2[i] <- sum(fit2$residuals^2)
+        dof[i] <- length(fit2$coefficients)
+      }
+    } else {  
+      for ( i in ind ) {
+        X <- model.matrix(y ~ x[, i])
+        fit2 <- lm.wfit(X, y, w = wei)
+        lik2[i] <- sum(fit2$residuals^2)
+        dof[i] <- length(fit2$coefficients)
+      }
     }
-  } else {  
-    for ( i in ind ) {
-      X <- model.matrix(y ~ x[, i])
-      fit2 <- lm.wfit(X, y, w = wei)
-      lik2[i] <- sum(fit2$residuals^2)
-      dof[i] <- length(fit2$coefficients)
-    }
+    n.tests <- p
+    stat <- (lik1 - lik2) * (n - dof) / ( lik2 * (dof - 1) )
+    pval <- pf(stat, dof - 1, n - dof, lower.tail = FALSE, log.p = TRUE)
+    univ$stat <- stat
+    univ$pvalue <- pval
+  } else {
+    stat <- univ$stat
+    pval <- univ$pvalue
+    n.tests <- 0
+    sel <- which.min(pval)
   }  
-  n.tests <- p
-  stat <- (lik1 - lik2) * (n - dof) / ( lik2 * (dof - 1) )
-  pval <- pf(stat, dof - 1, n - dof, lower.tail = FALSE, log.p = TRUE)
   s <- which(pval < sig)
   
   if ( length(s) > 0 ) {
@@ -249,5 +258,5 @@ fbed.lm <- function(y, x, alpha = 0.05, wei = NULL, K = 0) {
   colnames(res) <- c("Vars", "stat", "log p-value")
   rownames(info) <- paste("K=", 1:length(card)- 1, sep = "")
   colnames(info) <- c("Number of vars", "Number of tests")
-  list(res = res, info = info, runtime = runtime)
+  list(univ = univ, res = res, info = info, runtime = runtime)
 }

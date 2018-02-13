@@ -1,11 +1,11 @@
-max_min_assoc.temporal = function(target, reps, group, dataset , test , wei, threshold , max_k , selectedVars , pvalues , stats , remainingVars , univariateModels, selectedVarsOrder, hash, dataInfo, stat_hash, pvalue_hash, slopes = slopes)
+max_min_assoc.temporal = function(target, reps, group, dataset, test, wei, threshold, max_k, selectedVars, pvalues, stats, remainingVars, univariateModels, selectedVarsOrder, hash, stat_hash, pvalue_hash, slopes)
 {
   selected_var = -1;
   selected_pvalue = 2;
   selected_stat = 0;
   varsToIterate = which(remainingVars==1);
   for (cvar in varsToIterate) {
-    mma_res = min_assoc.temporal(target, reps, group, dataset, test, max_k, cvar, wei, selectedVars, pvalues, stats, univariateModels, selectedVarsOrder, hash, dataInfo, stat_hash, pvalue_hash, slopes = slopes);
+    mma_res = min_assoc.temporal(target, reps, group, dataset, test, max_k, cvar, wei, selectedVars, pvalues, stats, univariateModels, selectedVarsOrder, hash, stat_hash, pvalue_hash, slopes = slopes);
     pvalues = mma_res$pvalues;
     stats = mma_res$stats;
     stat_hash = mma_res$stat_hash;
@@ -19,6 +19,6 @@ max_min_assoc.temporal = function(target, reps, group, dataset , test , wei, thr
       selected_stat = mma_res$stat;
     }
   }
-  results <- list(selected_var = selected_var , selected_pvalue = selected_pvalue , remainingVars = remainingVars , pvalues = pvalues , stats = stats, stat_hash=stat_hash, pvalue_hash = pvalue_hash, slope = slopes);
+  results <- list(selected_var = selected_var, selected_pvalue = selected_pvalue , remainingVars = remainingVars , pvalues = pvalues , stats = stats, stat_hash=stat_hash, pvalue_hash = pvalue_hash, slope = slopes);
   return(results); 
 }

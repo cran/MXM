@@ -11,8 +11,8 @@
 setOldClass('proc_time')
 
 setClass(Class='mases.output', 
-         slots=list(selectedVars='numeric', selectedVarsOrder='numeric', queues='list', signatures='matrix', hashObject='list', pvalues='numeric', stats='numeric', univ = 'list', max_k='numeric', threshold='numeric', runtime='proc_time', test='character', rob='logical'), 
-         prototype=list(selectedVars=NULL, selectedVarsOrder=NULL, queues=NULL, signatures=NULL, hashObject=NULL, pvalues=NULL, stats=NULL, univ=NULL, max_k=NULL, threshold=NULL, runtime=NULL, test=NULL, rob=NULL));
+         slots=list(selectedVars='numeric', selectedVarsOrder='numeric', queues='list', signatures='matrix', hashObject='list', pvalues='numeric', stats='numeric', univ = 'list', max_k='numeric', threshold='numeric', runtime='proc_time', test='character'), 
+         prototype=list(selectedVars=NULL, selectedVarsOrder=NULL, queues=NULL, signatures=NULL, hashObject=NULL, pvalues=NULL, stats=NULL, univ=NULL, max_k=NULL, threshold=NULL, runtime=NULL, test=NULL));
 
 setMethod("summary", signature(object="mases.output"), 
           function(object){
@@ -45,10 +45,6 @@ setMethod("summary", signature(object="mases.output"),
               cat(x@test);
               cat("\nTotal Runtime:\n")
               print(x@runtime)
-              #cat("    user system elapsed\n")
-              #print(x@runtime[1:3]);
-              cat("\nRobust:\n")
-              print(x@rob)
             }else{
               cat("\nSelected Variables: ")
               print(x@selectedVars);
@@ -77,10 +73,6 @@ setMethod("summary", signature(object="mases.output"),
               cat(x@test);
               cat("\nTotal Runtime:\n")
               print(x@runtime)
-              #cat("    user system elapsed\n")
-              #print(x@runtime[1:3]);
-              cat("\nRobust:\n")
-              print(x@rob)
             }
           }
 );

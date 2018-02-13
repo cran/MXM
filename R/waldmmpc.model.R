@@ -1,12 +1,12 @@
 # target: the target value
 # sesObject: the outcome of the ses
-# nisgnat: Number of ypografis and generated models. It could be numeric from 1 to total number of ypografis or "all" for all the 
-## ypografis. Default is 1.
+# nisgnat: Number of signatures and generated models. It could be numeric from 1 to total number of signatures or "all" for all the 
+## signatures. Default is 1.
 waldmmpc.model = function(target, dataset, wei = NULL, wald.mmpcObject, test = NULL) {
   
   if ( sum( is.na(wald.mmpcObject@selectedVars) ) > 0 ) {
     mod = paste("No associations were found, hence no model is produced.")
-    ypografi = NULL
+    signature = NULL
     bic = NULL
   }
   
@@ -20,95 +20,80 @@ waldmmpc.model = function(target, dataset, wei = NULL, wald.mmpcObject, test = N
   } else ci_test = test 
   
   rob <- FALSE
-  ypografi <- wald.mmpcObject@selectedVars  
-  p <- length(ypografi)
+  signature <- wald.mmpcObject@selectedVars  
+  p <- length(signature)
 
-  if ( ci_test == "waldMMreg" ) {
+  if ( ci_test == "waldMMReg" ) {
     if ( min(target) > 0 & max(target) < 1 )   target <- log( target/(1 - target) ) 
-      mod = MASS::rlm(target ~., data = data.frame(dataset[, ypografi ]), maxit = 2000, weights = wei, method = "MM" )
+      mod = MASS::rlm(target ~., data = data.frame(dataset[, signature ]), maxit = 2000, weights = wei, method = "MM" )
       bic = BIC( mod )        
 
   } else if ( ci_test == "waldBeta" ) {
-    mod <- beta.mod( target, dataset[, ypografi ], wei = wei )
+    mod <- beta.mod( target, dataset[, signature ], wei = wei )
     bic <-  - 2 * mod$loglik + ( length( coef(mod$be) ) + 1 ) * log( length(target) )
-    
-  } else if ( ci_test == "waldSpeedglm" ) {
-    la <- length( unique(target) )
-    if ( la == 2 ) {
-      mod <- speedglm::speedglm( target ~ ., data = as.data.frame(dataset[, ypografi ]), weights = wei, family = binomial() )
-      bic <-  - 2 * as.numeric( logLik(mod) ) + length( coef(mod) ) * log( length(target) )
-      
-    } else if ( la  > 2  &  sum( floor(target) - target) == 0 ) {
-      mod <- speedglm::speedglm( target ~ ., data = as.data.frame(dataset[, ypografi ]), weights = wei, family = poisson() )
-      bic <-  - 2 * as.numeric( logLik(mod) ) + length( coef(mod) ) * log( length(target) )
-      
-    } else {
-      mod <- speedglm::speedlm( target ~ ., data = as.data.frame(dataset[, ypografi ]), weights = wei )
-      bic <-  - 2 * as.numeric( logLik(mod) ) + ( length( coef(mod) ) + 1 ) * log( length(target) )
-    }  
-    
+
   } else if ( ci_test == "waldPois") {
-    mod <- glm( target ~ ., data = as.data.frame(dataset[, ypografi ]), family = poisson, weights = wei )
+    mod <- glm( target ~ ., data = as.data.frame(dataset[, signature ]), family = poisson, weights = wei )
     bic <- BIC( mod )
     
   } else if ( ci_test == "waldNB" ) {
-    mod <- MASS::glm.nb( target ~ ., data = as.data.frame(dataset[, ypografi ]), weights = wei )
+    mod <- MASS::glm.nb( target ~ ., data = as.data.frame(dataset[, signature ]), weights = wei )
     bic <- BIC(mod)
     
   } else if ( ci_test == "waldZIP" ) {
-    mod <- zip.mod( target, dataset[, ypografi], wei = wei )
+    mod <- zip.mod( target, dataset[, signature], wei = wei )
     bic <-  -2 * mod$loglik + ( p + 1) * log( length(target) )
     
   } else if ( ci_test == "waldBinom" ) {
-    mod <- glm( target[, 1] /target[, 2] ~., data = as.data.frame(dataset[, ypografi ]), weights = target[, 2], family = binomial )
+    mod <- glm( target[, 1] /target[, 2] ~., data = as.data.frame(dataset[, signature ]), weights = target[, 2], family = binomial )
     bic <- BIC(mod)
     
   } else if ( ci_test == "waldGamma" ) {
-    mod <- glm( target ~ ., data = as.data.frame(dataset[, ypografi ]), weights = wei, family = Gamma(link = log) )
+    mod <- glm( target ~ ., data = as.data.frame(dataset[, signature ]), weights = wei, family = Gamma(link = log) )
     bic <- BIC(mod)
     
   } else if ( ci_test == "waldNormLog" ) {
-    mod <- glm( target ~ ., data = as.data.frame(dataset[, ypografi ]), weights = wei, family = gaussian(link = log) )
+    mod <- glm( target ~ ., data = as.data.frame(dataset[, signature ]), weights = wei, family = gaussian(link = log) )
     bic <- BIC(mod)
     
   } else if ( ci_test == "waldTobit" ) {
-    mod <- survival::survreg( target ~ ., data = as.data.frame(dataset[, ypografi ]), weights = wei, dist = "gaussian" )
+    mod <- survival::survreg( target ~ ., data = as.data.frame(dataset[, signature ]), weights = wei, dist = "gaussian" )
     bic <-  - 2 * as.numeric( logLik(mod) ) + ( p + 1 ) * log( dim(dataset)[1] )
     
   } else if (ci_test == "waldCR") {
-    mod <- survival::coxph( target ~ ., data = as.data.frame(dataset[, ypografi ]), weights = wei )
+    mod <- survival::coxph( target ~ ., data = as.data.frame(dataset[, signature ]), weights = wei )
     bic <- BIC(mod)
     
   } else if (ci_test == "waldWR") {
-    mod <- survival::survreg( target ~ ., data = as.data.frame(dataset[, ypografi ]), weights = wei )
+    mod <- survival::survreg( target ~ ., data = as.data.frame(dataset[, signature ]), weights = wei )
     bic <- BIC(mod)
     
   } else if (ci_test == "waldER") {
-    mod <- survival::survreg( target ~ ., data = as.data.frame(dataset[, ypografi ]), weights = wei, distribution = "exponential" )
+    mod <- survival::survreg( target ~ ., data = as.data.frame(dataset[, signature ]), weights = wei, distribution = "exponential" )
     bic <- BIC(mod)
 
   } else if ( ci_test == "waldBinary" ) {
-    mod <- glm( target ~., data = as.data.frame(dataset[, ypografi ]), family = binomial, weights = wei ) 
+    mod <- glm( target ~., data = as.data.frame(dataset[, signature ]), family = binomial, weights = wei ) 
     bic <- BIC(mod)
     
   } else if ( ci_test == "waldOrdinal" ) {
-    mod <- ordinal::clm( target ~., data = as.data.frame(dataset[, ypografi ]), weights = wei ) 
+    mod <- ordinal::clm( target ~., data = as.data.frame(dataset[, signature ]), weights = wei ) 
     bic <- BIC(mod)
     
   } else if (ci_test == "waldIGreg") {
-    mod <- glm( target ~ ., data = as.data.frame(dataset[, ypografi ]), family = inverse.gaussian(log), weights = wei )
+    mod <- glm( target ~ ., data = as.data.frame(dataset[, signature ]), family = inverse.gaussian(log), weights = wei )
     bic <- BIC(mod)
     
   }
   
   if ( is.null( colnames(dataset) ) ) {
-    names(ypografi) = paste("Var", ypografi, sep = " ")
-  } else  names(ypografi) = colnames(dataset)[ypografi]
+    names(signature) = paste("Var", signature, sep = " ")
+  } else  names(signature) = colnames(dataset)[signature]
   
-  ypografi <- c(ypografi, bic)
-  names(ypografi)[length(ypografi)] = "bic"
+  signature <- c(signature, bic)
+  names(signature)[length(signature)] = "bic"
   
-  list(mod = mod, ypografi = ypografi)  
+  list(mod = mod, signature = signature)  
   
 }
 

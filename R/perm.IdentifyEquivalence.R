@@ -1,4 +1,5 @@
-perm.IdentifyEquivalence = function(equal_case, queues, target, dataset, test, wei, threshold, max_k, selectedVars, pvalues, stats, remainingVars, univariateModels, selectedVarsOrder, hash, dataInfo, stat_hash, pvalue_hash, robust, R, ncores)
+perm.IdentifyEquivalence = function(queues, target, dataset, test, wei, threshold, max_k, selectedVars, pvalues, stats, remainingVars, 
+									univariateModels, selectedVarsOrder, hash, stat_hash, pvalue_hash, R)
 { 
   varsToBeConsidered = which(selectedVars==1 | remainingVars==1); #CHANGE
   lastvar = which(selectedVarsOrder == max(selectedVarsOrder))[1]; #CHANGE
@@ -25,12 +26,11 @@ perm.IdentifyEquivalence = function(equal_case, queues, target, dataset, test, w
         numSubsets = dim(subsetcsk)[2]; 
         subsetcsk = rbind(subsetcsk, lastvar*rep(1, numSubsets));#CHANGE
       }
-      #flag to get out from the outermost loop
       breakFlag = FALSE;    
       for (i in 1:ncol(subsetcsk) ) {
         z = subsetcsk[,i];
         z = t(t(z));
-        cur_results = test(target = target, dataset = dataset, xIndex = cvar, csIndex = z, wei = wei, dataInfo=dataInfo, univariateModels = univariateModels, hash = hash, stat_hash = stat_hash, pvalue_hash = pvalue_hash, robust=robust, threshold = threshold, R = R);
+        cur_results = test(target = target, dataset = dataset, xIndex = cvar, csIndex = z, wei = wei, univariateModels = univariateModels, hash = hash, stat_hash = stat_hash, pvalue_hash = pvalue_hash, threshold = threshold, R = R);
         stat_hash = cur_results$stat_hash;
         pvalue_hash = cur_results$pvalue_hash;
         #check if the pvalues and stats should be updated
@@ -42,10 +42,10 @@ perm.IdentifyEquivalence = function(equal_case, queues, target, dataset, test, w
         #then let's throw away var; moreover, we also look for
         #equivalent variables. Note that we stop after the first 
         #z such that pvalue_{var, y | z} > threshold
-        if (cur_results$flag & cur_results$pvalue > threshold) {
+        if (cur_results$pvalue > threshold) {
           remainingVars[[cvar]] = 0;
           selectedVars[[cvar]] = 0;
-          queues = perm.identifyTheEquivalent(equal_case, queues, target, dataset, cvar, z, test, wei, threshold, univariateModels = univariateModels, pvalues = pvalues, hash=hash, dataInfo=dataInfo, stat_hash=stat_hash, pvalue_hash = pvalue_hash, robust = robust, R = R, ncores = ncores);
+          queues = perm.identifyTheEquivalent(queues, target, dataset, cvar, z, test, wei, threshold, univariateModels = univariateModels, pvalues = pvalues, hash=hash, stat_hash=stat_hash, pvalue_hash = pvalue_hash, R = R);
           breakFlag = TRUE;
           break;
         }
@@ -58,6 +58,6 @@ perm.IdentifyEquivalence = function(equal_case, queues, target, dataset, test, w
       }
     }
   }
-  results <- list(pvalues = pvalues, stats = stats, queues = queues, selectedVars = selectedVars, remainingVars = remainingVars, stat_hash = stat_hash, pvalue_hash = pvalue_hash, rob = robust);
+  results <- list(pvalues = pvalues, stats = stats, queues = queues, selectedVars = selectedVars, remainingVars = remainingVars, stat_hash = stat_hash, pvalue_hash = pvalue_hash);
   return(results);
 }

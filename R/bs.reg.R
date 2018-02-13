@@ -1,4 +1,4 @@
-bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, user_test = NULL, robust = FALSE) {
+bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, user_test = NULL) {
   
   threshold <- log(threshold)
   dm <- dim(dataset)
@@ -34,7 +34,6 @@ bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
        }
      }
    }
-  la <- length( unique(target) )
   ## dependent (target) variable checking if no test was given, 
   ## but other arguments are given. For some cases, these are default cases
   if ( is.null(test)  &  is.null(user_test) ) {
@@ -42,7 +41,7 @@ bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
     if ( sum( class(target) == "Surv" ) == 1 ) {
       ci_test <- test <- "censIndCR"
       ## ordinal, multinomial or perhaps binary data
-    } else if ( is.factor(target) ||  is.ordered(target) || length( unique(target) ) == 2 ) {
+    } else if ( is.factor(target)  &  length( unique(target) ) == 2 ) {
       ci_test <- test <- "testIndLogistic"
       ## count data
     } else if ( length( unique(target) ) > 2  &  !is.factor(target) ) {
@@ -52,20 +51,18 @@ bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
     }
   }
    
-  av_models = c("testIndReg", "testIndBeta", "censIndCR", "testIndRQ", "censIndWR", "testIndLogistic", "testIndPois", "testIndNB", 
-                "testIndZIP", "testIndSpeedglm", "testIndBinom", "testIndGamma", "testIndNormLog", "testIndTobit", "testIndClogit",
-                "testIndFisher");
+  av_models = c("testIndReg", "testIndMMReg", "testIndBeta", "censIndCR", "testIndRQ", "censIndWR", 
+                "testIndLogistic", "testIndPois", "testIndNB", "testIndZIP", "testIndBinom", "testIndGamma", 
+                "testIndNormLog", "testIndTobit", "testIndClogit", "testIndFisher", "testIndQPois", 
+                "testIndQBinom", "testIndMultinom", "testIndOrdinal")
   
   ci_test <- test
   test <- match.arg(test, av_models, TRUE);
    ############ 
    ###  GLMs 
    ############
-    heavy = FALSE
-    if (test == "testIndSpeedglm")   heavy <- TRUE
-    
-    if ( test == "testIndPois"  ||  test == "testIndReg"  ||  ( test == "testIndLogistic"  &  la == 2 )  ||  test == "testIndSpeedglm" || test == "testIndBinom" ) {
-      res <- glm.bsreg(target = target, dataset = dataset, wei = wei, threshold = exp( threshold ), heavy = heavy, robust = robust) 
+    if ( test == "testIndPois"  |  test == "testIndReg"  | test == "testIndLogistic"  | test == "testIndBinom" ) {
+     res <- glm.bsreg(target = target, dataset = dataset, wei = wei, threshold = exp( threshold ) ) 
       
     } else  if ( test == "testIndFisher" ) {
       res <- cor.bsreg(target, dataset, threshold = exp( threshold ) ) 
@@ -77,49 +74,48 @@ bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
       res <- zip.bsreg(target = target, dataset = dataset, wei = wei, threshold = exp( threshold ) ) 	
       
     } else if ( test == "testIndGamma" ) {
-      res <- gammabsreg(target = target, dataset = dataset, wei = wei, threshold = exp( threshold ), heavy = heavy ) 	
+      res <- gammabsreg(target = target, dataset = dataset, wei = wei, threshold = exp( threshold )) 	
       
     } else if ( test == "testIndNormLog" ) {
-      res <- normlog.bsreg(target = target, dataset = dataset, wei = wei, threshold = exp( threshold ), heavy = heavy ) 	
- 
+      res <- normlog.bsreg(target = target, dataset = dataset, wei = wei, threshold = exp( threshold ) ) 	
+
     } else if ( test == "testIndTobit" ) {
       res <- tobit.bsreg(target = target, dataset = dataset, wei = wei, threshold = exp( threshold ) ) 	
       
     } else if ( test == "testIndClogit" ) {
       res <- clogit.bsreg(target = target, dataset = dataset, threshold = exp( threshold ) ) 	
       
+    } else if ( test == "testIndQPois" ) {
+      res <- quasipois.bsreg(target = target, dataset = dataset, threshold = exp( threshold ) ) 
+      
+    } else if ( test == "testIndQBinom" ) {
+      res <- quasibinom.bsreg(target = target, dataset = dataset, threshold = exp( threshold ) ) 
+      
+	} else if ( test == "testIndMMReg" ) {
+      res <- mm.bsreg(target = target, dataset = dataset, threshold = exp( threshold ) ) 
+      
     } else {
 	   
      if ( test == "censIndCR" ) {
         test = survival::coxph 
-        robust = FALSE
-		
-	  } else if ( test == "censIndWR" ) {
-        test = survival::survreg 
-        robust = FALSE
-            
-      } else if ( test == "testIndLogistic" ) {
-	  
-	    if ( is.ordered(target) )  {
-          test = ordinal::clm
-          robust = FALSE
-       
-	    } else {
-          test = nnet::multinom
-          robust = FALSE
-        }
-	  
-      } else if ( test == "testIndNB" ) {
-        test = MASS::glm.nb
-        robust = FALSE
 
-      } else if ( test == "testIndRQ" ) {
-        test = quantreg::rq
-        robust = FALSE
+	  } else if ( test == "censIndWR" ) {
+      test = survival::survreg 
+
+    } else if ( test == "testIndOrdinal" ) {
+      test = ordinal::clm
+
+    } else if ( test == "testIndMultinom" ) {
+      test = nnet::multinom
+	  
+    } else if ( test == "testIndNB" ) {
+      test = MASS::glm.nb
+
+    } else if ( test == "testIndRQ" ) {
+      test = quantreg::rq
 	
 	  } else if (test == "testIndRQ") {
 	    test = quantreg::rq
-	    robust = FALSE
 	  }
     ###################
     ###################

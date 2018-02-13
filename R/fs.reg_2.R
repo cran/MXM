@@ -1,4 +1,4 @@
-fs.reg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = NULL, test = NULL, user_test = NULL, stopping = "BIC", tol = 2, robust = FALSE, ncores = 1) {
+fs.reg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = NULL, test = NULL, user_test = NULL, stopping = "BIC", tol = 2, ncores = 1) {
   
   threshold <- log(threshold)
   
@@ -20,86 +20,64 @@ fs.reg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = NUL
   da <- 1:pa
   dataset <- cbind(iniset, dataset)
   dataset <- as.data.frame(dataset)
-  
-  if ( ( test == "testIndLogistic" &  length( unique(target) ) == 2 )  ||  test == "testIndBinom"  || test == "testIndPois" ) {
+  ci_test <- test
+
+  if ( ( test == "testIndLogistic" )  ||  test == "testIndBinom"  || test == "testIndPois" ) {
     
     result <- glm.fsreg_2(target, dataset, iniset = iniset, wei = wei, threshold = exp(threshold), tol = tol, 
-                          robust = robust, ncores = 1) 
+                          ncores = 1) 
       
   } else if ( test == "testIndReg" || test == "testIndFisher" ) {
       result <- lm.fsreg_2( target, dataset, iniset = iniset, wei = wei, threshold = exp(threshold), stopping = stopping, tol = tol, 
-                            robust = robust, ncores = ncores ) 
+                            ncores = ncores ) 
     
   } else if ( test == "testIndBeta" ) {
-    
     result <- beta.fsreg_2(target, dataset, iniset = iniset, threshold = exp(threshold), wei = wei, tol = tol, ncores = ncores) 
     
   } else if ( test == "testIndZIP" ) {
-    
     result <- zip.fsreg_2(target, dataset, iniset = iniset, threshold = exp(threshold), wei = wei, tol = tol, ncores = ncores) 
     
   } else if ( test == "testIndGamma" ) {
-    
     result <- gammafsreg_2(target, dataset, iniset = iniset, threshold = exp(threshold), wei = wei, tol = tol, ncores = ncores) 
     
   } else if ( test == "testIndNormLog" ) {
-    
     result <- normlog.fsreg_2(target, dataset, iniset = iniset, threshold = exp(threshold), wei = wei, tol = tol, ncores = ncores) 
     
   } else if ( test == "testIndTobit" ) {
-    
     result <- tobit.fsreg_2(target, dataset, iniset = iniset, threshold = exp(threshold), wei = wei, tol = tol, ncores = ncores) 
     
   } else if ( test == "testIndClogit" ) {
-    
     result <- clogit.fsreg_2(target, dataset, iniset = iniset, threshold = exp(threshold), tol = tol, ncores = ncores) 
     
-  } else if ( test == "testIndSpeedglm" ) {
+  } else if ( test == "testIndQBinom" ) {
+    result <- quasibinom.fsreg_2(target, dataset, iniset = iniset, threshold = exp(threshold), tol = tol, ncores = ncores) 
     
-    if ( length( unique(target) ) == 2  ||  sum( round(target) - target ) == 0  ) { 
-      result <- glm.fsreg_2( target, dataset, iniset = iniset, wei = wei, threshold = exp(threshold), tol = tol, heavy = TRUE, robust = robust, ncores = ncores) 
-      
-    } else  result <- lm.fsreg_2.heavy( target, dataset, iniset = iniset, wei = wei, threshold = exp(threshold), stopping = stopping, tol = tol, ncores = ncores ) 
-    
+  } else if ( test == "testIndQPois" ) {
+    result <- quasipois.fsreg_2(target, dataset, iniset = iniset, threshold = exp(threshold), tol = tol, ncores = ncores) 
     
   } else {
 
     if ( test == "censIndCR" ) {
-      ci_test <- test
       test <- survival::coxph 
-      robust <- FALSE
       stopping <- "BIC"
       
     } else if ( test == "censIndWR" ) {
-      ci_test <- test
       test <- survival::survreg
-      robust <- FALSE
       stopping <- "BIC"
       
-    } else if ( test == "testIndLogistic" ) {
-      
-      ci_test <- test
-      
-      if ( is.ordered(target) )  {
-        test <- ordinal::clm
-        robust <- FALSE
-        stopping <- "BIC"
-      } else {
-        test <- nnet::multinom
-        robust <- FALSE
-        stopping <- "BIC"
-      }
+    } else if ( test == "testIndOrdinal" ) {
+      test <- ordinal::clm
+      stopping <- "BIC"
+    } else if (test == "testIndMultinom") {
+      test <- nnet::multinom
+      stopping <- "BIC"
       
     } else if ( test == "testIndNB" ) {
-      ci_test <- test
       test <- MASS::glm.nb
-      robust <- FALSE
       stopping <- "BIC"
       
     } else if ( test == "testIndRQ" ) {
-      ci_test <- test
       test <- quantreg::rq
-      robust <- FALSE
       stopping <- "BIC"
     } 
     
@@ -129,7 +107,6 @@ fs.reg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = NUL
     pval <- pchisq( stat, dof - do, lower.tail = FALSE, log.p = TRUE )
     
   } else {
-    #if ( robust == FALSE ) {  ## Non robust
     cl <- makePSOCKcluster(ncores)
     registerDoParallel(cl)
     mod <- foreach( i = 1:p, .combine = rbind, .packages = c("MASS", "quantreg", "nnet", "survival", "ordinal") ) %dopar% {
@@ -172,7 +149,6 @@ fs.reg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = NUL
     
     if ( ncores <= 1 ) {
       devi <- dof <- numeric(pn)
-      #if ( robust == FALSE ) {  ## Non robust
       for ( i in 1:pn ) {
         ww <- test( target ~., data = dataset[, c(da, sela, pa + mat[i, 1]) ], weights = wei )
         devi[i] <- 2 * as.numeric( logLik(ww) )

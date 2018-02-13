@@ -1,26 +1,47 @@
-fbed.glmm.reg <- function(y, x, id, alpha = 0.05, wei = NULL, K = 0, method = "LR", gam = NULL, backward = TRUE, type = "gaussian") {
-
+fbed.glmm.reg <- function(target, dataset, id, reps = NULL, ini = NULL, threshold = 0.05, wei = NULL, K = 0, method = "LR", gam = NULL, backward = TRUE, test = "testIndGLMMReg") {
+  
+  if ( length(K) > 1 ) {
+    
+    result <- kfbed.glmm.reg(y = target, x = dataset, id = id, univ = ini, alpha = threshold, wei = wei, K = K, method = method, gam = gam, backward = backward, test = test)
+    
+  } else {
+    
   #check for NA values in the dataset and replace them with the variable median or the mode
-  if ( any( is.na(x) ) ) {  
+  if ( any( is.na(dataset) ) ) {  
     #dataset = as.matrix(dataset);
     warning("The dataset contains missing values (NA) and they were replaced automatically by the variable (column) median (for numeric) or by the most frequent level (mode) if the variable is factor")
-    x <- apply( x, 2, function(x){ x[which(is.na(x))] = median(x, na.rm = TRUE) ; return(x) } ) 
+    dataset <- apply( dataset, 2, function(x){ x[which(is.na(x))] = median(x, na.rm = TRUE) ; return(x) } ) 
   }
   
+  poia <- Rfast::check_data(dataset)
+  if ( sum(poia>0) > 0 )  dataset[, poia] <- rnorm( dim(dataset)[1] * length(poia) )
+  
   if ( method =="LR" ) {
-    if (type == "gaussian") {
-      result <- fbed.lmm(y = y, x = x, id = id, alpha = alpha, wei = wei, K = K)
+    if (test == "testIndGLMMReg") {
+      if ( !is.null(reps) ) {
+        result <- fbed.lmm.reps(y = target, x = dataset, id = id, reps = reps, univ = ini, alpha = threshold, wei = wei, K = K)
+      } else  result <- fbed.lmm(y = target, x = dataset, id = id, univ = ini, alpha = threshold, wei = wei, K = K) 
     } else {
-      result <- fbed.glmm(y = y, x = x, id = id, alpha = alpha, wei = wei, K = K, type = type)
-    }
-    
+      if ( !is.null(reps) ) {
+        result <- fbed.glmm.reps(y = target, x = dataset, id = id, reps = reps, univ = ini, alpha = threshold, wei = wei, K = K, test = test)
+      } else  result <- fbed.glmm(y = target, x = dataset, id = id, univ = ini, alpha = threshold, wei = wei, K = K, test = test)
+    }  
+
     result$back.rem <- 0
     result$back.n.tests <- 0
     
     if ( backward ) {
       
       if (result$info[1, 1] > 0) {
-        a <- glmm.bsreg(y, x[, result$res[, 1], drop = FALSE], id, threshold = alpha, wei = wei, type = type)
+        if ( test == "testIndGLMMReg" ) {
+          if ( !is.null(reps) ) {
+            a <- lmm.reps.bsreg(target, dataset[, result$res[, 1], drop = FALSE], id, reps = reps, threshold = threshold, wei = wei)
+          } else  a <- lmm.bsreg(target, dataset[, result$res[, 1], drop = FALSE], id, threshold = threshold, wei = wei)            
+        } else {
+          if ( !is.null(reps) ) {
+            a <- glmm.reps.bsreg(target, dataset[, result$res[, 1], drop = FALSE], id, reps = reps, threshold = threshold, wei = wei, test = test)
+          } else  a <- glmm.bsreg(target, dataset[, result$res[, 1], drop = FALSE], id, threshold = threshold, wei = wei, test = test)
+        }
         
         if ( typeof(a) == "list" ) {
           result$back.rem <- result$res[a$info[, 1], 1]
@@ -43,20 +64,24 @@ fbed.glmm.reg <- function(y, x, id, alpha = 0.05, wei = NULL, K = 0, method = "L
     
   } else {
     
-    if (type == "gaussian") {
-      result <- ebic.fbed.lmm(y, x, id, gam = gam, wei = wei, K = K)
+    if (test == "testIndGLMMReg") {
+      if ( !is.null(reps) ) {
+        result <- ebic.fbed.lmm.reps(target, dataset, id, reps = reps, univ = ini, gam = gam, wei = wei, K = K)
+      } else  result <- ebic.fbed.lmm(target, dataset, id, univ = ini, gam = gam, wei = wei, K = K)
     } else {
-      result <- ebic.fbed.glmm(y, x, id, gam = gam, wei = wei, K = K, type = type) 
-    } 
-      
+      if ( !is.null(reps) ) {
+        result <- ebic.fbed.glmm.reps(target, dataset, id, reps = reps, univ = ini, gam = gam, wei = wei, K = K, test = test) 
+      } else result <- ebic.fbed.glmm(target, dataset, id, univ = ini, gam = gam, wei = wei, K = K, test = test) 
+    }  
     result$back.rem <- 0
     result$back.n.tests <- 0
     
     if ( backward ) {
       
       if (result$info[1, 1] > 0) {
-        a <- ebic.glmm.bsreg(y, x[, result$res[, 1], drop = FALSE], id, wei = wei, gam = gam, type = type)
-
+        if ( !is.null(reps) ) {
+          a <- ebic.glmm.reps.bsreg(target, dataset[, result$res[, 1], drop = FALSE], id, reps = reps, wei = wei, gam = gam, test = test)
+        } else  a <- ebic.glmm.bsreg(target, dataset[, result$res[, 1], drop = FALSE], id, wei = wei, gam = gam, test = test)
         if ( typeof(a) == "list" ) {
           back.n.tests <- sum( dim(result$res)[1] : length(a$mat[, 1]) )
           
@@ -79,6 +104,8 @@ fbed.glmm.reg <- function(y, x, id, alpha = 0.05, wei = NULL, K = 0, method = "L
     }  ## end if ( backward )
     
   }  ## end if ( method == "LR" ) 
+  
+  }  ## end ( if length(K) > 1 )
   
   result
 }

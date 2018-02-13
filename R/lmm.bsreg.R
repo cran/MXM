@@ -21,9 +21,6 @@ lmm.bsreg <- function(target, dataset, id, threshold = 0.05, wei = NULL) {
       warning("The dataset contains missing values (NA) and they were replaced automatically by the variable (column) median (for numeric) or by the most frequent level (mode) if the variable is factor")
       dataset <- apply( dataset, 2, function(x){ x[which(is.na(x))] = median(x, na.rm = TRUE) ; return(x) } ) 
     }
-    
-    if ( min(target) > 0  &  max(target) < 1 )  target = log( target/(1 - target) ) ## l
-    ###################
     ###################
     ini <- lme4::lmer( target ~ dataset + (1 | id), REML = FALSE, weights = wei )
     likini <- logLik(ini) 

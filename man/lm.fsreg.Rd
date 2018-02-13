@@ -1,6 +1,5 @@
 \name{Forward selection with linear regression models}
 \alias{lm.fsreg}
-\alias{lm.fsreg_heavy}
 \title{
 Variable selection in linear regression models with forward selection
 
@@ -12,9 +11,7 @@ Variable selection in linear regression models with forward selection
 
 \usage{
 lm.fsreg(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, stopping = "BIC", 
-tol = 2, robust = FALSE, ncores = 1)
-lm.fsreg_heavy(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, 
-stopping = "BIC", tol = 2, ncores = 1)
+tol = 2, ncores = 1)
 }
 
 \arguments{
@@ -39,16 +36,13 @@ The stopping rule. The BIC ("BIC") or the adjusted \eqn{R^2} ("adjrsq") can be u
 \item{tol}{
 The difference bewtween two successive values of the stopping rule. By default this is is set to 2. If for example, the BIC difference between two succesive models is less than 2, the process stops and the last variable, even though significant does not enter the model. If the adjusted \eqn{R^2} is used, the tol should be something like 0.01 or 0.02. 
 }
-\item{robust}{
-A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust version of the statistical test if it is available. It takes more time than a non robust version but it is suggested in case of outliers. Default value is FALSE. 
-}
 \item{ncores}{
 How many cores to use. This plays an important role if you have tens of thousands of variables or really large sample sizes and tens of thousands of variables and a regression based test which requires numerical optimisation. In other cammmb it will not make a difference in the overall time (in fact it can be slower). The parallel computation is used in the first step of the algorithm, where univariate associations are examined, those take place in parallel. We have seen a reduction in time of 50\% with 4 cores in comparison to 1 core. Note also, that the amount of reduction is not linear in the number of cores.
 }
 }
 
 \details{
-Only linear regression (robust and non robust) is supported from this function. The lm.fsreg_heavy is for the case of many tens of thousands of observations. 
+Only linear regression (robust and non robust) is supported from this function.  
 }
 
 \value{
@@ -66,7 +60,7 @@ A matrix with the selected variables, their p-values and test statistics. Each r
 The regression models, one at each step.
 }
 \item{ci_test}{
-The conditional independence test used (either "testIndReg" or "testIndSpeedglm").  
+The conditional independence test used, "testIndReg".  
 }
 \item{final}{
 The final regression model.
@@ -96,10 +90,7 @@ dataset <- matrix( runif(1000 * 30, 1, 100), ncol = 30 )
 
 #define a simulated class variable 
 target <- 3 * dataset[, 10] + 2 * dataset[, 20] + rnorm(1000, 0, 5)
-a1 <- lm.fsreg(target, dataset, threshold = 0.05, stopping = "BIC", tol = 2, 
-robust = FALSE, ncores = 1 ) 
-a2 <- lm.fsreg_heavy(target, dataset, threshold = 0.05, stopping = "BIC", tol = 2, 
-ncores = 1 ) 
+a1 <- lm.fsreg(target, dataset, threshold = 0.05, stopping = "BIC", tol = 2) 
 }
 
 \keyword{ Markov Blanket }

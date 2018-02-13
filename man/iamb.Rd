@@ -10,7 +10,7 @@ IAMB variable selection.
 
 \usage{
 iamb(target, dataset, threshold = 0.05, wei = NULL, test = NULL, user_test = NULL, 
-stopping = "BIC", tol = 2, robust = FALSE, ncores = 1, back = "iambbs")
+stopping = "BIC", tol = 2, ncores = 1, back = "iambbs")
 }
 
 \arguments{
@@ -37,10 +37,6 @@ The stopping rule. The BIC is always used for all methods. If you have linear re
 }
 \item{tol}{
 The difference bewtween two successive values of the stopping rule. By default this is is set to 2. If for example, the BIC difference between two succesive models is less than 2, the process stops and the last variable, even though significant does not enter the model.
-}
-\item{robust}{
-A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust version of the statistical test if it is available. 
-It takes more time than a non robust version but it is suggested in case of outliers. Default value is FALSE.
 }
 \item{ncores}{
 How many cores to use. This plays an important role if you have tens of thousands of variables or really large sample sizes and tens of thousands of variables and a regression based test which requires numerical optimisation. In other cases it will not make a difference in the overall time (in fact it can be slower). The parallel computation is used in the first step of the algorithm, where univariate associations are examined, those take place in parallel. We have seen a reduction in time of 50\% with 4 cores in comparison to 1 core. Note also, that the amount of reduction is not linear in the number of cores.

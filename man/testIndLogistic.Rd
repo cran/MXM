@@ -1,7 +1,13 @@
 \name{Conditional independence test for binary, categorical or ordinal data}
 \alias{testIndLogistic}
+\alias{testIndMultinom}
+\alias{testIndOrdinal}
+\alias{testIndQBinom}
 \alias{permLogistic}
-\alias{waldBinary}
+\alias{permMultinom}
+\alias{permOrdinal}
+\alias{waldLogistic}
+\alias{waldQBinom}
 \alias{waldOrdinal}
 \title{
 Conditional independence test for binary, categorical or ordinal class variables
@@ -12,22 +18,38 @@ The main task of this test is to provide a p-value PVALUE for the null hypothesi
 }
 
 \usage{
-testIndLogistic(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
-univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
-target_type = 0, robust = FALSE)
+testIndLogistic(target, dataset, xIndex, csIndex, wei = NULL,
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL)
 
-permLogistic(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
-univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
-robust = FALSE, threshold = 0.05, R = 999)
+testIndMultinom(target, dataset, xIndex, csIndex, wei = NULL,
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL)
 
-waldBinary(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
-univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
-robust = FALSE)
+testIndOrdinal(target, dataset, xIndex, csIndex, wei = NULL,
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL)
 
-waldOrdinal(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
-univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
-robust = FALSE)
+testIndQBinom(target, dataset, xIndex, csIndex, wei = NULL,  
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL)
 
+permLogistic(target, dataset, xIndex, csIndex, wei = NULL, 
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
+threshold = 0.05, R = 999)
+
+permMultinom(target, dataset, xIndex, csIndex, wei = NULL, 
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
+threshold = 0.05, R = 999)
+
+permOrdinal(target, dataset, xIndex, csIndex, wei = NULL, 
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
+threshold = 0.05, R = 999)
+
+waldLogistic(target, dataset, xIndex, csIndex, wei = NULL, 
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL)
+
+waldQBinom(target, dataset, xIndex, csIndex, wei = NULL, 
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL)
+
+waldOrdinal(target, dataset, xIndex, csIndex, wei = NULL, 
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL)
 }
 
 \arguments{
@@ -46,9 +68,6 @@ The indices of the variables to condition on. If you have no variables set this 
 \item{wei}{
 A vector of weights to be used for weighted regression. The default value is NULL. 
 }
-\item{dataInfo}{
-A list object with information on the structure of the data. Default value is NULL.
-}
 \item{univariateModels}{
 Fast alternative to the hash object for univariate test. List with vectors "pvalues" (p-values), "stats" (statistics) and "flags" (flag = TRUE if the test was succesful) representing the univariate association of each variable with the target. Default value is NULL.
 }
@@ -61,17 +80,6 @@ A hash object (hash package required) which contains the cached generated statis
 \item{pvalue_hash}{
 A hash object (hash package required) which contains the cached generated p-values of a SES run in the current dataset, using the current test.
 }
-\item{target_type}{
-A numeric vector that represents the type of the target. Default value is 0. See details for more.
-\itemize{
-\item target_type = 1 (binary target)
-\item target_type = 2 (nominal target)
-\item target_type = 3 (ordinal target)
-}
-}
-\item{robust}{
-A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robustified version of the logistic regressions available here. Currently it is not available.
-}
 \item{threshold}{
 Threshold (suitable values in [0,1]) for assessing p-values significance. 
 }
@@ -81,12 +89,8 @@ The number of permutations, set to 999 by default. There is a trick to avoind do
 }
 
 \details{
-If argument target_type=0 then testIndLogistic requires the dataInfo argument to indicate the type of the current target:
-\itemize{
-\item dataInfo$target_type = "binary" (binary target).
-\item dataInfo$target_type = "nominal" (nominal target).
-\item dataInfo$target_type = "ordinal" (ordinal target).
-}
+
+The testIndQBinom does quasi binomial regression which is suitable for binary targets and proportions including 0 and 1.  
 
 If hash = TRUE, testIndLogistic requires the arguments 'stat_hash' and 'pvalue_hash' for the hash-based implementation of the statistic test. These hash Objects are produced or updated by each run of SES (if hash == TRUE) and they can be reused in order to speed up next runs of the current statistic test. If "SESoutput" is the output of a SES run, then these objects can be retrieved by SESoutput@hashObject$stat_hash and the SESoutput@hashObject$pvalue_hash.
 
@@ -103,9 +107,6 @@ A numeric value that represents the logarithm of the generated p-value.
 \item{stat}{
 A numeric value that represents the generated statistic.
 }
-\item{flag}{
-A numeric value (control flag) which indicates whether the test was succesful (0) or not (1).
-}
 \item{stat_hash}{
 The current hash object used for the statistics. See argument stat_hash and details. If argument hash = FALSE this is NULL.
 }
@@ -115,8 +116,6 @@ The current hash object used for the p-values. See argument stat_hash and detail
 }
 
 \references{
-Hampel F. R., Ronchetti E. M., Rousseeuw P. J., and Stahel W. A. (1986). Robust statistics: the approach based on influence functions. John Wiley & Sons. 
-
 Vincenzo Lagani, George Kortas and Ioannis Tsamardinos (2013), Biomarker signature identification in "omics" with multiclass outcome. Computational and Structural Biotechnology Journal, 6(7):1-7.
 
 McCullagh, Peter, and John A. Nelder. Generalized linear models.  CRC press, USA, 2nd edition, 1989.
@@ -133,7 +132,7 @@ This test uses the function multinom (package nnet) for multinomial logistic reg
 }
 
 \seealso{
-\code{\link{SES}, \link{testIndSpeedglm}, \link{gSquare}, \link{CondIndTests}}
+\code{\link{SES}, \link{gSquare}, \link{CondIndTests}}
 }
 
 \examples{
@@ -148,14 +147,13 @@ target_m <- dataset_m[, 50]
 dataset_m <- dataset_m[, -50]
 
   #run the conditional independence test for the nominal class variable
-  results_m <- testIndLogistic(target_m, dataset_m, xIndex = 44, csIndex = c(10, 20), 
-  target_type = 2)
+  results_m <- testIndMultinom(target_m, dataset_m, xIndex = 44, csIndex = c(10, 20) )
   results_m
 
   #run the SES algorithm using the testIndLogistic conditional independence test 
   #for the nominal class variable
   sesObject <- SES(as.factor(target_m), dataset_m, max_k = 3, threshold = 0.05, 
-  test = "testIndLogistic");
+  test = "testIndMultinom");
   #print summary of the SES output
   summary(sesObject);
   # plot the SES output
@@ -163,16 +161,15 @@ dataset_m <- dataset_m[, -50]
 
 
 ########################################################################
-
   #run the conditional independence test for the ordinal class variable
-  results_o <- testIndLogistic(as.factor(target_m), dataset_m, xIndex = 44, csIndex = c(10, 20), 
-  target_type = 3)
+  results_o <- testIndOrdinal( factor(target_m, ordered = TRUE), dataset_m, 
+  xIndex = 44, csIndex = c(10, 20) )
   results_o
   
   #run the SES algorithm using the testIndLogistic conditional independence test 
   #for the ordinal class variable
   sesObject <- SES(factor(target_m, ordered=TRUE), dataset_m, max_k = 3 , 
-  threshold = 0.05, test = "testIndLogistic");
+  threshold = 0.05, test = "testIndOrdinal");
   #print summary of the SES output
   summary(sesObject);
   # plot the SES output
@@ -189,8 +186,7 @@ target_b <- dataset_b[, 50]
 dataset_b <- dataset_b[, -50]
 
   #run the conditional independence test for the binary class variable
-  results_b <- testIndLogistic(target_b, dataset_b, xIndex = 44, csIndex = c(10, 20), 
-  target_type = 1)
+  results_b <- testIndLogistic( target_b, dataset_b, xIndex = 44, csIndex = c(10, 20) )
   results_b
   
   #run the SES algorithm using the testIndLogistic conditional independence test

@@ -10,7 +10,7 @@ Backward phase of MMPC.
 
 \usage{
 mmpcbackphase(target, dataset, max_k = 3, threshold = 0.05, test = NULL,
-wei = NULL, dataInfo = NULL, robust = FALSE, R = 1) 
+wei = NULL, R = 1) 
 }
 
 \arguments{
@@ -34,11 +34,7 @@ The conditional independence test to use. Type the test without " ", e.g. type t
 Default value is NULL. See also \code{\link{CondIndTests}}.
 }
 \item{wei}{
-A vector of weights to be used for weighted regression. The default value is NULL. It is not taken into account 
-when robust is set to TRUE.
-}
-\item{dataInfo}{
-A list object with information on the structure of the data. Default value is NULL.
+A vector of weights to be used for weighted regression. The default value is NULL.
 }
 %\item{hash}{
 %A boolean variable which indicates whether (TRUE) or not (FALSE) to store the statistics calculated during SES 
@@ -50,10 +46,6 @@ A list object with information on the structure of the data. Default value is NU
 %next runs of SES or MMPC. 
 %Important: the generated hashObjects should be used only when the same dataset is re-analyzed, possibly with 
 %different values of max_k and threshold.
-\item{robust}{
-A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust version of the statistical test 
-if it is available. It takes more time than a non robust version but it is suggested in case of outliers. Default value is FALSE. This is obsolete for the Wald and prmutation based SES and MMPC, but we left it for consistency across all signatures of the different versions of the algorithms. 
-}
 \item{R}{
 The number of permutations, set to 1 by default (no permutations based test). There is a trick to avoind doing 
 all permutations. As soon as the number of times the permuted test statistic is more than the observed test 

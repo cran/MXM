@@ -1,4 +1,4 @@
-identifyTheEquivalent.temporal = function(equal_case, queues, target, reps, group, dataset, cvar, z, test, wei, threshold, univariateModels, pvalues, hash, dataInfo, stat_hash, pvalue_hash, slopes)
+identifyTheEquivalent.temporal = function(queues, target, reps, group, dataset, cvar, z, test, wei, threshold, univariateModels, pvalues, hash, stat_hash, pvalue_hash, slopes)
 {
   z = t(z);
   #case 3
@@ -9,9 +9,9 @@ identifyTheEquivalent.temporal = function(equal_case, queues, target, reps, grou
     w = z[, i];
     w = t(t(w));
     zPrime = c(setdiff(z, w), cvar);
-    cur_results = test(target, reps, group, dataset, w, zPrime, wei = wei, dataInfo=dataInfo, univariateModels, hash = hash, stat_hash, pvalue_hash, slopes = slopes);
+    cur_results = test(target, reps, group, dataset, w, zPrime, wei = wei, univariateModels, hash = hash, stat_hash, pvalue_hash, slopes = slopes);
     
-    if (cur_results$flag & (cur_results$pvalue > threshold) ) {  
+    if ( cur_results$pvalue > threshold ) {  
       queues[[w]] = as.matrix( c(queues[[w]], queues[[cvar]]) );
       break;
       #equalsY = equalsY+1;

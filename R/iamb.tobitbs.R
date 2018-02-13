@@ -1,4 +1,4 @@
-iamb.tobitbs <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FALSE) {
+iamb.tobitbs <- function(target, dataset, threshold = 0.05, wei = NULL) {
   
   threshold <- log(threshold)
   dm <- dim(dataset)
@@ -8,7 +8,7 @@ iamb.tobitbs <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = 
     res <- paste("The number of variables is hiher than the sample size. No backward procedure was attempted")
   } else {
 
-    a1 <- internaliamb.tobitbs( target = target, dataset = dataset, threshold = threshold, wei = wei, p = p, heavy = heavy ) 
+    a1 <- internaliamb.tobitbs( target = target, dataset = dataset, threshold = threshold, wei = wei, p = p ) 
     ind <- 1:p
     a2 <- list()
     poies <- a1$mat[, 1]
@@ -16,7 +16,7 @@ iamb.tobitbs <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = 
       ind[-poies] <- 0
       ind <- ind[ind > 0]
       dat <- dataset[, poies, drop = FALSE ]
-      a2 <- internaliamb.tobitbs( target = target, dataset = dat, threshold = threshold, wei = wei, p = length(ind), heavy = heavy ) 
+      a2 <- internaliamb.tobitbs( target = target, dataset = dat, threshold = threshold, wei = wei, p = length(ind) ) 
       poies <- a2$mat[, 1]
       ind[-poies] <- 0
       ind <- ind[ind > 0]
@@ -29,7 +29,7 @@ iamb.tobitbs <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = 
     while ( length(a1$mat[, 1]) - length(a2$mat[, 1]) != 0 ) {
       i <- i + 1
       a1 <- a2
-      a2 <- internaliamb.tobitbs( target = target, dataset = dat, threshold = threshold, wei = wei, p = length(ind), heavy = heavy ) 
+      a2 <- internaliamb.tobitbs( target = target, dataset = dat, threshold = threshold, wei = wei, p = length(ind) ) 
       poies <- a2$mat[, 1]
       if ( length(poies) > 0 ) {
         ind[-poies] <- 0

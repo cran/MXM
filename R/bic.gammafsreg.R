@@ -1,4 +1,4 @@
-bic.gammafsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, robust = FALSE, ncores = 1) {
+bic.gammafsreg <- function( target, dataset, wei = NULL, tol = 0, ncores = 1) {
   
   p <- dim(dataset)[2]  ## number of variables
   bico <- numeric( p )
@@ -25,52 +25,27 @@ bic.gammafsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE,
   }
   
   dataset <- as.data.frame(dataset)
-  if ( heavy )   con <- log(n)
 
     durat <- proc.time()
-    if ( !heavy ) {
-      ini = BIC( glm( target ~ 1, weights = wei, family = Gamma(link = log), y = FALSE, model = FALSE ) )   ## initial BIC
-    } else {
-      inimod <- speedglm::speedglm( target ~ 1, data = dataset, family = Gamma(link = log), weights = wei )
-      ini <-  - 2 * inimod$logLik + con   ## initial BIC
-      ci_test <- "testIndGamma"
-    }	
-
+    ini = BIC( glm( target ~ 1, weights = wei, family = Gamma(link = log), y = FALSE, model = FALSE ) )   ## initial BIC
+	
     if (ncores <= 1) {
-      
-      if ( !heavy ) {
-        for (i in 1:p) {
-          mi <- glm( target ~ dataset[, i], family = Gamma(link = log), weights = wei, y = FALSE, model = FALSE )
-          bico[i] <- BIC( mi )
-        }
-      } else {
         for (i in 1:p) { 
-          mi <- speedglm::speedglm( target ~ dataset[, i], data = dataset[, i], family = Gamma(link = log), weights = wei )
-          bico[i] <-  - 2 * mi$logLik + length( mi$coefficients ) * con   ## initial BIC
-        }	
-      }  
-      
+          mi <- glm( target ~ dataset[, i], data = dataset[, i], family = Gamma(link = log), weights = wei )
+          bico[i] <-  BIC(mi)
+        }	      
       mat <- cbind(1:p, bico)
       if( any( is.na(mat) ) )   mat[ which( is.na(mat) ) ] = ini
       
     } else {
-      if ( !heavy ) {
         cl <- makePSOCKcluster(ncores)
         registerDoParallel(cl)
         mod <- foreach( i = 1:p, .combine = rbind) %dopar% {
-          ww <- glm( target ~ dataset[, i], family =  Gamma(link = log), weights = wei )
-          return( BIC( ww ) )
-        }
-        stopCluster(cl)
-      }  else {
-        cl <- makePSOCKcluster(ncores)
-        registerDoParallel(cl)
-        mod <- foreach( i = 1:p, .combine = rbind, .export = "speedglm", .packages = "speedglm") %dopar% {
-          ww <- speedglm::speedglm( target ~ dataset[, i], data = dataset[, i], family =  Gamma(link = log), weights = wei )
-          return( -2 * ww$logLik + (length( coef(ww) ) + 1) * con )   ## initial BIC
+          ww <- glm( target ~ dataset[, i], data = dataset[, i], family =  Gamma(link = log), weights = wei )
+          return( BIC(ww) )   ## initial BIC
         }
         stopCluster(cl) 
-      } 
+       
       mat <- cbind(1:p, mod)
       if ( any( is.na(mat) ) )    mat[ which( is.na(mat) ) ] = ini
     }
@@ -84,14 +59,8 @@ bic.gammafsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE,
       
       info[1, ] <- mat[sel, ]
       mat <- mat[-sel, , drop = FALSE]
-      if ( !heavy ) {
         mi <- glm( target ~ dataset[, sel], family = Gamma(link = log), weights = wei, y = FALSE, model = FALSE )
         tool[1] <- BIC( mi )
-      } else {
-        mi <- speedglm::speedglm( target ~ dataset[, sel], data = dataset[, sel], family = Gamma(link = log), weights = wei )
-        tool[1] <-  - 2 * mi$logLik + (length( mi$coefficients ) + 1) * con   ## initial BIC
-      }  
-
       moda[[ 1 ]] <- mi
     }  else  {
       info <- info  
@@ -108,39 +77,20 @@ bic.gammafsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE,
       
       if ( ncores <= 1 ) {
         bico <- numeric( pn )
-        if ( !heavy ) {
           for ( i in 1:pn ) {
             ma <- glm( target ~., data = dataset[, c(sel, mat[i, 1]) ], family = Gamma(link = log), y = FALSE, model = FALSE )
             bico[i] <- BIC( ma )
           }
-        } else {
-          for ( i in 1:pn ) {
-            ma <- speedglm::speedglm( target ~., data = dataset[, c(sel, mat[i, 1]) ], family = Gamma(link = log), weights = wei )
-            bico[i] <-  - 2 * ma$logLik + ( length( ma$coefficients ) + 1) * con
-          }		  
-        }
         mat[, 2] <- bico
-        
+       
       } else {
-        
-        if ( !heavy ) {
-          cl <- makePSOCKcluster(ncores)
-          registerDoParallel(cl)
-          mod <- foreach( i = 1:pn, .combine = rbind) %dopar% {
-            ww <- glm( target ~ dataset[, sel ] + dataset[, mat[i, 1] ], family = Gamma(link = log), weights = wei )
-            return( BIC( ww ) )
-          }
-          stopCluster(cl)
-        } else {
-          cl <- makePSOCKcluster(ncores)
-          registerDoParallel(cl)
-          mod <- foreach( i = 1:pn, .combine = rbind, export = "speedglm", .packages = "speedglm") %dopar% {
-            ww <- speedglm::speedglm( target ~ dataset[, sel ] + dataset[, mat[i, 1] ], data = dataset, family = Gamma(link = log), weights = wei )
-            return( - 2 * ww$logLik + (length( ww$coefficients ) + 1) * con )
-          }
-          stopCluster(cl)		  
-        }	
-
+        cl <- makePSOCKcluster(ncores)
+        registerDoParallel(cl)
+        mod <- foreach( i = 1:pn, .combine = rbind) %dopar% {
+          ww <- glm( target ~ dataset[, sel ] + dataset[, mat[i, 1] ], family = Gamma(link = log), weights = wei )
+          return( BIC( ww ) )
+        }
+        stopCluster(cl)
         mat[, 2] <- mod
       }
       
@@ -166,21 +116,12 @@ bic.gammafsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE,
         pn <- p - k + 1
         
         if (ncores <= 1) {
-          if ( !heavy ) {
             for ( i in 1:pn ) {
               ma <- glm( target ~., data = dataset[, c(sela, mat[i, 1]) ], family = Gamma(link = log), weights = wei, y = FALSE, model = FALSE )
               mat[i, 2] <- BIC( ma )
             }
-          } else {
-            for ( i in 1:pn ) {
-              ma <- speedglm::speedglm( target ~., data = dataset[, c(sela, mat[i, 1]) ], family = Gamma(link = log), weights = wei )
-              mat[i, 2] <-  - 2 * ma$logLik + ( length( ma$coefficients ) + 1 ) * con
-            }		  
-          }   
-
           
         } else {
-          if ( !heavy ) {
             cl <- makePSOCKcluster(ncores)
             registerDoParallel(cl)
             bico <- numeric(pn)
@@ -189,16 +130,6 @@ bic.gammafsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE,
               bico[i] <- BIC( ww )
             }
             stopCluster(cl)
-          } else {
-            cl <- makePSOCKcluster(ncores)
-            registerDoParallel(cl)
-            mod <- foreach( i = 1:pn, .combine = rbind, .export = "speedglm", .packages = "speedglm") %dopar% {
-              ww <- speedglm::speedglm( target ~., data = dataset[, c(sela, mat[i, 1]) ], family = Gamma(link = log), weights = wei )
-              return( - 2 * ww$logLik + ( length( ww$coefficients ) + 1 ) * con )
-            }
-            stopCluster(cl)		  
-          }
-
           mat[, 2] <- mod
           
         }
@@ -226,13 +157,10 @@ bic.gammafsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE,
   final <- NULL
   
   if ( d >= 1 ) {
-    if ( !heavy ) {
-      final <- glm( target ~., data = dataset[, sela], weights = wei, family = Gamma(link = log), model = FALSE )
-    } else  final <- speedglm::speedlm( target ~., data = dataset[, sela], weights = wei, family = Gamma(link = log) )	 
+    final <- glm( target ~., data = dataset[, sela], weights = wei, family = Gamma(link = log), model = FALSE )
+    info <- info[1:d, , drop = FALSE]
+    colnames(info) <- c( "variables", "BIC" )
+    rownames(info) <- info[, 1]
   }
-  info <- info[1:d, , drop = FALSE]
-  colnames(info) <- c( "variables", "BIC" )
-  rownames(info) <- info[, 1]
-  
-  list( runtime = duration, mat = t(mat), info = info,ci_test = ci_test,  final = final)
+  list( runtime = duration, mat = t(mat), info = info,ci_test = "testIndGamma",  final = final)
 }

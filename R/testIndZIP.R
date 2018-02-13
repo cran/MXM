@@ -1,10 +1,10 @@
-testIndZIP = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL, univariateModels=NULL , hash = FALSE, stat_hash=NULL, pvalue_hash=NULL,robust=FALSE) 
+testIndZIP = function(target, dataset, xIndex, csIndex, wei = NULL, univariateModels=NULL, hash = FALSE, 
+                      stat_hash=NULL, pvalue_hash=NULL) 
 {
   #initialization
   #if the test cannot performed succesfully these are the returned values
   pvalue = log(1);
   stat = 0;
-  flag = 0;
   csIndex[ which( is.na(csIndex) ) ] = 0;
   
   if (hash) {
@@ -15,8 +15,7 @@ testIndZIP = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NUL
     if (is.null(stat_hash[[key]]) == FALSE) {
       stat = stat_hash[[key]];
       pvalue = pvalue_hash[[key]];
-      flag = 1;
-      results <- list(pvalue = pvalue, stat = stat, flag = flag, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+      results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
       return(results);
     }
   }
@@ -27,13 +26,13 @@ testIndZIP = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NUL
       stat_hash[[key]] <- 0;     #.set(stat_hash , key , 0)
       pvalue_hash[[key]] <- log(1);     #.set(pvalue_hash , key , 1)
     }
-    results <- list(pvalue = log(1), stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+    results <- list(pvalue = log(1), stat = 0, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
     return(results);
   }
   #check input validity
   if (xIndex < 0 || csIndex < 0) {
     message(paste("error in testIndZIP : wrong input of xIndex or csIndex"))
-    results <- list(pvalue = pvalue, stat = stat, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+    results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
     return(results);
   }
   
@@ -42,7 +41,6 @@ testIndZIP = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NUL
   #extract the data
   x = dataset[ , xIndex];
   cs = dataset[ , csIndex];
-  #if x = any of the cs then pvalue = log(1) and flag = 1.
   #That means that the x variable does not add more information to our model due to an exact copy of this in the cs, so it is independent from the target
   if ( length(cs) != 0 ) {
     if ( is.null(dim(cs)[2]) ) { #cs is a vector
@@ -51,7 +49,7 @@ testIndZIP = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NUL
           stat_hash[[key]] <- 0;    #.set(stat_hash , key , 0)
           pvalue_hash[[key]] <- log(1);     #.set(pvalue_hash , key , 1)
         }
-        results <- list(pvalue = log(1), stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+        results <- list(pvalue = log(1), stat = 0, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
         return(results);
       }
     } else { #more than one var
@@ -61,21 +59,12 @@ testIndZIP = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NUL
             stat_hash[[key]] <- 0;    #.set(stat_hash , key , 0)
             pvalue_hash[[key]] <- log(1);    #.set(pvalue_hash , key , 1)
           }
-          results <- list(pvalue = log(1), stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+          results <- list(pvalue = log(1), stat = 0, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
           return(results);
         }
       }
     }
   }
-  #if x or target is constant then there is no point to perform the test
-  #if ( Rfast::Var( as.numeric(x) ) == 0 ) {
-  #  if (hash) {     #update hash objects
-  #    stat_hash[[key]] <- 0;   #.set(stat_hash , key , 0)
-  #    pvalue_hash[[key]] <- log(1);    #.set(pvalue_hash , key , 1)
-  #  }
-  #  results <- list(pvalue = log(1), stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
-  #  return(results);
-  #}
   #trycatch for dealing with errors
   res <- tryCatch(
     {
@@ -87,7 +76,6 @@ testIndZIP = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NUL
         stat <- 2 * abs( lik1 - fit2$loglik )
         dof <- length( fit2$be ) - 1
         pvalue <- pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)   
-        flag <- 1;
 
       } else {
         fit1 <- zip.reg( target, as.data.frame( dataset[, csIndex] ), wei = wei ) 
@@ -95,13 +83,11 @@ testIndZIP = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NUL
         stat <- 2 * abs( fit1$loglik - fit2$loglik )
         dof <- length( fit2$be ) - length( fit1$be )
         pvalue <- pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)   
-        flag <- 1;
       } 
       #last error check
       if ( is.na(pvalue) || is.na(stat) ) {
         pvalue = log(1);
         stat = 0;
-        flag = 0;
       } else {
         #update hash objects
         if( hash )  {
@@ -109,27 +95,14 @@ testIndZIP = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NUL
           pvalue_hash[[key]] <- pvalue;     #.set(pvalue_hash , key , pvalue)
         }
       }
-      #testerrorcaseintrycatch(4);
-      results <- list(pvalue = pvalue, stat = stat, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+      results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
       return(results);
       
     },
     error=function(cond) {
-      #   message(paste("error in try catch of the testIndZIP test"))
-      #   message("Here's the original error message:")
-      #   message(cond)
-      #   #        #for debug
-      #   #        print("\nxIndex = \n");
-      #   #        print(xIndex);
-      #   #        print("\ncsindex = \n");
-      #   #        print(csIndex);
-      #   stop();
-      #error case
       pvalue = log(1);
       stat = 0;
-      flag = 0;
-      
-      results <- list(pvalue = pvalue, stat = stat, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+      results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
       return(results);
     },
     finally={}

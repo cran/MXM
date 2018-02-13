@@ -82,7 +82,7 @@ cv.waldses <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, a
       } else  modelerFunction <- modeler;
       
       if ( is.null(ses_test) ) {
-        test = 'waldMMreg';
+        test = 'waldMMReg';
       } else  test <- ses_test;
       
     } else if (task == 'S') {
@@ -199,11 +199,9 @@ cv.waldses <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, a
     
     opti <- Rfast::rowmeans(mat)
     bestpar <- which.max(opti)
-    estb <- abs( sum( mat[bestpar, ] - Rfast::colMaxs(mat, value = TRUE) ) / kfolds )    ##   apply(mat, 2, max) ) ) / kfolds 
     
     best_model$best_configuration <- conf_ses[[bestpar]]$configuration
     best_model$best_performance <- max( opti )
-    best_model$BC_best_perf <- best_model$best_performance - estb
     best_model$runtime <- proc.time() - tic 
     
     result <- best_model

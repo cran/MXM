@@ -15,10 +15,10 @@
 #cv_results_all: a list with the predictions, performances and the signatures for each fold of each configuration (i.e cv_results_all[[3]]$performances[1] indicates the performance of the 1st fold with the 3d configuration of mmpc)
 #best_performance: numeric, the best average performance
 #best_configuration: the best configuration of mmpc (a list with the slots id, a, max_k)
-cv.mmpc <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, alphas = c(0.1, 0.05, 0.01), max_ks = c(3, 2), task = NULL, metric = NULL, modeler = NULL, mmpc_test = NULL, robust = FALSE, ncores = 1) 
+cv.mmpc <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, alphas = c(0.1, 0.05, 0.01), max_ks = c(3, 2), task = NULL, metric = NULL, modeler = NULL, mmpc_test = NULL, ncores = 1) 
 {
   if ( ncores > 1 ) {  ## multi-threaded task
-    result = cvmmpc.par(target, dataset, wei = wei, kfolds = kfolds, folds = folds, alphas = alphas, max_ks = max_ks, task = task, metric = metric, modeler = modeler, mmpc_test = mmpc_test, robust = robust, ncores = ncores)
+    result = cvmmpc.par(target, dataset, wei = wei, kfolds = kfolds, folds = folds, alphas = alphas, max_ks = max_ks, task = task, metric = metric, modeler = modeler, mmpc_test = mmpc_test, ncores = ncores)
       
   } else { ## one core task
        
@@ -135,7 +135,7 @@ cv.mmpc <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, alph
       threshold <- mmpc_configurations[[mmpc_conf_id]]$a;
       max_k <- mmpc_configurations[[mmpc_conf_id]]$max_k;
       #running mmpc
-      results <- MMPC(train_target, train_set, max_k, threshold, test = test, ini = mmpcini, wei = wtrain, hash = TRUE, hashObject = mmpcHashMap, robust = robust)
+      results <- MMPC(train_target, train_set, max_k, threshold, test = test, ini = mmpcini, wei = wtrain, hash = TRUE, hashObject = mmpcHashMap)
       mmpcini <- results@univ
       mmpcHashMap <- results@hashObject;
       variables <- results@selectedVars;
@@ -194,13 +194,11 @@ cv.mmpc <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, alph
   
   opti <- Rfast::rowmeans(mat)
   bestpar <- which.max(opti)
-  estb <- abs( sum( mat[bestpar, ] - Rfast::colMaxs(mat, value = TRUE) ) / kfolds )  ## apply(mat, 2, max) ) ) / kfolds 
   
   best_model$best_configuration = conf_mmpc[[bestpar]]$configuration
   best_model$best_performance <- max( opti )
-  best_model$BC_best_perf <- best_model$best_performance - estb
   best_model$runtime <- proc.time() - tic 
-  result = best_model
+  result <- best_model
  }
   
  result 

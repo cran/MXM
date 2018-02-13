@@ -1,4 +1,4 @@
-IdentifyEquivalence = function(equal_case, queues, target, dataset, test, wei, threshold , max_k, selectedVars, pvalues, stats, remainingVars, univariateModels, selectedVarsOrder, hash, dataInfo, stat_hash, pvalue_hash, robust, ncores)
+IdentifyEquivalence = function(queues, target, dataset, test, wei, threshold , max_k, selectedVars, pvalues, stats, remainingVars, univariateModels, selectedVarsOrder, hash, stat_hash, pvalue_hash)
 { 
   varsToBeConsidered = which(selectedVars==1 | remainingVars==1); #CHANGE
   lastvar = which(selectedVarsOrder == max(selectedVarsOrder))[1]; #CHANGE
@@ -31,7 +31,7 @@ IdentifyEquivalence = function(equal_case, queues, target, dataset, test, wei, t
       for (i in 1:ncol(subsetcsk) ) {
         z = subsetcsk[,i];
         z = t(t(z));
-        cur_results = test(target = target, dataset = dataset, xIndex = cvar, csIndex = z, wei = wei, dataInfo=dataInfo, univariateModels = univariateModels, hash = hash, stat_hash = stat_hash, pvalue_hash = pvalue_hash, robust=robust);
+        cur_results = test(target = target, dataset = dataset, xIndex = cvar, csIndex = z, wei = wei, univariateModels = univariateModels, hash = hash, stat_hash = stat_hash, pvalue_hash = pvalue_hash);
         stat_hash = cur_results$stat_hash;
         pvalue_hash = cur_results$pvalue_hash;
         #check if the pvalues and stats should be updated
@@ -43,10 +43,10 @@ IdentifyEquivalence = function(equal_case, queues, target, dataset, test, wei, t
         #then let's throw away var; moreover, we also look for
         #equivalent variables. Note that we stop after the first 
         #z such that pvalue_{var, y | z} > threshold
-        if (cur_results$flag & cur_results$pvalue > threshold) {
+        if ( cur_results$pvalue > threshold ) {
           remainingVars[[cvar]] = 0;
           selectedVars[[cvar]] = 0;
-          queues = identifyTheEquivalent(equal_case, queues, target, dataset, cvar, z, test, wei, threshold, univariateModels, pvalues, hash, dataInfo, stat_hash, pvalue_hash, robust = robust, ncores = ncores);
+          queues = identifyTheEquivalent(queues, target, dataset, cvar, z, test, wei, threshold, univariateModels, pvalues, hash, stat_hash, pvalue_hash);
           breakFlag = TRUE;
           break;
         }
@@ -59,6 +59,6 @@ IdentifyEquivalence = function(equal_case, queues, target, dataset, test, wei, t
       }
     }
   }
-  results <- list(pvalues = pvalues, stats = stats, queues = queues, selectedVars = selectedVars, remainingVars = remainingVars, stat_hash = stat_hash, pvalue_hash = pvalue_hash, rob = robust);
+  results <- list(pvalues = pvalues, stats = stats, queues = queues, selectedVars = selectedVars, remainingVars = remainingVars, stat_hash = stat_hash, pvalue_hash = pvalue_hash);
   return(results);
 }

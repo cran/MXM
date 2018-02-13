@@ -1,4 +1,4 @@
-IdentifyEquivalence.temporal = function(equal_case, queues, target, reps, group, dataset, test, wei, threshold, max_k, selectedVars, pvalues, stats, remainingVars, univariateModels, selectedVarsOrder, hash, dataInfo, stat_hash, pvalue_hash, slopes)
+IdentifyEquivalence.temporal = function(queues, target, reps, group, dataset, test, wei, threshold, max_k, selectedVars, pvalues, stats, remainingVars, univariateModels, selectedVarsOrder, hash, stat_hash, pvalue_hash, slopes)
 { 
   varsToBeConsidered = which(selectedVars==1 | remainingVars==1); #CHANGE
   lastvar = which(selectedVarsOrder == max(selectedVarsOrder))[1]; #CHANGE
@@ -29,7 +29,7 @@ IdentifyEquivalence.temporal = function(equal_case, queues, target, reps, group,
       for ( i in 1:ncol(subsetcsk) ) {
         z = subsetcsk[,i];
         z = t(t(z));
-        cur_results = test(target , reps, group, dataset , cvar, z , wei = wei, dataInfo=dataInfo, univariateModels, hash = hash, stat_hash, pvalue_hash, slopes = slopes);
+        cur_results = test(target , reps, group, dataset , cvar, z , wei = wei, univariateModels, hash = hash, stat_hash, pvalue_hash, slopes = slopes);
         stat_hash = cur_results$stat_hash;
         pvalue_hash = cur_results$pvalue_hash;
         #check if the pvalues and stats should be updated
@@ -41,10 +41,10 @@ IdentifyEquivalence.temporal = function(equal_case, queues, target, reps, group,
         #then let's throw away var; moreover, we also look for
         #equivalent variables. Note that we stop after the first 
         #z such that pvalue_{var, y | z} > threshold
-        if (cur_results$flag & cur_results$pvalue > threshold) {
+        if ( cur_results$pvalue > threshold ) {
           remainingVars[[cvar]] = 0;
           selectedVars[[cvar]] = 0;
-          queues = identifyTheEquivalent.temporal(equal_case , queues , target , reps, group, dataset , cvar , z , test , wei, threshold , univariateModels , pvalues, hash, dataInfo, stat_hash, pvalue_hash, slopes = slopes);
+          queues = identifyTheEquivalent.temporal(queues , target , reps, group, dataset , cvar , z , test , wei, threshold , univariateModels , pvalues, hash, stat_hash, pvalue_hash, slopes = slopes);
           breakFlag = TRUE;
           break;
         }

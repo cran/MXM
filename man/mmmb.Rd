@@ -10,7 +10,7 @@ The MMMB algorithm follows a forward-backward filter approach for feature select
 
 \usage{
 mmmb(target , dataset , max_k = 3 , threshold = 0.05 , test = "testIndFisher", 
-user_test = NULL, robust = FALSE, ncores = 1)
+user_test = NULL, ncores = 1)
 }
 
 \arguments{
@@ -24,18 +24,14 @@ The dataset; provide either a data frame or a matrix (columns = variables, rows 
 \item{max_k}{
 The maximum conditioning set to use in the conditional indepedence test (see Details). Integer, default value is 3.
 }
-  \item{threshold}{
+\item{threshold}{
 Threshold (suitable values in [0,1]) for assessing the p-values. Default value is 0.05.
 }
-  \item{test}{
+\item{test}{
 The conditional independence test to use. Default value is "testIndFisher". See also \code{link{CondIndTests}}.
 }
-  \item{user_test}{
+\item{user_test}{
 A user-defined conditional independence test (provide a closure type object). Default value is NULL. If this is defined, the "test" argument is ignored.
-}
-\item{robust}{
-A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust version of the statistical test if it is available. 
-It takes more time than a non robust version but it is suggested in case of outliers. Default value is FALSE.
 }
 \item{ncores}{
 How many cores to use. This plays an important role if you have tens of thousands of variables or really large sample sizes and tens of thousands of variables and a regression based test which requires numerical optimisation. In other cammmb it will not make a difference in the overall time (in fact it can be slower). The parallel computation is used in the first step of the algorithm, where univariate associations are examined, those take place in parallel. We have seen a reduction in time of 50\% with 4 cores in comparison to 1 core. Note also, that the amount of reduction is not linear in the number of cores.
@@ -80,7 +76,7 @@ dataset <- matrix( runif(1000 * 50, 1, 100), ncol = 50 )
 #define a simulated class variable 
 target <- 3 * dataset[, 10] + 2 * dataset[, 50] + 3 * dataset[, 20] + rnorm(1000, 0, 5)
 aa <- mmmb(target , dataset , max_k = 3 , threshold = 0.05, test= "testIndFisher", 
-robust = FALSE, ncores = 1,)
+ncores = 1,)
 ab <- SES(target, dataset, test="testIndFisher")
 }
 

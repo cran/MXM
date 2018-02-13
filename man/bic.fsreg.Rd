@@ -9,7 +9,7 @@ Variable selection in regression models with forward selection using BIC
 }
 
 \usage{
-bic.fsreg(target, dataset, test = NULL, wei = NULL, tol = 2, robust = FALSE, ncores = 1)
+bic.fsreg(target, dataset, test = NULL, wei = NULL, tol = 2, ncores = 1)
 }
 
 \arguments{
@@ -28,8 +28,7 @@ for Cox proportional hazards and Weibull regression respectively, "testIndLogist
 or ordinal regression, "testIndPois" for poisson regression, "testIndNB" for negative binomial regression, 
 "testIndZIP" for zero inflated poisson regression, "testIndRQ" for quantile regression, "testIndGamma" for gamma 
 regression, "testIndNormLog" for linear regression with the log-link (non negative data), "testIndTobit" for Tobit 
-regression and "testIndSpeedglm" for linear, binary or poisson regression with large datasets (tens of thousands of 
-observations). If you want to use multinomial or ordinal logistic regression, make sure your target is factor.
+regression. If you want to use multinomial or ordinal logistic regression, make sure your target is factor.
 See also \code{\link{SES}} and \code{\link{CondIndTests}} for the tests.
 }
 \item{wei}{
@@ -37,9 +36,6 @@ A vector of weights to be used for weighted regression. The default value is NUL
 }
 \item{tol}{
 The difference bewtween two successive values of the stopping rule. By default this is is set to 2. If for example, the BIC difference between two succesive models is less than 2, the process stops and the last variable, even though significant does not enter the model.
-}
-\item{robust}{
-A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust version of the statistical test if it is available. It takes more time than a non robust version but it is suggested in case of outliers. Default value is FALSE.
 }
 \item{ncores}{
 How many cores to use. This plays an important role if you have tens of thousands of variables or really large sample sizes and tens of thousands of variables and a regression based test which requires numerical optimisation. In other cammmb it will not make a difference in the overall time (in fact it can be slower). The parallel computation is used in the first step of the algorithm, where univariate associations are examined, those take place in parallel. We have seen a reduction in time of 50\% with 4 cores in comparison to 1 core. Note also, that the amount of reduction is not linear in the number of cores.
@@ -96,10 +92,10 @@ set.seed(123)
 dataset <- matrix( runif(1000 * 20, 1, 100), ncol = 20 )
 target <- 3 * dataset[, 10] + 2 * dataset[, 15] + 3 * dataset[, 20] + rnorm(1000, 0, 5)
 
-a1 <- bic.fsreg(target, dataset, robust = FALSE, tol = 4, ncores = 1 ) 
-a3 <- MMPC(target, dataset, robust= FALSE, ncores = 1)
+a1 <- bic.fsreg(target, dataset, tol = 4, ncores = 1, test = "testIndReg" ) 
+a3 <- MMPC(target, dataset, ncores = 1)
 target <- round(target)
-b1 <- bic.fsreg(target, dataset, robust = FALSE, tol = 2, ncores = 1 ) 
+b1 <- bic.fsreg(target, dataset, tol = 2, ncores = 1, test = "testIndReg" ) 
 }
 
 \keyword{ Markov Blanket }

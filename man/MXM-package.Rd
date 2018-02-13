@@ -6,19 +6,19 @@ This is an R package that currently implements feature selection methods for ide
 }
 
 \description{
-'MXM' stands for Mens eX Machina, meaning 'Mind from the Machine' in Latin. The package provides source code for the SES algorithm and for some appropriate statistical conditional independence tests. (Fisher and Spearman corelation, G-square test are some examples. Currently the response variable can be univariate or multivariate Euclidean, proportions within 0 and 1, compositional data without zeros and  ones, binary, nominal or ordinal multinomial, count data (handling also overdispersed and with more zeros than expected), longitudinal, clustered data, survival and case-control. Robust versions are also available in some cases and a K-fold cross validation is offered. Bayesian network related algorithms and ridge reression are also included. Read the package's help pages for more details.
+'MXM' stands for Mens eX Machina, meaning 'Mind from the Machine' in Latin. The package provides source code for the SES algorithm and for some appropriate statistical conditional independence tests. (Fisher and Spearman correlation, G-square test are some examples. Currently the response variable can be univariate or multivariate Euclidean, proportions within 0 and 1, compositional data without zeros and  ones, binary, nominal or ordinal multinomial, count data (handling also overdispersed and with more zeros than expected), longitudinal, clustered data, survival and case-control. Robust versions are also available in some cases and a K-fold cross validation is offered. Bayesian network related algorithms and ridge reression are also included. Read the package's help pages for more details.
 
 MMPC and SES can handle even thousands of variables and for some tests, even many sample sizes of tens of thousands. The user is best advised to check his variables in the beginning. For some regressions, logistic and Poisson for example, we have used C++ codes for speed reasons. Thus no check is done for a variable with zero variance for instance. Something like "colVars" (in "Rfast") could be used in the first place to remove variables with zero variance. 
 
-For more information the reader is addressed to Lagani V., Athineou G., Farcomeni A., Tsagris M. and Tsamardinos I. (2017). Feature Selection with the R Package MXM: Discovering Statistically Equivalent Feature Subsets. Journal of Statistical Software, 80(7):1-25, doi:10.18637/jss.v080.i07.
+For more information the reader is addressed to Lagani V., Athineou G., Farcomeni A., Tsagris M. and Tsamardinos I. (2017). Feature Selection with the R Package MXM: Discovering Statistically Equivalent Feature Subsets. Journal of Statistical Software, 80(7), doi:10.18637/jss.v080.i07.
 }
 
 \details{
 \tabular{ll}{
 Package: \tab MXM\cr
 Type: \tab Package\cr
-Version: \tab 1.3.1\cr
-Date: \tab 2017-11-30\cr
+Version: \tab 1.3.2\cr
+Date: \tab 2018-02-07\cr
 License: \tab GPL-2\cr
 }
 }
@@ -32,9 +32,18 @@ Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 
 \references{
-Tsamardinos, Brown and Aliferis (2006). The max-min hill-climbing Bayesian network structure learning algorithm. Machine learning, 65(1), 31-78.
+Tsagris M., Lagani V., & Tsamardinos I. (2018). Feature selection for high-dimensional temporal data. BMC bioinformatics, 19(1), 17.
+
+Tsagris M., Borboudakis G., Lagani V. and Tsamardinos I. (2018). Constraint-based Causal Discovery with Mixed Data. 
+International Journal of Data Science and Analytics. 
+
+Lagani V., Athineou G., Farcomeni A., Tsagris M. and Tsamardinos I. (2017). Feature Selection with the R Package MXM: Discovering Statistically Equivalent Feature Subsets. Journal of Statistical Software, 80(7), doi:10.18637/jss.v080.i07.
+
+Vincenzo Lagani, George Kortas and Ioannis Tsamardinos (2013), Biomarker signature identification in "omics" with multiclass outcome. Computational and Structural Biotechnology Journal, 6(7):1-7.
 
 I. Tsamardinos, V. Lagani and D. Pappas (2012) Discovering multiple, equivalent biomarker signatures. In proceedings of the 7th conference of the Hellenic Society for Computational Biology & Bioinformatics - HSCBB12.
+
+Tsamardinos, Brown and Aliferis (2006). The max-min hill-climbing Bayesian network structure learning algorithm. Machine learning, 65(1), 31-78.
 
 Tsamardinos I., Aliferis C. F. and Statnikov, A. (2003). Time and sample efficient discovery of Markov blankets and direct causal relations. In Proceedingsof the 9th ACM SIGKDD international conference on Knowledge discovery and data mining p. 673-678. 
 }
@@ -46,7 +55,7 @@ European Union's Seventh Framework Programme (FP/2007-2013) / ERC Grant Agreemen
 
 Michail Tsagris would like to express his acknowledgments to Marios Dimitriadis and Manos Papadakis, 
 undergraduate students in the department of computer science, university of Crete, for their programming tips and advice. 
-Dr David Gomez Cabrero Lopez is also greatly acknowledged. Dr Uwe Ligges and Prof Kurt Hornik from the CRAN team are greatly acknowledged for their assistance. 
+Dr David Gomez Cabrero Lopez is also greatly acknowledged. Dr Uwe Ligges and Prof Kurt Hornik from the CRAN team are greatly acknowledged for their assistance. Prof Achim Zeileis is grealty acknowledged for this help with the quasi Poisson and quasi binomial regression models. Christina Chatzipantsiou is acknowledged for ther suggestions.
 
 \bold{Disclaimer:} Professor Tsamardinos is the creator of this package. Dr Lagani supervised Mr Athineou built it
 and Dr Tsagris is the maintainer.

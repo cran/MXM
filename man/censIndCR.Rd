@@ -17,76 +17,64 @@ The main task of this test is to provide a p-value PVALUE for the null hypothesi
 }
 
 \usage{
-censIndCR(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
-univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
-robust = FALSE)
+censIndCR(target, dataset, xIndex, csIndex, wei = NULL,  
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL)
 
-censIndWR(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
-univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
-robust = FALSE)
+censIndWR(target, dataset, xIndex, csIndex, wei = NULL, 
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL)
 
-censIndER(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
-univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
-robust = FALSE)
+censIndER(target, dataset, xIndex, csIndex, wei = NULL, 
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL)
 
-permCR(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
+permCR(target, dataset, xIndex, csIndex, wei = NULL, 
 univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
-robust = FALSE, threshold = 0.05, R = 999)
+threshold = 0.05, R = 999)
 
-permWR(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
+permWR(target, dataset, xIndex, csIndex, wei = NULL, 
 univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
-robust = FALSE, threshold = 0.05, R = 999)
+threshold = 0.05, R = 999)
 
-permER(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
+permER(target, dataset, xIndex, csIndex, wei = NULL, 
 univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
-robust = FALSE, threshold = 0.05, R = 999)
+threshold = 0.05, R = 999)
 
-waldCR(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
-univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
-robust = FALSE)
+waldCR(target, dataset, xIndex, csIndex, wei = NULL,
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL)
 
-waldWR(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
-univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
-robust = FALSE)
+waldWR(target, dataset, xIndex, csIndex, wei = NULL, 
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL)
 
-waldER(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, 
-univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
-robust = FALSE)
+waldER(target, dataset, xIndex, csIndex, wei = NULL,
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL)
 }
 
 \arguments{
-  \item{target}{
+\item{target}{
 A Survival object (class Surv from package survival) containing the time to event data (time) and the status indicator vector (event). View \link{Surv} documentation for more information. 
 }
-  \item{dataset}{
-  A numeric matrix or data frame, in case of categorical predictors (factors), containing the variables for performing the test. Rows as samples and columns as features. In the cases of "waldCR", "waldWR", "waldER", "waldCR", "permWR" and "permER" this is strictly a matrix. 
+\item{dataset}{
+A numeric matrix or data frame, in case of categorical predictors (factors), containing the variables for performing the test. Rows as samples and columns as features. In the cases of "waldCR", "waldWR", "waldER", "waldCR", "permWR" and "permER" this is strictly a matrix. 
 }
-  \item{xIndex}{
-  The index of the variable whose association with the target we want to test.
+\item{xIndex}{
+The index of the variable whose association with the target we want to test.
 }
-  \item{csIndex}{
-  The indices of the variables to condition on.
+\item{csIndex}{
+The indices of the variables to condition on.
 }
-  \item{wei}{
-  A vector of weights to be used for weighted regression. The default value is NULL. 
+\item{wei}{
+A vector of weights to be used for weighted regression. The default value is NULL. 
 }
-  \item{dataInfo}{
-  A list object with information on the structure of the data. Default value is NULL.
+\item{univariateModels}{
+Fast alternative to the hash object for univariate test. List with vectors "pvalues" (p-values), "stats" (statistics) and "flags" (flag = TRUE if the test was succesful) representing the univariate association of each variable with the target. Default value is NULL.
 }
-  \item{univariateModels}{
-  Fast alternative to the hash object for univariate test. List with vectors "pvalues" (p-values), "stats" (statistics) and "flags" (flag = TRUE if the test was succesful) representing the univariate association of each variable with the target. Default value is NULL.
-}
-  \item{hash}{
+\item{hash}{
 A boolean variable which indicates whether (TRUE) or not (FALSE) to use the hash-based implementation of the statistics of SES. Default value is FALSE. If TRUE you have to specify the stat_hash argument and the pvalue_hash argument.
 }
-  \item{stat_hash}{
+\item{stat_hash}{
 A hash object (hash package required) which contains the cached generated statistics of a SES run in the current dataset, using the current test.
 }
-  \item{pvalue_hash}{
+\item{pvalue_hash}{
 A hash object (hash package required) which contains the cached generated p-values of a SES run in the current dataset, using the current test.
-}
-  \item{robust}{
-A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robustified version of Cox regression. Currently the robust version is not available for this test. Note, that Cox and Weibull regressions offer robust (sandwich) estimation of the standard error of the coefficients, but not robust estimation of the parameters. 
 }
 \item{threshold}{
 Threshold (suitable values in [0,1]) for assessing p-values significance. 
@@ -118,9 +106,6 @@ A numeric value that represents the logarithm of the generated p-value.
 }
 \item{stat}{
 A numeric value that represents the generated statistic.
-}
-\item{flag}{
-A numeric value (control flag) which indicates whether the test was succesful (0) or not (1).
 }
 \item{stat_hash}{
 The current hash object used for the statistics. See argument stat_hash and details. If argument hash = FALSE this is NULL.

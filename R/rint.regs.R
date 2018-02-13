@@ -14,14 +14,67 @@ rint.regs <- function(target, dataset, targetID = -1, id, reps = NULL, tol = 1e-
   if ( sum(poia > 0) )  dataset[, poia] <- rnorm(n * length(poia) )
 
   if ( is.null(reps) ) {
-    y <- target
-    dataset <- as.matrix(dataset)
-    mod <- Rfast::rint.regs(target, dataset, id, logged = TRUE)
-    univariateModels$stat <- mod[, 1]
-    univariateModels$pvalue <- mod[, 2]
+    
+    ni <- tabulate(id)
+    ni2 <- ni^2
+    funa <- function(d, n, ni, ni2, S, hi2)   sum( log1p(ni * d) ) + n * log(S - d * sum(ni2 * hi2/ (1 + ni * d) ) )    
+    sy <- as.vector( rowsum(target, id) )
+    my <- sy / ni
+    Sy <- sum(sy)
+    r <- as.vector( cov(target, dataset) )
+    mesi <- Sy/n
+    xs <- colsums(dataset)
+    xs2 <- colsums(dataset^2)
+    vx <- (xs2 - xs^2/n)/(n - 1)
+    b <- r/vx
+    a <- mesi - b * xs/n
+    be <- cbind(a, b)   
+    stat <- numeric(D)
+    sx <- cbind(ni, ni)
+    xx <- matrix( c(n, 0, 0, 0), 2, 2)
+    sxy <- c(Sy, Sy)
+    ##############
+    for (i in 1:D) {
+      Xi <- dataset[, i]
+      xx[2:3] <- xs[i]
+      xx[4] <- xs2[i] 
+      sx[, 2] <- rowsum(Xi, id)
+      sxy[2] <- sum(Xi * target)
+      mx <- sx[, 2]/ni
+      #############
+      b1 <- be[i, ] 
+      S <- sum( (target - b1[1] - b1[2] * Xi )^2 )
+      hi2 <- ( my - b1[1] - b1[2] * mx )^2
+      mod <- optimise(funa, c(0, 50), n = n, ni = ni, ni2 = ni2, S = S, hi2 = hi2, tol = tol)
+      d <- mod$minimum 
+      tcom <- t( sx/(1+ ni * d) )
+      A <- xx - d * tcom %*% sx
+      B <- sxy - d * tcom %*% sy
+      down <- A[1,1] * A[2, 2] - A[1, 2]^2
+      b2 <- c(A[2, 2] * B[1] - A[1, 2] * B[2], - A[1, 2] * B[1] + A[1, 1] * B[2])/down
+      ###########
+      while ( sum( abs(b2 - b1) ) > tol ) {
+        b1 <- b2
+        S <- sum( (target - b1[1] - b1[2] * Xi )^2 )
+        hi2 <- ( my - b1[1] - b1[2] * mx )^2
+        mod <- optimise(funa, c(0, 50), n = n, ni = ni, ni2 = ni2, S = S, hi2 = hi2, tol = tol)
+        d <- mod$minimum 
+        tcom <- t( sx/(1+ ni * d) )
+        A <- xx - d * tcom %*% sx
+        B <- sxy - d * tcom %*% sy
+        down <- A[1,1] * A[2, 2] - A[1, 2]^2
+        b2 <- c(A[2, 2] * B[1] - A[1, 2] * B[2], - A[1, 2] * B[1] + A[1, 1] * B[2])/down
+      }
+      se <- (S - d * sum(ni2 * hi2/ (1 + ni * d) ) )/n
+      seb <- A[1, 1] / down * se
+      stat[i] <- b2[2]^2 / seb
+    }
+    univariateModels$stat <- stat
+    univariateModels$pvalue <- pf(stat, 1, n - 4, lower.tail = FALSE, log.p = TRUE)
+
   } else {
     
-    sy <- as.vector( Rfast::group.sum(target, id) )
+    sy <- as.vector( rowsum(target, id) )
     ni <- tabulate(id)
     my <- sy / ni
     ni2 <- ni^2
@@ -68,6 +121,5 @@ rint.regs <- function(target, dataset, targetID = -1, id, reps = NULL, tol = 1e-
 
   univariateModels
 }   
-
 
 

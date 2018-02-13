@@ -1,4 +1,4 @@
-perm.min_assoc = function(target, dataset, test, max_k, cvar, wei, selectedVars, pvalues, stats, univariateModels, selectedVarsOrder, hash, dataInfo, stat_hash, pvalue_hash, robust, threshold, R, ncores)
+perm.min_assoc = function(target, dataset, test, max_k, cvar, wei, selectedVars, pvalues, stats, univariateModels, selectedVarsOrder, hash, stat_hash, pvalue_hash, threshold, R, ncores)
 {
   #initialization
   #baseline values
@@ -23,11 +23,11 @@ perm.min_assoc = function(target, dataset, test, max_k, cvar, wei, selectedVars,
     for ( i in 1:ncol(subsetcsk) ) {
       s = subsetcsk[,i];
       s = t(t(s));
-      cur_results = test(target = target, dataset = dataset, xIndex = cvar, csIndex = s, wei = wei, dataInfo = dataInfo, univariateModels = univariateModels, hash = hash, stat_hash = stat_hash, pvalue_hash = pvalue_hash, robust = robust, threshold = threshold, R = R);
+      cur_results = test(target = target, dataset = dataset, xIndex = cvar, csIndex = s, wei = wei, univariateModels = univariateModels, hash = hash, stat_hash = stat_hash, pvalue_hash = pvalue_hash, threshold = threshold, R = R);
       stat_hash = cur_results$stat_hash;
       pvalue_hash = cur_results$pvalue_hash;
       #check if the pvalues and stats should be updated
-      if ( cur_results$flag == 1 & !compare_p_values(cur_results$pvalue, ma_pvalue, cur_results$stat, ma_stat) ) {
+      if ( !compare_p_values(cur_results$pvalue, ma_pvalue, cur_results$stat, ma_stat) ) {
         ma_pvalue = cur_results$pvalue;
         pvalues[[cvar]] = cur_results$pvalue;
         ma_stat = cur_results$stat;
@@ -36,6 +36,6 @@ perm.min_assoc = function(target, dataset, test, max_k, cvar, wei, selectedVars,
     }
     ck = ck + 1;
   }
-  results <- list(pvalue = ma_pvalue, stat = ma_stat, pvalues = pvalues, stats = stats, stat_hash=stat_hash, pvalue_hash = pvalue_hash, rob = robust);
+  results <- list(pvalue = ma_pvalue, stat = ma_stat, pvalues = pvalues, stats = stats, stat_hash=stat_hash, pvalue_hash = pvalue_hash);
   return(results);
 }

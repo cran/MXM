@@ -11,8 +11,8 @@
 setOldClass('proc_time')
 
 setClass(Class='mammpc.output', 
-         slots=list(selectedVars='numeric', selectedVarsOrder='numeric', hashObject='list', pvalues='numeric', stats='numeric', univ='list', max_k='numeric', threshold='numeric', runtime='proc_time', test='character', rob='logical'), 
-         prototype=list(selectedVars=NULL, selectedVarsOrder=NULL, hashObject=NULL, pvalues=NULL, stats=NULL, univ=NULL, max_k=NULL, threshold=NULL, runtime=NULL, test=NULL, rob=NULL));
+         slots=list(selectedVars='numeric', selectedVarsOrder='numeric', hashObject='list', pvalues='numeric', stats='numeric', univ='list', max_k='numeric', threshold='numeric', runtime='proc_time', test='character'), 
+         prototype=list(selectedVars=NULL, selectedVarsOrder=NULL, hashObject=NULL, pvalues=NULL, stats=NULL, univ=NULL, max_k=NULL, threshold=NULL, runtime=NULL, test=NULL));
 
 setMethod("summary", signature(object="mammpc.output"), 
           function(object){
@@ -41,10 +41,6 @@ setMethod("summary", signature(object="mammpc.output"),
               cat(x@test);
               cat("\nTotal Runtime:\n")
               print(x@runtime)
-              #cat("    user system elapsed\n")
-              #print(x@runtime[1:3]);
-              cat("\nRobust:\n")
-              print(x@rob)
             }else{
               cat("\nSelected Variables: ")
               print(x@selectedVars);
@@ -66,10 +62,6 @@ setMethod("summary", signature(object="mammpc.output"),
               cat(x@test);
               cat("\nTotal Runtime:\n")
               print(x@runtime)
-              #cat("    user system elapsed\n")
-              #print(x@runtime[1:3]);
-              cat("\nRobust:\n")
-              print(x@rob)
             }
           }
 );

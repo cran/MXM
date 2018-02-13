@@ -1,6 +1,5 @@
-wald.mmpc = function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini = NULL, wei = NULL, user_test = NULL, hash=FALSE, hashObject=NULL, robust = FALSE, ncores = 1, backward = FALSE)
-{
-  threshold = log(threshold)
+wald.mmpc = function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini = NULL, wei = NULL, user_test = NULL, 
+                     hash=FALSE, hashObject=NULL, ncores = 1, backward = FALSE) {
   ##############################
   # initialization part of MMPC 
   #############################
@@ -23,7 +22,6 @@ wald.mmpc = function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, 
       return(NULL);
     }
   }
-  dataInfo = NULL;
   ###################################
   # dataset checking and initialize #
   ###################################
@@ -77,11 +75,9 @@ wald.mmpc = function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, 
       #if target is a factor then use the Logistic test
       if ( "factor" %in% class(target) )  {
         if ( is.ordered(target) & la > 2 )  {
-          dataInfo$target_type = "ordinal";
           test = waldOrdinal
         } else {
-          dataInfo$target_type = "binary"
-          test = waldBinary
+          test = waldLogistic
         }
         
       } else if ( ( is.numeric(target) || is.integer(target) ) & survival::is.Surv(target) == FALSE ) {
@@ -96,9 +92,9 @@ wald.mmpc = function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, 
     }
     #cat("\nConditional independence test used: ");cat(test);cat("\n");
     #available conditional independence tests
-    av_tests = c("waldBeta", "waldCR", "waldWR", "waldER", "waldClogit", "waldBinary", "waldPois", "waldNB", 
-                 "waldBinom", "auto", "waldZIP", "waldSpeedglm", "waldMMreg", "waldIGreg", "waldOrdinal",
-                 "waldGamma", "waldNormLog", "waldTobit", NULL);
+    av_tests = c("waldBeta", "waldCR", "waldWR", "waldER", "waldClogit", "waldLogistic", "waldPois", "waldNB", 
+                 "waldBinom", "auto", "waldZIP", "waldMMReg", "waldIGreg", "waldOrdinal", "waldGamma", 
+				 "waldNormLog", "waldTobit", "waldQPois", "waldQBinom", NULL);
     ci_test = test
     #cat(test)
     if ( length(test) == 1 ) {   #avoid vectors, matrices etc
@@ -107,18 +103,15 @@ wald.mmpc = function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, 
       if (test == "waldBeta") {
         test = waldBeta;
 
-      } else if (test == "waldMMreg") {
-        test = waldMMreg;
+      } else if (test == "waldMMReg") {
+        test = waldMMReg;
         
       } else if (test == "waldIGreg") {
         test = waldIGreg;
         
       } else if (test == "waldPois") { 
         test = waldPois;
-        
-      } else if (test == "waldSpeedglm") {
-        test = waldSpeedglm;
-        
+
       } else if (test == "waldNB") {
         test = waldNB;
         
@@ -146,11 +139,18 @@ wald.mmpc = function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, 
       } else if (test == "waldBinom") {
         test = waldBinom;
         
-      } else if (test == "waldBinary") {
-        test = waldBinary;
+      } else if (test == "waldLogistic") {
+        test = waldLogistic;
         
       } else if (test == "waldOrdinal") {
         test = waldOrdinal;
+        
+      } else if (test == "waldQPois") {
+        test = waldQPois;
+        
+      } else if (test == "waldQBinom") {
+        test = waldQBinom;
+        
       }
       #more tests here
     } else {
@@ -166,27 +166,23 @@ wald.mmpc = function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, 
   #option checking
   if ( (typeof(max_k)!="double") || max_k < 1 )   stop('invalid max_k option');
   if ( max_k > varsize )    max_k = varsize;
-  if ( (typeof(threshold) != "double") || exp(threshold) >= 1 )   stop('invalid threshold option');
-  # if(typeof(equal_case)!="double")
-  # {
-  #   stop('invalid equal_case option');
-  # }
+  if ( (typeof(threshold) != "double" ) || threshold <= 0  ||  threshold > 1 )    stop('invalid threshold option');
   #######################################################################################
   if ( !is.null(user_test) )  ci_test = "user_test";
   #call the main MMPC function after the checks and the initializations
   options(warn = -1)
-  results = wald.Internalmmpc(target, dataset, max_k, threshold, test, ini, wei, user_test, dataInfo, hash, varsize, stat_hash, pvalue_hash, targetID, robust = robust, ncores = ncores);
+  results = wald.Internalmmpc(target, dataset, max_k, log(threshold), test, ini, wei, user_test, hash, varsize, stat_hash, pvalue_hash, targetID, ncores = ncores);
 
   if ( backward ) {
     varsToIterate = results$selectedVars
     varsOrder = results$selectedVarsOrder
-    bc <- mmpcbackphase(target, dataset[, varsToIterate], test = test, wei = wei, max_k = max_k, threshold = exp(threshold), robust = robust ) 
+    bc <- mmpcbackphase(target, dataset[, varsToIterate], test = test, wei = wei, max_k = max_k, threshold = threshold ) 
     met <- bc$met
     results$selectedVars = varsToIterate[met]
     results$selectedVarsOrder = varsOrder[met]
     results$n.tests <- results$n.tests + bc$counter
   }
-  MMPCoutput <-new("MMPCoutput", selectedVars = results$selectedVars, selectedVarsOrder=results$selectedVarsOrder, hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, univ=results$univ, max_k=results$max_k, threshold = results$threshold, n.tests = results$n.tests, runtime=results$runtime, test=ci_test, rob = robust);
+  MMPCoutput <-new("MMPCoutput", selectedVars = results$selectedVars, selectedVarsOrder=results$selectedVarsOrder, hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, univ=results$univ, max_k=results$max_k, threshold = results$threshold, n.tests = results$n.tests, runtime=results$runtime, test=ci_test);
   return(MMPCoutput);
 }
 

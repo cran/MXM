@@ -1,17 +1,14 @@
-wald.Internalmmpc = function(target, dataset, max_k, threshold, test=NULL, ini=NULL, wei=NULL, user_test=NULL, dataInfo=NULL, hash=FALSE, varsize, stat_hash, pvalue_hash, targetID, robust, ncores)
+wald.Internalmmpc = function(target, dataset, max_k, threshold, test=NULL, ini=NULL, wei=NULL, user_test=NULL, hash=FALSE, varsize, stat_hash, pvalue_hash, targetID, ncores)
 {
   #get the current time
   runtime <- proc.time();
   #univariate feature selection test
   if ( is.null(ini) ) { 
-    univariateModels = wald.univregs(target = target, dataset = dataset, targetID = targetID, test = test, user_test = user_test, wei = wei, dataInfo = dataInfo, ncores = ncores) 
+    univariateModels = wald.univregs(target = target, dataset = dataset, targetID = targetID, test = test, user_test = user_test, wei = wei, ncores = ncores) 
   } else  univariateModels = ini
   
   pvalues = univariateModels$pvalue;      
   stats = univariateModels$stat;
-  flags = univariateModels$flag;
-  #   stat_hash = univariateModels$stat_hash;
-  #   pvalue_hash = univariateModels$pvalue_hash;
   #if we dont have any associations , return
   if ( min(pvalues, na.rm = TRUE) > threshold )  {
     #cat('No associations!');
@@ -23,15 +20,14 @@ wald.Internalmmpc = function(target, dataset, max_k, threshold, test=NULL, ini=N
     results$hashObject = NULL;
     class(results$hashObject) = 'list';
     class(results$univ) = 'list';
-    results$pvalues = exp(pvalues);
+    results$pvalues = pvalues;
     results$stats = stats;
     results$univ = univariateModels
     results$max_k = max_k;
-    results$threshold = exp(threshold);
+    results$threshold = threshold;
     runtime = proc.time() - runtime;
     results$runtime = runtime;
-    results$rob = robust
-    results$n.tests <- length(flags)
+    results$n.tests <- length(stats)
     
     return(results);
   }
@@ -39,13 +35,9 @@ wald.Internalmmpc = function(target, dataset, max_k, threshold, test=NULL, ini=N
   selectedVars = numeric(varsize);
   selectedVarsOrder = numeric(varsize);
   #select the variable with the highest association
-  #selectedVar = which(flags == 1 & stats == stats[[which.max(stats)]]);
-  selectedVar = which(flags == 1 & pvalues == pvalues[[which.min(pvalues)]]);
+  selectedVar = which( pvalues == pvalues[[which.min(pvalues)]] );
   selectedVars[selectedVar] = 1;
   selectedVarsOrder[selectedVar] = 1; #CHANGE
-  #print(paste("rep: ",0,", selected var: ",selectedVar,", pvalue = ",exp(pvalues[selectedVar])))
-  #lets check the first selected var
-  #cat('First selected var: %d, p-value: %.6f\n', selectedVar, pvalues[selectedVar]);
   #remaining variables to be considered
   remainingVars = numeric(varsize) + 1;
   remainingVars[selectedVar] = 0;
@@ -57,7 +49,7 @@ wald.Internalmmpc = function(target, dataset, max_k, threshold, test=NULL, ini=N
   loop = any(as.logical(remainingVars));
   #rep = 1;
   while (loop) {
-    max_min_results = max_min_assoc(target, dataset, test, wei, threshold, max_k, selectedVars, pvalues, stats, remainingVars , univariateModels, selectedVarsOrder, hash=hash, dataInfo, stat_hash=stat_hash, pvalue_hash=pvalue_hash, robust = robust, ncores = ncores);
+    max_min_results = max_min_assoc(target, dataset, test, wei, threshold, max_k, selectedVars, pvalues, stats, remainingVars , univariateModels, selectedVarsOrder, hash=hash, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
     selectedVar = max_min_results$selected_var;
     selectedPvalue = max_min_results$selected_pvalue;
     remainingVars = max_min_results$remainingVars;
@@ -80,10 +72,6 @@ wald.Internalmmpc = function(target, dataset, max_k, threshold, test=NULL, ini=N
   selectedVarsOrder[which(!selectedVars)] = varsize;#
   numberofSelectedVars = sum(selectedVars);#
   selectedVarsOrder = sort(selectedVarsOrder);#
-  #   selectedVars = selectedVarsOrder[1:numberofSelectedVars];
-  # #queues correctness
-  # all_queues = queues
-  # queues = queues[which(selectedVars==1)];
   # queues <- lapply(1:length(queues) , function(i){queues[[i]] = unique(queues[[i]]);});
   #adjusting the results
   if(targetID > 0) {
@@ -100,19 +88,13 @@ wald.Internalmmpc = function(target, dataset, max_k, threshold, test=NULL, ini=N
   hashObject$pvalue_hash = pvalue_hash
   results$hashObject = hashObject
   class(results$hashObject) = 'list'
-  results$pvalues = exp(pvalues)
+  results$pvalues = pvalues
   results$stats = stats;
   results$univ = univariateModels
-  #   results$all_queues = all_queues;
-  #   already known
-  #   results$data = dataset;
-  #   results$target = target;
-  #   results$test = test;
   results$max_k = max_k
-  results$threshold = exp(threshold)
+  results$threshold = threshold
   runtime = proc.time() - runtime
   results$runtime = runtime
-  results$rob = robust
-  results$n.tests <- length(flags) + length( hashObject$stat_hash )
+  results$n.tests <- length(stats) + length( hashObject$stat_hash )
   return(results)
 }

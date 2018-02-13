@@ -1,4 +1,4 @@
-clogit.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold = 0.05, tol = 2, heavy, robust = FALSE, ncores = 1) {
+clogit.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold = 0.05, tol = 2, ncores = 1) {
 
   threshold <- log(threshold)
   
@@ -19,7 +19,8 @@ clogit.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold
   pa <- NCOL(iniset)
   da <- 1:pa
   dataset <- cbind(iniset, dataset)
-
+  dataset <- as.data.frame(dataset) 
+    
   runtime <- proc.time()
   
   devi = dof = numeric(p)

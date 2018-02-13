@@ -9,9 +9,7 @@ IAMB backward selection phase.
 }
 
 \usage{
-iamb.bs(target, dataset, threshold = 0.05, wei = NULL, test = NULL, user_test = NULL, 
-robust = FALSE)
-
+iamb.bs(target, dataset, threshold = 0.05, wei = NULL, test = NULL, user_test = NULL)
 }
 
 \arguments{
@@ -20,7 +18,7 @@ The class variable. Provide either a string, an integer, a numeric value, a vect
 }
 \item{dataset}{
 The dataset; provide either a data frame or a matrix (columns = variables, rows = observations). In either case, only two cases are avaialble, either all data are continuous, or categorical. 
-  }
+}
 \item{threshold}{
 Threshold (suitable values in (0,1)) for assessing p-values significance. Default value is 0.05.
 }
@@ -32,9 +30,6 @@ A vector of weights to be used for weighted regression. The default value is NUL
 }
 \item{user_test}{
 A user-defined conditional independence test (provide a closure type object). Default value is NULL. If this is defined, the "test" argument is ignored.
-}
-\item{robust}{
-A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust version of the statistical test if it is available.  It takes more time than a non robust version but it is suggested in case of outliers. Default value is FALSE.
 }
 }
 \details{
@@ -65,9 +60,9 @@ Tsamardinos, I., Aliferis, C. F., Statnikov, A. R., & Statnikov, E. (2003). Algo
 }
 
 \author{
-  Michail Tsagris
+Michail Tsagris
   
-  R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 
 \seealso{

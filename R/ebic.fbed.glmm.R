@@ -1,8 +1,8 @@
-ebic.fbed.glmm <- function(y, x, id, gam = NULL, wei = NULL, K = 0, type = "logistic") { 
+ebic.fbed.glmm <- function(y, x, id, univ = NULL, gam = NULL, wei = NULL, K = 0, test = "testIndGLMMLogistic") { 
 
-  if (type == "logistic") {
+  if (test == "testIndGLMMLogistic") {
     oiko <- binomial(logit)
-  } else if (type == "poisson") {  
+  } else if (test == "testIndGLMMPois") {  
     oiko <- poisson(log)
   } 
   
@@ -16,18 +16,26 @@ ebic.fbed.glmm <- function(y, x, id, gam = NULL, wei = NULL, K = 0, type = "logi
   
   if ( is.null(gam) ) {
     con <- 2 - log(p) / log(n)
-    if ( (con) < 0 )  con <- 0
-  } else con <- 2 * gam
+  } else  con <- 2 * gam
+  if ( con < 0 )  con <- 0
   lik1 <- BIC( lme4::glmer(y ~ 1 + (1|id), family = oiko, weights = wei) ) 
   
   runtime <- proc.time()
   
-  for ( i in ind ) {
-    fit2 <- lme4::glmer( y ~ x[, i] + (1|id), family = oiko, weights = wei ) 
-    lik2[i] <- BIC(fit2) + con * log(p)
-  }
-  n.tests <- p
-  stat <- lik1 - lik2
+  if ( is.null(univ) ) {
+    for ( i in ind ) {
+      fit2 <- lme4::glmer( y ~ x[, i] + (1|id), family = oiko, weights = wei ) 
+      lik2[i] <- BIC(fit2) + con * log(p)
+    }
+    n.tests <- p
+    stat <- lik1 - lik2
+    univ <- list()
+    univ$ebic <- lik2
+  } else {
+    n.tests <- 0
+    lik2 <- univ$ebic
+    stat <- lik1 - lik2
+  }  
   s <- which(stat > 0)
   
   if ( length(s) > 0 ) {
@@ -189,9 +197,9 @@ ebic.fbed.glmm <- function(y, x, id, gam = NULL, wei = NULL, K = 0, type = "logi
     info <- matrix(c(0, p), ncol = 2)
   }
   
-  colnames(res) <- c("Vars", "eBIC")
+  colnames(res) <- c("Vars", "eBIC difference")
   rownames(info) <- paste("K=", 1:length(card)- 1, sep = "")
   colnames(info) <- c("Number of vars", "Number of tests")
-  list(res = res, info = info, runtime = runtime)
+  list(univ = univ, res = res, info = info, runtime = runtime)
   res
 }

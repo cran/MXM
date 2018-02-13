@@ -27,10 +27,10 @@ A numeric vector containing the values of the target variable. If the values are
 i.e. strictly within 0 and 1 they are mapped into R using log( target/(1 - target) ). It can also discrete data, binary data (as factor), nominal or ordinal data (as factor). In contrast to SES, no position of the target variable in the dataset is accepted. The target must be a numerical vector.
 }
 \item{dataset}{
-A numeric matrix containing the variables. Rows are samples and columns are features. If you have categorical variables, this should be a data frame.
+A numeric matrix or data.frame containing the variables. Rows are samples and columns are features. If you have categorical variables, this should be a data frame.
 }
 \item{wei}{
-A vector of weights to be used for weighted regression. The default value is NULL. We suggest not to use weights if you choose testIndReg and robust = TRUE (robust regression via M estimation)
+A vector of weights to be used for weighted regression. The default value is NULL. 
 }
 \item{sesObject}{
 An object with the results of a SES run.
@@ -53,7 +53,7 @@ If you know the test used in SES put it here, otherwise leave it NULL. It will t
 }
 
 \details{
- This command is useful if you want to see all models and check for example their fitting ability, MSE in linear models for exmaple.
+This command is useful if you want to see all models and check for example their fitting ability, MSE in linear models for example.
 }
 
 \value{
@@ -61,7 +61,7 @@ A list including:
 \item{mod}{
 Depending on the number of signatures requested, one or models will be returned.
 }
-\item{ypografi}{
+\item{signature}{
 A matrix (or just one vector if one signature only) with the variables of each signature, along with the BIC of the corresponding regression model.
 }
 }
@@ -90,7 +90,7 @@ Mardia K.V., Kent J.T. and Bibby J.M. (1979). Multivariate Analysis, Academic Pr
 
 Maronna R.D. Yohai M.V. (2006). Robust Statistics, Theory and Methods. Wiley.
 
-McCullagh P., and Nelder J.A. (1989). Generalized linear models.  CRC press, USA, 2nd edition.
+McCullagh P., and Nelder J.A. (1989). Generalized linear models. CRC press, USA, 2nd edition.
 }
 
 \author{

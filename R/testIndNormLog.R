@@ -1,8 +1,7 @@
-testIndNormLog = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo = NULL, univariateModels = NULL , hash = FALSE, stat_hash = NULL, 
-                       pvalue_hash = NULL,robust = FALSE) 
-{
+testIndNormLog = function(target, dataset, xIndex, csIndex, wei = NULL, univariateModels = NULL , hash = FALSE, stat_hash = NULL, 
+                       pvalue_hash = NULL) {
   # TESTINDPOIS Conditional Independence Test for discrete class variables 
-  # PVALUE = TESTINDPOIS(Y, DATA, XINDEX, CSINDEX, DATAINFO)
+  # PVALUE = TESTINDPOIS(Y, DATA, XINDEX, CSINDEX)
   # This test provides a p-value PVALUE for the NULL hypothesis H0 which is
   # X is independent by TARGET given CS. The pvalue is calculated following
   # nested models
@@ -12,16 +11,13 @@ testIndNormLog = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo
   #   DATASET: a numeric data matrix containing the variables for performing the test. They can be mixed variables. 
   #   XINDEX: the index of the variable whose association with the target we want to test. 
   #   CSINDEX: the indices if the variable to condition on. 
-  #   DATAINFO: information on the structure of the data
-  # this method returns: the pvalue PVALUE, the statistic STAT and a control variable FLAG.
-  # if FLAG == 1 then the test was performed succesfully
+  # this method returns: the pvalue PVALUE, the statistic STAT.
   # References
   # [1] McCullagh, Peter, and John A. Nelder. Generalized linear models. CRC press, USA, 2nd edition, 1989.
   #initialization
   #if the test cannot performed succesfully these are the returned values
   pvalue = log(1);
   stat = 0;
-  flag = 0;
   csIndex[which(is.na(csIndex))] = 0;
   
   if( hash )  {
@@ -29,13 +25,11 @@ testIndNormLog = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo
     csIndex2 = sort(csIndex2)
     xcs = c(xIndex,csIndex2)
     key = paste(as.character(xcs) , collapse=" ");
-    if( !is.null(stat_hash[[key]]) )
-    {
+    if( !is.null(stat_hash[[key]]) )  {
       stat = stat_hash[[key]];
       pvalue = pvalue_hash[[key]];
-      flag = 1;
       
-      results <- list(pvalue = pvalue, stat = stat, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+      results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
       return(results);
     }
   }
@@ -47,18 +41,17 @@ testIndNormLog = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo
       stat_hash[[key]] <- 0;    #.set(stat_hash , key , 0)
       pvalue_hash[[key]] <- log(1);   #.set(pvalue_hash , key , 1)
     }
-    results <- list(pvalue = log(1), stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+    results <- list(pvalue = log(1), stat = 0, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
     return(results);
   }
   #check input validity
   if(xIndex < 0 || csIndex < 0) {
     message(paste("error in testIndPois : wrong input of xIndex or csIndex"))
-    results <- list(pvalue = pvalue, stat = stat, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+    results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
     return(results);
   }
   xIndex = unique(xIndex);
   csIndex = unique(csIndex);
-  #extract the data
   x = dataset[ , xIndex];
   cs = dataset[ , csIndex];
   #That means that the x variable does not add more information to our model due to an exact copy of this in the cs, so it is independent from the target
@@ -69,7 +62,7 @@ testIndNormLog = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo
           stat_hash[[key]] <- 0;    #.set(stat_hash , key , 0)
           pvalue_hash[[key]] <- log(1);     #.set(pvalue_hash , key , 1)
         }
-        results <- list(pvalue = log(1), stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+        results <- list(pvalue = log(1), stat = 0, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
         return(results);
       }
     } else { #more than one var
@@ -79,7 +72,7 @@ testIndNormLog = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo
             stat_hash[[key]] <- 0;   #.set(stat_hash , key , 0)
             pvalue_hash[[key]] <- log(1);   #.set(pvalue_hash , key , 1)
           }
-          results <- list(pvalue = log(1), stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+          results <- list(pvalue = log(1), stat = 0, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
           return(results);
         }
       }
@@ -97,13 +90,11 @@ testIndNormLog = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo
   df1 <- mod[2, 3]
   df2 <- mod[2, 1]
   pvalue = pf( stat, df1, df2, lower.tail = FALSE, log.p = TRUE ) 
-  flag = 1;
   
   #last error check
   if ( is.na(pvalue) || is.na(stat) )   {
     pvalue = log(1);
     stat = 0;
-    flag = 0;
   } else {
     #update hash objects
     if ( hash )  {
@@ -112,6 +103,6 @@ testIndNormLog = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo
     }
   }
   #testerrorcaseintrycatch(4);
-  results <- list(pvalue = pvalue, stat = stat, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+  results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
   return(results)  
 }

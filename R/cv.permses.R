@@ -199,11 +199,9 @@ cv.permses <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, a
     
     opti <- Rfast::rowmeans(mat)
     bestpar <- which.max(opti)
-    estb <- abs( sum( mat[bestpar, ] - Rfast::colMaxs(mat, value = TRUE) ) / kfolds )    ##   apply(mat, 2, max) ) ) / kfolds 
     
     best_model$best_configuration <- conf_ses[[bestpar]]$configuration
     best_model$best_performance <- max( opti )
-    best_model$BC_best_perf <- best_model$best_performance - estb
     best_model$runtime <- proc.time() - tic 
     
     result <- best_model
@@ -406,10 +404,9 @@ rq.mxm <- function(train_target, sign_data, sign_test, wei) { ## used for univar
   list(preds = preds, theta = NULL)
 }
 
-## robust linear regression
 lmrob.mxm <- function(train_target, sign_data, sign_test, wei) { ## used for univariate and multivariate target in classical regression
   x <- sign_data
-  sign_model <- MASS::rlm( train_target ~ ., data = data.frame(x), maxit = 2000, weights = wei, methpd = "MM" );
+  sign_model <- MASS::rlm( train_target ~ ., data = data.frame(x), maxit = 2000, weights = wei, method = "MM" );
   x <- sign_test
   preds <- predict( sign_model, newdata = data.frame(x) )
   list(preds = preds, theta = NULL)

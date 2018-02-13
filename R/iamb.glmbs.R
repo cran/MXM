@@ -1,4 +1,4 @@
-iamb.glmbs <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, heavy = FALSE, robust = FALSE) {
+iamb.glmbs <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL) {
   
   threshold <- log(threshold)
   dm <- dim(dataset)
@@ -7,6 +7,7 @@ iamb.glmbs <- function(target, dataset, threshold = 0.05, wei = NULL, test = NUL
   if ( p > n ) {
     res <- paste("The number of variables is hiher than the sample size. No backward procedure was attempted")
   } else {
+    dataset <- as.data.frame(dataset)
     ##################################
     # target checking and initialize #
     ################################## 
@@ -23,13 +24,12 @@ iamb.glmbs <- function(target, dataset, threshold = 0.05, wei = NULL, test = NUL
       } else   funa <- internaliamb.lmbs
       
     } else {
-      la <- length( unique(target) )
-      if ( la == 2 ) {
+      if ( length( unique(target) ) == 2 ) {
         ci_test <- "testIndLogistic"
         funa <- internaliamb.binombs
       } else if ( is.matrix(target) ) {
         ci_test <- "testIndBinom"
-      } else if (la > 2  &  sum( target - round(target) ) == 0 ) {
+      } else if ( length( unique(target) ) > 2  &  sum(target - round(target)) == 0 ) {
         ci_test <- "testIndPois"
         funa <- internaliamb.poisbs
       } else {
@@ -38,7 +38,7 @@ iamb.glmbs <- function(target, dataset, threshold = 0.05, wei = NULL, test = NUL
       }  
     }
     
-    a1 <- funa( target = target, dataset = dataset, threshold = threshold, wei = wei, p = p, heavy = heavy, robust = robust ) 
+    a1 <- funa( target = target, dataset = dataset, threshold = threshold, wei = wei, p = p ) 
     ind <- 1:p
     a2 <- list()
     poies <- a1$mat[, 1]
@@ -46,7 +46,7 @@ iamb.glmbs <- function(target, dataset, threshold = 0.05, wei = NULL, test = NUL
       ind[-poies] <- 0
       ind <- ind[ind > 0]
       dat <- dataset[, poies, drop = FALSE ]
-      a2 <- funa(target = target, dataset = dat, threshold = threshold, wei = wei, p = length(ind), heavy = heavy, robust = robust )  
+      a2 <- funa(target = target, dataset = dat, threshold = threshold, wei = wei, p = length(ind) )  
       poies <- a2$mat[, 1]
       ind[-poies] <- 0
       ind <- ind[ind > 0]
@@ -59,7 +59,7 @@ iamb.glmbs <- function(target, dataset, threshold = 0.05, wei = NULL, test = NUL
     while ( length(a1$mat[, 1]) - length(a2$mat[, 1]) != 0 ) {
       i <- i + 1
       a1 <- a2
-      a2 <- funa( target = target, dataset = dat, threshold = threshold, wei = wei, p = length(ind), heavy = heavy, robust = robust ) 
+      a2 <- funa( target = target, dataset = dat, threshold = threshold, wei = wei, p = length(ind) ) 
       poies <- a2$mat[, 1]
       if ( length(poies) > 0 ) {
         ind[-poies] <- 0

@@ -1,4 +1,4 @@
-bic.fsreg <- function( target, dataset, test = NULL, wei = NULL, tol = 2, robust = FALSE, ncores = 1 ) {
+bic.fsreg <- function( target, dataset, test = NULL, wei = NULL, tol = 2, ncores = 1 ) {
 
   p <- ncol(dataset)  ## number of variables
   bico <- numeric( p )
@@ -35,89 +35,72 @@ bic.fsreg <- function( target, dataset, test = NULL, wei = NULL, tol = 2, robust
   if ( is.null(test) ) {
     ## linear regression 
     if ( is.numeric(target)  ||  is.vector(target)  ) { 
-	 la <- length( unique(target) )
-	 
-	 if ( la > 2 ) {
-	   if ( sum( round(target) - target ) == 0 )   test <- "testIndPois" 
-	 } else if ( la == 2 ) {
-	    test <- "testIndLogistic" 
-     } else if ( min( target ) > 0  &  max( target ) < 1 )   target <- log( target / (1 - target) ) 
-      test <- "testIndReg"  
-    ## surival data
+	  la <- length( unique(target) )
+	  if ( la > 2 ) {
+	    if ( sum( round(target) - target ) == 0 )   test <- "testIndPois" 
+	   } else if ( la == 2 ) {
+	     test <- "testIndLogistic" 
+	   }	 
+       ## surival data
     } else if ( sum( class(target) == "Surv" ) == 1 ) {
       test <- "censIndCR"
-    ## ## ordinal, multinomial or perhaps binary data 
-    } else if ( length( unique(target) ) == 2  &  is.factor(target) ) {
-      test <- "testIndLogistic"   
-    }
-  }  ## end if ( is.null(test) )
+    }  ## end if ( is.null(test) )
     #available conditional independence tests
+  }	 ## end if ( is.null(test) )
     av_models = c("testIndReg", "testIndRQ", "testIndBeta", "censIndCR", "censIndWR", "testIndLogistic", "testIndPois", "testIndNB", 
-                  "testIndZIP", "testIndSpeedglm", "testIndGamma", "testIndNormLog", "testIndTobit"); 
+                  "testIndZIP", "testIndGamma", "testIndNormLog", "testIndTobit", "testIndMMReg"); 
   
   dataset <- as.data.frame(dataset)
     
-  if ( ( test == "testIndLogistic"  &  length( unique(target) ) == 2 )  ||  test == "testIndPois"  ||  test == "testIndReg" ) {
-    result <- bic.glm.fsreg( target, dataset, wei = wei, tol = tol, heavy = FALSE, robust = robust, ncores = ncores ) 
+  if ( test == "testIndLogistic"  |  test == "testIndPois"  ||  test == "testIndReg" ) {
+    result <- bic.glm.fsreg( target, dataset, wei = wei, tol = tol, ncores = ncores ) 
   
-  } else if ( test == "testIndspeedglm" ) {
-    
-    result <- bic.glm.fsreg( target, dataset, wei = wei, tol = tol, heavy = TRUE, robust = robust, ncores = ncores ) 
-    
   } else if ( test == "testIndBeta" ) {
-    
     result <- bic.betafsreg(target, dataset, wei = wei, tol = tol, ncores = ncores )
-  
+
+  } else if ( test == "testIndMMReg" ) {
+    result <- bic.mm.fsreg(target, dataset, wei = wei, tol = tol, ncores = ncores )
+	
   } else if ( test == "testIndZip" ) {
-    
     result <- bic.zipfsreg(target, dataset, wei = wei, tol = tol, ncores = ncores )
     
   } else if ( test == "testIndGamma" ) {
-    
     result <- bic.gammafsreg(target, dataset, wei = wei, tol = tol, ncores = ncores )
     
   } else if ( test == "testIndNormLog" ) {
-    
     result <- bic.normlog.fsreg(target, dataset, wei = wei, tol = tol, ncores = ncores )
-	
+
   } else if ( test == "testIndTobit" ) {
-    
     result <- bic.tobit.fsreg(target, dataset, wei = wei, tol = tol, ncores = ncores )
+	
+  } else if ( test == "censIndWR" ) {
+    result <- bic.wr.fsreg(target, dataset, wei = wei, tol = tol, ncores = ncores )
     
   } else if ( test == "testIndClogit" ) {
-    
     result <- bic.clogit.fsreg(target, dataset, wei = wei, tol = tol, ncores = ncores )
     
   } else {
  
     ci_test <- test <- match.arg(test, av_models ,TRUE);
     #convert to closure type
-  if ( test == "censIndCR" ) {
+    if ( test == "censIndCR" ) {
       test <- survival::coxph 
-      robust <- FALSE
 
 	} else if ( test == "censIndWR" ) {
       test <- survival::survreg 
-      robust <- FALSE
 
-  } else if ( test == "testIndLogistic" ) {
-	  if ( is.ordered(target) ) {      
-        test <- ordinal::clm
-        robust <- FALSE
-      } else {
-		test <- nnet::multinom  
-	    robust <- FALSE
-	  }
+    } else if ( test == "testIndOrdinal" ) {  
+      test <- ordinal::clm
+  
+    } else if (test == "testIndMultinom") {
+      test <- nnet::multinom 
       
-  } else if ( test == "testIndNB" ) {
+    } else if ( test == "testIndNB" ) {
       test <- MASS::glm.nb
-      robust <- FALSE
 
-	} else if ( test == "testIndRQ" ) {
+    } else if ( test == "testIndRQ" ) {
       test <- quantreg::rq 
-      robust <- FALSE
-
-  } 
+    } 
     runtime <- proc.time()
       
     ini <- test( target ~ 1 )

@@ -12,13 +12,13 @@ Variable selection in generalised linear regression models with forward selectio
 
 \usage{
 glm.fsreg(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, tol = 2, 
-heavy = FALSE, robust = FALSE, ncores = 1) 
+ncores = 1) 
 
 gammafsreg(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, tol = 2, 
-heavy = FALSE, robust = FALSE, ncores = 1) 
+ncores = 1) 
 
 normlog.fsreg(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, tol = 2, 
-heavy = FALSE, robust = FALSE, ncores = 1) 
+ncores = 1) 
 }
 
 \arguments{
@@ -39,13 +39,6 @@ A vector of weights to be used for weighted regression. The default value is NUL
 }
 \item{tol}{
 The difference bewtween two successive values of the stopping rule. By default this is is set to 2. If for example, the BIC difference between two succesive models is less than 2, the process stops and the last variable, even though significant does not enter the model.
-}
-\item{heavy}{
-A boolean variable specifying whether heavy computations are required or not. If for exmaple the dataset contains tens of thousands of rows, it is advised to used memory efficient GLMs and hence set this to TRUE.
-}
-\item{robust}{
-A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust version of the statistical test if it is available. It takes more time than a non robust version but it is suggested in case of outliers. 
-Default value is FALSE and this is currently supported only for the linear regression.
 }
 \item{ncores}{
 How many cores to use. This plays an important role if you have tens of thousands of variables or really large sample sizes and tens of thousands of variables and a regression based test which requires numerical optimisation. In other cammmb it will not make a difference in the overall time (in fact it can be slower). The parallel computation is used in the first step of the algorithm, where univariate associations are examined, those take place in parallel. We have seen a reduction in time of 50\% with 4 cores in comparison to 1 core. Note also, that the amount of reduction is not linear in the number of cores.
@@ -102,7 +95,7 @@ dataset <- matrix( runif(1000 * 50, 1, 100), ncol = 50 )
 #define a simulated class variable 
 target <- rpois(1000, 10)
 
-a <- glm.fsreg(target, dataset, threshold = 0.05, tol = 2, robust = FALSE, ncores = 1 ) 
+a <- glm.fsreg(target, dataset, threshold = 0.05, tol = 2, ncores = 1 ) 
 b <- MMPC(target, dataset, max_k = 3, threshold = 0.05, test = "testIndPois")
 }
 

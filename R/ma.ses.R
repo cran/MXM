@@ -17,7 +17,6 @@
 #   "testIndRQ" : Conditional Independence Test based on quantile (median) regression for numerical class variables and mixed predictors (F test)
 #   "testIndLogistic" : Conditional Independence Test based on logistic regression for binary,categorical or ordinal class variables and mixed predictors
 #   "testIndPois" : Conditional Independence Test based on Poisson regression for discrete class variables and mixed predictors (log-likelihood ratio test)
-#   "testIndSpeedglm" : Conditional Independence Test based on linear, binary logistic and poisson regression with mixed predictors (log-likelihood ratio test)
 #   "testIndZIP" : Conditional Independence Test based on zero inflated poisson regression for discrete class variables and mixed predictors (log-likelihood ratio test)
 #   "testIndNB" : Conditional Independence Test based on negative binomial regression for discrete class variables and mixed predictors (log-likelihood ratio test)
 #   "testIndBeta" : Conditional Independence Test based on beta regression for proportions and mixed predictors (log likelihood ratio test)
@@ -29,7 +28,6 @@
 # hashObject : a List with the hash objects (hash package) on which we have cached the generated statistics. 
 #              SES requires this Object for the hash-based implementation of the statistics. This hashObject is produced or 
 # updated by each run of SES (if hash == TRUE) and it can be reused in next runs of SES.
-# robust : Should the Fisher or the normal regression be robustly estimated? TRUE or FALSE 
 # there are default values for all of the parameters of the algorithm.
 # OUTPUT <LIST>
 # The output of the algorithm is a LIST with the following quantities (14) :
@@ -51,26 +49,20 @@
 # threshold : the threshold option used in the current run.
 # runtime : the run time of the algorithm.
 # Conditional independence test arguments have to be in this exact fixed order : 
-# target(target variable), data(dataset), xIndex(x index), csIndex(cs index), dataInfo(list), 
+# target(target variable), data(dataset), xIndex(x index), csIndex(cs index),
 # univariateModels(cached statistics for the univariate indepence test), hash(hash booleab), stat_hash(hash object), 
-# pvalue_hash(hash object), robust=robust
-# example: test(target, data, xIndex, csIndex, dataInfo=NULL, univariateModels=NULL, hash=FALSE, stat_hash=NULL, pvalue_hash=NULL, robust)
-# output of each test: LIST of the generated pvalue, stat, flag and the updated hash objects.
-# equal_case variable inside the code : it determines the method of the equivalent estimation
+# output of each test: LIST of the generated pvalue, stat, and the updated hash objects.
 #   if equal_case = 1 then, if we have more than one equivalent vars in z , we select the one with the most closer pvalue to the pvalue of cvar
 #   if equal_case = 2 then, if we have more than one equivalent vars in z , we select the one with the most minimum pvalue (>a)
 #   else in any other case, if we have more than one equivalent vars in z , we select the first one
 # In this version we support the equal_case = 3.
 # #hashObject
 # library(hash)
-ma.ses = function(target, dataset, ina, statistic = FALSE, max_k = 3 , threshold = 0.05 , test = NULL , ini = NULL, user_test = NULL, hash=FALSE, hashObject=NULL, robust = FALSE, ncores = 1)
-{
-  #get the log threshold
-  threshold = log(threshold)
+ma.ses = function(target, dataset, ina, statistic = FALSE, max_k = 3, threshold = 0.05, test = NULL , ini = NULL, user_test = NULL, 
+                  hash=FALSE, hashObject=NULL, ncores = 1) {
   ##############################
   # initialization part of SES #
   ##############################
-  equal_case = 3;
   stat_hash = NULL;
   pvalue_hash = NULL;
   
@@ -88,8 +80,6 @@ ma.ses = function(target, dataset, ina, statistic = FALSE, max_k = 3 , threshold
       return(NULL);
     }
   }
-  
-  dataInfo = NULL;
   ##################################
   # target checking and initialize #
   ##################################
@@ -119,18 +109,16 @@ ma.ses = function(target, dataset, ina, statistic = FALSE, max_k = 3 , threshold
   ################################
   #cat("\nConditional independence test used: ");cat(test);cat("\n");
     #available conditional independence tests
-    av_tests = c("testIndFisher", "testIndSpearman", "testIndReg", "testIndRQ", "testIndBeta", "censIndCR","censIndWR", "testIndClogit", "testIndLogistic", "testIndPois", "testIndNB", "testIndBinom", "gSquare", "auto" , "testIndZIP" , "testIndSpeedglm", "testIndMVreg", NULL);
+    av_tests = c("testIndFisher", "testIndSpearman", "testIndReg", "testIndRQ", "testIndBeta", "censIndCR","censIndWR", 
+	             "testIndClogit", "testIndLogistic", "testIndPois", "testIndNB", "testIndBinom", "gSquare", "auto" , 
+				 "testIndZIP" , "testIndMVreg", "testIndMMReg", NULL);
     ci_test = test
     #cat(test)
-    
     if(length(test) == 1)  {#avoid vectors, matrices etc
 
       test = match.arg(test, av_tests, TRUE);
       #convert to closure type
       if (test == "testIndFisher") {
-        #an einai posostiaio target
-        if ( min(target) > 0  &  max(target) < 1 )   target = log( target/(1 - target) ) ## logistic normal 
-        
         if ( is.data.frame(dataset) ) {
           if ( length( which_isFactor(dataset) ) > 0 ) {
             warning("Dataset contains categorical variables (factors). A regression model is advised to be used instead.")
@@ -139,9 +127,6 @@ ma.ses = function(target, dataset, ina, statistic = FALSE, max_k = 3 , threshold
         test = testIndFisher;
       }
       else if (test == "testIndSpearman") {
-        #an einai posostiaio target
-        if ( min(target) > 0  &  max(target) < 1 )   target = log( target / (1 - target) ) ## logistic normal 
-        
         if ( is.data.frame(dataset) ) {
           if ( length( which_isFactor(dataset) ) > 0 ) {
             warning("Dataset contains categorical variables (factors). A regression model is advised to be used instead.")
@@ -162,7 +147,7 @@ ma.ses = function(target, dataset, ina, statistic = FALSE, max_k = 3 , threshold
   #option checking
   if ( (typeof(max_k) != "double" ) || max_k < 1 )   stop('invalid max_k option');
   if ( max_k > varsize )   max_k = varsize;
-  if ( (typeof(threshold) != "double" ) || exp(threshold) <= 0 || exp(threshold) > 1 )   stop('invalid threshold option');
+  if ( (typeof(threshold) != "double" ) || threshold <= 0 || threshold > 1 )   stop('invalid threshold option');
   #######################################################################################
   if ( !is.null(user_test) )  ci_test = "user_test";
   ## end of checking
@@ -202,9 +187,8 @@ ma.ses = function(target, dataset, ina, statistic = FALSE, max_k = 3 , threshold
    data[[ l ]] <- da
   }
   #call the main SES function after the checks and the initializations
-  results = Internalmases(targ, data, statistic, max_k, threshold, test, ini, equal_case, user_test, dataInfo, hash, varsize, stat_hash, pvalue_hash, targetID, robust = robust, ncores = ncores);
-  
-  masesoutput <-new("mases.output", selectedVars = results$selectedVars, selectedVarsOrder=results$selectedVarsOrder, queues=results$queues, signatures=results$signatures, hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, univ = results$univ, max_k=results$max_k, threshold = results$threshold, runtime=results$runtime, test=ci_test, rob = robust);
+  results = Internalmases(targ, data, statistic, max_k, log(threshold), test, ini, user_test, hash, varsize, stat_hash, pvalue_hash, targetID, ncores = ncores);
+  masesoutput <-new("mases.output", selectedVars = results$selectedVars, selectedVarsOrder=results$selectedVarsOrder, queues=results$queues, signatures=results$signatures, hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, univ = results$univ, max_k=results$max_k, threshold = results$threshold, runtime=results$runtime, test=ci_test);
   
   return(masesoutput);
 }

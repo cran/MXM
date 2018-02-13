@@ -15,11 +15,11 @@ See also Details. MMPC algorithm follows the same approach without generating mu
 \usage{
 ma.ses(target, dataset, ina, statistic = FALSE, max_k = 3, threshold = 0.05, 
 test = NULL, ini = NULL, user_test = NULL, hash = FALSE, hashObject = NULL, 
-robust = FALSE, ncores = 1)
+ncores = 1)
  
 ma.mmpc(target, dataset, ina, statistic = FALSE, max_k = 3, threshold = 0.05, 
 test = NULL, ini = NULL, user_test = NULL, hash = FALSE, hashObject = NULL, 
-robust = FALSE, ncores = 1, backward = FALSE)
+ncores = 1, backward = FALSE)
 }
 
 \arguments{
@@ -60,9 +60,6 @@ Each time SES runs with "hash=TRUE" it produces a list of hashObjects that can b
 
 Important: the generated hashObjects should be used only when the same dataset is re-analyzed, possibly with different values of max_k and threshold.
 }
-\item{robust}{
-A boolean variable which indicates whether (TRUE) or not (FALSE) to use a robust version of the statistical test if it is available. It takes more time than a non robust version but it is suggested in case of outliers. Default value is FALSE.
-}
 \item{ncores}{
 How many cores to use. This plays an important role if you have tens of thousands of variables or really large sample sizes and tens of thousands of variables and a regression based test which requires numerical optimisation. In other cases it will not make a difference in the overall time (in fact it can be slower). The parallel computation is used in the first step of the algorithm, where univariate associations are examined, those take place in parallel. We have seen a reduction in time of 50\% with 4 cores in comparison to 1 core. Note also, that the amount of reduction is not linear in the number of cores.
 }
@@ -79,7 +76,10 @@ http://www.mensxmachina.org/publications/discovering-multiple-equivalent-biomark
 
 The MMPC function mplements the MMPC algorithm as presented in "Tsamardinos, Brown and Aliferis. The max-min hill-climbing Bayesian network structure learning algorithm" http://www.dsl-lab.org/supplements/mmhc_paper/paper_online.pdf
 
-For faster computations in the internal SES functions, install the suggested package "\bold{gRbase}". In addition, the output value "univ" along with the output value "hashObject" can speed up the computations of subesequent runs of SES and MMPC. The first run with a specific pair of hyper-parameters (threshold and max_k) the univariate associations tests and the conditional independence tests (test statistic and logarithm of their corresponding p-values) are stored and returned. In the next run(s) with different pair(s) of hyper-parameters you can use this information to save time. With a few thousands of variables you will see the difference, which can be up to 50\%. For the non robust correlation based tests, the difference may not be significant though, because a Fortran code is used to extract the (unconditional) correlation coefficients. 
+The output value "univ" along with the output value "hashObject" can speed up the computations of subesequent runs of SES and MMPC. 
+The first run with a specific pair of hyper-parameters (threshold and max_k) the univariate associations tests and the conditional independence tests (test statistic and logarithm of their corresponding p-values) 
+are stored and returned. In the next run(s) with different pair(s) of hyper-parameters you can use this information to save time. With a few thousands of variables you will see the difference, 
+which can be up to 50\%. For the non robust correlation based tests, the difference may not be significant though, because the unconditional correlation coefficients are calcualted very efficiently. 
 
 The max_k option: the maximum size of the conditioning set to use in the conditioning independence test. Larger values provide more accurate results, at the cost of higher computational times. When the sample size is small (e.g., \eqn{<50} observations) the max_k parameter should be \eqn{ \leq 5}, otherwise the conditional independence test may not be able to provide reliable results.
 
@@ -155,14 +155,8 @@ The run time of the algorithm. A numeric vector. The first element is the user t
 \item{test}{
 The character name of the statistic test used.
 }
-\item{rob}{
-The value of the robust option, either TRUE or FALSE.
-}
 
-Generic Functions implemented for SESoutput Object:
-\item{summary(x=SESoutput)}{
-Summary view of the SESoutput object.
-}
+Generic Function implemented for SESoutput Object:
 \item{plot(object=SESoutput, mode="all")}{
 Plots the generated pvalues (using barplot) of the current SESoutput object in comparison to the threshold.
 

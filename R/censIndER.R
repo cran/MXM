@@ -1,4 +1,4 @@
-censIndER = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL, univariateModels=NULL, hash = FALSE, stat_hash=NULL, pvalue_hash=NULL,robust=FALSE){
+censIndER = function(target, dataset, xIndex, csIndex, wei = NULL, univariateModels=NULL, hash = FALSE, stat_hash=NULL, pvalue_hash=NULL){
   # Conditional independence test based on the Log Likelihood ratio test
   if ( !survival::is.Surv(target) )   stop('The survival test can not be performed without a Surv object target');
   csIndex[which(is.na(csIndex))] = 0;
@@ -10,20 +10,18 @@ censIndER = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL
     if (is.null(stat_hash[[key]]) == FALSE) {
       stat = stat_hash[[key]];
       pvalue = pvalue_hash[[key]];
-      flag = 1;
-      results <- list(pvalue = pvalue, stat = stat, flag = flag, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+      results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
       return(results);
     }
   }
   #initialization: these values will be returned whether the test cannot be carried out
   pvalue = log(1);
   stat = 0;
-  flag = 0;
-  results <- list(pvalue = pvalue, stat = stat, flag = flag, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+  results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
   expo_results = NULL;
   expo_results_full = NULL;
   #timeIndex = dim(dataset)[2];
-  event = target[,2]#dataInfo$event;
+  event = target[,2]
   x = dataset[ , xIndex];
   #if the censored indicator is empty, a dummy variable is created
   numCases = dim(dataset)[1];
@@ -41,11 +39,9 @@ censIndER = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL
         dF = abs( res[2, 5] );
         pvalue = pchisq(stat, dF, lower.tail = FALSE, log.p = TRUE)
       }  
-      flag = 1;
       if ( is.na(pvalue) || is.na(stat) ) {
         pvalue = log(1);
         stat = 0;
-        flag = 0;
       } else {
         #update hash objects
         if( hash )  {
@@ -53,6 +49,6 @@ censIndER = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL
           pvalue_hash[[key]] <- pvalue;     #.set(pvalue_hash , key , pvalue)
         }
       }
-      results <- list(pvalue = pvalue, stat = stat, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+      results <- list(pvalue = pvalue, stat = stat,  stat_hash=stat_hash, pvalue_hash=pvalue_hash);
       return(results);
 }

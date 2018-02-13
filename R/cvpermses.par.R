@@ -194,14 +194,11 @@ cvpermses.par <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL
   
   opti <- as.vector( Rfast::colmeans(mat) )
   bestpar <- which.max(opti)
-  estb <- abs( mean( mat[, bestpar] - apply(mat, 1, max) ) )  ##  Rfast::rowMaxs(mat, value = TRUE) ) ) 
   best_model <- NULL
   
   best_model$cv_results_all = mat
   best_model$best_performance <- max( opti )
-  best_model$BC_best_perf <- best_model$best_performance + estb 
   best_model$best_configuration = SES_configurations[[ bestpar ]]
-  best_model$BC_best_perf <- best_model$best_performance - estb
   best_model$runtime <- proc.time() - tic 
   
   return(best_model)

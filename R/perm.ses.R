@@ -1,10 +1,8 @@
-perm.ses = function(target, dataset , max_k = 3 , threshold = 0.05 , test = NULL , ini = NULL, wei = NULL, user_test = NULL, hash=FALSE, hashObject = NULL, robust = FALSE, R = 999, ncores = 1)
-{
-  #get the log threshold
+perm.ses = function(target, dataset , max_k = 3 , threshold = 0.05 , test = NULL , ini = NULL, wei = NULL, user_test = NULL, 
+                    hash=FALSE, hashObject = NULL, R = 999, ncores = 1)  {
   ##############################
   # initialization part of SES #
   ##############################
-  equal_case = 3;
   stat_hash = NULL;
   pvalue_hash = NULL;
   
@@ -23,7 +21,6 @@ perm.ses = function(target, dataset , max_k = 3 , threshold = 0.05 , test = NULL
     }
   }
   
-  dataInfo = NULL;
   ###################################
   # dataset checking and initialize #
   ###################################
@@ -68,7 +65,6 @@ perm.ses = function(target, dataset , max_k = 3 , threshold = 0.05 , test = NULL
     if ( ncol(target) >= 2 & class(target) != "Surv") {
       if ( (is.null(test) || test == "auto") & (is.null(user_test)) ) {
         test = "testIndMVreg"
-        warning("Multivariate target (ncol(target) >= 2) requires a multivariate test of conditional independence. The testIndMVreg was used. For a user-defined multivariate test, please provide one in the user_test argument.");
       }
     }
   }
@@ -76,7 +72,6 @@ perm.ses = function(target, dataset , max_k = 3 , threshold = 0.05 , test = NULL
   # test checking and initialize #
   ################################
   la <- length( unique( as.numeric(target) ) )
-  
   if(typeof(user_test) == "closure") {
     test = user_test;
   } else {
@@ -87,16 +82,11 @@ perm.ses = function(target, dataset , max_k = 3 , threshold = 0.05 , test = NULL
       if ( is.matrix(target ) )  test = "testIndMVreg"
       #if target is a factor then use the Logistic test
       if ( "factor" %in% class(target) )  {
-        test = "permLogistic";
-        if( is.ordered(target) ) {
-          dataInfo$target_type = "ordinal";
-        } else {
-          if ( la == 2 ) {
-            dataInfo$target_type = "binary"
-          } else {
-            dataInfo$target_type = "nominal"
-          }
-        }
+        if ( is.ordered(target) &  la  > 2 ) {
+          test = "testIndOrdinal"
+        } else if ( !is.ordered(target) & la > 2 ) {
+          test = "testIndMultinom"
+        } else test = "testIndLogistic"
         
       } else if ( ( is.numeric(target) || is.integer(target) ) & survival::is.Surv(target) == FALSE ) {
         
@@ -118,40 +108,30 @@ perm.ses = function(target, dataset , max_k = 3 , threshold = 0.05 , test = NULL
       } else   stop('Target must be a factor, vector, matrix with at least 2 columns column or a Surv object');
     }
     
-    if ( test == "permLogistic") {
-      if( is.ordered(target) )  {
-        dataInfo$target_type = "ordinal";
-      } else {
-        if ( la == 2 )  {
-          dataInfo$target_type = "binary"
-        } else {
-          dataInfo$target_type = "nominal"
-        }
-      }
-    }
     #available conditional independence tests
-    av_tests = c("permFisher", "permReg", "permRQ", "permBeta", "permCR", "permWR", "permER", "permClogit", "permLogistic", 
-                 "permPois", "permNB", "permBinom", "permgSquare", "permZIP", "permMVreg", "permIGreg", "permGamma", 
-                 "permNormLog", "permTobit", "permDcor", "auto", NULL);
+    av_tests = c("permFisher", "permReg", "permRQ", "permBeta", "permCR", "permWR", "permER", "permClogit", 
+                 "permLogistic", "permPois", "permNB", "permBinom", "permgSquare", "permZIP", "permMVreg", 
+                 "permIGreg", "permGamma", "permNormLog", "permTobit", "permDcor", "auto", "permMMReg", 
+                 "permMMFisher", "permMultinom", "permOrdinal", NULL);
     ci_test = test
     #cat(test)
     if(length(test) == 1) {   #avoid vectors, matrices etc
       test = match.arg(test, av_tests, TRUE);
       #convert to closure type
       if (test == "permFisher") {
-        #an einai posostiaio target
-        if ( min(target) > 0  &  max(target) < 1 )   target = log( target/(1 - target) ) 
         test = permFisher;
 
-      } else if (test == "permDcor") {   ## It uMMPC the F test
-        #an einai posostiaio target
-        if ( min(target) > 0 & max(target) < 1 )  target = log(target/(1-target))  
+      } else if (test == "permMMFisher") {   
+        test = permMMFisher;
+        
+      } else if (test == "permDcor") {   
         test = permDcor;
         
-      } else if (test == "permReg") {   ## It uMMPC the F test
-        #an einai posostiaio target
-        if ( min(target) > 0 & max(target) < 1 )  target = log(target/(1-target))  
+      } else if (test == "permReg") {   
         test = permReg;
+        
+      } else if (test == "permMMReg") {   
+        test = permMMReg;
         
       } else if(test == "permMVreg") {
         if ( min(target) > 0  &  Rfast::Var( Rfast::rowsums(target) ) == 0 )  target = log( target[, -1]/target[, 1] ) 
@@ -161,8 +141,6 @@ perm.ses = function(target, dataset , max_k = 3 , threshold = 0.05 , test = NULL
         test = permBeta;
         
       } else if(test == "permRQ") {   ## quantile regression
-        #an einai posostiaio target
-        if ( all( target>0 & target<1 ) )  target = log( target/(1 - target) ) 
         test = permRQ;
         
       } else if (test == "permIGreg")  {   
@@ -203,7 +181,13 @@ perm.ses = function(target, dataset , max_k = 3 , threshold = 0.05 , test = NULL
         
       } else if (test == "permLogistic") {
         test = permLogistic;
-        
+		
+      } else if (test == "permMultinom") {
+        test = permMultinom;
+		
+      } else if (test == "permOrdinal") {
+        test = permOrdinal;
+		
       } else if (test == "permgSquare") {
         test = permgSquare;
       }
@@ -222,12 +206,10 @@ perm.ses = function(target, dataset , max_k = 3 , threshold = 0.05 , test = NULL
   if ( (typeof(max_k)!="double") || max_k < 1 )   stop('invalid max_k option');
   if ( max_k > varsize )    max_k = varsize;
   if ( (typeof(threshold) != "double" ) || threshold == 0  || threshold > 1 )    stop('invalid threshold option');
-  if ( typeof(equal_case) != "double" )    stop('invalid equal_case option');
-  
   if ( !is.null(user_test) )   ci_test = "user_test";
   #call the main SES function after the checks and the initializations
-  results = perm.Internalses(target, dataset, max_k, threshold, test, ini, wei, equal_case, user_test, dataInfo, hash, varsize, stat_hash, pvalue_hash, targetID, robust = robust, R = R, ncores = ncores);
-  SESoutput <-new("SESoutput", selectedVars = results$selectedVars, selectedVarsOrder=results$selectedVarsOrder, queues=results$queues, signatures=results$signatures, hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, univ = results$univ, max_k=results$max_k, threshold = results$threshold, n.tests = results$n.tests, runtime=results$runtime, test=ci_test, rob = robust);
+  results = perm.Internalses(target, dataset, max_k, log(threshold), test, ini, wei, user_test, hash, varsize, stat_hash, pvalue_hash, targetID, R = R, ncores = ncores);
+  SESoutput <-new("SESoutput", selectedVars = results$selectedVars, selectedVarsOrder=results$selectedVarsOrder, queues=results$queues, signatures=results$signatures, hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, univ = results$univ, max_k=results$max_k, threshold = results$threshold, n.tests = results$n.tests, runtime=results$runtime, test=ci_test);
   return(SESoutput);
 }
 

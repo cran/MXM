@@ -4,7 +4,7 @@
 \alias{mammpc.output-class}
 \alias{mammpc.output}
 \alias{plot,mammpc.output-method}
-\alias{summary,mammpc.output-method}
+\alias{mammpc.output-method}
 \alias{plot,mammpc.output,ANY-method}
 
 \title{Class \code{"mammpc.output"}}
@@ -26,11 +26,10 @@ Objects can be created by calls of the form \code{new("mammpc.output", ...)}.
     \item{\code{threshold}:}{Object of class \code{"numeric"}}
     \item{\code{test}:}{Object of class \code{"character"}}
     \item{\code{runtime}:}{Object of class \code{"proc_time"}}
-    \item{\code{rob}:}{Object of class \code{"logical"}}  }
+}
 }
 \section{Methods}{
   \describe{
-    \item{summary}{\code{summary(object = "mammpc.output")}: Generic function for summarizing the results of the meta analytic MMPC output }
     \item{plot}{\code{plot(x = "mammpc.output", mode = "all")}: Generic function for plotting the generated pvalues of the MMPCoutput object. Argument mode = "all" for plotting all the pvalues or mode="partial" for partial plotting the first 500 pvalues }
 	 }
 }

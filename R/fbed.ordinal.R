@@ -1,4 +1,4 @@
-fbed.ordinal <- function(y, x, alpha = 0.05, wei = NULL, K = 0) { 
+fbed.ordinal <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) { 
   dm <- dim(x)
   p <- dm[2]
   ind <- 1:p
@@ -15,15 +15,24 @@ fbed.ordinal <- function(y, x, alpha = 0.05, wei = NULL, K = 0) {
   
   runtime <- proc.time()
   
-  for ( i in ind ) {
-    fit2 <- ordinal::clm( y ~ x[, i],  weights = wei )
-    lik2[i] <- 2 * fit2$logLik
-    dof[i] <- length( fit2$coefficients )
-  }
-   
-  n.tests <- p
-  stat <- lik2 - lik1
-  pval <- pchisq(stat, dof - do, lower.tail = FALSE, log.p = TRUE)
+  if ( is.null(univ) ) {
+    for ( i in ind ) {
+      fit2 <- ordinal::clm( y ~ x[, i],  weights = wei )
+      lik2[i] <- 2 * fit2$logLik
+      dof[i] <- length(fit2$coefficients)
+    }
+    n.tests <- p
+    stat <- lik2 - lik1
+    pval <- pchisq(stat, dof - do, lower.tail = FALSE, log.p = TRUE)
+    univ <- list()
+    univ$stat <- stat
+    univ$pvalue <- univ$pval
+  } else {
+    stat <- univ$stat
+    pval <- univ$pvalue
+    n.tests <- 0
+    lik2 <- univ$stat + 2 * lik1
+  }    
   s <- which(pval < sig)
 
     if ( length(s) > 0 ) {
@@ -31,7 +40,7 @@ fbed.ordinal <- function(y, x, alpha = 0.05, wei = NULL, K = 0) {
       sela <- sel
       s <- s[ - which(s == sel) ]
       lik1 <- lik2[sel] 
-      d1 <- dof[sel] 
+      d1 <- dim( model.matrix( y~., data.frame(x[, sel]) ) )[2] - 1
       sa <- stat[sel]
       pva <- pval[sel]
       lik2 <- rep( lik1, p )
@@ -66,7 +75,7 @@ fbed.ordinal <- function(y, x, alpha = 0.05, wei = NULL, K = 0) {
      for ( i in ind[-sela] )  {
         fit2 <- ordinal::clm( y ~., data = x[, c(sela, i)],  weights = wei)
         lik2[i] <- 2 * fit2$logLik
-        sdof[i] <- length( fit2$coefficients )
+        dof[i] <- length( fit2$coefficients )
       }
       n.tests[2] <- length( ind[-sela] )
       stat <- lik2 - lik1
@@ -218,6 +227,6 @@ fbed.ordinal <- function(y, x, alpha = 0.05, wei = NULL, K = 0) {
   colnames(res) <- c("Vars", "stat", "log p-value")
   rownames(info) <- paste("K=", 1:length(card)- 1, sep = "")
   colnames(info) <- c("Number of vars", "Number of tests")
-  list(res = res, info = info, runtime = runtime)
+  list(univ = univ, res = res, info = info, runtime = runtime)
 }
  

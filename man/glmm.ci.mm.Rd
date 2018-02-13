@@ -39,8 +39,11 @@ A vector including the test statistic, it's associated p-value and the relevant 
 }
 
 \references{
-Tsagris M., Borboudakis G., Lagani V. and Tsamardinos I. (2017). Constraint-based Causal Discovery with Mixed Data. 
-The 2017 ACM SIGKDD Workshop on Causal Discovery, 14/8/2017, Halifax, Nova Scotia, Canada. 
+Tsagris M., Borboudakis G., Lagani V. and Tsamardinos I. (2018). Constraint-based Causal Discovery with Mixed Data. 
+International Journal of Data Science and Analytics. 
+
+https://link.springer.com/content/pdf/10.1007%2Fs41060-018-0097-y.pdf
+ 
 http://nugget.unisa.edu.au/CD2017/papersonly/constraint-based-causal-r1.pdf
 
 Eugene Demidenko (2013). Mixed Models: Theory and Applications with R, 2nd Edition. New Jersey: Wiley \& Sons.
@@ -56,7 +59,7 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
   %%  ~~further notes~~
     %}
 \seealso{
-\code{ \link{pc.skel}, \link{condi}, \link{testIndGLMM} }
+\code{ \link{pc.skel}, \link{condi}, \link{testIndGLMMReg} }
 }
 
 \examples{

@@ -1,5 +1,5 @@
-min_assoc.temporal = function(target, reps, group, dataset, test,  max_k, cvar, wei, selectedVars, pvalues, stats, univariateModels, selectedVarsOrder, hash, dataInfo, stat_hash, pvalue_hash, slopes = slopes)
-{
+min_assoc.temporal = function(target, reps, group, dataset, test, max_k, cvar, wei, selectedVars, pvalues, stats, univariateModels, 
+                              selectedVarsOrder, hash, stat_hash, pvalue_hash, slopes) {
   
   ma_pvalue = pvalues[[cvar]];   #CHANGE
   ma_stat = stats[[cvar]]; #CHANGE
@@ -24,11 +24,11 @@ min_assoc.temporal = function(target, reps, group, dataset, test,  max_k, cvar, 
       s = subsetcsk[,i];
       s = t(t(s));
       
-      cur_results = test(target, reps, group, dataset, cvar, s, wei = wei, dataInfo=dataInfo, univariateModels, hash = hash, stat_hash, pvalue_hash, slopes = slopes);
+      cur_results = test(target, reps, group, dataset, cvar, s, wei = wei, univariateModels, hash = hash, stat_hash, pvalue_hash, slopes = slopes);
       stat_hash = cur_results$stat_hash;
       pvalue_hash = cur_results$pvalue_hash;
       #check if the pvalues and stats should be updated
-      if ( cur_results$flag == 1 & !compare_p_values(cur_results$pvalue, ma_pvalue, cur_results$stat, ma_stat) ) {
+      if ( !compare_p_values(cur_results$pvalue, ma_pvalue, cur_results$stat, ma_stat) ) {
         ma_pvalue = cur_results$pvalue;
         pvalues[[cvar]] = cur_results$pvalue;
         ma_stat = cur_results$stat;

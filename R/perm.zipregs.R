@@ -164,7 +164,7 @@ perm.zipregs <- function(target, dataset, wei = NULL, check = FALSE, logged = FA
       bic[id] = NA
     }
   } 
-  cbind(stat, pvalue, bic)
+  cbind(stat, log(pvalue), bic)
 }
 
 

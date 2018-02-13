@@ -4,7 +4,7 @@
 \alias{MMPC.temporal.output-class}
 \alias{MMPC.temporal.output}
 \alias{plot,MMPC.temporal.output-method}
-\alias{summary,MMPC.temporal.output-method}
+\alias{MMPC.temporal.output-method}
 \alias{plot,MMPC.temporal.output,ANY-method}
 
 \title{Class \code{"MMPC.temporal.output"}}
@@ -34,7 +34,6 @@ Objects can be created by calls of the form \code{new("MMPC.temporal.output", ..
 
 \section{Methods}{
   \describe{
-    \item{summary}{\code{summary(object = "MMPC.temporal.output")}: Generic function for summarizing the results of the MMPC.temporal. output }
     \item{plot}{\code{plot(x = "MMPC.temporal.output", mode = "all")}: Generic function for plotting the generated pvalues of the MMPC.temporal.output object. Argument mode = "all" for plotting all the pvalues or mode="partial" for partial plotting the first 500 pvalues }
 	 }
 }

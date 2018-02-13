@@ -1,5 +1,5 @@
-permgSquare = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL, univariateModels=NULL, hash = FALSE, 
-                   stat_hash=NULL, pvalue_hash=NULL,robust=FALSE, threshold = 0.05, R = 999) {
+permgSquare = function(target, dataset, xIndex, csIndex, wei = NULL, univariateModels=NULL, hash = FALSE, 
+                   stat_hash=NULL, pvalue_hash=NULL, threshold = 0.05, R = 999) {
   #Conditional Independence test based on the G test of independence (log likelihood ratio  test)
   csIndex[which(is.na(csIndex))] = 0;
 
@@ -11,8 +11,7 @@ permgSquare = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NU
     if (is.null(stat_hash[[key]]) == FALSE ) {
       stat = stat_hash[[key]];
       pvalue = pvalue_hash[[key]];
-      flag = 1;
-      results <- list(pvalue = pvalue, stat = stat, flag = flag, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+      results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
       return(results);
     }
   }
@@ -25,10 +24,9 @@ permgSquare = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NU
         stat_hash[[key]] <- 0;     #.set(stat_hash , key , 0)
         pvalue_hash[[key]] <- 1;     #.set(pvalue_hash , key , 1)
       }
-      pvalue = 1;
+      pvalue = log(1)
       stat = 0;
-      flag = 1;
-      results <- list(pvalue = pvalue, stat = stat, flag = flag, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+      results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
       return(results);
     }
     
@@ -42,16 +40,14 @@ permgSquare = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NU
     dc <- Rfast::colrange(zz, cont = FALSE)  ##  as.numeric( apply(zz, 2, function(x) { length(unique(x)) } ) )
     mod <- cat.ci(1, 2, 0, zz, type = dc, R = R )
     stat <- mod[1]
-    pvalue <- exp( mod[2] )
-    flag = 1;
+    pvalue <- mod[2] 
   } else {
     zz <- cbind(target, dataset[, c(xIndex, csIndex)] )
     dc <- Rfast::colrange(zz, cont = FALSE)  ##  as.numeric( apply(zz, 2, function(x) { length(unique(x)) } ) )
     #levels for each variable
     mod <- cat.ci(1, 2, c(1:dim(zz)[2])[-c(1:2)], zz, type = dc, R = R )
     stat <- mod[1]
-    pvalue <- exp( mod[2] )
-    flag = 1;
+    pvalue <- mod[2] 
   }
   
   if ( hash ) {
@@ -59,7 +55,7 @@ permgSquare = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NU
     pvalue_hash[[key]] <- pvalue;     #.set(pvalue_hash , key , pvalue)
   }
   
-  results <- list(pvalue = pvalue, stat = stat, flag = flag, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+  results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
   return(results);
 }
 

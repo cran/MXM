@@ -1,7 +1,7 @@
-permRQ = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL, univariateModels=NULL, hash = FALSE, stat_hash=NULL, 
-                     pvalue_hash=NULL,robust=FALSE, threshold = 0.05, R = 999) {
+permRQ = function(target, dataset, xIndex, csIndex, wei = NULL, univariateModels=NULL, hash = FALSE, stat_hash=NULL, 
+                     pvalue_hash=NULL, threshold = 0.05, R = 999) {
   # TESTINDRQ Conditional Independence Test for numerical class variables 
-  # PVALUE = TESTINDRQ(Y, DATA, XINDEX, CSINDEX, DATAINFO)
+  # PVALUE = TESTINDRQ(Y, DATA, XINDEX, CSINDEX)
   # This test provides a p-value PVALUE for the NULL hypothesis H0 which is
   # X is independent by TARGET given CS. The pvalue is calculated following
   # nested models
@@ -11,13 +11,10 @@ permRQ = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL, u
   #   DATASET: a numeric data matrix containing the variables for performing the test. They can be mixed variables. 
   #   XINDEX: the index of the variable whose association with the target we want to test. 
   #   CSINDEX: the indices if the variable to condition on. 
-  #   DATAINFO: information on the structure of the data
-  # this method returns: the pvalue PVALUE, the statistic STAT and a control variable FLAG.
-  # if FLAG == 1 then the test was performed succesfully
+  # this method returns: the pvalue PVALUE, the statistic STAT.
   #if the test cannot performed succesfully these are the returned values
-  pvalue = 1;
+  pvalue = log(1)
   stat = 0;
-  flag = 0;
   csIndex[which(is.na(csIndex))] = 0;
   thres <- threshold * R + 1
   
@@ -29,8 +26,7 @@ permRQ = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL, u
     if(is.null(stat_hash[[key]]) == FALSE)  {
       stat = stat_hash[[key]];
       pvalue = pvalue_hash[[key]];
-      flag = 1;
-      results <- list(pvalue = pvalue, stat = stat, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+      results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
       return(results);
     }
   }
@@ -41,13 +37,13 @@ permRQ = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL, u
       stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
       pvalue_hash[[key]] <- 1;#.set(pvalue_hash , key , 1)
     }
-    results <- list(pvalue = 1, stat = 0, flag = 1 , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+    results <- list(pvalue = 1, stat = 0, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
     return(results);
   }
   #check input validity
   if (xIndex < 0 || csIndex < 0)  {
     message(paste("error in testIndRQ : wrong input of xIndex or csIndex"))
-    results <- list(pvalue = pvalue, stat = stat, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+    results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
     return(results);
   }
   
@@ -63,7 +59,7 @@ permRQ = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL, u
           stat_hash[[key]] <- 0;  #.set(stat_hash , key , 0)
           pvalue_hash[[key]] <- 1;  #.set(pvalue_hash , key , 1)
         }
-        results <- list(pvalue = 1, stat = 0, flag = 1, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+        results <- list(pvalue = 1, stat = 0, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
         return(results);
       }
     } else { #more than one var
@@ -73,7 +69,7 @@ permRQ = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL, u
             stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
             pvalue_hash[[key]] <- 1;#.set(pvalue_hash , key , 1)
           }
-          results <- list(pvalue = 1, stat = 0, flag = 1, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+          results <- list(pvalue = 1, stat = 0, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
           return(results);
         }
       }
@@ -99,7 +95,7 @@ permRQ = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL, u
       step <- step + ( as.numeric( ww[[1]][3] ) > stat )
       j <- j + 1
     }
-    pvalue <- (step + 1) / (R + 1)
+    pvalue <- log( (step + 1) / (R + 1) )
   } else {
     fit1 = quantreg::rq( target ~ cs, weights = wei )
     fit2 = quantreg::rq( target ~ cs + x, weights = wei )
@@ -115,14 +111,12 @@ permRQ = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL, u
       step <- step + ( as.numeric( ww[[1]][3] ) > stat )
       j <- j + 1
     }
-    pvalue <- (step + 1) / (R + 1) 
+    pvalue <- log( (step + 1) / (R + 1) )
   }
-  flag = 1;
   #last error check
   if ( is.na(pvalue) || is.na(stat) )  {
-    pvalue = 1;
+    pvalue = log(1)
     stat = 0;
-    flag = 0;
   } else {
     #update hash objects
     if ( hash ) {
@@ -131,15 +125,14 @@ permRQ = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL, u
     }
   }
   #testerrorcaseintrycatch(4);
-  results <- list(pvalue = pvalue, stat = stat, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+  results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
   return(results);
   
 },
 error=function(cond) {
-  pvalue = 1;
+  pvalue = log(1)
   stat = 0;
-  flag = 0;
-  results <- list(pvalue = pvalue, stat = stat, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+  results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
   return(results);
 },
 finally={}

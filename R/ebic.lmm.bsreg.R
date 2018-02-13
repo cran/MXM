@@ -13,8 +13,8 @@ ebic.lmm.bsreg <- function(target, dataset, id, wei = NULL, gam = NULL) {
     logn <- log(n)
     if ( is.null(gam) ) {
       con <- 2 - log(p) / logn
-      if ( (con) < 0 )  con <- 0
     } else con <- 2 * gam
+    if ( (con) < 0 )  con <- 0
     tool <- numeric(p + 1)
     
     ini <- lme4::lmer( target ~ dataset + (1|id), REML = FALSE, weights = wei )

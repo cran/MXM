@@ -1,5 +1,5 @@
-InternalMMPC.temporal = function(target, reps, group, dataset, max_k, threshold, test = NULL, ini, wei, user_test = NULL, dataInfo = NULL, 
-                                 hash=FALSE, varsize, stat_hash, pvalue_hash, targetID, slopes, ncores, logged) {
+InternalMMPC.temporal = function(target, reps, group, dataset, max_k, threshold, test = NULL, ini, wei, user_test = NULL,  
+                                 hash=FALSE, varsize, stat_hash, pvalue_hash, targetID, slopes, ncores) {
   #get the current time
   runtime = proc.time();
   #######################################################################################
@@ -8,12 +8,11 @@ InternalMMPC.temporal = function(target, reps, group, dataset, max_k, threshold,
   cols <- dm[2]
   #univariate feature selection test
   if ( is.null(ini) ) {
-    univariateModels = univariateScore.temporal(target, reps, group, dataset, test, wei = wei, dataInfo = dataInfo, targetID = targetID, slopes = slopes, ncores = ncores);
+    univariateModels = univariateScore.temporal(target, reps, group, dataset, test, wei = wei, targetID = targetID, slopes = slopes, ncores = ncores);
   } else  univariateModels = ini
   
   pvalues = univariateModels$pvalue;
   stats = univariateModels$stat;
-  flags = univariateModels$flag;
   stat_hash = univariateModels$stat_hash;
   pvalue_hash = univariateModels$pvalue_hash;
   #if we dont have any associations , return
@@ -28,13 +27,11 @@ InternalMMPC.temporal = function(target, reps, group, dataset, max_k, threshold,
     results$hashObject = NULL;
     class(results$hashObject) = 'list';
     class(results$univ) = 'list';
-    if (logged) {
       results$pvalues = pvalues;
-    } else  results$pvalues = exp(pvalues);
     results$stats = stats;
     results$univ = univariateModels
     results$max_k = max_k;
-    results$threshold = exp(threshold);
+    results$threshold = threshold;
     runtime = proc.time() - runtime;
     results$runtime = runtime;
     results$slope = slopes
@@ -45,7 +42,7 @@ InternalMMPC.temporal = function(target, reps, group, dataset, max_k, threshold,
   selectedVars = numeric(varsize);
   selectedVarsOrder = numeric(varsize);
   #select the variable with the highest association
-  selectedVar = which(flags == 1 & stats == stats[[which.max(stats)]]);
+  selectedVar = which( stats == stats[[which.max(stats)]] );
   selectedVars[selectedVar] = 1;
   selectedVarsOrder[selectedVar] = 1; #CHANGE
   #lets check the first selected var
@@ -61,7 +58,7 @@ InternalMMPC.temporal = function(target, reps, group, dataset, max_k, threshold,
   
   while (loop) {
     #lets find the variable with the max min association
-    max_min_results = max_min_assoc.temporal(target, reps, group, dataset , test , wei, threshold , max_k , selectedVars , pvalues , stats , remainingVars , univariateModels, selectedVarsOrder, hash=hash, dataInfo, stat_hash=stat_hash, pvalue_hash=pvalue_hash, slopes = slopes);
+    max_min_results = max_min_assoc.temporal(target, reps, group, dataset, test, wei, threshold, max_k, selectedVars, pvalues, stats, remainingVars, univariateModels, selectedVarsOrder, hash=hash, stat_hash=stat_hash, pvalue_hash=pvalue_hash, slopes = slopes);
     selectedVar = max_min_results$selected_var;
     selectedPvalue = max_min_results$selected_pvalue;
     remainingVars = max_min_results$remainingVars;
@@ -99,13 +96,11 @@ InternalMMPC.temporal = function(target, reps, group, dataset, max_k, threshold,
   results$hashObject = hashObject;
   class(results$hashObject) = 'list';
   class(results$univ) = 'list';
-  if (logged) {
-    results$pvalues = pvalues;
-  } else  results$pvalues = exp(pvalues);
+  results$pvalues = pvalues;
   results$stats = stats;
   results$univ = univariateModels
   results$max_k = max_k;
-  results$threshold = exp(threshold);
+  results$threshold = threshold;
   runtime = proc.time() - runtime;
   results$runtime = runtime;
   results$slope = slopes

@@ -10,7 +10,7 @@ Generic regression modelling function.
 
 \usage{
 reg.fit(y, dataset, event = NULL, reps = NULL, group = NULL, slopes = FALSE, 
-reml = FALSE, model = NULL, robust = FALSE, wei = NULL, xnew = NULL)
+reml = FALSE, model = NULL, wei = NULL, xnew = NULL)
 }
 
 \arguments{
@@ -39,13 +39,12 @@ This is for the longitudinal or grouped data only, TRUE or FALSE. If TRUE, REML 
 }
 \item{model}{
 The type of model you want to use. It can be specified by the user or left NULL, if other correct arguments have been passed. 
-Poissible values (apart from NULL) are: "gaussian" (default), "binary", "binomial", "multinomial", "poisson", "ordinal", "gamma", "normlog", "tobit", "Cox", "weibull", "exponential", "zip", "beta", "median", "negbin", "longitudinal" and "grouped". The "zip" means that the zero part is constant, the variables are not associated with the excessive zeros. The value "grouped" refers to grouped data, but this does not have to be given if the argument "group" is given, but not the argument "reps. The "binomial" is when you have the number of successes and also the number of trials. 
-}
-\item{robust}{
-A boolean variable. If TRUE robust models will be returned. Currently this is supported by the "gaussian" model only.
+Poissible values (apart from NULL) are: "gaussian" (default), "binary", "binomial", "multinomial", "poisson", "ordinal", "gamma", "normlog", "tobit", "Cox", "weibull", "exponential", "zip", "beta", "median", "negbin", "longitudinal", "grouped", "qpois" and "qbinom". The "zip" means 
+that the zero part is constant, the variables are not associated with the excessive zeros. The value "grouped" refers to grouped data, but this does not have to be given if the argument "group" is given, but not the argument "reps. The "binomial" is when you have the number of successes 
+and also the number of trials. "MM" stands for robust regression using MM estimation.
 }
 \item{wei}{
-A vector of weights to be used for weighted regression. The default value is NULL. We suggest not to use weights if you choose testIndReg and robust = TRUE (robust regression via M estimation)
+A vector of weights to be used for weighted regression. The default value is NULL.
 }
 \item{xnew}{
 If you have new data whose target values you want to predict put it here, otherwise leave it blank.
@@ -81,7 +80,7 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 %}
 
 \seealso{
-\code{ \link{ridge.reg}, \link{ses.model}, \link{mmpc.model} }
+\code{ \link{fbedreg.bic}, \link{mmpc.model}, \link{ridge.reg} }
 }
 
 \examples{

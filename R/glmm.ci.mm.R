@@ -20,7 +20,7 @@ glmm.ci.mm <- function(ind1, ind2, cs = NULL, dat, id) {
       p1 <- pchisq(t1, 1, lower.tail = FALSE, log.p = TRUE)
     } else {
       dof <- n - 4
-      mod1 <- Rfast::rint.reg(y, x, id)
+      mod1 <- rint.reg(y, x, id)
       t1 <- ( mod1$be[2]/mod1$seb[2] )^2
       p1 <- pf(t1, 1, n - 4, lower.tail = FALSE, log.p = TRUE)
     }  ## end if ( Rfast::sort_unique.length(y) == 2 ) 
@@ -39,7 +39,7 @@ glmm.ci.mm <- function(ind1, ind2, cs = NULL, dat, id) {
       p2 <- pchisq(t2, 1, lower.tail = FALSE, log.p = TRUE)
     } else {
       dof <- n - 4
-      mod2 <- Rfast::rint.reg(x, y, id)
+      mod2 <- rint.reg(x, y, id)
       t2 <- ( mod2$be[2]/mod2$seb[2] )^2
       p2 <- pf(t2, 1, n - 4, lower.tail = FALSE, log.p = TRUE)
     }  ## end if ( Rfast::sort_unique.length(x) == 2 ) 
@@ -61,8 +61,8 @@ glmm.ci.mm <- function(ind1, ind2, cs = NULL, dat, id) {
       t1 <- anova(mod0, mod1)[2, 6]
       p1 <- pchisq(t1, 1, lower.tail = FALSE, log.p = TRUE)
     } else {
-      mod0 <- Rfast::rint.reg(y, x, id)
-      mod1 <- Rfast::rint.reg(y, cbind(z, x), id)
+      mod1 <- rint.reg(y, cbind(z, x), id)
+      mod0 <- rint.reg(y, x, id)
       dof <- n - length(mod1$be) - 2
       if ( mod1$info[5] >= mod0$info[5] ) {
         p1 <- log(1)
@@ -86,8 +86,9 @@ glmm.ci.mm <- function(ind1, ind2, cs = NULL, dat, id) {
       t2 <- anova(mod0, mod2)[2, 6]
       p2 <- pchisq(t2, 1, lower.tail = FALSE, log.p = TRUE)
     } else {  
-      mod0 <- Rfast::rint.reg(x, y, id)
-      mod2 <- Rfast::rint.reg(x, cbind(z, y), id)
+      mod2 <- rint.reg(x, cbind(z, y), id)
+      mod0 <- rint.reg(x, y, id)
+      dof <- n - length(mod2$be) - 2
       if ( mod2$info[5] >= mod0$info[5] ) {
         p2 <- log(1)
         t2 <- 0

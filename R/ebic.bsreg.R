@@ -1,79 +1,79 @@
-ebic.bsreg <- function(y, x, test = NULL, wei = NULL, gam = NULL) {
+ebic.bsreg <- function(target, dataset, test = NULL, wei = NULL, gam = NULL) {
   
   #check for NA values in the dataset and replace them with the variable median or the mode
-  if ( any( is.na(x) ) ) {
+  if ( any( is.na(dataset) ) ) {
     #dataset = as.matrix(dataset);
     warning("The dataset contains missing values (NA) and they were replaced automatically by the variable (column) median (for numeric) or by the most frequent level (mode) if the variable is factor")
-    if ( is.matrix(x) )  {
-      x <- apply( x, 2, function(za){ za[which(is.na(za))] = median(za, na.rm = TRUE) ; return(za) } ) 
+    if ( is.matrix(dataset) )  {
+      dataset <- apply( dataset, 2, function(za){ za[which(is.na(za))] = median(za, na.rm = TRUE) ; return(za) } ) 
     } else {
-      poia <- unique( which( is.na(x), arr.ind = TRUE )[, 2] )
+      poia <- unique( which( is.na(dataset), arr.ind = TRUE )[, 2] )
       for ( i in poia )  {
-        xi <- x[, i]
+        xi <- dataset[, i]
         if ( is.numeric(xi) ) {                    
           xi[ which( is.na(xi) ) ] <- median(xi, na.rm = TRUE) 
         } else if ( is.factor( xi ) ) {
           xi[ which( is.na(xi) ) ] <- levels(xi)[ which.max( as.vector( table(xi) ) )]
         }
-        x[, i] <- xi
+        dataset[, i] <- xi
       }
     }
   }
   
-  id <- Rfast::check_data(x)
-  if ( sum(id>0) > 0 )  x[, id] <- rnorm( dim(x)[1] * length(id) )
-  x <- as.data.frame(x)
+  id <- Rfast::check_data(dataset)
+  if ( sum(id>0) > 0 )  dataset[, id] <- rnorm( dim(dataset)[1] * length(id) )
+  dataset <- as.data.frame(dataset)
   
   if (test == "testIndReg") {
-    result <- ebic.lm.bsreg(y, x, gam = gam, wei = wei)
+    result <- ebic.lm.bsreg(target, dataset, gam = gam, wei = wei)
   
   } else if (test == "testIndPois") {
-    result <- ebic.glm.bsreg(y, x, gam = gam, wei = wei, type = "poisson")
+    result <- ebic.glm.bsreg(target, dataset, gam = gam, wei = wei, type = "poisson")
   
   } else if (test == "testIndNB") {
-    result <- ebic.nb.bsreg(y, x, gam = gam, wei = wei)
+    result <- ebic.nb.bsreg(target, dataset, gam = gam, wei = wei)
   
   } else if (test == "testIndLogistic") {
     
-    if ( length(unique(y) ) == 2 ) {
-      result <- ebic.glm.bsreg(y, x, wei = wei, gam = gam, type = "logistic")
-    } else if ( length(unique(y) ) > 2 &  !is.ordered(y) ) {
-      result <- ebic.multinom.bsreg(y, x, gam = gam, wei = wei)  
-    } else  result <- ebic.ordinal.bsreg(y, x, gam = gam, wei = wei)
+    if ( length(unique(target) ) == 2 ) {
+      result <- ebic.glm.bsreg(target, dataset, wei = wei, gam = gam, type = "logistic")
+    } else if ( length(unique(target) ) > 2 &  !is.ordered(target) ) {
+      result <- ebic.multinom.bsreg(target, dataset, gam = gam, wei = wei)  
+    } else  result <- ebic.ordinal.bsreg(target, dataset, gam = gam, wei = wei)
   
-  } else if (test == "testIndMMreg") {
-    result <- ebic.mm.bsreg(y, x, gam = gam, wei = wei)
+  } else if (test == "testIndMMReg") {
+    result <- ebic.mm.bsreg(target, dataset, gam = gam, wei = wei)
     
   } else if (test == "testIndBinom") {
-    result <- ebic.glm.bsreg(y, x, gam = gam, wei = wei, type = "binomial")
+    result <- ebic.glm.bsreg(target, dataset, gam = gam, wei = wei, type = "binomial")
   
   } else if (test == "censIndCR") {
-    result <- ebic.cr.bsreg(y, x, gam = gam, wei = wei)
+    result <- ebic.cr.bsreg(target, dataset, gam = gam, wei = wei)
   
   } else if (test == "censIndWR") {
-    result <- ebic.wr.bsreg(y, x, gam = gam, wei = wei)
+    result <- ebic.wr.bsreg(target, dataset, gam = gam, wei = wei)
   
   } else if (test == "testIndBeta") {
-    result <- ebic.beta.bsreg(y, x, gam = gam, wei = wei)
+    result <- ebic.beta.bsreg(target, dataset, gam = gam, wei = wei)
   
   } else if (test == "testIndZIP") {
-    result <- ebic.zip.bsreg(y, x, gam = gam, wei = wei)
+    result <- ebic.zip.bsreg(target, dataset, gam = gam, wei = wei)
   
   } else if (test == "testIndGamma") {
-    result <- ebic.glm.bsreg(y, x, gam = gam, wei = wei, type = "gamma")
+    result <- ebic.glm.bsreg(target, dataset, gam = gam, wei = wei, type = "gamma")
   
   } else if (test == "testIndNormLog") {
-    result <- ebic.glm.bsreg(y, x, gam = gam, wei = wei, type = "gaussian")
+    result <- ebic.glm.bsreg(target, dataset, gam = gam, wei = wei, type = "gaussian")
   
   } else if (test == "testIndTobit") {
-    result <- ebic.tobit.bsreg(y, x, gam = gam, wei = wei)
+    result <- ebic.tobit.bsreg(target, dataset, gam = gam, wei = wei)
     
   } else if (test == "testIndClogit") {
-    result <- ebic.clogit.bsreg(y, x, gam = gam, wei = wei)
+    result <- ebic.clogit.bsreg(target, dataset, gam = gam, wei = wei)
   }
   
   back.rem <- result$info[, 1]
-  back.n.tests <- dim(x)[2]:dim(result$mat)[1] 
+  back.n.tests <- dim(dataset)[2]:dim(result$mat)[1] 
   result$mat <- result$mat
   result$back.rem <- back.rem
   result$back.n.tests <- sum(back.n.tests)

@@ -32,16 +32,14 @@ score.univregs <- function(target, dataset, test) {
     mod <- Rfast::score.gammaregs(target, dataset, logged = TRUE)  
     univariateModels$stat = mod[, 1]
     univariateModels$pvalue = mod[, 2]
-  ## Weibull
-  #} else if ( identical(test, censIndWR) ) {
-  #  mod <- Rfast::score.weibregs(target, dataset, logged = TRUE )
-  #  univariateModels$stat = mod[, 1]
-  #  univariateModels$pvalue = mod[, 2]
-  #  univariateModels$flag = numeric(cols) + 1; 
+  # Weibull
+  } else if ( identical(test, censIndWR) ) {
+    mod <- Rfast::score.weibregs(target, dataset, logged = TRUE )
+    univariateModels$stat = mod[, 1]
+    univariateModels$pvalue = mod[, 2]
   } else univariateModels <- NULL
   
   if ( !is.null(univariateModels) )  {
-    univariateModels$flag = numeric(cols) + 1  
     if ( sum(id>0) > 0 ) {
       univariateModels$stat[id] = 0
       univariateModels$pvalue[id] = 1

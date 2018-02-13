@@ -11,71 +11,10 @@
 setOldClass('proc_time')
 
 setClass(Class='MMPCoutput', 
-         slots=list(selectedVars='numeric', selectedVarsOrder='numeric', hashObject='list', pvalues='numeric', stats='numeric', univ='list', max_k='numeric', threshold='numeric', n.tests ='numeric', runtime='proc_time', test='character', rob='logical'), 
-         prototype=list(selectedVars=NULL, selectedVarsOrder=NULL, hashObject=NULL, pvalues=NULL, stats=NULL, univ=NULL, max_k=NULL, threshold=NULL,n.tests=NULL, runtime=NULL, test=NULL, rob=NULL));
+         slots=list(selectedVars='numeric', selectedVarsOrder='numeric', hashObject='list', pvalues='numeric', stats='numeric', univ='list', max_k='numeric', threshold='numeric', n.tests ='numeric', runtime='proc_time', test='character'), 
+         prototype=list(selectedVars=NULL, selectedVarsOrder=NULL, hashObject=NULL, pvalues=NULL, stats=NULL, univ=NULL, max_k=NULL, threshold=NULL,n.tests=NULL, runtime=NULL, test=NULL));
 
-setMethod("summary", signature(object="MMPCoutput"), 
-          function(object){
-            x = object;
-            #cat("General summary of the MMPCoutput object:\n")
-            #summary(x);
-            if ( length(x@selectedVars) == 0 ) {
-              cat("\nSelected Variables: ")
-              print(x@selectedVars);
-              cat("\nSelected Variables ordered by pvalue: ")
-              print(x@selectedVarsOrder);
-              cat("\nhashObject summary:\n")
-              print(base::summary(x@hashObject));
-              cat("\nSummary of the generated pvalues matrix:\n")
-              print(base::summary(x@pvalues));
-              cat("\nSummary of the generated stats matrix:\n")
-              print(base::summary(x@stats));
-              cat("\nUnivariate associations:\n")
-              print(x@univ)
-              cat("\nmax_k option: ")
-              cat(x@max_k);
-              cat("\nthreshold option: ")
-              cat(x@threshold);
-              cat("\nTest: ")
-              cat(x@test);
-              cat("\nNumber of tests: ")
-              cat(x@n.tests);
-              cat("\nTotal Runtime:\n")
-              print(x@runtime)
-              #cat("    user system elapsed\n")
-              #print(x@runtime[1:3]);
-              cat("\nRobust:\n")
-              print(x@rob)
-            } else {
-              cat("\nSelected Variables: ")
-              print(x@selectedVars);
-              cat("\nSelected Variables ordered by pvalue: ")
-              print(x@selectedVarsOrder);
-              cat("\nhashObject summary:\n")
-              print(base::summary(x@hashObject));
-              cat("\nSummary of the generated pvalues matrix:\n")
-              print(base::summary(x@pvalues));
-              cat("\nSummary of the generated stats matrix:\n")
-              print(base::summary(x@stats));
-              cat("\nUnivariate associations:\n")
-              print(x@univ)
-              cat("\nmax_k option: ")
-              print(x@max_k);
-              cat("\nthreshold option: ")
-              print(x@threshold);
-              cat("\nTest: ")
-              cat(x@test);
-              cat("\nNumber of tests: ")
-              cat(x@n.tests);
-              cat("\nTotal Runtime:\n")
-              print(x@runtime)
-              #cat("    user system elapsed\n")
-              #print(x@runtime[1:3]);
-              cat("\nRobust:\n")
-              print(x@rob)
-            }
-          }
-);
+
 setMethod("plot", signature(x="MMPCoutput"), 
           function(x,mode="all", ...){
             

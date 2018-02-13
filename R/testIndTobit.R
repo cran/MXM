@@ -1,4 +1,4 @@
-testIndTobit = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=NULL, univariateModels=NULL, hash = FALSE, stat_hash=NULL, pvalue_hash=NULL,robust=FALSE){
+testIndTobit = function(target, dataset, xIndex, csIndex, wei = NULL, univariateModels=NULL, hash = FALSE, stat_hash=NULL, pvalue_hash=NULL){
   # Conditional independence test based on the Log Likelihood ratio test
   if (!survival::is.Surv(target) )   stop('The survival test can not be performed without a Surv object target');
   csIndex[which(is.na(csIndex))] = 0;
@@ -10,16 +10,14 @@ testIndTobit = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=N
     if (is.null(stat_hash[[key]]) == FALSE) {
       stat = stat_hash[[key]];
       pvalue = pvalue_hash[[key]];
-      flag = 1;
-      results <- list(pvalue = pvalue, stat = stat, flag = flag, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+      results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
       return(results);
     }
   }
   #initialization: these values will be returned whether the test cannot be carried out
   pvalue = log(1);
   stat = 0;
-  flag = 0;
-  results <- list(pvalue = pvalue, stat = stat, flag = flag, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+  results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
   tob = NULL;
   tob_full = NULL;
   #if the censored indicator is empty, a dummy variable is created
@@ -37,11 +35,9 @@ testIndTobit = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=N
     dF = res[2, 5];
     pvalue = pchisq(stat, dF, lower.tail = FALSE, log.p = TRUE)
   }  
-  flag = 1;
   if ( is.na(pvalue) || is.na(stat) ) {
     pvalue = log(1);
     stat = 0;
-    flag = 0;
   } else {
     #update hash objects
     if( hash )  {
@@ -50,7 +46,7 @@ testIndTobit = function(target, dataset, xIndex, csIndex, wei = NULL, dataInfo=N
     }
   }
   #testerrorcaseintrycatch(4);
-  results <- list(pvalue = pvalue, stat = stat, flag = flag , stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+  results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
   return(results);
   
 }

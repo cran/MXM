@@ -149,7 +149,7 @@ perm.betaregs <- function(target, dataset, wei = NULL, check = FALSE, logged = F
       bic[id] = NA
     }
   } 
-  cbind(stat, pvalue, bic)
+  cbind(stat, log(pvalue), bic)
 }
 
 

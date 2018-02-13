@@ -1,4 +1,4 @@
-clogit.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, tol = 2, heavy = FALSE, robust = FALSE, ncores = 1) {
+clogit.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, tol = 2, ncores = 1) {
   
   if ( !is.null(ini) ) {
     result <- clogit.fsreg_2(target, dataset, iniset = ini, threshold = threshold, tol = tol, ncores = ncores) 
@@ -6,7 +6,7 @@ clogit.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NU
   } else {  ## else do the classical forward regression
 
     threshold <- log(threshold)  ## log of the significance level
-    
+    dataset <- as.data.frame(dataset)
     case = as.logical(target[, 1]);  #
     id = target[, 2] #the patient id
   
@@ -31,7 +31,6 @@ clogit.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NU
       pval = pchisq( stat, dof, lower.tail = FALSE, log.p = TRUE )
       
     } else {
-      #if ( robust == FALSE ) {  ## Non robust
       cl <- makePSOCKcluster(ncores)
       registerDoParallel(cl)
       mod <- foreach( i = 1:p, .combine = rbind, .export = "survival", .packages = "clogit") %dopar% {
@@ -75,7 +74,7 @@ clogit.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NU
         devi <- dof <- numeric(pn)
         for ( i in 1:pn ) {
           ww <- try( survival::clogit( case ~ dataset[, sela ] + dataset[, mat[i, 1] ] + strata(id) ), silent = TRUE )
-          if ( class(ww) == "try-error" ) {
+          if ( identical( class(ww), "try-error" ) ) {
             devi[i] <- ini
             dof[i] <- do + 1
           } else {
@@ -92,7 +91,7 @@ clogit.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NU
         mat <- matrix(0, pn, 2)
         mod <- foreach( i = 1:pn, .combine = rbind, .export = "clogit", .packages = "survival") %dopar% {
           ww <- try( survival::clogit( case ~ dataset[, sela ] + dataset[, mat[i, 1] ] + strata(id) ), silent = TRUE )
-          if ( class(ww) == "try-error" ) {
+          if ( identical( class(ww), "try-error" ) ) {
             mat[i, ] <- c(ini, do)
           } else {
             mat[i, ] <- c( 2 * logLik(ww), length( ww$coefficients ) )
@@ -141,7 +140,7 @@ clogit.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NU
           devi = dof = numeric(pn) 
           for ( i in 1:pn ) {
             ma <- try( survival::clogit(  case ~ . + strata(id), data = dataset[, c(sela, mat[i, 1])] ), silent = TRUE)
-            if ( class(ma) == "try-error" ) {
+          if ( identical( class(ma), "try-error" ) ) {
               devi[i] <- ini
               dof[i] <- do + 1
             } else {
@@ -153,13 +152,12 @@ clogit.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NU
           pval = pchisq( stat, dof - do, lower.tail = FALSE, log.p = TRUE )
           
         } else {
-          #if ( robust == FALSE ) {  ## Non robust
           cl <- makePSOCKcluster(ncores)
           registerDoParallel(cl)
           mat <- matrix(0, pn, 2)
           mod <- foreach( i = 1:pn, .combine = rbind, .export = "clogit", .packages = "survival") %dopar% {
             ww <- try( survival::clogit(  case ~ . + strata(id), data = dataset[, c(sela, mat[i, 1])] ), silent = TRUE)
-            if ( class(ww) == "try-error" ) {
+            if ( identical( class(ww), "try-error" ) ) {
               mat[i, ] <- c(ini, do)
             } else {
               mat[i, ] <- c( 2 * logLik(ww), length( ww$coefficients ) )

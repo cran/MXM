@@ -1,8 +1,8 @@
-mmmb = function(target, dataset, max_k = 3, threshold = 0.05, test = "testIndFisher", user_test = NULL, robust = FALSE, ncores = 1) {
+mmmb = function(target, dataset, max_k = 3, threshold = 0.05, test = "testIndFisher", user_test = NULL, ncores = 1) {
   
   durat <- proc.time()  
   
-  mmpcobject <- MMPC(target, dataset, max_k = max_k, threshold = threshold, test = test, user_test = user_test, robust = robust, ncores = ncores, backward = TRUE)
+  mmpcobject <- MMPC(target, dataset, max_k = max_k, threshold = threshold, test = test, user_test = user_test, ncores = ncores, backward = TRUE)
   varsToIterate <- mmpcobject@selectedVars;
   pct <- varsToIterate
   met <- 1:length(pct)
@@ -16,7 +16,7 @@ mmmb = function(target, dataset, max_k = 3, threshold = 0.05, test = "testIndFis
     for ( i in met) {
       tar <- dataset[, varsToIterate[i] ];
       datas <- cbind( dataset[, -varsToIterate[i] ], target)
-      res <- MMPC(tar, datas, max_k = max_k, threshold = threshold, test = test, user_test = user_test, robust = robust, ncores = ncores, backward = TRUE) 
+      res <- MMPC(tar, datas, max_k = max_k, threshold = threshold, test = test, user_test = user_test, ncores = ncores, backward = TRUE) 
       poies <- sort( res@selectedVars )
       poies <- poies[poies != d ]
       poies[ poies >= varsToIterate[i] ] = poies[ poies >= varsToIterate[i] ] + 1

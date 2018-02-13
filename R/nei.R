@@ -4,7 +4,7 @@
 #####
 ############################
 ############################
-nei <- function(G, node, graph = TRUE) {
+nei <- function(G, node) {
   ## G is the adjacency matrix of an UN-DIRECTED graph
   ## node is either one number between 1 and the number of nodes
   ## or more numbers, corresponding to two or more nodes
@@ -19,7 +19,6 @@ nei <- function(G, node, graph = TRUE) {
   if ( n == 1 ) {
     ind = which( G[node, ] == 1 ) 
     if ( length(ind) == 0 ) {
-      graph <- FALSE
       geit <- paste( "The chosen node has no neighbours" );
     } else {
       ind <- as.vector( ind[ ind>0 ] )
@@ -46,8 +45,6 @@ nei <- function(G, node, graph = TRUE) {
     Gnei <- G[geit, geit]
     names(geit) <- nama[geit]
   }
-
-  if ( graph )  plotnetwork(Gnei, titlos = "Subgraph of association network")
 
   geit
 }

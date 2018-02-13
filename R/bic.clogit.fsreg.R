@@ -1,4 +1,4 @@
-bic.clogit.fsreg <- function( target, dataset, wei = NULL, tol = 0, heavy = FALSE, robust = FALSE, ncores = 1) {
+bic.clogit.fsreg <- function( target, dataset, wei = NULL, tol = 0, ncores = 1) {
   
   p <- dim(dataset)[2]  ## number of variables
   bico <- numeric( p )

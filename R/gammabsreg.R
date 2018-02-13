@@ -1,4 +1,4 @@
-gammabsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FALSE, robust = FALSE) {
+gammabsreg <- function(target, dataset, threshold = 0.05, wei = NULL) {
   
   threshold <- log(threshold)
   dm <- dim(dataset)
@@ -34,31 +34,12 @@ gammabsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FA
     }
       runtime <- proc.time()
       dataset <- as.data.frame(dataset)
-      
-       if ( !heavy ) {
-          ini <- glm( target ~.,  data = dataset, family = Gamma(link = log), weights = wei, y = FALSE, model = FALSE )
-          dofini <- length( ini$coefficients )
-          tab <- drop1( ini, test = "Chisq" )
-          dof <- tab[-1, 1]
-          stat <- tab[-1, 4]
-          
-        }  else {
-          ini <- speedglm::speedglm( target ~.,  data = dataset, family = Gamma(link = log), weights = wei )
-          dofini <- length( ini$coefficients )
-          stat <- dof <- phi <- numeric(p)
-		      if (p == 1) {
-            mod <- speedglm::speedglm( target ~ 1,  data = dataset, family = Gamma(link = log), weights = wei )
-            phi <- mod$RSS/mod$df
-            stat <- 2 * ( logLik(ini) - logLik(mod) ) / phi
-            dof <- length( coef(mod) ) 		  
-		      } else {
-            for (i in 1:p) {
-              mod <- speedglm::speedglm( target ~.,  data = dataset[, -i, drop = FALSE], family = Gamma(link = log), weights = wei )
-              stat[i] <- 2 * ( logLik(ini) - logLik(mod) ) / ( mod$RSS/mod$df )
-              dof[i] <- length( mod$coefficients ) 
-            }
-		      }
-        }	
+
+      ini <- glm( target ~.,  data = dataset, family = Gamma(link = log), weights = wei, y = FALSE, model = FALSE )
+      dofini <- length( ini$coefficients )
+      tab <- drop1( ini, test = "F" )
+      dof <- tab[-1, 1]
+      stat <- tab[-1, 4]
         
         mat <- cbind(1:p, pf( stat, dofini - dof, n - dof, lower.tail = FALSE, log.p = TRUE), stat )
         colnames(mat) <- c("variable", "log.p-values", "statistic" )
@@ -82,8 +63,6 @@ gammabsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FA
         
         if ( info[1, 2] > threshold & dim(mat)[1]>0 ) {
           
-          if ( !heavy ) {
-            
             while ( info[i, 2] > threshold  &  dim(dat)[2] > 0 )  {   
               i <- i + 1
               k <- p - i + 1
@@ -91,8 +70,8 @@ gammabsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FA
               dofini <- length(ini$coefficients)
               if ( k == 1 ) {
                 mod <- glm(target ~ 1, data = dat, family = Gamma(link = log), weights = wei)
-                stat <- 2 * ( logLik(ini) - logLik(mod) ) / summary(mod)[[ 14 ]]
                 dof <- length( mod$coefficients ) 
+                stat <- (mod$deviance - ini$deviance) / (dofini - dof) / summary(mod)[[ 14 ]]
                 pval <- pf( stat, dofini - dof, n - dof, lower.tail = FALSE, log.p = TRUE)
                 
                 if (pval > threshold ) {
@@ -108,7 +87,7 @@ gammabsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FA
                 
               } else {
                 
-                tab <- drop1( ini, test = "Chisq" )
+                tab <- drop1( ini, test = "F" )
                 dof <- tab[-1, 1]
                 stat <- tab[-1, 4]
                 mat[, 2:3] <- cbind( pf(stat, dof, n - (dofini - dof), lower.tail = FALSE, log.p = TRUE), stat )
@@ -125,57 +104,7 @@ gammabsreg <- function(target, dataset, threshold = 0.05, wei = NULL, heavy = FA
                 }
               }  
             }  ## end while
-            
-          } else {
-            
-            while ( info[i, 2] > threshold  &  dim(dat)[2] > 0 )  {   
-              
-              i <- i + 1       
-              k <- p - i + 1
-              ini <- speedglm::speedglm( target ~., data = dat, family = Gamma(link = log), weights = wei )
-              dofini <- length( ini$coefficients ) 
-              if ( k == 1 ) {
-                mod <- speedglm::speedglm(target ~ 1, data = dat, family = Gamma(link = log), weights = wei)
-                stat <- 2 * ( logLik(ini) - logLik(mod) ) / (mod$RSS/mod$df)
-                dof <- length( mod$coefficients )  
-                pval <- pf( stat, dofini - dof, n - dof, lower.tail = FALSE, log.p = TRUE)
-                
-                if (pval > threshold ) {
-                  final <- "No variables were selected"
-                  info <- rbind(info, c(mat[, 1], pval, stat) )
-                  dat <- dataset[, -info[, 1], drop = FALSE ]
-                  mat <- NULL
-                } else {
-                  info <- rbind(info, c(0, -10, -10)) 
-                  final <- ini
-                  mat[, 2:3] <- c(pval, stat)
-                }  
-              } else {		       
-                
-                stat <- dof <- numeric(k)
-                
-                for (j in 1:k) {
-                  mod <- speedglm::speedglm( target ~., data = dat[, -j, drop = FALSE], family = Gamma(link = log), weights = wei )
-                  stat[j] <- 2 * ( logLik(ini) - logLik(mod) ) / (mod$RSS/mod$df)
-                  dof[j] <- length( mod$coefficients ) 		   
-                } 
-                
-                mat[, 2:3] <- cbind( pf(stat, dofini - dof, n - dof, lower.tail = FALSE, log.p = TRUE), stat )
-                sel <- which.max( mat[, 2] )
-                
-                if ( mat[sel, 2] < threshold ) {
-                  final <- ini
-                  info <- rbind(info, c(0, -10, -10) )
-                  
-                } else {
-                  info <- rbind(info, mat[sel, ] )
-                  mat <- mat[-sel, , drop = FALSE] 
-                  dat <- dataset[, -info[, 1], drop = FALSE ]
-                }
-                
-              }	   
-            }  ## end while
-        }  ## end else 
+
         runtime <- proc.time() - runtime		
         info <- info[ info[, 1] > 0, , drop = FALSE]
         res <- list(runtime = runtime, info = info, mat = mat, ci_test = "testIndGamma", final = final ) 

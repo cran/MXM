@@ -1,4 +1,4 @@
-fbed.clogit <- function(y, x, alpha = 0.05, wei = NULL, K = 0) { 
+fbed.clogit <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) { 
   sig <- log(alpha)
   dm <- dim(x)
   p <- dm[2]
@@ -14,15 +14,25 @@ fbed.clogit <- function(y, x, alpha = 0.05, wei = NULL, K = 0) {
   case <- y[, 1]
   
   lik1 <- survival::clogit( case ~ x[, 1] + strata(id) )$loglik[1]
-
-  for ( i in ind ) {
-    fit2 <- survival::clogit( case ~ x[, i] + strata(id) )
-    lik2[i] <- logLik(fit2)
-    dof[i] <- length(fit2$coefficients)
-  }
-  n.tests <- p
-  stat <- lik2 - lik1
-  pval <- pchisq(2 * stat, dof, lower.tail = FALSE, log.p = TRUE)
+  
+  if ( is.null(univ) ) {
+    for ( i in ind ) {
+      fit2 <- survival::clogit( case ~ x[, i] + strata(id) )
+      lik2[i] <- logLik(fit2)
+      dof[i] <- length(fit2$coefficients)
+    }
+    stat <- lik2 - lik1
+    pval <- pchisq(2 * stat, dof, lower.tail = FALSE, log.p = TRUE)
+    univ$stat <- stat
+    univ$pvalue <- pval
+    n.tests <- p
+  } else {
+    n.tests <- 0
+    stat <- univ$stat
+    pval <- univ$pvalue
+    lik2 <- univ$stat + 2 * lik1
+  } 
+  
   s <- which(pval < sig)
   
   if ( length(s) > 0 ) {
@@ -30,7 +40,7 @@ fbed.clogit <- function(y, x, alpha = 0.05, wei = NULL, K = 0) {
     sela <- sel
     s <- s[ - which(s == sel) ]
     lik1 <- lik2[sel] 
-    d1 <- dof[sel] 
+    d1 <- dim( model.matrix( y~., data.frame(x[, sel]) ) )[2] - 1
     sa <- stat[sel]
     pva <- pval[sel]
     lik2 <- rep( lik1, p )
@@ -39,7 +49,7 @@ fbed.clogit <- function(y, x, alpha = 0.05, wei = NULL, K = 0) {
     while ( sum(s>0) > 0 ) {
       for ( i in ind[s] )  {
         fit2 <- try( survival::clogit( case ~. + strata(id), data = x[, c(sela, i)] ), silent = TRUE)
-        if ( sum( class(fit2) == "try-error" ) == 1 ) {
+          if ( identical( class(fit2), "try-error" ) ) {
           lik2[i] <- lik1
         } else {
           lik2[i] <- logLik(fit2)  
@@ -68,7 +78,7 @@ fbed.clogit <- function(y, x, alpha = 0.05, wei = NULL, K = 0) {
     if (K == 1) {
       for ( i in ind[-sela] )  {
         fit2 <- try( survival::clogit( case ~. + strata(id), data = x[, c(sela, i)] ), silent = TRUE)
-        if ( sum( class(fit2) == "try-error" ) == 1 ) {
+          if ( identical( class(fit2), "try-error" ) ) {
           lik2[i] <- lik1
         } else {
           lik2[i] <- logLik(fit2)  
@@ -93,7 +103,7 @@ fbed.clogit <- function(y, x, alpha = 0.05, wei = NULL, K = 0) {
       while ( sum(s>0) > 0 ) {
         for ( i in ind[s] )  {
           fit2 <- try( survival::clogit( case ~. + strata(id), data = x[, c(sela, i)] ), silent = TRUE)
-          if ( sum( class(fit2) == "try-error" ) == 1 ) {
+          if ( identical( class(fit2), "try-error" ) ) {
             lik2[i] <- lik1
           } else {
             lik2[i] <- logLik(fit2)  
@@ -123,7 +133,7 @@ fbed.clogit <- function(y, x, alpha = 0.05, wei = NULL, K = 0) {
       
       for ( i in ind[-sela] )  {
         fit2 <- try( survival::clogit( case ~. + strata(id), data = x[, c(sela, i)] ), silent = TRUE)
-        if ( sum( class(fit2) == "try-error" ) == 1 ) {
+          if ( identical( class(fit2), "try-error" ) ) {
           lik2[i] <- lik1
         } else {
           lik2[i] <- logLik(fit2)  
@@ -148,7 +158,7 @@ fbed.clogit <- function(y, x, alpha = 0.05, wei = NULL, K = 0) {
       while ( sum(s > 0) > 0 ) {
         for ( i in ind[s] )  {
           fit2 <- try( survival::clogit( case ~. + strata(id), data = x[, c(sela, i)] ), silent = TRUE)
-          if ( sum( class(fit2) == "try-error" ) == 1 ) {
+          if ( identical( class(fit2), "try-error" ) ) {
             lik2[i] <- lik1
           } else {
             lik2[i] <- logLik(fit2)  
@@ -178,7 +188,7 @@ fbed.clogit <- function(y, x, alpha = 0.05, wei = NULL, K = 0) {
         vim <- vim + 1
         for ( i in ind[-sela] )  {
           fit2 <- try( survival::clogit( case ~. + strata(id), data = x[, c(sela, i)] ), silent = TRUE)
-          if ( sum( class(fit2) == "try-error" ) == 1 ) {
+          if ( identical( class(fit2), "try-error" ) ) {
             lik2[i] <- lik1
           } else {
             lik2[i] <- logLik(fit2)  
@@ -203,7 +213,7 @@ fbed.clogit <- function(y, x, alpha = 0.05, wei = NULL, K = 0) {
         while ( sum(s > 0) > 0 ) {
           for ( i in ind[s] )  {
             fit2 <- try( survival::clogit( case ~. + strata(id), data = x[, c(sela, i)] ), silent = TRUE)
-            if ( sum( class(fit2) == "try-error" ) == 1 ) {
+            if ( identical( class(fit2), "try-error" ) ) {
               lik2[i] <- lik1
             } else {
               lik2[i] <- logLik(fit2)  
@@ -245,5 +255,5 @@ fbed.clogit <- function(y, x, alpha = 0.05, wei = NULL, K = 0) {
   colnames(res) <- c("Vars", "stat", "log p-value")
   rownames(info) <- paste("K=", 1:length(card)- 1, sep = "")
   colnames(info) <- c("Number of vars", "Number of tests")
-  list(res = res, info = info, runtime = runtime)
+  list(univ = univ, res = res, info = info, runtime = runtime)
 }

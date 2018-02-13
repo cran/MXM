@@ -1,4 +1,4 @@
-ebic.fbed.lm <- function(y, x, gam = NULL, wei = NULL, K = 0) { 
+ebic.fbed.lm <- function(y, x, univ = NULL, gam = NULL, wei = NULL, K = 0) { 
   dm <- dim(x)
   n <- dm[1]
   p <- dm[2]
@@ -10,32 +10,40 @@ ebic.fbed.lm <- function(y, x, gam = NULL, wei = NULL, K = 0) {
   
   if ( is.null(gam) ) {
     con <- 2 - log(p) / logn
-    if ( (con) < 0 )  con <- 0
   } else con <- 2 * gam
-
+  if ( (con) < 0 )  con <- 0
   
   runtime <- proc.time()
-  if ( is.null(wei) )  {
-    com <-  n * log(2 * pi) + n 
-    s <- Rfast::Var(y) * (n - 1)
-    lik1 <- n * log(s/n) + 2 * logn + com
-    for ( i in ind ) {
-      X <- model.matrix(y ~ x[, i])
-      fit2 <- .lm.fit( X, y)
-      lik2[i] <- n * log( sum(fit2$residuals^2)/n ) + (length(fit2$coefficients) + 1) * logn + log(p)
-    }
-    lik2 <- lik2 + com
-  } else {
-    for ( i in ind ) {
-      ini <- lm(y ~ 1, weights = wei)
-      lik1 <- BIC(ini)
-      X <- model.matrix(y ~ x[, i])
-      fit2 <- lm.wfit(X, y, w = wei)
-      lik2[i] <- n * log( sum(wei * fit2$residuals^2) ) + (length(fit2$coefficients) + 1) * logn + log(p)
-    }
-  }  
-  n.tests <- p
-  stat <- lik1 - lik2
+  
+  if ( is.null(univ) ) {
+    if ( is.null(wei) )  {
+      com <-  n * log(2 * pi) + n 
+      s <- Rfast::Var(y) * (n - 1)
+      lik1 <- n * log(s/n) + 2 * logn + com
+      for ( i in ind ) {
+        X <- model.matrix(y ~ x[, i])
+        fit2 <- .lm.fit( X, y)
+        lik2[i] <- n * log( sum(fit2$residuals^2)/n ) + (length(fit2$coefficients) + 1) * logn + log(p)
+      }
+      lik2 <- lik2 + com
+    } else {
+      for ( i in ind ) {
+        ini <- lm(y ~ 1, weights = wei)
+        lik1 <- BIC(ini)
+        X <- model.matrix(y ~ x[, i])
+        fit2 <- lm.wfit(X, y, w = wei)
+        lik2[i] <- n * log( sum(wei * fit2$residuals^2) ) + (length(fit2$coefficients) + 1) * logn + log(p)
+      }
+    }  
+    n.tests <- p
+    stat <- lik1 - lik2
+    univ <- list()  
+    univ$ebic <- lik2
+  } else {  
+    n.tests <- 0
+    lik2 <- univ$ebic
+    stat <- lik1 - lik2
+  } 
   s <- which(stat > 0)
   
   if ( length(s) > 0 ) {
@@ -195,8 +203,8 @@ ebic.fbed.lm <- function(y, x, gam = NULL, wei = NULL, K = 0) {
     res <- matrix(c(0, 0), ncol = 2)
     info <- matrix(c(0, p), ncol = 2)
   }  
-  colnames(res) <- c("Vars", "eBIC")
+  colnames(res) <- c("Vars", "eBIC difference")
   rownames(info) <- paste("K=", 1:length(card)- 1, sep = "")
   colnames(info) <- c("Number of vars", "Number of tests")
-  list(res = res, info = info, runtime = runtime)
+  list(univ = univ, res = res, info = info, runtime = runtime)
 }

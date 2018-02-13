@@ -17,7 +17,6 @@
 #   "testIndRQ" : Conditional Independence Test based on quantile (median) regression for numerical class variables and mixed predictors (F test)
 #   "testIndLogistic" : Conditional Independence Test based on logistic regression for binary,categorical or ordinal class variables and mixed predictors
 #   "testIndPois" : Conditional Independence Test based on Poisson regression for discrete class variables and mixed predictors (log-likelihood ratio test)
-#   "testIndSpeedglm" : Conditional Independence Test based on linear, binary logistic and poisson regression with mixed predictors (log-likelihood ratio test)
 #   "testIndZIP" : Conditional Independence Test based on zero inflated poisson regression for discrete class variables and mixed predictors (log-likelihood ratio test)
 #   "testIndNB" : Conditional Independence Test based on negative binomial regression for discrete class variables and mixed predictors (log-likelihood ratio test)
 #   "testIndBeta" : Conditional Independence Test based on beta regression for proportions and mixed predictors (log likelihood ratio test)
@@ -52,24 +51,14 @@
 # threshold : the threshold option used in the current run.
 # runtime : the run time of the algorithm.
 # Conditional independence test arguments have to be in this exact fixed order : 
-# target(target variable), data(dataset), xIndex(x index), csIndex(cs index), dataInfo(list), 
+# target(target variable), data(dataset), xIndex(x index), csIndex(cs index),  
 # univariateModels(cached statistics for the univariate indepence test), hash(hash booleab), stat_hash(hash object), 
-# pvalue_hash(hash object), robust=robust
-# example: test(target, data, xIndex, csIndex, dataInfo=NULL, univariateModels=NULL, hash=FALSE, stat_hash=NULL, pvalue_hash=NULL, robust)
 # output of each test: LIST of the generated pvalue, stat, flag and the updated hash objects.
-# equal_case variable inside the code : it determines the method of the equivalent estimation
-#   if equal_case = 1 then, if we have more than one equivalent vars in z , we select the one with the most closer pvalue to the pvalue of cvar
-#   if equal_case = 2 then, if we have more than one equivalent vars in z , we select the one with the most minimum pvalue (>a)
-#   else in any other case, if we have more than one equivalent vars in z , we select the first one
-# In this version we support the equal_case = 3.
 SES = function(target, dataset, max_k = 3, threshold = 0.05 , test = NULL, ini = NULL, wei = NULL, user_test = NULL, 
-               hash = FALSE, hashObject = NULL, robust = FALSE, ncores = 1, logged = FALSE) {
-  #get the log threshold
-  threshold = log(threshold)
+               hash = FALSE, hashObject = NULL, ncores = 1) {
   ##############################
   # initialization part of SES #
   ##############################
-   equal_case = 3;
   stat_hash = NULL;
   pvalue_hash = NULL;
   
@@ -87,7 +76,6 @@ SES = function(target, dataset, max_k = 3, threshold = 0.05 , test = NULL, ini =
       return(NULL);
     }
   }
-  dataInfo = NULL;
   ###################################
   # dataset checking and initialize #
   ###################################
@@ -95,19 +83,6 @@ SES = function(target, dataset, max_k = 3, threshold = 0.05 , test = NULL, ini =
     if ( sum( class(target) == "matrix") == 1 )  {
       if ( sum( class(target) == "Surv") == 1 )  stop('Invalid dataset class. For survival analysis provide a dataframe-class dataset');      
     }
-    #check if dataset is an ExpressionSet object of Biobase package
-    #if(class(dataset) == "ExpressionSet") {
-      #get the elements (numeric matrix) of the current ExpressionSet object.
-    #  dataset = Biobase::exprs(dataset);
-    #  dataset = t(dataset);#take the features as columns and the samples as rows
-#     }else if(is.data.frame(dataset)){
-#       if(class(target) != "Surv")
-#       {
-#         dataset = as.matrix(dataset);
-#       }
-    #}else if((class(dataset) != "matrix") & (is.data.frame(dataset) == FALSE) ){
-    #  stop('Invalid dataset class. It must be either a matrix, a dataframe or an ExpressionSet');
-    #}
   }
   if ( is.null(dataset) || is.null(target) ) {  #|| (dim(as.matrix(target))[2] != 1 & class(target) != "Surv" ))
     stop('invalid dataset or target (class feature) arguments.');
@@ -160,7 +135,6 @@ SES = function(target, dataset, max_k = 3, threshold = 0.05 , test = NULL, ini =
     if ( ncol(target) >= 2  &  class(target) != "Surv" ) {
       if ( (is.null(test) || test == "auto")  &  is.null(user_test) ) {
         test = "testIndMVreg"
-        warning("Multivariate target (ncol(target) >= 2) requires a multivariate test of conditional independence. The testIndMVreg was used. For a user-defined multivariate test, please provide one in the user_test argument.");
       }
     }
   }
@@ -179,16 +153,11 @@ SES = function(target, dataset, max_k = 3, threshold = 0.05 , test = NULL, ini =
       if ( sum( class(target) == "matrix") == 1 )  test = "testIndMVreg"
       #if target is a factor then use the Logistic test
       if ( "factor" %in% class(target) )  {
-        test = "testIndLogistic";
-        if( is.ordered(target) ) {
-          dataInfo$target_type = "ordinal";
-        } else {
-          if ( la == 2 ) {
-            dataInfo$target_type = "binary"
-          } else {
-            dataInfo$target_type = "nominal"
-          }
-        }
+        if ( is.ordered(target) &  la > 2 ) {
+          test = "testIndOrdinal"
+        } else if ( !is.ordered(target) & la > 2 ) {
+          test = "testIndMultinom"
+        } else test = "testIndLogistic"
         
       } else if ( ( is.numeric(target) || is.integer(target) ) & survival::is.Surv(target) == FALSE ) {
         
@@ -208,45 +177,34 @@ SES = function(target, dataset, max_k = 3, threshold = 0.05 , test = NULL, ini =
         test = "censIndCR";
       } else   stop('Target must be a factor, vector, matrix with at least 2 columns column or a Surv object');
     }
-    
-    if ( test == "testIndLogistic") {
-      if ( is.ordered(target) )  {
-        dataInfo$target_type = "ordinal";
-
-      } else {
-        if ( la == 2 )  {
-          dataInfo$target_type = "binary"
-        } else {
-          dataInfo$target_type = "nominal"
-        }
-      }
-    }
-    
     #available conditional independence tests
     av_tests = c("testIndFisher", "testIndSpearman", "testIndReg", "testIndRQ", "testIndBeta", "censIndCR", "censIndWR", "censIndER", 
-                 "testIndClogit", "testIndLogistic", "testIndPois", "testIndNB", "testIndBinom", "gSquare", "auto", "testIndZIP", 
-                 "testIndSpeedglm", "testIndMVreg", "testIndIGreg", "testIndGamma", "testIndNormLog", "testIndTobit", NULL);
+                 "testIndClogit", "testIndLogistic", "testIndPois", "testIndNB", "testIndBinom", "gSquare", "auto" , "testIndZIP" , 
+                 "testIndMVreg", "testIndIGreg", "testIndGamma", "testIndNormLog", "testIndTobit", "testIndQPois", "testdIndQBinom", 
+                 "testIndMMReg", "testIndMMFisher", "testIndMultinom", "testIndOrdinal", "testIndTimeLogistic", "testIndTimeMultinom", NULL);
     ci_test = test
     #cat(test)
     if (length(test) == 1) {      #avoid vectors, matrices etc
       test = match.arg(test, av_tests, TRUE);
       #convert to closure type
       if (test == "testIndFisher") {
-        #an einai posostiaio target
         test = testIndFisher;
-      }
-      else if (test == "testIndSpearman")  {
-        #an einai posostiaio target
+
+      } else if (test == "testIndMMFisher") {
+        test = testIndMMFisher;
+        
+      } else if (test == "testIndMMReg") {
+        test = testIndMMReg;
+		
+      } else if (test == "testIndSpearman")  {
         target <- rank(target)
-        dataset <- apply(dataset, 2, rank)  
+        dataset <- Rfast::colRanks(dataset)  
         test <- testIndSpearman;  ## Spearman is Pearson on the ranks of the data
-      }
-      else if (test == "testIndReg") ## It uMMPC the F test
-      {
-        #an einai posostiaio target
-        test = testIndReg;
-      }
-      else if (test == "testIndMVreg") {
+		
+      } else if (test == "testIndReg")  {  ## It uMMPC the F test
+        test = testIndReg
+     
+      }  else if (test == "testIndMVreg") {
         if ( min(target) > 0 & sd( Rfast::rowsums(target) ) == 0 )  target = log( target[, -1]/target[, 1] ) 
         test = testIndMVreg;
         
@@ -263,9 +221,6 @@ SES = function(target, dataset, max_k = 3, threshold = 0.05 , test = NULL, ini =
       } else if (test == "testIndPois") { ## Poisson regression
         test = testIndPois;
         
-      } else if (test == "testIndSpeedglm") {  
-        test = testIndSpeedglm;
-        
       } else if (test == "testIndNB") { ## Negative binomial regression
         test = testIndNB;
         
@@ -274,7 +229,7 @@ SES = function(target, dataset, max_k = 3, threshold = 0.05 , test = NULL, ini =
         
       } else if (test == "testIndNormLog") { ## Normal regression with a log link
         test = testIndNormLog;
-        
+		
       } else if (test == "testIndZIP") { ## Zero inflated Poisson regression
         test = testIndZIP;
         
@@ -298,9 +253,22 @@ SES = function(target, dataset, max_k = 3, threshold = 0.05 , test = NULL, ini =
         
       } else if(test == "testIndLogistic") {
         test = testIndLogistic;
+
+      } else if(test == "testIndMultinom") {
+        test = testIndMultinom;
+
+      } else if(test == "testIndOrdinal") {
+        test = testIndOrdinal;
+        
+      } else if(test == "testIndQBinom") {
+        test = testIndQBinom;
+        
+      } else if(test == "testIndQPois") {
+        test = testIndQPois;
         
       } else if(test == "gSquare") {
         test = gSquare;
+
       }
       #more tests here
     } else {
@@ -309,29 +277,22 @@ SES = function(target, dataset, max_k = 3, threshold = 0.05 , test = NULL, ini =
   }
   ###################################
   # options checking and initialize #
-  ###################################
   #extracting the parameters
   max_k = floor(max_k);
   varsize = dim(dataset)[2];
   #option checking
   if ( (typeof(max_k)!="double") || max_k < 1 )  stop('invalid max_k option');
   if ( max_k > varsize )   max_k = varsize;
-  if ( (typeof(threshold) != "double" ) || exp(threshold) == 0  || exp(threshold) > 1 )   stop('invalid threshold option');
-  if ( typeof(equal_case) != "double" )   stop('invalid equal_case option');
+  if ( (typeof(threshold) != "double" ) || threshold <= 0  || threshold > 1 )   stop('invalid threshold option');
 
   if ( !is.null(user_test) )   ci_test = "user_test";
   #call the main SES function after the checks and the initializations
-  results = InternalSES(target, dataset, max_k, threshold, test, ini, wei, equal_case, user_test, dataInfo, hash, varsize, stat_hash, pvalue_hash, targetID, robust = robust, ncores = ncores, logged = logged);
-  SESoutput <- new("SESoutput", selectedVars = results$selectedVars, selectedVarsOrder=results$selectedVarsOrder, queues=results$queues, signatures=results$signatures, hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, univ = results$univ, max_k=results$max_k, threshold = results$threshold, n.tests = results$n.tests, runtime=results$runtime, test=ci_test, rob = robust);
+  results = InternalSES(target, dataset, max_k, log(threshold), test, ini, wei, user_test, hash, varsize, stat_hash, pvalue_hash, 
+                        targetID, ncores = ncores);
+  SESoutput <- new("SESoutput", selectedVars = results$selectedVars, selectedVarsOrder=results$selectedVarsOrder, queues=results$queues, 
+                   signatures=results$signatures, hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, univ = results$univ,
+                   max_k=results$max_k, threshold = results$threshold, n.tests = results$n.tests, runtime=results$runtime, test=ci_test);
   return(SESoutput);
 }
 
 
-
-
-# .onAttach <- function(libname, pkgname){
-#   # do whatever needs to be done when the package is loaded
-#   packageStartupMessage( "Loading MXM package version 0.2, thanks for downloading." )
-#   #load the dll files from the fortran code for the package
-#   #library.dynam("MXM", pkgname, libname)
-# }

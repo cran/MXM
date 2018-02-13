@@ -55,7 +55,6 @@
 \alias{internaliamb.binombs}
 \alias{internaliamb.poisbs}
 \alias{internaliamb.lmbs}
-\alias{lm.fsreg_2.heavy}
 \alias{InternalMMPC.temporal}
 \alias{InternalSES.temporal}
 \alias{InternalSES}
@@ -147,6 +146,49 @@
 \alias{clogit.fsreg}
 \alias{clogit.fsreg_2}
 \alias{bic.clogit.fsreg}
+\alias{fbed.glm2}
+\alias{quasibinom.bsreg}
+\alias{quasipois.bsreg}
+\alias{quasibinom.fsreg}
+\alias{quasipois.fsreg}
+\alias{quasibinom.fsreg_2}
+\alias{quasipois.fsreg_2}
+\alias{fbed.geeglm}
+\alias{fbed.geeglm.reps}
+\alias{fbed.ordgee}
+\alias{internaliamb.mmbs}
+\alias{iamb.gammabs}
+\alias{iamb.normlogbs}
+\alias{internaliamb.gammabs}
+\alias{internaliamb.normlogbs}
+\alias{bic.wr.fsreg}
+\alias{wr.fsreg}
+\alias{wr.fsreg_2}
+\alias{ebicScore}
+\alias{fbed.glmm.reps}
+\alias{fbed.lmm.reps}
+\alias{ebic.fbed.lmm.reps}
+\alias{ebic.fbed.glmm.reps}
+\alias{ebic.glmm.reps.bsreg}
+\alias{fbed.ordgee.reps}
+\alias{fbed.geelm}
+\alias{fbed.geelm.reps}
+\alias{univariateScore.gee}
+\alias{InternalMMPC.gee}
+\alias{InternalSES.gee}
+\alias{max_min_assoc.gee}
+\alias{min_assoc.gee}
+\alias{IdentifyEquivalence.gee}
+\alias{identifyTheEquivalent.gee}
+\alias{univariateScore.timeclass}
+\alias{InternalMMPC.timeclass}
+\alias{omp2}
+\alias{rint.reg}
+\alias{mm.bsreg}
+\alias{kfbed.reg}
+\alias{kfbed.glmm.reg}
+\alias{kfbed.gee.reg}
+
 
 \title{ Internal MXM Functions }
 \description{
@@ -209,7 +251,6 @@ Internal functions of Package \pkg{MXM}
 \item internaliamb.binombs( ... )
 \item internaliamb.poisbs( ... )
 \item internaliamb.lmbs( ... )
-\item lm.fsreg_2.heavy( ... )
 \item InternalMMPC.temporal( ... )
 \item InternalSES.temporal( ... )
 \item InternalSES( ... )
@@ -301,10 +342,54 @@ Internal functions of Package \pkg{MXM}
 \item clogit.fsreg( ... )
 \item clogit.fsreg_2( ... )
 \item bic.clogit.fsreg( ... )
+\item fbed.glm2( ... )
+\item quasibinom.bsreg( ... )
+\item quasipois.bsreg( ... )
+\item quasibinom.fsreg( ... )
+\item quasipois.fsreg( ... )
+\item quasibinom.fsreg_2( ... )
+\item quasipois.fsreg_2( ... )
+\item fbed.geeglm( ... )
+\item fbed.geeglm.reps( ... )
+\item fbed.ordgee( ... )
+\item internaliamb.mmbs( ... )
+\item iamb.gammabs( ... )
+\item iamb.normlogbs( ... )
+\item internaliamb.gammabs( ... )
+\item internaliamb.normlogbs( ... )
+\item bic.wr.fsreg( ... )
+\item wr.fsreg( ... )
+\item wr.fsreg_2( ... )
+\item ebicScore( ... )
+\item fbed.glmm.reps( ... )
+\item fbed.lmm.reps( ... )
+\item ebic.fbed.lmm.reps( ... )
+\item ebic.fbed.glmm.reps( ... )
+\item ebic.glmm.reps.bsreg( ... )
+\item fbed.ordgee.reps( ... )
+\item fbed.geelm( ... )
+\item fbed.geelm.reps( ... )
+\item univariateScore.gee( ... )
+\item InternalMMPC.gee( .. )
+\item InternalSES.gee( .. )
+\item max_min_assoc.gee( ... )
+\item min_assoc.gee( ... )
+\item IdentifyEquivalence.gee( ... )
+\item identifyTheEquivalent.gee( ... )
+\item univariateScore.timeclass( ... )
+\item InternalMMPC.timeclass( ... )
+\item omp2( ... )
+\item rint.reg( ... )
+\item mm.bsreg( ... )
+\item kfbed.reg( ... )
+\item kfbed.glmm.reg( ... )
+\item kfbed.gee.reg( ... )
+
+
 }
 }
 \details{
-  These functions are only for internal usage of the MXM package - NOT to be called by the user.
+These functions are only for internal usage of the MXM package - NOT to be called by the user.
 }
 
 \keyword{Internal MXM Functions}

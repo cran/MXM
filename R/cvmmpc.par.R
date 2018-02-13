@@ -17,7 +17,7 @@
 #cv_results_all: a list with the predictions, performances and the signatures for each fold of each configuration (i.e cv_results_all[[3]]$performances[1] indicates the performance of the 1st fold with the 3d configuration of mmpc)
 #best_performance: numeric, the best average performance
 #best_configuration: the best configuration of mmpc (a list with the slots id, a, max_k)
-cvmmpc.par <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, alphas = NULL, max_ks = NULL, task = NULL, metric = NULL, modeler = NULL, mmpc_test = NULL, robust = FALSE, ncores = 2)
+cvmmpc.par <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, alphas = NULL, max_ks = NULL, task = NULL, metric = NULL, modeler = NULL, mmpc_test = NULL, ncores = 2)
 {
   
   if (is.null(alphas) )   alphas <- c(0.1, 0.05, 0.01)
@@ -134,7 +134,7 @@ cvmmpc.par <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, a
       threshold <- mmpc_configurations[[mmpc_conf_id]]$a;
       max_k <- mmpc_configurations[[mmpc_conf_id]]$max_k;
       #running mmpc
-      results <- MMPC(train_target, train_set, max_k, threshold, test = test, ini = mmpcini, wei = wtrain, hash = TRUE, hashObject = mmpcHashMap, robust = robust)
+      results <- MMPC(train_target, train_set, max_k, threshold, test = test, ini = mmpcini, wei = wtrain, hash = TRUE, hashObject = mmpcHashMap)
       mmpcini <- results@univ
       mmpcHashMap <- results@hashObject;
       variables <- results@selectedVars;
@@ -193,15 +193,11 @@ cvmmpc.par <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, a
     
     opti <- Rfast::colmeans(mat) 
     bestpar <- which.max(opti)
-    estb <- abs( mean( mat[, bestpar] - apply(mat, 1, max) ) )   ## Rfast::rowMaxs(mat, value = TRUE)
     
     best_model <- NULL
-    
     best_model$cv_results_all = mat
     best_model$best_performance <- max( opti )
-    best_model$BC_best_perf <- best_model$best_performance + estb
     best_model$best_configuration = mmpc_configurations[[ bestpar ]]   
-    best_model$BC_best_perf <- best_model$best_performance - estb
     best_model$runtime <- proc.time() - tic 
     
     return(best_model)

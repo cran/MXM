@@ -18,8 +18,8 @@ ebic.ordinal.bsreg <- function(target, dataset, wei = NULL, gam = NULL) {
     logn <- log(n)
     if ( is.null(gam) ) {
       con <- 2 - log(p) / logn
-      if ( (con) < 0 )  con <- 0
     } else con <- 2 * gam
+    if ( (con) < 0 )  con <- 0
     tool <- numeric(p + 1)
     
     ini <- ordinal::clm( target ~.,  data = dataset, weights = wei )

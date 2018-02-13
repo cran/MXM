@@ -1,7 +1,7 @@
-tobit.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, tol = 2, heavy = FALSE, robust = FALSE, ncores = 1) {
+tobit.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, tol = 2, ncores = 1) {
   
   if ( !is.null(ini) ) {
-    result <- tobit.fsreg_2(target, dataset, iniset = ini, wei = wei, threshold = threshold, tol = tol, heavy = heavy, robust = FALSE, ncores = ncores) 
+    result <- tobit.fsreg_2(target, dataset, iniset = ini, wei = wei, threshold = threshold, tol = tol, ncores = ncores) 
     
   } else {  ## else do the classical forward regression
     
@@ -14,6 +14,7 @@ tobit.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NUL
     n <- dm[1]  ## sample size
     con <- log(n)
     tool <- numeric( min(n, p) )
+    dataset <- as.data.frame(dataset)
     
     runtime <- proc.time()
     
@@ -31,7 +32,6 @@ tobit.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NUL
       pval = pchisq( stat, dof - 1, lower.tail = FALSE, log.p = TRUE )
 	
     } else {
-      #if ( robust == FALSE ) {  ## Non robust
       cl <- makePSOCKcluster(ncores)
       registerDoParallel(cl)
       mod <- foreach( i = 1:p, .combine = rbind, .export = "survival", .packages = "survreg") %dopar% {
@@ -53,7 +53,7 @@ tobit.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NUL
       if ( mat[sel, 2] < threshold ) {
         info[1, ] <- mat[sel, ]
         mat <- mat[-sel,  , drop = FALSE] 
-        mi <- survival::survreg( target ~ dataset[, sel], data = as.data.frame(dataset), weights = wei, dist = "gaussian" )
+        mi <- survival::survreg( target ~., data = dataset[, sel, drop = FALSE], weights = wei, dist = "gaussian" )
         tool[1] <-  - 2 * logLik(mi) + ( length( mi$coefficients ) + 1 ) * con 		
         moda[[ 1 ]] <- mi
       }  else  {
@@ -74,7 +74,7 @@ tobit.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NUL
         if ( ncores <= 1 ) {
           devi <- dof <- numeric(pn)
           for ( i in 1:pn ) {
-            ww <- survival::survreg( target ~., data = as.data.frame( dataset[, c(sela, mat[i, 1]) ] ), weights = wei, dist ="gaussian" )
+            ww <- survival::survreg( target ~., data = dataset[, c(sela, mat[i, 1]) ], weights = wei, dist ="gaussian" )
             devi[i] <- 2 * logLik(ww)  
             dof[i] <- length( ww$coefficients )          
           }
@@ -85,7 +85,7 @@ tobit.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NUL
           cl <- makePSOCKcluster(ncores)
           registerDoParallel(cl)
           mod <- foreach( i = 1:pn, .combine = rbind, .export = "survival", .packages = "survreg") %dopar% {
-            ww <- survival::survreg( target ~., data = as.data.frame( dataset[, c(sela, mat[i, 1]) ] ), weights = wei, dist = "gaussian" )
+            ww <- survival::survreg( target ~., data = dataset[, c(sela, mat[i, 1]) ], weights = wei, dist = "gaussian" )
             mata[i, ] <- c( 2 * logLik(ww), length( ww$coefficients ) )
           }
           stopCluster(cl)		  
@@ -137,12 +137,11 @@ tobit.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NUL
             pval = pchisq( stat, dof - do, lower.tail = FALSE, log.p = TRUE )
             
           } else {
-            #if ( robust == FALSE ) {  ## Non robust
             cl <- makePSOCKcluster(ncores)
             registerDoParallel(cl)
             devi = dof = numeric(pn)
             mod <- foreach( i = 1:pn, .combine = rbind, .export = "survival", .packages = "survreg") %dopar% {
-              ww <- survival::survreg( target ~., data = as.data.frame( dataset[, c(sela, mat[i, 1]) ] ), weights = wei, dist = "gaussian")
+              ww <- survival::survreg( target ~., data = dataset[, c(sela, mat[i, 1]) ], weights = wei, dist = "gaussian")
               return( c( 2 * logLik(ww), length( ww$coefficients ) ) )
             }
             stopCluster(cl)
@@ -156,7 +155,7 @@ tobit.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NUL
           sel <- mat[ina, 1]    
           
           if ( mat[ina, 2] < threshold ) {
-              ma <- survival::survreg( target ~., data = as.data.frame( dataset[, c(sela, sel) ] ), weights = wei, dist = "gaussian" )
+              ma <- survival::survreg( target ~., data = dataset[, c(sela, sel) ], weights = wei, dist = "gaussian" )
               tool[k] <- - 2 * logLik(ma) + ( length( ma$coefficients) + 1 ) * con	
  
             if ( tool[ k - 1 ] - tool[ k  ] <= tol ) {
@@ -179,7 +178,7 @@ tobit.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NUL
       final <- NULL
 
     if ( d >= 1 ) {
-      final <- survival::survreg( target ~., data = as.data.frame( dataset[, sela] ), weights = wei, dist = "gaussian" )
+      final <- survival::survreg( target ~., data = dataset[, sela, drop = FALSE], weights = wei, dist = "gaussian" )
       info <- info[1:d, , drop = FALSE]
       info <- cbind( info, tool[ 1:d ] ) 
       colnames(info) <- c( "variables", "log.p-values", "stat", "BIC" )

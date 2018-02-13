@@ -1,4 +1,4 @@
-ebic.fbed.cr <- function(y, x, gam = NULL, wei = NULL, K = 0) { 
+ebic.fbed.cr <- function(y, x, univ = NULL, gam = NULL, wei = NULL, K = 0) { 
   dm <- dim(x)
   n <- dm[1]
   p <- dm[2]
@@ -9,19 +9,27 @@ ebic.fbed.cr <- function(y, x, gam = NULL, wei = NULL, K = 0) {
   
   if ( is.null(gam) ) {
     con <- 2 - log(p) / log(n)
-    if ( (con) < 0 )  con <- 0
   } else con <- 2 * gam
+  if ( (con) < 0 )  con <- 0
   mod1 <- survival::coxph(y ~ 1, weights = wei) 
   lik1 <-  - 2 * mod1$loglik
   
   runtime <- proc.time()
   
-  for ( i in ind ) {
-    fit2 <- survival::coxph( y ~ x[, i], weights = wei ) 
-    lik2[i] <-  BIC(fit2) + con * log(p)
-  }
-  n.tests <- p
-  stat <- lik1 - lik2
+  if ( is.null(univ) ) {
+    for ( i in ind ) {
+      fit2 <- survival::coxph( y ~ x[, i], weights = wei ) 
+      lik2[i] <-  BIC(fit2) + con * log(p)
+    }
+    n.tests <- p
+    stat <- lik1 - lik2
+    univ <- list()
+    univ$ebic <- lik2
+  } else {  
+    n.tests <- 0
+    lik2 <- univ$ebic
+    stat <- lik1 - lik2
+  } 
   s <- which(stat > 0)
 
     if ( length(s) > 0 ) {
@@ -181,9 +189,9 @@ ebic.fbed.cr <- function(y, x, gam = NULL, wei = NULL, K = 0) {
     res <- matrix(c(0, 0), ncol = 2)
     info <- matrix(c(0, p), ncol = 2)
   }  
-  colnames(res) <- c("Vars", "eBIC")
+  colnames(res) <- c("Vars", "eBIC difference")
   rownames(info) <- paste("K=", 1:length(card)- 1, sep = "")
   colnames(info) <- c("Number of vars", "Number of tests")
-  list(res = res, info = info, runtime = runtime)
+  list(univ = univ, res = res, info = info, runtime = runtime)
 }
  

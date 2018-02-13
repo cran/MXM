@@ -4,7 +4,7 @@
 \alias{mases.output-class}
 \alias{mases.output}
 \alias{plot,mases.output-method}
-\alias{summary,mases.output-method}
+\alias{mases.output-method}
 \alias{plot,mases.output,ANY-method}
 
 \title{Class \code{"mases.output"}}
@@ -28,11 +28,10 @@ Objects can be created by calls of the form \code{new("mases.output", ...)}.
     \item{\code{threshold}:}{Object of class \code{"numeric"}}
     \item{\code{runtime}:}{Object of class \code{"proc_time"}}
     \item{\code{test}:}{Object of class \code{"character"}}
-    \item{\code{rob}:}{Object of class \code{"logical"}}  }
+}
 }
 \section{Methods}{
   \describe{
-    \item{summary}{\code{summary(object = "mases.output")}: Generic function for summarizing the results of the meta analytic SES output }
     \item{plot}{\code{plot(x = "mases.output", mode = "all")}: Generic function for plotting the generated pvalues of the mases.output object. Argument mode = "all" for plotting all the pvalues or mode="partial" for partial plotting the first 500 pvalues }
 	 }
 }

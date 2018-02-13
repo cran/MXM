@@ -1,12 +1,8 @@
-MMPC.temporal = function(target, reps = NULL, group, dataset, max_k = 3 , threshold = 0.05 , test = NULL, ini = NULL, wei = NULL, user_test = NULL, 
-                         hash=FALSE, hashObject=NULL, slopes = FALSE, ncores = 1, logged = FALSE) {
- #get the log threshold
-  threshold = log(threshold)
+MMPC.temporal = function(target, reps = NULL, group, dataset, max_k = 3, threshold = 0.05 , test = NULL, ini = NULL, wei = NULL, user_test = NULL, 
+                         hash=FALSE, hashObject=NULL, slopes = FALSE, ncores = 1) {
   ##############################
   # initialization part of MMPC #
   ##############################
-  options(warn=0);
-  equal_case = 3;
   stat_hash = NULL;
   pvalue_hash = NULL;
   
@@ -26,8 +22,6 @@ MMPC.temporal = function(target, reps = NULL, group, dataset, max_k = 3 , thresh
       return(NULL);
     }
   }
-  
-  dataInfo = NULL;
   ###################################
   # dataset checking and initialize #
   ###################################
@@ -72,31 +66,30 @@ MMPC.temporal = function(target, reps = NULL, group, dataset, max_k = 3 , thresh
     test = user_test;
   } else {
     #auto detect independence test in case of not defined by the user and the test is null or auto
-    if (is.null(test) || test == "auto")  test = "testIndGLMM"
-      #if target is a factor then use the Logistic test
-      if ( la == 2) {
-          dataInfo$target_type = "binary";
-          cat('\nTarget variable type: Binary')
-      } else if (sum( floor(target) - target ) == 0 ) {
-          dataInfo$target_type = "discrete";
-          cat('\nTarget variable type: Discrete')
-      } else {
-        dataInfo$target_type = "normal";
-        cat('\nTarget variable type: Continuous')
-      }
-    
-    cat("\nConditional independence test used: ");cat(test);cat("\n");
+    if ( is.null(test) || test == "auto" )  {
+      if ( la > 2 & sum(target - round(target) ) != 0  &  is.null(wei)  &  !slopes  &  is.null(reps) ) {
+        test <- "testIndLMM"
+      } else if (la == 2) {
+        test = "testIndGLMMLogistic"
+      } else if ( la > 2  &  sum(target - round(target)) == 0 ) {
+        test = "testIndGLMMPois"
+      } else test = "testIndGLMMReg"
+    }  
     #available conditional independence tests
-    av_tests = c("testIndGLMM", "auto",  NULL);
-    
+    av_tests = c("testIndGLMMReg", "testIndGLMMLogistic", "testIndGLMMPois", "testIndLMM", "auto",  NULL);
     ci_test = test
     if (length(test) == 1) {   #avoid vectors, matrices etc
-      test = match.arg(test , av_tests ,TRUE);
+      test = match.arg(test, av_tests, TRUE);
       #convert to closure type
-      if(test == "testIndGLMM") {
-        if ( all(target > 0 & target < 1) )  target = log( target/(1 - target) ) ## logistic normal 
-        test = testIndGLMM;
-      }
+      if(test == "testIndGLMMReg") {
+        test = testIndGLMMReg;
+      } else if(test == "testIndGLMMLogistic") {
+          test = testIndGLMMLogistic;
+      } else if (test == "testIndGLMMPois") {
+        test = testIndGLMMPois;
+     } else if (test == "testIndLMM") {
+        test <- testIndLMM
+    }
       
     } else   stop('invalid test option');
   }
@@ -109,22 +102,13 @@ MMPC.temporal = function(target, reps = NULL, group, dataset, max_k = 3 , thresh
   #option checking
   if ( (typeof(max_k)!="double") || max_k < 1 )   stop('invalid max_k option');
   if ( max_k > varsize )   max_k = varsize;
-  if ( (typeof(threshold) != "double") || exp(threshold) <= 0 || exp(threshold) > 1 )   stop('invalid threshold option');
-  if ( typeof(equal_case) != "double" )   stop('invalid equal_case option');
+  if ( (typeof(threshold) != "double") || threshold <= 0 || threshold > 1 )   stop('invalid threshold option');
   #######################################################################################
   if( !is.null(user_test) )  ci_test = "user_test";
   #call the main MMPC.temporal function after the checks and the initializations
-  results = InternalMMPC.temporal(target, reps, group, dataset, max_k, threshold, test, ini, wei, user_test, dataInfo, hash, varsize, stat_hash, pvalue_hash, targetID, slopes = slopes, ncores = ncores, logged = logged);
-  
+  results = InternalMMPC.temporal(target, reps, group, dataset, max_k, log(threshold), test, ini, wei, user_test, hash, varsize, stat_hash, pvalue_hash, targetID, slopes = slopes, ncores = ncores);
   MMPC.temporal.output <-new("MMPC.temporal.output", selectedVars = results$selectedVars, selectedVarsOrder=results$selectedVarsOrder, hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, univ = results$univ, max_k=results$max_k, threshold = results$threshold, runtime=results$runtime, test=ci_test, slope = slopes);
-  
   return(MMPC.temporal.output);
 }
 
 
-# # .onAttach <- function(libname, pkgname){
-# #   # do whatever needs to be done when the package is loaded
-# #   packageStartupMessage( "Loading MXM package version 0.2, thanks for downloading." )
-# #   #load the dll files from the fortran code for the package
-# #   #library.dynam("MXM", pkgname, libname)
-# # }

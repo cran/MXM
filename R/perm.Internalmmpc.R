@@ -1,17 +1,14 @@
-perm.Internalmmpc = function(target, dataset, max_k, threshold, test=NULL, ini=NULL, wei=NULL, user_test=NULL, dataInfo=NULL, hash=FALSE, varsize, stat_hash, pvalue_hash, targetID, robust, R = 999, ncores)
+perm.Internalmmpc = function(target, dataset, max_k, threshold, test=NULL, ini=NULL, wei=NULL, user_test=NULL, hash=FALSE, varsize, stat_hash, pvalue_hash, targetID, R = 999, ncores)
 {
   #get the current time
   runtime <- proc.time();
   #univariate feature selection test
   if ( is.null(ini) ) { 
-    univariateModels = perm.univregs(target = target, dataset = dataset, targetID = targetID, test = test, user_test = user_test, wei = wei, dataInfo = dataInfo, robust = robust, threshold = threshold, R = R, ncores = ncores) 
+    univariateModels = perm.univregs(target = target, dataset = dataset, targetID = targetID, test = test, user_test = user_test, wei = wei, threshold = threshold, R = R, ncores = ncores) 
   } else  univariateModels = ini
   
   pvalues = univariateModels$pvalue;      
   stats = univariateModels$stat;
-  flags = univariateModels$flag;
-  #   stat_hash = univariateModels$stat_hash;
-  #   pvalue_hash = univariateModels$pvalue_hash;
   #if we dont have any associations , return
   if ( min(pvalues, na.rm = TRUE) > threshold )  {
     #cat('No associations!');
@@ -30,17 +27,14 @@ perm.Internalmmpc = function(target, dataset, max_k, threshold, test=NULL, ini=N
     results$threshold = threshold;
     runtime = proc.time() - runtime;
     results$runtime = runtime;
-    results$rob = robust
-    results$n.tests <- length(flags)
-    
+    results$n.tests <- length(stats)
     return(results);
   }
   #Initialize the data structs
   selectedVars = numeric(varsize);
   selectedVarsOrder = numeric(varsize);
   #select the variable with the highest association
-  #selectedVar = which(flags == 1 & stats == stats[[which.max(stats)]]);
-  poio <- which( flags == 1 & pvalues == pvalues[[ which.min(pvalues) ]] )
+  poio <- which( pvalues == pvalues[[ which.min(pvalues) ]] )
   selectedVar <- poio[ which.max( stats[poio] ) ];
   selectedVars[selectedVar] = 1;
   selectedVarsOrder[selectedVar] = 1; #CHANGE
@@ -58,7 +52,7 @@ perm.Internalmmpc = function(target, dataset, max_k, threshold, test=NULL, ini=N
   loop = any(as.logical(remainingVars));
   #rep = 1;
   while (loop) {
-    max_min_results = perm.max_min_assoc(target, dataset, test, wei, threshold, max_k, selectedVars, pvalues, stats, remainingVars, univariateModels, selectedVarsOrder, hash=hash, dataInfo = dataInfo, stat_hash=stat_hash, pvalue_hash=pvalue_hash, robust = robust, ncores = ncores);
+    max_min_results = perm.max_min_assoc(target, dataset, test, wei, threshold, max_k, selectedVars, pvalues, stats, remainingVars, univariateModels, selectedVarsOrder, hash=hash, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
     selectedVar = max_min_results$selected_var;
     selectedPvalue = max_min_results$selected_pvalue;
     remainingVars = max_min_results$remainingVars;
@@ -113,7 +107,6 @@ perm.Internalmmpc = function(target, dataset, max_k, threshold, test=NULL, ini=N
   results$threshold = threshold
   runtime = proc.time() - runtime
   results$runtime = runtime
-  results$rob = robust
-  results$n.tests <- length(flags) + length( hashObject$stat_hash )
+  results$n.tests <- length(stats) + length( hashObject$stat_hash )
   return(results)
 }

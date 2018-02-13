@@ -1,4 +1,4 @@
-internaliamb.bs <- function(target, dataset, threshold, test, wei, p, robust) {
+internaliamb.bs <- function(target, dataset, threshold, test, wei, p) {
   if ( !is.null(dataset) |  p > 0 ) {
     ini <- test( target ~.,  data = dataset, weights = wei )
     dofini <- length( coef(ini) )
