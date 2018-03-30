@@ -18,8 +18,10 @@ fbed.geelm.reps <- function(y, x, id, reps, univ = NULL, alpha = 0.05, wei = NUL
   
   if ( is.null(univ) ) {
     for ( i in ind ) {
-      fit2 <- geepack::geeglm( y ~ reps + x[, i], family = gaussian, id = id, weights = wei, corstr = correl, std.err = se )
-      stat[i] <- summary(fit2)[[6]][2, 3]
+      fit2 <- try( geepack::geeglm( y ~ reps + x[, i], family = gaussian, id = id, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE )
+      if ( identical( class(fit2), "try-error" ) ) {
+        stat[i] <- 0
+      } else  stat[i] <- summary(fit2)[[6]][2, 3]
     }  
     n.tests <- p
     pval <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
@@ -44,8 +46,10 @@ fbed.geelm.reps <- function(y, x, id, reps, univ = NULL, alpha = 0.05, wei = NUL
     while ( sum(s>0) > 0 ) {
       d0 <- length(sela)
       for ( i in ind[s] )  {
-        fit2 <- try( geepack::geeglm( y ~ reps+ x[, sela] + x[, i], family = gaussian, id = id, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
-        if ( !identical( class(fit2), "try-error" ) ) {
+        fit2 <- try( geepack::geeglm( y ~ reps+ x[, sela] + x[, i], family = gaussian, id = id, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
+        if ( identical( class(fit2), "try-error" ) ) {
+          stat[i] <- 0
+        } else {
           mod <- summary(fit2)[[ 6 ]]
           nr <- dim(mod)[1]
           stat[i] <- mod[nr, 3]
@@ -67,8 +71,10 @@ fbed.geelm.reps <- function(y, x, id, reps, univ = NULL, alpha = 0.05, wei = NUL
     if (K == 1) {
       d0 <- length(sela)
       for ( i in ind[-sela] )  {
-        fit2 <- try( geepack::geeglm( y ~ reps+ x[, sela] + x[, i], family = gaussian, id = id, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
-        if ( !identical( class(fit2), "try-error" ) ) {
+        fit2 <- try( geepack::geeglm( y ~ reps+ x[, sela] + x[, i], family = gaussian, id = id, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
+        if ( identical( class(fit2), "try-error" ) ) {
+          stat[i] <- 0
+        } else {
           mod <- summary(fit2)[[ 6 ]]
           nr <- dim(mod)[1]
           stat[i] <- mod[nr, 3]
@@ -86,8 +92,10 @@ fbed.geelm.reps <- function(y, x, id, reps, univ = NULL, alpha = 0.05, wei = NUL
       while ( sum(s>0) > 0 ) {
         d0 <- length(sela)
         for ( i in ind[s] )  {
-          fit2 <- try( geepack::geeglm( y ~ reps+ x[, sela] + x[, i], family = gaussian, id = id, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
-          if ( !identical( class(fit2), "try-error" ) ) {
+          fit2 <- try( geepack::geeglm( y ~ reps+ x[, sela] + x[, i], family = gaussian, id = id, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
+          if ( identical( class(fit2), "try-error" ) ) {
+            stat[i] <- 0
+          } else {
             mod <- summary(fit2)[[ 6 ]]
             nr <- dim(mod)[1]
             stat[i] <- mod[nr, 3]
@@ -109,8 +117,10 @@ fbed.geelm.reps <- function(y, x, id, reps, univ = NULL, alpha = 0.05, wei = NUL
     if ( K > 1) {
       
       for ( i in ind[-sela] )  {
-        fit2 <- try( geepack::geeglm( y ~ reps+ x[, sela] + x[, i], family = gaussian, id = id, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
-        if ( !identical( class(fit2), "try-error" ) ) {
+        fit2 <- try( geepack::geeglm( y ~ reps+ x[, sela] + x[, i], family = gaussian, id = id, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
+        if ( identical( class(fit2), "try-error" ) ) {
+          stat[i] <- 0
+        } else {
           mod <- summary(fit2)[[ 6 ]]
           nr <- dim(mod)[1]
           stat[i] <- mod[nr, 3]
@@ -128,8 +138,10 @@ fbed.geelm.reps <- function(y, x, id, reps, univ = NULL, alpha = 0.05, wei = NUL
       
       while ( sum(s > 0) > 0 ) {
         for ( i in ind[s] )  {
-          fit2 <- try( geepack::geeglm( y ~ reps+ x[, sela] + x[, i], family = gaussian, id = id, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
-          if ( !identical( class(fit2), "try-error" ) ) {
+          fit2 <- try( geepack::geeglm( y ~ reps+ x[, sela] + x[, i], family = gaussian, id = id, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
+          if ( identical( class(fit2), "try-error" ) ) {
+            stat[i] <- 0
+          } else {
             mod <- summary(fit2)[[ 6 ]]
             nr <- dim(mod)[1]
             stat[i] <- mod[nr, 3]
@@ -151,8 +163,10 @@ fbed.geelm.reps <- function(y, x, id, reps, univ = NULL, alpha = 0.05, wei = NUL
       while ( vim < K  & card[vim + 1] - card[vim] > 0 ) {
         vim <- vim + 1
         for ( i in ind[-sela] )  {
-          fit2 <- try( geepack::geeglm( y ~ reps+ x[, sela] + x[, i], family = gaussian, id = id, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
-          if ( !identical( class(fit2), "try-error" ) ) {
+          fit2 <- try( geepack::geeglm( y ~ reps+ x[, sela] + x[, i], family = gaussian, id = id, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
+          if ( identical( class(fit2), "try-error" ) ) {
+            stat[i] <- 0
+          } else {
             mod <- summary(fit2)[[ 6 ]]
             nr <- dim(mod)[1]
             stat[i] <- mod[nr, 3]
@@ -169,8 +183,10 @@ fbed.geelm.reps <- function(y, x, id, reps, univ = NULL, alpha = 0.05, wei = NUL
         if (sel > 0)  stat <- numeric(p)
         while ( sum(s > 0) > 0 ) {
           for ( i in ind[s] )  {
-            fit2 <- try( geepack::geeglm( y ~ reps+ x[, sela] + x[, i], family = gaussian, id = id, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
-            if ( !identical( class(fit2), "try-error" ) ) {
+            fit2 <- try( geepack::geeglm( y ~ reps+ x[, sela] + x[, i], family = gaussian, id = id, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
+            if ( identical( class(fit2), "try-error" ) ) {
+              stat[i] <- 0
+            } else {
               mod <- summary(fit2)[[ 6 ]]
               nr <- dim(mod)[1]
               stat[i] <- mod[nr, 3]

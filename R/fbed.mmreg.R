@@ -45,9 +45,14 @@ fbed.mmreg <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
       #########
       while ( sum(s>0) > 0 ) {
         for ( i in ind[s] )  {
-          fit2 <- MASS::rlm( y ~., data = x[, c(sela, i)], maxit = 2000, method = "MM" )
-          lik2[i] <-  2 * as.numeric( logLik( fit2 ) )
-          dof[i] <- length( fit2$coefficients )
+          fit2 <- try( MASS::rlm( y ~., data = x[, c(sela, i)], maxit = 2000, method = "MM" ), silent = TRUE )
+          if ( identical( class(fit2), "try-error" ) ) {
+            lik2[i] <- 0
+            dof[i] <- length( fit2$coefficients )
+          } else {
+            lik2[i] <-  2 * as.numeric( logLik( fit2 ) )
+            dof[i] <- length( fit2$coefficients )
+          }  
         }
         n.tests <- n.tests + length( ind[s] ) 
         stat <- lik2 - lik1
@@ -70,9 +75,14 @@ fbed.mmreg <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
 
    if (K == 1) {
      for ( i in ind[-sela] )  {
-        fit2 <- MASS::rlm( y ~., data = x[, c(sela, i)], maxit = 2000, method = "MM" )
-        lik2[i] <-  2 * as.numeric( logLik( fit2 ) )
-        dof[i] <- length( fit2$coefficients )
+       fit2 <- try( MASS::rlm( y ~., data = x[, c(sela, i)], maxit = 2000, method = "MM" ), silent = TRUE )
+       if ( identical( class(fit2), "try-error" ) ) {
+         lik2[i] <- 0
+         dof[i] <- length( fit2$coefficients )
+       } else {
+         lik2[i] <-  2 * as.numeric( logLik( fit2 ) )
+         dof[i] <- length( fit2$coefficients )
+       }  
       }
       n.tests[2] <- length( ind[-sela] )
       stat <- lik2 - lik1
@@ -91,9 +101,14 @@ fbed.mmreg <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
       }  
       while ( sum(s>0) > 0 ) {
         for ( i in ind[s] )  {
-          fit2 <- MASS::rlm( y ~., data = x[, c(sela, i)], maxit = 2000, method = "MM" )
-          lik2[i] <-  2 * as.numeric( logLik( fit2 ) )
-          dof[i] <- length( fit2$coefficients )
+          fit2 <- try( MASS::rlm( y ~., data = x[, c(sela, i)], maxit = 2000, method = "MM" ), silent = TRUE )
+          if ( identical( class(fit2), "try-error" ) ) {
+            lik2[i] <- 0
+            dof[i] <- length( fit2$coefficients )
+          } else {
+            lik2[i] <-  2 * as.numeric( logLik( fit2 ) )
+            dof[i] <- length( fit2$coefficients )
+          }  
         }
         n.tests[2] <- n.tests[2] + length( ind[s] )
         stat <- lik2 - lik1
@@ -117,9 +132,14 @@ fbed.mmreg <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
   if ( K > 1) {
 
      for ( i in ind[-sela] )  {
-        fit2 <- MASS::rlm( y ~., data = x[, c(sela, i)], maxit = 2000, method = "MM" )
-        lik2[i] <-  2 * as.numeric( logLik( fit2 ) )
-        dof[i] <- length( fit2$coefficients )
+       fit2 <- try( MASS::rlm( y ~., data = x[, c(sela, i)], maxit = 2000, method = "MM" ), silent = TRUE )
+       if ( identical( class(fit2), "try-error" ) ) {
+         lik2[i] <- 0
+         dof[i] <- length( fit2$coefficients )
+       } else {
+         lik2[i] <-  2 * as.numeric( logLik( fit2 ) )
+         dof[i] <- length( fit2$coefficients )
+       }  
       }
       n.tests[2] <- length( ind[-sela] ) 
       stat <- lik2 - lik1
@@ -138,9 +158,14 @@ fbed.mmreg <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
       }  
       while ( sum(s > 0) > 0 ) {
         for ( i in ind[s] )  {
-          fit2 <- MASS::rlm( y ~., data = x[, c(sela, i)], maxit = 2000, method = "MM" )
-          lik2[i] <-  2 * as.numeric( logLik( fit2 ) )
-          dof[i] <- length( fit2$coefficients )
+          fit2 <- try( MASS::rlm( y ~., data = x[, c(sela, i)], maxit = 2000, method = "MM" ), silent = TRUE )
+          if ( identical( class(fit2), "try-error" ) ) {
+            lik2[i] <- 0
+            dof[i] <- length( fit2$coefficients )
+          } else {
+            lik2[i] <-  2 * as.numeric( logLik( fit2 ) )
+            dof[i] <- length( fit2$coefficients )
+          }  
         }
         n.tests[2] <- n.tests[2] + length( ind[s] )  
         stat <- lik2 - lik1
@@ -164,9 +189,14 @@ fbed.mmreg <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
     while ( vim < K  & card[vim + 1] - card[vim] > 0 ) {
       vim <- vim + 1
       for ( i in ind[-sela] )  {
-        fit2 = MASS::rlm( y ~., data = x[, c(sela, i)], maxit = 2000, method = "MM" )
-        lik2[i] <-  2 * as.numeric( logLik( fit2 ) )
-        dof[i] <- length( fit2$coefficients )
+        fit2 <- try( MASS::rlm( y ~., data = x[, c(sela, i)], maxit = 2000, method = "MM" ), silent = TRUE )
+        if ( identical( class(fit2), "try-error" ) ) {
+          lik2[i] <- 0
+          dof[i] <- length( fit2$coefficients )
+        } else {
+          lik2[i] <-  2 * as.numeric( logLik( fit2 ) )
+          dof[i] <- length( fit2$coefficients )
+        }  
       }
       n.tests[vim + 1] <- length( ind[-sela] )
       stat <- lik2 - lik1
@@ -185,9 +215,14 @@ fbed.mmreg <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
       }      
        while ( sum(s > 0) > 0 ) {
         for ( i in ind[s] )  {
-          fit2 <- MASS::rlm( y ~., data = x[, c(sela, i)], maxit = 2000, method = "MM" )
-          lik2[i] <-  2 * as.numeric( logLik( fit2 ) )
-          dof[i] <- length( fit2$coefficients )
+          fit2 <- try( MASS::rlm( y ~., data = x[, c(sela, i)], maxit = 2000, method = "MM" ), silent = TRUE )
+          if ( identical( class(fit2), "try-error" ) ) {
+            lik2[i] <- 0
+            dof[i] <- length( fit2$coefficients )
+          } else {
+            lik2[i] <-  2 * as.numeric( logLik( fit2 ) )
+            dof[i] <- length( fit2$coefficients )
+          }  
         }
         n.tests[vim + 1] <- n.tests[vim + 1] + length( ind[s] )
         stat <- lik2 - lik1

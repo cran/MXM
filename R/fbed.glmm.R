@@ -10,7 +10,7 @@ fbed.glmm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0, te
   n <- dm[1]
   ind <- 1:p
   sig <- log(alpha)
-  lik1 <- 2 * logLik( lme4::glmer(y ~ 1 + (1|id), family = oiko, weights = wei) )
+  lik1 <- logLik( lme4::glmer(y ~ 1 + (1|id), family = oiko, weights = wei) )
   lik2 <- numeric(p)
   sela <- NULL
   card <- 0
@@ -28,7 +28,7 @@ fbed.glmm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0, te
       lik2[i] <- logLik( fit2 )
     }
     n.tests <- p
-    stat <- 2 * lik2 - lik1
+    stat <- 2 * (lik2 - lik1)
     pval <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
     univ <- list()
     univ$stat <- stat
@@ -56,8 +56,8 @@ fbed.glmm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0, te
         lik2[i] <- logLik( fit2 )
       }
       n.tests <- n.tests + length( ind[s] ) 
-      stat <- lik2 - lik1
-      pval <- pchisq(2 * stat, 1, lower.tail = FALSE, log.p = TRUE)
+      stat <- 2 * (lik2 - lik1)
+      pval <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
       s <- which(pval < sig) 
       sel <- which.min(pval) * ( length(s)>0 )
       sa <- c(sa, stat[sel]) 
@@ -78,8 +78,8 @@ fbed.glmm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0, te
         lik2[i] <- logLik( fit2 )
       }
       n.tests[2] <- length( ind[-sela] )
-      stat <- lik2 - lik1
-      pval <- pchisq(2 * stat, 1, lower.tail = FALSE, log.p = TRUE)
+      stat <- 2 * (lik2 - lik1)
+      pval <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
       s <- which(pval < sig)
       sel <- which.min(pval) * ( length(s)>0 )
       sa <- c(sa, stat[sel]) 
@@ -96,8 +96,8 @@ fbed.glmm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0, te
           lik2[i] <- logLik( fit2 )
         }
         n.tests[2] <- n.tests[2] + length( ind[s] )
-        stat <- lik2 - lik1
-        pval <- pchisq(2 * stat, 1, lower.tail = FALSE, log.p = TRUE)
+        stat <- 2 * (lik2 - lik1)
+        pval <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
         s <- which(pval < sig)
         sel <- which.min(pval) * ( length(s)>0 )
         sa <- c(sa, stat[sel]) 
@@ -119,8 +119,8 @@ fbed.glmm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0, te
         lik2[i] <- logLik( fit2 )
       }
       n.tests[2] <- length( ind[-sela] ) 
-      stat <- lik2 - lik1
-      pval <- pchisq(2 * stat, 1, lower.tail = FALSE, log.p = TRUE)
+      stat <- 2 * (lik2 - lik1)
+      pval <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
       s <- which(pval < sig)
       sel <- which.min(pval) * ( length(s)>0 )
       sa <- c(sa, stat[sel]) 
@@ -137,8 +137,8 @@ fbed.glmm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0, te
           lik2[i] <- logLik( fit2 )
         }
         n.tests[2] <- n.tests[2] + length( ind[s] )  
-        stat <- lik2 - lik1
-        pval <- pchisq(2 * stat, 1, lower.tail = FALSE, log.p = TRUE)
+        stat <- 2 * (lik2 - lik1)
+        pval <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
         s <- which(pval < sig)
         sel <- which.min(pval) * ( length(s)>0 )
         sa <- c(sa, stat[sel]) 
@@ -160,8 +160,8 @@ fbed.glmm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0, te
           lik2[i] <- logLik( fit2 )
         }
         n.tests[vim + 1] <- length( ind[-sela] )
-        stat <- lik2 - lik1
-        pval <- pchisq(2 * stat, 1, lower.tail = FALSE, log.p = TRUE)
+        stat <- 2 * (lik2 - lik1)
+        pval <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
         s <- which(pval < sig)
         sel <- which.min(pval) * ( length(s)>0 )
         sa <- c(sa, stat[sel]) 
@@ -178,8 +178,8 @@ fbed.glmm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0, te
             lik2[i] <- logLik( fit2 )
           }
           n.tests[vim + 1] <- n.tests[vim + 1] + length( ind[s] )
-          stat <- lik2 - lik1
-          pval <- pchisq(2 * stat, 1, lower.tail = FALSE, log.p = TRUE)
+          stat <- 2 * (lik2 - lik1)
+          pval <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
           s <- which(pval < sig)
           sel <- which.min(pval) * ( length(s)>0 )
           sa <- c(sa, stat[sel]) 

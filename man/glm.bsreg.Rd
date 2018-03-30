@@ -50,7 +50,7 @@ The run time of the algorithm. A numeric vector. The first element is the user t
 A matrix with the variables and their latest test statistics and p-values.
 }
 \item{mat}{
-A matrix with the selected variables and their latest test statistic and p-value.
+A matrix with the selected variables and their latest test statistic and logged p-value.
 }
 \item{ci_test}{
 The conditional independence test used. 

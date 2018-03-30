@@ -27,17 +27,25 @@ censIndWR = function(target, dataset, xIndex, csIndex, wei = NULL, univariateMod
   numCases = dim(dataset)[1];
   if (length(event) == 0)  event = vector('numeric',numCases) + 1;
       if (is.na(csIndex) || length(csIndex) == 0 || csIndex == 0) {
-        weibull_results <- survival::survreg(target ~ x, weights = wei)
-        dof <- length( coef(weibull_results) ) - 1
-        stat = 2 * abs( diff(weibull_results$loglik) )
-        pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE);
+        weibull_results <- try( survival::survreg(target ~ x, weights = wei), silent = TRUE )
+        if ( identical( class(weibull_results), "try-error" ) ) {
+          stat <- NA  
+        } else {  
+          dof <- length( coef(weibull_results) ) - 1
+          stat = 2 * abs( diff(weibull_results$loglik) )
+          pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE);
+        }  
       } else {
-        weibull_results <- survival::survreg(target ~ ., data = as.data.frame( dataset[ , c(csIndex)] ), weights = wei) 
-        weibull_results_full <- survival::survreg(target ~ ., data = as.data.frame(  dataset[ , c(csIndex, xIndex)] ), weights = wei )
-        res = anova(weibull_results, weibull_results_full)
-        stat = abs( res[2, 6] );
-        dF = abs( res[2, 5] );
-        pvalue = pchisq(stat, dF, lower.tail = FALSE, log.p = TRUE)
+        weibull_results <- try( survival::survreg(target ~ ., data = as.data.frame( dataset[ , c(csIndex)] ), weights = wei), silent = TRUE ) 
+        weibull_results_full <- try( survival::survreg(target ~ ., data = as.data.frame(  dataset[ , c(csIndex, xIndex)] ), weights = wei ), silent = TRUE)
+        if ( identical( class(weibull_results), "try-error" )  |  identical( class(weibull_results_full), "try-error" ) ) {
+          stat <- NA
+        } else {  
+          res = anova(weibull_results, weibull_results_full)
+          stat = abs( res[2, 6] );
+          dof = abs( res[2, 5] );
+          pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
+        }  
       }  
       if ( is.na(pvalue) || is.na(stat) ) {
         pvalue = log(1);

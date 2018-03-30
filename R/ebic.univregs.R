@@ -146,9 +146,8 @@ ebic.univregs <- function(target, dataset, targetID = -1, test = NULL, user_test
       stopCluster(cl)
     }
     
-  } else if ( identical(test, testIndPois)  &  is.matrix(dataset)  &  is.null(wei) ) {  ## logistic regression
-    if ( is.factor(target) )   target <- as.numeric(target) - 1
-    ebic <- Rfast::poisson_only(dataset, target) + 2 * logn
+  } else if ( identical(test, testIndPois)  &  is.matrix(dataset)  &  is.null(wei) ) {  ## Poisson regression
+    ebic <- Rfast::poisson_only(dataset, target) - 2 * sum(target * log(target), na.rm = TRUE ) + 2 * sum(target) + 2* sum(lgamma(target + 1) ) + 2 * logn
 
   } else if ( identical(test, testIndPois) ) {  ## Poisson regression
 
@@ -349,7 +348,7 @@ ebic.univregs <- function(target, dataset, targetID = -1, test = NULL, user_test
   
   if ( !is.null(ebic) )  {
     ebic <- as.numeric(ebic)
-    if ( gam != 0 ) {
+    if ( con != 0 ) {
       ebic <- ebic + con * log(cols)
     } else ebic <- ebic
     if ( targetID != - 1 )   ebic[targetID] <- Inf

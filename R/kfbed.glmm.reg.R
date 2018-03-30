@@ -23,8 +23,8 @@ kfbed.glmm.reg <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 
       } else {
         
         for (i in 1:k) {
-          b <- ebic.bsreg(y, x[, res[info[1:sel[i], 1], 1], drop = FALSE], test = test, wei = wei, gam = gam) 
-          b <- ebic.glmm.bsreg(y, x[, res[info[1:sel[i], 1], 1], drop = FALSE], id = id, wei = wei, gam = gam, test = test) 
+          b <- ebic.bsreg(y, x[, res[1:sel[i], 1], drop = FALSE], test = test, wei = wei, gam = gam) 
+          b <- ebic.glmm.bsreg(y, x[, res[1:sel[i], 1], drop = FALSE], id = id, wei = wei, gam = gam, test = test) 
           if ( typeof(b) == "list" ) {
             mod[[ i ]] <- b$mat
           } else  mod[[ i ]] <- NULL

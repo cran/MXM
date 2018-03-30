@@ -48,7 +48,7 @@ ebic.fbed.clogit <- function(y, x, univ = NULL, gam = NULL, wei = NULL, K = 0) {
         fit2 <- try( survival::clogit( case ~ . + strata(id), data = x[, c(sela, i)] ), silent = TRUE)
           if ( identical( class(fit2), "try-error" ) ) {
           lik2[i] <- lik1
-        } else  lik2[i] <-  BIC(fit2) + con * lchoose(p, M)
+        } else  lik2[i] <- BIC(fit2) + con * lchoose(p, M)
       }
       n.tests <- n.tests + length(ind[s])
       stat <- lik1 - lik2

@@ -64,7 +64,7 @@ waldQBinom = function(target, dataset, xIndex, csIndex, wei = NULL, univariateMo
   }
   #if the conditioning set (cs) is empty, we use a simplified formula
   if (length(cs) == 0)  {
-    fit = glm(target ~ x, family = Gamma(link = log), weights = wei)
+    fit = glm(target ~ x, family = quasibinomial(link = logit), weights = wei)
   } else    fit = glm(target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ), family = quasibinomial(link = logit), weights = wei)
   if ( any (is.na(fit$coefficients) ) ) {
     stat <- 0

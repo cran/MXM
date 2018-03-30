@@ -71,7 +71,7 @@ fs.reg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, te
     if (stopping == "adjrsq")   stopping = "ar2"
     result <- Rfast::cor.fsreg(target, dataset, threshold = exp(threshold), tolb = tol, tolr = tol, stopping = stopping)
     
-  } else if ( test == "testIndReg" || ( test == "testIndFisher"  &  !is.matrix(dataset) ) ) {
+  } else if ( test == "testIndReg" | ( test == "testIndFisher"  &  !is.matrix(dataset) ) ) {
     result <- lm.fsreg( target, dataset, wei = wei, threshold = exp(threshold), stopping = stopping, tol = tol, ncores = ncores ) 
   
   } else if ( test == "testIndMMReg" ) {

@@ -22,7 +22,7 @@ kfbed.reg <- function(y, x, univ = NULL, test = NULL, alpha = 0.05, wei = NULL, 
       } else {
       
         for (i in 1:k) {
-          b <- ebic.bsreg(y, x[, res[info[1:sel[i], 1], 1], drop = FALSE], test = test, wei = wei, gam = gam) 
+          b <- ebic.bsreg(y, x[, res[1:sel[i], 1], drop = FALSE], test = test, wei = wei, gam = gam) 
           if ( typeof(b) == "list" ) {
             mod[[ i ]] <- b$mat
           } else  mod[[ i ]] <- NULL

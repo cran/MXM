@@ -30,10 +30,10 @@ The indendent variable(s). It can be a vector, a matrix or a dataframe with cont
 A vector of weights to be used for weighted regression. The default value is NULL. 
 }
 \item{check}{
-A boolean variable indicating whether to chekc for variables with identical values. The defauls is FALSE.
+A boolean variable indicating whether to check for variables with identical values. The default is FALSE.
 }
 \item{logged}{
-A boolean variable; it will return the logarithm of the pvalue if set to TRUE.
+A boolean variable; it will return the logarithm of the p-value if set to TRUE.
 }
 \item{threshold}{
 Threshold (suitable values in [0,1]) for assessing p-values significance. Default value is 0.05.

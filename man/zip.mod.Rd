@@ -47,7 +47,7 @@ The estimated proportion of zeros.
 The log-likelihood of the regression model. 
 }
 \item{est}{
-The estimated values if xnew is not NULL.
+The estimated values if "xnew" is not NULL.
 }
 }
 

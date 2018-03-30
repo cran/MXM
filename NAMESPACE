@@ -49,8 +49,9 @@ importFrom("Rfast", colVars, univglms, colmeans, g2Test_univariate, g2Test_univa
            g2Test, g2Test_perm, sort_mat, which_isFactor, standardise, colrange, regression, zip.mle, beta.mle, 
            rmvnorm, rowMaxs, rowsums, colsums, score.glms, score.betaregs, score.weibregs, score.multinomregs, 
            score.negbinregs, score.gammaregs, sort_unique, Var, data.frame.to_matrix, fs.reg, check_data, colMaxs, 
-           cor.fsreg, pc.skel, group.sum, squareform, cora, spdinv, cor.fbed, colRanks, logistic_only, 
-           poisson_only, mvbetas, ompr, glm_logistic, glm_poisson, prop.reg, normlog.reg, mvnorm.mle, normlog.mle)
+           cor.fsreg, pc.skel, group.sum, squareform, cora, spdinv, cor.fbed, colRanks, logistic_only, omp, rint.regs,
+           poisson_only, mvbetas, ompr, glm_logistic, glm_poisson, prop.reg, normlog.reg, mvnorm.mle, normlog.mle,
+           univglms2, rint.reg, topological_sort)
 
 
 import("doParallel")
@@ -79,10 +80,10 @@ export(SES, InternalSES, MMPC, InternalMMPC, SES.temporal, InternalSES.temporal,
        glmm.pc.skel, glmm.ci.mm, bn.skel.utils, bn.skel.utils2, conf.edge.lower, pi0est, Ness, pval.mixbeta, cor.drop1, 
        triangles.search, testIndQBinom, testIndQPois, testIndLMM, fbedreg.bic, ida, fbed.gee.reg, testIndMMReg, testIndMMFisher, 
        permMMReg, permMMFisher, testIndMultinom, testIndOrdinal, permMultinom, permOrdinal, bic.mm.fsreg, certificate.of.exclusion, 
-       ebic.univregs, testIndGEEReg, testIndGEEPois, testIndGEELogistic, testIndGEEGamma, testIndGEENormLog, testIndGEEOrdinal, omp, 
+       ebic.univregs, testIndGEEReg, testIndGEEPois, testIndGEELogistic, testIndGEEGamma, testIndGEENormLog, testIndGEEOrdinal, gomp, 
        MMPC.gee, InternalMMPC.gee, ses.temporal.model, SES.gee, InternalSES.gee, mmpc.gee.model, ses.gee.model ,group.mvbetas, 
        testIndTimeLogistic, testIndTimeMultinom, MMPC.timeclass, SES.timeclass, glmm.gee.univregs, mmpc.timeclass.model, 
-       ses.timeclass.model )
+       ses.timeclass.model, corfbed.network )
 
 exportClasses("SESoutput")
 exportClasses("MMPCoutput")

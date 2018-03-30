@@ -90,12 +90,12 @@ If TRUE, the backward (or symmetry correction) phase will be implemented. This r
 The SES function implements the Statistically Equivalent Signature (SES) algorithm as presented in "Tsamardinos, Lagani and Pappas, HSCBB 2012" 
 http://www.mensxmachina.org/publications/discovering-multiple-equivalent-biomarker-signatures/
 
-The MMPC function mplements the MMPC algorithm as presented in "Tsamardinos, Brown and Aliferis. The max-min hill-climbing Bayesian network structure learning algorithm" 
+The MMPC function implements the MMPC algorithm as presented in "Tsamardinos, Brown and Aliferis. The max-min hill-climbing Bayesian network structure learning algorithm" 
 http://www.dsl-lab.org/supplements/mmhc_paper/paper_online.pdf
 
 he output value "univ" along with the output value "hashObject" 
-can speed up the computations of subesequent runs of SES and MMPC. The first run with a specific pair of hyper-parameters (threshold and max_k) the univariate associations tests 
-and the conditional independence tests (test statistic and logarithm of their corresponding p-values) are stored and returned. In the next run(s) with different pair(s) of 
+can speed up the computations of subsequent runs of SES and MMPC. The first run with a specific pair of hyper-parameters (threshold and max_k) the univariate associations tests 
+and the conditional independence tests (test statistic and natural logarithm of their corresponding p-values) are stored and returned. In the next run(s) with different pair(s) of 
 hyper-parameters you can use this information to save time. With a few thousands of variables you will see the difference, which can be up to 50\%. For the non robust correlation based tests, 
 the difference may not be significant though, because the unconditional correlation coefficients are calculated very efficiently.s. 
 
@@ -117,7 +117,7 @@ Particularly:
 	target is factor. 
 	\item if target is a numerical vector and the dataset is a matrix or a data.frame with continuous variables, the Fisher conditional independence test is used. If the dataset is a 
 	data.frame and there are categorical variables, linear regression is used.
-	\item if target is discrete numerical (counts), the poisson regression conditional independence test is used. If there are only two values, the binary logistic regression is to 
+	\item if target is discrete numerical (counts), the Poisson regression conditional independence test is used. If there are only two values, the binary logistic regression is to 
 	be used.
 	\item if target is a Surv object, a Survival conditional independence test is used.
 	\item if target is a matrix with at least 2 columns, the multivariate linear regression is used. 

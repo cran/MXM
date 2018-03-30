@@ -78,7 +78,7 @@ mmpc.model = function(target, dataset, wei = NULL, mmpcObject, test = NULL) {
       mod <- glm(target ~., data = data.frame( dataset[, signature] ), family = inverse.gaussian(log), weights = wei)
       bic <- BIC(mod)
       
-    } else if ( is.matrix(target)  & ci_test == "testIndMVreg" ) {
+    } else if ( is.matrix(target) & ci_test == "testIndMVreg" ) {
       if ( all(target > 0 & target < 1)  &  Rfast::Var( Rfast::rowsums(target) ) == 0 )   target = log( target[, -1]/(target[, 1]) ) 
       mod <- lm( target ~., data = data.frame(dataset[, signature ]), weights = wei )
       bic <- NULL

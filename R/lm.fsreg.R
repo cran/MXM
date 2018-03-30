@@ -25,7 +25,7 @@ lm.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, 
                   
        } else if ( is.data.frame(dataset)  &  is.null(wei) ) {
          mod <- Rfast::regression(dataset, target)
-         mat <- cbind(1:p, mod[, 3], mod[, 2])
+         mat <- cbind(1:p, mod[, 2], mod[, 1])
 
        } else {
          for (i in 1:p) {

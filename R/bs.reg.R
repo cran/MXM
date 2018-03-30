@@ -125,17 +125,18 @@ bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
 	  likini <- logLik(ini) 
 	  stat <- dof <- numeric(p)
 	  if (p == 1) {
-		mod <- test( target ~1, weights = wei )
-		stat <- 2 * ( likini - logLik(mod) )
-		dof <- dofini - length( coef(mod) ) 	  
+		   mod <- test( target ~1, weights = wei )
+       if ( ci_test == "censIndCR")  {
+		     stat <- 2 * likini - 2 * mod$loglik
+		   } else  stat <- 2 * ( likini - logLik(mod) )
+		   dof <- dofini - length( coef(mod) ) 	  
 	  }	else {
 	    for (j in 1:p) {
-		  mod <- test( target ~.,  data = dataset[, -j, drop = FALSE], weights = wei )
-		  stat[j] <- 2 * ( likini - logLik(mod) )
-		  dof[j] <- dofini - length( coef(mod) ) 
+		    mod <- test( target ~.,  data = dataset[, -j, drop = FALSE], weights = wei )
+		    stat[j] <- 2 * ( likini - logLik(mod) )
+		    dof[j] <- dofini - length( coef(mod) ) 
 	    }
 	  }  
-	  if ( ci_test == "censIndCR")   dof <- dof + 1
       mat <- cbind(1:p, pchisq( stat, dof, lower.tail = FALSE, log.p = TRUE), stat )
       colnames(mat) <- c("variable", "log.p-values", "statistic" )
       rownames(mat) <- 1:p 

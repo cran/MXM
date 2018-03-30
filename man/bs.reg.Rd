@@ -51,7 +51,7 @@ The run time of the algorithm. A numeric vector. The first element is the user t
 A matrix with the non selected variables and their latest test statistics and p-values.
 }
 \item{mat}{
-A matrix with the selected variables and their latest statistics and p-values.
+A matrix with the selected variables and their latest statistics and logged p-values.
 }
 
 \item{ci_test}{

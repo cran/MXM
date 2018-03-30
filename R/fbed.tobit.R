@@ -3,7 +3,7 @@ fbed.tobit <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
   p <- dm[2]
   ind <- 1:p
   sig <- log(alpha)
-  lik1 <- 2 * survival::survreg(y ~ 1, weights = wei, dist = "gaussian")$loglik[2]
+  lik1 <- survival::survreg(y ~ 1, weights = wei, dist = "gaussian")$loglik[2]
   lik2 <- numeric(p)
   dof <- numeric(p)
   sela <- NULL
@@ -20,7 +20,7 @@ fbed.tobit <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
       dof[i] <- length(fit2$coefficients)
     }
     n.tests <- p
-    stat <- 2 * lik2 - lik1
+    stat <- 2 * (lik2 - lik1)
     pval <- pchisq(stat, dof - 1, lower.tail = FALSE, log.p = TRUE)
     univ <- list()
     univ$stat <- stat
@@ -51,8 +51,8 @@ fbed.tobit <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
           dof[i] <- length(fit2$coefficients)
         }
         n.tests <- n.tests + length( ind[s] ) 
-        stat <- lik2 - lik1
-        pval <- pchisq(2 * stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
+        stat <- 2 * (lik2 - lik1)
+        pval <- pchisq(stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
         s <- which(pval < sig) 
         sel <- which.min(pval) * ( length(s)>0 )
         sa <- c(sa, stat[sel]) 
@@ -76,8 +76,8 @@ fbed.tobit <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
         dof[i] <- length(fit2$coefficients)
       }
       n.tests[2] <- length( ind[-sela] )
-      stat <- lik2 - lik1
-      pval <- pchisq(2 * stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
+      stat <- 2 * (lik2 - lik1)
+      pval <- pchisq(stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
       s <- which(pval < sig)
       sel <- which.min(pval) * ( length(s)>0 )
       sa <- c(sa, stat[sel]) 
@@ -97,8 +97,8 @@ fbed.tobit <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
           dof[i] <- length(fit2$coefficients)
         }
         n.tests[2] <- n.tests[2] + length( ind[s] )
-        stat <- lik2 - lik1
-        pval <- pchisq(2 * stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
+        stat <- 2 * (lik2 - lik1)
+        pval <- pchisq(stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
         s <- which(pval < sig)
         sel <- which.min(pval) * ( length(s)>0 )
         sa <- c(sa, stat[sel]) 
@@ -123,8 +123,8 @@ fbed.tobit <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
         dof[i] <- length(fit2$coefficients)
       }
       n.tests[2] <- length( ind[-sela] ) 
-      stat <- lik2 - lik1
-      pval <- pchisq(2 * stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
+      stat <- 2 * (lik2 - lik1)
+      pval <- pchisq(stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
       s <- which(pval < sig)
       sel <- which.min(pval) * ( length(s)>0 )
       sa <- c(sa, stat[sel]) 
@@ -144,8 +144,8 @@ fbed.tobit <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
           dof[i] <- length(fit2$coefficients)
         }
         n.tests[2] <- n.tests[2] + length( ind[s] )  
-        stat <- lik2 - lik1
-        pval <- pchisq(2 * stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
+        stat <- 2 * (lik2 - lik1)
+        pval <- pchisq(stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
         s <- which(pval < sig)
         sel <- which.min(pval) * ( length(s)>0 )
         sa <- c(sa, stat[sel]) 
@@ -170,8 +170,8 @@ fbed.tobit <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
         dof[i] <- length(fit2$coefficients)
       }
       n.tests[vim + 1] <- length( ind[-sela] )
-      stat <- lik2 - lik1
-      pval <- pchisq(2 * stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
+      stat <- 2 * (lik2 - lik1)
+      pval <- pchisq(stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
       s <- which(pval < sig)
       sel <- which.min(pval) * ( length(s)>0 )
       sa <- c(sa, stat[sel]) 
@@ -191,8 +191,8 @@ fbed.tobit <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
           dof[i] <- length(fit2$coefficients)
         }
         n.tests[vim + 1] <- n.tests[vim + 1] + length( ind[s] )
-        stat <- lik2 - lik1
-        pval <- pchisq(2 * stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
+        stat <- 2 * (lik2 - lik1)
+        pval <- pchisq(stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
         s <- which(pval < sig)
         sel <- which.min(pval) * ( length(s)>0 )
         sa <- c(sa, stat[sel]) 

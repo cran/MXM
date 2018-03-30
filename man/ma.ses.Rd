@@ -135,7 +135,8 @@ A matrix reporting all equivalent signatures (one signature for each row). Featu
 The hashObject caching the statistic calculated in the current run.
 }
 \item{pvalues}{
-For each feature included in the dataset, this vector reports the strength of its association with the target in the context of all other variables. Particularly, this vector reports the max p-values foudn when the association of each variable with the target is tested against different conditional sets. Lower values indicate higher association.
+For each feature included in the dataset, this vector reports the strength of its association with the target in the context of all other variables. 
+Particularly, this vector reports the max p-values (on a logarithmic scale) found when the association of each variable with the target is tested against different conditional sets. Lower values indicate higher association.
 }
 \item{stats}{
 The statistics corresponding to "pvalues" (higher values indicates higher association).

@@ -182,8 +182,7 @@
 \alias{identifyTheEquivalent.gee}
 \alias{univariateScore.timeclass}
 \alias{InternalMMPC.timeclass}
-\alias{omp2}
-\alias{rint.reg}
+\alias{gomp2}
 \alias{mm.bsreg}
 \alias{kfbed.reg}
 \alias{kfbed.glmm.reg}
@@ -378,8 +377,7 @@ Internal functions of Package \pkg{MXM}
 \item identifyTheEquivalent.gee( ... )
 \item univariateScore.timeclass( ... )
 \item InternalMMPC.timeclass( ... )
-\item omp2( ... )
-\item rint.reg( ... )
+\item gomp2( ... )
 \item mm.bsreg( ... )
 \item kfbed.reg( ... )
 \item kfbed.glmm.reg( ... )

@@ -26,9 +26,9 @@ fbedreg.bic = function(target, dataset, wei = NULL, fbedreg.object, test = NULL,
   ci_test = test 
   p <- dim(fbedreg.object$res)[1]
   bic <- numeric(p)
-  dataset <- as.data.frame(dataset)
-  
-  if ( ci_test == "testIndFisher" || ci_test == "testIndReg" ) {
+  dataset <- as.data.frame(dataset[, fbedreg.object$res[, 1], drop = FALSE])
+
+  if ( ci_test == "testIndFisher" | ci_test == "testIndReg" ) {
     
     for (i in 1:p) {
       mod <- lm( target ~ ., data = dataset[, 1:i, drop = FALSE ], weights = wei )
@@ -153,7 +153,7 @@ fbedreg.bic = function(target, dataset, wei = NULL, fbedreg.object, test = NULL,
   }
   res <- cbind(fbedreg.object$res, bic)
   colnames(res)[dim(res)[2]] <- "BIC"
-  if  (graph)   plot(1:p, bic, type = "b")
+  if  (graph)   plot(1:p, bic, type = "b", xlab = "Number of selected variables", ylab = "BIC values")
   
   }  ## end if ( fbedreg.object$info[1, 1] == 0 )
   

@@ -86,7 +86,8 @@ The number of permutations, set to 999 by default. There is a trick to avoind do
 
 \details{
 The censIndCR implies the Cox (semiparametric) regression, the censIndWR the Weibull (parametric) regression and the censIndER the exponential (parametric) regression, 
-which is a special case of the Weibull regression (when shape parameter is 1). 
+which is a special case of the Weibull regression (when shape parameter is 1). \bold{Note}: When there are observations with zero values (time=0) the Weibull and Exponential
+regressions will not work. Only Cox regression will run.
 
 If hash = TRUE, censIndCR, censIndWR and censIndER require the arguments 'stat_hash' and 'pvalue_hash' for the hash-based implementation of the statistic test. 
 These hash Objects are produced or updated by each run of SES (if hash == TRUE) and they can be reused in order to speed up next runs of the current statistic test. 
@@ -96,7 +97,8 @@ Important: Use these arguments only with the same dataset that was used at initi
 
 For all the available conditional independence tests that are currently included on the package, please see "?CondIndTests".
 
-The log-likelihood ratio test used in "censIndCR", "censIndWR" and "censIndER" requires the fitting of two models. The Wald tests used in "waldCR", "waldWR" and "waldER" requires fitting of only one model, the full one. The significance of the variable is examined only. Only continuous (or binary) predictor variables are currently accepted in this test. 
+The log-likelihood ratio test used in "censIndCR", "censIndWR" and "censIndER" requires the fitting of two models. The Wald tests used in "waldCR", "waldWR" and "waldER" requires fitting 
+of only one model, the full one. The significance of the variable is examined only. Only continuous (or binary) predictor variables are currently accepted in this test. 
 }
 
 \value{

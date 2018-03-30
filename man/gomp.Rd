@@ -1,43 +1,47 @@
-\name{Orthogonal matching pursuit regression}
-\alias{omp}
+\name{Generalised orthogonal matching pursuit (gOMP)}
+\alias{gomp}
 \title{
-Orthogonal matching pursuit regression
+Generalised orthogonal matching pursuit (gOMP)
 }
 
 \description{
-Orthogonal matching pursuit regression.
+Generalised orthogonal matching pursuit.
 }
 
 \usage{
-omp(target, dataset, tol = qchisq(0.95, 1) + log(dim(dataset)[1]), 
+gomp(target, dataset, tol = qchisq(0.95, 1) + log(dim(dataset)[1]), 
 test = "testIndFisher" ) 
 }
 
 \arguments{
 \item{target}{
-The response variable, a numeric vector. For "ompr" this is a continuous variable.
-For "omp" this can be either a vector with discrete (count) data, 0 and 1, non negative
-values, strictly positive or proportions including 0 and 1.
+The response variable, a numeric vector, a matrix or a Surv object.
 }
 \item{dataset}{
 A matrix with continuous data, where the rows denote the samples and the columns are the variables. 
 }
 \item{tol}{
 The tolerance value to terminate the algorithm. This is the change in the criterion value 
-between two successive steps. For "ompr" the default value is 2 because the default method
-is "BIC". For "omp" the default value is the 95\% quantile of the \eqn{\chi^2} distribution
-with 1 degree of freedom plus the logarithm of the sample size.
+between two successive steps. The default value is the 95\% quantile of the \eqn{\chi^2} distribution
+with 1 degree of freedom plus the logarithm of the sample size. For test = "testIndFisher" the BIC is already
+calculated, so better make it qchisq(0.95, 1). 
 }
 \item{test}{
 This denotes the parametric model to be used each time. It depends upon the nature of the target variable. 
 The possible values are "testIndFisher" (or "testIndReg" for the same purpose), "testIndLogistic", 
-"testIndPois", "testIndQbinom", "testIndNormLog", "testIndMVreg", "testIndNB", "testIndBeta", 
-"testIndGamma", "testIndMMReg", "testIndTobit", "censIndCR" and "censIndWR".
+"testIndPois", "testIndQPois", "testIndQbinom", "testIndNormLog", "testIndMVreg", "testIndNB", "testIndBeta", 
+"testIndGamma", "testIndMMReg", "testIndRQ", "testIndTobit", "censIndCR" and "censIndWR".
 }
 }
 
 \value{
+A list including:
+\item{runtime}{
+The runtime of the algorithm
+}
+\item{res}{
 A matrix with two columns. The selected variable(s) and the criterion value at every step. 
+}
 }
 
 \references{
@@ -69,6 +73,6 @@ R implementation and documentation: Michail Tsagris <mtsagris@yahoo.gr>.
 \examples{
 x <- matrix( rnorm(100 * 100), ncol = 100)
 y <- rnorm(100)
-b <- MXM::omp(y, x, test = "testIndFisher")
+b <- MXM::gomp(y, x, test = "testIndFisher")
 }
 

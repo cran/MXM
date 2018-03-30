@@ -27,19 +27,27 @@ censIndCR = function(target, dataset, xIndex, csIndex, wei = NULL, univariateMod
   if ( length(event) == 0 )  event = vector('numeric',numCases) + 1;
       if (is.na(csIndex) || length(csIndex) == 0 || csIndex == 0) {
 	    options(warn = -1)
-        cox_results <- survival::coxph(target ~ dataset[, xIndex], weights = wei )
-        res <- anova(cox_results)
-        dof <- res[2, 3]
-        stat <- res[2, 2]
-        pvalue <- pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE);
+        cox_results <- try( survival::coxph(target ~ dataset[, xIndex], weights = wei ), silent = TRUE )
+        if ( identical( class(cox_results), "try-error" ) ) {
+          stat <- NA
+        } else {  
+          res <- anova(cox_results)
+          dof <- res[2, 3]
+          stat <- res[2, 2]
+          pvalue <- pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE);
+        }  
       } else {
         options(warn = -1)
-        cox_results <- survival::coxph(target ~ ., data = as.data.frame(  dataset[ , csIndex] ), weights = wei) 
-        cox_results_full <- survival::coxph(target ~ ., data = as.data.frame(  dataset[ , c(csIndex, xIndex)] ), weights = wei) 
-        res = anova(cox_results_full, cox_results)
-        stat = res[2, 2]
-        dF = res[2, 3]
-        pvalue = pchisq(stat, dF, lower.tail = FALSE, log.p = TRUE)
+        cox_results <- try( survival::coxph(target ~ ., data = as.data.frame(  dataset[ , csIndex] ), weights = wei), silent = TRUE ) 
+        cox_results_full <- try( survival::coxph(target ~ ., data = as.data.frame(  dataset[ , c(csIndex, xIndex)] ), weights = wei), silent = TRUE)
+        if ( identical( class(cox_results), "try-error" )  |  identical( class(cox_results_full), "try-error" ) ) {
+         stat <- NA
+        } else { 
+          res = anova(cox_results_full, cox_results)
+          stat = res[2, 2]
+          dof = res[2, 3]
+        }
+        pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
       }  
       if ( is.na(pvalue) || is.na(stat) ) {
         pvalue = log(1);
@@ -51,7 +59,6 @@ censIndCR = function(target, dataset, xIndex, csIndex, wei = NULL, univariateMod
           pvalue_hash[[key]] <- pvalue;     #.set(pvalue_hash , key , pvalue)
         }
       }
-      #testerrorcaseintrycatch(4);
       results <- list(pvalue = pvalue, stat = stat,  stat_hash=stat_hash, pvalue_hash=pvalue_hash);
       return(results);
 }

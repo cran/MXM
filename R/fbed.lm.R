@@ -4,7 +4,6 @@ fbed.lm <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
   p <- dm[2]
   ind <- 1:p
   sig <- log(alpha)
-  lik1 <- Rfast::Var(y) * (n - 1)
   lik2 <- numeric(p)
   dof <- numeric(p)
   sela <- NULL
@@ -16,25 +15,26 @@ fbed.lm <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
   
   if ( is.null(univ) ) {
     if ( is.null(wei) ) {
-      for ( i in ind ) {
-        X <- model.matrix(y ~ x[, i])
-        fit2 <- .lm.fit( X, y)
-        lik2[i] <- sum(fit2$residuals^2)
-        dof[i] <- length(fit2$coefficients)
-      }
-    } else {  
+      mod <- Rfast::regression(x, y, logged = TRUE)
+      stat <- mod[, 1]
+      pval <- mod[, 2]
+      univ$stat <- stat
+      univ$pvalue <- pval
+    } else {
+      lik1 <- deviance( lm(y ~ 1, weights = wei) )
       for ( i in ind ) {
         X <- model.matrix(y ~ x[, i])
         fit2 <- lm.wfit(X, y, w = wei)
         lik2[i] <- sum(fit2$residuals^2)
         dof[i] <- length(fit2$coefficients)
       }
+      stat <- (lik1 - lik2) * (n - dof) / ( lik2 * (dof - 1) )
+      pval <- pf(stat, dof - 1, n - dof, lower.tail = FALSE, log.p = TRUE)
+      univ$stat <- stat
+      univ$pvalue <- pval
     }
     n.tests <- p
-    stat <- (lik1 - lik2) * (n - dof) / ( lik2 * (dof - 1) )
-    pval <- pf(stat, dof - 1, n - dof, lower.tail = FALSE, log.p = TRUE)
-    univ$stat <- stat
-    univ$pvalue <- pval
+
   } else {
     stat <- univ$stat
     pval <- univ$pvalue

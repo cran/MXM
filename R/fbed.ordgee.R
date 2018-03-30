@@ -46,9 +46,13 @@ fbed.ordgee <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0) 
     while ( sum(s>0) > 0 ) {
       nr <- k + length(sela)
       for ( i in ind[s] )  {
-        fit2 <- geepack::ordgee( y ~., data = x[, c(sela, i)], id = id, weights = wei )
-        mod <- summary(fit2)
-        stat[i] <- mod[nr, 3]
+        fit2 <- try( geepack::ordgee( y ~., data = x[, c(sela, i)], id = id, weights = wei ), silent = TRUE )
+        if ( identical( class(fit2), "try-error" ) ) {
+          stat[i] <- 0
+        } else {
+          mod <- summary(fit2)
+          stat[i] <- mod[nr, 3]
+        }  
       }
       n.tests <- n.tests + length( ind[s] ) 
       pval <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
@@ -66,9 +70,13 @@ fbed.ordgee <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0) 
     if (K == 1) {
       nr <- k + length(sela)
       for ( i in ind[-sela] )  {
-        fit2 <- geepack::ordgee( y ~., data = x[, c(sela, i)], id = id, weights = wei )
-        mod <- summary(fit2)
-        stat[i] <- mod[nr, 3]
+        fit2 <- try( geepack::ordgee( y ~., data = x[, c(sela, i)], id = id, weights = wei ), silent = TRUE ) 
+        if ( identical( class(fit2), "try-error" ) ) {
+          stat[i] <- 0
+        } else {
+          mod <- summary(fit2)
+          stat[i] <- mod[nr, 3]
+        }  
       }
       n.tests[2] <- length( ind[-sela] )
       pval <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
@@ -82,9 +90,13 @@ fbed.ordgee <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0) 
       while ( sum(s>0) > 0 ) {
         nr <- k + length(sela)
         for ( i in ind[s] )  {
-          fit2 <- geepack::ordgee( y ~., data = x[, c(sela, i)], id = id, weights = wei )
-          mod <- summary(fit2)
-          stat[i] <- mod[nr, 3]
+          fit2 <- try( geepack::ordgee( y ~., data = x[, c(sela, i)], id = id, weights = wei ), silent = TRUE )
+          if ( identical( class(fit2), "try-error" ) ) {
+            stat[i] <- 0
+          } else {
+            mod <- summary(fit2)
+            stat[i] <- mod[nr, 3]
+          }  
         }
         n.tests[2] <- n.tests[2] + length( ind[s] )
         pval <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
@@ -102,9 +114,13 @@ fbed.ordgee <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0) 
     if ( K > 1) {
       nr <- k + length(sela)
       for ( i in ind[-sela] )  {
-        fit2 <- geepack::ordgee( y ~., data = x[, c(sela, i)], id = id, weights = wei )
-        mod <- summary(fit2)
-        stat[i] <- mod[nr, 3]
+        fit2 <- try( geepack::ordgee( y ~., data = x[, c(sela, i)], id = id, weights = wei ), silent = TRUE )
+        if ( identical( class(fit2), "try-error" ) ) {
+          stat[i] <- 0
+        } else {
+          mod <- summary(fit2)
+          stat[i] <- mod[nr, 3]
+        }  
       }
       n.tests[2] <- length( ind[-sela] )
       pval <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
@@ -119,9 +135,13 @@ fbed.ordgee <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0) 
       while ( sum(s > 0) > 0 ) {
         nr <- k + length(sela)
         for ( i in ind[s] )  {
-          fit2 <- geepack::ordgee( y ~., data = x[, c(sela, i)], id = id, weights = wei )
-          mod <- summary(fit2)
-          stat[i] <- mod[nr, 3]
+          fit2 <- try( geepack::ordgee( y ~., data = x[, c(sela, i)], id = id, weights = wei ), silent = TRUE )
+          if ( identical( class(fit2), "try-error" ) ) {
+            stat[i] <- 0
+          } else {
+            mod <- summary(fit2)
+            stat[i] <- mod[nr, 3]
+          }  
         }
         n.tests[2] <- n.tests[2] + length( ind[s] )  
         pval <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
@@ -140,9 +160,13 @@ fbed.ordgee <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0) 
         vim <- vim + 1
         nr <- k + length(sela)
         for ( i in ind[-sela] )  {
-          fit2 <- geepack::ordgee( y ~., data = x[, c(sela, i)], id = id, weights = wei )
-          mod <- summary(fit2)
-          stat[i] <- mod[nr, 3]
+          fit2 <- try( geepack::ordgee( y ~., data = x[, c(sela, i)], id = id, weights = wei ), silent = TRUE )
+          if ( identical( class(fit2), "try-error" ) ) {
+            stat[i] <- 0
+          } else {
+            mod <- summary(fit2)
+            stat[i] <- mod[nr, 3]
+          }  
         }
         n.tests[vim + 1] <- length( ind[-sela] )
         pval <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
@@ -156,9 +180,13 @@ fbed.ordgee <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0) 
         while ( sum(s > 0) > 0 ) {
           nr <- k + length(sela)
           for ( i in ind[s] )  {
-            fit2 <- geepack::ordgee( y ~., data = x[, c(sela, i)], id = id, weights = wei )
-            mod <- summary(fit2)
-            stat[i] <- mod[nr, 3]
+            fit2 <- try( geepack::ordgee( y ~., data = x[, c(sela, i)], id = id, weights = wei ), silent = TRUE )
+            if ( identical( class(fit2), "try-error" ) ) {
+              stat[i] <- 0
+            } else {
+              mod <- summary(fit2)
+              stat[i] <- mod[nr, 3]
+            }  
           }
           n.tests[vim + 1] <- n.tests[vim + 1] + length( ind[s] )
           pval <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)

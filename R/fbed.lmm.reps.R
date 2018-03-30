@@ -17,20 +17,27 @@ fbed.lmm.reps <- function(y, x, id, reps = NULL, univ = NULL, alpha = 0.05, wei 
   runtime <- proc.time()
   
   if ( is.null(univ) ) {
-    for ( i in ind ) {
-      fit2 <- lme4::lmer( y ~ x[, i] + reps + (1|id), REML = FALSE, weights = wei )
-      stat[i] <- summary(fit2)[[ 10 ]][2, 3]^2
-    }
-    n.tests <- p
-    pval <- pf(stat, 1, n - 4, lower.tail = FALSE, log.p = TRUE)
-    univ <- list()
-    univ$stat <- stat
-    univ$pvalue <- pval
+    if ( is.null(wei) ) {
+      mod <- rint.regs(y, x, id = id, reps = reps)
+      univ <- list()
+      univ$stat <- mod[, 1]
+      univ$pvalue <- mod[, 2]      
+    } else {
+      for ( i in ind ) {
+        fit2 <- lme4::lmer( y ~ x[, i] + reps + (1|id), REML = FALSE, weights = wei )
+        stat[i] <- summary(fit2)[[ 10 ]][2, 3]^2
+      }
+      n.tests <- p
+      pval <- pf(stat, 1, n - 4, lower.tail = FALSE, log.p = TRUE)
+      univ <- list()
+      univ$stat <- stat
+      univ$pvalue <- pval
+    }  ##  end  if ( length(poios) == 0  &  is.null(wei) ) 
   } else {
     n.tests <- 0
     stat <- univ$stat
     pval <- univ$pvalue
-  }  
+  }  ##  end  if ( is.null(univ) )  
   s <- which(pval < sig)
   
   if ( length(s) > 0 ) {

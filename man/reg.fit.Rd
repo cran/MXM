@@ -39,7 +39,7 @@ This is for the longitudinal or grouped data only, TRUE or FALSE. If TRUE, REML 
 }
 \item{model}{
 The type of model you want to use. It can be specified by the user or left NULL, if other correct arguments have been passed. 
-Poissible values (apart from NULL) are: "gaussian" (default), "binary", "binomial", "multinomial", "poisson", "ordinal", "gamma", "normlog", "tobit", "Cox", "weibull", "exponential", "zip", "beta", "median", "negbin", "longitudinal", "grouped", "qpois" and "qbinom". The "zip" means 
+Poissible values (apart from NULL) are: "gaussian" (default), "binary", "binomial", "multinomial", "poisson", "ordinal", "gamma", "normlog", "tobit", "cox", "weibull", "exponential", "zip", "beta", "median", "negbin", "longitudinal", "grouped", "qpois" and "qbinom". The "zip" means 
 that the zero part is constant, the variables are not associated with the excessive zeros. The value "grouped" refers to grouped data, but this does not have to be given if the argument "group" is given, but not the argument "reps. The "binomial" is when you have the number of successes 
 and also the number of trials. "MM" stands for robust regression using MM estimation.
 }

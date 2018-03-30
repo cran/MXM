@@ -45,7 +45,9 @@ fbed.geelm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0, c
        
       for ( i in ind[s] )  {
         fit2 <- try( geepack::geeglm( y ~ x[, sela] + x[, i], family = gaussian, id = id, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
-        if ( !identical( class(fit2), "try-error" ) ) {
+        if ( identical( class(fit2), "try-error" ) ) {
+          stat[i] <- 0
+        } else {
           mod <- summary(fit2)[[ 6 ]]
           nr <- dim(mod)[1]
           stat[i] <- mod[nr, 3]
@@ -67,7 +69,9 @@ fbed.geelm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0, c
     if (K == 1) {
       for ( i in ind[-sela] )  {
         fit2 <- try( geepack::geeglm( y ~ x[, sela] + x[, i], family = gaussian, id = id, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
-        if ( !identical( class(fit2), "try-error" ) ) {
+        if ( identical( class(fit2), "try-error" ) ) {
+          stat[i] <- 0
+        } else {
           mod <- summary(fit2)[[ 6 ]]
           nr <- dim(mod)[1]
           stat[i] <- mod[nr, 3]
@@ -85,7 +89,9 @@ fbed.geelm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0, c
       while ( sum(s>0) > 0 ) {
         for ( i in ind[s] )  {
           fit2 <- try( geepack::geeglm( y ~ x[, sela] + x[, i], family = gaussian, id = id, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
-          if ( !identical( class(fit2), "try-error" ) ) {
+          if ( identical( class(fit2), "try-error" ) ) {
+            stat[i] <- 0
+          } else {
             mod <- summary(fit2)[[ 6 ]]
             nr <- dim(mod)[1]
             stat[i] <- mod[nr, 3]
@@ -108,7 +114,9 @@ fbed.geelm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0, c
       
       for ( i in ind[-sela] )  {
         fit2 <- try( geepack::geeglm( y ~ x[, sela] + x[, i], family = gaussian, id = id, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
-        if ( !identical( class(fit2), "try-error" ) ) {
+        if ( identical( class(fit2), "try-error" ) ) {
+          stat[i] <- 0
+        } else {
           mod <- summary(fit2)[[ 6 ]]
           nr <- dim(mod)[1]
           stat[i] <- mod[nr, 3]
@@ -127,7 +135,9 @@ fbed.geelm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0, c
       while ( sum(s > 0) > 0 ) {
         for ( i in ind[s] )  {
           fit2 <- try( geepack::geeglm( y ~ x[, sela] + x[, i], family = gaussian, id = id, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
-          if ( !identical( class(fit2), "try-error" ) ) {
+          if ( identical( class(fit2), "try-error" ) ) {
+            stat[i] <- 0
+          } else {
             mod <- summary(fit2)[[ 6 ]]
             nr <- dim(mod)[1]
             stat[i] <- mod[nr, 3]
@@ -150,7 +160,9 @@ fbed.geelm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0, c
         vim <- vim + 1
         for ( i in ind[-sela] )  {
           fit2 <- try( geepack::geeglm( y ~ x[, sela] + x[, i], family = gaussian, id = id, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
-          if ( !identical( class(fit2), "try-error" ) ) {
+          if ( identical( class(fit2), "try-error" ) ) {
+            stat[i] <- 0
+          } else {
             mod <- summary(fit2)[[ 6 ]]
             nr <- dim(mod)[1]
             stat[i] <- mod[nr, 3]
@@ -168,7 +180,9 @@ fbed.geelm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0, c
         while ( sum(s > 0) > 0 ) {
           for ( i in ind[s] )  {
             fit2 <- try( geepack::geeglm( y ~ x[, sela] + x[, i], family = gaussian, id = id, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
-            if ( !identical( class(fit2), "try-error" ) ) {
+            if ( identical( class(fit2), "try-error" ) ) {
+              stat[i] <- 0
+            } else {
               mod <- summary(fit2)[[ 6 ]]
               nr <- dim(mod)[1]
               stat[i] <- mod[nr, 3]

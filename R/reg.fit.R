@@ -75,14 +75,14 @@ reg.fit <- function(y, dataset, event = NULL, reps = NULL, group = NULL, slopes 
   } else if ( model == "median" ) {
     mod <- quantreg::rq(y ~ ., data = x, weights = wei ) 
 
-  } else if ( model == "Gamma" ) {
+  } else if ( model == "gamma" ) {
     mod <- glm(y ~ ., data = x, weights = wei, family = Gamma(log) ) 
     
   } else if ( model == "normlog" ) {
     mod <- glm(y ~ ., data = x, weights = wei, family = gaussian(log) ) 
     
   } else if ( model == "tobit" ) {
-    model <- survival::survreg(y ~ ., data = x, weights = wei, dist = "gaussian" )
+    mod <- survival::survreg(y ~ ., data = x, weights = wei, dist = "gaussian" )
     
     ## binary logistic regression
   } else if ( model == "binary" ) {
@@ -121,16 +121,16 @@ reg.fit <- function(y, dataset, event = NULL, reps = NULL, group = NULL, slopes 
     mod <- beta.mod(y, x, wei = wei )
   
     ## Cox proportional hazards
-  } else if ( model == "Cox" ) {
-    model <- survival::coxph(y ~ ., data = x, weights = wei )
+  } else if ( model == "cox" ) {
+    mod <- survival::coxph(y ~ ., data = x, weights = wei )
 
     ## Weibull regression
-  } else if ( model == "Weibull" ) {
-    model <- survival::survreg(y ~ ., data = x, weights = wei )
+  } else if ( model == "weibull" ) {
+    mod <- survival::survreg(y ~ ., data = x, weights = wei )
 
     ## Exponential regression
-  } else if ( model == "Exponential" ) {
-    model <- survival::survreg(y ~ ., data = x, weights = wei, dist = "exponential" )
+  } else if ( model == "exponential" ) {
+    mod <- survival::survreg(y ~ ., data = x, weights = wei, dist = "exponential" )
 
     ## (generalised) linear mixed models for longitudinal data
   } else if ( model == "longitudinal" ) {

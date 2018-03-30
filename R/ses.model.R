@@ -38,7 +38,7 @@ ses.model = function(target, dataset, wei = NULL, sesObject, nsignat = 1, test =
     signature = sesObject@selectedVars  
     p <- length(signature)
     
-   if ( ci_test == "testIndFisher"  ||  ci_test == "testIndReg" ) {
+   if ( ci_test == "testIndFisher"  |  ci_test == "testIndReg" ) {
       mod = lm( target ~ ., data = data.frame(dataset[, signature ]), weights = wei )
       bic = BIC(mod)     
  
@@ -46,7 +46,7 @@ ses.model = function(target, dataset, wei = NULL, sesObject, nsignat = 1, test =
       mod = MASS::rlm(target ~., data = data.frame(dataset[, signature ]), maxit = 2000, weights = wei )
       bic = BIC( mod )  
      
-   } else if ( ci_test == "testIndSpearman"  ||  ci_test == "testIndRQ" ) {
+   } else if ( ci_test == "testIndSpearman"  |  ci_test == "testIndRQ" ) {
       mod <- quantreg::rq( target ~., data = data.frame(dataset[, signature ]), weights = wei )
 	    la <- logLik(mod)
       bic <-  - 2 * as.numeric( la ) + attr(la, "df") * log( length(target) )
@@ -76,7 +76,7 @@ ses.model = function(target, dataset, wei = NULL, sesObject, nsignat = 1, test =
       bic <-  -2 * mod$loglik + ( length( coef(mod$be) ) + 1) * log( length(target) )
       ## bic = BIC(mod)
       
-    } else if ( is.matrix(target) &  ci_test == "testIndMVreg" ) {
+    } else if ( is.matrix(target) & ci_test == "testIndMVreg" ) {
       if ( all(target > 0 & target < 1)  &  Rfast::Var( Rfast::rowsums(target) ) == 0 )   target = log( target[, -1]/(target[, 1]) ) 
        mod = lm( target ~., data = data.frame(dataset[, signature ]), weights = wei )
        bic = NULL
@@ -142,14 +142,14 @@ ses.model = function(target, dataset, wei = NULL, sesObject, nsignat = 1, test =
       
      if ( nsignat > nrow(sesObject@signatures) )  nsignat = nrow(sesObject@signatures)
 
-	   con <- log( NROW(dataset) )
+     con <- log( NROW(dataset) )
      bic <- numeric(nsignat)
      signature <- sesObject@signatures[1:nsignat, , drop = FALSE] 
      mod <- list()
     
     for ( i in 1:nsignat ) {
 	
-     if ( ci_test == "testIndFisher" || ci_test == "testIndReg" ) {
+     if ( ci_test == "testIndFisher" | ci_test == "testIndReg" ) {
         mod[[ i ]] = lm( target ~ ., data = data.frame( dataset[, signature[i, ] ] ), weights = wei )
         bic[i] = BIC( mod[[ i ]] )
 
@@ -157,7 +157,7 @@ ses.model = function(target, dataset, wei = NULL, sesObject, nsignat = 1, test =
         mod[[ i ]] = MASS::rlm(target~., data = data.frame( dataset[, signature[i, ] ] ), maxit = 2000, weights = wei )
         bic[i] = BIC( mod[[ i ]] ) 
         
-     } else if ( ci_test == "testIndSpearman"  ||  ci_test == "testIndRQ" ) {
+     } else if ( ci_test == "testIndSpearman"  |  ci_test == "testIndRQ" ) {
        mod[[ i ]] = quantreg::rq( target ~., data = data.frame( dataset[, signature[i, ] ] ), weights = wei )
 	     la <- logLik( mod[[ i ]] ) 
        bic[i] <-  - 2 * as.numeric( la ) + attr(la, "df") * con
@@ -186,7 +186,7 @@ ses.model = function(target, dataset, wei = NULL, sesObject, nsignat = 1, test =
        mod[[ i ]] <- zip.mod( target, dataset[, signature[i, ] ], wei = wei )
        bic[i] <-  -2 * mod[[ i ]]$loglik + ( length( coef(mod[[ i ]]$be) ) + 1) * con
 
-     } else if ( is.matrix(target)  || ci_test == "testIndMVreg" ) {
+     } else if ( is.matrix(target) & ci_test == "testIndMVreg" ) {
        if ( all(target > 0 & target < 1)  &  Rfast::Var( Rfast::rowsums(target) ) == 0 )   target = log( target[, -1]/(target[, 1]) ) 
        mod[[ i ]] = lm( target ~.,  data = data.frame( dataset[, signature[i, ] ] ), weights = wei )
        bic[i] = NULL
@@ -239,9 +239,9 @@ ses.model = function(target, dataset, wei = NULL, sesObject, nsignat = 1, test =
       
      }  
   
-      signature = cbind(signature, bic)
     } ## end for ( i in 1:nsignat ) 
-     
+     signature = cbind(signature, bic)   
+
   }  ## end if ( nsignat > 1 & nrow(sesObject@signatures) > 1 )
   ####### all signatures
 
@@ -253,7 +253,7 @@ ses.model = function(target, dataset, wei = NULL, sesObject, nsignat = 1, test =
 	
     for ( i in 1:nrow(signature) ) {
 	
-     if ( ci_test == "testIndFisher" || ci_test == "testIndReg" ) {
+     if ( ci_test == "testIndFisher" | ci_test == "testIndReg" ) {
         mod[[ i ]] = lm( target ~ ., data = data.frame( dataset[, signature[i, ] ] ), weights = wei )
         bic[i] = BIC( mod[[ i ]] )
       
@@ -261,7 +261,7 @@ ses.model = function(target, dataset, wei = NULL, sesObject, nsignat = 1, test =
        mod[[ i ]] = MASS::rlm(target~., data = data.frame( dataset[, signature[i, ] ] ), maxit = 2000, weights = wei)
        bic[[ i ]] = BIC( mod[[ i ]] )
        
-     } else if ( ci_test == "testIndSpearman"  ||  ci_test == "testIndRQ" ) {
+     } else if ( ci_test == "testIndSpearman"  |  ci_test == "testIndRQ" ) {
        mod[[ i ]] = quantreg::rq( target ~., data = data.frame( dataset[, signature[i, ] ] ), weights = wei )
 	     la <- logLik( mod[[ i ]] )
        bic[i] <-  - 2 * as.numeric( la ) + attr(la, "df") * con
@@ -290,7 +290,7 @@ ses.model = function(target, dataset, wei = NULL, sesObject, nsignat = 1, test =
        mod[[ i ]] <- zip.mod( target, dataset[, signature[i, ] ], wei = wei )
        bic[i] <-  -2 * mod[[ i ]]$loglik + ( length( coef(mod[[ i ]]$be) ) + 1) * log( length(target) )
 
-     } else if ( is.matrix(target)  ||  ci_test == "testIndMVreg" ) {
+     } else if ( is.matrix(target) & ci_test == "testIndMVreg" ) {
        if ( all(target > 0 & target < 1)  &  Rfast::Var( Rfast::rowsums(target) ) == 0 )   target = log( target[, -1]/(target[, 1]) ) 
        mod[[ i ]] = lm( target ~., data = dataset[, signature[i, ]], weights = wei )
        bic[i] = NULL

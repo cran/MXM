@@ -132,7 +132,7 @@ For all other cases a list including:
 The value of the test statistic.
 }
 \item{pvalue}{
-The logged p-value of the test. 
+The logarithm of the p-value of the test. 
 }
 }
 

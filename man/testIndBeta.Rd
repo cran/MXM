@@ -78,7 +78,7 @@ A numeric value that represents the generated statistic due to Beta regression (
 The current hash object used for the statistics. See argument stat_hash and details. If argument hash = FALSE this is NULL.
 }
 \item{pvalue_hash}{
-The current hash object used for the p-values. See argument stat_hash and details. If argument hash = FALSE this is NULL.
+The current hash object used for the logged p-values. See argument stat_hash and details. If argument hash = FALSE this is NULL.
 }
 }
 

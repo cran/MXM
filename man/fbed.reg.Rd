@@ -21,7 +21,7 @@ The class variable. Provide either a string, an integer, a numeric value, a vect
 The dataset; provide either a data frame or a matrix (columns = variables, rows = samples). 
 }
 \item{ini}{
-If you already have the test statistics and the p-values of the univariate associations (the first step of FBED) supply them as a list with the names "stat" and "pvalue" respectively.
+If you already have the test statistics and the p-values of the univariate associations (the first step of FBED) supply them as a list with the names "stat" and "pvalue" respectively. If you have used the EBIc this list contains the eBIC of the univariate associations. Note, that the "gam" argument must be the same though.
 }
 \item{test}{
 The available tests: "testIndReg", "testIndPois", "testIndNB", "testIndLogistic", 
@@ -68,10 +68,10 @@ If you specify a range of values of K it returns the results of fbed.reg for thi
 \value{
 If K is a single number a list including:
 \item{univ}{
-If you have used the log-likelihood ratio test this list contains the test statistics and the associated p-values of the univariate associations tests. If you have used the EBIc this list contains the eBIC of the univariate associations.
+If you have used the log-likelihood ratio test this list contains the test statistics and the associated p-values of the univariate associations tests. If you have used the EBIc this list contains the eBIC of the univariate associations. Note, that the "gam" argument must be the same though.
 }
 \item{res}{
-A matrix with the selected variables, their test statistic and the associated p-value.
+A matrix with the selected variables, their test statistic and the associated logged p-value.
 }
 \item{info}{
 A matrix with the number of variables and the number of tests performed (or models fitted) at each round (value of K). This refers to the

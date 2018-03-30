@@ -21,8 +21,8 @@ fbed.clogit <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
       lik2[i] <- logLik(fit2)
       dof[i] <- length(fit2$coefficients)
     }
-    stat <- lik2 - lik1
-    pval <- pchisq(2 * stat, dof, lower.tail = FALSE, log.p = TRUE)
+    stat <- 2 * (lik2 - lik1)
+    pval <- pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
     univ$stat <- stat
     univ$pvalue <- pval
     n.tests <- p
@@ -57,8 +57,8 @@ fbed.clogit <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
         } 
       } ## end  for
       n.tests <- n.tests + length( ind[s] ) 
-      stat <- lik2 - lik1
-      pval <- pchisq(2 * stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
+      stat <- 2 * (lik2 - lik1)
+      pval <- pchisq(stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
       s <- which(pval < sig) 
       sel <- which.min(pval) * ( length(s)>0 )
       sa <- c(sa, stat[sel]) 
@@ -86,8 +86,8 @@ fbed.clogit <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
         } 
       }
       n.tests[2] <- length( ind[-sela] )
-      stat <- lik2 - lik1
-      pval <- pchisq(2 * stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
+      stat <- 2 * (lik2 - lik1)
+      pval <- pchisq(stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
       s <- which(pval < sig)
       sel <- which.min(pval) * ( length(s)>0 )
       sa <- c(sa, stat[sel]) 
@@ -111,8 +111,8 @@ fbed.clogit <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
           } 
         }
         n.tests[2] <- n.tests[2] + length( ind[s] )
-        stat <- lik2 - lik1
-        pval <- pchisq(2 * stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
+        stat <- 2 * (lik2 - lik1)
+        pval <- pchisq(stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
         s <- which(pval < sig)
         sel <- which.min(pval) * ( length(s)>0 )
         sa <- c(sa, stat[sel]) 
@@ -141,8 +141,8 @@ fbed.clogit <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
         } 
       }
       n.tests[2] <- length( ind[-sela] ) 
-      stat <- lik2 - lik1
-      pval <- pchisq(2 * stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
+      stat <- 2 * (lik2 - lik1)
+      pval <- pchisq(stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
       s <- which(pval < sig)
       sel <- which.min(pval) * ( length(s)>0 )
       sa <- c(sa, stat[sel]) 
@@ -166,8 +166,8 @@ fbed.clogit <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
           } 
         }
         n.tests[2] <- n.tests[2] + length( ind[s] )  
-        stat <- lik2 - lik1
-        pval <- pchisq(2 * stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
+        stat <- 2 * (lik2 - lik1)
+        pval <- pchisq(stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
         s <- which(pval < sig)
         sel <- which.min(pval) * ( length(s)>0 )
         sa <- c(sa, stat[sel]) 
@@ -196,8 +196,8 @@ fbed.clogit <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
           } 
         }
         n.tests[vim + 1] <- length( ind[-sela] )
-        stat <- lik2 - lik1
-        pval <- pchisq(2 * stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
+        stat <- 2 * (lik2 - lik1)
+        pval <- pchisq(stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
         s <- which(pval < sig)
         sel <- which.min(pval) * ( length(s)>0 )
         sa <- c(sa, stat[sel]) 
@@ -221,8 +221,8 @@ fbed.clogit <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
             } 
           }
           n.tests[vim + 1] <- n.tests[vim + 1] + length( ind[s] )
-          stat <- lik2 - lik1
-          pval <- pchisq(2 * stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
+          stat <- 2 * (lik2 - lik1)
+          pval <- pchisq(stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
           s <- which(pval < sig)
           sel <- which.min(pval) * ( length(s)>0 )
           sa <- c(sa, stat[sel]) 

@@ -27,7 +27,7 @@ This is a numerical vector of the same size as target denoting the groups or the
 This is a numerical vector of the same size as target denoting the groups or the subjects. If you have longitudinal data and you know the time points, then supply them here. 
 }
 \item{ini}{
-If you already have the test statistics and the p-values of the univariate associations (the first step of FBED) supply them as a 
+If you already have the test statistics and the logged p-values of the univariate associations (the first step of FBED) supply them as a 
 list with the names "stat" and "pvalue" respectively.
 }
 \item{threshold}{
@@ -82,7 +82,7 @@ The runtime required.
 
 If K is a sequence of numbers a list tincluding:
 \item{univ}{
-If you have used the log-likelihood ratio test this list contains the test statistics and the associated p-values of the univariate associations tests. If you have used the EBIc this list contains the eBIC of the univariate associations.
+If you have used the log-likelihood ratio test this list contains the test statistics and the associated logged p-values of the univariate associations tests. If you have used the EBIc this list contains the eBIC of the univariate associations.
 }
 \item{res}{
 The results of fbed.gee.reg with the maximum value of K. 

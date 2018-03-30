@@ -23,22 +23,38 @@ fbed.glm <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0, type = 
   runtime <- proc.time()
   
   if ( is.null(univ) ) {
-    for ( i in ind ) {
-      fit2 <- glm( y ~ x[, i], family = oiko, weights = wei )
-      lik2[i] <- logLik( fit2 )
-      dof[i] <- length(fit2$coefficients)
-    }
+    
+    if ( type == "logistic"  &  is.null(wei) ) {
+      mod <- Rfast::univglms2(y, x, oiko = "binomial", logged = TRUE)
+      stat <-mod[, 1]
+      pval <- mod[, 2]
+      univ$stat <- stat
+      univ$pvalue <- pval
+    } else if ( type == "poisson"  &  is.null(wei) ) {
+      mod <- Rfast::univglms2(y, x, oiko = "poisson", logged = TRUE)
+      stat <-mod[, 1]
+      pval <- mod[, 2]
+      univ$stat <- stat
+      univ$pvalue <- pval
+    } else {  
+      for ( i in ind ) {
+        fit2 <- glm( y ~ x[, i], family = oiko, weights = wei )
+        lik2[i] <- logLik( fit2 )
+        dof[i] <- length(fit2$coefficients)
+      }
+      stat <- 2 * (lik2 - lik1)
+      pval <- pchisq(stat, dof - 1, lower.tail = FALSE, log.p = TRUE)
+      univ$stat <- stat
+      univ$pvalue <- pval
+    }  
     n.tests <- p
-    stat <- 2 * (lik2 - lik1)
-    pval <- pchisq(stat, dof - 1, lower.tail = FALSE, log.p = TRUE)
-    univ$stat <- stat
-    univ$pvalue <- pval
   } else {
     stat <- univ$stat
     pval <- univ$pvalue
     n.tests <- 0
-    lik2 <- univ$stat + 2 * lik1
   }  
+
+  lik2 <- univ$stat + 2 * lik1
   s <- which(pval < sig)
   
   if ( length(s) > 0 ) {

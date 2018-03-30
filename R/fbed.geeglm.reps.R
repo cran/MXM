@@ -28,8 +28,10 @@ fbed.geeglm.reps <- function(y, x, id, reps, univ = NULL, alpha = 0.05, wei = NU
   
   if ( is.null(univ) ) {
     for ( i in ind ) {
-      fit2 <- geepack::geeglm( y ~ reps + x[, i], family = oiko, id = id, weights = wei, corstr = correl, std.err = se )
-      stat[i] <- anova(fit2)[2, 2]
+      fit2 <- try( geepack::geeglm( y ~ reps + x[, i], family = oiko, id = id, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE )
+      if ( identical( class(fit2), "try-error" ) ) {
+        stat[i] <- 0
+      } else  stat[i] <- anova(fit2)[2, 2]
     }
     n.tests <- p
     pval <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
@@ -53,8 +55,10 @@ fbed.geeglm.reps <- function(y, x, id, reps, univ = NULL, alpha = 0.05, wei = NU
     #########
     while ( sum(s>0) > 0 ) {
       for ( i in ind[s] )  {
-        fit2 <- try( geepack::geeglm( y ~ reps + x[, sela] + x[,i], family = oiko, id = id, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
-        if ( !identical( class(fit2), "try-error" ) ) {
+        fit2 <- try( geepack::geeglm( y ~ reps + x[, sela] + x[,i], family = oiko, id = id, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
+        if ( identical( class(fit2), "try-error" ) ) {
+          stat[i] <- 0
+        } else {  
           mod <- anova(fit2)
           nr <- dim(mod)[1]
           stat[i] <- mod[nr, 2]
@@ -76,8 +80,10 @@ fbed.geeglm.reps <- function(y, x, id, reps, univ = NULL, alpha = 0.05, wei = NU
     if (K == 1) {
       d0 <- length(sela)
       for ( i in ind[-sela] )  {
-        fit2 <- try( geepack::geeglm( y ~ reps + x[, sela] + x[,i], family = oiko, id = id, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
-        if ( !identical( class(fit2), "try-error" ) ) {
+        fit2 <- try( geepack::geeglm( y ~ reps + x[, sela] + x[,i], family = oiko, id = id, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
+        if ( identical( class(fit2), "try-error" ) ) {
+          stat[i] <- 0
+        } else {
           mod <- anova(fit2)
           nr <- dim(mod)[1]
           stat[i] <- mod[nr, 2]
@@ -95,8 +101,10 @@ fbed.geeglm.reps <- function(y, x, id, reps, univ = NULL, alpha = 0.05, wei = NU
       while ( sum(s>0) > 0 ) {
         d0 <- length(sela)
         for ( i in ind[s] )  {
-          fit2 <- try( geepack::geeglm( y ~ reps + x[, sela] + x[,i], family = oiko, id = id, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
-          if ( !identical( class(fit2), "try-error" ) ) {
+          fit2 <- try( geepack::geeglm( y ~ reps + x[, sela] + x[,i], family = oiko, id = id, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
+          if ( identical( class(fit2), "try-error" ) ) {
+            stat[i] <- 0
+          } else {
             mod <- anova(fit2)
             nr <- dim(mod)[1]
             stat[i] <- mod[nr, 2]
@@ -118,8 +126,10 @@ fbed.geeglm.reps <- function(y, x, id, reps, univ = NULL, alpha = 0.05, wei = NU
     if ( K > 1) {
       
       for ( i in ind[-sela] )  {
-        fit2 <- try( geepack::geeglm( y ~ reps + x[, sela] + x[,i], family = oiko, id = id, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
-        if ( !identical( class(fit2), "try-error" ) ) {
+        fit2 <- try( geepack::geeglm( y ~ reps + x[, sela] + x[,i], family = oiko, id = id, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
+        if ( identical( class(fit2), "try-error" ) ) {
+          stat[i] <- 0
+        } else {
           mod <- anova(fit2)
           nr <- dim(mod)[1]
           stat[i] <- mod[nr, 2]
@@ -137,8 +147,10 @@ fbed.geeglm.reps <- function(y, x, id, reps, univ = NULL, alpha = 0.05, wei = NU
       
       while ( sum(s > 0) > 0 ) {
         for ( i in ind[s] )  {
-          fit2 <- try( geepack::geeglm( y ~ reps + x[, sela] + x[,i], family = oiko, id = id, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
-          if ( !identical( class(fit2), "try-error" ) ) {
+          fit2 <- try( geepack::geeglm( y ~ reps + x[, sela] + x[,i], family = oiko, id = id, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
+          if ( identical( class(fit2), "try-error" ) ) {
+            stat[i] <- 0
+          } else {
             mod <- anova(fit2)
             nr <- dim(mod)[1]
             stat[i] <- mod[nr, 2]
@@ -160,8 +172,10 @@ fbed.geeglm.reps <- function(y, x, id, reps, univ = NULL, alpha = 0.05, wei = NU
       while ( vim < K  & card[vim + 1] - card[vim] > 0 ) {
         vim <- vim + 1
         for ( i in ind[-sela] )  {
-          fit2 <- try( geepack::geeglm( y ~ reps + x[, sela] + x[,i], family = oiko, id = id, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
-          if ( !identical( class(fit2), "try-error" ) ) {
+          fit2 <- try( geepack::geeglm( y ~ reps + x[, sela] + x[,i], family = oiko, id = id, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
+          if ( identical( class(fit2), "try-error" ) ) {
+            stat[i] <- 0
+          } else {
             mod <- anova(fit2)
             nr <- dim(mod)[1]
             stat[i] <- mod[nr, 2]
@@ -178,8 +192,10 @@ fbed.geeglm.reps <- function(y, x, id, reps, univ = NULL, alpha = 0.05, wei = NU
         if (sel > 0)  stat <- numeric(p)
         while ( sum(s > 0) > 0 ) {
           for ( i in ind[s] )  {
-            fit2 <- try( geepack::geeglm( y ~ reps + x[, sela] + x[,i], family = oiko, id = id, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
-            if ( !identical( class(fit2), "try-error" ) ) {
+            fit2 <- try( geepack::geeglm( y ~ reps + x[, sela] + x[,i], family = oiko, id = id, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
+            if ( identical( class(fit2), "try-error" ) ) {
+              stat[i] <- 0
+            } else {
               mod <- anova(fit2)
               nr <- dim(mod)[1]
               stat[i] <- mod[nr, 2]

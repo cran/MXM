@@ -17,7 +17,7 @@ fbed.nb <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
   if ( is.null(univ) ) {
     for ( i in ind ) {
       fit2 <- MASS::glm.nb( y ~ x[, i], weights = wei )
-      lik2[i] <- fit2$loglik
+      lik2[i] <- fit2$twologlik
  	    dof[i] <- length( fit2$coefficients )
     }
     n.tests <- p
@@ -30,7 +30,7 @@ fbed.nb <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
     stat <- univ$stat
     pval <- univ$pvalue
     n.tests <- 0
-    lik2 <- univ$stat + 2 * lik1
+    lik2 <- univ$stat + lik1
   }  
   s <- which(pval < sig)
 

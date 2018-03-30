@@ -1,16 +1,19 @@
-\name{Network construction using the partial correlation based forward regression}
+\name{Network construction using the partial correlation based forward regression or FBED}
 \alias{corfs.network}
+\alias{corfbed.network}
 \title{
-Network construction using the partial correlation based forward regression
+Network construction using the partial correlation based forward regression of FBED
 }
 
 \description{
-Network construction using the partial correlation based forward regression. 
+Network construction using the partial correlation based forward regression or FBED. 
 }
 
 \usage{
 corfs.network(x, threshold = 0.05, tolb = 2, tolr = 0.02, stopping = "BIC", 
 symmetry = TRUE, nc = 1) 
+
+corfbed.network(x, threshold = 0.05, symmetry = TRUE, nc = 1)
 }
 
 \arguments{
@@ -74,6 +77,9 @@ Sanford Weisberg (2014). Applied Linear Regression. Hoboken NJ: John Wiley, 4th 
 Draper N.R. and Smith H. (1988). Applied regression analysis. New York, Wiley, 3rd edition. 
 
 Tsamardinos, Brown and Aliferis (2006). The max-min hill-climbing Bayesian network structure learning algorithm. Machine learning, 65(1), 31-78.
+
+Borboudakis G. and Tsamardinos I. (2017). Forward-Backward Selection with Early Dropping. 
+https://arxiv.org/pdf/1705.10770.pdf
 }
 
 \author{

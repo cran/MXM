@@ -72,7 +72,7 @@ The run time of the algorithm. A numeric vector. The first element is the user t
 A matrix with the variables and their latest test statistics and p-values.
 }
 \item{info}{
-A matrix with the selected variables, their p-values and test statistics. Each row corresponds to a model which contains the variables up to that line. The BIC in the last column is the BIC of that model.
+A matrix with the selected variables, their logged p-values and test statistics. Each row corresponds to a model which contains the variables up to that line. The BIC in the last column is the BIC of that model.
 }
 \item{ci_test}{
 The conditional independence test used. 

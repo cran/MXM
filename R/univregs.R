@@ -115,12 +115,7 @@ if ( !is.null(user_test) ) {
     univariateModels$pvalue = mod[, 2]
   }   
   
-} else if ( identical(test, testIndReg) &  is.matrix(dataset)  &  is.null(wei) ) {  ## linear regression
-  mod = Rfast::univglms(target, dataset, oiko = "normal", logged = TRUE) 
-  univariateModels$stat = mod[, 1]
-  univariateModels$pvalue = mod[, 2]
-
-} else if ( identical(test, testIndReg)  &  is.data.frame(dataset) ) {  ## linear regression
+} else if ( identical(test, testIndReg)  &  is.null(wei) ) {  ## linear regression
   mod <- Rfast::regression(dataset, target, logged = TRUE)
   univariateModels$stat = mod[, 1]
   univariateModels$pvalue = mod[, 2]
@@ -231,8 +226,14 @@ if ( !is.null(user_test) ) {
   mod <- Rfast::univglms( target, dataset, oiko = "binomial", logged = TRUE )
   univariateModels$stat = mod[, 1]
   univariateModels$pvalue = mod[, 2]
+  
+} else if ( identical(test, testIndLogistic)  &  is.data.frame(dataset)  &  is.null(wei) ) {  ## logistic regression
+  if ( is.factor(target) )   target <- as.numeric(target) - 1
+  mod <- Rfast::univglms2( target, dataset, oiko = "binomial", logged = TRUE )
+  univariateModels$stat = mod[, 1]
+  univariateModels$pvalue = mod[, 2]
 
-} else if ( identical(test, testIndLogistic)  & !is.null(wei)  ||  is.data.frame(dataset) ) {  ## Logistic regression
+} else if ( identical(test, testIndLogistic)  &  !is.null(wei) ) {  ## Logistic regression
   fit1 = glm(target ~ 1, binomial, weights = wei)
   lik1 = fit1$deviance
   lik2 = numeric(cols)
@@ -297,11 +298,16 @@ if ( !is.null(user_test) ) {
   }
   
 } else if ( identical(test, testIndPois)  &  is.matrix(dataset)  &  is.null(wei) ) {  ## Poisson regression
-  mod <- Rfast::univglms( target, dataset, logged = TRUE ) 
+  mod <- Rfast::univglms( target, dataset, oiko = "poisson", logged = TRUE ) 
+  univariateModels$stat = mod[, 1]
+  univariateModels$pvalue = mod[, 2]
+  
+} else if ( identical(test, testIndPois)  &  is.data.frame(dataset)  &  is.null(wei) ) {  ## Poisson regression
+  mod <- Rfast::univglms2( target, dataset, oiko = "poisson", logged = TRUE ) 
   univariateModels$stat = mod[, 1]
   univariateModels$pvalue = mod[, 2]
 
-} else if ( identical(test, testIndPois)  &  ( !is.null(wei)  ||  is.data.frame(dataset)  ) ) {  ## Poisson regression
+} else if ( identical(test, testIndPois)  &  !is.null(wei) ) {  ## Poisson regression
   fit1 = glm(target ~ 1, poisson, weights = wei)
   lik1 = fit1$deviance
   lik2 = numeric(cols)
@@ -358,7 +364,7 @@ if ( !is.null(user_test) ) {
     univariateModels$pvalue = pchisq(stat, mod[, 2], lower.tail = FALSE, log.p = TRUE)
   }
 
-} else if ( identical(test, testIndNormLog)   ) {  ## Normal log link regression
+} else if ( identical(test, testIndNormLog) ) {  ## Normal log link regression
   fit1 = glm(target ~ 1, family = gaussian(link = log), weights = wei)
   lik1 = fit1$deviance
   lik2 = numeric(cols)

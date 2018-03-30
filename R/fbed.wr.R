@@ -4,7 +4,7 @@ fbed.wr <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
   ind <- 1:p
   sig <- log(alpha)
   mod1 <- survival::survreg(y ~ 1, weights = wei)
-  lik1 <- 2 * logLik(mod1)
+  lik1 <- logLik(mod1)
   lik2 <- numeric(p)
   dof <- numeric(p)
   sela <- NULL
@@ -20,7 +20,7 @@ fbed.wr <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
       dof[i] <- length( coef(fit2) )
     }
     n.tests <- p
-    stat <- 2 * lik2 - lik1
+    stat <- 2 * (lik2 - lik1)
     pval <- pchisq(stat, dof - 1, lower.tail = FALSE, log.p = TRUE)
     univ <- list()
     univ$stat <- stat
@@ -38,7 +38,7 @@ fbed.wr <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
       sela <- sel
       s <- s[ - which(s == sel) ]
       lik1 <- lik2[sel] 
-      d1 <- dim( model.matrix( y~., data.frame(x[, sel]) ) )[2] - 1
+      d1 <- dim( model.matrix( y ~., data.frame(x[, sel]) ) )[2] - 1
       sa <- stat[sel]
       pva <- pval[sel]
       lik2 <- rep( lik1, p )
@@ -47,12 +47,12 @@ fbed.wr <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
       while ( sum(s>0) > 0 ) {
         for ( i in ind[s] )  {
           fit2 <- survival::survreg( y ~., data = x[, c(sela, i)], weights = wei )
-          lik2[i] <- 2 * logLik(fit2)
+          lik2[i] <- logLik(fit2)
           dof[i] <- length(fit2$coefficients)
         }
         n.tests <- n.tests + length( ind[s] ) 
-        stat <- lik2 - lik1
-        pval <- pchisq(stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
+        stat <- 2 * (lik2 - lik1 )
+        pval <- pchisq( stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
         s <- which(pval < sig) 
         sel <- which.min(pval) * ( length(s)>0 )
         sa <- c(sa, stat[sel]) 
@@ -72,12 +72,12 @@ fbed.wr <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
    if (K == 1) {
      for ( i in ind[-sela] )  {
         fit2 <- survival::survreg( y ~., data = x[, c(sela, i)], weights = wei )
-        lik2[i] <- 2 * logLik(fit2)
+        lik2[i] <- logLik(fit2)
         dof[i] <- length(fit2$coefficients)
       }
       n.tests[2] <- length( ind[-sela] )
-      stat <- lik2 - lik1
-      pval <- pchisq(stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
+      stat <- 2 * (lik2 - lik1)
+      pval <- pchisq( stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
       s <- which(pval < sig)
       sel <- which.min(pval) * ( length(s)>0 )
       sa <- c(sa, stat[sel]) 
@@ -93,12 +93,12 @@ fbed.wr <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
       while ( sum(s>0) > 0 ) {
         for ( i in ind[s] )  {
           fit2 <- survival::survreg( y ~., data = x[, c(sela, i)], weights = wei )
-          lik2[i] <- 2 * logLik(fit2)
+          lik2[i] <- logLik(fit2)
           dof[i] <- length(fit2$coefficients)
         }
         n.tests[2] <- n.tests[2] + length( ind[s] )
-        stat <- lik2 - lik1
-        pval <- pchisq(stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
+        stat <- 2 * (lik2 - lik1)
+        pval <- pchisq( stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
         s <- which(pval < sig)
         sel <- which.min(pval) * ( length(s)>0 )
         sa <- c(sa, stat[sel]) 
@@ -119,11 +119,11 @@ fbed.wr <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
 
      for ( i in ind[-sela] )  {
         fit2 <- survival::survreg( y ~., data = x[, c(sela, i)], weights = wei )
-        lik2[i] <- 2 * logLik(fit2)
+        lik2[i] <- logLik(fit2)
         dof[i] <- length(fit2$coefficients)
       }
       n.tests[2] <- length( ind[-sela] ) 
-      stat <- lik2 - lik1
+      stat <- 2 * (lik2 - lik1)
       pval <- pchisq(stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
       s <- which(pval < sig)
       sel <- which.min(pval) * ( length(s)>0 )
@@ -140,11 +140,11 @@ fbed.wr <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
       while ( sum(s > 0) > 0 ) {
         for ( i in ind[s] )  {
           fit2 <- survival::survreg( y ~., data = x[, c(sela, i)], weights = wei )
-          lik2[i] <- 2 * logLik(fit2)
+          lik2[i] <- logLik(fit2)
           dof[i] <- length(fit2$coefficients)
         }
         n.tests[2] <- n.tests[2] + length( ind[s] )  
-        stat <- lik2 - lik1
+        stat <- 2 * (lik2 - lik1)
         pval <- pchisq(stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
         s <- which(pval < sig)
         sel <- which.min(pval) * ( length(s)>0 )
@@ -166,11 +166,11 @@ fbed.wr <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
       vim <- vim + 1
       for ( i in ind[-sela] )  {
         fit2 = survival::survreg( y ~., data = data.frame( x[, c(sela, i)] ), weights = wei )
-        lik2[i] <- 2 * logLik(fit2)
+        lik2[i] <- logLik(fit2)
         dof[i] <- length(fit2$coefficients)
       }
       n.tests[vim + 1] <- length( ind[-sela] )
-      stat <- lik2 - lik1
+      stat <- 2 * (lik2 - lik1)
       pval <- pchisq(stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
       s <- which(pval < sig)
       sel <- which.min(pval) * ( length(s)>0 )
@@ -187,11 +187,11 @@ fbed.wr <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
        while ( sum(s > 0) > 0 ) {
         for ( i in ind[s] )  {
           fit2 <- survival::survreg( y ~., data = x[, c(sela, i)], weights = wei )
-          lik2[i] <- 2 * logLik(fit2)
+          lik2[i] <- logLik(fit2)
           dof[i] <- length(fit2$coefficients)
         }
         n.tests[vim + 1] <- n.tests[vim + 1] + length( ind[s] )
-        stat <- lik2 - lik1
+        stat <- 2 * (lik2 - lik1)
         pval <- pchisq(stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
         s <- which(pval < sig)
         sel <- which.min(pval) * ( length(s)>0 )

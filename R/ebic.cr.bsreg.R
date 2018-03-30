@@ -45,81 +45,82 @@ ebic.cr.bsreg <- function(target, dataset, wei = NULL, gam = NULL) {
       
     } else { 
       ###########  
-    for (j in 1:p) {
-      mod <- survival::coxph( target ~.,  data = dataset[, -j, drop = FALSE], weights = wei )
-      bic[j] <- BIC(mod) + con * lchoose(p, M) 
-    }
-    
-    mat <- cbind(1:p, bic )
-    sel <- which.min( mat[, 2] )
-    info <- matrix( c(0, 0), ncol = 2 )
-    colnames(info) <- c("Variables", "eBIC")
-    colnames(mat) <- c("Variables", "eBIC")
-    
-    if ( bic0 - mat[sel, 2] < 0  ) {
-      runtime <- proc.time() - tic
-      res <- list(runtime = runtime, info = info, mat = mat )
+      for (j in 1:p) {
+        mod <- survival::coxph( target ~.,  data = dataset[, -j, drop = FALSE], weights = wei )
+        bic[j] <- BIC(mod) + con * lchoose(p, M) 
+      }
       
-    } else {
-      info[1, ] <- mat[sel, ]
-      mat <- mat[-sel, , drop = FALSE] 
-      dat <- dataset[, -sel, drop = FALSE] 
-      tool[2] <- info[1, 2]
+      mat <- cbind(1:p, bic )
+      sel <- which.min( mat[, 2] )
+      info <- matrix( c(0, 0), ncol = 2 )
+      colnames(info) <- c("Variables", "eBIC")
+      colnames(mat) <- c("Variables", "eBIC")
       
-      i <- 2  
-      
-      if ( tool[2] > 0 ) {
+      if ( bic0 - mat[sel, 2] < 0  ) {
+        runtime <- proc.time() - tic
+        res <- list(runtime = runtime, info = info, mat = mat )
         
-        while ( tool[i - 1] - tool[i ] > 0  &  NCOL(dat) > 0 )  {   
+      } else {
+        info[1, ] <- mat[sel, ]
+        mat <- mat[-sel, , drop = FALSE] 
+        dat <- dataset[, -sel, drop = FALSE] 
+        tool[2] <- info[1, 2]
+        
+        i <- 2  
+        
+        if ( tool[2] > 0 ) {
           
-          ini <- survival::coxph( target ~., data = dat, weights = wei )
-          M <- dim(dat)[2]
-          bic0 <-  BIC(mod) + con * lchoose(p, M)
-          i <- i + 1        
-
-          if ( M == 1 ) {
-            mod <- survival::coxph(target ~ 1, weights = wei )
-            bic <-  - 2 * mod$loglik
-            tool[i] <- bic
-            if (bic0 - bic < 0 ) {
-              runtime <- proc.time() - tic
-              res <- list(runtime = runtime, info = info, mat = mat )
-            } else {
-              runtime <- proc.time() - tic		
-              info <- rbind(info, c(mat[, 1], bic) )
-              mat <- mat[-1, , drop = FALSE]
-              res <- list(runtime = runtime, info = info, mat = mat )
-              dat <- dataset[, -info[, 1], drop = FALSE ]
-            }  
+          while ( tool[i - 1] - tool[i ] > 0  &  NCOL(dat) > 0 )  {   
             
-          } else { 
-            bic <- numeric(M)
-            M <- dim(dat)[2] - 1
-            for ( j in 1:(M + 1) ) {
-              mod <- survival::coxph( target ~.,  data = dat[, -j, drop = FALSE], weights = wei )
-              bic[j] <-  BIC(mod) + con * lchoose(p, M)
-            }
-            mat[, 2] <- bic
-            sel <- which.min( mat[, 2] )
-            tool[i] <- mat[sel, 2]
-            if ( bic0 - mat[sel, 2] < 0 ) {
-              runtime <- proc.time() - tic
-              res <- list(runtime = runtime, info = info, mat = mat )
-            } else {
-              info <- rbind(info, mat[sel, ] )
-              mat <- mat[-sel, , drop = FALSE] 
-              dat <- dataset[, -info[, 1], drop = FALSE ]
-            }  ## end if ( bic0 - mat[sel, 2] < 0 )
-          }  ## end if (M == 1)
-        }  ## end while
-      }  ## end if ( tool[2] > 0 )
-    }  ## end if ( bic0 - mat[sel, 2] < 0  ) 
-   }  ## end  if (M == 0)
+            ini <- survival::coxph( target ~., data = dat, weights = wei )
+            M <- dim(dat)[2]
+            bic0 <-  BIC(mod) + con * lchoose(p, M)
+            i <- i + 1        
+            
+            if ( M == 1 ) {
+              mod <- survival::coxph(target ~ 1, weights = wei )
+              bic <-  - 2 * mod$loglik
+              tool[i] <- bic
+              if (bic0 - bic < 0 ) {
+                runtime <- proc.time() - tic
+                res <- list(runtime = runtime, info = info, mat = mat )
+              } else {
+                runtime <- proc.time() - tic		
+                info <- rbind(info, c(mat[, 1], bic) )
+                mat <- mat[-1, , drop = FALSE]
+                res <- list(runtime = runtime, info = info, mat = mat )
+                dat <- dataset[, -info[, 1], drop = FALSE ]
+              }  
+              
+            } else { 
+              bic <- numeric(M)
+              M <- dim(dat)[2] - 1
+              for ( j in 1:(M + 1) ) {
+                mod <- survival::coxph( target ~.,  data = dat[, -j, drop = FALSE], weights = wei )
+                bic[j] <-  BIC(mod) + con * lchoose(p, M)
+              }
+              mat[, 2] <- bic
+              sel <- which.min( mat[, 2] )
+              tool[i] <- mat[sel, 2]
+              if ( bic0 - mat[sel, 2] < 0 ) {
+                runtime <- proc.time() - tic
+                res <- list(runtime = runtime, info = info, mat = mat )
+              } else {
+                info <- rbind(info, mat[sel, ] )
+                mat <- mat[-sel, , drop = FALSE] 
+                dat <- dataset[, -info[, 1], drop = FALSE ]
+              }  ## end if ( bic0 - mat[sel, 2] < 0 )
+            }  ## end if (M == 1)
+          }  ## end while
+        }  ## end if ( tool[2] > 0 )
+      }  ## end if ( bic0 - mat[sel, 2] < 0  ) 
+    }  ## end  if (M == 0)
+    runtime <- proc.time() - tic
+    res <- list(runtime = runtime, info = info, mat = mat )
   }  ##  end  if ( p > n )
   
   res
 }  
-
 
 
 

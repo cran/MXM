@@ -26,8 +26,8 @@ dag_to_eg <- function(dagx) {      # function [eg, order] = dag_to_eg(dagx)
 
   nx = ny = ncol(dagx); ## gets the number of nodes, note that nx == ny
 
-  if ( !all(ord > 0) ) {
-    cat('nodes are not completely ordered.\n');
+  if ( any( is.na(ord) ) ) {
+    cat('Nodes are not completely ordered.\n');
     eg = matrix(0, nx, ny)
     ord = NaN
   }

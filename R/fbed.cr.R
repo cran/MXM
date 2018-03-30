@@ -19,8 +19,8 @@ fbed.cr <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
       dof[i] <- length(fit2$coefficients)
     }  
     n.tests <- p
-    stat <- lik2 - lik1
-    pval <- pchisq( 2 * stat, dof, lower.tail = FALSE, log.p = TRUE)
+    stat <- 2 * (lik2 - lik1)
+    pval <- pchisq( stat, dof, lower.tail = FALSE, log.p = TRUE)
     univ$stat <- stat
     univ$pvalue <- pval
   } else {
@@ -44,13 +44,17 @@ fbed.cr <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
       #########
       while ( sum(s>0) > 0 ) {
         for ( i in ind[s] )  {
-          fit2 <- survival::coxph( y ~., data = x[, c(sela, i)], weights = wei )
-          lik2[i] <- logLik(fit2)
-          dof[i] <- length(fit2$coefficients)
+          fit2 <- try( survival::coxph( y ~., data = x[, c(sela, i)], weights = wei ), silent = TRUE )
+          if ( identical( class(fit2), "try-error" ) ) {
+            lik2[i] <- lik1
+          } else {  
+            lik2[i] <- logLik(fit2)
+            dof[i] <- length(fit2$coefficients)
+          }
         }
         n.tests <- n.tests + length( ind[s] ) 
-        stat <- lik2 - lik1
-        pval <- pchisq(2 * stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
+        stat <- 2 * (lik2 - lik1)
+        pval <- pchisq(stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
         s <- which(pval < sig) 
         sel <- which.min(pval) * ( length(s)>0 )
         sa <- c(sa, stat[sel]) 
@@ -69,13 +73,17 @@ fbed.cr <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
 
    if (K == 1) {
      for ( i in ind[-sela] )  {
-        fit2 <- survival::coxph( y ~., data = x[, c(sela, i)], weights = wei )
-        lik2[i] <- logLik(fit2)
-        dof[i] <- length(fit2$coefficients)
+        fit2 <- try( survival::coxph( y ~., data = x[, c(sela, i)], weights = wei ), silent = TRUE )
+        if ( identical( class(fit2), "try-error" ) ) {
+          lik2[i] <- lik1
+        } else { 
+          lik2[i] <- logLik(fit2)
+          dof[i] <- length(fit2$coefficients)
+        }  
       }
       n.tests[2] <- length( ind[-sela] )
-      stat <- lik2 - lik1
-      pval <- pchisq(2 * stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
+      stat <- 2 * (lik2 - lik1)
+      pval <- pchisq(stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
       s <- which(pval < sig)
       sel <- which.min(pval) * ( length(s)>0 )
       sa <- c(sa, stat[sel]) 
@@ -90,13 +98,17 @@ fbed.cr <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
       }  
       while ( sum(s>0) > 0 ) {
         for ( i in ind[s] )  {
-          fit2 <- survival::coxph( y ~., data = x[, c(sela, i)], weights = wei )
-          lik2[i] <- logLik(fit2)
-          dof[i] <- length(fit2$coefficients)
+          fit2 <- try( survival::coxph( y ~., data = x[, c(sela, i)], weights = wei ), silent = TRUE )
+          if ( identical( class(fit2), "try-error" ) ) {
+            lik2[i] <- lik1
+          } else { 
+            lik2[i] <- logLik(fit2)
+            dof[i] <- length(fit2$coefficients)
+          }  
         }
         n.tests[2] <- n.tests[2] + length( ind[s] )
-        stat <- lik2 - lik1
-        pval <- pchisq(2 * stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
+        stat <- 2 * (lik2 - lik1)
+        pval <- pchisq(stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
         s <- which(pval < sig)
         sel <- which.min(pval) * ( length(s)>0 )
         sa <- c(sa, stat[sel]) 
@@ -116,13 +128,17 @@ fbed.cr <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
   if ( K > 1) {
 
      for ( i in ind[-sela] )  {
-        fit2 <- survival::coxph( y ~., data = x[, c(sela, i)], weights = wei )
-        lik2[i] <- logLik(fit2)
-        dof[i] <- length(fit2$coefficients)
+        fit2 <- try( survival::coxph( y ~., data = x[, c(sela, i)], weights = wei ), silent = TRUE )
+        if ( identical( class(fit2), "try-error" ) ) {
+          lik2[i] <- lik1
+        } else { 
+          lik2[i] <- logLik(fit2)
+          dof[i] <- length(fit2$coefficients)
+        }  
       }
       n.tests[2] <- length( ind[-sela] ) 
-      stat <- lik2 - lik1
-      pval <- pchisq(2 * stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
+      stat <- 2 * (lik2 - lik1)
+      pval <- pchisq(stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
       s <- which(pval < sig)
       sel <- which.min(pval) * ( length(s)>0 )
       sa <- c(sa, stat[sel]) 
@@ -137,13 +153,17 @@ fbed.cr <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
       }  
       while ( sum(s > 0) > 0 ) {
         for ( i in ind[s] )  {
-          fit2 <- survival::coxph( y ~., data = x[, c(sela, i)], weights = wei )
-          lik2[i] <- logLik(fit2)
-          dof[i] <- length(fit2$coefficients)
+          fit2 <- try( survival::coxph( y ~., data = x[, c(sela, i)], weights = wei ), silent = TRUE )
+          if ( identical( class(fit2), "try-error" ) ) {
+            lik2[i] <- lik1
+          } else { 
+            lik2[i] <- logLik(fit2)
+            dof[i] <- length(fit2$coefficients)
+          }  
         }
         n.tests[2] <- n.tests[2] + length( ind[s] )  
-        stat <- lik2 - lik1
-        pval <- pchisq(2 * stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
+        stat <- 2 * (lik2 - lik1)
+        pval <- pchisq(stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
         s <- which(pval < sig)
         sel <- which.min(pval) * ( length(s)>0 )
         sa <- c(sa, stat[sel]) 
@@ -163,13 +183,17 @@ fbed.cr <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
     while ( vim < K  & card[vim + 1] - card[vim] > 0 ) {
       vim <- vim + 1
       for ( i in ind[-sela] )  {
-        fit2 = survival::coxph( y ~., data = x[, c(sela, i)], weights = wei )
-        lik2[i] <- logLik(fit2)
-        dof[i] <- length(fit2$coefficients)
+        fit2 <- try( survival::coxph( y ~., data = x[, c(sela, i)], weights = wei ), silent = TRUE )
+        if ( identical( class(fit2), "try-error" ) ) {
+          lik2[i] <- lik1
+        } else { 
+          lik2[i] <- logLik(fit2)
+          dof[i] <- length(fit2$coefficients)
+        }  
       }
       n.tests[vim + 1] <- length( ind[-sela] )
-      stat <- lik2 - lik1
-      pval <- pchisq(2 * stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
+      stat <- 2 * (lik2 - lik1)
+      pval <- pchisq(stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
       s <- which(pval < sig)
       sel <- which.min(pval) * ( length(s)>0 )
       sa <- c(sa, stat[sel]) 
@@ -184,13 +208,17 @@ fbed.cr <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
       }     
        while ( sum(s > 0) > 0 ) {
         for ( i in ind[s] )  {
-          fit2 <- survival::coxph( y ~., data = x[, c(sela, i)], weights = wei )
-          lik2[i] <- logLik(fit2)
-          dof[i] <- length(fit2$coefficients)
+          fit2 <- try( survival::coxph( y ~., data = x[, c(sela, i)], weights = wei ), silent = TRUE )
+          if ( identical( class(fit2), "try-error" ) ) {
+            lik2[i] <- lik1
+          } else { 
+            lik2[i] <- logLik(fit2)
+            dof[i] <- length(fit2$coefficients)
+          }  
         }
         n.tests[vim + 1] <- n.tests[vim + 1] + length( ind[s] )
-        stat <- lik2 - lik1
-        pval <- pchisq(2 * stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
+        stat <- 2 * (lik2 - lik1)
+        pval <- pchisq(stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
         s <- which(pval < sig)
         sel <- which.min(pval) * ( length(s)>0 )
         sa <- c(sa, stat[sel]) 

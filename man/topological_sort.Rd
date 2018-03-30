@@ -24,7 +24,7 @@ The function is an R translation from an old matlab code.
 }
 
 \value{
-A vector with numbers indicating the sorting. 
+A vector with numbers indicating the sorting. If the matrix does not correspond to a DAG, NA will be returned. 
 }
 
 \references{
