@@ -763,14 +763,14 @@ if ( !is.null(user_test) ) {
 
   if ( ncores <= 1 | is.null(ncores) ) {
     for ( i in 1:cols ) {
-      fit2 = survival::survreg( target ~ dataset[, i], weights = wei )
+      fit2 = survival::survreg( target ~ dataset[, i], weights = wei, control = list(iter.max = 5000) )
       lik2[i] = as.numeric( logLik(fit2) )
 		  step <- 0
       j <- 1		
 		  x <- dataset[, i]
       while (j <= R & step < thres ) {
 		    xb <- sample(x, rows)  
-        bit2 <- survival::survreg( target ~ xb, weights = wei ) 
+        bit2 <- survival::survreg( target ~ xb, weights = wei, control = list(iter.max = 5000) ) 
         qa <- ( as.numeric( logLik(bit2) ) > lik2[i] )
         if ( is.na(qa) )  qa <- 0
         step <- step + qa
@@ -786,14 +786,14 @@ if ( !is.null(user_test) ) {
     cl <- makePSOCKcluster(ncores)
     registerDoParallel(cl)
     mod <- foreach(i = 1:cols, .combine = rbind, .packages = "survival") %dopar% {
-      fit2 = survival::survreg( target ~ dataset[, i], weights = wei )
+      fit2 = survival::survreg( target ~ dataset[, i], weights = wei, control = list(iter.max = 5000) )
 		  lik2 <- as.numeric( logLik(fit2) )
       step <- 0
       j <- 1		
 		  x <- dataset[, i]
       while (j <= R & step < thres ) {
 		    xb <- sample(x, rows)  
-        bit2 <- survival::survreg( target ~ xb, weights = wei ) 
+        bit2 <- survival::survreg( target ~ xb, weights = wei, control = list(iter.max = 5000) ) 
         qa <- ( as.numeric( logLik(bit2) ) > lik2[i] )
         if ( is.na(qa) )  qa <- 0
         step <- step + qa

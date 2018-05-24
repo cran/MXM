@@ -8,7 +8,9 @@
 \alias{auc.mxm}
 \alias{acc.mxm}
 \alias{ord_mae.mxm}
+\alias{mae.mxm}
 \alias{mse.mxm}
+\alias{pve.mxm}
 \alias{ci.mxm}
 \alias{ciwr.mxm}
 \alias{fscore.mxm}
@@ -39,27 +41,33 @@ The function performs a k-fold cross-validation for identifying the best values 
 \usage{
 cv.ses(target, dataset, wei = NULL, kfolds = 10, folds = NULL, 
 alphas = c(0.1, 0.05, 0.01), max_ks = c(3, 2), task = NULL, 
-metric = NULL, modeler = NULL, ses_test = NULL, ncores = 1)
+metric = NULL, metricbbc = NULL, modeler = NULL, ses_test = NULL, 
+ncores = 1, B = 1)
 
 cv.mmpc(target, dataset, wei = NULL, kfolds = 10, folds = NULL, 
 alphas = c(0.1, 0.05, 0.01), max_ks = c(3, 2), task = NULL, 
-metric = NULL, modeler = NULL, mmpc_test = NULL, ncores = 1)
+metric = NULL, metricbbc = NULL, modeler = NULL, mmpc_test = NULL, 
+ncores = 1, B = 1)
 
 cv.waldses(target, dataset, wei = NULL, kfolds = 10, folds = NULL, 
 alphas = c(0.1, 0.05, 0.01), max_ks = c(3, 2), task = NULL, 
-metric = NULL, modeler = NULL, ses_test = NULL, ncores = 1)
+metric = NULL, metricbbc = NULL, modeler = NULL, ses_test = NULL,
+ncores = 1, B = 1)
 
 cv.waldmmpc(target, dataset, wei = NULL, kfolds = 10, folds = NULL, 
 alphas = c(0.1, 0.05, 0.01), max_ks = c(3, 2), task = NULL, 
-metric = NULL, modeler = NULL, mmpc_test = NULL, ncores = 1)
+metric = NULL, metricbbc = NULL, modeler = NULL, mmpc_test = NULL, 
+ncores = 1, B = 1)
 
 cv.permses(target, dataset, wei = NULL, kfolds = 10, folds = NULL, 
 alphas = c(0.1, 0.05, 0.01), max_ks = c(3, 2), task = NULL, 
-metric = NULL, modeler = NULL, ses_test = NULL, R = 999, ncores = 1)
+metric = NULL, metricbbc = NULL, modeler = NULL, ses_test = NULL, R = 999, 
+ncores = 1, B = 1)
 
 cv.permmmpc(target, dataset, wei = NULL, kfolds = 10, folds = NULL, 
 alphas = c(0.1, 0.05, 0.01), max_ks = c(3, 2), task = NULL, 
-metric = NULL, modeler = NULL, mmpc_test = NULL, R = 999, ncores = 1)
+metric = NULL, metricbbc = NULL, modeler = NULL, mmpc_test = NULL, R = 999, 
+ncores = 1, B = 1)
 }
 
 \arguments{
@@ -92,6 +100,9 @@ A character ("C", "R" or "S"). It can be "C" for classification (logistic, multi
 A metric function provided by the user. If NULL the following functions will be used: auc.mxm, mse.mxm, ci.mxm for classification, regression and survival analysis tasks, respectively. See details for more.
 If you know what you have put it here to avoid the function choosing somehting else. \bold{Note} that you put these words as they are, without "".  
 }
+\item{metricbbc}{
+This is the same argument as "metric" with the difference that " " must be placed. If for example, metric = auc.mxm, here metricbbc = "auc.mxm". The same value must be given here. This argument is to be used with the function \code{\link{bbc}} which does bootstrap bias correction of the estimated performance (Tsamardinos, Greasidou and Borboudakis, 2018). This argument is valid if the last argument (B) is more than 1. 
+}
 \item{modeler}{
 A modeling function provided by the user. If NULL the following functions will be used: glm.mxm, lm.mxm, coxph.mxm for classification, regression and survival analysis tasks, respectively. See details for more.
 If you know what you have put it here to avoid the function choosing somehting else. \bold{Note} that you put these words as they are, without "". 
@@ -113,6 +124,9 @@ as a decision has already been made.
 \item{ncores}{
 This argument is valid only if you have a multi-threaded machine. 
 }
+\item{B}{
+How many bootstrap re-samples to draw. This argument is to be used with the function \code{\link{bbc}} which does bootstrap bias correction of the estimated performance (Tsamardinos, Greasidou and Borboudakis, 2018). If you have thousands of samples (observations) then this might not be necessary, as there is no optimistic bias to be corrected. What is the lower limit cannot be told beforehand however. SES and MMPC however were designed for the low sample cases, hence, bootstrap bias correction is perhaps a must thing to do.
+}
 }
 
 \details{
@@ -130,13 +144,15 @@ The metric functions that are currently supported are:
 \item fscore.mxm: F score for binary logistic regression.
 \item euclid_sens.spec.mxm: Euclidean norm of 1 - sensititivy and 1 - specificity for binary logistic regression.
 \item acc_multinom.mxm: accuracy or multinomial logistic regression.
-\item mse.mxm: -1 * (mean squared error), for robust and non robust linear regression and median (quantile) regression.
+\item mse.mxm: mean squared error, for robust and non robust linear regression and median (quantile) regression (multiplied by -1). 
+\item pve.mxm:  1 - (mean squared error)/( (n - 1) * var(y_out) ), for non robust linear regression. It is basically the proportion of variance explained in the test set. 
 \item ci.mxm: 1 - concordance index as provided in the rcorr.cens function from the suvriva package. This is to be used with the Cox proportional hazards model only.
 \item ciwr.mxm concordance index as provided in the rcorr.cens function from the survival package. This is to be used with the Weibull regression model only.
-\item poisdev.mxm: Poisson regression deviance.
-\item nbdev.mxm: Negative binomial regression deviance. 
-\item binomdev.mxm: Negative binomial regression deviance. 
-\item ord_mae.mxm: Ordinal regression mean absolute error. 
+\item poisdev.mxm: Poisson regression deviance (multiplied by -1).
+\item nbdev.mxm: Negative binomial regression deviance (multiplied by -1). 
+\item binomdev.mxm: Negative binomial regression deviance (multiplied by -1). 
+\item ord_mae.mxm: Ordinal regression mean absolute error (multiplied by -1). 
+\item mae.mxm: Mean absolute error (multiplied by -1). 
 }
 Usage: metric(predictions, test_target)
 
@@ -150,17 +166,17 @@ Modelling functions provide a single vector of predictions obtained by applying 
 
 The modelling functions that are currently supported are:
 \itemize{
-  \item glm.mxm: fits a glm for a binomial family (Classification task).
-  \item lm.mxm: fits a linear model (stats) for the regression task.
-  \item coxph.mxm: fits a cox proportional hazards regression model for the survival task.
-  \item weibreg.mxm: fits a Weibull regression model for the survival task.
-  \item rq.mxm: fits a quantile (median) regression model for the regression task.
-  \item lmrob.mxm: fits a robust linear model for the regression task.
-  \item pois.mxm: fits a poisson regression model for the regression task.  
-  \item nb.mxm: fits a negative binomial regression model for the regression task.  
-  \item multinom.mxm: fits a multinomial regression model for the regression task.
-  \item ordinal.mxm: fits an ordinal regression model for the regression task.
-  \item beta.mxm: fits a beta regression model for the regression task. The predicted values are transformed into \eqn{R} using
+  \item glm.mxm: fits a glm for a binomial family (classification task).
+  \item multinom.mxm: fits a multinomial regression model (classification task).
+  \item lm.mxm: fits a linear model (regression task).
+  \item coxph.mxm: fits a cox proportional hazards regression model (survival task).
+  \item weibreg.mxm: fits a Weibull regression model (survival task).
+  \item rq.mxm: fits a quantile (median) regression model (regression task).
+  \item lmrob.mxm: fits a robust linear model (regression task).
+  \item pois.mxm: fits a poisson regression model (regression task).  
+  \item nb.mxm: fits a negative binomial regression model (regression task).  
+  \item ordinal.mxm: fits an ordinal regression model (regression task).
+  \item beta.mxm: fits a beta regression model (regression task). The predicted values are transformed into \eqn{R} using
         the logit transformation. This is so that the "mse.mxm" metric function can be used. In addition, this way the performance can be  
         compared with the regression scenario, where the logit is applied and then a regression model is employed. 
 
@@ -185,10 +201,21 @@ A numeric value that represents the best average performance.
 \item{best_configuration}{
 A list that corresponds to the best configuration of SES or MMPC including id, threshold (named 'a') and max_k.
 }
+\item{bbc_best_performance}{
+The bootstrap bias corrected best performance if B was more than 1, othwerwise this is NULL.
+}
+\item{runtime}{
+The runtime of the cross-validation procedure.
+}
 
 Bear in mind that the values can be extracted with the $ symbol, i.e. this is an S3 class output. 
 }
 
+\references{
+Ioannis Tsamardinos, Elissavet Greasidou and Giorgos Borboudakis (2018). Bootstrapping the out-of-sample predictions for efficient and accurate cross-validation. Machine Learning (To appear).  
+
+https://link.springer.com/article/10.1007/s10994-018-5714-4
+}
 
 \author{
 R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> and Vincenzo Lagani <vlagani@csd.uoc.gr>
@@ -199,7 +226,7 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> and V
 %}
 
 \seealso{
-\code{\link{SES}, \link{CondIndTests}, \link{testIndFisher}, \link{testIndLogistic}, \link{gSquare}, \link{censIndCR}}
+\code{\link{SES}, \link{CondIndTests}, \link{cv.gomp}, \link{bbc}, \link{testIndFisher}, \link{testIndLogistic}, \link{gSquare}, \link{censIndCR}}
 }
 
 \examples{

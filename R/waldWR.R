@@ -23,12 +23,12 @@ waldWR = function(target, dataset, xIndex, csIndex, wei = NULL, univariateModels
   numCases = dim(dataset)[1];
   if (length(event) == 0)  event = vector('numeric',numCases) + 1;
       if (is.na(csIndex) || length(csIndex) == 0 || csIndex == 0) {
-        weibull_results <- survival::survreg(target ~ dataset[, index], weights = wei)
+        weibull_results <- survival::survreg( target ~ dataset[, index], weights = wei, control = list(iter.max = 5000) )
         res = summary(weibull_results)[[ 9 ]]
         stat = res[2, 3]^2
         pvalue = pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE);
       } else {
-        weibull_results_full <- survival::survreg(target ~ ., data = as.data.frame(  dataset[ , c(csIndex, xIndex)] ), weights = wei )
+        weibull_results_full <- survival::survreg( target ~ ., data = as.data.frame( dataset[ , c(csIndex, xIndex)] ), weights = wei, control = list(iter.max = 5000) )
         res = summary(weibull_results_full)[[ 9 ]]
         pr = dim(res)[1] - 1
         stat = res[pr, 3]^2

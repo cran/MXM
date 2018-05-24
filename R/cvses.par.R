@@ -15,7 +15,8 @@
 #cv_results_all: a list with the predictions, performances and the signatures for each fold of each configuration (i.e cv_results_all[[3]]$performances[1] indicates the performance of the 1st fold with the 3d configuration of SES)
 #best_performance: numeric, the best average performance
 #best_configuration: the best configuration of SES (a list with the slots id, a, max_k)
-cvses.par <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, alphas = NULL, max_ks = NULL, task = NULL, metric = NULL, modeler = NULL, ses_test = NULL, ncores = 2)
+cvses.par <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, alphas = NULL, max_ks = NULL, task = NULL, 
+                      metric = NULL, metricbbc = NULL, modeler = NULL, ses_test = NULL, ncores = 2, B = 1000)
 {
   
   if ( is.null(alphas) )  alphas <- c(0.1, 0.05, 0.01)
@@ -200,6 +201,15 @@ cvses.par <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, al
   best_model$best_performance <- max( opti )
   best_model$best_configuration = SES_configurations[[ bestpar ]]
   best_model$runtime <- proc.time() - tic 
+  
+  if ( B > 1) {
+    if (task == "S")  {
+      n <- 0.5 * length(target) 
+    } else  n <- length(target)
+    predictions <- matrix(0, nrow = n, ncol = nSESConfs)
+    for (i in 1:nSESConfs)  predictions[, i] <- unlist( best_model$cv_results_all[[ i ]]$preds )
+    best_model$bbc_best_performance <- MXM::bbc(predictions, target[unlist(folds)], metric = metricbbc, B = B )$bbc.perf
+  }
   
   return(best_model)
 }

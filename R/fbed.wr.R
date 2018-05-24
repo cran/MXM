@@ -15,7 +15,7 @@ fbed.wr <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
   runtime <- proc.time()
   if ( is.null(univ) ) {
     for ( i in ind ) {
-      fit2 <- survival::survreg( y ~ x[, i], weights = wei )
+      fit2 <- survival::survreg( y ~ x[, i], weights = wei, control = list(iter.max = 5000) )
       lik2[i] <- logLik(fit2)
       dof[i] <- length( coef(fit2) )
     }
@@ -46,7 +46,7 @@ fbed.wr <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
       #########
       while ( sum(s>0) > 0 ) {
         for ( i in ind[s] )  {
-          fit2 <- survival::survreg( y ~., data = x[, c(sela, i)], weights = wei )
+          fit2 <- survival::survreg( y ~., data = x[, c(sela, i)], weights = wei, control = list(iter.max = 5000) )
           lik2[i] <- logLik(fit2)
           dof[i] <- length(fit2$coefficients)
         }
@@ -71,7 +71,7 @@ fbed.wr <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
 
    if (K == 1) {
      for ( i in ind[-sela] )  {
-        fit2 <- survival::survreg( y ~., data = x[, c(sela, i)], weights = wei )
+        fit2 <- survival::survreg( y ~., data = x[, c(sela, i)], weights = wei, control = list(iter.max = 5000) )
         lik2[i] <- logLik(fit2)
         dof[i] <- length(fit2$coefficients)
       }
@@ -92,7 +92,7 @@ fbed.wr <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
       }  
       while ( sum(s>0) > 0 ) {
         for ( i in ind[s] )  {
-          fit2 <- survival::survreg( y ~., data = x[, c(sela, i)], weights = wei )
+          fit2 <- survival::survreg( y ~., data = x[, c(sela, i)], weights = wei, control = list(iter.max = 5000) )
           lik2[i] <- logLik(fit2)
           dof[i] <- length(fit2$coefficients)
         }
@@ -139,7 +139,7 @@ fbed.wr <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
       }  
       while ( sum(s > 0) > 0 ) {
         for ( i in ind[s] )  {
-          fit2 <- survival::survreg( y ~., data = x[, c(sela, i)], weights = wei )
+          fit2 <- survival::survreg( y ~., data = x[, c(sela, i)], weights = wei, control = list(iter.max = 5000) )
           lik2[i] <- logLik(fit2)
           dof[i] <- length(fit2$coefficients)
         }
@@ -165,7 +165,7 @@ fbed.wr <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
     while ( vim < K  & card[vim + 1] - card[vim] > 0 ) {
       vim <- vim + 1
       for ( i in ind[-sela] )  {
-        fit2 = survival::survreg( y ~., data = data.frame( x[, c(sela, i)] ), weights = wei )
+        fit2 = survival::survreg( y ~., data = data.frame( x[, c(sela, i)] ), weights = wei, control = list(iter.max = 5000) )
         lik2[i] <- logLik(fit2)
         dof[i] <- length(fit2$coefficients)
       }
@@ -186,7 +186,7 @@ fbed.wr <- function(y, x, alpha = 0.05, univ = NULL, wei = NULL, K = 0) {
       }     
        while ( sum(s > 0) > 0 ) {
         for ( i in ind[s] )  {
-          fit2 <- survival::survreg( y ~., data = x[, c(sela, i)], weights = wei )
+          fit2 <- survival::survreg( y ~., data = x[, c(sela, i)], weights = wei, control = list(iter.max = 5000) )
           lik2[i] <- logLik(fit2)
           dof[i] <- length(fit2$coefficients)
         }

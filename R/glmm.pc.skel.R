@@ -1,4 +1,4 @@
-glmm.pc.skel <- function(dataset, id, method = "comb.mm", alpha = 0.01, stat = NULL, ini.pvalue = NULL) {
+glmm.pc.skel <- function(dataset, group, method = "comb.mm", alpha = 0.01, stat = NULL, ini.pvalue = NULL) {
   ## dataset contains the data, it must be a matrix 
   ## type can be either "pearson" or "spearman" for continuous variables OR
   ## "cat" for categorical variables
@@ -19,7 +19,7 @@ glmm.pc.skel <- function(dataset, id, method = "comb.mm", alpha = 0.01, stat = N
     if ( is.null(stat) | is.null(ini.pvalue) ) {
       for ( i in 1:c(n - 1) ) {
         for ( j in c(i + 1):n ) {
-          ro <- glmm.ci.mm(i, j, cs = NULL, dataset, id) 
+          ro <- glmm.ci.mm(i, j, cs = NULL, dataset, group) 
           stat[i, j] <- ro[1]
           stat[j, i] <- ro[1]
           pv[i, j] <- ro[2]
@@ -122,7 +122,7 @@ glmm.pc.skel <- function(dataset, id, method = "comb.mm", alpha = 0.01, stat = N
           if ( dim(sam)[1] == 0 ) {
             G = G  
           } else {
-            a <- glmm.ci.mm(candpair[1], candpair[2], cs = sam[1, 1:k], dataset, id)  
+            a <- glmm.ci.mm(candpair[1], candpair[2], cs = sam[1, 1:k], dataset, group)  
             b <- a[2]
             if ( a[2] > alpha ) {
               G[ candpair[1], candpair[2] ] = 0  ## remove the edge between two variables
@@ -134,7 +134,7 @@ glmm.pc.skel <- function(dataset, id, method = "comb.mm", alpha = 0.01, stat = N
               m = 1
               while ( a[2] < alpha  &  m < nrow(sam) ) {
                 m = m + 1
-                a = glmm.ci.mm(candpair[1], candpair[2], cs = sam[m, 1:k], dataset, id)   
+                a = glmm.ci.mm(candpair[1], candpair[2], cs = sam[m, 1:k], dataset, group)   
                 b <- c(b, a[2])
                 tes = tes + 1
               }  ## end while

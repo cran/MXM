@@ -3,8 +3,8 @@ is.dag <- function(dag) {
     dag[ dag != 2 ] <- 0
     dag[ dag == 2 ] <- 1
   } 
-  a <- topological_sort(dag)
-  any( !is.na(a) ) 
+  a <- Rfast::topological_sort(dag)
+  any( !is.na(a) )
 } 
        
      

@@ -10,17 +10,14 @@ fbed.ordgee <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0) 
   card <- 0
   sa <- NULL
   pva <- NULL
-  k <- length( unique(y) ) + 1
-  
-  ep <- Rfast::check_data(x)
-  if ( sum(ep>0) > 0 )  x[, ep] <- rnorm( n * ep )
+  k <- length( unique(y) )
   
   runtime <- proc.time()
   
   if ( is.null(univ) ) {
     for ( i in ind ) {
       fit2 <- geepack::ordgee( y ~ x[, i], id = id, weights = wei )
-      mod <- summary(fit2)
+      mod <- summary(fit2)[[ 1 ]]
       stat[i] <- mod[k, 3]
     }
     n.tests <- p
@@ -46,11 +43,11 @@ fbed.ordgee <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0) 
     while ( sum(s>0) > 0 ) {
       nr <- k + length(sela)
       for ( i in ind[s] )  {
-        fit2 <- try( geepack::ordgee( y ~., data = x[, c(sela, i)], id = id, weights = wei ), silent = TRUE )
+        fit2 <- try( geepack::ordgee( y ~ x[, c(sela, i)], id = id, weights = wei ), silent = TRUE )
         if ( identical( class(fit2), "try-error" ) ) {
           stat[i] <- 0
         } else {
-          mod <- summary(fit2)
+          mod <- summary(fit2)[[ 1 ]]
           stat[i] <- mod[nr, 3]
         }  
       }
@@ -70,11 +67,11 @@ fbed.ordgee <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0) 
     if (K == 1) {
       nr <- k + length(sela)
       for ( i in ind[-sela] )  {
-        fit2 <- try( geepack::ordgee( y ~., data = x[, c(sela, i)], id = id, weights = wei ), silent = TRUE ) 
+        fit2 <- try( geepack::ordgee( y ~ x[, c(sela, i)], id = id, weights = wei ), silent = TRUE ) 
         if ( identical( class(fit2), "try-error" ) ) {
           stat[i] <- 0
         } else {
-          mod <- summary(fit2)
+          mod <- summary(fit2)[[ 1 ]]
           stat[i] <- mod[nr, 3]
         }  
       }
@@ -90,11 +87,11 @@ fbed.ordgee <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0) 
       while ( sum(s>0) > 0 ) {
         nr <- k + length(sela)
         for ( i in ind[s] )  {
-          fit2 <- try( geepack::ordgee( y ~., data = x[, c(sela, i)], id = id, weights = wei ), silent = TRUE )
+          fit2 <- try( geepack::ordgee( y ~ x[, c(sela, i)], id = id, weights = wei ), silent = TRUE )
           if ( identical( class(fit2), "try-error" ) ) {
             stat[i] <- 0
           } else {
-            mod <- summary(fit2)
+            mod <- summary(fit2)[[ 1 ]]
             stat[i] <- mod[nr, 3]
           }  
         }
@@ -114,11 +111,11 @@ fbed.ordgee <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0) 
     if ( K > 1) {
       nr <- k + length(sela)
       for ( i in ind[-sela] )  {
-        fit2 <- try( geepack::ordgee( y ~., data = x[, c(sela, i)], id = id, weights = wei ), silent = TRUE )
+        fit2 <- try( geepack::ordgee( y ~ x[, c(sela, i)], id = id, weights = wei ), silent = TRUE )
         if ( identical( class(fit2), "try-error" ) ) {
           stat[i] <- 0
         } else {
-          mod <- summary(fit2)
+          mod <- summary(fit2)[[ 1 ]]
           stat[i] <- mod[nr, 3]
         }  
       }
@@ -135,11 +132,11 @@ fbed.ordgee <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0) 
       while ( sum(s > 0) > 0 ) {
         nr <- k + length(sela)
         for ( i in ind[s] )  {
-          fit2 <- try( geepack::ordgee( y ~., data = x[, c(sela, i)], id = id, weights = wei ), silent = TRUE )
+          fit2 <- try( geepack::ordgee( y ~ x[, c(sela, i)], id = id, weights = wei ), silent = TRUE )
           if ( identical( class(fit2), "try-error" ) ) {
             stat[i] <- 0
           } else {
-            mod <- summary(fit2)
+            mod <- summary(fit2)[[ 1 ]]
             stat[i] <- mod[nr, 3]
           }  
         }
@@ -160,11 +157,11 @@ fbed.ordgee <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0) 
         vim <- vim + 1
         nr <- k + length(sela)
         for ( i in ind[-sela] )  {
-          fit2 <- try( geepack::ordgee( y ~., data = x[, c(sela, i)], id = id, weights = wei ), silent = TRUE )
+          fit2 <- try( geepack::ordgee( y ~ x[, c(sela, i)], id = id, weights = wei ), silent = TRUE )
           if ( identical( class(fit2), "try-error" ) ) {
             stat[i] <- 0
           } else {
-            mod <- summary(fit2)
+            mod <- summary(fit2)[[ 1 ]]
             stat[i] <- mod[nr, 3]
           }  
         }
@@ -180,11 +177,11 @@ fbed.ordgee <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0) 
         while ( sum(s > 0) > 0 ) {
           nr <- k + length(sela)
           for ( i in ind[s] )  {
-            fit2 <- try( geepack::ordgee( y ~., data = x[, c(sela, i)], id = id, weights = wei ), silent = TRUE )
+            fit2 <- try( geepack::ordgee( y ~ x[, c(sela, i)], id = id, weights = wei ), silent = TRUE )
             if ( identical( class(fit2), "try-error" ) ) {
               stat[i] <- 0
             } else {
-              mod <- summary(fit2)
+              mod <- summary(fit2)[[ 1 ]]
               stat[i] <- mod[nr, 3]
             }  
           }

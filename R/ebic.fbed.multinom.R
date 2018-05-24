@@ -12,7 +12,7 @@ ebic.fbed.multinom <- function(y, x, univ = NULL, gam = NULL, wei = NULL, K = 0)
     con <- 2 - log(p) / log(n)
     if ( (con) < 0 )  con <- 0
   } else con <- 2 * gam
-  lik1 <- BIC( nnet::multinom(y ~ 1, weights = wei) ) 
+  lik1 <- BIC( nnet::multinom(y ~ 1, weights = wei, trace = FALSE) ) 
   
   runtime <- proc.time()
   

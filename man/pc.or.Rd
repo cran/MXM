@@ -23,11 +23,11 @@ skeleton but it does not work with the current visualisation packages, hence we 
 After having calculated the skeleton of the PC algorithm one may wants to perform orientations, leading to causal relationships. The rules as stated in Spirtes, 
 Glymour and Scheines (2001) are
 \enumerate{
-\item \bold{Rule 1}. For each triple of vertices X, Y, Z such that the pair X, Y and the pair Y, Z are each adjacent in C but the pair X, Z are not adjacent in C, 
+\item \bold{Rule 0}. For each triple of vertices X, Y, Z such that the pair X, Y and the pair Y, Z are each adjacent in C but the pair X, Z are not adjacent in C, 
 orient X - Y - Z as X -> Y <- Z if and only if Y is not in Sepset(X, Z). 
-\item \bold{Rule 2}. If A -> B, B and C are adjacent, A and C are not adjacent, and there is no arrowhead at B, then orient B - C as B -> C.
-\item \bold{Rule 3}. If there is a directed path from A to B, and an edge between A and B, then orient A - B as A -> B.
-\item \bold{Rule 4}. This was added by Zhang (2008). If A -> B <- C, A - D - C, A and C are not adjacent, and D - B, then orient D - B as D -> B. 
+\item \bold{Rule 1}. If A -> B, B and C are adjacent, A and C are not adjacent, and there is no arrowhead at B, then orient B - C as B -> C.
+\item \bold{Rule 2}. If there is a directed path from A to B, and an edge between A and B, then orient A - B as A -> B.
+\item \bold{Rule 3}. If A -> B <- C, A - D - C, A and C are not adjacent, and D - B, then orient D - B as D -> B. 
 }
 The first rule is applied once. Rules 2-4 are applied repeatedly until no more edges can be oriented. If however the argument "prve.cycles" is set to TRUE, then at 
 any rule a cycle is detected, the rule is cancelled. Also, when applying Rules 1-3 we try to avoid thr ecreation of new v-structures (X -> Y <- Z). 

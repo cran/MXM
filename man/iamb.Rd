@@ -66,6 +66,9 @@ If the forward regression returned at most one variable, no backward procedure t
 
 \references{
 Tsamardinos, I., Aliferis, C. F., Statnikov, A. R., & Statnikov, E. (2003). Algorithms for Large Scale Markov Blanket Discovery. In FLAIRS conference, pp. 376-380.
+
+Tsagis M. (2018). Guide on performing feature selection with the R package MXM.
+http://mensxmachina.org/site/wp-content/uploads/2018/04/Guide-on-performing-feature-selection-with-the-R-package-MXM.pdf
 }
 
 

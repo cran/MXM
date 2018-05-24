@@ -27,7 +27,7 @@ InternalMMPC.temporal = function(target, reps, group, dataset, max_k, threshold,
     results$hashObject = NULL;
     class(results$hashObject) = 'list';
     class(results$univ) = 'list';
-      results$pvalues = pvalues;
+    results$pvalues = pvalues;
     results$stats = stats;
     results$univ = univariateModels
     results$max_k = max_k;
@@ -35,6 +35,7 @@ InternalMMPC.temporal = function(target, reps, group, dataset, max_k, threshold,
     runtime = proc.time() - runtime;
     results$runtime = runtime;
     results$slope = slopes
+    results$n.tests = length(stats)
     
     return(results);
   }
@@ -104,6 +105,7 @@ InternalMMPC.temporal = function(target, reps, group, dataset, max_k, threshold,
   runtime = proc.time() - runtime;
   results$runtime = runtime;
   results$slope = slopes
+  results$n.tests = length(stats) + length( hashObject$stat_hash )
   
   return(results);
 }

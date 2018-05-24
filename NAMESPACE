@@ -1,32 +1,31 @@
 #useDynLib(MXM, .registration = TRUE)
 
 #testIndLogistic
-importFrom("nnet", "multinom")
-importFrom("ordinal", "clm")
+importFrom("nnet", multinom)
+importFrom("ordinal", clm, clmm)
 
 #testIndRQ
 importFrom("quantreg", rq)
 
 #testIndNB
-importFrom("MASS", glm.nb, rlm)
+importFrom("MASS", glm.nb, rlm, lm.ridge, polr)
 
 # censIndCR and censIndWR
 importFrom("survival", is.Surv, coxph, Surv, survreg, clogit, strata, survConcordance)
 
 #testIndGLMM
-importFrom("lme4", "lmer", "glmer")
+importFrom("lme4", lmer, glmer)
 
 #robust glms
 #importFrom("robust", glmRob, lmsreg)
 
-importFrom("energy", "dcov.test", "pdcor.test")
+importFrom("energy", dcov.test, pdcor.test)
 
 importFrom("utils", combn)
-importFrom("MASS", lm.ridge)
 
-importFrom("hash", "hash")
+importFrom("hash", hash)
 
-importFrom("geepack", "geeglm", "ordgee")
+importFrom("geepack", geeglm, ordgee)
 
 #more
 importFrom("methods", "new", "as")
@@ -51,8 +50,9 @@ importFrom("Rfast", colVars, univglms, colmeans, g2Test_univariate, g2Test_univa
            score.negbinregs, score.gammaregs, sort_unique, Var, data.frame.to_matrix, fs.reg, check_data, colMaxs, 
            cor.fsreg, pc.skel, group.sum, squareform, cora, spdinv, cor.fbed, colRanks, logistic_only, omp, rint.regs,
            poisson_only, mvbetas, ompr, glm_logistic, glm_poisson, prop.reg, normlog.reg, mvnorm.mle, normlog.mle,
-           univglms2, rint.reg, topological_sort)
+           univglms2, rint.reg, topological_sort, eachcol.apply, auc)
 
+importFrom("bigmemory", read.big.matrix, sub.big.matrix)
 
 import("doParallel")
 import("parallel")
@@ -63,9 +63,9 @@ export(SES, InternalSES, MMPC, InternalMMPC, SES.temporal, InternalSES.temporal,
        pc.skel, pc.con, censIndCR, censIndWR, censIndER, gSquare, testIndFisher, testIndLogistic, testIndRQ, testIndGLMMReg, 
        testIndGLMMPois, testIndGLMMLogistic, testIndMVreg, testIndBeta, testIndNB, testIndClogit, testIndPois, testIndReg, 
        testIndSpearman, testIndZIP, testIndBinom, cv.ses, auc.mxm, acc.mxm, acc_multinom.mxm, fscore.mxm, euclid_sens.spec.mxm, 
-       mse.mxm, ci.mxm, ciwr.mxm,ord_mae.mxm, poisdev.mxm, nbdev.mxm, glm.mxm, lm.mxm, pois.mxm, nb.mxm, multinom.mxm, rq.mxm, 
-       lmrob.mxm, ordinal.mxm, coxph.mxm, beta.mxm, weibreg.mxm, ridge.reg, ridgereg.cv, ridge.plot, ses.model, mmpc.model, nei, 
-       reg.fit, pc.or, undir.path, rdag, mb, mmmb, permcor, findAncestors, findDescendants, transitiveClosure, dag2eg, bic.fsreg, 
+       mse.mxm, pve.mxm, mae.mxm, ci.mxm, ciwr.mxm, ord_mae.mxm, poisdev.mxm, nbdev.mxm, glm.mxm, lm.mxm, pois.mxm, nb.mxm, multinom.mxm, 
+       rq.mxm, lmrob.mxm, ordinal.mxm, coxph.mxm, beta.mxm, weibreg.mxm, ridge.reg, ridgereg.cv, ridge.plot, ses.model, mmpc.model, 
+       nei, reg.fit, pc.or, undir.path, rdag, mb, mmmb, permcor, findAncestors, findDescendants, transitiveClosure, dag2eg, bic.fsreg, 
        bic.glm.fsreg, fs.reg, glm.fsreg, lm.fsreg, glm.bsreg, tc.plot, cv.mmpc, mmpc.path, condi, cat.ci, partialcor, auc, 
        generatefolds, ma.ses, ma.mmpc, equivdags, testIndIGreg, bs.reg, zip.mod, zip.reg, zip.regs, beta.regs, beta.mod, plotnetwork, 
        univregs, iamb.bs, iamb, dist.condi, permFisher, permcorrels, score.univregs, perm.univregs, perm.zipregs, perm.betaregs, 
@@ -83,7 +83,8 @@ export(SES, InternalSES, MMPC, InternalMMPC, SES.temporal, InternalSES.temporal,
        ebic.univregs, testIndGEEReg, testIndGEEPois, testIndGEELogistic, testIndGEEGamma, testIndGEENormLog, testIndGEEOrdinal, gomp, 
        MMPC.gee, InternalMMPC.gee, ses.temporal.model, SES.gee, InternalSES.gee, mmpc.gee.model, ses.gee.model ,group.mvbetas, 
        testIndTimeLogistic, testIndTimeMultinom, MMPC.timeclass, SES.timeclass, glmm.gee.univregs, mmpc.timeclass.model, 
-       ses.timeclass.model, corfbed.network )
+       ses.timeclass.model, corfbed.network, ord.resid, modeler, cond.regs, gee.ci.mm, gee.pc.skel, glmm.mmhc.skel, gee.mmhc.skel,
+       gomp.path, testIndGLMMGamma, testIndGLMMNormLog, cv.gomp, testIndGLMMOrdinal, bbc, big.gomp, read.big.data)
 
 exportClasses("SESoutput")
 exportClasses("MMPCoutput")

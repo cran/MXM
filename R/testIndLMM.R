@@ -83,20 +83,33 @@ testIndLMM = function(target, reps = NULL, group, dataset, xIndex, csIndex,  wei
       return(results);
     }
     fit2 <- rint.reg( target, dataset[, xIndex], group )
-
-  } else   fit2 <- rint.reg( target, dataset[, c(csIndex, xIndex)], group )
-  #calculate the stat and p-value.
-  be <- fit2$be
-  seb <- fit2$seb
-  n <- length(target)
-  p <- length(be)
-  if ( be[p] == be[p - 1] ) {  ## overloaded, nnon significant variable, probably collinear
-    stat <- 0
-    pvalue <- log(1)
+    #calculate the stat and p-value.
+    be <- fit2$be
+    seb <- fit2$seb
+    n <- length(target)
+    p <- length(be)
+    if ( round( fit2$info[3], 14 ) == 0 ) {  ## overloaded, nnon significant variable, probably collinear
+      stat <- 0
+      pvalue <- log(1)
+    } else {
+      stat <- be[p]^2/seb[p]^2    
+      pvalue <- pf(stat, 1, n - p - 2, lower.tail = FALSE, log.p = TRUE)
+    }
   } else {
-    stat <- be[p]^2/seb[p]^2    
-    pvalue <- pf(stat, 1, n - p - 2, lower.tail = FALSE, log.p = TRUE)
-  }	
+    fit2 <- rint.reg( target, dataset[, c(csIndex, xIndex)], group )
+    #calculate the stat and p-value.
+    be <- fit2$be
+    seb <- fit2$seb
+    n <- length(target)
+    p <- length(be)
+    if ( be[p] == be[p - 1] ) {  ## overloaded, nnon significant variable, probably collinear
+      stat <- 0
+      pvalue <- log(1)
+    } else {
+      stat <- be[p]^2/seb[p]^2    
+      pvalue <- pf(stat, 1, n - p - 2, lower.tail = FALSE, log.p = TRUE)
+    }
+  }  
   #update hash objects
   if ( hash )  {
     stat_hash$key <- stat;   #.set(stat_hash , key , stat)

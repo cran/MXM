@@ -118,9 +118,9 @@ Heagerty P.J. and Zeger S.L. (1996) Marginal regression models for clustered ord
 
 Paik M.C. (1988). Repeated measurement analysis for nonnormal data in small samples. Communications in Statistics-Simulation and Computation, 17(4): 1155-1171.
 
-Ziegler A., Kastner C., Brunner D. and Blettner M. (2000). Familial associations of lipid proles: A generalised estimating equations approach. Statistics in medicine, 19(24): 3345-3357
+Ziegler A., Kastner C., Brunner D. and Blettner M. (2000). Familial associations of lipid profiles: A generalised estimating equations approach. Statistics in medicine, 19(24): 3345-3357
 
-Yan J. and Fine J. (2004). Estimating equations for association structures. Statistics in medicine, 23(6): 859-874
+Yan J. and Fine J. (2004). Estimating equations for association structures. Statistics in medicine, 23(6): 859-874.
 
 Eugene Demidenko (2013). Mixed Models: Theory and Applications with R, 2nd Edition. New Jersey: Wiley \& Sons.
 

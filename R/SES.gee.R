@@ -113,8 +113,9 @@ SES.gee = function(target, reps = NULL, group, dataset, max_k = 3, threshold = 0
   results = InternalSES.gee(target, reps, group, dataset, max_k, log(threshold), test, ini, wei, user_test, hash, varsize, stat_hash, 
                              pvalue_hash, targetID, correl = correl, se = se, ncores = ncores);
   SES.gee.output <- new("SES.gee.output", selectedVars = results$selectedVars, selectedVarsOrder=results$selectedVarsOrder, 
-                        hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, univ = results$univ, max_k=results$max_k, 
-                        threshold = results$threshold, runtime=results$runtime, test=ci_test, correl = results$correl, se = results$se);
+                        hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, univ = results$univ, 
+                        max_k=results$max_k, threshold = results$threshold, n.tests = results$n.tests, runtime=results$runtime, 
+                        test=ci_test, correl = results$correl, se = results$se);
   return(SES.gee.output);
 }
 

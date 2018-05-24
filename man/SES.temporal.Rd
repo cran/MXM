@@ -50,7 +50,7 @@ The maximum conditioning set to use in the conditional indepedence test (see Det
 Threshold (suitable values in [0, 1]) for assessing p-values significance. Default value is 0.05.
 }
 \item{test}{
-The conditional independence test to use. Default value is NULL. Currently, the only available conditional independence test are the \code{\link{testIndGLMMLogistic}}, \code{\link{testIndGLMMPois}} and \code{\link{testIndGLMMReg}} which fit linear mixed models. 
+The conditional independence test to use. Default value is NULL. Currently, the only available conditional independence test are the \code{\link{testIndGLMMLogistic}}, \code{\link{testIndGLMMPois}}, \code{\link{testIndGLMMGamma}}, \code{\link{testIndGLMMNormLog}} and \code{\link{testIndGLMMReg}} which fit linear mixed models. 
 }
 \item{ini}{
 This is a supposed to be a list. After running SES or MMPC with some hyper-parameters you might want to run SES again with different hyper-parameters. To avoid calculating the univariate associations (first step of SES and of MPPC) again, you can extract them from the first run of SES and plug them here. This can speed up the second run (and subequent runs of course) by 50\%. See the details and the argument "univ" in the output values. 
@@ -77,8 +77,7 @@ Should random slopes for the ime effect be fitted as well? Default value is FALS
 The correlation structure. For the Gaussian, Logistic, Poisson and Gamma regression this can be either "exchangeable" (compound symmetry, suitable for clustered data) or "ar1" (AR(1) model, suitable for longitudinal data). For the ordinal logistic regression its only the "exchangeable" correlation sturcture. This is obsolete for "testIndGEEOrdinal", but is here for compatibility reasons. 
 }
 \item{se}{
-The method for estimating standard errors. This is very important and crucial. The available options for Gaussian, Logistic, Poisson and Gamma regression are: a)  'san.se', the usual robust estimate. b) 'jack': if approximate jackknife variance estimate should be computed. 
-c) 'j1s': if 1-step jackknife variance estimate should be computed and d) 'fij': logical indicating if fully iterated jackknife variance estimate should be computed. If you have many clusters (sets of repeated measurements) "san.se" is fine as it is astmpotically correct, plus jacknife estimates will take longer. If you have a few clusters, then maybe it's better to use jacknife estimates. 
+The method for estimating standard errors. This is very important and crucial. The available options for Gaussian, Logistic, Poisson and Gamma regression are: a) 'san.se': the usual robust estimate. b) 'jack': approximate jackknife variance estimate. c) 'j1s': if 1-step jackknife variance estimate and d) 'fij': fully iterated jackknife variance estimate. If you have many clusters (sets of repeated measurements) "san.se" is fine as it is asympotically correct, plus jacknife estimates will take longer. If you have a few clusters, then maybe it's better to use jacknife estimates. 
 
 The jackknife variance estimator was suggested by Paik (1988), which is quite suitable for cases when the number of subjects is small (K < 30), as in many biological studies. The simulation studies conducted by Ziegler et al. (2000) and Yan and Fine (2004) showed that the approximate jackknife estimates are in many cases in good agreement with the fully iterated ones. This is obsolete for "testIndGEEOrdinal", but is here for compatibility reasons.
 }
@@ -148,11 +147,14 @@ The max_k option used in the current run.
 \item{threshold}{
 The threshold option used in the current run.
 }
-\item{slope}{
-Whether random slopes for the time effects were used or not, TRUE or FALSE.
+\item{n.tests}{
+If you have set hash = TRUE, then the number of tests performed by SES or MMPC will be returned. If you have not set this to TRUE, the number of univariate associations will be returned. So be careful with this number.
 }
 \item{runtime}{
 The run time of the algorithm. A numeric vector. The first element is the user time, the second element is the system time and the third element is the elapsed time.
+}
+\item{slope}{
+Whether random slopes for the time effects were used or not, TRUE or FALSE.
 }
 
 Generic Functions implemented for SESoutput Object:
@@ -173,6 +175,8 @@ Tsamardinos, Brown and Aliferis (2006). The max-min hill-climbing Bayesian netwo
 
 Eugene Demidenko (2013). Mixed Models: Theory and Applications with R, 2nd Edition. New Jersey: Wiley \& Sons.
 
+J. Pinheiro and D. Bates. Mixed-effects models in S and S-PLUS. Springer Science \& Business Media, 2006.
+
 Liang K.Y. and Zeger S.L. (1986). Longitudinal data analysis using generalized linear models. Biometrika, 73(1): 13-22.
 
 Prentice R.L. and Zhao L.P. (1991). Estimating equations for parameters in means and covariances of multivariate discrete and continuous responses. Biometrics, 47(3): 825-839.
@@ -181,11 +185,9 @@ Heagerty P.J. and Zeger S.L. (1996) Marginal regression models for clustered ord
 
 Paik M.C. (1988). Repeated measurement analysis for nonnormal data in small samples. Communications in Statistics-Simulation and Computation, 17(4): 1155-1171.
 
-Ziegler A., Kastner C., Brunner D. and Blettner M. (2000). Familial associations of lipid proles: A generalised estimating equations approach. Statistics in medicine, 19(24): 3345-3357
+Ziegler A., Kastner C., Brunner D. and Blettner M. (2000). Familial associations of lipid profiles: A generalised estimating equations approach. Statistics in medicine, 19(24): 3345-3357
 
-Yan J. and Fine J. (2004). Estimating equations for association structures. Statistics in medicine, 23(6): 859-874
-
-J. Pinheiro and D. Bates. Mixed-effects models in S and S-PLUS. Springer Science \& Business Media, 2006.
+Yan J. and Fine J. (2004). Estimating equations for association structures. Statistics in medicine, 23(6): 859-874.
 }
 
 \author{

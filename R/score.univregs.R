@@ -23,8 +23,13 @@ score.univregs <- function(target, dataset, test) {
     mod <- Rfast::score.glms(target, dataset, oiko = "poisson", logged = TRUE )
     univariateModels$stat = mod[, 1]
     univariateModels$pvalue = mod[, 2]
-  ## logistic or multinomial regression
+  ## logistic regression
   } else if ( identical(test, testIndLogistic) ) { 
+    mod <- Rfast::score.glms(target, dataset, oiko = "binomial", logged = TRUE)  
+    univariateModels$stat = mod[, 1]
+    univariateModels$pvalue = mod[, 2]
+    ## multinomial regression
+  } else if ( identical(test, testIndMultinom) ) { 
     mod <- Rfast::score.multinomregs(target, dataset, logged = TRUE)  
     univariateModels$stat = mod[, 1]
     univariateModels$pvalue = mod[, 2]

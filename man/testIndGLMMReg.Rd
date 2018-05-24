@@ -2,6 +2,9 @@
 \alias{testIndGLMMReg}
 \alias{testIndGLMMLogistic}
 \alias{testIndGLMMPois}
+\alias{testIndGLMMGamma}
+\alias{testIndGLMMNormLog}
+\alias{testIndGLMMOrdinal}
 \alias{testIndLMM}
 \title{
 Linear mixed models conditional independence test for longitudinal class variables
@@ -24,6 +27,18 @@ testIndGLMMPois(target, reps = NULL, group, dataset, xIndex, csIndex, wei = NULL
 univariateModels = NULL, hash = FALSE, stat_hash = NULL, 
 pvalue_hash=NULL, slopes = FALSE)
 
+testIndGLMMGamma(target, reps = NULL, group, dataset, xIndex, csIndex, wei = NULL,
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, 
+pvalue_hash=NULL, slopes = FALSE)
+
+testIndGLMMNormLog(target, reps = NULL, group, dataset, xIndex, csIndex, wei = NULL,
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, 
+pvalue_hash=NULL, slopes = FALSE)
+
+testIndGLMMOrdinal(target, reps = NULL, group, dataset, xIndex, csIndex, wei = NULL,
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, 
+pvalue_hash=NULL, slopes = FALSE)
+
 testIndLMM(target, reps = NULL, group, dataset, xIndex, csIndex, wei = NULL,
 univariateModels = NULL, hash = FALSE, stat_hash = NULL, 
 pvalue_hash=NULL, slopes = FALSE)
@@ -31,7 +46,7 @@ pvalue_hash=NULL, slopes = FALSE)
 
 \arguments{
 \item{target}{
-A numeric vector containing the values of the target variable. If the values are proportions or percentages, i.e. strictly within 0 and 1 they are mapped into R using log( target/(1 - target) ). In both cases a linear mixed model is applied. It can also be a binary variable (binary logistic regression) or a discrete, counts (Poisson regression), thus fitting generalised linear mixed models.
+A numeric vector containing the values of the target variable. If the values are proportions or percentages, i.e. strictly within 0 and 1 they are mapped into R using log( target/(1 - target) ). In both cases a linear mixed model is applied. It can also be a binary variable (binary logistic regression) or a discrete, counts (Poisson regression), thus fitting generalised linear mixed models. In the case of "testIndGLMMOrdinal" this must be an ordered factor.
 }
 \item{reps}{
 A numeric vector containing the time points of the subjects. It's length is equal to the length of the target variable. If you have clustered data, leave this NULL. 

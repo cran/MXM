@@ -224,9 +224,13 @@ perm.mmpc = function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, 
     met <- bc$met
     results$selectedVars <- varsToIterate[met]
     results$selectedVarsOrder <- varsOrder[met]
+    results$pvalues[varsToIterate] <- bc$pvalue
     results$n.tests <- results$n.tests + bc$counter
   }
-  MMPCoutput <-new("MMPCoutput", selectedVars = results$selectedVars, selectedVarsOrder=results$selectedVarsOrder, hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, univ=results$univ, max_k=results$max_k, threshold = results$threshold, n.tests = results$n.tests, runtime=results$runtime, test=ci_test);
+  
+  MMPCoutput <-new("MMPCoutput", selectedVars = results$selectedVars, selectedVarsOrder=results$selectedVarsOrder, 
+                   hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, univ=results$univ, 
+                   max_k=results$max_k, threshold = results$threshold, n.tests = results$n.tests, runtime=results$runtime, test=ci_test);
   return(MMPCoutput);
 }
 

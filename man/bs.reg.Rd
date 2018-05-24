@@ -24,9 +24,9 @@ Threshold (suitable values in [0,1]) for assessing p-values significance. Defaul
 }
 \item{test}{
 The regression model to use. Available options are most of the tests for SES and MMPC. 
-The ones NOT available are "gSquare", "censIndER", "testIndMVreg",  
-"testIndSpearman". If you want to use multinomial or ordinal logistic regression, 
-make sure your target is factor. See also \code{\link{SES}} and \code{\link{CondIndTests}} for the tests.
+The ones NOT available are "censIndER", "testIndMVreg", "testIndSpearman". 
+If you want to use multinomial or ordinal logistic regression,  make sure your target is factor. 
+See also \code{\link{SES}} and \code{\link{CondIndTests}} for the tests.
 }
 \item{wei}{
 A vector of weights to be used for weighted regression. The default value is NULL. 

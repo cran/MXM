@@ -38,7 +38,7 @@ InternalSES = function(target, dataset, max_k, threshold, test = NULL, ini, wei=
     results$threshold = threshold;
     runtime = proc.time() - runtime;
     results$runtime = runtime;
-    results$n.tests <- length(stats)
+    results$n.tests = length(stats)
     
     return(results);
   }
@@ -134,7 +134,7 @@ InternalSES = function(target, dataset, max_k, threshold, test = NULL, ini, wei=
   results$threshold = threshold;
   runtime = proc.time() - runtime;
   results$runtime = runtime;
-  results$n.tests <- length(stats) + length( hashObject$stat_hash )
+  results$n.tests = length(stats) + length( hashObject$stat_hash )
   
   return(results);
 }

@@ -76,7 +76,8 @@ MMPC.temporal = function(target, reps = NULL, group, dataset, max_k = 3, thresho
       } else test = "testIndGLMMReg"
     }  
     #available conditional independence tests
-    av_tests = c("testIndGLMMReg", "testIndGLMMLogistic", "testIndGLMMPois", "testIndLMM", "auto",  NULL);
+    av_tests = c("testIndGLMMReg", "testIndGLMMLogistic", "testIndGLMMPois", "testIndGLMMGamma", 
+                 "testIndGLMMNormLog", "testIndLMM", "auto",  NULL);
     ci_test = test
     if (length(test) == 1) {   #avoid vectors, matrices etc
       test = match.arg(test, av_tests, TRUE);
@@ -87,6 +88,10 @@ MMPC.temporal = function(target, reps = NULL, group, dataset, max_k = 3, thresho
           test = testIndGLMMLogistic;
       } else if (test == "testIndGLMMPois") {
         test = testIndGLMMPois;
+      } else if (test == "testIndGLMMGamma") {
+        test = testIndGLMMGamma;
+      } else if (test == "testIndGLMMNormLog") {
+        test = testIndGLMMNormLog;
      } else if (test == "testIndLMM") {
         test <- testIndLMM
     }
@@ -106,8 +111,13 @@ MMPC.temporal = function(target, reps = NULL, group, dataset, max_k = 3, thresho
   #######################################################################################
   if( !is.null(user_test) )  ci_test = "user_test";
   #call the main MMPC.temporal function after the checks and the initializations
-  results = InternalMMPC.temporal(target, reps, group, dataset, max_k, log(threshold), test, ini, wei, user_test, hash, varsize, stat_hash, pvalue_hash, targetID, slopes = slopes, ncores = ncores);
-  MMPC.temporal.output <-new("MMPC.temporal.output", selectedVars = results$selectedVars, selectedVarsOrder=results$selectedVarsOrder, hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, univ = results$univ, max_k=results$max_k, threshold = results$threshold, runtime=results$runtime, test=ci_test, slope = slopes);
+  results <- InternalMMPC.temporal(target, reps, group, dataset, max_k, log(threshold), test, ini, wei, user_test, hash, varsize, 
+                                   stat_hash, pvalue_hash, targetID, slopes = slopes, ncores = ncores);
+
+  MMPC.temporal.output <-new("MMPC.temporal.output", selectedVars = results$selectedVars, selectedVarsOrder = results$selectedVarsOrder, 
+                             hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, univ = results$univ, 
+                             max_k = results$max_k, threshold = results$threshold, n.tests = results$n.tests, runtime = results$runtime, 
+                             test = ci_test, slope = slopes);
   return(MMPC.temporal.output);
 }
 

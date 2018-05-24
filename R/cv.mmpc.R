@@ -15,7 +15,8 @@
 #cv_results_all: a list with the predictions, performances and the signatures for each fold of each configuration (i.e cv_results_all[[3]]$performances[1] indicates the performance of the 1st fold with the 3d configuration of mmpc)
 #best_performance: numeric, the best average performance
 #best_configuration: the best configuration of mmpc (a list with the slots id, a, max_k)
-cv.mmpc <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, alphas = c(0.1, 0.05, 0.01), max_ks = c(3, 2), task = NULL, metric = NULL, modeler = NULL, mmpc_test = NULL, ncores = 1) 
+cv.mmpc <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, alphas = c(0.1, 0.05, 0.01), max_ks = c(3, 2), task = NULL, 
+                    metric = NULL, metricbbc = NULL, modeler = NULL, mmpc_test = NULL, ncores = 1, B = 1) 
 {
   if ( ncores > 1 ) {  ## multi-threaded task
     result = cvmmpc.par(target, dataset, wei = wei, kfolds = kfolds, folds = folds, alphas = alphas, max_ks = max_ks, task = task, metric = metric, modeler = modeler, mmpc_test = mmpc_test, ncores = ncores)
@@ -194,9 +195,19 @@ cv.mmpc <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, alph
   
   opti <- Rfast::rowmeans(mat)
   bestpar <- which.max(opti)
-  
   best_model$best_configuration = conf_mmpc[[bestpar]]$configuration
   best_model$best_performance <- max( opti )
+  best_model$bbc_best_performance <- NULL
+  
+  if ( B > 1) {
+    if (task == "S")  {
+      n <- 0.5 * length(target) 
+    } else  n <- length(target)
+    predictions <- matrix(0, nrow = n, ncol = nmmpcConfs)
+    for (i in 1:nmmpcConfs)  predictions[, i] <- unlist( best_model$cv_results_all[[ i ]]$preds )
+    best_model$bbc_best_performance <- MXM::bbc(predictions, target[unlist(folds)], metric = metricbbc, B = B )$bbc.perf
+  }
+  
   best_model$runtime <- proc.time() - tic 
   result <- best_model
  }

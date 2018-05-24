@@ -29,6 +29,7 @@ Objects can be created by calls of the form \code{new("SES.temporal.output", ...
     \item{\code{univ}:}{Object of class \code{"list"}}
     \item{\code{max_k}:}{Object of class \code{"numeric"}}
     \item{\code{threshold}:}{Object of class \code{"numeric"}}
+    \item{\code{n.tests}:}{Object of class \code{"numeric"}}
     \item{\code{runtime}:}{Object of class \code{"proc_time"}}
     \item{\code{test}:}{Object of class \code{"character"}}
     \item{\code{correl}:}{Object of class \code{"character"}}  

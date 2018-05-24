@@ -3,6 +3,7 @@
 \alias{pc.con}
 \alias{pc.skel.boot}
 \alias{glmm.pc.skel}
+\alias{gee.pc.skel}
 \title{
 The skeleton of a Bayesian network produced by the PC algorithm
 }
@@ -19,7 +20,10 @@ pc.con(dataset, method = "pearson", alpha = 0.01)
 
 pc.skel.boot(dataset, method = "pearson", alpha = 0.01, R = 199, ncores = 1)
 
-glmm.pc.skel(dataset, id, method = "comb.mm", alpha = 0.01, stat = NULL, 
+glmm.pc.skel(dataset, group, method = "comb.mm", alpha = 0.01, stat = NULL, 
+ini.pvalue = NULL)
+
+gee.pc.skel(dataset, group, se = "jack", method = "comb.mm", alpha = 0.01, stat = NULL, 
 ini.pvalue = NULL)
 }
 
@@ -36,8 +40,13 @@ default really slow. If you have categorical data, this must be "cat". If you ha
 "comb.fast" or "comb.mm". These two methods perform the symmetric test for mixed data (Tsagris et al., 2017). See details for more information on this. 
 For the mixed models PC algorithm, this is the same argument, but cuurently only "comb.mm" is acecpted.
 }
-\item{id}{
-This is to be used in the glmm.pc.skel only. It is a vector for identifying the grouped data, the correlated observations, the subjects.
+\item{group}{
+This is to be used in the "glmm.pc.skel" and "gee.pc.skel" only. It is a vector for identifying the grouped data, the correlated observations, the subjects.
+}
+\item{se}{
+The method for estimating standard errors. This is very important and crucial. The available options for Gaussian, Logistic, Poisson and Gamma regression are: a) 'san.se': the usual robust estimate. b) 'jack': approximate jackknife variance estimate. c) 'j1s': if 1-step jackknife variance estimate and d) 'fij': fully iterated jackknife variance estimate. If you have many clusters (sets of repeated measurements) "san.se" is fine as it is asympotically correct, plus jacknife estimates will take longer. If you have a few clusters, then maybe it's better to use jacknife estimates. 
+
+The jackknife variance estimator was suggested by Paik (1988), which is quite suitable for cases when the number of subjects is small (K < 30), as in many biological studies. The simulation studies conducted by Ziegler et al. (2000) and Yan and Fine (2004) showed that the approximate jackknife estimates are in many cases in good agreement with the fully iterated ones. This is obsolete for "testIndGEEOrdinal", but is here for compatibility reasons.
 }
 \item{alpha}{
 The significance level ( suitable values in (0, 1) ) for assessing the p-values. Default value is 0.01.
@@ -83,10 +92,9 @@ The "pc.con" is a faster implementation of the PC algorithm but for continuous d
 If there are missing values they are placed by their median in case of continuous data and by their mode (most frequent value) if they 
 are categorical. 
 
-The "lmm.pc.skel" is designed for clustered or grouped data. It uses linear mixed models and works in the same way as the PC with mixed data. For each variable, a random intercepts model is fitted and the significance of the other variable is assessed. The two p-values are meta-analytically combined. 
+The "glmm.pc.skel" and "gee.pc.skel" are designed for clustered or grouped data. It uses linear mixed models and works in the same way as the PC with mixed data. For each variable, a random intercepts model is fitted and the significance of the other variable is assessed. The two p-values are meta-analytically combined. 
 
-For all cases, except for method = c("pearson", "spearman", "cat") with R = 1, or R > 1, we return the maximum logged p-value of the conditional independence tests between the pairs. This can be used to order the strength of association between pairs of variables. In addition, one can use it to estimate the AUC. See the example.
-
+For all cases, we return the maximum logged p-value of the conditional independence tests between the pairs. This can be used to order the strength of association between pairs of variables. In addition, one can use it to estimate the AUC. See the example.
 }
 
 \value{
@@ -152,6 +160,14 @@ Szekely G.J. and Rizzo, M.L. (2014). Partial distance correlation with methods f
 2382--2412.
 
 Szekely G.J. and Rizzo M.L. (2013). Energy statistics: A class of statistics based on distances. Journal of Statistical Planning and Inference 143(8): 1249--1272.
+
+Paik M.C. (1988). Repeated measurement analysis for nonnormal data in small samples. Communications in Statistics-Simulation and Computation, 17(4): 1155-1171.
+
+Ziegler A., Kastner C., Brunner D. and Blettner M. (2000). Familial associations of lipid profiles: A generalised estimating equations approach. Statistics in medicine, 19(24): 3345-3357
+
+Yan J. and Fine J. (2004). Estimating equations for association structures. Statistics in medicine, 23(6): 859-874.
+
+Liang K.Y. and Zeger S.L. (1986). Longitudinal data analysis using generalized linear models. Biometrika, 73(1): 13-22.
 
 Eugene Demidenko (2013). Mixed Models: Theory and Applications with R, 2nd Edition. New Jersey: Wiley \& Sons.
 }

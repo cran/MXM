@@ -532,7 +532,7 @@ if ( !is.null(user_test) ) {
 
   if ( ncores <= 1 | is.null(ncores) ) {
     for ( i in 1:cols ) {
-      fit2 = survival::survreg( target ~ dataset[, i], weights = wei )
+      fit2 = survival::survreg( target ~ dataset[, i], weights = wei, control=list(iter.max = 5000)  )
       lik2[i] = as.numeric( logLik(fit2) )
       dof[i] = length( coef(fit2) ) - 1
     }
@@ -544,7 +544,7 @@ if ( !is.null(user_test) ) {
     cl <- makePSOCKcluster(ncores)
     registerDoParallel(cl)
     mod <- foreach(i = 1:cols, .combine = rbind, .packages = "survival") %dopar% {
-        fit2 = survival::survreg( target ~ dataset[, i], weights = wei )
+        fit2 = survival::survreg( target ~ dataset[, i], weights = wei, control=list(iter.max = 5000)  )
         lik2 = as.numeric( logLik(fit2) )
         return( c(lik2, length( coef(fit2) ) - 1 ) )
     }
@@ -585,16 +585,16 @@ if ( !is.null(user_test) ) {
   }
   
 } else if ( identical(test, testIndClogit) ) {  ## Conditional logistic regression
-  subject = target[, 2] #the patient id
-  case = as.logical(target[, 1]);  ## case 
-  stat = numeric(cols)
-  dof = numeric(cols)
+  subject <- target[, 2] #the patient id
+  case <- as.logical(target[, 1]);  ## case 
+  stat <- numeric(cols)
+  dof <- numeric(cols)
 
   if ( ncores <= 1 | is.null(ncores) ) {
     for ( i in 1:cols ) {
-      fit2 = survival::clogit( case ~ dataset[, i] + strata(subject) ) 
-      dof[i] = length( coef(fit2) ) 
-      stat[i] = 2 * abs( diff(fit2$loglik) )
+      fit2 <- survival::clogit( case ~ dataset[, i] + strata(subject) ) 
+      dof[i] <- length( coef(fit2) ) 
+      stat[i] <- 2 * abs( diff(fit2$loglik) )
     }
     univariateModels$stat = stat
     univariateModels$pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
@@ -607,9 +607,8 @@ if ( !is.null(user_test) ) {
         return( c(2 * abs( diff(fit2$loglik) ), length( coef(fit2) ) ) )
     }
     stopCluster(cl)
-    stat = as.vector( 2 * (mod[, 1] - lik1) )
-    univariateModels$stat = stat
-    univariateModels$pvalue = pchisq(stat, mod[, 2], lower.tail = FALSE, log.p = TRUE)
+    univariateModels$stat <- as.vector( mod[, 1] )
+    univariateModels$pvalue <- pchisq(mod[, 1], mod[, 2], lower.tail = FALSE, log.p = TRUE)
   }
   
 } else if ( identical(test, censIndER) ) {  ## Exponential regression

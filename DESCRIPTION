@@ -2,9 +2,9 @@ Package: MXM
 Type: Package
 Title: Feature Selection (Including Multiple Solutions) and Bayesian
         Networks
-Version: 1.3.3
+Version: 1.3.4
 URL: http://mensxmachina.org
-Date: 2018-03-30
+Date: 2018-05-24
 Authors@R: c(person("Michail", "Tsagris", role = c("aut", "cre"), email = "mtsagris@csd.uoc.gr"),
            person("Ioannis", "Tsamardinos", role = c("aut", "cph"), email = "tsamard.it@gmail.com"),
            person("Vincenzo", "Lagani", role = c("aut", "cph"), email = "vlagani@yahoo.it"), 
@@ -24,8 +24,9 @@ Suggests: R.rsp,
 VignetteBuilder: R.rsp, knitr,
 Imports: methods, stats, utils, hash, survival, MASS, graphics,
         ordinal, nnet, quantreg, lme4, foreach, doParallel, parallel,
-        relations, Rfast, visNetwork, energy, geepack, knitr, dplyr
+        relations, Rfast, visNetwork, energy, geepack, knitr, dplyr,
+        bigmemory,
 NeedsCompilation: no
-Packaged: 2018-03-30 14:32:48 UTC; user
+Packaged: 2018-05-24 08:28:39 UTC; user
 Repository: CRAN
-Date/Publication: 2018-03-30 17:07:35 UTC
+Date/Publication: 2018-05-24 11:56:05 UTC

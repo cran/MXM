@@ -39,7 +39,7 @@ cor.bsreg <- function(target, dataset, threshold = 0.05) {
     mat <- cbind(1:p, mat[, 2], mat[, 1] )
     colnames(mat) <- c("variable", "log.p-values", "statistic" )
     rownames(mat) <- 1:p 
-    sel <- which.max( mat[, 2] )
+    sel <- which.max( mat[, 2] )  
     info <- matrix( c(0, -10, -10) , ncol = 3 )
     sela <- sel 
     

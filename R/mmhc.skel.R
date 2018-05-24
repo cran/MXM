@@ -1,5 +1,5 @@
-mmhc.skel <- function(dataset, max_k = 3, threshold = 0.05, test = "testIndFisher", type = "MMPC", backward = TRUE,  
-                      symmetry = TRUE, nc = 1, ini.pvalue = NULL, hash = FALSE) {
+mmhc.skel <- function(dataset, max_k = 3, threshold = 0.05, test = "testIndFisher", type = "MMPC", hash = FALSE, 
+                      backward = TRUE, symmetry = TRUE, nc = 1, ini.pvalue = NULL) {
   ## dataset is either conitnuous or categorical data  
   ## max_k is the maximum number of variables upon which to condition
   ## threshold is the level of significance to reject the independence
@@ -165,5 +165,6 @@ mmhc.skel <- function(dataset, max_k = 3, threshold = 0.05, test = "testIndFishe
   ntests <- c(initial.tests, ntests)
   names(ntests) <- c("univariate tests", nam)
   if ( is.null(ini.pvalue) )  ini.pvalue <- ini.pval
+  ini.pval <- NULL
   list(runtime = runtime, density = density, info = info, ms = ms, ntests = ntests, ini.pvalue = ini.pvalue, pvalue = pvalue, G = G)
 }

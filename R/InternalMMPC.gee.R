@@ -36,6 +36,7 @@ InternalMMPC.gee = function(target, reps, group, dataset, max_k, threshold, test
     results$runtime = runtime;
     results$correl = correl
     results$se = se
+    results$n.tests = length(stats)
     
     return(results);
   }
@@ -105,6 +106,7 @@ InternalMMPC.gee = function(target, reps, group, dataset, max_k, threshold, test
   results$runtime = runtime;
   results$correl = correl
   results$se = se
+  results$n.tests = length(stats) + length( hashObject$stat_hash )
   
   return(results);
 }

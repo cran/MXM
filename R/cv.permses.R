@@ -15,7 +15,8 @@
 #cv_results_all: a list with the predictions, performances and the signatures for each fold of each configuration (i.e cv_results_all[[3]]$performances[1] indicates the performance of the 1st fold with the 3d configuration of SES)
 #best_performance: numeric, the best average performance
 #best_configuration: the best configuration of SES (a list with the slots id, a, max_k)
-cv.permses <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, alphas = c(0.1, 0.05, 0.01), max_ks = c(3, 2), task = NULL, metric = NULL, modeler = NULL, ses_test = NULL, R = 999, ncores = 1)
+cv.permses <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, alphas = c(0.1, 0.05, 0.01), max_ks = c(3, 2), task = NULL, 
+                       metric = NULL, metricbbc = NULL, modeler = NULL, ses_test = NULL, R = 999, ncores = 1, B = 1)
 {
   
   if ( ncores > 1 ) {  ## multi-threaded task
@@ -199,11 +200,20 @@ cv.permses <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, a
     
     opti <- Rfast::rowmeans(mat)
     bestpar <- which.max(opti)
-    
     best_model$best_configuration <- conf_ses[[bestpar]]$configuration
     best_model$best_performance <- max( opti )
-    best_model$runtime <- proc.time() - tic 
+    best_model$bbc_best_performance <- NULL
     
+    if ( B > 1) {
+      if (task == "S")  {
+        n <- 0.5 * length(target) 
+      } else  n <- length(target)
+      predictions <- matrix(0, nrow = n, ncol = nSESConfs)
+      for (i in 1:nSESConfs)  predictions[, i] <- unlist( best_model$cv_results_all[[ i ]]$preds )
+      best_model$bbc_best_performance <- MXM::bbc(predictions, target[unlist(folds)], metric = metricbbc, B = B )$bbc.perf
+    }
+    
+    best_model$runtime <- proc.time() - tic 
     result <- best_model
   }
   
@@ -229,218 +239,3 @@ cv.permses <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, a
 
 
 
-
-
-#metric functions
-#input
-#predictions
-#test_target
-
-#output
-#the metric value (numeric)
-
-
-#metric functions (use of ROCR package)
-#auc
-auc.mxm <- function(predictions, test_target, theta = NULL) {
-  #predsObj <- prediction(predictions, test_target)
-  #aucValue <- performance(predsObj, measure='auc')@y.values[[1]];
-  test_target <- as.numeric( as.factor(test_target) )
-  ri <- rank(predictions)
-  up <- max(test_target)
-  n <- length(predictions)
-  n1 <- sum( test_target == up )
-  n0 <- n - n1
-  s1 <- sum( ri[test_target == up ] )
-  ( s1 - 0.5 * ( n1 * (n1 + 1) ) ) / n0 / n1
-}
-
-#accuracy (binary)
-acc.mxm <- function(predictions, test_target, theta = NULL) {
-  sum( (predictions > 0.5) == test_target ) / length(test_target)
-}
-
-#accuracy
-acc_multinom.mxm <- function(predictions, test_target, theta = NULL) {
-  sum( predictions == test_target ) / length(test_target)
-}
-
-#mse lower values indicate better performance so we multiply with -1 in order to have higher values for better performances
-mse.mxm <- function(predictions, test_target, theta = NULL) {
-  - sum( (predictions - test_target)^2 ) / length(test_target)
-}
-
-#mean absolut error lower values indicate better performance so we multiply with -1 in order to have higher values for better performances
-ord_mae.mxm <- function(predictions, test_target, theta = NULL) {
-  - sum( abs(as.numeric(predictions) - as.numeric(test_target)) ) / length(test_target)
-}
-
-#cindex
-ci.mxm <- function(predictions, test_target, theta = NULL) {
-  ## 1 - Hmisc::rcorr.cens(predictions, test_target)[1];
-  survival::survConcordance(test_target ~ predictions)$concordance
-}
-
-#cindex for weibull and exponential regession
-ciwr.mxm <- function(predictions, test_target, theta = NULL) {
-  ## Hmisc::rcorr.cens(predictions, test_target)[1];
-  1 - survival::survConcordance(test_target ~ predictions)$concordance
-}  
-
-#Poisson deviance. Lower values indicate better performance so we multiply with -1 in order to have higher values for better performances
-poisdev.mxm <- function(predictions, test_target, theta = NULL) {
-  - 2 * sum( test_target * log(test_target / predictions) ) 
-}
-
-#Negative binomial deviance. Lower values indicate better performance so we multiply with -1 in order to have higher values for better performances
-nbdev.mxm <- function(predictions, test_target, theta) {
-  - 2 * sum( test_target * log(test_target / predictions), na.rm = TRUE ) +
-    2 * sum( ( test_target + theta ) * log( (test_target + theta) / (predictions + theta) ) )
-}  
-
-
-#Binomial deviance. Lower values indicate better performance so we multiply with -1 in order to have higher values for better performances
-binomdev.mxm <- function(predictions, test_target, theta = NULL) {
-  ya = test_target[, 1]     ;    N = test_target[, 2]
-  yb = N - ya   
-  esta = predictions     ;    estb = N - esta
-  - 2 * sum( ya * log(ya / esta), na.rm = TRUE ) - 2 * sum( yb * log(yb / estb), na.rm = TRUE ) 
-}
-
-#Modeling Functions
-
-#input
-#train_target
-#sign_data
-#sign_test
-#output
-#preds
-
-
-## binary logistic regression
-glm.mxm <- function(train_target, sign_data, sign_test, wei) {
-  #   if(dim(sign_data)[2] == 1)
-  #   {
-  #     return(NULL);
-  #   }else{
-  #using this variable x to overcome the structure naming problems when we have just one variable as a sign_data. For more on this contact athineo ;)
-  x <- sign_data
-  sign_model <- glm( train_target ~ ., data = data.frame(x), family = binomial(), weights = wei );
-  x <- sign_test
-  preds <- predict( sign_model, newdata = data.frame(x), type = 'response' )
-  #   preds[ preds>=0.5 ] = 1
-  #   preds[ preds<0.5 ] = 0
-  list(preds = preds, theta = NULL)
-  #  }
-}
-
-## poisson regression
-pois.mxm <- function(train_target, sign_data, sign_test, wei) {
-  #using this variable x to overcome the structure naming problems when we have just one variable as a sign_data. For more on this contact athineou ;)
-  x <- sign_data
-  sign_model <- glm( train_target ~ ., data = data.frame(x), family = poisson(), weights = wei );
-  x <- sign_test
-  preds <-predict( sign_model, newdata = data.frame(x), type = 'response' )
-  list(preds = preds, theta = NULL)
-}
-
-## binomial regression
-binom.mxm <-  function(train_target, sign_data, sign_test){
-  #using this variable x to overcome the structure naming problems when we have just one variable as a sign_data. For more on this contact athineou ;)
-  y1 = train_target[, 1]
-  N1 = train_target[, 2]
-  x <- sign_data
-  sign_model <- glm( y1 / N1 ~ ., data = data.frame(x), weights = N1, family = binomial );
-  x <- sign_test
-  preds <- predict( sign_model, newdata = data.frame(x), type = 'response' ) * N1 
-  list(preds = preds, theta = NULL)
-}
-
-## negative binomial regression
-nb.mxm <- function(train_target, sign_data, sign_test, wei) {
-  #using this variable x to overcome the structure naming problems when we have just one variable as a sign_data. For more on this contact athineou ;)
-  x <- sign_data
-  sign_model <- MASS::glm.nb( train_target ~ ., data = data.frame(x), weights = wei );
-  x <- sign_test
-  preds <- predict( sign_model, newdata = data.frame(x), type = 'response' )
-  list(preds = preds, theta = sign_model$theta)
-}
-
-## multinomial regression
-multinom.mxm <- function(train_target, sign_data, sign_test, wei) {
-  #using this variable x to overcome the structure naming problems when we have just one variable as a sign_data. For more on this contact athineou ;)
-  x <- sign_data
-  sign_model <- nnet::multinom( train_target ~ ., data = data.frame(x), trace = FALSE, weights = wei );
-  x <- sign_test
-  preds <- predict( sign_model, newdata = data.frame(x) )
-  list(preds = preds, theta = NULL)
-}
-
-## oridnal regression
-ordinal.mxm <- function(train_target, sign_data, sign_test, wei) {
-  x <- sign_data
-  sign_model <- ordinal::clm( train_target ~ ., data = data.frame(x), trace = FALSE, weights = wei );
-  x <- sign_test
-  preds <- predict( sign_model, newdata = data.frame(x) )$fit
-  preds <- max.col(preds)  
-  list(preds = preds, theta = NULL)
-}
-
-## linear regression
-lm.mxm <- function(train_target, sign_data, sign_test, wei) { ## used for univariate and multivariate target in classical regression
-  x <- sign_data
-  sign_model <- lm( train_target ~ ., data = data.frame(x), weights = wei );
-  x <- sign_test
-  preds <- predict( sign_model, newdata = data.frame(x) )
-  preds <- list(preds = preds, theta = NULL)
-}
-
-## quantile (median) regression
-rq.mxm <- function(train_target, sign_data, sign_test, wei) { ## used for univariate and multivariate target in classical regression
-  x <- sign_data
-  sign_model <- quantreg::rq( train_target ~ ., data = data.frame(x), weights = wei);
-  x <- sign_test
-  preds <- predict( sign_model, newdata = data.frame(x) )
-  list(preds = preds, theta = NULL)
-}
-
-lmrob.mxm <- function(train_target, sign_data, sign_test, wei) { ## used for univariate and multivariate target in classical regression
-  x <- sign_data
-  sign_model <- MASS::rlm( train_target ~ ., data = data.frame(x), maxit = 2000, weights = wei, method = "MM" );
-  x <- sign_test
-  preds <- predict( sign_model, newdata = data.frame(x) )
-  list(preds = preds, theta = NULL)
-}
-
-## beta regression
-beta.mxm <- function(train_target, sign_data, sign_test, wei) { ## used for univariate and multivariate target in classical regression
-  preds <- beta.mod( train_target, sign_data, wei = wei, xnew = sign_test )$est
-  preds <- log( preds / (1 - preds) )  ## logit transformation to make it comparable with the normal regression
-  list(preds = preds, theta = NULL)
-}
-
-## cox regression
-coxph.mxm <- function(train_target, sign_data, sign_test, wei) {
-  x <- sign_data
-  sign_model <- survival::coxph(train_target~., data = data.frame(x), weights = wei)
-  x <- sign_test
-  preds <- predict(sign_model, newdata = data.frame(x), type = "risk")
-  list(preds = preds, theta = NULL)
-}
-
-## weibull regression
-weibreg.mxm <- function(train_target, sign_data, sign_test, wei) {
-  x <- sign_data
-  sign_model <- survival::survreg(train_target~., data = data.frame(x), weights = wei)
-  x <- sign_test
-  preds <- predict(sign_model, newdata = data.frame(x) )
-  list(preds = preds, theta = NULL)
-}
-
-exporeg.mxm <- function(train_target, sign_data, sign_test, wei) {
-  x <- sign_data
-  sign_model <- survreg(train_target~., data = data.frame(x), dist = "exponential", weights = wei)
-  x <- sign_test
-  preds <- predict(sign_model, newdata = data.frame(x) )
-  list(preds = preds, theta = NULL)
-}

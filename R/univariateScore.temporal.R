@@ -8,7 +8,7 @@ univariateScore.temporal = function(target, reps = NULL, group, dataset, test, w
   if ( la > 2  &  sum( round(target) - target ) != 0  &  !slopes  &  is.null(wei) ) {
     group <- as.numeric(group)
     if ( !is.null(reps) )   reps <- as.numeric(reps)
-    univariateModels <- rint.regs(target = target, dataset = dataset, targetID = targetID, id = group, reps = reps, tol = 1e-08)
+    univariateModels <- MXM::rint.regs(target = target, dataset = dataset, targetID = targetID, id = group, reps = reps, tol = 1e-08)
 
   } else {
   
@@ -19,7 +19,7 @@ univariateScore.temporal = function(target, reps = NULL, group, dataset, test, w
   
     poia <- Rfast::check_data(dataset)
     if ( sum(poia) > 0 )   dataset[, poia] <- rnorm(rows * length(poia) )    
-    nTests = cols
+    nTests <- cols
     univariateModels = NULL;
     univariateModels$pvalue = numeric(nTests) 
     univariateModels$stat = numeric(nTests)
@@ -36,7 +36,7 @@ univariateScore.temporal = function(target, reps = NULL, group, dataset, test, w
       cl <- makePSOCKcluster(ncores)
       registerDoParallel(cl)
       test = test
-      mod <- foreach(i = 1:nTests, .combine = rbind, .export = "lmer", .packages = "lme4") %dopar% {
+      mod <- foreach(i = 1:nTests, .combine = rbind, .export = c("lmer", "glmer"), .packages = "lme4") %dopar% {
         test_results = test(target, reps, group, dataset, i, 0, wei = wei, slopes = slopes)
         return( c(test_results$pvalue, test_results$stat, test_results$stat_hash, test_results$pvalue_hash) )
       }

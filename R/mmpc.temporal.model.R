@@ -25,21 +25,39 @@ mmpc.temporal.model = function(target, dataset, reps = NULL, group, slopes = FAL
 
     if ( test == "testIndGLMMLogistic" ) {
       if ( is.null(reps) ) {
-        mod = lme4::glmer( target ~ dataset[, signature] + (1|group), weights = wei, REML = FALSE , family = binomial ) 
+        mod = lme4::glmer( target ~ dataset[, signature] + (1|group), weights = wei, family = binomial ) 
       } else {
         reps = reps 
         if (slopes ) {
-          mod = lme4::glmer( target ~ reps + dataset[, signature] + (reps|group), weights = wei, REML = FALSE, family = binomial )
-        } else  mod = lme4::glmer( target ~ reps + dataset[, signature] + (1|group), weights = wei, REML = FALSE, family = binomial ) 
+          mod = lme4::glmer( target ~ reps + dataset[, signature] + (reps|group), weights = wei, family = binomial )
+        } else  mod = lme4::glmer( target ~ reps + dataset[, signature] + (1|group), weights = wei, family = binomial ) 
       }
     } else if ( test == "testIndGLMMPois" )  {  
       if ( is.null(reps) ) {
-        mod = lme4::glmer( target ~ dataset[, signature] + (1|group), weights = wei, REML = FALSE , family = poisson ) 
+        mod = lme4::glmer( target ~ dataset[, signature] + (1|group), weights = wei, family = poisson ) 
       } else {
         reps = reps 
         if (slopes ) {
-          mod = lme4::glmer( target ~ reps + dataset[, signature] + (reps|group), weights = wei, REML = FALSE, family = poisson )
-        } else  mod = lme4::glmer( target ~ reps + dataset[, signature] + (1|group), weights = wei, REML = FALSE, family = poisson ) 
+          mod = lme4::glmer( target ~ reps + dataset[, signature] + (reps|group), weights = wei, family = poisson )
+        } else  mod = lme4::glmer( target ~ reps + dataset[, signature] + (1|group), weights = wei, family = poisson ) 
+      }
+    } else if ( test == "testIndGLMMGamma" )  {  
+      if ( is.null(reps) ) {
+        mod = lme4::glmer( target ~ dataset[, signature] + (1|group), weights = wei, family = Gamma(log) ) 
+      } else {
+        reps = reps 
+        if (slopes ) {
+          mod = lme4::glmer( target ~ reps + dataset[, signature] + (reps|group), weights = wei, family = Gamma(log) )
+        } else  mod = lme4::glmer( target ~ reps + dataset[, signature] + (1|group), weights = wei, family = Gamma(log) ) 
+      }
+    } else if ( test == "testIndGLMMNormLog" )  {  
+      if ( is.null(reps) ) {
+        mod = lme4::glmer( target ~ dataset[, signature] + (1|group), weights = wei, family = gaussian(log) ) 
+      } else {
+        reps = reps 
+        if (slopes ) {
+          mod = lme4::glmer( target ~ reps + dataset[, signature] + (reps|group), weights = wei, family = gaussian(log) )
+        } else  mod = lme4::glmer( target ~ reps + dataset[, signature] + (1|group), weights = wei, family = gaussian(log) ) 
       }
     } else {
       if ( is.null(reps) ) {

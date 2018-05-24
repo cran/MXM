@@ -151,7 +151,7 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 %}
 
 \seealso{
-\code{ \link{SES}, \link{MMPC}, \link{CondIndTests}, \link{reg.fit}, \link{ridge.reg} }
+\code{ \link{cond.regs}, \link{SES}, \link{MMPC}, \link{CondIndTests}, \link{reg.fit}, \link{ridge.reg} }
 }
 
 \examples{

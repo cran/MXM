@@ -30,6 +30,12 @@ fbed.reg <- function(target, dataset, ini = NULL, test = NULL, threshold = 0.05,
   
   } else {
    
+  if (test == "gSquare") {
+    
+    result <- fbed.g2(y = target, x = dataset, alpha = threshold, univ = ini, K = K, backward = backward)
+    
+  } else {
+    
   if (method == "LR") {
     
     if (test == "testIndReg") {
@@ -118,7 +124,7 @@ fbed.reg <- function(target, dataset, ini = NULL, test = NULL, threshold = 0.05,
       }   ## end if (result$info[1, 1] > 0)
     }  ## end if ( backward )
     
-  } else {
+  } else {  ## end of method =="LR"
     
     if (test == "testIndReg"  |  test == "testIndFisher") {
       test <- "testIndReg"
@@ -133,7 +139,7 @@ fbed.reg <- function(target, dataset, ini = NULL, test = NULL, threshold = 0.05,
     } else if (test == "testIndLogistic") {
       result <- ebic.fbed.glm(target, dataset, univ = ini, gam = gam, wei = wei, K = K, type = "logistic")
       
-    } else if (test == "testInMultinom") {  
+    } else if (test == "testIndMultinom") {  
       result <- ebic.fbed.multinom(target, dataset, univ = ini, gam = gam, wei = wei, K = K)
         
     } else if (test == "testIndOrdinal") {
@@ -175,7 +181,7 @@ fbed.reg <- function(target, dataset, ini = NULL, test = NULL, threshold = 0.05,
     
     if ( backward ) {
       
-      if (result$info[1, 1] > 0) {
+      if ( result$info[1, 1] > 0 ) {
         a <- ebic.bsreg(target, dataset[, result$res[, 1], drop = FALSE], test = test, wei = wei, gam = gam) 
        
         if ( typeof(a) == "list" ) {
@@ -198,9 +204,10 @@ fbed.reg <- function(target, dataset, ini = NULL, test = NULL, threshold = 0.05,
       
     }  ## end if ( backward )
     
-  } 
+  }  ## end of method == "eBIC"
+  
+  }  ## end if (test == "gSquare")
   
   }  ## end if ( length(K) > 1 )
-  
   result
 }

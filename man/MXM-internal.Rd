@@ -187,7 +187,16 @@
 \alias{kfbed.reg}
 \alias{kfbed.glmm.reg}
 \alias{kfbed.gee.reg}
-
+\alias{bs.g2}
+\alias{fbed.g2}
+\alias{fbed.glmm.ordinal}
+\alias{fbed.glmm.ordinal.reps}
+\alias{ebic.fbed.glmm.ordinal}
+\alias{ebic.fbed.glmm.ordinal.reps}
+\alias{glmm.ordinal.bsreg}
+\alias{glmm.ordinal.reps.bsreg}
+\alias{ebic.glmm.reps.bsreg}
+\alias{ebic.glmm.ordinal.reps.bsreg}
 
 \title{ Internal MXM Functions }
 \description{
@@ -382,8 +391,16 @@ Internal functions of Package \pkg{MXM}
 \item kfbed.reg( ... )
 \item kfbed.glmm.reg( ... )
 \item kfbed.gee.reg( ... )
-
-
+\item bs.g2( ... )
+\item fbed.g2( ... )
+\item fbed.glmm.ordinal( ... )
+\item fbed.glmm.ordinal.reps( ... )
+\item ebic.fbed.glmm.ordinal( ... )
+\item ebic.fbed.glmm.ordinal.reps( ... )
+\item glmm.ordinal.bsreg( ... )
+\item glmm.ordinal.reps.bsreg( ... )
+\item ebic.glmm.reps.bsreg( ... )
+\item ebic.glmm.ordinal.reps.bsreg( ... )
 }
 }
 \details{

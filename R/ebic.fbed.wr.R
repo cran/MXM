@@ -44,7 +44,7 @@ ebic.fbed.wr <- function(y, x, univ = NULL, gam = NULL, wei = NULL, K = 0) {
       while ( sum(s > 0) > 0 ) {
 	    M <- length(sela) + 1
         for ( i in ind[s] )  {
-          fit2 <- try( survival::survreg( y ~., data = x[, c(sela, i)], weights = wei ), silent = TRUE )
+          fit2 <- try( survival::survreg( y ~., data = x[, c(sela, i)], weights = wei, control = list(iter.max = 5000) ), silent = TRUE )
           if ( identical( class(fit2), "try-error" ) ) {
             lik2[i] <- lik1
           } else  lik2[i] <-  - 2 * logLik(fit2) + (length(fit2$coefficients) + 1) * logn +  con * lchoose(p, M)
@@ -67,7 +67,7 @@ ebic.fbed.wr <- function(y, x, univ = NULL, gam = NULL, wei = NULL, K = 0) {
    if (K == 1) {
      M <- length(sela) + 1 
      for ( i in ind[-sela] )  {
-        fit2 <- try( survival::survreg( y ~., data = x[, c(sela, i)], weights = wei ), silent = TRUE )
+        fit2 <- try( survival::survreg( y ~., data = x[, c(sela, i)], weights = wei, control = list(iter.max = 5000) ), silent = TRUE )
         if ( identical( class(fit2), "try-error" ) ) {
           lik2[i] <- lik1
         } else  lik2[i] <-  - 2 * logLik(fit2) + (length(fit2$coefficients) + 1) * logn +  con * lchoose(p, M)
@@ -86,7 +86,7 @@ ebic.fbed.wr <- function(y, x, univ = NULL, gam = NULL, wei = NULL, K = 0) {
       while ( sum(s > 0) > 0 ) {
 	    M <- length(sela) + 1
         for ( i in ind[s] )  {
-          fit2 <- try( survival::survreg( y ~., data = x[, c(sela, i)], weights = wei ), silent = TRUE )
+          fit2 <- try( survival::survreg( y ~., data = x[, c(sela, i)], weights = wei, control = list(iter.max = 5000) ), silent = TRUE )
           if ( identical( class(fit2), "try-error" ) ) {
             lik2[i] <- lik1
           } else  lik2[i] <-  - 2 * logLik(fit2) + (length(fit2$coefficients) + 1) * logn +  con * lchoose(p, M)
@@ -109,7 +109,7 @@ ebic.fbed.wr <- function(y, x, univ = NULL, gam = NULL, wei = NULL, K = 0) {
   if ( K > 1) {
     M <- length(sela) + 1
     for ( i in ind[-sela] )  {
-      fit2 <- try( survival::survreg( y ~., data = x[, c(sela, i)], weights = wei ), silent = TRUE )
+      fit2 <- try( survival::survreg( y ~., data = x[, c(sela, i)], weights = wei, control = list(iter.max = 5000) ), silent = TRUE )
       if ( identical( class(fit2), "try-error" ) ) {
         lik2[i] <- lik1
       } else  lik2[i] <-  - 2 * logLik(fit2) + (length(fit2$coefficients) + 1) * logn +  con * lchoose(p, M)
@@ -128,7 +128,7 @@ ebic.fbed.wr <- function(y, x, univ = NULL, gam = NULL, wei = NULL, K = 0) {
     while ( sum(s > 0) > 0 ) {
 	  M <- length(sela) + 1
       for ( i in ind[s] )  {
-        fit2 <- try( survival::survreg( y ~., data = x[, c(sela, i)], weights = wei ), silent = TRUE )
+        fit2 <- try( survival::survreg( y ~., data = x[, c(sela, i)], weights = wei, control = list(iter.max = 5000) ), silent = TRUE )
         if ( identical( class(fit2), "try-error" ) ) {
           lik2[i] <- lik1
         } else  lik2[i] <-  - 2 * logLik(fit2) + (length(fit2$coefficients) + 1) * logn +  con * lchoose(p, M)
@@ -152,7 +152,7 @@ ebic.fbed.wr <- function(y, x, univ = NULL, gam = NULL, wei = NULL, K = 0) {
       vim <- vim + 1
 	  M <- length(sela) + 1
       for ( i in ind[-sela] )  {
-        fit2 <- try( survival::survreg( y ~., data = x[, c(sela, i)], weights = wei ), silent = TRUE )
+        fit2 <- try( survival::survreg( y ~., data = x[, c(sela, i)], weights = wei, control = list(iter.max = 5000) ), silent = TRUE )
         if ( identical( class(fit2), "try-error" ) ) {
           lik2[i] <- lik1
         } else  lik2[i] <-  - 2 * logLik(fit2) + (length(fit2$coefficients) + 1) * logn +  con * lchoose(p, M)
@@ -171,7 +171,7 @@ ebic.fbed.wr <- function(y, x, univ = NULL, gam = NULL, wei = NULL, K = 0) {
       while ( sum(s > 0) > 0 ) {
 	    M <- length(sela) + 1
         for ( i in ind[s] )  {
-          fit2 <- try( survival::survreg( y ~., data = x[, c(sela, i)], weights = wei ), silent = TRUE )
+          fit2 <- try( survival::survreg( y ~., data = x[, c(sela, i)], weights = wei, control = list(iter.max = 5000) ), silent = TRUE )
           if ( identical( class(fit2), "try-error" ) ) {
             lik2[i] <- lik1
           } else  lik2[i] <-  - 2 * logLik(fit2) + (length(fit2$coefficients) + 1) * logn +  con * lchoose(p, M)

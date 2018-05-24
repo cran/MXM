@@ -1,5 +1,8 @@
 \name{Skeleton of the max-min hill-climbing (MMHC) algorithm}
 \alias{mmhc.skel}
+\alias{glmm.mmhc.skel}
+\alias{gee.mmhc.skel}
+
 \title{
 The skeleton of a Bayesian network as produced by MMHC
 }
@@ -9,14 +12,23 @@ The skeleton of a Bayesian network produced by MMHC. No orientations are involve
 }
 
 \usage{
-mmhc.skel(dataset, max_k = 3, threshold = 0.05, test = "testIndFisher", type = "MMPC", 
-backward = TRUE, symmetry = TRUE, nc = 1, ini.pvalue = NULL, hash = FALSE) 
+mmhc.skel(dataset, max_k = 3, threshold = 0.05, test = "testIndFisher", type = "MMPC",
+hash = FALSE, backward = TRUE, symmetry = TRUE, nc = 1, ini.pvalue = NULL) 
+
+glmm.mmhc.skel(dataset, group, max_k = 3, threshold = 0.05, test = "testIndLMM",
+type = "MMPC.temporal", hash = FALSE, symmetry = TRUE, nc = 1, ini.pvalue = NULL)
+
+gee.mmhc.skel(dataset, group, max_k = 3, threshold = 0.05, test = "testIndGEEReg",
+type = "MMPC.gee", se = "jack", hash = FALSE, symmetry = TRUE, nc = 1, 
+ini.pvalue = NULL)
 }
 
 \arguments{
 \item{dataset}{
-A matrix with the variables. The user must know if they are continuous or if they are categorical. If you have a matrix with categorical data, i.e. 0, 1, 2, 3 where each number indicates a category, 
-the minimum number for each variable must be 0. data.frame is also supported, as the dataset in this case is converted into a matrix.   
+A matrix with the variables. The user must know if they are continuous or if they are categorical. If you have a matrix with categorical data, i.e. 0, 1, 2, 3 where each number indicates a category, the minimum number for each variable must be 0. For the "glmm.mmhc.skel" this must be only a matrix.
+}
+\item{group}{
+This is to be used in the "glmm.mmhc.skel" and "gee.mmhc.skel" only. It is a vector for identifying the grouped data, the correlated observations, the subjects.
 }
 \item{max_k}{
 The maximum conditioning set to use in the conditional indepedence test (see Details of SES or MMPC). 
@@ -25,11 +37,20 @@ The maximum conditioning set to use in the conditional indepedence test (see Det
 Threshold ( suitable values in (0, 1) ) for assessing p-values significance. Default value is 0.05.
 }
 \item{test}{
-The conditional independence test to use. Default value is "testIndFisher". This procedure allows for "testIndFisher", "testIndSPearman" for continuous variables and "gSquare" for categorical variables. In case the dataset is a dta.frame with mixed types of data leave this NULL and an appropriate test will be selected. See \code{link{MMPC}} for the automatic choice of tests.
+The conditional independence test to use. Default value is "testIndFisher". This procedure allows for "testIndFisher", "testIndSPearman" for continuous variables and "gSquare" for categorical variables. In case the dataset is a data.frame with mixed types of data leave this NULL and an appropriate test will be selected. See \code{\link{MMPC}} for the automatic choice of tests.
+
+For the "glmm.mmhc.skel" the available tests in \code{\link{MMPC.temporal}}.
 }
 \item{type}{
-The type of variable selection to take place for each variable (or node). The default (and standard) in "MMPC". You can also choose to run it via "SES" and thus allow for multiple signatures of variables to be connected 
-to a variable.
+The type of variable selection to take place for each variable (or node). The default (and standard) is "MMPC" and "MMPC.temporal". You can also choose to run it via "SES" and "SES.temporal" and thus allow for multiple signatures of variables to be connected to a variable.
+}
+\item{se}{
+The method for estimating standard errors. This is very important and crucial. The available options for Gaussian, Logistic, Poisson and Gamma regression are: a) 'san.se': the usual robust estimate. b) 'jack': approximate jackknife variance estimate. c) 'j1s': if 1-step jackknife variance estimate and d) 'fij': fully iterated jackknife variance estimate. If you have many clusters (sets of repeated measurements) "san.se" is fine as it is asympotically correct, plus jacknife estimates will take longer. If you have a few clusters, then maybe it's better to use jacknife estimates. 
+
+The jackknife variance estimator was suggested by Paik (1988), which is quite suitable for cases when the number of subjects is small (K < 30), as in many biological studies. The simulation studies conducted by Ziegler et al. (2000) and Yan and Fine (2004) showed that the approximate jackknife estimates are in many cases in good agreement with the fully iterated ones. 
+}
+\item{hash}{
+A boolean variable which indicates whether (TRUE) or not (FALSE). Default value is FALSE. If TRUE a hashObject is produced and hence more memory is required. If you want to know the number of tests executed for each variable then make it TRUE.
 }
 \item{backward}{
 If TRUE, the backward (or symmetry correction) phase will be implemented. This removes any falsely included variables in the parents and children set of the target variable. It call the \code{link{mmpcbackphase}} for this purpose. For perm.ses and wald.ses this is not yet applicable.
@@ -45,9 +66,6 @@ packages, hence we removed the argument. Use \code{\link{plotnetwork}} to plot t
 }
 \item{ini.pvalue}{
 This is a list with the matrix of the univariate p-values. If you want to run mmhc.skel again, the univariate associations need not be calculated again.
-}
-\item{hash}{
-A boolean variable which indicates whether (TRUE) or not (FALSE) to store the statistics calculated during MMPC or SES execution in a hash-type object. Default value is FALSE. If TRUE a hashObject is produced. You should put it to TRUE is you want an accurate count of the the number of tests performed. The only reason I put FLASE is because I want it to pass the CRAN check.
 }
 }
 
@@ -96,6 +114,18 @@ Bear in mind that the values can be extracted with the $ symbol, i.e. this is an
 Tsamardinos, Brown and Aliferis (2006). The max-min hill-climbing Bayesian network structure learning algorithm. Machine learning, 65(1), 31-78.
 
 Brown L. E., Tsamardinos I., and Aliferis C. F. (2004). A novel algorithm for scalable and accurate Bayesian network learning. Medinfo, 711-715.
+
+Tsamardinos, Ioannis, and Laura E. Brown. Bounding the False Discovery Rate in Local Bayesian Network Learning. AAAI, 2008.
+
+Eugene Demidenko (2013). Mixed Models: Theory and Applications with R, 2nd Edition. New Jersey: Wiley \& Sons.
+
+Paik M.C. (1988). Repeated measurement analysis for nonnormal data in small samples. Communications in Statistics-Simulation and Computation, 17(4): 1155-1171.
+
+Ziegler A., Kastner C., Brunner D. and Blettner M. (2000). Familial associations of lipid profiles: A generalised estimating equations approach. Statistics in medicine, 19(24): 3345-3357
+
+Yan J. and Fine J. (2004). Estimating equations for association structures. Statistics in medicine, 23(6): 859-874.
+
+Liang K.Y. and Zeger S.L. (1986). Longitudinal data analysis using generalized linear models. Biometrika, 73(1): 13-22.
 }
 
 \author{

@@ -3,6 +3,10 @@ fbed.glmm.reps <- function(y, x, id, reps, univ = NULL, alpha = 0.05, wei = NULL
     oiko <- binomial(logit)
   } else if (test == "testIndGLMMPois") {  
     oiko <- poisson(log)
+  } else if (test == "testIndGLMMGamma") {  
+    oiko <- Gamma(log)
+  } else if (test == "testIndGLMMNormLog") {  
+    oiko <- gaussian(log)
   } 
   
   dm <- dim(x)

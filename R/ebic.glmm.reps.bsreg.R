@@ -8,6 +8,10 @@ ebic.glmm.reps.bsreg <- function(target, dataset, id, reps = NULL, wei = NULL, g
       oiko <- binomial(logit)
     } else if (test== "testIndGLMMPois") {
       oiko <- poisson(log)
+    } else if (test == "testIndGLMMGamma") {  
+      oiko <- Gamma(log)
+    } else if (test == "testIndGLMMNormLog") {  
+      oiko <- gaussian(log)
     } 
     
     dm <- dim(dataset)

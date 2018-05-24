@@ -33,14 +33,15 @@ ebic.bsreg <- function(target, dataset, test = NULL, wei = NULL, gam = NULL) {
   } else if (test == "testIndNB") {
     result <- ebic.nb.bsreg(target, dataset, gam = gam, wei = wei)
   
-  } else if (test == "testIndLogistic") {
+  } else if ( test == "testIndLogistic" ) {
+    result <- ebic.glm.bsreg(target, dataset, wei = wei, gam = gam, type = "logistic")
+
+  } else if ( test == "testIndMultinom" ) {
+    result <- ebic.multinom.bsreg(target, dataset, gam = gam, wei = wei)  
+
+  } else if ( test == "testIndOrdinal" ) {
+    result <- ebic.ordinal.bsreg(target, dataset, gam = gam, wei = wei)
     
-    if ( length(unique(target) ) == 2 ) {
-      result <- ebic.glm.bsreg(target, dataset, wei = wei, gam = gam, type = "logistic")
-    } else if ( length(unique(target) ) > 2 &  !is.ordered(target) ) {
-      result <- ebic.multinom.bsreg(target, dataset, gam = gam, wei = wei)  
-    } else  result <- ebic.ordinal.bsreg(target, dataset, gam = gam, wei = wei)
-  
   } else if (test == "testIndMMReg") {
     result <- ebic.mm.bsreg(target, dataset, gam = gam, wei = wei)
     

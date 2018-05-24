@@ -16,9 +16,8 @@ wald.logisticregs <- function(y, x, tol = 1e-09, wei = NULL, check = FALSE, logg
     p0 <- sy / n
     y0 <- 1 - y
     D <- dm[2]
-    stat <- dof <- bic <- numeric(D) 
+    stat <- numeric(D) 
     a0 <- log( p0 / (1 - p0) )
-    ini <-  - 2 * sum( y * log(p0) + (1 - y) * log(1 - p0) )
     p0 <- rep(p0, n)
     w0 <- p0 * (1 - p0)
     de <- y - p0
@@ -35,9 +34,9 @@ wald.logisticregs <- function(y, x, tol = 1e-09, wei = NULL, check = FALSE, logg
         
       while ( sum( abs(bnew - bold) )  > tol ) {
         bold <- bnew
-        a <- bold[1]   ;  b <- bold[2]
-        m <- exp(a + b * X)
-        p <- m / (1 + m)
+        a <-  - bold[1]   ;  b <-  - bold[2]
+        m <- exp( + a + b * X)
+        p <- 1 / (1 + m)
         de <- y - p
         dera <- sy - sum(p)
         derb <- sum(de * X) 
@@ -63,9 +62,8 @@ wald.logisticregs <- function(y, x, tol = 1e-09, wei = NULL, check = FALSE, logg
     p0 <- sy / n
     y0 <- 1 - y
     D <- dm[2]
-    stat <- dof <- bic <- numeric(D) 
+    stat <- numeric(D) 
     a0 <- log( p0 / (1 - p0) )
-    ini <-  - 2 * sum( y * log(p0) + (1 - y) * log(1 - p0) )
     p0 <- rep(p0, n)
     w0 <- p0 * (1 - p0)
     de <- y - p0
@@ -81,9 +79,9 @@ wald.logisticregs <- function(y, x, tol = 1e-09, wei = NULL, check = FALSE, logg
       bnew <- bold + c( derb2 * dera0 - derab * derb, - derab * dera0 + dera20 * derb ) / ( dera20 * derb2 - derab^2 )
       while ( sum( abs(bnew - bold) )  > tol ) {
         bold <- bnew
-        a <- bold[1]   ;  b <- bold[2]
-        m <- exp(a + b * X)
-        p <- m / (1 + m)
+        a <-  - bold[1]   ;  b <-  - bold[2]
+        m <- exp( + a + b * X)
+        p <- 1 / (1 + m)
         de <- y - p
         dera <- sy - sum(p)
         derb <- sum(de * X) 

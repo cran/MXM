@@ -29,7 +29,7 @@ permWR = function(target, dataset, xIndex, csIndex, wei = NULL, univariateModels
   numCases = dim(dataset)[1];
   if (length(event) == 0)  event = vector('numeric', numCases) + 1;
       if (is.na(csIndex) || length(csIndex) == 0 || csIndex == 0) {
-        weibull_results <- survival::survreg(target ~ x, weights = wei)
+        weibull_results <- survival::survreg( target ~ x, weights = wei, control = list(iter.max = 5000) )
         stat = 2 * abs( diff(weibull_results$loglik) )
 		  if (stat > 0) {
           step <- 0
@@ -37,7 +37,7 @@ permWR = function(target, dataset, xIndex, csIndex, wei = NULL, univariateModels
           n <- length(x)
           while (j <= R & step < thres ) {
             xb <- sample(x, n)  
-            bit2 =  survival::survreg(target ~ xb, weights = wei)
+            bit2 =  survival::survreg( target ~ xb, weights = wei, control = list(iter.max = 5000) )
             stat2 = 2 * abs( diff(bit2$loglik) )
             step <- step + ( stat2 > stat )
             j <- j + 1
@@ -46,8 +46,8 @@ permWR = function(target, dataset, xIndex, csIndex, wei = NULL, univariateModels
 		} else pvalue <- log(1)
         
       } else {
-        weibull_results <- survival::survreg(target ~ ., data = as.data.frame( dataset[ , csIndex] ), weights = wei) 
-        weibull_results_full <- survival::survreg(target ~ ., data = as.data.frame(  dataset[ , c(csIndex, xIndex)] ), weights = wei )
+        weibull_results <- survival::survreg( target ~ ., data = as.data.frame( dataset[ , csIndex] ), weights = wei, control = list(iter.max = 5000) ) 
+        weibull_results_full <- survival::survreg( target ~ ., data = as.data.frame(  dataset[ , c(csIndex, xIndex)] ), weights = wei, control = list(iter.max = 5000) )
         res = anova(weibull_results, weibull_results_full)
         stat = abs( res[2, 6] );
 		    if (stat > 0) {
@@ -56,7 +56,7 @@ permWR = function(target, dataset, xIndex, csIndex, wei = NULL, univariateModels
           n <- length(x)
           while (j <= R & step < thres ) {
             xb <- sample(x, n)  
-            bit2 = survival::survreg(target ~., data = as.data.frame( cbind(dataset[ ,csIndex], xb ) ), weights= wei )
+            bit2 = survival::survreg(target ~., data = as.data.frame( cbind(dataset[ ,csIndex], xb ) ), weights= wei, control = list(iter.max = 5000) )
             step <- step + ( anova(weibull_results, bit2)[2, 6] > stat )
             j <- j + 1
           }

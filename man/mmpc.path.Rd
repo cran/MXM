@@ -66,9 +66,11 @@ The run time of the algorithm. A numeric vector. The first element is the user t
 }
 
 \references{
-I. Tsamardinos, V. Lagani and D. Pappas (2012). Discovering multiple, equivalent biomarker signatures. In proceedings of the 7th conference of the Hellenic Society for Computational Biology & Bioinformatics-HSCBB12.
+Tsamardinos, Brown and Aliferis (2006). The max-min hill-climbing Bayesian network structure learning algorithm. 
+Machine learning, 65(1): 31-78.
 
-Tsamardinos, Brown and Aliferis (2006). The max-min hill-climbing Bayesian network structure learning algorithm. Machine learning, 65(1): 31-78.
+Tsagis M. (2018). Guide on performing feature selection with the R package MXM.
+http://mensxmachina.org/site/wp-content/uploads/2018/04/Guide-on-performing-feature-selection-with-the-R-package-MXM.pdf
 }
 
 \author{

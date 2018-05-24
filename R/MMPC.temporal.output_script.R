@@ -11,8 +11,8 @@
 setOldClass('proc_time')
 
 setClass(Class='MMPC.temporal.output', 
-         slots=list(selectedVars='numeric', selectedVarsOrder='numeric', hashObject='list', pvalues='numeric', stats='numeric', univ='list', max_k='numeric', threshold='numeric', runtime='proc_time', test='character', slope='logical'), 
-         prototype=list(selectedVars=NULL, selectedVarsOrder=NULL, hashObject=NULL, pvalues=NULL, stats=NULL, univ=NULL, max_k=NULL, threshold=NULL, runtime=NULL, test=NULL, slope=NULL));
+         slots=list(selectedVars='numeric', selectedVarsOrder='numeric', hashObject='list', pvalues='numeric', stats='numeric', univ='list', max_k='numeric', threshold='numeric', n.tests ='numeric', runtime='proc_time', test='character', slope='logical'), 
+         prototype=list(selectedVars=NULL, selectedVarsOrder=NULL, hashObject=NULL, pvalues=NULL, stats=NULL, univ=NULL, max_k=NULL, threshold=NULL, n.tests=NULL, runtime=NULL, test=NULL, slope=NULL));
 
 setMethod("plot", signature(x="MMPC.temporal.output"), 
           function(x,mode="all", ...){

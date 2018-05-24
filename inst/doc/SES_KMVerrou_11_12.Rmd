@@ -11,9 +11,9 @@ author:
   email: mtsagris@csd.uoc.gr
 
 output:
-  BiocStyle::html_document2:
+  BiocStyle::html_document:
     toc_float: true
-  BiocStyle::pdf_document2: default
+  BiocStyle::pdf_document: default
 
 vignette: |
   %\VignetteIndexEntry{Feature selection with SES}

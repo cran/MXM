@@ -34,6 +34,7 @@ InternalSES.temporal = function(target, reps, group, dataset, max_k = 3, thresho
     runtime = proc.time() - runtime;
     results$runtime = runtime;
     results$slope = slopes
+    results$n.tests = length(stats)
     
     return(results);
   }
@@ -128,5 +129,7 @@ InternalSES.temporal = function(target, reps, group, dataset, max_k = 3, thresho
   runtime = proc.time() - runtime;
   results$runtime = runtime;
   results$slope = slopes
+  results$n.tests = length(stats) + length( hashObject$stat_hash )
+  
   return(results);
 }

@@ -80,7 +80,7 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 %}
 
 \seealso{
-\code{ \link{fbedreg.bic}, \link{mmpc.model}, \link{ridge.reg} }
+\code{ \link{modeler}, \link{fbedreg.bic}, \link{mmpc.model}, \link{ridge.reg} }
 }
 
 \examples{

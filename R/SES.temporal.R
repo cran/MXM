@@ -75,20 +75,26 @@ SES.temporal = function(target, reps = NULL, group, dataset, max_k = 3, threshol
       } else test = "testIndGLMMReg"
     }  
     #available conditional independence tests
-    av_tests = c("testIndGLMMReg", "testIndGLMMLogistic", "testIndGLMMPois", "testIndLMM", "auto",  NULL);
-    
+    av_tests = c("testIndGLMMReg", "testIndGLMMLogistic", "testIndGLMMPois", "testIndGLMMGamma", 
+                 "testIndGLMMNormLog", "testIndLMM", "auto",  NULL);
     ci_test = test
     if (length(test) == 1) {   #avoid vectors, matrices etc
       test = match.arg(test, av_tests, TRUE);
+      #convert to closure type
       if(test == "testIndGLMMReg") {
         test = testIndGLMMReg;
       } else if(test == "testIndGLMMLogistic") {
         test = testIndGLMMLogistic;
       } else if (test == "testIndGLMMPois") {
         test = testIndGLMMPois;
+      } else if (test == "testIndGLMMGamma") {
+        test = testIndGLMMGamma;
+      } else if (test == "testIndGLMMNormLog") {
+        test = testIndGLMMNormLog;
       } else if (test == "testIndLMM") {
         test <- testIndLMM
       }
+      
     } else   stop('invalid test option');
   }
   ###################################
@@ -107,9 +113,10 @@ SES.temporal = function(target, reps = NULL, group, dataset, max_k = 3, threshol
   #call the main SES function after the checks and the initializations
   results = InternalSES.temporal(target, reps, group, dataset, max_k, log(threshold), test, ini, wei, user_test, hash, varsize, stat_hash, pvalue_hash, 
                                  targetID, slopes, ncores);
-  SES.temporal.output <-new("SES.temporal.output", selectedVars = results$selectedVars, selectedVarsOrder=results$selectedVarsOrder, queues=results$queues, 
-                            signatures=results$signatures, hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, univ = results$uni, 
-                            max_k=results$max_k, threshold = results$threshold, runtime=results$runtime, test = ci_test, slope = results$slope);
+  SES.temporal.output <-new("SES.temporal.output", selectedVars = results$selectedVars, selectedVarsOrder=results$selectedVarsOrder, 
+                            queues=results$queues, signatures=results$signatures, hashObject=results$hashObject, pvalues=results$pvalues, 
+                            stats=results$stats, univ = results$uni, max_k=results$max_k, threshold = results$threshold, 
+                            n.tests = results$n.tests, runtime=results$runtime, test = ci_test, slope = results$slope);
   
   return(SES.temporal.output);
 }

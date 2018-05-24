@@ -56,15 +56,31 @@ As for the other tests, they share one thing in common. For all of them, two par
   Compositional data \tab Mixed \tab testIndMVreg \tab Multivariate linear regression \cr 
   (no zeros) \tab  \tab after multivariate \tab  \cr 
   \tab \tab logit transformation \tab \cr
-  Longitudinal	\tab Continuous \tab testIndLMMReg \tab Linear mixed models \cr
-  Binary	\tab Continuous \tab testIndLMMLogistic \tab Logistic mixed regression \cr
-  Discrete	\tab Continuous \tab testIndLMMPois \tab Poisson mixed regression \cr
-
+  Longitudinal/clustered	\tab Continuous \tab testIndGLMMReg \tab Linear mixed models \cr
+  Clustered	\tab Continuous \tab testIndLMM   \tab Fast linear mixed models \cr
+  Binary longitudinal	\tab Continuous \tab testIndGLMMLogistic \tab Logistic mixed regression \cr
+  and clustered	\tab  \tab  \tab   \cr
+  Count longitudinal	\tab Continuous \tab testIndGLMMPois \tab Poisson mixed regression \cr
+  and clustered	\tab  \tab  \tab  \cr
+  Positive longitudinal	\tab Continuous \tab testIndGLMMNormLog \tab GLMM with Gaussian regression \cr
+  and clustered	\tab  \tab  \tab and log link  \cr
+  Non negative longitudinal	\tab Continuous \tab testIndGLMMGamma \tab GLMM with Gamma regression \cr
+  and clustered	\tab  \tab  \tab and log link  \cr
+  Longitudinal/clustered	\tab Continuous \tab testIndGEEReg \tab GEE with Gaussian regression \cr
+  Binary longitudinal	\tab Continuous \tab testIndGEELogistic \tab GEE with logistic regression \cr
+  and clustered	\tab  \tab  \tab   \cr
+  Count longitudinal	\tab Continuous \tab testIndGEEPois \tab GEE with Poisson regression \cr
+  and clustered	\tab  \tab  \tab  \cr
+  Positive longitudinal	\tab Continuous \tab testIndGEENormLog \tab GEE with Gaussian regression \cr
+  and clustered	\tab  \tab  \tab and log link  \cr
+  Non negative longitudinal	\tab Continuous \tab testIndGEEGamma \tab GEE with Gamma regression \cr
+  and clustered	\tab  \tab  \tab and log link  \cr
+  Ordinal clustered	\tab Continuous \tab testIndGEEOrdinal \tab GEE with ordinal regression \cr
 }
 }
 
 \section{Log-likelihood ratio tests}{
-  \enumerate{
+\enumerate{
 \item \bold{testIndFisher}. This is a standard test of independence when both the target and the set of predictor variables are continuous (continuous-continuous). When the joint multivariate normality of all the variables is assumed, we know that if a correlation is zero this means that the two variables are independent. Moving in this spirit, when the partial correlation between the target variable and the new predictor variable conditioning on a set of (predictor) variables is zero, then we have evidence to say they are independent as well. An easy way to calculate the partial correlation between the target and a predictor variable conditioning on some other variables is to regress the both the target and the new variable on the conditioning set. The correlation coefficient of the residuals produced by the two regressions equals the partial correlation coefficient. If the robust option is selected, the two aforementioned regression models are fitted using M estimators (Marona et al., 2006). If the target variable consists of proportions or percentages (within the (0, 1) interval), the logit transformation is applied beforehand.
     
 \item \bold{testIndSpearman}. This is a non-parametric alternative to \bold{testIndFisher} test. It is a bit slower than its competitor, yet very fast and suggested when normality assumption breaks down or outliers are present. In fact, within SES, what happens is that the ranks of the target and of the dataset (predictor variables) are computed and the \bold{testIndSpearman} is aplied. This is faster than applying Fisher with M estimators as described above. If the target variable consists of proportions or percentages (within the (0, 1) interval), the logit transformation is applied beforehand.
@@ -111,7 +127,10 @@ As for the other tests, they share one thing in common. For all of them, two par
 
 \item \bold{testIndMVreg}. In the case of multivariate continuous targets, the suggested test is via a multivariate linear regression.  The target variable can be compositional data as well. These are positive data, whose vectors sum to 1.  They can sum to any constant, as long as it the same, but for convenience reasons we assume that they are normalised to sum to 1.  In this case the additive log-ratio transformation (multivariate logit transformation) is applied beforehand. 
 
-\item \bold{testIndGLMM}. In the case of a longitudinal or clustered targets (continuous, proportions, binary or counts), the suggested test is via a (generalised) linear mixed model.   
+\item \bold{testIndGLMMReg}, \bold{testIndGLMM}, \bold{testIndGLMMPois} & \bold{testIndGLMMLogistic}. In the case of a longitudinal or clustered targets (continuous, proportions, binary or counts), the suggested test is via a (generalised) linear mixed model.  
+
+\item \bold{testIndGEEReg}, \bold{testIndGEELogistic}, \bold{testIndGEEPois}, \bold{testIndGEENormLog}, \bold{testIndGEEGamma} & 
+\bold{testIndGEEOrdinal}. In the case of a longitudinal or clustered targets (continuous, proportions, binary, counts, positive, strictly positive, ordinal), the suggested test is via GEE (Generalised Estimating Equations).  
 }
 }
 
@@ -196,6 +215,8 @@ Brown P.J. (1994). Measurement, Regression and Calibration. Oxford Science Publi
 
 Cox D.R. (1972). Regression models and life-tables. J. R. Stat. Soc., 34, 187-220.
 
+Demidenko E. (2013). Mixed Models: Theory and Applications with R, 2nd Edition. New Jersey: Wiley \& Sons.
+
 Draper, N.R. and Smith H. (1988). Applied regression analysis. New York, Wiley, 3rd edition.
 
 Fieller E.C. and Pearson E.S. (1961). Tests for rank correlation coefficients: II. Biometrika, 48(1 & 2): 29-40.
@@ -205,6 +226,8 @@ Ferrari S.L.P. and Cribari-Neto F. (2004). Beta Regression for Modelling Rates a
 Gail, M.H., Jay H.L., and Lawrence V.R. (1981). Likelihood calculations for matched case-control studies and survival studies with tied death times. Biometrika 68(3): 703-707.
 
 Gutenbrunner C., Jureckova J., Koenker R. and Portnoy S. (1993). Tests of Linear Hypothesis based on Regression Rank Scores, Journal of NonParametric Statistics 2, 307-331.
+
+Heagerty P.J. and Zeger S.L. (1996) Marginal regression models for clustered ordinal measurements. Journal of the American Statistical Association, 91(435): 1024-1036.
 
 Hoerl A.E. and Kennard R.W. (1970). Ridge regression: Biased estimation for nonorthogonal problems. Technometrics, 12(1): 55-67.
 
@@ -218,13 +241,19 @@ Lagani V. and Tsamardinos I. (2010). Structure-based variable selection for surv
 
 Lambert D. (1992). Zero-inflated Poisson regression, with an application to defects in manufacturing. Technometrics 34(1)1: 1-14.
 
+Liang K.Y. and Zeger S.L. (1986). Longitudinal data analysis using generalized linear models. Biometrika, 73(1): 13-22.
+
 Mardia K.V., Kent J.T. and Bibby J.M. (1979). Multivariate Analysis. Academic Press, New York, USA. 
 
 Maronna R.D. Yohai M.V. (2006). Robust Statistics, Theory and Methods. Wiley.
 
 McCullagh P. and Nelder J.A. (1989). Generalized linear models. CRC press, USA, 2nd edition.
 
+Paik M.C. (1988). Repeated measurement analysis for nonnormal data in small samples. Communications in Statistics-Simulation and Computation, 17(4): 1155-1171.
+
 Pinheiro J., and D. Bates. Mixed-effects models in S and S-PLUS. Springer Science \& Business Media, 2006.
+
+Prentice R.L. and Zhao L.P. (1991). Estimating equations for parameters in means and covariances of multivariate discrete and continuous responses. Biometrics, 47(3): 825-839.
 
 Scholz, F. W. (2001). Maximum likelihood estimation for type I censored Weibull data including covariates. ISSTECH-96-022, Boeing Information & Support Services.
 
@@ -235,6 +264,10 @@ Spirtes P.,  Glymour C. and Scheines R. (2001). Causation, Prediction, and Searc
 Szekely G.J. and Rizzo, M.L. (2014). Partial distance correlation with methods for dissimilarities. The Annals of Statistics, 42(6): 2382--2412.
 
 Szekely G.J. and Rizzo M.L. (2013).  Energy statistics: A class of statistics based on distances. Journal of Statistical Planning and Inference 143(8): 1249--1272.
+
+Yan J. and Fine J. (2004). Estimating equations for association structures. Statistics in medicine, 23(6): 859-874
+
+Ziegler A., Kastner C., Brunner D. and Blettner M. (2000). Familial associations of lipid proles: A generalised estimating equations approach. Statistics in medicine, 19(24): 3345-3357
 }
 
 \author{

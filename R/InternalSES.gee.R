@@ -35,6 +35,7 @@ InternalSES.gee = function(target, reps, group, dataset, max_k = 3, threshold = 
     results$runtime = runtime;
     results$correl = correl
     results$se = se
+    results$n.tests = length(stats)
     
     return(results);
   }
@@ -130,6 +131,7 @@ InternalSES.gee = function(target, reps, group, dataset, max_k = 3, threshold = 
   results$runtime = runtime;
   results$correl = correl
   results$se = se
+  results$n.tests = length(stats) + length( hashObject$stat_hash )
   
   return(results);
 }

@@ -91,8 +91,11 @@ bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
     } else if ( test == "testIndQBinom" ) {
       res <- quasibinom.bsreg(target = target, dataset = dataset, threshold = exp( threshold ) ) 
       
-	} else if ( test == "testIndMMReg" ) {
+	  } else if ( test == "testIndMMReg" ) {
       res <- mm.bsreg(target = target, dataset = dataset, threshold = exp( threshold ) ) 
+      
+	  } else if ( test == "gSquare" ) {
+	    res <- bs.g2(target, dataset, threshold = exp( threshold ) )
       
     } else {
 	   

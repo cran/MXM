@@ -84,41 +84,39 @@ testIndGLMMLogistic = function(target, reps = NULL, group, dataset, xIndex, csIn
       return(results);
     }
    if ( is.null(reps) ) {
-      fit2 = lme4::glmer( target ~ (1|group) + dataset[, xIndex], weights = wei, REML = FALSE, family = binomial ) 
+     fit1 = lme4::glmer( target ~ (1|group), weights = wei, family = binomial ) 
+     fit2 = lme4::glmer( target ~ (1|group) + dataset[, xIndex], weights = wei, family = binomial ) 
    } else {
       reps <- reps 
       if ( slopes ) {
-        fit2 = lme4::glmer( target ~ reps + (reps|group) + dataset[, xIndex], weights = wei, REML = FALSE , family = binomial ) 
+        fit1 = lme4::glmer( target ~ reps + (reps|group), weights = wei, family = binomial ) 
+        fit2 = lme4::glmer( target ~ reps + (reps|group) + dataset[, xIndex], weights = wei, family = binomial ) 
       } else {
         reps = reps 
-        fit2 = lme4::glmer( target ~ reps + (1|group) + dataset[, xIndex], weights = wei, REML = FALSE , family = binomial )  
+        fit1 = lme4::glmer( target ~ reps + (1|group), weights = wei, family = binomial )  
+        fit2 = lme4::glmer( target ~ reps + (1|group) + dataset[, xIndex], weights = wei, family = binomial )  
       }
    }
    
   } else {
     if ( is.null(reps) ) {
-      fit2 = lme4::glmer( target ~ (1|group) + dataset[, csIndex] + dataset[, xIndex], weights = wei, REML = FALSE , family = binomial )    
+      fit1 = lme4::glmer( target ~ (1|group) + dataset[, csIndex], weights = wei, family = binomial )    
+      fit2 = lme4::glmer( target ~ (1|group) + dataset[, csIndex] + dataset[, xIndex], weights = wei, family = binomial )    
     } else {
       reps = reps 
       if (slopes ) {
-        fit2 = lme4::glmer( target ~ reps + (reps|group) + dataset[, csIndex] + dataset[, xIndex], weights = wei, REML = FALSE , family = binomial)
+        fit1 = lme4::glmer( target ~ reps + (reps|group) + dataset[, csIndex], weights = wei, family = binomial )
+        fit2 = lme4::glmer( target ~ reps + (reps|group) + dataset[, csIndex] + dataset[, xIndex], weights = wei, family = binomial )
       } else {
-        fit2 = lme4::glmer( target ~ reps + (1|group) + dataset[, csIndex] + dataset[, xIndex], weights = wei, REML = FALSE , family = binomial) 
+        fit1 = lme4::glmer( target ~ reps + (1|group) + dataset[, csIndex], weights = wei, family = binomial) 
+        fit2 = lme4::glmer( target ~ reps + (1|group) + dataset[, csIndex] + dataset[, xIndex], weights = wei, family = binomial ) 
       }
     }  
   }
   #calculate the p value and stat.
-  mod = anova(fit2)
-  v2 = as.numeric( summary(fit2)[[14]][5] )
-  pr = nrow(mod) 
-  v1 = mod[pr, 1]
-  if ( length(summary(fit2)[[17]]) > 0 ) {
-    stat <- 0
-    pvalue <- log(1)
-  } else {
-    stat = mod[pr, 4]   
-    pvalue = pf(stat, v1, v2, lower.tail = FALSE, log.p = TRUE)
-  }	
+  mod <- anova(fit1, fit2)
+  stat <- mod[2, 6]
+  pvalue <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
   #update hash objects
   if ( hash )  {
     stat_hash$key <- stat;   #.set(stat_hash , key , stat)

@@ -11,8 +11,8 @@
 setOldClass('proc_time')
 
 setClass(Class='SES.temporal.output', 
-         slots=list(selectedVars='numeric', selectedVarsOrder='numeric', queues='list', signatures='matrix', hashObject='list', pvalues='numeric', stats='numeric', max_k='numeric', univ = 'list',threshold='numeric', runtime='proc_time', test='character', slope='logical'), 
-         prototype=list(selectedVars=NULL, selectedVarsOrder=NULL, queues=NULL, signatures=NULL, hashObject=NULL, pvalues=NULL, stats=NULL, univ=NULL, max_k=NULL, threshold=NULL, runtime=NULL, test=NULL, slope=NULL));
+         slots=list(selectedVars='numeric', selectedVarsOrder='numeric', queues='list', signatures='matrix', hashObject='list', pvalues='numeric', stats='numeric', max_k='numeric', univ = 'list',threshold='numeric', n.tests='numeric', runtime='proc_time', test='character', slope='logical'), 
+         prototype=list(selectedVars=NULL, selectedVarsOrder=NULL, queues=NULL, signatures=NULL, hashObject=NULL, pvalues=NULL, stats=NULL, univ=NULL, max_k=NULL, threshold=NULL, n.tests=NULL, runtime=NULL, test=NULL, slope=NULL));
 
 
 setMethod("plot", signature(x="SES.temporal.output"), 

@@ -171,18 +171,25 @@ wald.mmpc = function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, 
   if ( !is.null(user_test) )  ci_test = "user_test";
   #call the main MMPC function after the checks and the initializations
   options(warn = -1)
-  results = wald.Internalmmpc(target, dataset, max_k, log(threshold), test, ini, wei, user_test, hash, varsize, stat_hash, pvalue_hash, targetID, ncores = ncores);
+  results = wald.Internalmmpc(target, dataset, max_k, log(threshold), test, ini, wei, user_test, hash, varsize, stat_hash, 
+                              pvalue_hash, targetID, ncores = ncores);
 
-  if ( backward ) {
+  varsToIterate <- results$selectedVarsOrder
+  
+  if ( backward  & length( varsToIterate ) > 0  ) {
     varsToIterate = results$selectedVars
     varsOrder = results$selectedVarsOrder
     bc <- mmpcbackphase(target, dataset[, varsToIterate], test = test, wei = wei, max_k = max_k, threshold = threshold ) 
     met <- bc$met
     results$selectedVars = varsToIterate[met]
     results$selectedVarsOrder = varsOrder[met]
+    results$pvalues[varsToIterate] <- bc$pvalue
     results$n.tests <- results$n.tests + bc$counter
   }
-  MMPCoutput <-new("MMPCoutput", selectedVars = results$selectedVars, selectedVarsOrder=results$selectedVarsOrder, hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, univ=results$univ, max_k=results$max_k, threshold = results$threshold, n.tests = results$n.tests, runtime=results$runtime, test=ci_test);
+  
+  MMPCoutput <-new("MMPCoutput", selectedVars = results$selectedVars, selectedVarsOrder=results$selectedVarsOrder, 
+                   hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, univ=results$univ, 
+                   max_k=results$max_k, threshold = results$threshold, n.tests = results$n.tests, runtime=results$runtime, test=ci_test);
   return(MMPCoutput);
 }
 

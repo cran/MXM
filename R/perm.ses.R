@@ -1,5 +1,5 @@
 perm.ses = function(target, dataset , max_k = 3 , threshold = 0.05 , test = NULL , ini = NULL, wei = NULL, user_test = NULL, 
-                    hash=FALSE, hashObject = NULL, R = 999, ncores = 1)  {
+                    hash=FALSE, hashObject = NULL, R = 999, ncores = 1, backward = FALSE)  {
   ##############################
   # initialization part of SES #
   ##############################
@@ -208,8 +208,26 @@ perm.ses = function(target, dataset , max_k = 3 , threshold = 0.05 , test = NULL
   if ( (typeof(threshold) != "double" ) || threshold == 0  || threshold > 1 )    stop('invalid threshold option');
   if ( !is.null(user_test) )   ci_test = "user_test";
   #call the main SES function after the checks and the initializations
-  results = perm.Internalses(target, dataset, max_k, log(threshold), test, ini, wei, user_test, hash, varsize, stat_hash, pvalue_hash, targetID, R = R, ncores = ncores);
-  SESoutput <-new("SESoutput", selectedVars = results$selectedVars, selectedVarsOrder=results$selectedVarsOrder, queues=results$queues, signatures=results$signatures, hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, univ = results$univ, max_k=results$max_k, threshold = results$threshold, n.tests = results$n.tests, runtime=results$runtime, test=ci_test);
+  results = perm.Internalses(target, dataset, max_k, log(threshold), test, ini, wei, user_test, hash, varsize, stat_hash, pvalue_hash, 
+                             targetID, R = R, ncores = ncores);
+  
+  varsToIterate <- results$selectedVarsOrder
+  
+  if ( backward & length( varsToIterate ) > 0 ) {
+    varsOrder <- results$selectedVarsOrder
+    bc <- mmpcbackphase(target, dataset[, varsToIterate], max_k = max_k, threshold = threshold, test = test, wei = wei, R = R ) 
+    met <- bc$met
+    results$selectedVars <- varsToIterate[met]
+    results$selectedVarsOrder <- varsOrder[met]
+    results$signatures <- results$signatures[, met, drop = FALSE]
+    results$pvalues[varsToIterate] <- bc$pvalue
+    results$n.tests <- results$n.tests + bc$counter
+  }
+  
+  SESoutput <-new("SESoutput", selectedVars = results$selectedVars, selectedVarsOrder=results$selectedVarsOrder, queues=results$queues, 
+                  signatures=results$signatures, hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, 
+                  univ = results$univ, max_k=results$max_k, threshold = results$threshold, n.tests = results$n.tests, 
+                  runtime=results$runtime, test=ci_test);
   return(SESoutput);
 }
 

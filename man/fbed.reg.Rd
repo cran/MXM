@@ -28,7 +28,8 @@ The available tests: "testIndReg", "testIndPois", "testIndNB", "testIndLogistic"
 "testIndMMReg", "testIndBinom", "censIndCR", "censIndWR", "testIndBeta", "testIndZIP", 
 "testIndGamma, "testIndNormLog", "testIndTobit", "testIndQPois",  "testIndQBinom", 
 "testIndFisher" "testIndMultinom", "testIndOrdinal", "testIndClogit". Note that not all 
-of them work with eBIC. 
+of them work with eBIC. The only test that does not have "eBIC" and no weights (input argument "wei") 
+is the test "gSquare".
 }
 \item{threshold}{
 Threshold (suitable values in [0,1]) for assessing p-values significance. Default value is 0.05.
@@ -38,7 +39,7 @@ A vector of weights to be used for weighted regression. The default value is NUL
 to TRUE. If you want to use the "testIndBinom", then supply the successes in the y and the trials here.
 }
 \item{K}{
-How many times should the process be repeated? The default value is 0. 
+How many times should the process be repeated? The default value is 0. You can also specify a range of values of K, say 0:4 for example.
 }
 \item{method}{
 Do you want the likelihood ratio test to be performed ("LR" is the default value) or perform the selection using the "eBIC" criterion (BIC is a special case). 
@@ -102,6 +103,9 @@ A list where each element refers to a K value. If you run FBEd with method = "LR
 \references{
 Borboudakis G. and Tsamardinos I. (2017). Forward-Backward Selection with Early Dropping. 
 https://arxiv.org/pdf/1705.10770.pdf
+
+Tsagis M. (2018). Guide on performing feature selection with the R package MXM.
+http://mensxmachina.org/site/wp-content/uploads/2018/04/Guide-on-performing-feature-selection-with-the-R-package-MXM.pdf
 }
 
 

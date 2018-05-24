@@ -17,7 +17,11 @@ fbed.glmm.reg <- function(target, dataset, id, reps = NULL, ini = NULL, threshol
   if ( sum(poia>0) > 0 )  dataset[, poia] <- rnorm( dim(dataset)[1] * length(poia) )
   
   if ( method =="LR" ) {
-    if (test == "testIndGLMMReg") {
+    if ( test == "testIndGLMMOrdinal" ) {
+      if ( !is.null(reps) ) {
+        result <- fbed.glmm.ordinal.reps(y = target, x = dataset, id = id, reps = reps, univ = ini, alpha = threshold, wei = wei, K = K)
+      } else  result <- fbed.glmm.ordinal(y = target, x = dataset, id = id, univ = ini, alpha = threshold, wei = wei, K = K)       
+    } else if ( test == "testIndGLMMReg" ) {
       if ( !is.null(reps) ) {
         result <- fbed.lmm.reps(y = target, x = dataset, id = id, reps = reps, univ = ini, alpha = threshold, wei = wei, K = K)
       } else  result <- fbed.lmm(y = target, x = dataset, id = id, univ = ini, alpha = threshold, wei = wei, K = K) 
@@ -33,7 +37,11 @@ fbed.glmm.reg <- function(target, dataset, id, reps = NULL, ini = NULL, threshol
     if ( backward ) {
       
       if (result$info[1, 1] > 0) {
-        if ( test == "testIndGLMMReg" ) {
+        if ( test == "testIndGLMMOrdinal" ) {
+          if ( !is.null(reps) ) {
+            a <- glmm.ordinal.reps.bsreg(target, dataset[, result$res[, 1], drop = FALSE], id, reps = reps, threshold = threshold, wei = wei)
+          } else  a <- glmm.ordinal.bsreg(target, dataset[, result$res[, 1], drop = FALSE], id, threshold = threshold, wei = wei)  
+        } else if ( test == "testIndGLMMReg" ) {
           if ( !is.null(reps) ) {
             a <- lmm.reps.bsreg(target, dataset[, result$res[, 1], drop = FALSE], id, reps = reps, threshold = threshold, wei = wei)
           } else  a <- lmm.bsreg(target, dataset[, result$res[, 1], drop = FALSE], id, threshold = threshold, wei = wei)            
@@ -63,8 +71,12 @@ fbed.glmm.reg <- function(target, dataset, id, reps = NULL, ini = NULL, threshol
     }  ## end if ( backward )
     
   } else {
-    
-    if (test == "testIndGLMMReg") {
+
+    if (test == "testIndGLMMOrdinal") {
+      if ( !is.null(reps) ) {
+        result <- ebic.fbed.glmm.ordinal.reps(target, dataset, id, reps = reps, univ = ini, gam = gam, wei = wei, K = K)
+      } else  result <- ebic.fbed.glmm.ordinal(target, dataset, id, univ = ini, gam = gam, wei = wei, K = K)
+    } else if (test == "testIndGLMMReg") {
       if ( !is.null(reps) ) {
         result <- ebic.fbed.lmm.reps(target, dataset, id, reps = reps, univ = ini, gam = gam, wei = wei, K = K)
       } else  result <- ebic.fbed.lmm(target, dataset, id, univ = ini, gam = gam, wei = wei, K = K)
@@ -79,9 +91,15 @@ fbed.glmm.reg <- function(target, dataset, id, reps = NULL, ini = NULL, threshol
     if ( backward ) {
       
       if (result$info[1, 1] > 0) {
-        if ( !is.null(reps) ) {
-          a <- ebic.glmm.reps.bsreg(target, dataset[, result$res[, 1], drop = FALSE], id, reps = reps, wei = wei, gam = gam, test = test)
-        } else  a <- ebic.glmm.bsreg(target, dataset[, result$res[, 1], drop = FALSE], id, wei = wei, gam = gam, test = test)
+        if ( test == "testIndGLMMOrdinal" ) {
+          if ( !is.null(reps) ) {
+            a <- ebic.glmm.ordinal.reps.bsreg(target, dataset[, result$res[, 1], drop = FALSE], id, reps = reps, wei = wei, gam = gam)
+          } else  a <- ebic.glmm.ordinal.bsreg(target, dataset[, result$res[, 1], drop = FALSE], id, wei = wei, gam = gam)          
+        } else { 
+          if ( !is.null(reps) ) {
+            a <- ebic.glmm.reps.bsreg(target, dataset[, result$res[, 1], drop = FALSE], id, reps = reps, wei = wei, gam = gam, test = test)
+          } else  a <- ebic.glmm.bsreg(target, dataset[, result$res[, 1], drop = FALSE], id, wei = wei, gam = gam, test = test)
+        }  
         if ( typeof(a) == "list" ) {
           back.n.tests <- sum( dim(result$res)[1] : length(a$mat[, 1]) )
           

@@ -67,7 +67,10 @@ MMPC.gee = function(target, reps = NULL, group, dataset, max_k = 3, threshold = 
   } else {
     #auto detect independence test in case of not defined by the user and the test is null or auto
     if ( is.null(test) || test == "auto" )  {
-      if ( la > 2 & sum(target - round(target) ) != 0 ) {
+      if ( la > 2  &  is.ordered(target) ) {
+        test <- "testIndGEEOrdinal"
+      }
+      if ( la > 2  &  sum(target - round(target) ) != 0 ) {
         test <- "testIndGEEReg"
       } else if (la == 2) {
         test = "testIndGEELogistic"
@@ -112,9 +115,11 @@ MMPC.gee = function(target, reps = NULL, group, dataset, max_k = 3, threshold = 
   #call the main MMPC.gee function after the checks and the initializations
   results = InternalMMPC.gee(target, reps, group, dataset, max_k, log(threshold), test, ini, wei, user_test, hash, varsize, stat_hash, 
                              pvalue_hash, targetID, correl = correl, se = se, ncores = ncores);
+  
   MMPC.gee.output <- new("MMPC.gee.output", selectedVars = results$selectedVars, selectedVarsOrder=results$selectedVarsOrder, 
-                             hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, univ = results$univ, max_k=results$max_k, 
-                             threshold = results$threshold, runtime=results$runtime, test=ci_test, correl = results$correl, se = results$se);
+                             hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, univ = results$univ, 
+                             max_k=results$max_k, threshold = results$threshold, n.tests = results$n.tests, runtime=results$runtime, 
+                             test=ci_test, correl = results$correl, se = results$se);
   return(MMPC.gee.output);
 }
 

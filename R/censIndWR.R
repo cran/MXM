@@ -27,7 +27,7 @@ censIndWR = function(target, dataset, xIndex, csIndex, wei = NULL, univariateMod
   numCases = dim(dataset)[1];
   if (length(event) == 0)  event = vector('numeric',numCases) + 1;
       if (is.na(csIndex) || length(csIndex) == 0 || csIndex == 0) {
-        weibull_results <- try( survival::survreg(target ~ x, weights = wei), silent = TRUE )
+        weibull_results <- try( survival::survreg( target ~ x, weights = wei, control = list(iter.max = 5000) ), silent = TRUE )
         if ( identical( class(weibull_results), "try-error" ) ) {
           stat <- NA  
         } else {  
@@ -36,8 +36,8 @@ censIndWR = function(target, dataset, xIndex, csIndex, wei = NULL, univariateMod
           pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE);
         }  
       } else {
-        weibull_results <- try( survival::survreg(target ~ ., data = as.data.frame( dataset[ , c(csIndex)] ), weights = wei), silent = TRUE ) 
-        weibull_results_full <- try( survival::survreg(target ~ ., data = as.data.frame(  dataset[ , c(csIndex, xIndex)] ), weights = wei ), silent = TRUE)
+        weibull_results <- try( survival::survreg(target ~ ., data = as.data.frame( dataset[ , c(csIndex)] ), weights = wei, control = list(iter.max = 5000) ), silent = TRUE ) 
+        weibull_results_full <- try( survival::survreg(target ~ ., data = as.data.frame(  dataset[ , c(csIndex, xIndex)] ), weights = wei, control = list(iter.max = 5000) ), silent = TRUE)
         if ( identical( class(weibull_results), "try-error" )  |  identical( class(weibull_results_full), "try-error" ) ) {
           stat <- NA
         } else {  

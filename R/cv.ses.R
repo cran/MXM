@@ -15,11 +15,13 @@
 #cv_results_all: a list with the predictions, performances and the signatures for each fold of each configuration (i.e cv_results_all[[3]]$performances[1] indicates the performance of the 1st fold with the 3d configuration of SES)
 #best_performance: numeric, the best average performance
 #best_configuration: the best configuration of SES (a list with the slots id, a, max_k)
-cv.ses <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, alphas = c(0.1, 0.05, 0.01), max_ks = c(3, 2), task = NULL, metric = NULL, modeler = NULL, ses_test = NULL, ncores = 1)
+cv.ses <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, alphas = c(0.1, 0.05, 0.01), max_ks = c(3, 2), task = NULL, 
+                   metric = NULL, metricbbc = NULL, modeler = NULL, ses_test = NULL, ncores = 1, B = 1)
 {
     
   if ( ncores > 1 ) {  ## multi-threaded task
-    result = cvses.par(target, dataset, wei = wei, kfolds = kfolds, folds = folds, alphas = alphas, max_ks = max_ks, task = task, metric = metric, modeler = modeler, ses_test = ses_test, ncores = ncores)
+    result = cvses.par(target, dataset, wei = wei, kfolds = kfolds, folds = folds, alphas = alphas, max_ks = max_ks, task = task, 
+                       metric = metric, modeler = modeler, ses_test = ses_test, ncores = ncores)
 
   } else { ## one core task     
   
@@ -199,11 +201,21 @@ cv.ses <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, alpha
   
   opti <- Rfast::rowmeans(mat)
   bestpar <- which.max(opti)
-  
   best_model$best_configuration <- conf_ses[[bestpar]]$configuration
   best_model$best_performance <- max( opti )
+  best_model$bbc_best_performance <- NULL
+  
+  if ( B > 1) {
+    if (task == "S")  {
+      n <- 0.5 * length(target) 
+    } else  n <- length(target)
+    predictions <- matrix(0, nrow = n, ncol = nSESConfs)
+    for (i in 1:nSESConfs)  predictions[, i] <- unlist( best_model$cv_results_all[[ i ]]$preds )
+    best_model$bbc_best_performance <- MXM::bbc(predictions, target[unlist(folds)], metric = metricbbc, B = B )$bbc.perf
+  }
+  
   best_model$runtime <- proc.time() - tic 
-    
+  
   result <- best_model
 }
 
@@ -288,9 +300,20 @@ mse.mxm <- function(predictions, test_target, theta = NULL) {
   - sum( (predictions - test_target)^2 ) / length(test_target)
 }
 
-#mean absolut error lower values indicate better performance so we multiply with -1 in order to have higher values for better performances
+#mse lower values indicate better performance so we multiply with -1 in order to have higher values for better performances
+pve.mxm <- function(predictions, test_target, theta = NULL) {
+  co <- length(test_target) - 1
+  1 - sum( (predictions - test_target)^2 ) / ( co * Rfast::Var(test_target) )
+}
+
+#mean absolute error lower values indicate better performance so we multiply with -1 in order to have higher values for better performances
 ord_mae.mxm <- function(predictions, test_target, theta = NULL) {
   - sum( abs(as.numeric(predictions) - as.numeric(test_target)) ) / length(test_target)
+}
+
+#mean absolute error lower values indicate better performance so we multiply with -1 in order to have higher values for better performances
+mae.mxm <- function(predictions, test_target, theta = NULL) {
+  - sum( abs(predictions - test_target) ) / length(test_target)
 }
 
 #cindex
@@ -307,7 +330,7 @@ ciwr.mxm <- function(predictions, test_target, theta = NULL) {
 
 #Poisson deviance. Lower values indicate better performance so we multiply with -1 in order to have higher values for better performances
 poisdev.mxm <- function(predictions, test_target, theta = NULL) {
- - 2 * sum( test_target * log(test_target / predictions) ) 
+ - 2 * sum( test_target * log(test_target / predictions), na.rm = TRUE ) 
 }
 
 #Negative binomial deviance. Lower values indicate better performance so we multiply with -1 in order to have higher values for better performances
@@ -398,7 +421,7 @@ ordinal.mxm <- function(train_target, sign_data, sign_test, wei) {
   x <- sign_data
   sign_model <- ordinal::clm( train_target ~ ., data = data.frame(x), trace = FALSE, weights = wei );
   x <- sign_test
-  preds <- predict( sign_model, newdata = data.frame(x), type = "class" )
+  preds <- predict( sign_model, newdata = data.frame(x), type = "class" )$fit
   list(preds = preds, theta = NULL)
 }
 
@@ -449,6 +472,14 @@ coxph.mxm <- function(train_target, sign_data, sign_test, wei) {
 weibreg.mxm <- function(train_target, sign_data, sign_test, wei) {
   x <- sign_data
   sign_model <- survival::survreg(train_target~., data = data.frame(x), weights = wei)
+  x <- sign_test
+  preds <- predict(sign_model, newdata = data.frame(x) )
+  list(preds = preds, theta = NULL)
+}
+
+exporeg.mxm <- function(train_target, sign_data, sign_test, wei) {
+  x <- sign_data
+  sign_model <- survreg(train_target~., data = data.frame(x), dist = "exponential", weights = wei)
   x <- sign_test
   preds <- predict(sign_model, newdata = data.frame(x) )
   list(preds = preds, theta = NULL)

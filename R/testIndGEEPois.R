@@ -101,8 +101,8 @@ testIndGEEPois = function(target, reps = NULL, group, dataset, xIndex, csIndex, 
     stat <- 0
     pvalue <- log(1)
   } else {
-    stat = anova(fit2)[2, 3]
-    pvalue = pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
+    stat <- anova(fit2)[2, 3]
+    pvalue <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
   }	
   #update hash objects
   if ( hash )  {

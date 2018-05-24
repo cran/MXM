@@ -12,7 +12,7 @@ setOldClass('proc_time')
 
 setClass(Class='MMPCoutput', 
          slots=list(selectedVars='numeric', selectedVarsOrder='numeric', hashObject='list', pvalues='numeric', stats='numeric', univ='list', max_k='numeric', threshold='numeric', n.tests ='numeric', runtime='proc_time', test='character'), 
-         prototype=list(selectedVars=NULL, selectedVarsOrder=NULL, hashObject=NULL, pvalues=NULL, stats=NULL, univ=NULL, max_k=NULL, threshold=NULL,n.tests=NULL, runtime=NULL, test=NULL));
+         prototype=list(selectedVars=NULL, selectedVarsOrder=NULL, hashObject=NULL, pvalues=NULL, stats=NULL, univ=NULL, max_k=NULL, threshold=NULL, n.tests=NULL, runtime=NULL, test=NULL));
 
 
 setMethod("plot", signature(x="MMPCoutput"), 

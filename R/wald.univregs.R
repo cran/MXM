@@ -232,7 +232,7 @@ wald.univregs <- function(target, dataset, targetID = - 1, test = NULL, user_tes
     if ( ncores <= 1 | is.null(ncores) ) {
       stat = numeric(cols)
       for ( i in 1:cols ) {
-        fit = survival::survreg( target ~ dataset[, i], weights = wei )
+        fit = survival::survreg( target ~ dataset[, i], weights = wei, control = list(iter.max = 5000) )
         stat[i] = summary(fit)[[ 9 ]][2, 3]^2
       }
       univariateModels$stat = stat
@@ -242,7 +242,7 @@ wald.univregs <- function(target, dataset, targetID = - 1, test = NULL, user_tes
       cl <- makePSOCKcluster(ncores)
       registerDoParallel(cl)
       mod <- foreach(i = 1:cols, .combine = rbind, .packages = "survival") %dopar% {
-          fit = survival::survreg( target ~ dataset[, i], weights = wei )
+          fit = survival::survreg( target ~ dataset[, i], weights = wei, control = list(iter.max = 5000) )
           return( summary(fit)[[ 9 ]][2, 3]^2 )
       }
       stopCluster(cl)

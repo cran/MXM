@@ -298,12 +298,9 @@ MMPC = function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini =
   if ( !is.null(user_test) )  ci_test = "user_test";
   #call the main MMPC function after the checks and the initializations
   options(warn = -1)
-  results = InternalMMPC(target, dataset, max_k, log(threshold), test, ini, wei, user_test, hash, varsize, stat_hash, pvalue_hash, targetID, ncores = ncores);
-  #for testing backward phase
-  #   results$selectedVars = c(results$selectedVars,15)
-  #   results$selectedVarsOrder = c(results$selectedVarsOrder,15)
-  #   print(results$selectedVars)
-  #   print(results$selectedVarsOrder)
+  results = InternalMMPC(target, dataset, max_k, log(threshold), test, ini, wei, user_test, hash, varsize, stat_hash, pvalue_hash, 
+                         targetID, ncores = ncores);
+
   #backward phase
   varsToIterate <- results$selectedVarsOrder
   
@@ -312,8 +309,8 @@ MMPC = function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini =
     bc <- mmpcbackphase(target, dataset[, varsToIterate, drop = FALSE], test = test, wei = wei, max_k = max_k, threshold = threshold)
     met <- bc$met
     results$selectedVars <- varsOrder[met]
-    results$selectedVarsOrder = varsOrder[met]
-    results$pvalues[varsToIterate] = bc$pvalue
+    results$selectedVarsOrder <- varsOrder[met]
+    results$pvalues[varsToIterate] <- bc$pvalue
     results$n.tests <- results$n.tests + bc$counter
   }
   MMPCoutput <-new("MMPCoutput", selectedVars = results$selectedVars, selectedVarsOrder = results$selectedVarsOrder, 

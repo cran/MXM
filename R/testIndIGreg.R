@@ -83,17 +83,22 @@ testIndIGreg = function(target, dataset, xIndex, csIndex, wei = NULL, univariate
     {
       #if the conditioning set (cs) is empty, we use a simplified formula
       if ( length(cs) == 0 ) {
-        fit2 = glm(target ~ x, family = inverse.gaussian(log), weights = wei)
-        stat = fit2$null.deviance - fit2$deviance
-        dof = length( coef(fit2) ) - 1
+        fit1 <- glm(target ~ 1, family = inverse.gaussian(log), weights = wei)
+        fit2 <- glm(target ~ x, family = inverse.gaussian(log), weights = wei)
+	    	tab <- anova(fit1, fit2, test = "F") 
+        stat <- tab[2, 5]
+        df1 <- tab[2, 3]
+        df2 <- tab[2, 1]
+        pvalue <- pf( stat, df1, df2, lower.tail = FALSE, log.p = TRUE ) 
         
-      }else{
-        fit1 = glm(target ~., data = as.data.frame( dataset[, csIndex] ), family = inverse.gaussian(log), weights = wei)
-        fit2 = glm(target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ), family = inverse.gaussian(log), weights = wei)
-        stat <- fit1$deviance - fit2$deviance
-        dof <- length( fit2$coefficients ) - length( fit1$coefficients )
-      } 
-      pvalue = pchisq( stat, dof, lower.tail = FALSE, log.p = TRUE ) 
+      } else {
+        fit1 <- glm(target ~., data = as.data.frame( dataset[, csIndex] ), family = inverse.gaussian(log), weights = wei)
+        fit2 <- glm(target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ), family = inverse.gaussian(log), weights = wei)
+        tab <- anova(fit1, fit2, test = "F") 
+        stat <- tab[2, 5]
+        df1 <- tab[2, 3] 
+        df2 <- tab[2, 1]      } 
+        pvalue <- pf( stat, df1, df2, lower.tail = FALSE, log.p = TRUE ) 
       #last error check
       if ( is.na(pvalue) || is.na(stat) ) {
         pvalue = log(1);

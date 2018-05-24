@@ -20,7 +20,7 @@ A numerical vector with the  indices of the predictor variables.
 If you ran SES, wald.ses or perm.ses, give the whole SES object here, otherwise leave it NULL.
 }
 \item{mmpcObject}{
-If you ran MMPC, wald.mmpc or prm.mmpc, give the whole SES object here, otherwise leave it NULL.
+If you ran MMPC, wald.mmpc or prm.mmpc, give the whole MMPC object here, otherwise leave it NULL.
 }
 }
 

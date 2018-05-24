@@ -6,8 +6,12 @@ glmm.bsreg <- function(target, dataset, id, threshold = 0.05, wei = NULL, test =
     
     if (test == "testIndGLMMLogistic") {
       oiko <- binomial(logit)
-    } else if (test == "testIndGLMMPois") {
+    } else if (test == "testIndGLMMPois") {  
       oiko <- poisson(log)
+    } else if (test == "testIndGLMMGamma") {  
+      oiko <- Gamma(log)
+    } else if (test == "testIndGLMMNormLog") {  
+      oiko <- gaussian(log)
     } 
     
   threshold <- log(threshold)

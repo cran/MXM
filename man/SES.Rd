@@ -18,7 +18,7 @@ SES algorithm follows a forward-backward filter approach for feature selection i
 \usage{
 SES(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini = NULL, 
 wei = NULL, user_test = NULL, hash = FALSE, hashObject = NULL,
-ncores = 1)
+ncores = 1, backward = FALSE)
  
 MMPC(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini = NULL, 
 wei = NULL, user_test = NULL, hash = FALSE, hashObject = NULL, 
@@ -26,7 +26,7 @@ ncores = 1, backward = FALSE)
 
 wald.ses(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini = NULL, 
 wei = NULL, user_test = NULL, hash = FALSE, hashObject = NULL, 
-ncores = 1)
+ncores = 1, backward = FALSE)
 
 wald.mmpc(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini = NULL, 
 wei = NULL, user_test = NULL, hash = FALSE, hashObject = NULL,  
@@ -34,7 +34,7 @@ ncores = 1, backward = FALSE)
 
 perm.ses(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini = NULL, 
 wei = NULL, user_test = NULL, hash=FALSE, hashObject = NULL, 
-R = 999, ncores = 1)
+R = 999, ncores = 1, backward = FALSE)
 
 perm.mmpc(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini = NULL, 
 wei = NULL, user_test = NULL, hash=FALSE, hashObject = NULL,
@@ -192,8 +192,7 @@ The max_k option used in the current run.
 The threshold option used in the current run.
 }
 \item{n.tests}{
-If you have set hash = TRUE, then the number of tests performed by SES or MMPC will be returned. If you have not set this to TRUE, the number of univariate associations will be returned. 
-So be careful with this number.
+If you have set hash = TRUE, then the number of tests performed by SES or MMPC will be returned. If you have not set this to TRUE, the number of univariate associations will be returned. So be careful with this number.
 }
 \item{runtime}{
 The run time of the algorithm. A numeric vector. The first element is the user time, the second element is the system time and the third element is the elapsed time.
@@ -212,14 +211,23 @@ Argument mode can be either "all" or "partial" for the first 500 pvalues of the 
 }
 
 \references{
-I. Tsamardinos, V. Lagani and D. Pappas (2012). Discovering multiple, equivalent biomarker signatures. In proceedings of the 7th conference of the Hellenic Society for 
-Computational Biology & Bioinformatics - HSCBB12.
+Feature Selection with the R Package MXM: Discovering Statistically Equivalent Feature Subsets, Lagani, V. and Athineou, 
+G. and Farcomeni, A. and Tsagris, M. and Tsamardinos, I. (2017). Journal of Statistical Software, 80(7).
 
-Tsamardinos, I., Aliferis, C. F., & Statnikov, A. (2003). Time and sample efficient discovery of Markov blankets and direct causal relations. In Proceedings of the ninth ACM SIGKDD international conference on Knowledge discovery and data mining (pp. 673-678). ACM.
+I. Tsamardinos, V. Lagani and D. Pappas (2012). Discovering multiple, equivalent biomarker signatures. In proceedings of the 
+7th conference of the Hellenic Society for Computational Biology & Bioinformatics - HSCBB12.
 
-Brown, L. E., Tsamardinos, I., & Aliferis, C. F. (2004). A novel algorithm for scalable and accurate Bayesian network learning. Medinfo, 711-715.
+Tsamardinos, I., Aliferis, C. F., & Statnikov, A. (2003). Time and sample efficient discovery of Markov blankets and direct causal 
+relations. In Proceedings of the ninth ACM SIGKDD international conference on Knowledge discovery and data mining (pp. 673-678). ACM.
 
-Tsamardinos, Brown and Aliferis (2006). The max-min hill-climbing Bayesian network structure learning algorithm. Machine learning, 65(1), 31-78.
+Brown, L. E., Tsamardinos, I., & Aliferis, C. F. (2004). A novel algorithm for scalable and accurate Bayesian network learning. 
+Medinfo, 711-715.
+
+Tsamardinos, Brown and Aliferis (2006). The max-min hill-climbing Bayesian network structure learning algorithm. Machine learning, 
+65(1), 31-78.
+
+Tsagis M. (2018). Guide on performing feature selection with the R package MXM.
+http://mensxmachina.org/site/wp-content/uploads/2018/04/Guide-on-performing-feature-selection-with-the-R-package-MXM.pdf
 }
 
 \author{
