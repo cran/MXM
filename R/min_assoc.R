@@ -20,8 +20,8 @@ min_assoc = function(target, dataset, test, max_k, cvar, wei, selectedVars, pval
     }
     
     for ( i in 1:ncol(subsetcsk) ) {
-      s = subsetcsk[,i];
-      s = t(t(s));
+      s = subsetcsk[, i];
+      #s = t(t(s));
       cur_results = test(target = target, dataset = dataset, xIndex = cvar, csIndex = s, wei = wei, univariateModels = univariateModels, hash = hash, stat_hash = stat_hash, pvalue_hash = pvalue_hash);
       stat_hash = cur_results$stat_hash;
       pvalue_hash = cur_results$pvalue_hash;

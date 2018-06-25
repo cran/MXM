@@ -86,7 +86,7 @@ testIndBinom = function(target, dataset, xIndex, csIndex, wei =  NULL, univariat
         stat = fit2$null.deviance - fit2$deviance
         dof = length( fit2$coefficients ) - 1
       } else {
-        fit1 = glm( y / wei ~., weights = wei, data = as.data.frame( dataset[, csIndex] ), binomial, model = FALSE )
+        fit1 = glm( y / wei ~., weights = wei, data = as.data.frame( cs ), binomial, model = FALSE )
         fit2 = glm( y / wei ~., weights = wei, data = as.data.frame( dataset[, c(csIndex, xIndex)] ), binomial, model = FALSE )
         stat = fit1$deviance - fit2$deviance
         dof = length( fit2$coefficients ) - length( fit1$coefficients )

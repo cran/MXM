@@ -6,7 +6,7 @@ testIndClogit = function(target, dataset, xIndex, csIndex, wei = NULL, univariat
   if( hash )  {
     csIndex2 = csIndex[which(csIndex!=0)]
     csIndex2 = sort(csIndex2)
-    xcs = c(xIndex,csIndex2)
+    xcs = c(xIndex, csIndex2)
     key = paste(as.character(xcs) , collapse=" ");
     if( !is.null(stat_hash[[key]]) )  {
       stat = stat_hash[[key]];
@@ -33,8 +33,8 @@ testIndClogit = function(target, dataset, xIndex, csIndex, wei = NULL, univariat
         stat = 2 * abs( diff(clogit_results$loglik) )
         pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE);
       } else {
-        clogit_results <- survival::clogit(case ~ . + strata(id), data = data.frame( dataset[ , c(csIndex)] ) )
-        clogit_results_full <- survival::clogit(case ~ . + strata(id), data = data.frame(  dataset[ , c(csIndex, xIndex)] ) )
+        clogit_results <- survival::clogit(case ~ . + strata(id), data = data.frame( dataset[ , csIndex] ) )
+        clogit_results_full <- survival::clogit(case ~ . + strata(id), data = data.frame( dataset[ , c(csIndex, xIndex)] ) )
         res = anova(clogit_results_full, clogit_results)
         stat = res[2, 2]
         dF = res[2, 3]

@@ -92,7 +92,7 @@ testIndIGreg = function(target, dataset, xIndex, csIndex, wei = NULL, univariate
         pvalue <- pf( stat, df1, df2, lower.tail = FALSE, log.p = TRUE ) 
         
       } else {
-        fit1 <- glm(target ~., data = as.data.frame( dataset[, csIndex] ), family = inverse.gaussian(log), weights = wei)
+        fit1 <- glm(target ~., data = as.data.frame( cs ), family = inverse.gaussian(log), weights = wei)
         fit2 <- glm(target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ), family = inverse.gaussian(log), weights = wei)
         tab <- anova(fit1, fit2, test = "F") 
         stat <- tab[2, 5]

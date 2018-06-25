@@ -212,7 +212,7 @@ div.tocify {
 <p class="author-name">Kleio - Maria Verrou<span class="affil-mark">1,2</span> and Michail Tsagris<span class="affil-mark">2*</span></p>
 <p class="author-affiliation"><span class="affil-mark">1</span>Medicine Department, University of Crete, Greece<br><span class="affil-mark">2</span>Mens ex Machina Group, Computer Science Department, University of Crete, Greece</p>
 <p class="author-email"><span class="affil-mark">*</span><a href="mailto:mtsagris@csd.uoc.gr">mtsagris@csd.uoc.gr</a></p>
-<h4 class="date"><em>24 Μάιος 2018</em></h4>
+<h4 class="date"><em>25 Ιούνιος 2018</em></h4>
 
 </div>
 
@@ -235,8 +235,8 @@ library(dplyr)</code></pre>
 <pre class="r"><code>### ~ ~ ~ Load The Dataset ~ ~ ~ ###
 wine.url &lt;- &quot;ftp://ftp.ics.uci.edu/pub/machine-learning-databases/wine/wine.data&quot;
 wine &lt;- read.csv(wine.url,
-                 check.names = F,
-                 header = F) 
+                 check.names = FALSE,
+                 header = FALSE) 
 head(wine)</code></pre>
 <pre><code>##   V1    V2   V3   V4   V5  V6   V7   V8   V9  V10  V11  V12  V13  V14
 ## 1  1 14.23 1.71 2.43 15.6 127 2.80 3.06 0.28 2.29 5.64 1.04 3.92 1065
@@ -401,10 +401,10 @@ SelectedVars_names</code></pre>
 <p>But which of the both approaches was quicker applied?</p>
 <pre class="r"><code>fbed_cont_eBIC$runtime </code></pre>
 <pre><code>##    user  system elapsed 
-##    0.03    0.00    0.03</code></pre>
+##    0.04    0.00    0.05</code></pre>
 <pre class="r"><code>fbed_cont_LR$runtime </code></pre>
 <pre><code>##    user  system elapsed 
-##       0       0       0</code></pre>
+##    0.01    0.00    0.02</code></pre>
 <p>Since the dataset is small, we do not see any special runtime difference.</p>
 </div>
 </div>
@@ -582,10 +582,10 @@ SelectedVars_names</code></pre>
 <p>And how quick has all this happened?</p>
 <pre class="r"><code>fbed_categorical_eBIC$runtime </code></pre>
 <pre><code>##    user  system elapsed 
-##    0.38    0.02    0.39</code></pre>
+##    0.39    0.00    0.39</code></pre>
 <pre class="r"><code>fbed_categorical_LR$runtime </code></pre>
 <pre><code>##    user  system elapsed 
-##    0.37    0.00    0.37</code></pre>
+##    0.38    0.00    0.37</code></pre>
 <p>Really quick, since the dataset is small.</p>
 </div>
 </div>
@@ -642,7 +642,7 @@ Hope that you found this tutorial helpful.</p>
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] dplyr_0.7.4     MXM_1.3.4       BiocStyle_2.8.0
+## [1] dplyr_0.7.4     MXM_1.3.5       BiocStyle_2.8.0
 ## 
 ## loaded via a namespace (and not attached):
 ##  [1] Rcpp_0.12.16        lattice_0.20-35     relations_0.6-8    

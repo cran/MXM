@@ -95,7 +95,7 @@ testIndBeta = function(target, dataset, xIndex, csIndex, wei = NULL, univariateM
     fit2 = beta.reg(target, x, wei = wei)
   } else {
     #Fitting beta regressions
-    fit1 = beta.reg( target, dataset[, csIndex], wei = wei )
+    fit1 = beta.reg( target, cs, wei = wei )
     fit2 = beta.reg(target, dataset[, c(csIndex, xIndex)] , wei = wei )  ;
   }
   stat = 2 * fit2$loglik - 2 * fit1$loglik

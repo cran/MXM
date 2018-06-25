@@ -1,5 +1,5 @@
 ---
-title: 'Tutorial: Feature selection with the MMPC algorithm from the MXM  R package'
+title: 'Tutorial: Feature selection with the MMPC algorithm'
 author:
 - name: "Christina Chatzipantsiou, Michail Tsagris"
   affiliation: 
@@ -13,7 +13,7 @@ output:
     BiocStyle::pdf_document: default
     
 vignette: >
-  %\VignetteIndexEntry{MXM::MMPC Tutorial}
+  %\VignetteIndexEntry{Tutorial: Feature selection with the MMPC algorithm}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -202,7 +202,7 @@ For a comprehensive overview of the __hyper-parameter options__ type `?MMPC` in 
 
 library('MXM')
 mmpc_object_wine_NonFlav <- MXM::MMPC( target  = target_NonFlav,            
-                                       dataset = wine_dataset  ,            
+                                       dataset = wine_dataset,            
                                        max_k = 3,          
                                        threshold = 0.05,                                         
                                        test = 'testIndFisher',   

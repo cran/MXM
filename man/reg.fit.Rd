@@ -17,7 +17,8 @@ reml = FALSE, model = NULL, wei = NULL, xnew = NULL)
 \item{y}{
 The target (dependent) variable. It can be a numerical variable, factor, ordinal factor, percentages, matrix, or time to event. 
 If the values are proportions or percentages, i.e. strictly within 0 and 1 they are mapped into R using log( target/(1 - target) ).
-If they are compositional data the additive log-ratio (multivariate logit) transformation is aplied beforehand. 
+If they are compositional data the additive log-ratio (multivariate logit) transformation is aplied beforehand. If the model is "clogit" 
+this must be a matrix with two columns. The first column must be 0 and 1, standing for 0 = control and 1 = case. The second column is the id of the patients. A numerical variable, for example c(1,2,3,4,5,6,7,1,2,3,4,5,6,7).
 }
 \item{dataset}{
 The indendent variable(s). It can be a vector, a matrix or a dataframe with continuous only variables, a data frame with mixed or only categorical variables.
@@ -41,7 +42,7 @@ This is for the longitudinal or grouped data only, TRUE or FALSE. If TRUE, REML 
 The type of model you want to use. It can be specified by the user or left NULL, if other correct arguments have been passed. 
 Poissible values (apart from NULL) are: "gaussian" (default), "binary", "binomial", "multinomial", "poisson", "ordinal", "gamma", "normlog", "tobit", "cox", "weibull", "exponential", "zip", "beta", "median", "negbin", "longitudinal", "grouped", "qpois" and "qbinom". The "zip" means 
 that the zero part is constant, the variables are not associated with the excessive zeros. The value "grouped" refers to grouped data, but this does not have to be given if the argument "group" is given, but not the argument "reps. The "binomial" is when you have the number of successes 
-and also the number of trials. "MM" stands for robust regression using MM estimation.
+and also the number of trials. "MM" stands for robust regression using MM estimation and "clogit" stands for conditional logistic regression.
 }
 \item{wei}{
 A vector of weights to be used for weighted regression. The default value is NULL.

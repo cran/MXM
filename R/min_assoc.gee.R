@@ -22,8 +22,6 @@ min_assoc.gee = function(target, reps, group, dataset, test, max_k, cvar, wei, s
     
     for ( i in 1:ncol(subsetcsk) ) {
       s = subsetcsk[,i];
-      s = t(t(s));
-      
       cur_results = test(target, reps, group, dataset, cvar, s, wei = wei, univariateModels, hash = hash, stat_hash, pvalue_hash, correl = correl, se = se);
       stat_hash = cur_results$stat_hash;
       pvalue_hash = cur_results$pvalue_hash;

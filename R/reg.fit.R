@@ -3,7 +3,7 @@ reg.fit <- function(y, dataset, event = NULL, reps = NULL, group = NULL, slopes 
                     reml = FALSE, model = NULL, wei = NULL, xnew = NULL) {
   ## possible models are "gaussian" (default), "binary", "binomial", "multinomial", "poisson",
   ## "ordinal", "Cox", "Weibull", "exponential", "zip", "beta", "median", "negbin", "gamma", "normlog",
-  ##  "longitudinal", "grouped", "tobit", "qpois", "qbinom" or "MM".
+  ##  "longitudinal", "grouped", "tobit", "qpois", "qbinom", "MM" or  "clogit".
   ## robust is either TRUE or FALSE
   ## y is the y variable, can be a numerical variable, a matrix, a factor, ordinal factor, percentages, or time to event
   ## dataset is the indendent variable(s). It can be a vector, a matrix or a dataframe with continuous only variables, 
@@ -132,6 +132,11 @@ reg.fit <- function(y, dataset, event = NULL, reps = NULL, group = NULL, slopes 
   } else if ( model == "exponential" ) {
     mod <- survival::survreg(y ~ ., data = x, weights = wei, dist = "exponential" )
 
+  } else if ( model == "clogit" ) {
+    case <- y[, 1]  ## case control, 0 is the control 
+    id <- y[, 2] #the patient id
+    mod <- survival::clogit( case ~ . + strata(id), data = x)
+                
     ## (generalised) linear mixed models for longitudinal data
   } else if ( model == "longitudinal" ) {
     if ( la > 2  &  sum( round(y) - y ) != 0  ) {

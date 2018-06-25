@@ -197,6 +197,8 @@
 \alias{glmm.ordinal.reps.bsreg}
 \alias{ebic.glmm.reps.bsreg}
 \alias{ebic.glmm.ordinal.reps.bsreg}
+\alias{big.model}
+\alias{big.fbed.g2}
 
 \title{ Internal MXM Functions }
 \description{
@@ -401,6 +403,8 @@ Internal functions of Package \pkg{MXM}
 \item glmm.ordinal.reps.bsreg( ... )
 \item ebic.glmm.reps.bsreg( ... )
 \item ebic.glmm.ordinal.reps.bsreg( ... )
+\item big.model
+\item big.fbed.g2
 }
 }
 \details{

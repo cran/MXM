@@ -88,8 +88,8 @@ testIndMMReg = function(target, dataset, xIndex, csIndex, wei = NULL, univariate
         pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
       } else {
         if ( length(csIndex) == 1 ) {
-          fit1 = MASS::rlm(target ~ dataset[,  csIndex], maxit = 2000, weights = wei, method = "MM" )
-        } else  fit1 = MASS::rlm(target ~ ., data = data.frame(dataset[,  csIndex]), maxit = 2000, method = "MM" )
+          fit1 = MASS::rlm(target ~ cs, maxit = 2000, weights = wei, method = "MM" )
+        } else  fit1 = MASS::rlm(target ~ ., data = data.frame( cs ), maxit = 2000, method = "MM" )
         fit2 = MASS::rlm(target ~ ., data = data.frame(dataset[, c(csIndex, xIndex)]), maxit = 2000, method = "MM" )
         stat = 2 * as.numeric( logLik(fit2) ) - 2 * as.numeric( logLik(fit1) )
         dof = length( fit2$coefficients ) - length( fit1$coefficients ) 

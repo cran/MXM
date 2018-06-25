@@ -90,26 +90,26 @@ testIndGLMMOrdinal = function(target, reps = NULL, group, dataset, xIndex, csInd
       reps <- reps 
       if ( slopes ) {
         fit1 = ordinal::clmm( target ~ reps + (reps|group), weights = wei, family = poisson ) 
-        fit2 = ordinal::clmm( target ~ reps + (reps|group) + dataset[, xIndex], weights = wei ) 
+        fit2 = ordinal::clmm( target ~ reps + (reps|group) + x, weights = wei ) 
       } else {
         reps = reps 
         fit1 = ordinal::clmm( target ~ reps + (1|group), weights = wei, family = poisson )  
-        fit2 = ordinal::clmm( target ~ reps + (1|group) + dataset[, xIndex], weights = wei )  
+        fit2 = ordinal::clmm( target ~ reps + (1|group) + x, weights = wei )  
       }
     }
     
   } else {
     if ( is.null(reps) ) {
-      fit1 = ordinal::clmm( target ~ (1|group) + dataset[, csIndex], weights = wei)    
-      fit2 = ordinal::clmm( target ~ (1|group) + dataset[, csIndex] + dataset[, xIndex], weights = wei )    
+      fit1 = ordinal::clmm( target ~ (1|group) + cs, weights = wei)    
+      fit2 = ordinal::clmm( target ~ (1|group) + cs + x, weights = wei )    
     } else {
       reps = reps 
       if (slopes ) {
-        fit1 = ordinal::clmm( target ~ reps + (reps|group) + dataset[, csIndex], weights = wei )
-        fit2 = ordinal::clmm( target ~ reps + (reps|group) + dataset[, csIndex] + dataset[, xIndex], weights = wei )
+        fit1 = ordinal::clmm( target ~ reps + (reps|group) + cs, weights = wei )
+        fit2 = ordinal::clmm( target ~ reps + (reps|group) + cs + x, weights = wei )
       } else {
-        fit1 = ordinal::clmm( target ~ reps + (1|group) + dataset[, csIndex], weights = wei ) 
-        fit2 = ordinal::clmm( target ~ reps + (1|group) + dataset[, csIndex] + dataset[, xIndex], weights = wei ) 
+        fit1 = ordinal::clmm( target ~ reps + (1|group) + cs, weights = wei ) 
+        fit2 = ordinal::clmm( target ~ reps + (1|group) + cs + x, weights = wei ) 
       }
     }  
   }

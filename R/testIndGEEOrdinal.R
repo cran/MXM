@@ -84,16 +84,16 @@ testIndGEEOrdinal = function(target, reps = NULL, group, dataset, xIndex, csInde
       return(results);
     }
     if ( is.null(reps) ) {
-      fit2 <- try( geepack::ordgee( target ~ dataset[, xIndex], id = group, weights = wei ), silent = TRUE)
+      fit2 <- try( geepack::ordgee( target ~ x, id = group, weights = wei ), silent = TRUE)
     } else {
-      fit2 <- try( geepack::ordgee( target ~ reps + dataset[, xIndex], id = group, weights = wei ), silent = TRUE) 
+      fit2 <- try( geepack::ordgee( target ~ reps + x, id = group, weights = wei ), silent = TRUE) 
     }
     
   } else {
     if ( is.null(reps) ) {
-      fit2 <- try( geepack::ordgee( target ~ dataset[, csIndex] + dataset[, xIndex], id = group, weights = wei ), silent = TRUE)
+      fit2 <- try( geepack::ordgee( target ~ cs + x, id = group, weights = wei ), silent = TRUE)
     } else {
-      fit2 <- try( geepack::ordgee( target ~ reps + dataset[, csIndex] + dataset[, xIndex], id = group, weights = wei ), silent = TRUE) 
+      fit2 <- try( geepack::ordgee( target ~ reps + cs + x, id = group, weights = wei ), silent = TRUE) 
     }  
   }
   #calculate the p value and stat.

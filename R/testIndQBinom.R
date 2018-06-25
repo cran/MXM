@@ -76,7 +76,7 @@ testIndQBinom = function(target, dataset, xIndex, csIndex, wei = NULL, univariat
     fit1 <- glm(target ~ 1, family = quasibinomial(link = logit), weights = wei ,model = FALSE)
     fit2 <- glm(target ~ x, family = quasibinomial(link = logit), weights = wei ,model = FALSE)
   } else {
-    fit1 = glm(target ~., data = as.data.frame( dataset[, csIndex] ), family = quasibinomial(link = logit), weights = wei, model = FALSE)
+    fit1 = glm(target ~., data = as.data.frame( cs ), family = quasibinomial(link = logit), weights = wei, model = FALSE)
     fit2 = glm(target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ), family = quasibinomial(link = logit), weights = wei, model = FALSE)
   } 
   mod <- anova(fit1, fit2, test = "F")

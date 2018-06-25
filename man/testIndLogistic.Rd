@@ -97,6 +97,8 @@ If hash = TRUE, testIndLogistic requires the arguments 'stat_hash' and 'pvalue_h
 Important: Use these arguments only with the same dataset that was used at initialization. For all the available conditional independence tests that are currently included on the package, please see "?CondIndTests".
 
 The log-likelihood ratio test used in "testIndLogistic" requires the fitting of two models. The Wald test used in waldBinary" and "waldOrdinal" requires fitting of only one model, the full one. The significance of the variable is examined only. Only continuous (or binary) predictor variables are currently accepted in this test. 
+
+The \code{\link{testIndQBinom}} can also be used with percentages, see \code{\link{testIndBeta}} for example.
 }
 
 \value{

@@ -75,7 +75,7 @@ testIndMultinom = function(target, dataset, xIndex, csIndex, wei = NULL, univari
     dof <- length( coef(fit2) ) - length( coef(fit1) )
   } else {
     #Fitting multinomial Logistic regression
-    fit1 <- nnet::multinom( target ~., data = data.frame( dataset[, csIndex] ), trace = FALSE, weights = wei)
+    fit1 <- nnet::multinom( target ~., data = data.frame(cs ), trace = FALSE, weights = wei)
     fit2 <- nnet::multinom(target ~.,  data = data.frame( dataset[, c(xIndex, csIndex)] ), trace = FALSE, weights = wei)
     stat <- deviance(fit1) - deviance(fit2)
     dof <- length( coef(fit2) ) - length( coef(fit1) )
@@ -88,7 +88,7 @@ testIndMultinom = function(target, dataset, xIndex, csIndex, wei = NULL, univari
     pvalue_hash[[key]] <- pvalue;     #.set(pvalue_hash , key , pvalue)
   }
   #last error check
-  if ( is.na(pvalue) || is.na(stat) ) {
+  if ( is.na(pvalue) | is.na(stat) ) {
     pvalue = log(1);
     stat = 0;
   } else {

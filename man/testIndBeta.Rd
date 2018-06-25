@@ -64,6 +64,8 @@ If hash = TRUE, testIndBeta requires the arguments 'stat_hash' and 'pvalue_hash'
 Important: Use these arguments only with the same dataset that was used at initialization. For all the available conditional independence tests that are currently included on the package, please see "?CondIndTests". An alternative regression to this is "testIndReg" and "testIndRQ" .In these two latter cases, the logit transformation is first applied to the target variable. 
 
 The log-likelihood ratio test used in "testIndBeta" requires the fitting of two models. The Wald test used in "waldBeta" requires fitting of only one model, the full one. The significance of the variable is examined only. Only continuous (or binary) predictor variables are currently accepted in this test. 
+
+The \code{\link{testIndQBinom}} is another alternative to use.
 }
 
 \value{
@@ -97,7 +99,7 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr>, Vinc
 %}
 
 \seealso{
-\code{\link{SES}, \link{testIndReg}, \link{testIndRQ}, \link{testIndFisher}, \link{CondIndTests}}
+\code{\link{testIndQBinom}, \link{SES}, \link{testIndReg}, \link{testIndRQ}, \link{testIndFisher}, \link{CondIndTests}}
 }
 
 \examples{

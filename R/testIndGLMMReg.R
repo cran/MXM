@@ -86,26 +86,26 @@ testIndGLMMReg = function(target, reps = NULL, group, dataset, xIndex, csIndex, 
       return(results);
     }
    if ( is.null(reps) ) {
-      fit2 = lme4::lmer( target ~ (1|group) + dataset[, xIndex], weights = wei, REML = FALSE )
+      fit2 = lme4::lmer( target ~ (1|group) + x, weights = wei, REML = FALSE )
    } else {
      reps <- reps 
      if ( slopes ) {
-       fit2 = lme4::lmer( target ~ reps + (reps|group) + dataset[, xIndex], weights = wei, REML = FALSE ) 	  
+       fit2 = lme4::lmer( target ~ reps + (reps|group) + x, weights = wei, REML = FALSE ) 	  
      } else{
        reps = reps 
-       fit2 = lme4::lmer( target ~ reps + (1|group) + dataset[, xIndex], weights = wei, REML = FALSE )        
+       fit2 = lme4::lmer( target ~ reps + (1|group) + x, weights = wei, REML = FALSE )        
      }
    }
    
   } else {
     if ( is.null(reps) ) {
-       fit2 = lme4::lmer( target ~ (1|group) + dataset[, csIndex] + dataset[, xIndex], weights = wei, REML = FALSE )          
+       fit2 = lme4::lmer( target ~ (1|group) + cs + x, weights = wei, REML = FALSE )          
     } else {
       reps = reps 
       if (slopes ) {
-        fit2 = lme4::lmer( target ~ reps + (reps|group) + dataset[, csIndex] + dataset[, xIndex], weights = wei, REML = FALSE )
+        fit2 = lme4::lmer( target ~ reps + (reps|group) + cs + x, weights = wei, REML = FALSE )
       } else {
-        fit2 = lme4::lmer( target ~ reps + (1|group) + dataset[, csIndex] + dataset[, xIndex], weights = wei, REML = FALSE )
+        fit2 = lme4::lmer( target ~ reps + (1|group) + cs + x, weights = wei, REML = FALSE )
       }
     }
   }

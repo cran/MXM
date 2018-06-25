@@ -75,7 +75,7 @@ testIndOrdinal = function(target, dataset, xIndex, csIndex, wei = NULL, univaria
     dof <- length( coef(fit2) ) - length( coef(fit1) )
   } else {
     #Fitting ordinal Logistic regression
-    fit1 = ordinal::clm( target ~., data = data.frame( dataset[, csIndex] ), weights = wei )
+    fit1 = ordinal::clm( target ~., data = data.frame( cs ), weights = wei )
     fit2 <- ordinal::clm(target ~., data = data.frame( dataset[, c(csIndex, xIndex)] ), weights = wei )
     stat <- 2 * fit2$logLik - 2 * fit1$logLik
     dof <- length( coef(fit2) ) - length( coef(fit1) )

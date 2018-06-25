@@ -92,7 +92,7 @@ testIndReg = function(target, dataset, xIndex, csIndex, wei = NULL, univariateMo
       stat = ( ( s0 - s1 ) / (n - 1 - dof ) ) / (s1 / dof)
       pvalue = pf(stat, 1, dof, lower.tail = FALSE, log.p = TRUE)
   } else {
-       fit1 <- lm( target ~., data = as.data.frame( dataset[, csIndex] ), weights = wei )
+       fit1 <- lm( target ~., data = as.data.frame( cs ), weights = wei )
        mod <- add1(fit1, ~. + dataset[, xIndex], test = "F")
        stat <- mod[2, 5]
        df1 <- mod[2, 1]   

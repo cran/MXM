@@ -78,7 +78,7 @@ testIndGamma = function(target, dataset, xIndex, csIndex, wei = NULL, univariate
     fit1 <- glm(target ~ 1, family = Gamma(link = log), weights = wei ,model = FALSE)
     fit2 <- glm(target ~ x, family = Gamma(link = log), weights = wei ,model = FALSE)
   } else {
-    fit1 = glm(target ~., data = as.data.frame( dataset[, csIndex] ), family = Gamma(link = log), weights = wei, model = FALSE)
+    fit1 = glm(target ~., data = as.data.frame( cs ), family = Gamma(link = log), weights = wei, model = FALSE)
     fit2 = glm(target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ), family = Gamma(link = log), weights = wei, model = FALSE)
   } 
   mod <- anova(fit1, fit2, test = "F")

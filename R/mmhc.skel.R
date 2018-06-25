@@ -22,8 +22,8 @@ mmhc.skel <- function(dataset, max_k = 3, threshold = 0.05, test = "testIndFishe
     if ( is.null(ini.pvalue)  & ( test == "testIndSpearman" | test == "testIndFisher" | test == "gSquare") ) {
       initial.tests <- 0.5 * n * (n - 1)
       if ( test == "testIndSpearman" ) {
-        x <- Rfast::colRanks(x)
-        R <- Rfast::cora(x)
+        dataset <- Rfast::colRanks(dataset)
+        R <- Rfast::cora(dataset)
         options(warn = -1)
         stat <- 0.5 * log( (1 + R)/( (1 - R) ) ) * sqrt(m - 3) / 1.029563
         ini.pvalue <- log(2) + pt( abs(stat), m - 3, lower.tail = FALSE, log.p = TRUE)

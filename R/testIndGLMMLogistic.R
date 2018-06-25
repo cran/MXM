@@ -85,31 +85,31 @@ testIndGLMMLogistic = function(target, reps = NULL, group, dataset, xIndex, csIn
     }
    if ( is.null(reps) ) {
      fit1 = lme4::glmer( target ~ (1|group), weights = wei, family = binomial ) 
-     fit2 = lme4::glmer( target ~ (1|group) + dataset[, xIndex], weights = wei, family = binomial ) 
+     fit2 = lme4::glmer( target ~ (1|group) + x, weights = wei, family = binomial ) 
    } else {
       reps <- reps 
       if ( slopes ) {
         fit1 = lme4::glmer( target ~ reps + (reps|group), weights = wei, family = binomial ) 
-        fit2 = lme4::glmer( target ~ reps + (reps|group) + dataset[, xIndex], weights = wei, family = binomial ) 
+        fit2 = lme4::glmer( target ~ reps + (reps|group) + x, weights = wei, family = binomial ) 
       } else {
         reps = reps 
         fit1 = lme4::glmer( target ~ reps + (1|group), weights = wei, family = binomial )  
-        fit2 = lme4::glmer( target ~ reps + (1|group) + dataset[, xIndex], weights = wei, family = binomial )  
+        fit2 = lme4::glmer( target ~ reps + (1|group) + x, weights = wei, family = binomial )  
       }
    }
    
   } else {
     if ( is.null(reps) ) {
-      fit1 = lme4::glmer( target ~ (1|group) + dataset[, csIndex], weights = wei, family = binomial )    
-      fit2 = lme4::glmer( target ~ (1|group) + dataset[, csIndex] + dataset[, xIndex], weights = wei, family = binomial )    
+      fit1 = lme4::glmer( target ~ (1|group) + cs, weights = wei, family = binomial )    
+      fit2 = lme4::glmer( target ~ (1|group) + cs + x, weights = wei, family = binomial )    
     } else {
       reps = reps 
       if (slopes ) {
-        fit1 = lme4::glmer( target ~ reps + (reps|group) + dataset[, csIndex], weights = wei, family = binomial )
-        fit2 = lme4::glmer( target ~ reps + (reps|group) + dataset[, csIndex] + dataset[, xIndex], weights = wei, family = binomial )
+        fit1 = lme4::glmer( target ~ reps + (reps|group) + x, weights = wei, family = binomial )
+        fit2 = lme4::glmer( target ~ reps + (reps|group) + cs + x, weights = wei, family = binomial )
       } else {
-        fit1 = lme4::glmer( target ~ reps + (1|group) + dataset[, csIndex], weights = wei, family = binomial) 
-        fit2 = lme4::glmer( target ~ reps + (1|group) + dataset[, csIndex] + dataset[, xIndex], weights = wei, family = binomial ) 
+        fit1 = lme4::glmer( target ~ reps + (1|group) + cs, weights = wei, family = binomial) 
+        fit2 = lme4::glmer( target ~ reps + (1|group) + cs + x, weights = wei, family = binomial ) 
       }
     }  
   }

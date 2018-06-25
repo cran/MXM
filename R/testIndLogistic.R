@@ -72,7 +72,7 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, wei = NULL, univari
     stat = fit2$null.deviance - fit2$deviance
     dof = length( fit2$coefficients ) - 1
   } else {
-    fit1 <- glm(target ~., data = data.frame( dataset[, csIndex] ), binomial, weights = wei, model = FALSE)
+    fit1 <- glm(target ~., data = data.frame( cs ), binomial, weights = wei, model = FALSE)
     fit2 <- glm(target ~., data = data.frame( dataset[, c(csIndex, xIndex)] ), binomial, weights = wei, model = FALSE)
     stat <- fit1$deviance - fit2$deviance  
     dof <- length( fit2$coefficients ) - length( fit1$coefficients )
@@ -84,7 +84,7 @@ testIndLogistic = function(target, dataset, xIndex, csIndex, wei = NULL, univari
     pvalue_hash[[key]] <- pvalue;     #.set(pvalue_hash , key , pvalue)
   }
   #last error check
-  if ( is.na(pvalue) || is.na(stat) ) {
+  if ( is.na(pvalue) | is.na(stat) ) {
     pvalue = log(1);
     stat = 0;
   } else {

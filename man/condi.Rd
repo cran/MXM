@@ -85,7 +85,7 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> and M
 
 \examples{
 #simulate a dataset with continuous data
-dataset <- matrix(runif(500 * 5, 1, 100), nrow = 5 )
+dataset <- matrix(runif(500 * 5, 1, 100), ncol = 5 )
 testIndFisher(dataset[, 1], dataset[, -1], xIndex = 1, csIndex = 2)
 condi(ind1 = 1, ind2 = 2, cs = 3, dataset, R = 1)
 condi(ind1 = 1, ind2 = 2, cs = 3, dataset, R = 999)

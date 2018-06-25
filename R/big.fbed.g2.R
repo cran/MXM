@@ -1,21 +1,35 @@
-fbed.g2 <- function(y, x, alpha = 0.05, univ = NULL, K = 0, backward = TRUE) { 
-  p <- dim(x)[2]
+big.fbed.g2 <- function(z, threshold = 0.01, univ = NULL, K = 0, backward = TRUE) { 
+  dm <- dim(z)
+  n <- dm[1]    ;    p <- dim(z)[2]  - 1
   ind <- 1:p
-  sig <- log(alpha)
+  sig <- log(threshold)
   sela <- NULL
   card <- 0
   sa <- NULL
   pva <- NULL
   runtime <- proc.time()
-  x <- as.matrix(x)
-  y <- as.numeric(y)
-  z <- cbind(x, y)
-  all.dc <- Rfast::colrange(z, cont = FALSE)
   
+  m <- colSums(z[]) 
+  x2 <- colSums(z[]^2)
+  s <- (x2 - m^2/n)
+  s <- s[-(p + 1)]
+  ind[s == 0] <- 0
+
+  all.dc <- numeric(p)
+  for (i in 1:(p + 1) )  all.dc[i] <- max(z[, i]) + 1
+
   if ( is.null(univ) ) {
-    a <- Rfast::g2tests(data = z, x = 1:p, y = p + 1, dc = all.dc)
-    stat <- a$statistic
-    pval <- pchisq(stat, a$df, lower.tail = FALSE, log.p = TRUE)
+    y <- z[, p + 1]
+    stat <- pval <- numeric(p)
+    for (i in ind) {
+      a <- Rfast::Table(z[, i], y, names = FALSE)
+      dof <- prod(dim(a) - 1)
+      rs <- Rfast::rowsums(a)
+      cs <- Rfast::colsums(a)
+      est <- outer(rs, cs, "*")/sum(a)
+      stat[i] <- 2 * sum(a * log(a/est), na.rm = TRUE)
+      pval[i] <- pchisq(stat[i], dof, lower.tail = FALSE, log.p = TRUE)
+    }
     univ$stat <- stat
     univ$pvalue <- pval
     n.tests <- p
@@ -24,7 +38,7 @@ fbed.g2 <- function(y, x, alpha = 0.05, univ = NULL, K = 0, backward = TRUE) {
     pval <- univ$pvalue
     n.tests <- 0
   }
- 
+  
   s <- which(pval < sig)
   
   if ( length(s) > 0 ) {
@@ -38,15 +52,14 @@ fbed.g2 <- function(y, x, alpha = 0.05, univ = NULL, K = 0, backward = TRUE) {
     #########
     while ( sum(s>0) > 0 ) {
       for ( i in ind[s] )  {
-        zz <- cbind(y, x[, c(i, sela)] )
         k <- length(sela)
         dc <- all.dc[c(p + 1, i, sela)]
-        mod <- Rfast::g2Test(zz, x = 1, y = 2, cs = 3:(2 + k), dc = dc)           
+        mod <- Rfast::g2Test(z[, c(p + 1, i, sela)], x = 1, y = 2, cs = 3:(2 + k), dc = dc)           
         stat[i] <- mod$statistic
         pval[i] <- pchisq(mod$statistic, mod$df, lower.tail = FALSE, log.p = TRUE)
       }
       n.tests <- n.tests + length( ind[s] ) 
-
+      
       s <- which(pval < sig) 
       sel <- which.min(pval) * ( length(s)>0 )
       sa <- c(sa, stat[sel]) 
@@ -65,10 +78,9 @@ fbed.g2 <- function(y, x, alpha = 0.05, univ = NULL, K = 0, backward = TRUE) {
       stat <- numeric(p)
       pval <- numeric(p)
       for ( i in ind[-sela] )  {
-        zz <- cbind(y, x[, c(i, sela)] )
         k <- length(sela)
         dc <- all.dc[c(p + 1, i, sela)]
-        mod <- Rfast::g2Test(zz, x = 1, y = 2, cs = 3:(2 + k), dc = dc)           
+        mod <- Rfast::g2Test(z[, c(p + 1, i, sela)], x = 1, y = 2, cs = 3:(2 + k), dc = dc)           
         stat[i] <- mod$statistic
         pval[i] <- pchisq(mod$statistic, mod$df, lower.tail = FALSE, log.p = TRUE)
       }
@@ -85,10 +97,9 @@ fbed.g2 <- function(y, x, alpha = 0.05, univ = NULL, K = 0, backward = TRUE) {
       }  
       while ( sum(s>0) > 0 ) {
         for ( i in ind[s] )  {
-          zz <- cbind(y, x[, c(i, sela)] )
           k <- length(sela)
           dc <- all.dc[c(p + 1, i, sela)]
-          mod <- Rfast::g2Test(zz, x = 1, y = 2, cs = 3:(2 + k), dc = dc)           
+          mod <- Rfast::g2Test(z[, c(p + 1, i, sela)], x = 1, y = 2, cs = 3:(2 + k), dc = dc)           
           stat[i] <- mod$statistic
           pval[i] <- pchisq(mod$statistic, mod$df, lower.tail = FALSE, log.p = TRUE)
         }
@@ -110,10 +121,9 @@ fbed.g2 <- function(y, x, alpha = 0.05, univ = NULL, K = 0, backward = TRUE) {
     if ( K > 1) {
       
       for ( i in ind[-sela] )  {
-        zz <- cbind(y, x[, c(i, sela)] )
         k <- length(sela)
         dc <- all.dc[c(p + 1, i, sela)]
-        mod <- Rfast::g2Test(zz, x = 1, y = 2, cs = 3:(2 + k), dc = dc)           
+        mod <- Rfast::g2Test(z[, c(p + 1, i, sela)], x = 1, y = 2, cs = 3:(2 + k), dc = dc)           
         stat[i] <- mod$statistic
         pval[i] <- pchisq(mod$statistic, mod$df, lower.tail = FALSE, log.p = TRUE)
       }
@@ -130,10 +140,9 @@ fbed.g2 <- function(y, x, alpha = 0.05, univ = NULL, K = 0, backward = TRUE) {
       }  
       while ( sum(s > 0) > 0 ) {
         for ( i in ind[s] )  {
-          zz <- cbind(y, x[, c(i, sela)] )
           k <- length(sela)
           dc <- all.dc[c(p + 1, i, sela)]
-          mod <- Rfast::g2Test(zz, x = 1, y = 2, cs = 3:(2 + k), dc = dc)           
+          mod <- Rfast::g2Test(z[, c(p + 1, i, sela)], x = 1, y = 2, cs = 3:(2 + k), dc = dc)           
           stat[i] <- mod$statistic
           pval[i] <- pchisq(mod$statistic, mod$df, lower.tail = FALSE, log.p = TRUE)
         }
@@ -156,10 +165,9 @@ fbed.g2 <- function(y, x, alpha = 0.05, univ = NULL, K = 0, backward = TRUE) {
       while ( vim < K  & card[vim + 1] - card[vim] > 0 ) {
         vim <- vim + 1
         for ( i in ind[-sela] )  {
-          zz <- cbind(y, x[, c(i, sela)] )
           k <- length(sela)
           dc <- all.dc[c(p + 1, i, sela)]
-          mod <- Rfast::g2Test(zz, x = 1, y = 2, cs = 3:(2 + k), dc = dc)           
+          mod <- Rfast::g2Test(z[, c(p + 1, i, sela)], x = 1, y = 2, cs = 3:(2 + k), dc = dc)           
           stat[i] <- mod$statistic
           pval[i] <- pchisq(mod$statistic, mod$df, lower.tail = FALSE, log.p = TRUE)
         }
@@ -176,10 +184,9 @@ fbed.g2 <- function(y, x, alpha = 0.05, univ = NULL, K = 0, backward = TRUE) {
         }     
         while ( sum(s > 0) > 0 ) {
           for ( i in ind[s] )  {
-            zz <- cbind(y, x[, c(i, sela)] )
             k <- length(sela)
             dc <- all.dc[c(p + 1, i, sela)]
-            mod <- Rfast::g2Test(zz, x = 1, y = 2, cs = 3:(2 + k), dc = dc)           
+            mod <- Rfast::g2Test(z[, c(p + 1, i, sela)], x = 1, y = 2, cs = 3:(2 + k), dc = dc)           
             stat[i] <- mod$statistic
             pval[i] <- pchisq(mod$statistic, mod$df, lower.tail = FALSE, log.p = TRUE)
           }
@@ -219,29 +226,5 @@ fbed.g2 <- function(y, x, alpha = 0.05, univ = NULL, K = 0, backward = TRUE) {
   result$back.rem <- 0
   result$back.n.tests <- 0
 
-  if ( backward ) {
-    
-    if (result$info[1, 1] > 0) {
-      a <- bs.g2(y, x[, result$res[, 1], drop = FALSE], threshold = alpha)
-      
-      if ( typeof(a) == "list" ) {
-        result$back.rem <- result$res[a$info[, 1], 1]
-        back.n.tests <- sum( dim(result$res)[1] : (dim(a$mat)[1] - 1) )
-        sel <- result$res[a$mat[-1, 1] - 1, 1] 
-        stat <- a$mat[-1, 3]
-        pval <- a$mat[-1, 2]
-        result$res <- cbind(sel, stat, pval)
-        result$back.n.tests <- back.n.tests
-        result$runtime <- result$runtime + a$runtime
-      } else {
-        back.rem <- 0
-        back.n.tests <- 0
-        result$back.rem <- back.rem
-        result$back.n.tests <- back.n.tests
-        result$runtime <- result$runtime 
-      }  
-    }   ## end if (result$info[1, 1] > 0)
-  }  ## end if ( backward )
-  
   result
 }

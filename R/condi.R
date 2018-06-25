@@ -29,7 +29,7 @@ condi <- function(ind1, ind2, cs, dat, type = "pearson", rob = FALSE, R = 1) {
       residCorrMatrix <- corrMatrix[xyIdx, xyIdx] - as.matrix( corrMatrix[xyIdx, csIdx] ) %*% 
       ( solve( as.matrix( corrMatrix[csIdx, csIdx] ), rbind( corrMatrix[csIdx, xyIdx] ) ) ) 
       r <-  - residCorrMatrix[1, 2] / sqrt( residCorrMatrix[1, 1] * residCorrMatrix[2, 2]) 
-      if ( abs(r) >1 )   r <- 0.99999
+      if ( abs(r) > 1 )   r <- 0.99999
     }
     
   } else {  ## robust estimation using M estimation
@@ -61,14 +61,14 @@ condi <- function(ind1, ind2, cs, dat, type = "pearson", rob = FALSE, R = 1) {
       
       if ( rob ) { ## robust correlation
 
-        e1 <- resid( MASS::rlm( x1 ~ x2, maxit = 2000, method = "MM" ) )
-        e2 <- resid( MASS::rlm( x2 ~ x1, maxit = 2000, method = "MM" ) )       
-        res <- permcor( e1, e2, R )
+        e1 <- resid( MASS::rlm( x1 ~ 1, maxit = 2000, method = "MM" ) )
+        e2 <- resid( MASS::rlm( x2 ~ 1, maxit = 2000, method = "MM" ) )       
+        res <- Rfast::permcor( e1, e2, R )
         stat <- abs( res[1] )
         pvalue <- res[2]
         
-      }else{
-        res <- permcor( x1, x2, R )
+      } else {
+        res <- Rfast::permcor( x1, x2, R )
         stat <- abs( res[1] )
         pvalue <- res[2]
       }
@@ -78,13 +78,13 @@ condi <- function(ind1, ind2, cs, dat, type = "pearson", rob = FALSE, R = 1) {
       if ( rob ) { ## robust correlation
         e1 <- resid( MASS::rlm( x1 ~ ., data = data.frame(dat[, cs]), maxit = 2000, method = "MM") )
         e2 <- resid( MASS::rlm( x2 ~.,  data = data.frame(dat[, cs]), maxit = 2000, method = "MM") )
-        res <- permcor( e1, e2, R)
+        res <- Rfast::permcor( e1, e2, R)
         stat <- abs( res[1] )
         pvalue <- res[2]
         
       } else {
-        er <- lm.fit(cbind(1, dat[, cs]), cbind( x1, x2 )  )$residuals
-		    res <- permcor( er[, 1], er[, 2], R ) 
+        er <- .lm.fit(cbind(1, dat[, cs]), cbind( x1, x2 )  )$residuals
+		res <- Rfast::permcor( er[, 1], er[, 2], R ) 
         stat <- abs( res[1] )
         pvalue <- (res[2])
       }

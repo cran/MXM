@@ -40,7 +40,7 @@ testIndZIP = function(target, dataset, xIndex, csIndex, wei = NULL, univariateMo
   csIndex = unique(csIndex);
   #extract the data
   x = dataset[ , xIndex];
-  cs = dataset[ , csIndex];
+  cs = dataset[ , csIndex, drop = FALSE];
   #That means that the x variable does not add more information to our model due to an exact copy of this in the cs, so it is independent from the target
   if ( length(cs) != 0 ) {
     if ( is.null(dim(cs)[2]) ) { #cs is a vector
@@ -78,7 +78,7 @@ testIndZIP = function(target, dataset, xIndex, csIndex, wei = NULL, univariateMo
         pvalue <- pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)   
 
       } else {
-        fit1 <- zip.reg( target, as.data.frame( dataset[, csIndex] ), wei = wei ) 
+        fit1 <- zip.reg( target, as.data.frame( cs ), wei = wei ) 
         fit2 <- zip.reg( target, as.data.frame( dataset[, c(csIndex, xIndex)] ), wei = wei ) 
         stat <- 2 * abs( fit1$loglik - fit2$loglik )
         dof <- length( fit2$be ) - length( fit1$be )

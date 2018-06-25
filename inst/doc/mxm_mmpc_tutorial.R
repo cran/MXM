@@ -102,7 +102,7 @@ str(target_NonFlav,2)
 
 library('MXM')
 mmpc_object_wine_NonFlav <- MXM::MMPC( target  = target_NonFlav,            
-                                       dataset = wine_dataset  ,            
+                                       dataset = wine_dataset,            
                                        max_k = 3,          
                                        threshold = 0.05,                                         
                                        test = 'testIndFisher',   

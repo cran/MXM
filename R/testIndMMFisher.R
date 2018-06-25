@@ -97,12 +97,12 @@ testIndMMFisher = function(target, dataset, xIndex, csIndex, wei = NULL, statist
           }
           #compute the correlation coefficient between x,target directly
            b1 = coef( MASS::rlm(target ~ x, maxit = 2000, method = "MM" ) )[2]
-           b2 = coef( MASS::rlm(x ~ target, maxit = 2000, mehtod = "MM" ) )[2]
+           b2 = coef( MASS::rlm(x ~ target, maxit = 2000, method = "MM" ) )[2]
            stat = sqrt( abs (b1 * b2) ) 
         } else {
-            e1 = resid( MASS::rlm( target ~., data = data.frame( dataset[, csIndex] ), maxit = 2000, method = "MM" ) ) 
-            e2 = resid( MASS::rlm( dataset[, xIndex] ~.,  data = data.frame( dataset[, csIndex] ), maxit = 2000, method = "MM" ) )
-            stat = cor(e1,e2) 
+          e1 = resid( MASS::rlm( target ~., data = data.frame( cs ), maxit = 2000, method = "MM" ) ) 
+          e2 = resid( MASS::rlm( x ~.,  data = data.frame( cs ), maxit = 2000, method = "MM" ) )
+          stat = cor(e1,e2) 
         }
         #lets calculate the p-value
         z = 0.5*log( (1+stat)/(1-stat) );
@@ -227,14 +227,14 @@ aa[[ i ]] <- tryCatch(
       return(results);
     }
     #compute the correlation coefficient between x, target directly
-      b1 = coef( MASS::rlm(targ ~ x, maxit = 2000 ) )[2]
-      b2 = coef( MASS::rlm(x ~ targ, maxit = 2000 ) )[2]
+      b1 = coef( MASS::rlm(targ ~ x, method = "MM", maxit = 2000 ) )[2]
+      b2 = coef( MASS::rlm(x ~ targ, method = "MM", maxit = 2000 ) )[2]
       stat = sqrt( abs (b1 * b2) ) 
     
   } else{
      #perform the test with the cs
-      e1 = resid( MASS::rlm( targ ~., data = data.frame( data[, csIndex] ), maxit = 2000 ) ) 
-      e2 = resid( MASS::rlm( data[, xIndex] ~.,  data = data.frame( data[, csIndex] ), maxit = 2000 ) )
+      e1 = resid( MASS::rlm( targ ~., data = data.frame( cs ), method = "MM", maxit = 2000 ) ) 
+      e2 = resid( MASS::rlm( x ~.,  data = data.frame( cs ), method = "MM", maxit = 2000 ) )
       stat = cor(e1, e2)
   }
   #lets calculate the p-value

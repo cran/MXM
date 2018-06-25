@@ -80,7 +80,7 @@ testIndPois = function(target, dataset, xIndex, csIndex, wei = NULL, univariateM
     stat = fit2$null.deviance - fit2$deviance
     dof = length( coef(fit2) ) - 1   
   } else {
-    fit1 = glm(target ~., data = as.data.frame( dataset[, csIndex] ), poisson, weights = wei, model = FALSE)
+    fit1 = glm(target ~., data = as.data.frame( cs), poisson, weights = wei, model = FALSE)
     fit2 = glm(target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ), poisson, weights = wei, model = FALSE)
     stat = fit1$deviance - fit2$deviance
     dof = length( coef(fit2) ) - length( coef(fit1) )

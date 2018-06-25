@@ -4,6 +4,7 @@
 \alias{perm.univregs}
 \alias{wald.univregs}
 \alias{score.univregs}
+\alias{big.score.univregs}
 \alias{rint.regs}
 \alias{glmm.gee.univregs}
 \title{
@@ -29,6 +30,8 @@ wei = NULL, threshold = 0.05, R = 999, ncores = 1)
 
 score.univregs(target, dataset, test) 
 
+big.score.univregs(target = NULL, dataset, test) 
+
 rint.regs(target, dataset, targetID = -1, id, reps = NULL, tol = 1e-08)
 
 glmm.gee.univregs(target, reps = NULL, id, dataset, targetID = -1, test, wei = NULL, 
@@ -37,10 +40,13 @@ slopes = FALSE, correl = "echangeable", se = "jack", ncores = 1)
 
 \arguments{
 \item{target}{
-The target (dependent) variable. It must be a numerical vector. 
+The target (dependent) variable. It must be a numerical vector. In the case of "big.score.univregs" this can also be NULL if it is included 
+in the first column of the dataset.
 }
 \item{dataset}{
-The indendent variable(s). For the "univregs" this can be a matrix or a dataframe with continuous only variables, a data frame with mixed or only categorical variables. For the "wald.univregs", "perm.univregs", "score.univregs" and "rint.regs" this can only by a numerical matrix.
+The indendent variable(s). For the "univregs" this can be a matrix or a dataframe with continuous only variables, a data frame with mixed or 
+only categorical variables. For the "wald.univregs", "perm.univregs", "score.univregs" and "rint.regs" this can only by a numerical matrix. 
+For the "big.score.univregs" this is a big.matrix object with continuous data only.
 }
 \item{targetID}{
 This is by default -1. If the target is not a variable but is in included in the dataset, you can specify the column of dataset playing the role of the target. 
@@ -64,14 +70,16 @@ For the "perm.univregs" this can only be one of the following: \bold{permFisher}
 \bold{permWR}, \bold{permER}, \bold{permClogit}, \bold{permLogistic}, \bold{permPois}, \bold{permNB}, \bold{permBinom}, \bold{permgSquare}, 
 \bold{permZIP}, \bold{permMVreg}, \bold{permIGreg}, \bold{permGamma} or \bold{permNormLog}.
 
-For the "score.univregs" this can only be one of the following: \bold{testIndBeta}, \bold{testIndLogistic}, \bold{testIndPois}, 
-\bold{testIndNB}, \bold{testIndGamma} or \bold{censIndWR}. 
-Bear in mind that for the score test in testIndLogistic the target must be either binary or nominal multinomial. Ordinal regression is not supported. 
-				 
+For the "score.univregs" and "big.score.univregs" this can only be one of the following: \bold{testIndBeta}, \bold{testIndLogistic}, \bold{testIndMultinom}, 
+\bold{testIndPois}, \bold{testIndNB}, \bold{testIndGamma} or \bold{censIndWR} but with no censored values and simply the vector, 
+not a Surv object. Ordinal regression is not supported. 
+
+		 
 Note that in all cases you must give the name of the test, without " ". 
 }
 \item{user_test}{
-A user-defined conditional independence test (provide a closure type object). Default value is NULL. If this is defined, the "test" argument is ignored.
+A user-defined conditional independence test (provide a closure type object). Default value is NULL. If this is defined, the "test" 
+argument is ignored.
 }
 \item{wei}{
 A vector of weights to be used for weighted regression. The default value is NULL. 

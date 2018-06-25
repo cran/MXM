@@ -25,6 +25,7 @@ As for the other tests, they share one thing in common. For all of them, two par
   Proportions \tab Mixed \tab testIndMMReg \tab MM regression \cr 
   Proportions \tab Mixed \tab testIndRQ \tab Median regression \cr 
   Proportions \tab Mixed \tab testIndBeta \tab Beta regression \cr 
+  Proportions \tab Mixed \tab testIndQbinom \tab Quasi binomial regression \cr 
   Strictly positive \tab Mixed \tab testIndIGreg \tab Inverse Gaussian regression \cr 
   Strictly positive \tab Mixed \tab testIndGamma \tab Gamma regression \cr 
   Non negative \tab Mixed \tab testIndNormLog \tab Gaussian regression with log link \cr 
@@ -103,16 +104,20 @@ As for the other tests, they share one thing in common. For all of them, two par
     
 \item \bold{testIndNB}. As an alternative to the Poisson regression, we have included the Negative binomial regression to capture cases of overdispersion. The predictor variables can be either continuous, categorical or mixed. 
 
+\item \bold{testIndQPois}. This is a better alternative for discrete target, better than the \bold{testIndPois} and than the \bold{testIndNB}, because it can capture both cases of overdispersion and undersidpesrion.
+
 \item \bold{testIndZIP}. When the number of zeros is more than expected under a Poisson model, the zero inflated poisson regression is to be employed. The predictor variables can be either continuous, categorical or mixed. 
     
 \item \bold{testIndLogistic}. When the target is categorical with only two outcomes, success or failure for example, then a binary logistic regression is to be used. Whether regression or classification is the task of interest, this method is applicable. The advantage of this over a linear or quadratic discriminant analysis is that it allows for categorical predictor variables as well and for mixed types of predictors.
+
+\item \bold{testIndQBinom}. This is an alternative to either the \bold{testIndLogistic} or especially the \bold{testIndBeta}.
     
 \item \bold{testIndMultinom}. If the target has more than two outcomes, but it is of nominal type, there is no ordering of the outcomes, multinomial logistic regression will be employed. Again, this regression is suitable for classification purposes as well and it to allows for categorical predictor variables.
     
 \item \bold{testIndOrdinal}. This is a special case of multinomial regression, in which case the outcomes have an ordering, such as \bold{not satisfied}, \bold{neutral}, \bold{satisfied}. The appropriate method is ordinal logistic regression. 
     
 \item \bold{testIndBinom}. When the target variable is a matrix of two columns, where the first one is the number of successes and the second one is the number of trials, binomial regression is to be used. 
-    
+
 \item \bold{gSquare}. If all variables, both the target and predictors are categorical the default test is the G-square test of independence. It is similar to the chi-squared test of independence, but instead of using the chi-squared metric between the observed and estimated frequencies in contingency tables, the Kullback-Leibler divergence of the observed from the estimated frequencies is used. The asymptotic distribution of the test statistic is a chi-squared distribution on some appropriate degrees of freedom. The target variable can be either ordered or unordered with two or more outcomes. 
     
 \item \bold{Alternatives to gSquare}. An alternative to the \bold{gSquare} test is the \bold{testIndLogistic}. Depending on the nature of the target, binary, un-ordered multinomial or ordered multinomial the appropriate regression model is fitted. 

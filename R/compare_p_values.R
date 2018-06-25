@@ -4,7 +4,7 @@ compare_p_values = function(pval, pval2, stat, stat2) {
   } else {
     if ( is.na(pval2)  | is.na(stat2)  | is.na(pval) | is.na(stat) ) {
       pval2 = 0.0;
-      return(FALSE);#(pval < pval2);
+      return(FALSE);       #(pval < pval2);
     } else {
       if ( pval == pval2 ) {
         return (stat > stat2);

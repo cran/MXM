@@ -129,6 +129,8 @@ Hampel F. R., Ronchetti E. M., Rousseeuw P. J., and Stahel W. A. (1986). Robust 
 
 Koenker R.W. (2005). Quantile regression. New York, Cambridge University Press.
 
+Yohai, V. J. (1987). High breakdown-point and high efficiency robust estimates for regression. The Annals of Statistics, 15(2): 642-656.
+
 Mardia, Kanti, John T. Kent and John M. Bibby. Multivariate analysis. Academic press, 1979.
 
 John Aitchison. The Statistical Analysis of Compositional Data, Chapman & Hall; reprinted in 2003, with additional material, by The Blackburn Press.

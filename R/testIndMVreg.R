@@ -90,18 +90,18 @@ testIndMVreg = function(target, dataset, xIndex, csIndex, wei = NULL, univariate
     fit2 = lm(target ~ x, weights = wei)
   } else  fit2 = lm(target ~., data = data.frame(dataset[ , c(csIndex, xIndex)] ), weights = wei )  
     if ( any( is.na( fit2$coefficients ) ) ) {
-    stat <- 0
-	  pvalue <- log(1)
-	} else {
-	  fit1 = lm(target ~., data = data.frame(dataset[ , csIndex] ), weights = wei )  
-    mod = anova( fit1, fit2 ) 
-    stat = mod[2, 5]     ## aproximate F test
-    df1 = abs(mod[2, 2])
-    df2 = mod[2, 1]
-    pvalue = pf(stat, df1, df2, lower.tail= FALSE, log.p = TRUE)
-  }
+      stat <- 0
+	    pvalue <- log(1)
+	  } else {
+	    fit1 = lm(target ~., data = data.frame( cs ), weights = wei )  
+      mod = anova( fit1, fit2 ) 
+      stat = mod[2, 5]     ## aproximate F test
+      df1 = abs(mod[2, 2])
+      df2 = mod[2, 1]
+      pvalue = pf(stat, df1, df2, lower.tail= FALSE, log.p = TRUE)
+    }
   #last error check
-  if ( is.na(pvalue) || is.na(stat) ) {
+  if ( is.na(pvalue) | is.na(stat) ) {
     pvalue = log(1);
     stat = 0;
   } else {

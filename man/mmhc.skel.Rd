@@ -53,7 +53,7 @@ The jackknife variance estimator was suggested by Paik (1988), which is quite su
 A boolean variable which indicates whether (TRUE) or not (FALSE). Default value is FALSE. If TRUE a hashObject is produced and hence more memory is required. If you want to know the number of tests executed for each variable then make it TRUE.
 }
 \item{backward}{
-If TRUE, the backward (or symmetry correction) phase will be implemented. This removes any falsely included variables in the parents and children set of the target variable. It call the \code{link{mmpcbackphase}} for this purpose. For perm.ses and wald.ses this is not yet applicable.
+If TRUE, the backward (or symmetry correction) phase will be implemented. This removes any falsely included variables in the parents and children set of the target variable. It call the \code{\link{mmpcbackphase}} for this purpose. For perm.ses and wald.ses this is not yet applicable.
 }
 \item{symmetry}{
 In order for an edge to be added, a statistical relationship must have been found from both directions. If you want this symmetry correction to take place, leave this boolean variable to TRUE. If you set it to FALSE, then if 
@@ -101,7 +101,9 @@ The number of tests MMPC (or SES) performed at each variable.
 A matrix with the p-values of all pairwise univariate assocations.
 }
 \item{pvalue}{
-A matrix with the final p-values. These are the maximum p-values calculated during the process. When the process finishes, the matrix is not symmetric. It becomes symmetric though by keeping the maximum between any two off-diagonal elements. These p-values now can be used to sort the strength of the edges. If you know the true adjacency matrix you can use them and create a ROC curve (see \code{link{bn.skel.utils}} for more information).
+A matrix with the final p-values. These are the maximum p-values calculated during the process. When the process finishes, the matrix is not symmetric. 
+It becomes symmetric though by keeping the maximum between any two off-diagonal elements. These p-values now can be used to sort the strength of the edges. 
+If you know the true adjacency matrix you can use them and create a ROC curve (see \code{\link{bn.skel.utils}} for more information).
 }
 \item{G}{
 The adjancency matrix. A value of 1 in G[i, j] appears in G[j, i] also, indicating that i and j have an edge between them.
@@ -129,9 +131,9 @@ Liang K.Y. and Zeger S.L. (1986). Longitudinal data analysis using generalized l
 }
 
 \author{
- Michail Tsagris
+Michail Tsagris
 
-R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> and Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 
 %\note{

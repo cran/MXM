@@ -16,7 +16,7 @@ output:
   BiocStyle::pdf_document2: default
 
 vignette: |
-  %\VignetteIndexEntry{Authoring R Markdown vignettes}
+  %\VignetteIndexEntry{Tutorial: Feature selection with the FBED algorithm}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -58,8 +58,8 @@ On a next step we are downloading and opening the dataset, defining also the col
 ### ~ ~ ~ Load The Dataset ~ ~ ~ ###
 wine.url <- "ftp://ftp.ics.uci.edu/pub/machine-learning-databases/wine/wine.data"
 wine <- read.csv(wine.url,
-                 check.names = F,
-                 header = F) 
+                 check.names = FALSE,
+                 header = FALSE) 
 head(wine)
 str(wine)
 colnames(wine) <- c('Type', 'Alcohol', 'Malic', 'Ash', 

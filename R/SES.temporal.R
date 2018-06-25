@@ -81,17 +81,19 @@ SES.temporal = function(target, reps = NULL, group, dataset, max_k = 3, threshol
     if (length(test) == 1) {   #avoid vectors, matrices etc
       test = match.arg(test, av_tests, TRUE);
       #convert to closure type
-      if(test == "testIndGLMMReg") {
+      if ( test == "testIndGLMMReg" ) {
         test = testIndGLMMReg;
-      } else if(test == "testIndGLMMLogistic") {
+      } else if ( test == "testIndGLMMReg"  &  is.null(wei)  &  (!slopes) ) {
+        test = testIndLMM;
+      } else if ( test == "testIndGLMMLogistic" ) {
         test = testIndGLMMLogistic;
-      } else if (test == "testIndGLMMPois") {
+      } else if ( test == "testIndGLMMPois" ) {
         test = testIndGLMMPois;
-      } else if (test == "testIndGLMMGamma") {
+      } else if ( test == "testIndGLMMGamma" ) {
         test = testIndGLMMGamma;
-      } else if (test == "testIndGLMMNormLog") {
+      } else if ( test == "testIndGLMMNormLog" ) {
         test = testIndGLMMNormLog;
-      } else if (test == "testIndLMM") {
+      } else if ( test == "testIndLMM" ) {
         test <- testIndLMM
       }
       
@@ -101,8 +103,8 @@ SES.temporal = function(target, reps = NULL, group, dataset, max_k = 3, threshol
   # options checking and initialize #
   ###################################
   #extracting the parameters
-  max_k = floor(max_k);
-  varsize = dim(dataset)[[2]];
+  max_k <- floor(max_k);
+  varsize <- dim(dataset)[[2]];
   #option checking
   if ( (typeof(max_k) != "double") || max_k < 1 )   stop('invalid max_k option');
   if (max_k > varsize)   max_k = varsize;

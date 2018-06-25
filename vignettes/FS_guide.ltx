@@ -1,6 +1,6 @@
 \documentclass[a4paper,11pt]{article}
 
-%\VignetteIndexEntry{A very brief guide to using MXM}
+%\VignetteIndexEntry{Guide on performing feature selection with the R package \textit{MXM}}
 %\VignetteEngine{R.rsp::tex}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -159,38 +159,80 @@ same as in FS, yet correlations are easier to compute, than regression models, a
 In this Section we describe a few types of target variables and their respective regression models suitable for each case. 
 
 \begin{enumerate}
-\item \textbf{Continuous} outcome variable (taking any value in the whole of $\mathbb{R}$) are handled with \textit{linear regression} or robustified versions, such as \textit{MM estimators} 
-and \textit{quantile (median) regression}. When the predictor variables are also continuous \textit{Pearson or Spearman correlation coefficients} are faster alternatives. 
+\item \textbf{Continuous} outcome variable (taking any value in the whole of $\mathbb{R}$) are handled with
+\begin{itemize}
+\item \textit{linear regression} 
+\item \textit{MM estimators} (linear regression robust to outliers) and 
+\item \textit{quantile (median) regression} (linear regression robust to outliers). 
+\item When the predictor variables are also continuous \textit{Pearson} correlation coefficient or 
+\item \textit{Spearman} correlation coefficient are faster alternatives. 
+\end{itemize}
 
-\item \textbf{Multivariate continuous outcomes} are handled with \textit{linear regression} as well. Compositional data \cite{ait2003} excluding 0 and 1 values are handled the same way 
-since the additive log-ratio transformation is applied.
+\item \textbf{Multivariate continuous outcomes} are handled with 
+\begin{itemize}
+\item \textit{multivariate linear regression}. 
+\item Compositional data \cite{ait2003} excluding 0 and 1 values are handled the same way since the additive log-ratio transformation is applied.
+\end{itemize}
 
-\item \textbf{Positive valued data} are modeled with \textit{Gaussian regression with a log-link} (including or excluding zero values) or with \textit{Gamma regression} (excluding zero values). 
+\item \textbf{Positive valued data} are modeled with 
+\begin{itemize}
+\item \textit{Gaussian regression with a log-link}, allowing for zero values or 
+\item \textit{Gamma regression}, excluding zero values. 
+\end{itemize}
 
-\item \textbf{Percentages}, excluding 0s and 1s, are modeled by \textit{beta regression}. Alternatively, one can apply the logit transformation and treat them as continuous and hence use 
-all models mentioned in (1). A more general (without making parametric assumptions and accepting 0s and 1s) is the \textit{quasi binomial regression}.
+\item \textbf{Percentages}, are modeled by 
+\begin{itemize}
+\item \textit{Beta regression} excluding 0s and 1s. 
+\item Alternatively, one can apply the logit transformation and treat them as continuous and hence use all models mentioned in (1). 
+\item A more general (without making parametric assumptions and accepting 0s and 1s) is the \textit{quasi binomial regression}.
+\end{itemize}
 
-\item \textbf{Count data} are usually modeled by \textit{negative binomial regression}. Other options include the more restrictive \textit{Poisson regression} or the more flexible, 
-\textit{quasi Poisson regression}. If an excessive number of zeros has been observed, \textit{zero inflated Poisson (ZIP) regression} should be used instead. 
+\item \textbf{Count data} are usually modeled by 
+\begin{itemize}
+\item \textit{negative binomial regression}. 
+\item Other options include the more restrictive \textit{Poisson regression} or 
+\item the more flexible, \textit{quasi Poisson regression}. 
+\item If an excessive number of zeros has been observed, \textit{zero inflated Poisson regression} should be used instead. 
+\end{itemize}
 
-\item \textbf{Binary, nominal or of ordinal scale} outcome variables, require \textit{logistic, multinomial and ordinal regression} respectively. If the predictor variables are also categorical, 
-the $G^2$ test of independence can be used as well, which has the advantage over regression models that "captures" non linear dependencies as well. Its drawback though is that it requires larger sample sizes. 
+\item \textbf{Binary, nominal or of ordinal scale} outcome variables, 
+\begin{itemize}
+\item require \textit{logistic, multinomial and ordinal regression} respectively. 
+\item If the predictor variables are also categorical, the $G^2$ test of independence can be used as well, which has the advantage over regression models that "captures" non linear dependencies as well. Its disadvantage is that it requires large sample sizes. 
+\end{itemize}
 
 \item \textbf{Success out of a number of trials} are modeled by \textit{binomial regression}.
 
-\item \textbf{Time to event} (usually right censored, survival) outcomes are handled with survival regression,  \textit{Weibull} or \textit{exponential} (parametric models) or with 
-\textit{Cox regression} (semi-parametric survival regression).
-
-\item \textbf{Repeated measurements}, over time for example, require parametric models such as \textit{generalized linear mixed models} (GLMM), or distribution free models, such as 
-\textit{generalized estimating equations} (GEE). Mixed models include \textit{Gaussian, logistic and Poisson regression}. The GEE methodology available in \textit{MXM} is richer, as it 
-includes \textit{Gamma regression and Gaussian regression with log-link (for positive data)} and offers more types of correlation structure and many ways of estimating the standard 
-error of the regression coefficients. \textit{Ordinal regression} is offered as well, but with limited options. 
-
-\item \textbf{Classification with longitudinal data}. This is the case when one wants to discriminate among two or more classes and the predictor variables consist of longitudinal data.
+\item \textbf{Time to event} (usually right censored, survival) outcomes are handled with survival regression models, 
+\begin{itemize}
+\item \textit{Weibull regression} (parametric model), 
+\item \textit{exponential regression} (parametric model) or with 
+\item \textit{Cox regression} (semi-parametric regression model).
+\end{itemize}
 
 \item \textbf{Matched case-control studies} require conditional logistic regression. 
 
 \item \textbf{Left censored} outcomes are handled by Tobit regression.  
+
+\item \textbf{Repeated measurements}, over time for example, require parametric models such as 
+\begin{itemize}
+\item \textit{generalized linear mixed models} (GLMM) including  
+\begin{itemize}
+\item \textit{Gaussian regression}, 
+\item \textit{logistic regression}, 
+\item \textit{Poisson regression},
+\item \textit{Gamma regression}, 
+\item \textit{Gaussian regression with log-link} and
+\item \textit{ordinal regression} but with limited options. 
+\end{itemize}
+\item Distribution free models, such as \textit{generalized estimating equations} (GEE) is a competing to GLMM methodology.
+The GEE methodology available in \textit{MXM} is richer than GLMM; it includes the same regression models as GLMM and
+\begin{itemize}
+\item It offers more types of correlation structure (\textit{compound} and \textit{autoregressive}) and many ways of estimating the standard error of the regression coefficients (\textit{standard sandwich estimators}, \textit{jackknife} and \textit{approximate jackknife estimators}). 
+\end{itemize}
+\end{itemize}
+\item \textbf{Classification with longitudinal data}. This is the case when one wants to discriminate among two or more classes and the predictor variables consist of longitudinal data.
+
 \end{enumerate}
 
 \section{Overview of the algorithms in R}

@@ -17,13 +17,11 @@ min_assoc.temporal = function(target, reps, group, dataset, test, max_k, cvar, w
     } else {
       subsetcsk = as.matrix( nchoosek(tempCS, ck - 1) )
       numSubsets = dim(subsetcsk)[2];     #CHANGE
-      subsetcsk = rbind(subsetcsk, lastvar*rep(1,numSubsets));    #CHANGE
+      subsetcsk = rbind(subsetcsk, lastvar * rep(1, numSubsets) );    #CHANGE
     }
     
     for ( i in 1:ncol(subsetcsk) ) {
       s = subsetcsk[,i];
-      s = t(t(s));
-      
       cur_results = test(target, reps, group, dataset, cvar, s, wei = wei, univariateModels, hash = hash, stat_hash, pvalue_hash, slopes = slopes);
       stat_hash = cur_results$stat_hash;
       pvalue_hash = cur_results$pvalue_hash;

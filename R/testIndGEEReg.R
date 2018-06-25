@@ -84,16 +84,16 @@ testIndGEEReg = function(target, reps = NULL, group, dataset, xIndex, csIndex,  
       return(results);
     }
     if ( is.null(reps) ) {
-      fit2 <- try( geepack::geeglm( target ~ dataset[, xIndex], family = gaussian, id = group, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
+      fit2 <- try( geepack::geeglm( target ~ x, family = gaussian, id = group, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
     } else {
-      fit2 <- try( geepack::geeglm( target ~ reps + dataset[, xIndex], family = gaussian, id = group, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE) 
+      fit2 <- try( geepack::geeglm( target ~ reps + x, family = gaussian, id = group, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE) 
     }
     
   } else {
     if ( is.null(reps) ) {
-      fit2 <- try( geepack::geeglm( target ~ dataset[, csIndex] + dataset[, xIndex], family = gaussian, id = group, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
+      fit2 <- try( geepack::geeglm( target ~ cs + x, family = gaussian, id = group, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
     } else {
-      fit2 <- try( geepack::geeglm( target ~ reps + dataset[, csIndex] + dataset[, xIndex], family = gaussian, id = group, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE) 
+      fit2 <- try( geepack::geeglm( target ~ reps + cs + x, family = gaussian, id = group, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE) 
     }  
   }
   #calculate the p value and stat.

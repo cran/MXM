@@ -71,8 +71,8 @@ testIndTimeLogistic = function(target, dataset, xIndex, csIndex, wei = NULL, uni
       results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
       return(results);
     }
-    fit2 = glm(target ~ x, binomial, weights = wei, model = FALSE)
-    stat = fit2$null.deviance - fit2$deviance
+    fit2 <- glm(target ~ x, binomial, weights = wei, model = FALSE)
+    stat <- fit2$null.deviance - fit2$deviance
   } else {
     fit2 <- glm(target ~ cs + x, binomial, weights = wei, model = FALSE)
     stat <- anova(fit2)[3, 2] 
