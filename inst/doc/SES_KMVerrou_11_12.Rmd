@@ -16,8 +16,8 @@ output:
   BiocStyle::pdf_document: default
 
 vignette: |
-  %\VignetteIndexEntry{Feature selection with SES}
-  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{Tutorial: Feature selection with the SES algorithm}
+  %\VignetteEngine{knitr::knitr}
   %\VignetteEncoding{UTF-8}
 ---
 
@@ -39,14 +39,13 @@ In this tutorial we will learn how to use the SES algorithm. For simplicity, we 
 **The Wine Dataset** contains the results of a chemical analysis of wines grown in a specific area of Italy. Three types of wine are represented in the 178 samples, with the results of 13 chemical analyses recorded for each sample. Note that the "Type" variable was transformed into a categorical variable.
   
   
-So, first of all, for this tutorial analysis, we are loading the 'MXM' library and 'dplyr' library for handling easier the dataset. The 'hash' library used also be imported, if an analysis is going to be applied more than once (we will explain this in the **TIPS** session).  
+So, first of all, for this tutorial analysis, we are loading the 'MXM' library and 'dplyr' library for handling easier the dataset. 
   
 ```{r, warning =  FALSE, message = FALSE }
 
 ### ~ ~ ~ Load Packages ~ ~ ~ ###
 library(MXM) 
 library(dplyr)
-library('hash')
 ```
   
 And on a next step we are downloading and opening the dataset, defining also the column names.
@@ -531,7 +530,7 @@ cv_ses_model <- MXM::cv.ses(target   = wine[, 1], # Using the 1st column as targ
                             task     = "C", 
                             metric   = acc_multinom.mxm, # Note that we are passing it as a function and not as a character
                             modeler  = multinom.mxm,  # Note that we are passing it as a function and not as a character
-                            ses_test = 'testIndMultinom',
+                            ses_test = "testIndMultinom",
                             ncores = 1)
 ```    
   

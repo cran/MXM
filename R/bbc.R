@@ -13,7 +13,7 @@ bbc <- function(predictions, target, metric = "auc.mxm", conf = 0.95, B = 1000) 
       out.perf[i] <- Rfast::auc(target[-ind], predictions[-ind, poio])
     } 
     
-  } else if (metric == "auc.mxm") {
+  } else if (metric == "fscore.mxm") {
     target <- as.numeric( as.factor(target) ) - 1
     in.perf <- numeric(p)
     for (i in 1:B) {
@@ -84,7 +84,10 @@ bbc <- function(predictions, target, metric = "auc.mxm", conf = 0.95, B = 1000) 
     } 
     
   } else if (metric == "ord_mae.mxm") {
-    target - as.numeric(target)
+    target <- as.numeric(target)
+  	for (i in 1:dim(predictions)[2] ) 	predictions[, i] <- as.numeric(predictions[, i])
+	  predictions <- as.matrix(predictions)
+	  
     for (i in 1:B) {
       ind <- sample.int(n, n, replace = TRUE)
       in.perf <-  - Rfast:: colmeans( abs(predictions[ind, ] - target[ind]) ) 

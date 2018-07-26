@@ -1,4 +1,4 @@
-glmm.mmhc.skel <- function(dataset, group, max_k = 3, threshold = 0.05, test = "testIndLMM", type = "MMPC.temporal", 
+glmm.mmhc.skel <- function(dataset, group, max_k = 3, threshold = 0.05, test = "testIndLMM", type = "MMPC.glmm", 
                            hash = FALSE, symmetry = TRUE, nc = 1, ini.pvalue = NULL) {
   ## dataset is either conitnuous or categorical data  
   ## max_k is the maximum number of variables upon which to condition
@@ -21,7 +21,7 @@ glmm.mmhc.skel <- function(dataset, group, max_k = 3, threshold = 0.05, test = "
   ############
   #### MMPC
   ############
-  if ( type == "MMPC.temporal" ) {
+  if ( type == "MMPC.glmm" ) {
     ms <- NULL
     if ( !is.null(ini.pvalue) ) {
       ini <- list()
@@ -32,7 +32,7 @@ glmm.mmhc.skel <- function(dataset, group, max_k = 3, threshold = 0.05, test = "
       pa <- proc.time()
       for (i in 1:n) {
         if ( !is.null(ini.pvalue) )   ini$pvalue <- ini.pvalue[i, ]
-        a <- MMPC.temporal(i, group = group, dataset = dataset, max_k = max_k, threshold = threshold, hash = hash, test = test, ini = ini)
+        a <- MMPC.glmm(i, group = group, dataset = dataset, max_k = max_k, threshold = threshold, hash = hash, test = test, ini = ini)
         ini.pval[i, ] <- a@univ$pvalue
         pvalue[i, ] <- a@pvalues
         sel <- a@selectedVars
@@ -46,10 +46,10 @@ glmm.mmhc.skel <- function(dataset, group, max_k = 3, threshold = 0.05, test = "
       pa <- proc.time() 
       cl <- makePSOCKcluster(nc)
       registerDoParallel(cl)
-      mod <- foreach(i = 1:n, .combine = rbind, .export = c("MMPC.temporal") ) %dopar% {
+      mod <- foreach(i = 1:n, .combine = rbind, .export = c("MMPC.glmm") ) %dopar% {
         sel <- numeric(n)
         if ( !is.null(ini.pvalue) )   ini$pvalue <- ini.pvalue[i, ]
-        a <- MMPC.temporal(i, group = group, dataset = dataset, max_k = max_k, threshold = threshold, hash = hash, test = test, ini = ini)
+        a <- MMPC.glmm(i, group = group, dataset = dataset, max_k = max_k, threshold = threshold, hash = hash, test = test, ini = ini)
         sel[a@selectedVars] <- 1
         return( c(a@n.tests, sel, a@pvalues, a@univ$pvalue) )
       }
@@ -62,7 +62,7 @@ glmm.mmhc.skel <- function(dataset, group, max_k = 3, threshold = 0.05, test = "
       runtime <- proc.time() - pa
     }
     
-  } else if (type == "SES.temporal") {
+  } else if (type == "SES.glmm") {
     ms <- numeric(n)
     if (nc <= 1  ||  is.null(nc) ) {
       if ( !is.null(ini.pvalue) )   ini$stat <- rnorm(n)
@@ -70,7 +70,7 @@ glmm.mmhc.skel <- function(dataset, group, max_k = 3, threshold = 0.05, test = "
       pa <- proc.time()
       for (i in 1:n) {
         if ( !is.null(ini.pvalue) )   ini$pvalue <- ini.pvalue[i, ]
-        a <- SES.temporal(i, group = group, dataset = dataset, max_k = max_k, threshold = threshold, hash = hash, test = test, ini = ini)
+        a <- SES.glmm(i, group = group, dataset = dataset, max_k = max_k, threshold = threshold, hash = hash, test = test, ini = ini)
         ini.pval[i, ] <- a@univ$pvalue
         poies <- a@signatures
         ms[i] <- dim(poies)[1]
@@ -87,11 +87,11 @@ glmm.mmhc.skel <- function(dataset, group, max_k = 3, threshold = 0.05, test = "
       cl <- makePSOCKcluster(nc)
       registerDoParallel(cl)
       if ( !is.null(ini.pvalue) )   ini$stat <- rnorm(n)
-      mod <- foreach(i = 1:n, .combine = rbind, .export = c("SES.temporal") ) %dopar% {
+      mod <- foreach(i = 1:n, .combine = rbind, .export = c("SES.glmm") ) %dopar% {
         ## arguments order for any CI test are fixed
         sel <- numeric(n)
         if ( !is.null(ini.pvalue) )   ini$pvalue <- ini.pvalue[i, ]
-        a <- SES.temporal(i, group = group, dataset = dataset, max_k = max_k, threshold = threshold, hash = hash, test = test, ini = ini)
+        a <- SES.glmm(i, group = group, dataset = dataset, max_k = max_k, threshold = threshold, hash = hash, test = test, ini = ini)
         poies <- a@signatures
         sel[ unique(poies) ] <- 1
         return( c(a@n.tests, dim(poies)[1], sel, a@pvalues, a@univ$pvalue) ) 

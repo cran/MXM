@@ -26,8 +26,7 @@ This is a numerical vector of the same size as target denoting the groups or the
 A vector of weights to be used for weighted regression. The default value is NULL. 
 }
 \item{gam}{
-In case the method is chosen to be "eBIC" one can also specify the \eqn{gamma} parameter. The default value is "NULL", so that the value is 
-automatically calculated.
+In case the method is chosen to be "eBIC" one can also specify the \eqn{gamma} parameter. The default value is "NULL", so that the value is automatically calculated.
 }
 \item{test}{
 This is for the type of regression to be used, "testIndGLMMReg", for Gaussian regression, "testIndGLMMLogistic for logistic regression or "testIndGLMMPois" for Poisson regression.
@@ -72,7 +71,7 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 
 \seealso{
-\code{ \link{fbed.glmm.reg}, \link{glmm.bsreg}, \link{MMPC.temporal} }
+\code{ \link{fbed.glmm.reg}, \link{glmm.bsreg}, \link{MMPC.glmm} }
 }
 
 \examples{
@@ -82,7 +81,7 @@ data(sleepstudy)
 attach(sleepstudy)
 x <- matrix(rnorm(180 * 20),ncol = 20) ## unrelated preidctor variables
 m1 <- ebic.glmm.bsreg(Reaction, x, Subject, wei = NULL, gam = NULL, type = "gaussian") 
-m2 <- MMPC.temporal(target = Reaction, group = Subject, dataset = x)
+m2 <- MMPC.glmm(target = Reaction, group = Subject, dataset = x)
 }
 }
 

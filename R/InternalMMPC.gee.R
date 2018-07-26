@@ -1,20 +1,15 @@
 InternalMMPC.gee = function(target, reps, group, dataset, max_k, threshold, test = NULL, ini, wei, user_test = NULL,  
-                                 hash=FALSE, varsize, stat_hash, pvalue_hash, targetID, correl, se, ncores) {
+                                 hash = FALSE, varsize, stat_hash, pvalue_hash, targetID, correl, se, ncores) {
   #get the current time
   runtime = proc.time();
-  #######################################################################################
-  dm <- dim(dataset)
-  rows <- dm[1]
-  cols <- dm[2]
   #univariate feature selection test
   if ( is.null(ini) ) {
-    univariateModels = univariateScore.gee(target, reps, group, dataset, test, wei = wei, targetID = targetID, correl = correl, se = se, ncores = ncores);
+    univariateModels <- gee.univregs(target = target, reps = reps, id = group, dataset = dataset, targetID = targetID, test = test, wei = wei, 
+                             correl = correl, se = se, ncores = ncores) 
   } else  univariateModels = ini
   
   pvalues = univariateModels$pvalue;
   stats = univariateModels$stat;
-  stat_hash = univariateModels$stat_hash;
-  pvalue_hash = univariateModels$pvalue_hash;
   #if we dont have any associations , return
   if ( min(pvalues, na.rm = TRUE) > threshold ) {   #or min(pvalues, na.rm=TRUE)
     cat('No associations!');
@@ -54,7 +49,7 @@ InternalMMPC.gee = function(target, reps, group, dataset, max_k, threshold, test
   remainingVars[selectedVar] = 0;
   remainingVars[pvalues > threshold] = 0;
   if (targetID > 0)    remainingVars[targetID] = 0;
-  # main MMPC.temporal loop
+  # main MMPC.gee loop
   # loop until there are not remaining vars
   loop = any(as.logical(remainingVars));
   

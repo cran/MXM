@@ -1,12 +1,13 @@
 beta.mod <- function(target, dataset, wei = NULL, xnew = NULL) {
 
    n <- length(target)
-   if ( NCOL(dataset) == 0 ) {
+   if ( is.null(dataset) ) {
      if ( is.null(wei) ) {
        mod <- Rfast::beta.mle(target)
      } else mod <- betamle.wei(target, wei)
      param <- mod$param
      res <- list(be = param, phi = sum(param), loglik = mod$loglik, est = param[1]/param[2])
+     
    } else {  
      x <- model.matrix(target ~ ., data.frame(dataset) )
      iniphi <- log( sum( target * (1 - target) ) / Rfast::Var(target) / n )

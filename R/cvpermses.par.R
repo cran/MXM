@@ -170,10 +170,8 @@ cvpermses.par <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL
       }  
     }
     #clear the hashmap and garbages
-    if ( !is.null(SESHashMap$pvalue_hash) )   hash::clear(SESHashMap$pvalue_hash)
-    if ( !is.null(SESHashMap$stat_hash) )   hash::clear(SESHashMap$stat_hash)
-    rm(SESHashMap);
-    gc();
+    if ( !is.null(SESHashMap$pvalue_hash) )   SESHashMap$pvalue_hash <- NULL
+    if ( !is.null(SESHashMap$stat_hash) )     SESHashMap$stat_hash <- NULL
     return( as.vector(ela ) )
   }
   stopCluster(cl)

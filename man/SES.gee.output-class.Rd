@@ -14,7 +14,7 @@ SES.gee output object class.
 }
 
 \section{Objects from the Class}{
-Objects can be created by calls of the form \code{new("SES.temporal.output", ...)}.
+Objects can be created by calls of the form \code{new("SES.glmm.output", ...)}.
 }
 
 \section{Slots}{
@@ -38,7 +38,7 @@ Objects can be created by calls of the form \code{new("SES.temporal.output", ...
 
 \section{Methods}{
   \describe{
-    \item{plot}{\code{plot(x = "SES.gee.output", mode = "all")}: Generic function for plotting the generated pvalues of the SES.temporal.output object. Argument mode = "all" for plotting all the pvalues or mode="partial" for partial plotting the first 500 pvalues }
+    \item{plot}{\code{plot(x = "SES.gee.output", mode = "all")}: Generic function for plotting the generated pvalues of the SES.glmm.output object. Argument mode = "all" for plotting all the pvalues or mode="partial" for partial plotting the first 500 pvalues }
 	 }
 }
 
@@ -51,7 +51,7 @@ Giorgos Athineou <athineou@csd.uoc.gr>
 }
 
 \examples{
-showClass("SES.temporal.output")
+showClass("SES.glmm.output")
 }
 
-\keyword{SES.temporal output}
+\keyword{SES.glmm output}

@@ -26,9 +26,9 @@ testIndMVreg = function(target, dataset, xIndex, csIndex, wei = NULL, univariate
     csIndex2 = sort(csIndex2)
     xcs = c(xIndex,csIndex2)
     key = paste(as.character(xcs) , collapse=" ");
-    if ( !is.null(stat_hash[[key]]) )   {
-      stat = stat_hash[[key]];
-      pvalue = pvalue_hash[[key]];
+    if ( !is.null(stat_hash[key]) )   {
+      stat = stat_hash[key];
+      pvalue = pvalue_hash[key];
       results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
       return(results);
     }

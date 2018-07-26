@@ -28,7 +28,7 @@ ebic.glmm.ordinal.reps.bsreg <- function(target, dataset, id, reps = NULL, wei =
         bic <- BIC(mod)      
         if (bic0 - bic < 0 ) {
           info <- matrix( 0, nrow = 0, ncol = 2 )
-          mat <- matrix( c(1, bic), ncol = 2 )
+          mat <- matrix( c(1, bic - bic0), ncol = 2 )
         } else {
           info <- matrix( c(1, bic), ncol = 2 )
           mat <- matrix(0, nrow = 0, ncol = 2 )

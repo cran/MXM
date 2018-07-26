@@ -343,6 +343,7 @@ gomp <- function(target, dataset, tol = qchisq(0.95, 1), test = "testIndLogistic
       colnames(res) <- c("Selected Vars", "Deviance") 
       result <- list(runtime = runtime, phi = NULL, res = res)
     } ##  end if (test == "testIndNB")
+    
   }  ##  end if ( test == "testIndReg" | test == "testIndfisher" ) 
   
   result  

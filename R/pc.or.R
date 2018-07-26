@@ -96,7 +96,7 @@ R0 <- function(G, ina, sepa) {
       for (i in id) {
         adj <- ina[ G[i, ] == 1 ]
         if ( length(adj) > 1 ) {
-          sam <-  as.matrix(  t( combn(adj, 2) ) )
+          sam <-   t( Rfast::comb_n(adj, 2) )
           for ( j in 1:nrow(sam) ) {
             if ( G[sam[j, 1], sam[j, 2] ] == 0  &  G[sam[j, 1], i ] == 1  &  G[sam[j, 2], i ] == 1 ) {
               res <- is.sepset( sam[j, ], i, sepa )

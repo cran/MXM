@@ -1,5 +1,6 @@
 \name{Certificate of exclusion from the selected variables set using SES or MMPC}
 \alias{certificate.of.exclusion}
+\alias{certificate.of.exclusion2}
 \title{
 Certificate of exclusion from the selected variables set using SES or MMPC
 }
@@ -10,6 +11,7 @@ Information on why one ore more variables were not selected.
 
 \usage{
 certificate.of.exclusion(xIndex, sesObject = NULL, mmpcObject = NULL) 
+certificate.of.exclusion2(xIndex, mmpc2object) 
 }
 
 \arguments{
@@ -21,6 +23,9 @@ If you ran SES, wald.ses or perm.ses, give the whole SES object here, otherwise 
 }
 \item{mmpcObject}{
 If you ran MMPC, wald.mmpc or prm.mmpc, give the whole MMPC object here, otherwise leave it NULL.
+}
+\item{mmpc2object}{
+If you ran mmpc2, give the whole MMPC object here.
 }
 }
 
@@ -43,7 +48,6 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 
 \examples{
 set.seed(123)
-require("hash", quietly = TRUE) 
 #simulate a dataset with continuous data
 dataset <- matrix(runif(1000 * 200, 1, 100), ncol = 200)
 #define a simulated class variable 

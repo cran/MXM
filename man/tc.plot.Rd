@@ -69,7 +69,7 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> Micha
 }
 
 \seealso{
-\code{\link{testIndGLMMReg}, \link{SES.temporal} }
+\code{\link{testIndGLMMReg}, \link{SES.glmm} }
 }
 
 \examples{

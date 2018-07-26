@@ -7,9 +7,9 @@ testIndTobit = function(target, dataset, xIndex, csIndex, wei = NULL, univariate
     csindex2 = sort(csIndex2)
     xcs = c(xIndex,csIndex2)
     key = paste(as.character(xcs) , collapse=" ");
-    if (is.null(stat_hash[[key]]) == FALSE) {
-      stat = stat_hash[[key]];
-      pvalue = pvalue_hash[[key]];
+    if (is.null(stat_hash[key]) == FALSE) {
+      stat = stat_hash[key];
+      pvalue = pvalue_hash[key];
       results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
       return(results);
     }
@@ -40,8 +40,8 @@ testIndTobit = function(target, dataset, xIndex, csIndex, wei = NULL, univariate
   } else {
     #update hash objects
     if( hash )  {
-      stat_hash[[key]] <- stat;      #.set(stat_hash , key , stat)
-      pvalue_hash[[key]] <- pvalue;     #.set(pvalue_hash , key , pvalue)
+      stat_hash[key] <- stat;      #.set(stat_hash , key , stat)
+      pvalue_hash[key] <- pvalue;     #.set(pvalue_hash , key , pvalue)
     }
   }
   #testerrorcaseintrycatch(4);

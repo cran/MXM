@@ -3,7 +3,7 @@ rdag2 <- function(n, A = NULL, p, nei, low = 0.1, up = 1) {
   if ( is.null(A) ) {
     prob <- nei/(p - 1)
     A <- matrix(0, p, p)
-    qa <- rbinom( 0.5 * p * (p - 1), 1, prob )
+    qa <- rbinom( 0.5 * p * (p - 1), 1,  prob )
     A[upper.tri(A)] <- qa
   }
   V <- colnames(A)

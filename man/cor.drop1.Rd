@@ -25,7 +25,7 @@ If you want the p-values be returned leave this FALSE. If it is TRUE their logar
 }
 
 \details{
-This uses R's command \code{\link{drop1}} and modifies it so as to calcualte the p-value using Fisher's conditional independence test.
+This uses R's command \code{\link{drop1}} and modifies it so as to calculate the p-value using Fisher's conditional independence test.
 }
 
 \value{

@@ -170,10 +170,8 @@ cvmmpc.par <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, a
     }
     
     #clear the hashmap and garbages
-    if ( !is.null(mmpcHashMap$pvalue_hash) )  hash::clear(mmpcHashMap$pvalue_hash)
-    if ( !is.null(mmpcHashMap$stat_hash) )   hash::clear(mmpcHashMap$stat_hash)
-    rm(mmpcHashMap);
-    gc();
+      if ( !is.null(mmpcHashMap$pvalue_hash) )   mmpcHashMap$pvalue_hash <- NULL
+      if ( !is.null(mmpcHashMap$stat_hash) )     mmpcHashMap$stat_hash <- NULL
     return( as.vector(ela ) )
     }
     stopCluster(cl)

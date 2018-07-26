@@ -77,8 +77,7 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL
         dat <- dataset[, -sel, drop = FALSE]
 
       i <- 1  
-      if ( info[1, 2] > threshold & dim(mat)[1] > 0 ) {
-        
+      
           while ( info[i, 2] > threshold  &  dim(dat)[2] > 0 )  {   
             
             ini <- glm( ywei ~., data = dat, family = binomial(logit), weights = wei, y = FALSE, model = FALSE )
@@ -94,7 +93,7 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL
                 final <- "No variables were selected"
                 info <- rbind(info, c(mat[, 1], pval, stat) )
                 dat <- dataset[, -info[, 1], drop = FALSE ] 
-                mat <- NULL
+                mat <- mat[-sel, , drop = FALSE] 
               } else {
                 info <- rbind(info, c(0, -10, -10)) 
                 final <- ini
@@ -122,13 +121,7 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL
         runtime <- proc.time() - tic		
         info <- info[ info[, 1] > 0, , drop = FALSE]
         res <- list(runtime = runtime, info = info, mat = mat, ci_test = ci_test, final = final ) 
-        
-      }  else {
-        runtime <- proc.time() - tic
-        if (ci_test == "testIndBinom")   mod <- glm(ywei ~ 1, binomial)
-        res <- list(runtime = runtime, info = info, mat = NULL, ci_test = ci_test, final = mod ) 
-      }
-      
+
       }   
       
     } else {
@@ -173,8 +166,6 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL
 
       i <- 1  
 
-      if ( info[1, 2] > threshold  &  dim(mat)[1] > 0 ) {
-        
          while ( info[i, 2] > threshold  &  dim(dat)[2] > 0 )  {   
            i <- i + 1
            k <- p - i + 1
@@ -190,7 +181,7 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL
                final <- "No variables were selected"
                info <- rbind(info, c(mat[, 1], pval, stat) )
                dat <- dataset[, -info[, 1], drop = FALSE ]
-               mat <- NULL
+               mat <- mat[-sel, , drop = FALSE] 
              } else {
                info <- rbind(info, c(0, -10, -10)) 
                final <- ini
@@ -220,13 +211,6 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL
       runtime <- proc.time() - tic		
       info <- info[ info[, 1] > 0, , drop = FALSE]
       res <- list(runtime = runtime, info = info, mat = mat, ci_test = ci_test, final = final ) 
-        
-    } else {
-      runtime <- proc.time() - runtime
-      if (ci_test == "testIndPois")       mod <- glm(target ~ 1, poisson)
-      if (ci_test == "testIndLogistic")    mod <- glm(target ~ 1, binomial)
-      res <- list(runtime = runtime, info = info, mat = NULL, ci_test = ci_test, final = mod ) 
-    }
       
     }
     ############ 
@@ -263,8 +247,6 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL
 
       i <- 1  
 
-      if ( info[1, 2] > threshold & dim(mat)[1] > 0 ) {
-
           while ( info[i, 2] > threshold  &  dim(dat)[2] > 0 )  {   
             i <- i + 1
             k <- p - i + 1
@@ -281,7 +263,7 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL
                 final <- "No variables were selected"
                 info <- rbind(info, c(mat[, 1], pval, stat) )
                 dat <- dataset[, -info[, 1], drop = FALSE ]
-                mat <- NULL
+                mat <- mat[-sel, , drop = FALSE] 
               } else {
                 info <- rbind(info, c(0, -10, -10)) 
                 final <- ini
@@ -307,12 +289,6 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL
         runtime <- proc.time() - tic		
         info <- info[ info[, 1] > 0, , drop = FALSE]
         res <- list(runtime = runtime, info = info, mat = mat, ci_test = ci_test, final = final ) 
-        
-      }	else {
-        runtime <- proc.time() - tic
-        mod <- lm(target ~ 1, weights = wei)
-        res <- list(runtime = runtime, info = info, mat = NULL, ci_test = ci_test, final = mod ) 
-      }  ## end if ( info[1, 2] > threshold & dim(mat)[1] > 0 )
 
       }  ## end if ( mat[sel, 2] < threshold )
       
@@ -356,8 +332,6 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL
         
         i <- 1  
         
-        if ( info[1, 2] > threshold & dim(mat)[1] > 0 ) {
-          
           while ( info[i, 2] > threshold  &  dim(dat)[2] > 0 )  {   
             i <- i + 1
             k <- p - i + 1
@@ -376,7 +350,7 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL
                   final <- "No variables were selected"
                   info <- rbind(info, c(mat[, 1], pval, stat) )
                   dat <- dataset[, -info[, 1], drop = FALSE ]
-                  mat <- NULL
+                  mat <- mat[-sel, , drop = FALSE] 
                 } else {
                   info <- rbind(info, c(0, -10, -10)) 
                   final <- ini
@@ -406,13 +380,7 @@ glm.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL
           runtime <- proc.time() - tic		
           info <- info[ info[, 1] > 0, , drop = FALSE]
           res <- list(runtime = runtime, info = info, mat = mat, ci_test = ci_test, final = final ) 
-          
-        }	else {
-          runtime <- proc.time() - tic
-          mod <- MASS::rlm(target ~ 1, maxit = 2000, method = "MM")
-          res <- list(runtime = runtime, info = info, mat = NULL, ci_test = ci_test, final = mod ) 
-        }  ## end if ( info[1, 2] > threshold & dim(mat)[1] > 0 )
-        
+
       }  ## end if ( mat[sel, 2] < threshold )
       
       }

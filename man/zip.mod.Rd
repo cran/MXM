@@ -19,7 +19,7 @@ zip.reg(target, dataset, wei = NULL, lgy = NULL)
 The target (dependent) variable. It must be a numerical vector with integers. 
 }
 \item{dataset}{
-The indendent variable(s). It can be a vector, a matrix or a dataframe with continuous only variables, a data frame with mixed or only categorical variables.
+The indendent variable(s). It can be a vector, a matrix or a dataframe with continuous only variables, a data frame with mixed or only categorical variables. If this is NULL, a zero inflated Poisson distribution is fitted, no covariates are present.
 }
 \item{wei}{
 A vector of weights to be used for weighted regression. The default value is NULL. 

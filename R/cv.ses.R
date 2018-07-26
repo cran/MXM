@@ -20,11 +20,16 @@ cv.ses <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, alpha
 {
     
   if ( ncores > 1 ) {  ## multi-threaded task
-    result = cvses.par(target, dataset, wei = wei, kfolds = kfolds, folds = folds, alphas = alphas, max_ks = max_ks, task = task, 
+    result <- cvses.par(target, dataset, wei = wei, kfolds = kfolds, folds = folds, alphas = alphas, max_ks = max_ks, task = task, 
                        metric = metric, modeler = modeler, ses_test = ses_test, ncores = ncores)
 
   } else { ## one core task     
   
+  if ( identical(ses_test, "testIndClogit") ) {
+      result <- clogit.cv.ses(target = target, dataset = dataset, kfolds = kfolds, folds = folds, alphas = alphas, max_ks = max_ks, 
+                                          metricbbc = NULL, B = 1, ncores = 1)
+  } else {
+    
   if ( is.null(alphas) )  alphas <- c(0.1, 0.05, 0.01)
   if ( is.null(max_ks) )  max_ks <- c(3, 2)  
   
@@ -173,10 +178,8 @@ cv.ses <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, alpha
         }
     }
     #clear the hashmap and garbages
-    if ( !is.null(SESHashMap$pvalue_hash) )   hash::clear(SESHashMap$pvalue_hash)
-    if ( !is.null(SESHashMap$stat_hash) )    hash::clear(SESHashMap$stat_hash)
-    rm(SESHashMap);
-    gc();
+    if ( !is.null(SESHashMap$pvalue_hash) )   SESHashMap$pvalue_hash <- NULL
+    if ( !is.null(SESHashMap$stat_hash) )     SESHashMap$stat_hash <- NULL
   }
   #finding the best performance for the metric  
   index = 1;
@@ -217,7 +220,10 @@ cv.ses <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, alpha
   best_model$runtime <- proc.time() - tic 
   
   result <- best_model
-}
+  
+  }  ##  end if (test == "testIndClogit") {
+  
+}  ## end  if ( ncores > 1 ) {
 
 result
 }
@@ -477,11 +483,15 @@ weibreg.mxm <- function(train_target, sign_data, sign_test, wei) {
   list(preds = preds, theta = NULL)
 }
 
+## exponential regression
 exporeg.mxm <- function(train_target, sign_data, sign_test, wei) {
   x <- sign_data
   sign_model <- survreg(train_target~., data = data.frame(x), dist = "exponential", weights = wei)
   x <- sign_test
+  x <- model.frame
   preds <- predict(sign_model, newdata = data.frame(x) )
   list(preds = preds, theta = NULL)
 }
+
+
 

@@ -5,6 +5,7 @@
 \alias{testIndGLMMGamma}
 \alias{testIndGLMMNormLog}
 \alias{testIndGLMMOrdinal}
+\alias{testIndGLMMCR}
 \alias{testIndLMM}
 \title{
 Linear mixed models conditional independence test for longitudinal class variables
@@ -17,31 +18,35 @@ The main task of this test is to provide a p-value PVALUE for the null hypothesi
 \usage{
 testIndGLMMReg(target, reps = NULL, group, dataset, xIndex, csIndex, wei = NULL,
 univariateModels = NULL, hash = FALSE, stat_hash = NULL, 
-pvalue_hash=NULL, slopes = FALSE)
+pvalue_hash = NULL, slopes = FALSE)
 
 testIndGLMMLogistic(target, reps = NULL, group, dataset, xIndex, csIndex, wei = NULL,
 univariateModels = NULL, hash = FALSE, stat_hash = NULL, 
-pvalue_hash=NULL, slopes = FALSE)
+pvalue_hash = NULL, slopes = FALSE)
 
 testIndGLMMPois(target, reps = NULL, group, dataset, xIndex, csIndex, wei = NULL,
 univariateModels = NULL, hash = FALSE, stat_hash = NULL, 
-pvalue_hash=NULL, slopes = FALSE)
+pvalue_hash = NULL, slopes = FALSE)
 
 testIndGLMMGamma(target, reps = NULL, group, dataset, xIndex, csIndex, wei = NULL,
 univariateModels = NULL, hash = FALSE, stat_hash = NULL, 
-pvalue_hash=NULL, slopes = FALSE)
+pvalue_hash = NULL, slopes = FALSE)
 
 testIndGLMMNormLog(target, reps = NULL, group, dataset, xIndex, csIndex, wei = NULL,
 univariateModels = NULL, hash = FALSE, stat_hash = NULL, 
-pvalue_hash=NULL, slopes = FALSE)
+pvalue_hash = NULL, slopes = FALSE)
 
 testIndGLMMOrdinal(target, reps = NULL, group, dataset, xIndex, csIndex, wei = NULL,
 univariateModels = NULL, hash = FALSE, stat_hash = NULL, 
-pvalue_hash=NULL, slopes = FALSE)
+pvalue_hash = NULL, slopes = FALSE)
+
+testIndGLMMCR(target, reps = NULL, group, dataset, xIndex, csIndex, wei = NULL,
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, 
+pvalue_hash = NULL, slopes = FALSE)
 
 testIndLMM(target, reps = NULL, group, dataset, xIndex, csIndex, wei = NULL,
 univariateModels = NULL, hash = FALSE, stat_hash = NULL, 
-pvalue_hash=NULL, slopes = FALSE)
+pvalue_hash = NULL, slopes = FALSE)
 }
 
 \arguments{
@@ -49,7 +54,7 @@ pvalue_hash=NULL, slopes = FALSE)
 A numeric vector containing the values of the target variable. If the values are proportions or percentages, i.e. strictly within 0 and 1 they are mapped into R using log( target/(1 - target) ). In both cases a linear mixed model is applied. It can also be a binary variable (binary logistic regression) or a discrete, counts (Poisson regression), thus fitting generalised linear mixed models. In the case of "testIndGLMMOrdinal" this must be an ordered factor.
 }
 \item{reps}{
-A numeric vector containing the time points of the subjects. It's length is equal to the length of the target variable. If you have clustered data, leave this NULL. 
+A numeric vector containing the time points of the subjects. It's length is equal to the length of the target variable. If you have clustered data, leave this NULL. This is not applied in ordinal and Cox regression. 
 }
 \item{group}{
 A numeric vector containing the subjects or groups. It must be of the same length as target. 
@@ -73,13 +78,13 @@ Fast alternative to the hash object for univariate test. List with vectors "pval
 A boolean variable which indicates whether (TRUE) or not (FALSE) to use tha hash-based implementation of the statistics of SES. Default value is FALSE. If TRUE you have to specify the stat_hash argument and the pvalue_hash argument.
 }
 \item{stat_hash}{
-A hash object (hash package required) which contains the cached generated statistics of a SES run in the current dataset, using the current test.
+A hash object which contains the cached generated statistics of a SES run in the current dataset, using the current test.
 }
 \item{pvalue_hash}{
-A hash object (hash package required) which contains the cached generated p-values of a SES run in the current dataset, using the current test.
+A hash object which contains the cached generated p-values of a SES run in the current dataset, using the current test.
 }
 \item{slopes}{
-A boolean variable which indicates whether (TRUE) to or not (FALSE) random slopes in the time effect as well. By deault random intercepts are considered. 
+A boolean variable which indicates whether (TRUE) to or not (FALSE) random slopes in the time effect as well. By deault random intercepts are considered. This is not applied in ordinal and Cox regression.
 }
 }
 
@@ -127,7 +132,7 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.gr>, Vincenzo
 %}
 
 \seealso{
-\code{\link{SES.temporal}, \link{MMPC.temporal}, \link{CondIndTests}}
+\code{\link{SES.glmm}, \link{MMPC.glmm}, \link{CondIndTests}}
 }
 
 \examples{

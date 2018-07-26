@@ -25,7 +25,7 @@ The dataset; provide either a data frame or a matrix (columns = variables, rows 
 If you have a set of variables already start with this one. Currently this can only be a matrix with continuous variables. In such cases, the dataset must also contain continuous variables only. Otherwise leave it NULL. 
 }
 \item{threshold}{
-Threshold (suitable values in [0,1]) for assessing the p-values significance. Default value is 0.05.
+Threshold (suitable values in (0, 1)) for assessing the p-values significance. Default value is 0.05.
 }
 \item{wei}{
 A vector of weights to be used for weighted regression. The default value is NULL. It is not suggested when robust is set to TRUE.

@@ -23,9 +23,9 @@ permPois = function(target, dataset, xIndex, csIndex, wei = NULL, univariateMode
     csIndex2 = sort(csIndex2)
     xcs = c(xIndex,csIndex2)
     key = paste(as.character(xcs) , collapse=" ");
-    if ( !is.null(stat_hash[[key]]) ) {
-      stat = stat_hash[[key]];
-      pvalue = pvalue_hash[[key]];
+    if ( !is.null(stat_hash[key]) ) {
+      stat = stat_hash[key];
+      pvalue = pvalue_hash[key];
       results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
       return(results);
     }
@@ -34,8 +34,8 @@ permPois = function(target, dataset, xIndex, csIndex, wei = NULL, univariateMode
   #information with respect to cs
   if ( !is.na( match(xIndex, csIndex) ) ) {
     if( hash )  {      #update hash objects
-      stat_hash[[key]] <- 0;    #.set(stat_hash , key , 0)
-      pvalue_hash[[key]] <- 1;   #.set(pvalue_hash , key , 1)
+      stat_hash[key] <- 0;    #.set(stat_hash , key , 0)
+      pvalue_hash[key] <- 1;   #.set(pvalue_hash , key , 1)
     }
     results <- list(pvalue = 1, stat = 0, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
     return(results);
@@ -55,8 +55,8 @@ permPois = function(target, dataset, xIndex, csIndex, wei = NULL, univariateMode
     if ( is.null(dim(cs)[2]) ) {    #cs is a vector
       if ( identical(x, cs) )  {   #if(!any(x == cs) == FALSE)
         if ( hash ) {    #update hash objects
-          stat_hash[[key]] <- 0;    #.set(stat_hash , key , 0)
-          pvalue_hash[[key]] <- 1;     #.set(pvalue_hash , key , 1)
+          stat_hash[key] <- 0;    #.set(stat_hash , key , 0)
+          pvalue_hash[key] <- 1;     #.set(pvalue_hash , key , 1)
         }
         results <- list(pvalue = 1, stat = 0, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
         return(results);
@@ -65,8 +65,8 @@ permPois = function(target, dataset, xIndex, csIndex, wei = NULL, univariateMode
       for (col in 1:dim(cs)[2]) {
         if (identical(x, cs[, col]) ) {    #if(!any(x == cs) == FALSE
           if ( hash ) {      #update hash objects
-            stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
-            pvalue_hash[[key]] <- 1;#.set(pvalue_hash , key , 1)
+            stat_hash[key] <- 0;#.set(stat_hash , key , 0)
+            pvalue_hash[key] <- 1;#.set(pvalue_hash , key , 1)
           }
           results <- list(pvalue = 1, stat = 0, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
           return(results);
@@ -115,8 +115,8 @@ permPois = function(target, dataset, xIndex, csIndex, wei = NULL, univariateMode
   } else {
     #update hash objects
     if ( hash )  {
-      stat_hash[[key]] <- stat;      #.set(stat_hash , key , stat)
-      pvalue_hash[[key]] <- pvalue;        #.set(pvalue_hash , key , pvalue)
+      stat_hash[key] <- stat;      #.set(stat_hash , key , stat)
+      pvalue_hash[key] <- pvalue;        #.set(pvalue_hash , key , pvalue)
     }
   }
   #testerrorcaseintrycatch(4);

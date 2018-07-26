@@ -70,8 +70,6 @@ clogit.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL) {
     
     i <- 1  
     
-    if ( info[1, 2] > threshold ) {
-      
         while ( info[i, 2] > threshold  &  NCOL(dat) > 0 )  {   
           i <- i + 1
           k <- p - i + 1
@@ -118,8 +116,6 @@ clogit.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL) {
           }  
         }  ## end while
 
-    }  else final <- ini
-  
     info <- info[ info[, 1] > 0, , drop = FALSE ]
     runtime <- proc.time() - runtime
     res <- list(runtime = runtime, info = info, mat = mat, ci_test = "testIndClogit", final = final ) 

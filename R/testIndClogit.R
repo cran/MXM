@@ -8,9 +8,9 @@ testIndClogit = function(target, dataset, xIndex, csIndex, wei = NULL, univariat
     csIndex2 = sort(csIndex2)
     xcs = c(xIndex, csIndex2)
     key = paste(as.character(xcs) , collapse=" ");
-    if( !is.null(stat_hash[[key]]) )  {
-      stat = stat_hash[[key]];
-      pvalue = pvalue_hash[[key]];
+    if( !is.null(stat_hash[key]) )  {
+      stat = stat_hash[key];
+      pvalue = pvalue_hash[key];
       results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
       return(results);
     }
@@ -23,7 +23,7 @@ testIndClogit = function(target, dataset, xIndex, csIndex, wei = NULL, univariat
   clogit_results_full = NULL;
   id = target[, 2] #the patient id
   x = dataset[ , xIndex];
-  case = target[, 1]  ## case control, 0 is the control
+  case = target[, 1]  ## case control, 1 is the case, 0 is the control
 
   res <- tryCatch(
     {
@@ -46,8 +46,8 @@ testIndClogit = function(target, dataset, xIndex, csIndex, wei = NULL, univariat
       } else {
         #update hash objects
         if( hash )  {
-          stat_hash[[key]] <- stat;      #.set(stat_hash , key , stat)
-          pvalue_hash[[key]] <- pvalue;     #.set(pvalue_hash , key , pvalue)
+          stat_hash[key] <- stat;      #.set(stat_hash , key , stat)
+          pvalue_hash[key] <- pvalue;     #.set(pvalue_hash , key , pvalue)
         }
       }
       #testerrorcaseintrycatch(4);

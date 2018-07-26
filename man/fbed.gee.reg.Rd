@@ -31,7 +31,7 @@ If you already have the test statistics and the logged p-values of the univariat
 list with the names "stat" and "pvalue" respectively.
 }
 \item{threshold}{
-Threshold (suitable values in [0,1]) for asmmmbsing p-values significance. Default value is 0.05.
+Threshold (suitable values in (0, 1)) for asmmmbsing p-values significance. Default value is 0.05.
 }
 \item{wei}{
 A vector of weights to be used for weighted regression. The default value is NULL. 
@@ -63,7 +63,7 @@ The jackknife variance estimator was suggested by Paik (1988), which is quite su
 The algorithm is a variation of the usual forward selection. At every step, the most significant variable enters the selected variables set. In addition, only the significant variables stay and are further examined. The non signifcant ones are dropped. This goes until no variable can enter the set. The user has the option to redo this step 1 or more times (the argument K). In the end, a backward selection is performed to remove falsely selected variables. 
   
 Since GEE are likelihood free, all significance tests take place using the Wald test, hence we decided not to have a backward phase. This 
-algorithm is suitable for both clustered and longitudinal (temporal) data. 
+algorithm is suitable for both clustered and longitudinal (glmm) data. 
 
 If you specify a range of values of K it returns the results of fbed.reg for this range of values of K. For example, instead of runnning fbed.reg with K=0, K=1, K=2 and so on, you can run fbed.reg with K=0:2 and the selected variables found at K=2, K=1 and K=0 are returned. Note also, that you may specify maximum value of K to be 10, but the maximum value FBED used was 4 (for example). 
 }
@@ -123,7 +123,7 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 
 \seealso{
-\code{ \link{fbed.glmm.reg}, \link{glmm.bsreg}, \link{MMPC.temporal}, \link{fbed.reg} }
+\code{ \link{fbed.glmm.reg}, \link{glmm.bsreg}, \link{MMPC.glmm}, \link{fbed.reg} }
 }
 
 \examples{

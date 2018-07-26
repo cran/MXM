@@ -16,7 +16,7 @@ mmhc.skel(dataset, max_k = 3, threshold = 0.05, test = "testIndFisher", type = "
 hash = FALSE, backward = TRUE, symmetry = TRUE, nc = 1, ini.pvalue = NULL) 
 
 glmm.mmhc.skel(dataset, group, max_k = 3, threshold = 0.05, test = "testIndLMM",
-type = "MMPC.temporal", hash = FALSE, symmetry = TRUE, nc = 1, ini.pvalue = NULL)
+type = "MMPC.glmm", hash = FALSE, symmetry = TRUE, nc = 1, ini.pvalue = NULL)
 
 gee.mmhc.skel(dataset, group, max_k = 3, threshold = 0.05, test = "testIndGEEReg",
 type = "MMPC.gee", se = "jack", hash = FALSE, symmetry = TRUE, nc = 1, 
@@ -39,10 +39,10 @@ Threshold ( suitable values in (0, 1) ) for assessing p-values significance. Def
 \item{test}{
 The conditional independence test to use. Default value is "testIndFisher". This procedure allows for "testIndFisher", "testIndSPearman" for continuous variables and "gSquare" for categorical variables. In case the dataset is a data.frame with mixed types of data leave this NULL and an appropriate test will be selected. See \code{\link{MMPC}} for the automatic choice of tests.
 
-For the "glmm.mmhc.skel" the available tests in \code{\link{MMPC.temporal}}.
+For the "glmm.mmhc.skel" the available tests in \code{\link{MMPC.glmm}}.
 }
 \item{type}{
-The type of variable selection to take place for each variable (or node). The default (and standard) is "MMPC" and "MMPC.temporal". You can also choose to run it via "SES" and "SES.temporal" and thus allow for multiple signatures of variables to be connected to a variable.
+The type of variable selection to take place for each variable (or node). The default (and standard) is "MMPC" and "MMPC.glmm". You can also choose to run it via "SES" and "SES.glmm" and thus allow for multiple signatures of variables to be connected to a variable.
 }
 \item{se}{
 The method for estimating standard errors. This is very important and crucial. The available options for Gaussian, Logistic, Poisson and Gamma regression are: a) 'san.se': the usual robust estimate. b) 'jack': approximate jackknife variance estimate. c) 'j1s': if 1-step jackknife variance estimate and d) 'fij': fully iterated jackknife variance estimate. If you have many clusters (sets of repeated measurements) "san.se" is fine as it is asympotically correct, plus jacknife estimates will take longer. If you have a few clusters, then maybe it's better to use jacknife estimates. 

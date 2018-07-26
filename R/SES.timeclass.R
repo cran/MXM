@@ -1,26 +1,19 @@
-SES.timeclass = function(target, reps, id, dataset, max_k = 3, threshold = 0.05, ini = NULL, wei = NULL,  
+SES.timeclass <- function(target, reps, id, dataset, max_k = 3, threshold = 0.05, ini = NULL, wei = NULL,  
                           hash = FALSE, hashObject = NULL, ncores = 1) {
   ##############################
   # initialization part of MMPC 
   #############################
-  stat_hash = NULL;
-  pvalue_hash = NULL;
+  stat_hash <- NULL;
+  pvalue_hash <- NULL;
   
-  if( hash )  {
-    if ( requireNamespace("hash") )  {
-      if ( is.null(hashObject) )  {
-        stat_hash = hash();
-        pvalue_hash = hash();
-      } else if (class(hashObject) == "list"){
-        stat_hash = hashObject$stat_hash;
-        pvalue_hash = hashObject$pvalue_hash;
-      } else {
-        stop('hashObject must be a list of two hash objects (stat_hash, pvalue_hash)')
-      }
-    } else {
-      cat('The hash version of MMPC.time requires the hash package');
-      return(NULL);
-    }
+  if ( hash )  {
+    if (is.null(hashObject) )  {
+      stat_hash <- Rfast::Hash();
+      pvalue_hash <- Rfast::Hash();
+    } else if ( class(hashObject) == "list" ) {
+      stat_hash <- hashObject$stat_hash;
+      pvalue_hash <- hashObject$pvalue_hash;
+    } else   stop('hashObject must be a list of two hash objects (stat_hash, pvalue_hash)')
   }
   ################################
   # test checking and initialize #
@@ -42,21 +35,19 @@ SES.timeclass = function(target, reps, id, dataset, max_k = 3, threshold = 0.05,
   target <- tar
   tar <- NULL
   
-  if ( is.null(ini) ) {
-    ini <- univariateScore.timeclass(target = target, dataset = dataset, test = test, wei = wei, ncores = ncores)
-  } 
+  if ( is.null(ini) )   ini <- univariateScore.timeclass(target = target, dataset = dataset, test = test, wei = wei, ncores = ncores)
   ###################################
   # options checking and initialize #
   ###################################
-  max_k = floor(max_k);
-  varsize = ncol(dataset);
+  max_k <- floor(max_k);
+  varsize <- ncol(dataset);
   #option checking
   if ( (typeof(max_k)!="double") || max_k < 1 )   stop('invalid max_k option');
   if ( max_k > varsize )   max_k = varsize;
   if ( (typeof(threshold) != "double") || threshold < 0 || threshold >= 1 )   stop('invalid threshold option');
   #######################################################################################
   options(warn = -1)
-  results = InternalSES.timeclass(target, dataset, max_k, log(threshold), test, ini, wei, hash, varsize, stat_hash, pvalue_hash);
+  results <- InternalSES.timeclass(target, dataset, max_k, log(threshold), test, ini, wei, hash, varsize, stat_hash, pvalue_hash);
   #backward phase
   #varsToIterate <- results$selectedVarsOrder
   #if ( backward  & length( varsToIterate ) > 0  ) {

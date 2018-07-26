@@ -69,8 +69,6 @@ tobit.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL) {
     
     i <- 1  
     
-    if ( info[1, 2] > threshold ) {
-             
         while ( info[i, 2] > threshold  &  NCOL(dat) > 0 )  {   
           i <- i + 1
           k <- p - i + 1
@@ -116,7 +114,6 @@ tobit.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL) {
             }
           }  
         }  ## end while
-    }  else final <- ini
     
   }  
   

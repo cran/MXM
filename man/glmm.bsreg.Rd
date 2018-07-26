@@ -23,7 +23,7 @@ The dataset; provide a numerical a matrix (columns = variables, rows = samples).
 This is a numerical vector of the same size as target denoting the groups or the subjects. 
 }
 \item{threshold}{
-Threshold (suitable values in [0,1]) for assessing p-values significance. Default value is 0.05.
+Threshold (suitable values in (0, 1)) for assessing p-values significance. Default value is 0.05.
 }
 \item{wei}{
 A vector of weights to be used for weighted regression. The default value is NULL.
@@ -68,7 +68,7 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 
 \seealso{
-\code{ \link{fbed.glmm.reg}, \link{ebic.glmm.bsreg}, \link{MMPC.temporal} }
+\code{ \link{fbed.glmm.reg}, \link{ebic.glmm.bsreg}, \link{MMPC.glmm} }
 }
 
 \examples{
@@ -78,7 +78,7 @@ data(sleepstudy)
 attach(sleepstudy)
 x <- matrix(rnorm(180 * 20),ncol = 20) ## unrelated preidctor variables
 m1 <- glmm.bsreg(Reaction, x, Subject, wei = NULL, gam = NULL, type = "gaussian") 
-m2 <- MMPC.temporal(target = Reaction, group = Subject, dataset = x)
+m2 <- MMPC.glmm(target = Reaction, group = Subject, dataset = x)
 }
 }
 

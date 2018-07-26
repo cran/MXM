@@ -35,7 +35,7 @@ contains longitudinal data, where each column is a variable. The repeated measur
 The maximum conditioning set to use in the conditional indepedence test (see Details). Integer, default value is 3.
 }
 \item{threshold}{
-Threshold (suitable values in [0, 1]) for assessing p-values significance. Default value is 0.05.
+Threshold (suitable values in (0, 1)) for assessing p-values significance. Default value is 0.05.
 }
 \item{ini}{
 This is a supposed to be a list. After running SES or MMPC with some hyper-parameters you might want to run SES again with different hyper-parameters. To avoid calculating the univariate associations (first step of SES and of MPPC) again, you can extract them from the first run of SES and plug them here. This can speed up the second run (and subequent runs of course) by 50\%. See the details and the argument "univ" in the output values. 
@@ -47,7 +47,7 @@ A vector of weights to be used for weighted regression. The default value is NUL
 A boolean variable which indicates whether (TRUE) or not (FALSE) to store the statistics calculated during SES execution in a hash-type object. Default value is FALSE. If TRUE a hashObject is produced.
 }
 \item{hashObject}{
-A List with the hash objects generated in a previous run of SES.temporal. 
+A List with the hash objects generated in a previous run of SES.glmm. 
 Each time SES runs with "hash=TRUE" it produces a list of hashObjects that can be re-used in order to speed up next runs of SES.
 
 Important: the generated hashObjects should be used only when the same dataset is re-analyzed, possibly with different values of max_k and threshold.
@@ -119,7 +119,7 @@ Argument mode can be either "all" or "partial" for the first 500 pvalues of the 
 }
 
 \references{
-Tsagris M., Lagani V., & Tsamardinos I. (2018). Feature selection for high-dimensional temporal data. BMC bioinformatics, 19(1), 17.
+Tsagris M., Lagani V., & Tsamardinos I. (2018). Feature selection for high-dimensional glmm data. BMC bioinformatics, 19(1), 17.
 
 Vincenzo Lagani, George Kortas and Ioannis Tsamardinos (2013), Biomarker signature identification in "omics" with multiclass outcome. Computational and Structural Biotechnology Journal, 6(7):1-7.
 

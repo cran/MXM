@@ -20,7 +20,7 @@ The class variable. Provide either a string, an integer, a numeric value, a vect
 The dataset; provide either a data frame or a matrix (columns = variables, rows = samples). In either case, only two cases are avaialble, either all data are continuous, or categorical. 
 }
 \item{threshold}{
-Threshold (suitable values in [0,1]) for assessing p-values significance. Default value is 0.05.
+Threshold (suitable values in (0, 1)) for assessing p-values significance. Default value is 0.05.
 }
 \item{test}{
 The regression model to use. Available options are most of the tests for SES and MMPC. 

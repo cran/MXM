@@ -18,9 +18,9 @@ testIndLMM = function(target, reps = NULL, group, dataset, xIndex, csIndex,  wei
     csIndex2 = sort(csIndex2)
     xcs = c(xIndex,csIndex2)
     key = paste(as.character(xcs) , collapse=" ");
-    if( !is.null(stat_hash[[key]]) )  {
-      stat = stat_hash[[key]];
-      pvalue = pvalue_hash[[key]];
+    if( !is.null(stat_hash[key]) )  {
+      stat = stat_hash[key];
+      pvalue = pvalue_hash[key];
       results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
       return(results);
     }
@@ -88,7 +88,7 @@ testIndLMM = function(target, reps = NULL, group, dataset, xIndex, csIndex,  wei
     seb <- fit2$seb
     n <- length(target)
     p <- length(be)
-    if ( round( fit2$info[3], 14 ) == 0 ) {  ## overloaded, nnon significant variable, probably collinear
+    if ( length( unique(round(fit2$be, 14) ) ) < p ) {  ## overloaded, nnon significant variable, probably collinear
       stat <- 0
       pvalue <- log(1)
     } else {
@@ -102,7 +102,7 @@ testIndLMM = function(target, reps = NULL, group, dataset, xIndex, csIndex,  wei
     seb <- fit2$seb
     n <- length(target)
     p <- length(be)
-    if ( be[p] == be[p - 1] ) {  ## overloaded, nnon significant variable, probably collinear
+    if  ( length( unique(round(fit2$be, 14) ) ) < p ) {  ## overloaded, nnon significant variable, probably collinear
       stat <- 0
       pvalue <- log(1)
     } else {

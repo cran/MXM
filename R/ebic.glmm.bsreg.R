@@ -2,6 +2,9 @@ ebic.glmm.bsreg <- function(target, dataset, id, wei = NULL, gam = NULL, test = 
   
   if (test== "testIndGLMMReg") {
     res <- ebic.lmm.bsreg(target, dataset, id, wei = wei, gam = gam)
+    
+  } else if (test== "testIndGLMMCR") {
+    res <- ebic.glmm.cr.bsreg(target, dataset, id, wei = wei, gam = gam)
   } else {
     
   if (test== "testIndGLMMLogistic") {
@@ -42,7 +45,7 @@ ebic.glmm.bsreg <- function(target, dataset, id, wei = NULL, gam = NULL, test = 
       bic <- BIC(mod)      
       if (bic0 - bic < 0 ) {
         info <- matrix( 0, nrow = 0, ncol = 2 )
-        mat <- matrix( c(1, bic), ncol = 2 )
+        mat <- matrix( c(1, bic - bic0), ncol = 2 )
       } else {
         info <- matrix( c(1, bic), ncol = 2 )
         mat <- matrix(0, nrow = 0, ncol = 2 )

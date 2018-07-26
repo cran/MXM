@@ -3,50 +3,44 @@ univariateScore.gee <- function(target, reps = NULL, group, dataset, test, wei, 
   dm <- dim(dataset)
   rows <- dm[1]
   cols <- dm[2]
-
+  ind <- 1:cols
+  
   if (targetID != -1 ) {
     target <- dataset[, targetID]
     dataset[, targetID] <- rnorm(rows)
   }
     
   poia <- Rfast::check_data(dataset)
-  if ( sum(poia) > 0 )   dataset[, poia] <- rnorm(rows * length(poia) )    
-  nTests = cols
-  univariateModels = NULL;
-  univariateModels$pvalue = numeric(nTests) 
-  univariateModels$stat = numeric(nTests)
+  if ( sum(poia) > 0 )   ind[poia] <- 0
+
+  univariateModels$pvalue <- numeric(cols) 
+  univariateModels$stat <- numeric(cols)
   test_results = NULL;
   if ( ncores == 1 | is.null(ncores) | ncores <= 0 ) {
     
-    for(i in 1:nTests) {
-      test_results = test(target, reps, group, dataset, i, 0, wei = wei, correl = correl, se = se)
-      univariateModels$pvalue[[i]] = test_results$pvalue;
-      univariateModels$stat[[i]] = test_results$stat;
+    for(i in ind) {
+      test_results <- test(target, reps, group, dataset, i, 0, wei = wei, correl = correl, se = se)
+      univariateModels$pvalue[[i]] <- test_results$pvalue;
+      univariateModels$stat[[i]] <- test_results$stat;
     } 
   } else {
     #require(doParallel, quiet = TRUE, warn.conflicts = FALSE)  
     cl <- makePSOCKcluster(ncores)
     registerDoParallel(cl)
     test = test
-    mod <- foreach(i = 1:nTests, .combine = rbind, .export = c("geeglm", "ordgee"), .packages = "geepack") %dopar% {
+    mod <- foreach(i = ind, .combine = rbind, .export = c("geeglm", "ordgee"), .packages = "geepack") %dopar% {
       test_results = test(target, reps, group, dataset, i, 0, wei = wei, correl = correl, se = se)
       return( c(test_results$pvalue, test_results$stat) )
     }
     stopCluster(cl)
-    univariateModels$pvalue = as.vector( mod[, 1] )
-    univariateModels$stat = as.vector( mod[, 2] )
+    univariateModels$pvalue[ind] <- as.vector( mod[, 1] )
+    univariateModels$stat[ind] <- as.vector( mod[, 2] )
   }
   
-  if ( sum(poia>0) > 0 ) {
-    univariateModels$stat[poia] = 0
-    univariateModels$pvalue[poia] = log(1)
+  if (targetID != - 1) {
+    univariateModels$stat[targetID] <- 0
+    univariateModels$pvalue[targetID] <- log(1)
   }
-  if ( !is.null(univariateModels) )  {
-    if (targetID != - 1) {
-      univariateModels$stat[targetID] = 0
-      univariateModels$pvalue[targetID] = log(1)
-    }
-  }
-  
+
   univariateModels
 }

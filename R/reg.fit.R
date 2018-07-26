@@ -84,51 +84,39 @@ reg.fit <- function(y, dataset, event = NULL, reps = NULL, group = NULL, slopes 
   } else if ( model == "tobit" ) {
     mod <- survival::survreg(y ~ ., data = x, weights = wei, dist = "gaussian" )
     
-    ## binary logistic regression
   } else if ( model == "binary" ) {
     mod <- glm(y ~ ., data = x, binomial, weights = wei)
 
-    ## multinomial logistic regression
   } else if ( model == "multinomial" ) {
     mod <- nnet::multinom(y ~ ., data = x, trace = FALSE, weights = wei)
 
-    ## ordinal logistic regression
   } else if ( model == "ordinal" ) {
     mod <- ordinal::clm(y ~ ., data = x, weights = wei )
 
-    ## Poisson regression
   } else if ( model == "poisson" ) {
     mod <- glm(y ~ ., data = x, poisson, weights = wei)
 
-    ## quasi Poisson regression
   } else if ( model == "qpois" ) {
     mod <- glm(y ~ ., data = x, quasipoisson, weights = wei)
     
-    ## quasi binomial regression
   } else if ( model == "qbinom" ) {
     mod <- glm(y ~ ., data = x, quasibinomial, weights = wei)
     
-    ## negative binomial regression
   } else if ( model == "negbin" ) {
     mod <- MASS::glm.nb(y ~ ., data = x, weights = wei )
 
-    ## zero inflated poisson regression with constant zero part
   } else if ( model == "zip" ) {
     mod <- zip.mod(y, x, wei = wei)
 
-    ## beta regression
   } else if ( model == "beta" ) {
     mod <- beta.mod(y, x, wei = wei )
   
-    ## Cox proportional hazards
   } else if ( model == "cox" ) {
     mod <- survival::coxph(y ~ ., data = x, weights = wei )
 
-    ## Weibull regression
   } else if ( model == "weibull" ) {
     mod <- survival::survreg(y ~ ., data = x, weights = wei )
 
-    ## Exponential regression
   } else if ( model == "exponential" ) {
     mod <- survival::survreg(y ~ ., data = x, weights = wei, dist = "exponential" )
 
@@ -137,28 +125,33 @@ reg.fit <- function(y, dataset, event = NULL, reps = NULL, group = NULL, slopes 
     id <- y[, 2] #the patient id
     mod <- survival::clogit( case ~ . + strata(id), data = x)
                 
-    ## (generalised) linear mixed models for longitudinal data
   } else if ( model == "longitudinal" ) {
-    if ( la > 2  &  sum( round(y) - y ) != 0  ) {
+    if ( is.ordered(y) ) {
+      if (slopes) {
+        mod <- ordinal::clmm( y ~ . -group + (reps|group), data =  cbind(reps, x), weights = wei ) 
+      } else  mod <- ordinal::clmm( y ~ . -group  + (1|group), data = x, weights = wei )
+
+    } else if ( la > 2  &  sum( round(y) - y ) != 0  ) {
       if ( slopes ) {
-        mod <- lme4::lmer( y ~ . -group + (reps|group), REML = reml, data = as.data.frame( cbind(reps, x) ), weights = wei ) 
-      } else  mod <- lme4::lmer( y ~ . -group + (1|group), REML = reml, data = as.data.frame( cbind(reps, x) ), weights = wei )
+        mod <- lme4::lmer( y ~ . -group + (reps|group), REML = reml, data = cbind(reps, x), weights = wei ) 
+      } else  mod <- lme4::lmer( y ~ . -group + (1|group), REML = reml, data = x, weights = wei )
 	  
     } else if ( la > 2  &  sum( round(y) - y ) == 0 ) {
       if ( slopes ) {
-        mod <- lme4::glmer( y ~ . - group + (reps|group), REML = reml, family = poisson,  data = ( cbind(reps, x) ), weights = wei ) 
-      } else  mod <- lme4::glmer( y ~ . -group  + (1|group), REML = reml, family = poisson, data = ( cbind(reps, x) ), weights = wei )
+        mod <- lme4::glmer( y ~ . - group + (reps|group), REML = reml, family = poisson,  data = cbind(reps, x), weights = wei ) 
+      } else  mod <- lme4::glmer( y ~ . -group  + (1|group), REML = reml, family = poisson, data = x, weights = wei )
 	  
     } else  if ( la == 2 ) {
       y <- as.vector(y)   
       if ( slopes ) {
-        mod <- lme4::glmer( y ~ . - group + (reps|group), REML = reml, family = binomial, data = as.data.frame( cbind(reps, x) ), weights = wei ) 
-      } else  mod <- lme4::glmer( y ~ . -group + (1|group), REML = reml, family = binomial, data = as.data.frame( cbind(reps, x) ), weights = wei )
+        mod <- lme4::glmer( y ~ . - group + (reps|group), REML = reml, family = binomial, data = cbind(reps, x), weights = wei ) 
+      } else  mod <- lme4::glmer( y ~ . -group + (1|group), REML = reml, family = binomial, data = cbind(reps, x), weights = wei )
     }
 
-    ## (generalised) linear mixed models for grouped data
   } else if ( model == "grouped" ) {
-    if ( sum( round(y) - y ) != 0  &  la > 2 ) {
+    if ( is.ordered(y) ) {
+      mod <- ordinal::clmm( y ~ . -group  + (1|group), data = x, weights = wei )
+    } else if ( sum( round(y) - y ) != 0  &  la > 2 ) {
       mod <- lme4::lmer( y ~ . -group + (1|group), REML = reml, data = x, weights = wei )
     } else if ( sum( round(y) - y ) == 0  &  la > 2) {
       mod <- lme4::glmer( y ~ . -group + (1|group), REML = reml, family = poisson, data = x, weights = wei )

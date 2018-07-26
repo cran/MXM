@@ -35,7 +35,7 @@ bs.g2 <- function(target, dataset, threshold = 0.05) {
     
     info[1, ] <- mat[sel, ]
     mat <- mat[-sel, , drop = FALSE] 
-    dat <- dataset[, -sel, drop = FALSE] 
+    dat <- z[, -sel, drop = FALSE] 
     dc2 <- all.dc[-sel]
     p <- p - 1
     ind <- 1:p
@@ -57,13 +57,20 @@ bs.g2 <- function(target, dataset, threshold = 0.05) {
     while ( pval[sel] > sig  &  p > 1 ) {
       info <- rbind(info, mat[sel, ])
       mat <- mat[-sel, , drop = FALSE] 
-      dat <- dataset[, -sel, drop = FALSE] 
-      dc2 <- all.dc[-sel]
+      dat <- z[, -info[, 1], drop = FALSE] 
+      dc2 <- all.dc[ -info[, 1] ]
       p <- p - 1
       
       if ( p == 1 ) {
-        mat <- NULL
-
+        mod <- Rfast::gchi2Test(target, dat[, -(p + 1)], logged = TRUE) 
+        stat <- mod[2, 1]
+        pval <- mod[2, 2]
+        sel <- 1
+        if ( pval > sig ) {
+          info <- rbind(info, mat[sel, ])
+          mat <- NULL
+        }
+        
       } else {
       
         ind <- 1:p
@@ -77,6 +84,7 @@ bs.g2 <- function(target, dataset, threshold = 0.05) {
           dof[i] <- mod$df
         }  ## end for (i in 2:p)     
         pval <- pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
+        mat[, 2:3] <- cbind(pval, stat)
         no <- which(pval == 0)
         if ( length(no) < 1 ) { 
           sel <- which.max( pval )

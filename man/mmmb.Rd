@@ -25,7 +25,7 @@ The dataset; provide either a data frame or a matrix (columns = variables, rows 
 The maximum conditioning set to use in the conditional indepedence test (see Details). Integer, default value is 3.
 }
 \item{threshold}{
-Threshold (suitable values in [0,1]) for assessing the p-values. Default value is 0.05.
+Threshold (suitable values in (0, 1)) for assessing the p-values. Default value is 0.05.
 }
 \item{test}{
 The conditional independence test to use. Default value is "testIndFisher". See also \code{link{CondIndTests}}.
@@ -43,7 +43,7 @@ The idea is to run the MMPC algorithm at first and identify the parents and chil
 }
 
 \value{
-The output of the algorithm is S3 object including:
+The output of the algorithm is an S3 object including:
 \item{mb}{
 The Markov Blanket of the target variable. The parents and children of the target variable, along with the spouses of the target, which are the parents of the children of the target variable.
 }
@@ -72,7 +72,6 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 
 \examples{
 set.seed(123)
-require(hash)
 
 #simulate a dataset with continuous data
 dataset <- matrix( runif(1000 * 50, 1, 100), ncol = 50 )

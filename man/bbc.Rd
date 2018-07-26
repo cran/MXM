@@ -45,11 +45,11 @@ A list including:
 \item{bbc.perf}{
 The bootstrap bias corrected performance of the chosen algorithm, model or configuration.
 }
-\item{ot.perfs}{
+\item{out.perf}{
 The B out sampled performances. Their mean is the "bbc.perf" given above.
 }
 \item{ci}{
-The (1- conf)\% confidence interval of the BBC performance. It is based on the empirical or percentile method for bootstrap samples. The lower and upper 2.5\% of the "out.perfs".
+The (1- conf)\% confidence interval of the BBC performance. It is based on the empirical or percentile method for bootstrap samples. The lower and upper 2.5\% of the "out.perf".
 }
 }
 

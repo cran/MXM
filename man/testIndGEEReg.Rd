@@ -69,10 +69,10 @@ Fast alternative to the hash object for univariate test. List with vectors "pval
 A boolean variable which indicates whether (TRUE) or not (FALSE) to use tha hash-based implementation of the statistics of SES. Default value is FALSE. If TRUE you have to specify the stat_hash argument and the pvalue_hash argument.
 }
 \item{stat_hash}{
-A hash object (hash package required) which contains the cached generated statistics of a SES run in the current dataset, using the current test.
+A hash object which contains the cached generated statistics of a SES run in the current dataset, using the current test.
 }
 \item{pvalue_hash}{
-A hash object (hash package required) which contains the cached generated p-values of a SES run in the current dataset, using the current test.
+A hash object which contains the cached generated p-values of a SES run in the current dataset, using the current test.
 }
 \item{correl}{
 The correlation structure. For the Gaussian, Logistic, Poisson and Gamma regression this can be either "exchangeable" (compound symmetry, suitable for clustered data) or "ar1" (AR(1) model, suitable for longitudinal data). For the ordinal logistic regression its only the "exchangeable" correlation sturcture. This is obsolete for "testIndGEEOrdinal", but is here for compatibility reasons. 
@@ -124,7 +124,7 @@ Yan J. and Fine J. (2004). Estimating equations for association structures. Stat
 
 Eugene Demidenko (2013). Mixed Models: Theory and Applications with R, 2nd Edition. New Jersey: Wiley \& Sons.
 
-Tsagris, M., Lagani, V., & Tsamardinos, I. (2018). Feature selection for high-dimensional temporal data. BMC bioinformatics, 19(1), 17.
+Tsagris, M., Lagani, V., & Tsamardinos, I. (2018). Feature selection for high-dimensional glmm data. BMC bioinformatics, 19(1), 17.
 }
 
 \author{
@@ -138,7 +138,7 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 %}
 
 \seealso{
-\code{\link{SES.temporal}, \link{MMPC.temporal}, \link{CondIndTests}}
+\code{\link{SES.glmm}, \link{MMPC.glmm}, \link{CondIndTests}}
 }
 
 \examples{

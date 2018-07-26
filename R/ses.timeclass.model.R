@@ -38,7 +38,7 @@ ses.timeclass.model <- function(target, dataset, id, reps, wei = NULL, sestimecl
       signature <- c( signature, BIC(mod) )
       names(signature)[length(signature)] = "bic" 
     
-    }  ## end if ( nsignat == 1 || ( nsignat > 1 & nrow(sestemporal.Object@signatures) == 1 ) ) 
+    }  ## end if ( nsignat == 1 || ( nsignat > 1 & nrow(sesglmm.Object@signatures) == 1 ) ) 
     
     if ( nsignat > 1 & nrow(sestimeclass.Object@signatures) > 1 ) {
       

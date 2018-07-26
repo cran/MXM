@@ -33,7 +33,7 @@ Threshold (suitable values in (0, 1)) for assessing p-values significance. Defau
 A vector of weights to be used for weighted regression. The default value is NULL. It is not suggested when robust is set to TRUE.
 }
 \item{test}{
-See \code{\link{CondIndTests}} for a list of the appropriate tests.
+This can be "testIndLogistic", "testIndPois", "testIndBinom", testIndReg" or "testIndMMReg".
 }
 }
 

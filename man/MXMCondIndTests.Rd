@@ -77,6 +77,7 @@ As for the other tests, they share one thing in common. For all of them, two par
   Non negative longitudinal	\tab Continuous \tab testIndGEEGamma \tab GEE with Gamma regression \cr
   and clustered	\tab  \tab  \tab and log link  \cr
   Ordinal clustered	\tab Continuous \tab testIndGEEOrdinal \tab GEE with ordinal regression \cr
+  Clustered survival	\tab Contiunous \tab testIndGLMMCR \tab Mixed effects Cox regression \cr
 }
 }
 
@@ -132,13 +133,18 @@ As for the other tests, they share one thing in common. For all of them, two par
 
 \item \bold{testIndMVreg}. In the case of multivariate continuous targets, the suggested test is via a multivariate linear regression.  The target variable can be compositional data as well. These are positive data, whose vectors sum to 1.  They can sum to any constant, as long as it the same, but for convenience reasons we assume that they are normalised to sum to 1.  In this case the additive log-ratio transformation (multivariate logit transformation) is applied beforehand. 
 
-\item \bold{testIndGLMMReg}, \bold{testIndGLMM}, \bold{testIndGLMMPois} & \bold{testIndGLMMLogistic}. In the case of a longitudinal or clustered targets (continuous, proportions, binary or counts), the suggested test is via a (generalised) linear mixed model.  
+}
+}
+
+\section{Tests for clustered/longitudinal data}{
+\enumerate{
+
+\item \bold{testIndGLMMReg}, \bold{testIndGLMM}, \bold{testIndGLMMPois} & \bold{testIndGLMMLogistic}. In the case of a longitudinal or clustered targets (continuous, proportions, binary or counts), the suggested test is via a (generalised) linear mixed model. \bold{testIndGLMMCR} stands for mixed effects Cox regression. 
 
 \item \bold{testIndGEEReg}, \bold{testIndGEELogistic}, \bold{testIndGEEPois}, \bold{testIndGEENormLog}, \bold{testIndGEEGamma} & 
 \bold{testIndGEEOrdinal}. In the case of a longitudinal or clustered targets (continuous, proportions, binary, counts, positive, strictly positive, ordinal), the suggested test is via GEE (Generalised Estimating Equations).  
 }
 }
-
 
 \section{Wald based tests}{
 
@@ -149,29 +155,29 @@ The available tests for wald.ses and wald.mmpc are listed below. Note, that only
   
   Continuous  \tab waldMMReg \tab MM regression \cr  
   Proportions \tab waldMMReg \tab MM regression \cr 
-  \tab \tab after logit transformation \tab \cr  
+  \tab \tab after logit transformation \cr  
   Proportions \tab waldBeta \tab Beta regression \cr 
   Non negative \tab waldIGreg \tab Inverse Gaussian regression \cr 
   Strictly positive \tab waldGamma \tab Gamma regression \cr 
-  Non negative \tab waldNormLog \tab Gaussian regression with log link\cr 
+  Non negative \tab waldNormLog \tab Gaussian regression with log link \cr 
   Successes \& totals \tab testIndBinom \tab Binomial regression \cr
   Discrete \tab waldPois \tab Poisson regression \cr 
   Discrete \tab waldSpeedPois \tab Poisson regression \cr 
   Discrete \tab waldZIP \tab Zero Inflated \cr 
-  \tab	\tab  \tab Poisson regression \cr 
+  \tab	\tab  Poisson regression \cr 
   Discrete \tab waldNB \tab Negative binomial regression \cr 
   Factor with two \tab waldLogistic \tab Logistic regression \cr
-  levels or binary \tab \tab \tab \cr  
+  levels or binary \tab \tab \cr  
   Factor with more than \tab waldOrdinal \tab Ordinal logistic regression \cr		 
-  two levels (ordered) \tab \tab \tab \cr  
+  two levels (ordered) \tab \tab \cr  
   Left censored \tab waldTobit \tab Tobit regression \cr 
-  Case-control  \tab Mixed \tab testIndClogit \tab Conditional logistic regression \cr
-  Survival	 \tab waldCR \tab Cox regression \cr
-  Survival	 \tab waldWR \tab Weibull regression \cr
-  Survival	 \tab waldER \tab Exponential regression \cr
+  Case-control  \tab Mixed \tab testIndClogit \cr
+  \tab  \tab  Conditional logistic regression \cr
+  Survival \tab waldCR \tab Cox regression \cr
+  Survival \tab waldWR \tab Weibull regression \cr
+  Survival \tab waldER \tab Exponential regression \cr
 }
 }
-
 
 \section{Permutation based tests}{
 
@@ -185,23 +191,23 @@ The available tests for perm.ses and perm.mmpc are listed below. Note, that only
   Continuous  \tab permDcor \tab Distance correlation \cr  
   Continuous  \tab permReg \tab Linear regression \cr  
   Proportions \tab permReg \tab Linear regression \cr 
-  \tab \tab after logit transformation \tab \cr  
+  \tab \tab after logit transformation \cr  
   Proportions \tab permBeta \tab Beta regression \cr 
   Non negative \tab permIGreg \tab Inverse Gaussian regression \cr 
   Strictly positive \tab permGamma \tab Gamma regression \cr 
-  Non negative \tab permNormLog \tab Gaussian regression with log link\cr 
+  Non negative \tab permNormLog \tab Gaussian regression with log link \cr 
   Non negative \tab permWR \tab Weibull regression \cr
   Successes \& totals \tab permBinom \tab Binomial regression \cr
   Discrete \tab permPois \tab Poisson regression \cr 
   Discrete \tab permZIP \tab Zero Inflated \cr 
-  \tab	\tab  \tab Poisson regression \cr 
+  \tab	\tab  Poisson regression \cr 
   Discrete \tab permNB \tab Negative binomial regression \cr 
   Factor with two \tab permLogistic \tab Binary logistic regression \cr
-  levels or binary \tab \tab \tab \cr  
+  levels or binary \tab \tab \cr  
   Factor with more than \tab permMultinom \tab Multinomial logistic regression \cr		 
-  two levels (nominal) \tab \tab \tab \cr 
+  two levels (nominal) \tab \tab \cr 
   Factor with more than \tab permOrdinal \tab Ordinal logistic regression \cr		 
-  two levels (ordered) \tab \tab \tab \cr  
+  two levels (ordered) \tab \tab \cr  
   Left censored \tab permTobit \tab Tobit regression \cr 
   Survival	 \tab permCR \tab Cox regression \cr
   Survival	 \tab permWR \tab Weibull regression \cr
@@ -269,6 +275,8 @@ Spirtes P.,  Glymour C. and Scheines R. (2001). Causation, Prediction, and Searc
 Szekely G.J. and Rizzo, M.L. (2014). Partial distance correlation with methods for dissimilarities. The Annals of Statistics, 42(6): 2382--2412.
 
 Szekely G.J. and Rizzo M.L. (2013).  Energy statistics: A class of statistics based on distances. Journal of Statistical Planning and Inference 143(8): 1249--1272.
+
+Therneau T.M., Grambsch P.M. and Pankratz V.S. (2003). Penalized Survival Models and Frailty, Journal of Computational and Graphical Statistics, 12(1):156-175.
 
 Yan J. and Fine J. (2004). Estimating equations for association structures. Statistics in medicine, 23(6): 859-874
 

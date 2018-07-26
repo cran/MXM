@@ -1,4 +1,5 @@
-ebic.univregs <- function(target, dataset, targetID = -1, test = NULL, user_test = NULL, wei = NULL, ncores = 1, gam = NULL) {
+ebic.univregs <- function(target, dataset, targetID = -1, test = NULL, user_test = NULL, 
+                       wei = NULL, ncores = 1, gam = NULL) {
   
   dm <- dim(dataset)
   rows <- dm[1]

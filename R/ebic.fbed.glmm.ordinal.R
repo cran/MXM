@@ -196,5 +196,4 @@ ebic.fbed.glmm.ordinal <- function(y, x, id, univ = NULL, gam = NULL, wei = NULL
   rownames(info) <- paste("K=", 1:length(card)- 1, sep = "")
   colnames(info) <- c("Number of vars", "Number of tests")
   list(univ = univ, res = res, info = info, runtime = runtime)
-  res
 }

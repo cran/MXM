@@ -67,13 +67,13 @@ Fast alternative to the hash object for univariate test. List with vectors "pval
 A boolean variable which indicates whether (TRUE) or not (FALSE) to use the hash-based implementation of the statistics of SES. Default value is FALSE. If TRUE you have to specify the stat_hash argument and the pvalue_hash argument.
 }
 \item{stat_hash}{
-A hash object (hash package required) which contains the cached generated statistics of a SES run in the current dataset, using the current test.
+A hash object which contains the cached generated statistics of a SES run in the current dataset, using the current test.
 }
 \item{pvalue_hash}{
-A hash object (hash package required) which contains the cached generated p-values of a SES run in the current dataset, using the current test.
+A hash object which contains the cached generated p-values of a SES run in the current dataset, using the current test.
 }
 \item{threshold}{
-Threshold (suitable values in [0,1]) for assessing p-values significance. Default value is 0.05. This is actually obsolete here, but has to be in order tyo have a concise list of input arguments across the same family of functions.
+Threshold (suitable values in (0, 1)) for assessing p-values significance. Default value is 0.05. This is actually obsolete here, but has to be in order tyo have a concise list of input arguments across the same family of functions.
 }
 \item{R}{
 The number of permutations to use. The default value is 999. For the "permDcor" this is set to 499. 

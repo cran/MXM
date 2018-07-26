@@ -58,7 +58,7 @@ A matrix (or just one vector if one signature only) with the variables of each s
 }
 
 \references{
-Tsagris, M., Lagani, V., & Tsamardinos, I. (2018). Feature selection for high-dimensional temporal data. BMC bioinformatics, 19(1), 17.
+Tsagris, M., Lagani, V., & Tsamardinos, I. (2018). Feature selection for high-dimensional glmm data. BMC bioinformatics, 19(1), 17.
 
 McCullagh P., and Nelder J.A. (1989). Generalized linear models. CRC press, USA, 2nd edition.
 }

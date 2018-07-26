@@ -17,7 +17,7 @@ output:
 
 vignette: |
   %\VignetteIndexEntry{Tutorial: Feature selection with the FBED algorithm}
-  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEngine{knitr::knitr}
   %\VignetteEncoding{UTF-8}
 ---
 

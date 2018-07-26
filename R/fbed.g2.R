@@ -227,9 +227,9 @@ fbed.g2 <- function(y, x, alpha = 0.05, univ = NULL, K = 0, backward = TRUE) {
       if ( typeof(a) == "list" ) {
         result$back.rem <- result$res[a$info[, 1], 1]
         back.n.tests <- sum( dim(result$res)[1] : (dim(a$mat)[1] - 1) )
-        sel <- result$res[a$mat[-1, 1] - 1, 1] 
-        stat <- a$mat[-1, 3]
-        pval <- a$mat[-1, 2]
+        sel <- result$res[a$mat[, 1], 1] 
+        stat <- a$mat[, 3]
+        pval <- a$mat[, 2]
         result$res <- cbind(sel, stat, pval)
         result$back.n.tests <- back.n.tests
         result$runtime <- result$runtime + a$runtime

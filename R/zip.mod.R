@@ -1,7 +1,7 @@
 zip.mod <- function(target, dataset, wei = NULL, xnew = NULL) {
 
   n <- length(target)
-  if ( NCOL(dataset) == 0 ) {
+  if ( is.null(dataset) ) {
     if ( is.null(wei) ) {
       mod <- Rfast::zip.mle(target)
       lam <- mod$param[1]
@@ -11,6 +11,7 @@ zip.mod <- function(target, dataset, wei = NULL, xnew = NULL) {
       mod <- zipmle.wei(target, wei)
       res <- list(be = mod$lam, prop = mod$prop, loglik = mod$loglik, est = (1 - mod$prop) * mod$lam)
     }
+    
   } else {
     
     x <- model.matrix(target ~ ., data.frame(dataset) )

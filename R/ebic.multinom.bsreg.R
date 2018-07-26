@@ -33,7 +33,7 @@ ebic.multinom.bsreg <- function(target, dataset, wei = NULL, gam = NULL) {
       bic <- BIC(mod)      
       if (bic0 - bic < 0 ) {
         info <- matrix( 0, nrow = 0, ncol = 2 )
-        mat <- matrix( c(1, bic), ncol = 2 )
+        mat <- matrix( c(1, bic - bic0), ncol = 2 )
       } else {
         info <- matrix( c(1, bic), ncol = 2 )
         mat <- matrix(0, nrow = 0, ncol = 2 )
@@ -79,7 +79,7 @@ ebic.multinom.bsreg <- function(target, dataset, wei = NULL, gam = NULL) {
 
           if ( M == 1 ) {
             mod <- nnet::multinom(target ~ 1, weights = wei, trace = FALSE )
-            bic <-  - 2 * mod$loglik
+            bic <-  - 2 * logLik(mod)
             tool[i] <- bic
             if (bic0 - bic < 0 ) {
               runtime <- proc.time() - tic
@@ -109,13 +109,13 @@ ebic.multinom.bsreg <- function(target, dataset, wei = NULL, gam = NULL) {
               info <- rbind(info, mat[sel, ] )
               mat <- mat[-sel, , drop = FALSE] 
               dat <- dataset[, -info[, 1], drop = FALSE ]
-            }  ## end if ( bic0 - mat[sel, 2] < 0 )
-          }  ## end if (M == 1)
-        }  ## end while
+            }  ##  end  if ( bic0 - mat[sel, 2] < 0 )
+          }  ##  end  if (M == 1)
+        }  ##  end  while ( tool[i - 1] - tool[i ] > 0  &  NCOL(dat) > 0 )
         
-      }  ## end if ( tool[2] > 0 )
-    }  ## end if ( bic0 - mat[sel, 2] < 0  ) 
-   }  ## end  if (M == 0)
+      }  ##  end  if ( tool[2] > 0 )
+    }  ##  end  if ( bic0 - mat[sel, 2] < 0  ) 
+   }  ##  end  if (M == 0)
     runtime <- proc.time() - tic
     res <- list(runtime = runtime, info = info, mat = mat )
   }  ##  end  if ( p > n )

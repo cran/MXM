@@ -33,7 +33,7 @@ ebic.tobit.bsreg <- function(target, dataset, wei = NULL, gam = NULL) {
       bic <- - 2 * logLik(mod) + (length(mod$coefficients) + 1) * logn 
       if (bic0 - bic < 0 ) {
         info <- matrix( 0, nrow = 0, ncol = 2 )
-        mat <- matrix( c(1, bic), ncol = 2 )
+        mat <- matrix( c(1, bic - bic0), ncol = 2 )
       } else {
         info <- matrix( c(1, bic), ncol = 2 )
         mat <- matrix(0, nrow = 0, ncol = 2 )

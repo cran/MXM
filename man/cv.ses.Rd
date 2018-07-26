@@ -29,6 +29,8 @@
 \alias{multinom.mxm}
 \alias{ordinal.mxm}
 \alias{beta.mxm}
+\alias{clogit.mxm}
+\alias{mci.mxm}
 
 \title{
 Cross-Validation for SES and MMPC
@@ -153,6 +155,7 @@ The metric functions that are currently supported are:
 \item binomdev.mxm: Negative binomial regression deviance (multiplied by -1). 
 \item ord_mae.mxm: Ordinal regression mean absolute error (multiplied by -1). 
 \item mae.mxm: Mean absolute error (multiplied by -1). 
+\item mci.mxm: Matched concordance index (for conditonal logistic regression). 
 }
 Usage: metric(predictions, test_target)
 
@@ -177,8 +180,9 @@ The modelling functions that are currently supported are:
   \item nb.mxm: fits a negative binomial regression model (regression task).  
   \item ordinal.mxm: fits an ordinal regression model (regression task).
   \item beta.mxm: fits a beta regression model (regression task). The predicted values are transformed into \eqn{R} using
-        the logit transformation. This is so that the "mse.mxm" metric function can be used. In addition, this way the performance can be  
+        the logit transformation. This is so that the "mse.mxm" metric function can be used. In addition, this way the performance can be
         compared with the regression scenario, where the logit is applied and then a regression model is employed. 
+  \item clogit: fits a conditonalo logistic regression model.
 
 }
 Usage: modeler(train_target, sign_data, sign_test)
@@ -213,8 +217,13 @@ Bear in mind that the values can be extracted with the $ symbol, i.e. this is an
 
 \references{
 Ioannis Tsamardinos, Elissavet Greasidou and Giorgos Borboudakis (2018). Bootstrapping the out-of-sample predictions for efficient and accurate cross-validation. Machine Learning (To appear).  
-
 https://link.springer.com/article/10.1007/s10994-018-5714-4
+
+Harrell F. E., Lee K. L. and Mark D. B. (1996). Multivariable prognostic models: issues in developing models, evaluating assumptions and adequacy, and measuring and reducing errors. Statistics in medicine, 15(4), 361-387.
+
+Hanley J. A. and McNeil B. J. (1982). The meaning and use of the area under a receiver operating characteristic (ROC) curve. Radiology, 143(1), 29-36.
+
+Brentnall A. R., Cuzick J., Field J. and Duffy S. W. (2015). A concordance index for matched case-control studies with applications in cancer risk. Statistics in medicine, 34(3), 396-405.
 }
 
 \author{
@@ -242,7 +251,6 @@ dataset <- dataset[, -50]
 train_set <- dataset[1:100, ]
 train_target <- target[1:100]
 
-require(hash)
 # run a 10 fold CV for the regression task
 best_model = cv.ses(target = train_target, dataset = train_set, kfolds = 5, task = "R")
 

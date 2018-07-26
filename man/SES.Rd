@@ -52,7 +52,7 @@ The data-set; provide either a data frame or a matrix (columns = variables , row
 The maximum conditioning set to use in the conditional indepedence test (see Details). Integer, default value is 3.
 }
 \item{threshold}{
-Threshold (suitable values in [0,1]) for assessing p-values significance. Default value is 0.05.
+Threshold (suitable values in (0, 1)) for assessing p-values significance. Default value is 0.05.
 }
 \item{test}{
 The conditional independence test to use. Default value is NULL. See also \code{\link{CondIndTests}}.
@@ -82,7 +82,7 @@ The number of permutations, set to 999 by default. There is a trick to avoind do
 How many cores to use. This plays an important role if you have tens of thousands of variables or really large sample sizes and tens of thousands of variables and a regression based test which requires numerical optimisation. In other cases it will not make a difference in the overall time (in fact it can be slower). The parallel computation is used in the first step of the algorithm, where univariate associations are examined, those take place in parallel. We have seen a reduction in time of 50\% with 4 cores in comparison to 1 core. Note also, that the amount of reduction is not linear in the number of cores.
 }
 \item{backward}{
-If TRUE, the backward (or symmetry correction) phase will be implemented. This removes any falsely included variables in the parents and children set of the target variable. It call the \code{link{mmpcbackphase}} for this purpose. For perm.ses and wald.ses this is not yet applicable.
+If TRUE, the backward (or symmetry correction) phase will be implemented. This removes any falsely included variables in the parents and children set of the target variable. It call the \code{link{mmpcbackphase}} for this purpose. 
 }
 }
 
@@ -106,8 +106,7 @@ not be able to provide reliable results.
 If the dataset (predictor variables) contains missing (NA) values, they will automatically be replaced by the current variable (column) mean value with an appropriate warning 
 to the user after the execution.
 
-If the target is a single integer value or a string, it has to corresponds to the column number or to the name of the target feature in the dataset. In any other case the
- target is a variable that is not contained in the dataset.
+If the target is a single integer value or a string, it has to corresponds to the column number or to the name of the target feature in the datase. In any other case the target is a variable that is not contained in the dataset.
 
 If the current 'test' argument is defined as NULL or "auto" and the user_test argument is NULL then the algorithm automatically selects the best test based on the type of the data. 
 Particularly:
@@ -127,7 +126,6 @@ Particularly:
 Conditional independence test functions to be pass through the user_test argument should have the same signature of the included test. See \code{\link{testIndFisher}} for an example.
 
 For all the available conditional independence tests that are currently included on the package, please see \code{\link{CondIndTests}}. 
-
 If two or more p-values are below the machine epsilon (.Machine$double.eps which is equal to 2.220446e-16), all of them are set to 0. To make the comparison or the ordering feasible 
 we use the logarithm of the p-value. The max-min heuristic though, requires comparison and an ordering of the p-values. Hence, all conditional independence tests calculate the logarithm 
 of the p-value.
@@ -173,17 +171,13 @@ A matrix reporting all equivalent signatures (one signature for each row). Featu
 The hashObject caching the statistic calculated in the current run.
 }
 \item{pvalues}{
-For each feature included in the dataset, this vector reports the strength of its association with the target in the context of all other variables. Particularly, this vector reports the 
-max p-values foudn when the association of each variable with the target is tested against different conditional sets. Lower values indicate higher association.
+For each feature included in the dataset, this vector reports the strength of its association with the target in the context of all other variable. Particularly, this vector reports the max p-values found when the association of each variable with the target is tested against different conditional sets. Lower values indicate higher association.
 }
 \item{stats}{
 The statistics corresponding to "pvalues" (higher values indicates higher association).
 }
 \item{univ}{
-This is a list with the univariate associations. The test statistics and their corresponding logged p-values, along with their flag (1 if the test was perfromed and 0 otherwise). 
-This list is very important for subsequent runs of SES with different hyper-parameters. After running SES with some hyper-parameters you might want to run SES again with different 
-hyper-parameters. To avoid calculating the univariate associations (first step of SES or MMPC) again, you can take this list from the first run of SES and plug it in the argument "ini" 
-in the next run(s) of SES or MMPC. This can speed up the second run (and subequent runs of course) by 50\%. See the argument "univ" in the output values. 
+This is a list with the univariate associations; the test statistics and their corresponding logged p-values. This list is very important for subsequent runs of SES with different hyper-parameters. After running SES with some hyper-parameters you might want to run SES again with different hyper-parameters. To avoid calculating the univariate associations (first step of SES or MMPC) again, you can take this list from the first run of SES and plug it in the argument "ini" in the next run(s) of SES or MMPC. This can speed up the second run (and subequent runs of course) by 50\%. See the argument "univ" in the output values. 
 }
 \item{max_k}{
 The max_k option used in the current run.
@@ -239,8 +233,6 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> Vince
 \note{
 The packages required by the SES and MMPC algorithm operations are: 
 
-\bold{hash} : for the hash-based implementation
-
 \bold{quantreg}: for the quantile (median) regression
 
 \bold{MASS}: for negative binomial regression
@@ -264,7 +256,6 @@ and \bold{ordinal} : also require(stats) and require(MASS) for the testIndLogist
 
 \examples{
 set.seed(123)
-require("hash", quietly = TRUE) 
 
 #simulate a dataset with continuous data
 dataset <- matrix(runif(1000 * 200, 1, 100), ncol = 200)

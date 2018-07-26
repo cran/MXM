@@ -54,8 +54,6 @@ cor.bsreg <- function(target, dataset, threshold = 0.05) {
           
       i <- 1  
           
-      if ( info[1, 2] > threshold & dim(mat)[1] > 0 ) {
-            
         while ( info[i, 2] > threshold  &  dim(dat)[2] > 0 )  {   
           i <- i + 1
           k <- p - i + 1
@@ -92,11 +90,6 @@ cor.bsreg <- function(target, dataset, threshold = 0.05) {
         runtime <- proc.time() - tic		
         info <- info[ info[, 1] > 0, , drop = FALSE]
         res <- list(runtime = runtime, info = info, mat = mat, ci_test = ci_test, final = final ) 
-            
-      }	else {
-        runtime <- proc.time() - tic
-        res <- list(runtime = runtime, info = info, mat = NULL, ci_test = ci_test, final = lm(target ~ 1) ) 
-      }
           
     }  ## end if ( mat[sel, 2] < threshold ) 
     

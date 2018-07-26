@@ -6,21 +6,14 @@ MMPC.timeclass = function(target, reps, id, dataset, max_k = 3, threshold = 0.05
   stat_hash = NULL;
   pvalue_hash = NULL;
   
-  if( hash )  {
-    if ( requireNamespace("hash") )  {
-      if ( is.null(hashObject) )  {
-        stat_hash = hash();
-        pvalue_hash = hash();
-      } else if (class(hashObject) == "list"){
-        stat_hash = hashObject$stat_hash;
-        pvalue_hash = hashObject$pvalue_hash;
-      } else {
-        stop('hashObject must be a list of two hash objects (stat_hash, pvalue_hash)')
-      }
-    } else {
-      cat('The hash version of MMPC.time requires the hash package');
-      return(NULL);
-    }
+  if ( hash )  {
+    if (is.null(hashObject) )  {
+      stat_hash <- Rfast::Hash();
+      pvalue_hash <- Rfast::Hash();
+    } else if ( class(hashObject) == "list" ) {
+      stat_hash <- hashObject$stat_hash;
+      pvalue_hash <- hashObject$pvalue_hash;
+    } else   stop('hashObject must be a list of two hash objects (stat_hash, pvalue_hash)')
   }
   ################################
   # test checking and initialize #

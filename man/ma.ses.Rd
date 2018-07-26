@@ -40,7 +40,7 @@ A boolean variable indicating whether the test statistics (TRUE) or the p-values
 The maximum conditioning set to use in the conditional indepedence test (see Details). Integer, default value is 3.
 }
 \item{threshold}{
-Threshold (suitable values in [0,1]) for assessing p-values significance. Default value is 0.05.
+Threshold (suitable values in (0, 1)) for assessing p-values significance. Default value is 0.05.
 }
 \item{test}{
 The conditional independence test to use. Default value is NULL. See also \code{\link{CondIndTests}}.
@@ -186,7 +186,6 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr>, Vinc
 
 \examples{
 set.seed(123)
-require(hash)
 
 #simulate a dataset with continuous data
 dataset <- matrix(runif(1000 * 100, 1, 100), ncol = 100)
@@ -200,7 +199,6 @@ dataset[, 10] <- dataset[ , 10] + rnorm(1000, 0, 2)
 dataset[, 25] <- dataset[, 20] + rnorm(1000, 0, 2) 
 dataset[, 23] <- dataset[, 20] + rnorm(1000, 0, 2)
 
-require("hash", quietly = TRUE) 
 #run the SES algorithm
 a1 <- SES(target , dataset, max_k = 5, threshold = 0.05, test = "testIndFisher", 
 hash = TRUE, hashObject = NULL)

@@ -27,7 +27,7 @@ see bioconductor for details).
 The maximum conditioning set to use in the conditional indepedence test (see Details). Integer, default value is 3.
 }
 \item{threshold}{
-Threshold (suitable values in [0,1]) for assessing p-values significance. Default value is 0.05.
+Threshold (suitable values in (0, 1)) for assessing p-values significance. Default value is 0.05.
 }
 \item{test}{
 The conditional independence test to use. Type the test without " ", e.g. type testIndFisher, Not "testIndFisher". 
@@ -92,7 +92,6 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 
 \examples{
 set.seed(123)
-require("hash", quietly = TRUE) 
 
 #simulate a dataset with continuous data
 dataset <- matrix(runif(1000 * 200, 1, 100), ncol = 200)

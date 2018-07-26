@@ -9,9 +9,9 @@ permClogit = function(target, dataset, xIndex, csIndex, wei = NULL, univariateMo
     csIndex2 = sort(csIndex2)
     xcs = c(xIndex,csIndex2)
     key = paste(as.character(xcs) , collapse=" ");
-    if ( !is.null(stat_hash[[key]]) )  {
-      stat = stat_hash[[key]];
-      pvalue = pvalue_hash[[key]];
+    if ( !is.null(stat_hash[key]) )  {
+      stat = stat_hash[key];
+      pvalue = pvalue_hash[key];
       results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
       return(results);
     }
@@ -47,8 +47,8 @@ permClogit = function(target, dataset, xIndex, csIndex, wei = NULL, univariateMo
       pvalue <-  (step + 1) / (R + 1)
 
       if ( hash )  {   #update hash objects
-        stat_hash[[key]] <- stat;   #.set(stat_hash , key , stat)
-        pvalue_hash[[key]] <- pvalue;   #.set(pvalue_hash , key , pvalue)
+        stat_hash[key] <- stat;   #.set(stat_hash , key , stat)
+        pvalue_hash[key] <- pvalue;   #.set(pvalue_hash , key , pvalue)
       }
     
     } else {
@@ -68,8 +68,8 @@ permClogit = function(target, dataset, xIndex, csIndex, wei = NULL, univariateMo
       }
       pvalue <- log( (step + 1) / (R + 1) )
       if( hash )  {                #update hash objects
-        stat_hash[[key]] <- stat;             #.set(stat_hash , key , stat)
-        pvalue_hash[[key]] <- pvalue;         #.set(pvalue_hash , key , pvalue)
+        stat_hash[key] <- stat;             #.set(stat_hash , key , stat)
+        pvalue_hash[key] <- pvalue;         #.set(pvalue_hash , key , pvalue)
       }
     }
     results = list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);

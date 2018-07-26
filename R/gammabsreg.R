@@ -61,8 +61,6 @@ gammabsreg <- function(target, dataset, threshold = 0.05, wei = NULL) {
 
         i <- 1  
         
-        if ( info[1, 2] > threshold & dim(mat)[1]>0 ) {
-          
             while ( info[i, 2] > threshold  &  dim(dat)[2] > 0 )  {   
               i <- i + 1
               k <- p - i + 1
@@ -107,12 +105,8 @@ gammabsreg <- function(target, dataset, threshold = 0.05, wei = NULL) {
 
         runtime <- proc.time() - runtime		
         info <- info[ info[, 1] > 0, , drop = FALSE]
-        res <- list(runtime = runtime, info = info, mat = mat, ci_test = "testIndGamma", final = final ) 
+        res <- list( runtime = runtime, info = info, mat = mat, ci_test = "testIndGamma", final = final ) 
           
-      } else {
-        runtime <- proc.time() - runtime
-        res <- list(runtime = runtime, info = info, mat = NULL, ci_test = "testIndGamma", final = mod ) 
-      }
     }  
   }  
   res

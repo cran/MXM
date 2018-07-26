@@ -75,13 +75,13 @@ Fast alternative to the hash object for univariate test. List with vectors "pval
 A boolean variable which indicates whether (TRUE) or not (FALSE) to use the hash-based implementation of the statistics of SES. Default value is FALSE. If TRUE you have to specify the stat_hash argument and the pvalue_hash argument.
 }
 \item{stat_hash}{
-A hash object (hash package required) which contains the cached generated statistics of a SES run in the current dataset, using the current test.
+A hash object which contains the cached generated statistics of a SES run in the current dataset, using the current test.
 }
 \item{pvalue_hash}{
-A hash object (hash package required) which contains the cached generated p-values of a SES run in the current dataset, using the current test.
+A hash object which contains the cached generated p-values of a SES run in the current dataset, using the current test.
 }
 \item{threshold}{
-Threshold (suitable values in [0,1]) for assessing p-values significance. 
+Threshold (suitable values in (0, 1)) for assessing p-values significance. 
 }
 \item{R}{
 The number of permutations, set to 999 by default. There is a trick to avoind doing all permutations. As soon as the number of times the permuted test statistic is more than the observed test statistic is more than 50 (if threshold = 0.05 and R = 999), the p-value has exceeded the signifiance level (threshold value) and hence the predictor variable is not significant. There is no need to continue do the extra permutations, as a decision has already been made. 

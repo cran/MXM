@@ -34,7 +34,7 @@ A matrix. The first r ( = length( unique(id) ), the nubmer of subjects ) rows co
 }
 
 \references{
-Tsagris M., Lagani V., & Tsamardinos I. (2018). Feature selection for high-dimensional temporal data. BMC bioinformatics, 19(1), 17.
+Tsagris M., Lagani V., & Tsamardinos I. (2018). Feature selection for high-dimensional glmm data. BMC bioinformatics, 19(1), 17.
 
 McCullagh, Peter, and John A. Nelder. Generalized linear models.  CRC press, USA, 2nd edition, 1989.
 }
@@ -47,7 +47,7 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 
 \seealso{
-\code{ \link{fbed.gee.reg}, \link{glmm.bsreg}, \link{MMPC.temporal} }
+\code{ \link{fbed.gee.reg}, \link{glmm.bsreg}, \link{MMPC.glmm} }
 }
 
 \examples{

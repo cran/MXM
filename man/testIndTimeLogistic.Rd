@@ -40,10 +40,10 @@ Fast alternative to the hash object for univariate test. List with vectors "pval
 A boolean variable which indicates whether (TRUE) or not (FALSE) to use the hash-based implementation of the statistics of SES. Default value is FALSE. If TRUE you have to specify the stat_hash argument and the pvalue_hash argument.
 }
 \item{stat_hash}{
-A hash object (hash package required) which contains the cached generated statistics of a SES run in the current dataset, using the current test.
+A hash object which contains the cached generated statistics of a SES run in the current dataset, using the current test.
 }
 \item{pvalue_hash}{
-A hash object (hash package required) which contains the cached generated p-values of a SES run in the current dataset, using the current test.
+A hash object which contains the cached generated p-values of a SES run in the current dataset, using the current test.
 }
 }
 

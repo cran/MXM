@@ -1,26 +1,20 @@
-perm.ses = function(target, dataset , max_k = 3 , threshold = 0.05 , test = NULL , ini = NULL, wei = NULL, user_test = NULL, 
+perm.ses <- function(target, dataset , max_k = 3 , threshold = 0.05 , test = NULL , ini = NULL, wei = NULL, user_test = NULL, 
                     hash=FALSE, hashObject = NULL, R = 999, ncores = 1, backward = FALSE)  {
   ##############################
   # initialization part of SES #
   ##############################
-  stat_hash = NULL;
-  pvalue_hash = NULL;
+  stat_hash <- NULL;
+  pvalue_hash <- NULL;
   
   if ( hash )  {
-    if ( requireNamespace("hash") )  {
-      if (is.null(hashObject) )  {
-        stat_hash = hash();
-        pvalue_hash = hash();
-      } else if ( class(hashObject) == "list" ) {
-        stat_hash = hashObject$stat_hash;
-        pvalue_hash = hashObject$pvalue_hash;
-      } else   stop('hashObject must be a list of two hash objects (stat_hash, pvalue_hash)')
-    } else {
-      cat('The hash version of SES requires the hash package');
-      return(NULL);
-    }
+    if (is.null(hashObject) )  {
+      stat_hash <- Rfast::Hash();
+      pvalue_hash <- Rfast::Hash();
+    } else if ( class(hashObject) == "list" ) {
+      stat_hash <- hashObject$stat_hash;
+      pvalue_hash <- hashObject$pvalue_hash;
+    } else   stop('hashObject must be a list of two hash objects (stat_hash, pvalue_hash)')
   }
-  
   ###################################
   # dataset checking and initialize #
   ###################################
@@ -31,7 +25,7 @@ perm.ses = function(target, dataset , max_k = 3 , threshold = 0.05 , test = NULL
   }
   if( is.null(dataset) || is.null(target) ) { #|| (dim(as.matrix(target))[2] != 1 & class(target) != "Surv" ))
     stop('invalid dataset or target (class feature) arguments.');
-  } else  target = target;
+  } else  target <- target;
   #check for NA values in the dataset and replace them with the variable median or the mode
   if ( any( is.na(dataset))  ) {
     warning("The dataset contains missing values (NA) and they were replaced automatically by the variable (column) median (for numeric) or by the most frequent level (mode) if the variable is factor")
@@ -40,7 +34,7 @@ perm.ses = function(target, dataset , max_k = 3 , threshold = 0.05 , test = NULL
   ##################################
   # target checking and initialize #
   ##################################
-  targetID = -1;
+  targetID <-  -1;
   #check if the target is a string
   if ( is.character(target) & length(target) == 1 ) {
     findingTarget <- target ==colnames(dataset);        #findingTarget <- target %in% colnames(dataset);

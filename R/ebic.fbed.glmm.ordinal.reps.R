@@ -195,5 +195,4 @@ ebic.fbed.glmm.ordinal.reps <- function(y, x, id, reps = NULL, univ = NULL, gam 
   rownames(info) <- paste("K=", 1:length(card)- 1, sep = "")
   colnames(info) <- c("Number of vars", "Number of tests")
   list(univ = univ, res = res, info = info, runtime = runtime)
-  res
 }

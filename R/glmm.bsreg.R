@@ -2,6 +2,10 @@ glmm.bsreg <- function(target, dataset, id, threshold = 0.05, wei = NULL, test =
   
   if (test == "testIndGLMMReg") {
     res <- lmm.bsreg(target, dataset, id, threshold = threshold, wei = wei) 
+  
+  } else if ( test == "testIndGLMMCR" ) {
+    res <- glmm.cr.bsreg(target, dataset, id, threshold = threshold, wei = wei) 
+ 
   } else {
     
     if (test == "testIndGLMMLogistic") {

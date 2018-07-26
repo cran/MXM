@@ -1,16 +1,11 @@
-big.fbed.reg <- function(target = NULL, dataset, threshold = 0.01, ini = NULL, test = "testIndLogistic", K = 0) { 
+big.fbed.reg <- function(target = NULL, dataset, threshold = 0.01, ini = NULL, test = "testIndLogistic", K = 0, backward = FALSE) { 
 
-  if ( test == "gSquare" ) {
-    result <- big.fbed.g2(dataset, threshold = threshold, univ = ini, K = K, backward = FALSE) 
+  runtime <- proc.time()
     
-  } else {
-    
-    runtime <- proc.time()
-    
-    if ( is.null(target) ) {
-      y <- dataset[, 1]
-      dataset <- bigmemory::sub.big.matrix(dataset, firstCol = 2)
-    } else   y <- target 
+  if ( is.null(target) ) {
+    y <- dataset[, 1]
+    dataset <- bigmemory::sub.big.matrix(dataset, firstCol = 2)
+  } else   y <- target 
   
   dm <- dim(dataset)
   n <- dm[1]     ;     p <- dm[2]
@@ -288,10 +283,32 @@ big.fbed.reg <- function(target = NULL, dataset, threshold = 0.01, ini = NULL, t
   colnames(info) <- c("Number of vars", "Number of tests")
   result <- list(univ = ini, res = res, info = info, runtime = runtime)
   
-  #result$back.rem <- 0
-  #result$back.n.tests <- 0
+  result$back.rem <- 0
+  result$back.n.tests <- 0
   
-  } ## end if(test == "gSquare")
+  if ( backward ) {
     
+    if (result$info[1, 1] > 0) {
+      a <- bsreg.big(target, dataset[, result$res[, 1], drop = FALSE], threshold = threshold, test = test)
+      
+      if ( typeof(a) == "list" ) {
+        result$back.rem <- result$res[a$info[, 1], 1]
+        back.n.tests <- sum( dim(result$res)[1] : dim(a$mat)[1] )
+        sel <- result$res[a$mat[, 1], 1] 
+        stat <- a$mat[, 3]
+        pval <- a$mat[, 2]
+        result$res <- cbind(sel, stat, pval)
+        result$back.n.tests <- back.n.tests
+        result$runtime <- result$runtime + a$runtime
+      } else {
+        back.rem <- 0
+        back.n.tests <- 0
+        result$back.rem <- back.rem
+        result$back.n.tests <- back.n.tests
+        result$runtime <- result$runtime 
+      }  
+    }   ## end if (result$info[1, 1] > 0)
+  }  ## end if ( backward )
+  
   result
 }

@@ -55,7 +55,7 @@ mmpc.or <- function(x, max_k = 5, threshold = 0.01, test = "testIndFisher", back
     ntests[j] <- a@n.tests
     if ( is.null(a@hashObject$pvalue_hash) | length(a@hashObject$pvalue_hash) == 0 ) {
       e[[ j ]] <- NA
-    } else  e[[ j ]] <- Rfast::hash2list( a@hashObject$pvalue_hash ) 
+    } else  e[[ j ]] <- Rfast::hash2list( as.list.environment( a@hashObject$pvalue_hash ) ) 
   }
   
   dm <- numeric(p)

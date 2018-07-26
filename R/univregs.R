@@ -580,8 +580,8 @@ if ( !is.null(user_test) ) {
     }
     stopCluster(cl)
     stat = as.vector( 2 * (mod[, 1] - lik1) )
-    univariateModels$stat = stat
-    univariateModels$pvalue = pchisq(stat, mod[, 2], lower.tail = FALSE, log.p = TRUE)
+    univariateModels$stat <- stat
+    univariateModels$pvalue <- pchisq(stat, mod[, 2], lower.tail = FALSE, log.p = TRUE)
   }
   
 } else if ( identical(test, testIndClogit) ) {  ## Conditional logistic regression
@@ -589,49 +589,51 @@ if ( !is.null(user_test) ) {
   case <- as.logical(target[, 1]);  ## case 
   stat <- numeric(cols)
   dof <- numeric(cols)
-
+  ep <- log( as.vector(table( id ) ) )
+  lik0 <- 2 * sum( ep[is.finite(ep)] )
+  
   if ( ncores <= 1 | is.null(ncores) ) {
     for ( i in 1:cols ) {
       fit2 <- survival::clogit( case ~ dataset[, i] + strata(subject) ) 
-      dof[i] <- length( coef(fit2) ) 
-      stat[i] <- 2 * abs( diff(fit2$loglik) )
+      dof[i] <- length( fit2$coefficients ) 
+      stat[i] <- fit2$loglik[2]
     }
-    univariateModels$stat = stat
-    univariateModels$pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
+    univariateModels$stat <- 2 * stat - lik0
+    univariateModels$pvalue <- pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
 
   } else {
     cl <- makePSOCKcluster(ncores)
     registerDoParallel(cl)
     mod <- foreach(i = 1:cols, .combine = rbind, .packages = "survival") %dopar% {
-        fit2 = survival::clogit(case ~ dataset[, i] + strata(subject) ) 
-        return( c(2 * abs( diff(fit2$loglik) ), length( coef(fit2) ) ) )
+        fit2 <- survival::clogit(case ~ dataset[, i] + strata(subject) ) 
+        return( c(fit2$loglik[2] , length( fit2$coefficients ) ) )
     }
     stopCluster(cl)
-    univariateModels$stat <- as.vector( mod[, 1] )
+    univariateModels$stat <- 2 * as.vector( mod[, 1] ) - lik0
     univariateModels$pvalue <- pchisq(mod[, 1], mod[, 2], lower.tail = FALSE, log.p = TRUE)
   }
   
 } else if ( identical(test, censIndER) ) {  ## Exponential regression
-  fit1 = survival::survreg(target ~ 1, dist = "exponential", weights = wei)
-  lik1 = as.numeric( logLik(fit1) )
-  lik2 = numeric(cols)
-  dof = numeric(cols)
+  fit1 <- survival::survreg(target ~ 1, dist = "exponential", weights = wei)
+  lik1 <- as.numeric( logLik(fit1) )
+  lik2 <- numeric(cols)
+  dof <- numeric(cols)
 
   if ( ncores <= 1 | is.null(ncores) ) {
     for ( i in 1:cols ) {
-      fit2 = survival::survreg( target ~ dataset[, i], dist = "exponential", weights = wei )
-      lik2[i] = as.numeric( logLik(fit2) )
-      dof[i] = length( coef(fit2) ) - 1
+      fit2 <- survival::survreg( target ~ dataset[, i], dist = "exponential", weights = wei )
+      lik2[i] <- as.numeric( logLik(fit2) )
+      dof[i] <- length( coef(fit2) ) - 1
     }
-    stat = 2 * (lik2 - lik1)
-    univariateModels$stat = stat
-    univariateModels$pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
+    stat <- 2 * (lik2 - lik1)
+    univariateModels$stat <- stat
+    univariateModels$pvalue <- pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
 
   } else {
     cl <- makePSOCKcluster(ncores)
     registerDoParallel(cl)
     mod <- foreach(i = 1:cols, .combine = rbind, .packages = "survival") %dopar% {
-        fit2 = survival::survreg( target ~ dataset[, i], dist = "exponential", weights = wei )
+        fit2 <- survival::survreg( target ~ dataset[, i], dist = "exponential", weights = wei )
         return( c(as.numeric( logLik(fit2) ), length( coef(fit2) ) - 1 ) )
     }
     stopCluster(cl)
@@ -642,56 +644,56 @@ if ( !is.null(user_test) ) {
   
 } else if ( identical(test, testIndQBinom)   ) {  ## Quasi Binomial regression
 
-  fit1 = glm(target ~ 1, family = quasibinomial(link = logit), weights = wei)
-  lik1 = fit1$deviance
-  lik2 = numeric(cols)
-  dof = numeric(cols)
+  fit1 <- glm(target ~ 1, family = quasibinomial(link = logit), weights = wei)
+  lik1 <- fit1$deviance
+  lik2 <- numeric(cols)
+  dof <- numeric(cols)
   ina <- 1:cols
   phi <- numeric(cols)
   
   if ( ncores <= 1 | is.null(ncores) ) {
     for ( i in ina ) {
-      fit2 = glm( target ~ dataset[, i], family = quasibinomial(link = logit), weights = wei )
-      lik2[i] = fit2$deviance
-      phi[i] = summary(fit2)[[ 14 ]]
-      dof[i] = length( fit2$coefficients)
+      fit2 <- glm( target ~ dataset[, i], family = quasibinomial(link = logit), weights = wei )
+      lik2[i] <- fit2$deviance
+      phi[i] <- summary(fit2)[[ 14 ]]
+      dof[i] <- length( fit2$coefficients)
     }
-    stat = (lik1 - lik2) / (dof - 1) / phi
-    univariateModels$stat = stat
-    univariateModels$pvalue = pf(stat, dof - 1, rows - dof, lower.tail = FALSE, log.p = TRUE)
+    stat <- (lik1 - lik2) / (dof - 1) / phi
+    univariateModels$stat <- stat
+    univariateModels$pvalue <- pf(stat, dof - 1, rows - dof, lower.tail = FALSE, log.p = TRUE)
   
   } else {
     cl <- makePSOCKcluster(ncores)
     registerDoParallel(cl)
     mod <- foreach(i = ina, .combine = rbind) %dopar% {
-      fit2 = glm( target ~ dataset[, i], family = quasibinomial(link = logit), weights = wei )
+      fit2 <- glm( target ~ dataset[, i], family = quasibinomial(link = logit), weights = wei )
       return( c(fit2$deviance, length( fit2$coefficients ), summary(fit2)[[14]] ) )
     }
     stopCluster(cl)
-    stat = as.vector( lik1 - mod[, 1] ) / (mod[, 2] - 1) / mod[, 3] 
-    univariateModels$stat = stat
-    univariateModels$pvalue = pf(stat, mod[, 2] - 1, rows - mod[, 2], lower.tail = FALSE, log.p = TRUE)
+    stat <- as.vector( lik1 - mod[, 1] ) / (mod[, 2] - 1) / mod[, 3] 
+    univariateModels$stat <- stat
+    univariateModels$pvalue <- pf(stat, mod[, 2] - 1, rows - mod[, 2], lower.tail = FALSE, log.p = TRUE)
   }
   
 } else if ( identical(test, testIndQPois)   ) {  ## Quasi Poisson regression
   
-  fit1 = glm(target ~ 1, family = quasipoisson(link = log), weights = wei)
-  lik1 = fit1$deviance
-  lik2 = numeric(cols)
-  dof = numeric(cols)
+  fit1 <- glm(target ~ 1, family = quasipoisson(link = log), weights = wei)
+  lik1 <- fit1$deviance
+  lik2 <- numeric(cols)
+  dof <- numeric(cols)
   ina <- 1:cols
   phi <- numeric(cols)
   
   if ( ncores <= 1 | is.null(ncores) ) {
     for ( i in ina ) {
-      fit2 = glm( target ~ dataset[, i], family = quasipoisson(link = log), weights = wei )
-      lik2[i] = fit2$deviance
-      phi[i] = summary(fit2)[[ 14 ]]
-      dof[i] = length( fit2$coefficients)
+      fit2 <- glm( target ~ dataset[, i], family = quasipoisson(link = log), weights = wei )
+      lik2[i] <- fit2$deviance
+      phi[i] <- summary(fit2)[[ 14 ]]
+      dof[i] <- length( fit2$coefficients)
     }
-    stat = (lik1 - lik2) / (dof - 1) / phi
-    univariateModels$stat = stat
-    univariateModels$pvalue = pf(stat, dof - 1, rows - dof, lower.tail = FALSE, log.p = TRUE)
+    stat <- (lik1 - lik2) / (dof - 1) / phi
+    univariateModels$stat <- stat
+    univariateModels$pvalue <- pf(stat, dof - 1, rows - dof, lower.tail = FALSE, log.p = TRUE)
     
   } else {
     cl <- makePSOCKcluster(ncores)

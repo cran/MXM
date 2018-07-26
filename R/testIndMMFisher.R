@@ -32,9 +32,9 @@ testIndMMFisher = function(target, dataset, xIndex, csIndex, wei = NULL, statist
       xcs = c(xIndex,csIndex2)
       key = paste(as.character(xcs) , collapse=" ");
       
-      if (is.null(stat_hash[[key]]) == FALSE) {
-        stat = stat_hash[[key]];
-        pvalue = pvalue_hash[[key]];
+      if (is.null(stat_hash[key]) == FALSE) {
+        stat = stat_hash[key];
+        pvalue = pvalue_hash[key];
         results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
         return(results);
       }
@@ -43,8 +43,8 @@ testIndMMFisher = function(target, dataset, xIndex, csIndex, wei = NULL, statist
     #information with respect to cs
     if ( !is.na( match(xIndex, csIndex) ) ) {
       if( hash )  {   #update hash objects
-        stat_hash[[key]] <- 0;  #.set(stat_hash , key , 0)
-        pvalue_hash[[key]] <- log(1);  #.set(pvalue_hash , key , 1)
+        stat_hash[key] <- 0;  #.set(stat_hash , key , 0)
+        pvalue_hash[key] <- log(1);  #.set(pvalue_hash , key , 1)
       }
       results <- list(pvalue = log(1), stat = 0, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
       return(results);
@@ -66,8 +66,8 @@ testIndMMFisher = function(target, dataset, xIndex, csIndex, wei = NULL, statist
       if ( is.null(dim(cs)[2]) )  {    #cs is a vector
         if (identical(x, cs) )  {    #if(!any(x == cs) == FALSE)
           if ( hash )  {   #update hash objects
-            stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
-            pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
+            stat_hash[key] <- 0;#.set(stat_hash , key , 0)
+            pvalue_hash[key] <- log(1);#.set(pvalue_hash , key , 1)
           }
           results <- list(pvalue = log(1), stat = 0, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
           return(results);
@@ -76,8 +76,8 @@ testIndMMFisher = function(target, dataset, xIndex, csIndex, wei = NULL, statist
         for (col in 1:dim(cs)[2])  {
           if ( identical(x, cs[, col]) )  { #if(!any(x == cs) == FALSE)
             if ( hash )  {     #update hash objects
-              stat_hash[[key]] <- 0;    #.set(stat_hash , key , 0)
-              pvalue_hash[[key]] <- log(1);    #.set(pvalue_hash , key , 1)
+              stat_hash[key] <- 0;    #.set(stat_hash , key , 0)
+              pvalue_hash[key] <- log(1);    #.set(pvalue_hash , key , 1)
             }
             results <- list(pvalue = log(1), stat = 0, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
             return(results);
@@ -102,7 +102,7 @@ testIndMMFisher = function(target, dataset, xIndex, csIndex, wei = NULL, statist
         } else {
           e1 = resid( MASS::rlm( target ~., data = data.frame( cs ), maxit = 2000, method = "MM" ) ) 
           e2 = resid( MASS::rlm( x ~.,  data = data.frame( cs ), maxit = 2000, method = "MM" ) )
-          stat = cor(e1,e2) 
+          stat = cor(e1, e2) 
         }
         #lets calculate the p-value
         z = 0.5*log( (1+stat)/(1-stat) );
@@ -116,8 +116,8 @@ testIndMMFisher = function(target, dataset, xIndex, csIndex, wei = NULL, statist
         } else {
           #update hash objects
           if( hash ) {
-            stat_hash[[key]] <- stat;    #.set(stat_hash , key , stat)
-            pvalue_hash[[key]] <- pvalue;   #.set(pvalue_hash , key , pvalue)
+            stat_hash[key] <- stat;    #.set(stat_hash , key , stat)
+            pvalue_hash[key] <- pvalue;   #.set(pvalue_hash , key , pvalue)
           }
         }
         #testerrorcaseintrycatch(4);
@@ -157,9 +157,9 @@ testIndMMFisher = function(target, dataset, xIndex, csIndex, wei = NULL, statist
     csIndex2 = sort(csIndex2)
     xcs = c(xIndex, csIndex2)
     key = paste(as.character(xcs) , collapse=" ");
-    if(is.null(stat_hash[[key]]) == FALSE) {
-      stat = stat_hash[[key]];
-      pvalue = pvalue_hash[[key]];
+    if(is.null(stat_hash[key]) == FALSE) {
+      stat = stat_hash[key];
+      pvalue = pvalue_hash[key];
       aa[[ i ]] <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
     }
   }
@@ -167,8 +167,8 @@ testIndMMFisher = function(target, dataset, xIndex, csIndex, wei = NULL, statist
   #information with respect to cs
   if ( !is.na( match(xIndex, csIndex) ) ) {
     if( hash )  {    #update hash objects
-      stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
-      pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
+      stat_hash[key] <- 0;#.set(stat_hash , key , 0)
+      pvalue_hash[key] <- log(1);#.set(pvalue_hash , key , 1)
     }
     aa[[ i ]] <- list(pvalue = log(1), stat = 0, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
   }
@@ -187,8 +187,8 @@ testIndMMFisher = function(target, dataset, xIndex, csIndex, wei = NULL, statist
     if ( is.null( dim(cs )[2]) ) {    #cs is a vector
       if (any(x != cs) == FALSE) {   #if(!any(x == cs) == FALSE)
         if ( hash )  {    #update hash objects
-          stat_hash[[key]] <- 0;   #.set(stat_hash , key , 0)
-          pvalue_hash[[key]] <- log(1);   #.set(pvalue_hash , key , 1)
+          stat_hash[key] <- 0;   #.set(stat_hash , key , 0)
+          pvalue_hash[key] <- log(1);   #.set(pvalue_hash , key , 1)
         }
         aa[[ i ]] <- list(pvalue = log(1), z = 0, stat = 0, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
       }
@@ -196,8 +196,8 @@ testIndMMFisher = function(target, dataset, xIndex, csIndex, wei = NULL, statist
       for ( col in 1:ncol(cs) ) {
         if (any(x != cs[, col]) == FALSE)  {        #if(!any(x == cs) == FALSE)
           if ( hash )  {    #update hash objects
-            stat_hash[[key]] <- 0;#.set(stat_hash , key , 0)
-            pvalue_hash[[key]] <- log(1);#.set(pvalue_hash , key , 1)
+            stat_hash[key] <- 0;#.set(stat_hash , key , 0)
+            pvalue_hash[key] <- log(1);#.set(pvalue_hash , key , 1)
           }
           aa[[ i ]] <- list(pvalue = log(1), z = 0, stat = 0, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
         }
@@ -207,8 +207,8 @@ testIndMMFisher = function(target, dataset, xIndex, csIndex, wei = NULL, statist
   #if x or target is constant then there is no point to perform the test
   if ( Rfast::Var(x) == 0 ) {
     if( hash )  {   #update hash objects
-      stat_hash[[key]] <- 0;       #.set(stat_hash , key , 0)
-      pvalue_hash[[key]] <- log(1);     #.set(pvalue_hash , key , 1)
+      stat_hash[key] <- 0;       #.set(stat_hash , key , 0)
+      pvalue_hash[key] <- log(1);     #.set(pvalue_hash , key , 1)
     }
     aa[[ i ]] <- list(pvalue = log(1), stat = 0, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
   }
@@ -249,8 +249,8 @@ aa[[ i ]] <- tryCatch(
   } else {
     #update hash objects
     if ( hash ) {
-      stat_hash[[key]] <- stat; #.set(stat_hash , key , stat)
-      pvalue_hash[[key]] <- pvalue; #.set(pvalue_hash , key , pvalue)
+      stat_hash[key] <- stat; #.set(stat_hash , key , stat)
+      pvalue_hash[key] <- pvalue; #.set(pvalue_hash , key , pvalue)
     }
   }
   #testerrorcaseintrycatch(4);
@@ -288,8 +288,8 @@ finally={}
   }
   
   if ( hash ) {
-    stat_hash[[key]] <- stat
-    pvalue_hash[[key]] <- pvalue  
+    stat_hash[key] <- stat
+    pvalue_hash[key] <- pvalue  
   }
 
  res = list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);

@@ -10,7 +10,7 @@
 \title{Class \code{"MMPC.gee.output"}}
 
 \description{
-MMPC.temporal output object class.
+MMPC.glmm output object class.
 }
 
 \section{Objects from the Class}{
@@ -36,7 +36,7 @@ Objects can be created by calls of the form \code{new("MMPC.gee.output", ...)}.
 
 \section{Methods}{
   \describe{
-    \item{plot}{\code{plot(x = "MMPC.gee.output", mode = "all")}: Generic function for plotting the generated pvalues of the MMPC.temporal.output object. Argument mode = "all" for plotting all the pvalues or mode="partial" for partial plotting the first 500 pvalues }
+    \item{plot}{\code{plot(x = "MMPC.gee.output", mode = "all")}: Generic function for plotting the generated pvalues of the MMPC.glmm.output object. Argument mode = "all" for plotting all the pvalues or mode="partial" for partial plotting the first 500 pvalues }
 	 }
 }
 

@@ -61,7 +61,7 @@ bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
    ############ 
    ###  GLMs 
    ############
-    if ( test == "testIndPois"  |  test == "testIndReg"  | test == "testIndLogistic"  | test == "testIndBinom" ) {
+    if ( test == "testIndPois"  |  test == "testIndReg"  | test == "testIndLogistic"  | test == "testIndBinom" | test == "testIndMMReg" ) {
      res <- glm.bsreg(target = target, dataset = dataset, wei = wei, threshold = exp( threshold ) ) 
       
     } else  if ( test == "testIndFisher" ) {
@@ -91,34 +91,31 @@ bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
     } else if ( test == "testIndQBinom" ) {
       res <- quasibinom.bsreg(target = target, dataset = dataset, threshold = exp( threshold ) ) 
       
-	  } else if ( test == "testIndMMReg" ) {
-      res <- mm.bsreg(target = target, dataset = dataset, threshold = exp( threshold ) ) 
-      
 	  } else if ( test == "gSquare" ) {
 	    res <- bs.g2(target, dataset, threshold = exp( threshold ) )
       
     } else {
 	   
      if ( test == "censIndCR" ) {
-        test = survival::coxph 
+        test <- survival::coxph 
 
 	  } else if ( test == "censIndWR" ) {
-      test = survival::survreg 
+      test <- survival::survreg 
 
     } else if ( test == "testIndOrdinal" ) {
-      test = ordinal::clm
+      test <- ordinal::clm
 
     } else if ( test == "testIndMultinom" ) {
-      test = nnet::multinom
+      test <- nnet::multinom
 	  
     } else if ( test == "testIndNB" ) {
-      test = MASS::glm.nb
+      test <- MASS::glm.nb
 
     } else if ( test == "testIndRQ" ) {
-      test = quantreg::rq
+      test <- quantreg::rq
 	
 	  } else if (test == "testIndRQ") {
-	    test = quantreg::rq
+	    test <- quantreg::rq
 	  }
     ###################
     ###################
@@ -157,8 +154,6 @@ bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
 
         i <- 1  
 
-      if ( info[1, 2] > threshold & dim(mat)[1] > 0) {
-         
          while ( info[i, 2] > threshold  &  dim(dat)[2] > 0 )  {   
 
            ini <- test( target ~., data = dat, weights = wei )
@@ -215,11 +210,6 @@ bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
         info <- info[ info[, 1] > 0, , drop = FALSE]
         colnames(mat) <- c("Variables", "log.p-values", "statistic")
         res <- list(runtime = runtime, info = info, mat = mat, ci_test = ci_test, final = final ) 
-        
-      } else {
-        runtime <- proc.time() - tic
-        res <- list(runtime = runtime, info = info, mat = NULL, ci_test = ci_test, final = mod ) 
-      }
 
       }  
     }
@@ -228,9 +218,5 @@ bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
   
   res
 }  
-     
-
-
- 
-  
+   
     

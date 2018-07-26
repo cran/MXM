@@ -1,6 +1,6 @@
 cor.drop1 <- function(y, x, logged = FALSE) {
   if ( is.matrix(x) )    x <- data.frame(x)
-  mod <- lm(y ~., x)
+  mod <- lm(y ~., data = x)
   a <- 1:dim(x)[2]
   bna <- which( is.na(mod$coefficients[-1]) )
   if ( length(bna) > 0 ) {

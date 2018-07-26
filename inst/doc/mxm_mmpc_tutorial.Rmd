@@ -14,7 +14,7 @@ output:
     
 vignette: >
   %\VignetteIndexEntry{Tutorial: Feature selection with the MMPC algorithm}
-  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEngine{knitr::knitr}
   %\VignetteEncoding{UTF-8}
 ---
 
@@ -97,7 +97,6 @@ __PACKAGE DEPENDENCIES and UCI WINE DATASET LOADING:__
 #install.packages('MXM', dependencies = TRUE )
 library(MXM)
 library(dplyr)
-library(hash)
 
 # 1. DOWNLOAD the wine dataset from UCI:
 URL  <- "ftp://ftp.ics.uci.edu/pub/machine-learning-databases/wine/wine.data"
@@ -185,7 +184,7 @@ If desired, you can allocate the `target` variable in a new data structure, mere
  
 ```{r, warning = FALSE, message = FALSE }
 # 3. Select the target variable (`Nonflavanoids`) and store as a matrix:
-target_NonFlav <- as.matrix(wine$Nonflavanoids)
+target_NonFlav <- as.vector(wine$Nonflavanoids)
 str(target_NonFlav,2)
 ```
 
@@ -213,7 +212,6 @@ mmpc_object_wine_NonFlav <- MXM::MMPC( target  = target_NonFlav,
                                        backward = TRUE)   
                                                         
 ```
-
 
 
 ## `MMPC()` output: The `mmpc_object` and the feature signature

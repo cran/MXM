@@ -19,7 +19,7 @@ glmm.ci.mm <- function(ind1, ind2, cs = NULL, dat, group) {
     } else {
       dof <- n - 4
       mod1 <- Rfast::rint.reg(y, x, group)
-      if ( is.infinite(mod1$info[5])  | round( mod1$info[3], 13 ) == 0 ) {
+      if ( is.infinite(mod1$info[5])  | length( unique(round(mod1$be, 14) ) ) < length(mod1$be) ) {
         p1 <- log(1)
         t1 <- 0
       } else {
@@ -41,7 +41,7 @@ glmm.ci.mm <- function(ind1, ind2, cs = NULL, dat, group) {
     } else {
       dof <- n - 4
       mod2 <- Rfast::rint.reg(x, y, group)
-      if ( is.infinite(mod2$info[5]) | round( mod1$info[3], 13 ) == 0 ) {
+	  if ( is.infinite(mod2$info[5])  | length( unique(round(mod2$be, 14) ) ) < length(mod2$be) ) {
         p2 <- log(1)
         t2 <- 0
       } else {

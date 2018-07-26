@@ -33,7 +33,7 @@ list with the names "stat" and "pvalue" respectively in the case of method = "LR
 element called "bic".
 }
 \item{threshold}{
-Threshold (suitable values in [0,1]) for asmmmbsing p-values significance. Default value is 0.05.
+Threshold (suitable values in (0, 1)) for asmmmbsing p-values significance. Default value is 0.05.
 }
 \item{wei}{
 A vector of weights to be used for weighted regression. The default value is NULL. 
@@ -115,7 +115,7 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 
 \seealso{
-\code{ \link{fbed.gee.reg}, \link{glmm.bsreg}, \link{MMPC.temporal}, \link{fbed.reg} }
+\code{ \link{fbed.gee.reg}, \link{glmm.bsreg}, \link{MMPC.glmm}, \link{fbed.reg} }
 }
 
 \examples{
@@ -125,7 +125,7 @@ data(sleepstudy)
 attach(sleepstudy)
 x <- matrix(rnorm(180 * 20),ncol = 20) ## unrelated preidctor variables
 m1 <- fbed.glmm.reg(Reaction, x, Subject) 
-m2 <- MMPC.temporal(target = Reaction, group = Subject, dataset = x)
+m2 <- MMPC.glmm(target = Reaction, group = Subject, dataset = x)
 }
 }
 

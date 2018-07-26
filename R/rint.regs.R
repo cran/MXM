@@ -4,6 +4,7 @@ rint.regs <- function(target, dataset, targetID = -1, id, reps = NULL, tol = 1e-
   dm <- dim(dataset)
   n <- dm[1]
   D <- dm[2]
+  ind <- 1:D
   
   if (targetID != -1 ) {
     target <- dataset[, targetID]
@@ -11,10 +12,11 @@ rint.regs <- function(target, dataset, targetID = -1, id, reps = NULL, tol = 1e-
   }   
   poia <- NULL
   poia <- Rfast::check_data(dataset)
-  if ( sum(poia > 0) )  dataset[, poia] <- rnorm(n * length(poia) )
+  if ( sum(poia > 0) )  ind[poia] <- 0
   
   if ( is.null(reps) ) {
-    mod <- Rfast::rint.regs(target, dataset, id, logged = TRUE) 
+    mod <- Rfast::rint.regs(target, dataset, id, logged = TRUE)
+    mod[ is.na(mod) ] <- 0
     univariateModels$stat <- mod[, 1]
     univariateModels$pvalue <- mod[, 2]  ## pf(stat, 1, n - 4, lower.tail = FALSE, log.p = TRUE)
     
@@ -29,7 +31,7 @@ rint.regs <- function(target, dataset, targetID = -1, id, reps = NULL, tol = 1e-
     
     funa <- function(d, n, ni, ni2, S, hi2)   sum( log1p(ni * d) ) + n * log(S - d * sum(ni2 * hi2/ (1 + ni * d) ) )    
     stat <- numeric(D)
-    for (i in 1:D) {
+    for (i in ind) {
       Xi[, 3] <- dataset[, i]
       xx <- crossprod(Xi)
       # sx <- rowsum(Xi, id)
@@ -59,14 +61,16 @@ rint.regs <- function(target, dataset, targetID = -1, id, reps = NULL, tol = 1e-
       se <- (S - d * sum(ni^2 * hi2/ (1 + ni * d) ) )/n
       seb <- solve( xx - d * crossprod(sx/(1+ ni * d), sx) )[3, 3] * se 
       stat[i] <- b2[3]^2 / seb
-    }  
-    univariateModels$stat = stat
-    univariateModels$pvalue = pf(stat, 1, n - 5, lower.tail = FALSE, log.p = TRUE)
+    }
+    
+    univariateModels$stat <- stat
+    univariateModels$pvalue <- pf(stat, 1, n - 5, lower.tail = FALSE, log.p = TRUE)
     
   }  ## else if ( is.null(reps) )
-  if ( sum(poia>0) > 0 ) {
-    univariateModels$stat[poia] = 0
-    univariateModels$pvalue[poia] = log(1)
+
+  if (targetID != - 1) {
+    univariateModels$stat[targetID] <- 0
+    univariateModels$pvalue[targetID] <- log(1)
   }
   
   univariateModels

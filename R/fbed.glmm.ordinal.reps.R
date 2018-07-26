@@ -32,7 +32,7 @@ fbed.glmm.ordinal.reps <- function(y, x, id, reps, univ = NULL, alpha = 0.05, we
     n.tests <- 0
     stat <- univ$stat
     pval <- univ$pvalue
-    lik2 <- stat + lik1
+    lik2 <- 0.5 * stat + lik1
   } 
   s <- which(pval < sig)
   

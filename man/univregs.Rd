@@ -6,7 +6,9 @@
 \alias{score.univregs}
 \alias{big.score.univregs}
 \alias{rint.regs}
-\alias{glmm.gee.univregs}
+\alias{glmm.univregs}
+\alias{gee.univregs}
+
 \title{
 Univariate regression based tests
 }
@@ -34,8 +36,11 @@ big.score.univregs(target = NULL, dataset, test)
 
 rint.regs(target, dataset, targetID = -1, id, reps = NULL, tol = 1e-08)
 
-glmm.gee.univregs(target, reps = NULL, id, dataset, targetID = -1, test, wei = NULL, 
-slopes = FALSE, correl = "echangeable", se = "jack", ncores = 1)
+glmm.univregs(target, reps = NULL, id, dataset, targetID = -1, test, wei = NULL, 
+slopes = FALSE, ncores = 1)
+
+gee.univregs(target, reps = NULL, id, dataset, targetID = -1, test, wei = NULL, 
+correl = "echangeable", se = "jack", ncores = 1)
 }
 
 \arguments{
@@ -74,8 +79,10 @@ For the "score.univregs" and "big.score.univregs" this can only be one of the fo
 \bold{testIndPois}, \bold{testIndNB}, \bold{testIndGamma} or \bold{censIndWR} but with no censored values and simply the vector, 
 not a Surv object. Ordinal regression is not supported. 
 
-		 
-Note that in all cases you must give the name of the test, without " ". 
+For the "glmm.gee.univregs" this can only be one of the following: \bold{testIndGLMMReg}, \bold{testIndGLMMLogistic}, 
+\bold{testIndGLMMOrdinal}, \bold{testIndGLMMPois}, \bold{testIndGLMMGamma} or \bold{testIndGLMMNormLog}. 
+
+\bold{Note that in all cases you must give the name of the test, without " "}. 
 }
 \item{user_test}{
 A user-defined conditional independence test (provide a closure type object). Default value is NULL. If this is defined, the "test" 
@@ -88,7 +95,7 @@ A vector of weights to be used for weighted regression. The default value is NUL
 This is for ebic.univregs only and it refers to the \eqn{gamma} value of the eBIC. If it is NULL, the default value is calculated and if gam is zero, the usual BIC is returned. see Chen and Chen (2008) for more information.
 }
 \item{threshold}{
-Threshold (suitable values in [0,1]) for assessing p-values significance. Default value is 0.05. The reason for this is to speed up the computations. 
+Threshold (suitable values in (0, 1)) for assessing p-values significance. Default value is 0.05. The reason for this is to speed up the computations. 
 The permutation p-value is calculated as the proportion of times the permuted test statistic is higher than the observed test statistic. When running the
 permutations, if the proportion is more than 0.05, the process stops. A decision must be made fast, and if the non rejection decision has been made, there 
 is no need to perform the rest permutations; the decision cannot change.
@@ -145,7 +152,12 @@ The logarithm of the p-value of the test.
 }
 
 \references{
-Chen J. and Chen Z. (2008). Extended Bayesian information criteria for model selection with large model spaces. Biometrika, 95(3): 759-771.
+Chen J. and Chen Z. (2008). Extended Bayesian information criteria for model selection with large model spaces. 
+Biometrika, 95(3): 759-771.
+
+Eugene Demidenko (2013). Mixed Models: Theory and Applications with R, 2nd Edition. New Jersey: Wiley \& Sons.
+
+McCullagh, Peter, and John A. Nelder. Generalized linear models.  CRC press, USA, 2nd edition, 1989.
 }
 
 \author{

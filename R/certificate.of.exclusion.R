@@ -2,8 +2,8 @@ certificate.of.exclusion <- function(xIndex, sesObject = NULL, mmpcObject = NULL
    
   if ( !is.null(sesObject) ) {  ## SES
     threshold <- sesObject@threshold
-    pval <- Rfast::hash2list( sesObject@hashObject$pvalue_hash )
-    stat <- Rfast::hash2list( sesObject@hashObject$stat_hash )
+    pval <- Rfast::hash2list( as.list.environment( sesObject@hashObject$pvalue_hash ) )
+    stat <- Rfast::hash2list( as.list.environment( sesObject@hashObject$stat_hash ) )
     info <- list()
     for ( i in 1:length(xIndex) ) {
       if ( sum( sesObject@signatures == xIndex[i]) ) {
@@ -27,8 +27,8 @@ certificate.of.exclusion <- function(xIndex, sesObject = NULL, mmpcObject = NULL
     
   } else {  ## MMPC
     threshold <- mmpcObject@threshold
-    pval <- Rfast::hash2list( mmpcObject@hashObject$pvalue_hash )
-    stat <- Rfast::hash2list( mmpcObject@hashObject$stat_hash )
+    pval <- Rfast::hash2list( as.list.environment( mmpcObject@hashObject$pvalue_hash ) )
+    stat <- Rfast::hash2list( as.list.environment( mmpcObject@hashObject$stat_hash ) )
     info <- list()
     for ( i in 1:length(xIndex) ) {
       if ( sum( mmpcObject@selectedVars == xIndex[i]) ) {

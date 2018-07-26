@@ -1,26 +1,19 @@
-ma.mmpc = function(target, dataset, ina, statistic = FALSE, max_k = 3, threshold = 0.05, test = NULL, ini = NULL, user_test = NULL, 
+ma.mmpc <- function(target, dataset, ina, statistic = FALSE, max_k = 3, threshold = 0.05, test = NULL, ini = NULL, user_test = NULL, 
                    hash=FALSE, hashObject=NULL, ncores = 1, backward = FALSE) {
   ##############################
   # initialization part of MMPC #
   ##############################
-  stat_hash = NULL;
-  pvalue_hash = NULL;
+  stat_hash <- NULL
+  pvalue_hash <- NULL
   
   if ( hash )  {
-    if (requireNamespace("hash") ) {
-      if ( is.null(hashObject) ) {
-        stat_hash = hash();
-        pvalue_hash = hash();
-      } else if(class(hashObject) == "list") {
-        stat_hash = hashObject$stat_hash;
-        pvalue_hash = hashObject$pvalue_hash;
-      } else {
-        stop('hashObject must be a list of two hash objects (stat_hash, pvalue_hash)')
-      }
-    } else {
-      cat('The hash version of MMPC requires the hash package');
-      return(NULL);
-    }
+    if (is.null(hashObject) )  {
+      stat_hash <- Rfast::Hash();
+      pvalue_hash <- Rfast::Hash();
+    } else if ( class(hashObject) == "list" ) {
+      stat_hash <- hashObject$stat_hash;
+      pvalue_hash <- hashObject$pvalue_hash;
+    } else   stop('hashObject must be a list of two hash objects (stat_hash, pvalue_hash)')
   }
    ##################################
   # target checking and initialize #
