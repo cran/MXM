@@ -164,19 +164,19 @@ wald.mmpc <- function(target, dataset, max_k = 3, threshold = 0.05, test = NULL,
   if ( !is.null(user_test) )  ci_test = "user_test";
   #call the main MMPC function after the checks and the initializations
   options(warn = -1)
-  results = wald.Internalmmpc(target, dataset, max_k, log(threshold), test, ini, wei, user_test, hash, varsize, stat_hash, 
+  results <- wald.Internalmmpc(target, dataset, max_k, log(threshold), test, ini, wei, user_test, hash, varsize, stat_hash, 
                               pvalue_hash, targetID, ncores = ncores);
 
   varsToIterate <- results$selectedVarsOrder
   
   if ( backward  & length( varsToIterate ) > 0  ) {
-    varsToIterate = results$selectedVars
-    varsOrder = results$selectedVarsOrder
+    varsToIterate <- results$selectedVars
+    varsOrder <- results$selectedVarsOrder
     bc <- mmpcbackphase(target, dataset[, varsToIterate], test = test, wei = wei, max_k = max_k, threshold = threshold ) 
     met <- bc$met
     results$selectedVars = varsToIterate[met]
     results$selectedVarsOrder = varsOrder[met]
-    results$pvalues[varsToIterate] <- bc$pvalue
+    results$pvalues[varsToIterate] <- bc$pvalues
     results$n.tests <- results$n.tests + bc$counter
   }
   

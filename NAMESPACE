@@ -27,6 +27,8 @@ importFrom("utils", combn)
 
 importFrom("geepack", geeglm, ordgee)
 
+importFrom("dplyr", select)
+
 #more
 importFrom("methods", "new", "as")
 importFrom("stats", "predict", "pt", "pf", "binomial", "family", "predict.lm", "BIC", "logLik", "median", 

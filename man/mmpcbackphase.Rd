@@ -70,7 +70,7 @@ A numerical vector of size equal to the number of columns of the dataset.
 \item{counter}{
 The number of tests performed.
 }
-\item{pvalue}{
+\item{pvalues}{
 The maximum p-value for the association of each predictor variable.
 }
 }

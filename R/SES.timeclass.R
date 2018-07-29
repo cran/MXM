@@ -56,7 +56,7 @@ SES.timeclass <- function(target, reps, id, dataset, max_k = 3, threshold = 0.05
   #  met <- bc$met
   #  results$selectedVars <- varsOrder[met]
   #  results$selectedVarsOrder = varsOrder[met]
-  #  results$pvalues[varsToIterate] = bc$pvalue
+  #  results$pvalues[varsToIterate] = bc$pvalues
   #  results$n.tests <- results$n.tests + bc$counter
   #}
   SES.timeclass.output <- new("SESoutput", selectedVars = results$selectedVars, selectedVarsOrder=results$selectedVarsOrder, queues=results$queues, 

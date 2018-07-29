@@ -585,20 +585,18 @@ if ( !is.null(user_test) ) {
   }
   
 } else if ( identical(test, testIndClogit) ) {  ## Conditional logistic regression
-  subject <- target[, 2] #the patient id
   case <- as.logical(target[, 1]);  ## case 
+  subject <- target[, 2] #the patient id
   stat <- numeric(cols)
   dof <- numeric(cols)
-  ep <- log( as.vector(table( id ) ) )
-  lik0 <- 2 * sum( ep[is.finite(ep)] )
-  
+
   if ( ncores <= 1 | is.null(ncores) ) {
     for ( i in 1:cols ) {
       fit2 <- survival::clogit( case ~ dataset[, i] + strata(subject) ) 
       dof[i] <- length( fit2$coefficients ) 
-      stat[i] <- fit2$loglik[2]
+      stat[i] <- diff( fit2$loglik )
     }
-    univariateModels$stat <- 2 * stat - lik0
+    univariateModels$stat <- 2 * stat 
     univariateModels$pvalue <- pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
 
   } else {
@@ -606,10 +604,10 @@ if ( !is.null(user_test) ) {
     registerDoParallel(cl)
     mod <- foreach(i = 1:cols, .combine = rbind, .packages = "survival") %dopar% {
         fit2 <- survival::clogit(case ~ dataset[, i] + strata(subject) ) 
-        return( c(fit2$loglik[2] , length( fit2$coefficients ) ) )
+        return( c( diff(fit2$loglik) , length( fit2$coefficients ) ) )
     }
     stopCluster(cl)
-    univariateModels$stat <- 2 * as.vector( mod[, 1] ) - lik0
+    univariateModels$stat <- 2 * as.vector( mod[, 1] )
     univariateModels$pvalue <- pchisq(mod[, 1], mod[, 2], lower.tail = FALSE, log.p = TRUE)
   }
   

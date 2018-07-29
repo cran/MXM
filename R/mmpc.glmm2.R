@@ -57,6 +57,7 @@ mmpc.glmm2 <- function(target, reps = NULL, group, dataset, max_k = 3, threshold
 
   n.tests <- 0
   alpha <- log(threshold)
+  kapa_pval <- NULL
   
   varsize <- dim(dataset)[2]
   if ( ( typeof(max_k) != "double" ) | max_k < 1 )   stop('invalid max_k option');
@@ -69,8 +70,10 @@ mmpc.glmm2 <- function(target, reps = NULL, group, dataset, max_k = 3, threshold
     pval <- mod$pvalue
     n.tests <- dim(dataset)[2]
   } else pval <- ini$pvalue
-  vars <- which(pval < alpha)  
-  sela <- which.min(pval)
+  vars <- which(pval < alpha) 
+  if ( length(vars) > 0 ) {
+    sela <- which.min(pval) 
+  } else  sela <- vars
   vars <- setdiff(vars, sela)
   
   ## 1 selected

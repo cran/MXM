@@ -41,15 +41,15 @@ MMPC.timeclass = function(target, reps, id, dataset, max_k = 3, threshold = 0.05
   ###################################
   # options checking and initialize #
   ###################################
-  max_k = floor(max_k);
-  varsize = ncol(dataset);
+  max_k <- floor(max_k);
+  varsize <- ncol(dataset);
   #option checking
   if ( (typeof(max_k)!="double") || max_k < 1 )   stop('invalid max_k option');
   if ( max_k > varsize )   max_k = varsize;
   if ( (typeof(threshold) != "double") || threshold < 0 || threshold >= 1 )   stop('invalid threshold option');
   #######################################################################################
   options(warn = -1)
-  results = InternalMMPC.timeclass(target, dataset, max_k, log(threshold), test, ini, wei, hash, varsize, stat_hash, pvalue_hash);
+  results <- InternalMMPC.timeclass(target, dataset, max_k, log(threshold), test, ini, wei, hash, varsize, stat_hash, pvalue_hash);
   #backward phase
   #varsToIterate <- results$selectedVarsOrder
   #if ( backward  & length( varsToIterate ) > 0  ) {
@@ -58,7 +58,7 @@ MMPC.timeclass = function(target, reps, id, dataset, max_k = 3, threshold = 0.05
   #  met <- bc$met
   #  results$selectedVars <- varsOrder[met]
   #  results$selectedVarsOrder = varsOrder[met]
-  #  results$pvalues[varsToIterate] = bc$pvalue
+  #  results$pvalues[varsToIterate] = bc$pvalues
   #  results$n.tests <- results$n.tests + bc$counter
   #}
   MMPCoutput <- new("MMPCoutput", selectedVars = results$selectedVars, selectedVarsOrder = results$selectedVarsOrder, 

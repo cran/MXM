@@ -218,7 +218,7 @@ perm.mmpc <- function(target, dataset, max_k = 3, threshold = 0.05, test = NULL,
     met <- bc$met
     results$selectedVars <- varsToIterate[met]
     results$selectedVarsOrder <- varsOrder[met]
-    results$pvalues[varsToIterate] <- bc$pvalue
+    results$pvalues[varsToIterate] <- bc$pvalues
     results$n.tests <- results$n.tests + bc$counter
   }
   

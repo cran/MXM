@@ -187,7 +187,7 @@ mmpc.gee2 <- function(target, reps = NULL, group, dataset, max_k = 3, threshold 
   #   bc <- mmpcbackphase(target, dataset[, sela, drop = FALSE], test = test, wei = wei, max_k = max_k, threshold = threshold)
   #   met <- bc$met
   #   sela <- sela[met]
-  #   pvalues[sela] <- bc$pvalue
+  #   pvalues[sela] <- bc$pvalues
   #   n.tests <- n.tests + bc$counter
   #   runtime <- runtime + proc.time() - tic
   # }  

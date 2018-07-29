@@ -202,7 +202,7 @@ perm.ses <- function(target, dataset , max_k = 3 , threshold = 0.05 , test = NUL
   if ( (typeof(threshold) != "double" ) || threshold == 0  || threshold > 1 )    stop('invalid threshold option');
   if ( !is.null(user_test) )   ci_test = "user_test";
   #call the main SES function after the checks and the initializations
-  results = perm.Internalses(target, dataset, max_k, log(threshold), test, ini, wei, user_test, hash, varsize, stat_hash, pvalue_hash, 
+  results <- perm.Internalses(target, dataset, max_k, log(threshold), test, ini, wei, user_test, hash, varsize, stat_hash, pvalue_hash, 
                              targetID, R = R, ncores = ncores);
   
   varsToIterate <- results$selectedVarsOrder
@@ -214,7 +214,7 @@ perm.ses <- function(target, dataset , max_k = 3 , threshold = 0.05 , test = NUL
     results$selectedVars <- varsToIterate[met]
     results$selectedVarsOrder <- varsOrder[met]
     results$signatures <- results$signatures[, met, drop = FALSE]
-    results$pvalues[varsToIterate] <- bc$pvalue
+    results$pvalues[varsToIterate] <- bc$pvalues
     results$n.tests <- results$n.tests + bc$counter
   }
   

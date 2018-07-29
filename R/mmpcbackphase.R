@@ -93,5 +93,5 @@ mmpcbackphase <- function(target, dataset, max_k = 3, threshold = 0.05, test = N
       }  ## end for (i in 1:d)
     }  ## end if (d == 1) 
   }  ## end if (R == 1)
-  list(met = met, counter = counter, pvalue = pvalue)
+  list(met = met, counter = counter, pvalues = pvalue)
 }

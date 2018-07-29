@@ -27,7 +27,7 @@ testIndClogit = function(target, dataset, xIndex, csIndex, wei = NULL, univariat
 
   res <- tryCatch(
     {
-      if (is.na(csIndex) || length(csIndex) == 0 || csIndex == 0) {
+      if ( is.na(csIndex) || length(csIndex) == 0 || csIndex == 0 ) {
         clogit_results <- survival::clogit(case ~ x + strata(id) )
         dof = length( coef(clogit_results) ) 
         stat = 2 * abs( diff(clogit_results$loglik) )

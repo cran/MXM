@@ -303,7 +303,7 @@ MMPC <- function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini 
     met <- bc$met
     results$selectedVars <- varsOrder[met]
     results$selectedVarsOrder <- varsOrder[met]
-    results$pvalues[varsToIterate] <- bc$pvalue
+    results$pvalues[varsToIterate] <- bc$pvalues
     results$n.tests <- results$n.tests + bc$counter
   }
   MMPCoutput <-new("MMPCoutput", selectedVars = results$selectedVars, selectedVarsOrder = results$selectedVarsOrder, 

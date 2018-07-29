@@ -17,8 +17,8 @@ For more information the reader is addressed to Lagani V., Athineou G., Farcomen
 \tabular{ll}{
 Package: \tab MXM\cr
 Type: \tab Package\cr
-Version: \tab 1.3.7\cr
-Date: \tab 2018-07-26\cr
+Version: \tab 1.3.8\cr
+Date: \tab 2018-07-29\cr
 License: \tab GPL-2\cr
 }
 }

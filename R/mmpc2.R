@@ -108,14 +108,22 @@ mmpc2 <- function(target, dataset, max_k = 3, threshold = 0.05, test = "testIndL
   dataset <- as.data.frame(dataset)  
   n.tests <- 0
   alpha <- log(threshold)
+  kapa_pval <- NULL
+  
+  varsize <- dim(dataset)[2]
+  if ( ( typeof(max_k) != "double" ) | max_k < 1 )   stop('invalid max_k option');
+  if ( max_k > varsize )   max_k <- varsize;
+  if ( (typeof(threshold) != "double") | threshold <= 0 | threshold > 1 )   stop('invalid threshold option');
   
   if ( is.null(ini) ) {
     mod <- univregs(target, dataset, test = test, wei = wei, ncores = ncores) 
     pval <- mod$pvalue
     n.tests <- dim(dataset)[2]
   } else pval <- ini$pvalue
-  vars <- which(pval < alpha)  
-  sela <- which.min(pval)
+  vars <- which(pval < alpha) 
+  if ( length(vars) > 0 ) {
+    sela <- which.min(pval) 
+  } else  sela <- vars
   vars <- setdiff(vars, sela)
   
   ## 1 selected
@@ -232,7 +240,7 @@ mmpc2 <- function(target, dataset, max_k = 3, threshold = 0.05, test = "testIndL
     bc <- mmpcbackphase(target, dataset[, sela, drop = FALSE], test = test, wei = wei, max_k = max_k, threshold = threshold)
     met <- bc$met
     sela <- sela[met]
-    pvalues[sela] <- bc$pvalue
+    pval[sela] <- bc$pvalues
     n.tests <- n.tests + bc$counter
     runtime <- runtime + proc.time() - tic
   }  
