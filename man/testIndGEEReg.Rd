@@ -4,7 +4,6 @@
 \alias{testIndGEEPois}
 \alias{testIndGEEGamma}
 \alias{testIndGEENormLog}
-\alias{testIndGEEOrdinal}
 \title{
 Linear mixed models conditional independence test for longitudinal class variables
 }
@@ -31,10 +30,6 @@ univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL,
 correl = "exchangeable", se = "jack")
 
 testIndGEENormLog(target, reps = NULL, group, dataset, xIndex, csIndex,  wei =  NULL, 
-univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
-correl = "exchangeable", se = "jack")
-
-testIndGEEOrdinal(target, reps = NULL, group, dataset, xIndex, csIndex,  wei =  NULL, 
 univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
 correl = "exchangeable", se = "jack")
 }
@@ -75,13 +70,14 @@ A hash object which contains the cached generated statistics of a SES run in the
 A hash object which contains the cached generated p-values of a SES run in the current dataset, using the current test.
 }
 \item{correl}{
-The correlation structure. For the Gaussian, Logistic, Poisson and Gamma regression this can be either "exchangeable" (compound symmetry, suitable for clustered data) or "ar1" (AR(1) model, suitable for longitudinal data). For the ordinal logistic regression its only the "exchangeable" correlation sturcture. This is obsolete for "testIndGEEOrdinal", but is here for compatibility reasons. 
+The correlation structure. For the Gaussian, Logistic, Poisson and Gamma regression this can be either "exchangeable" (compound symmetry, suitable for clustered data) or "ar1" (AR(1) model, suitable for longitudinal data). For the ordinal logistic regression its only the "exchangeable" correlation sturcture.  
 }
 \item{se}{
 The method for estimating standard errors. This is very important and crucial. The available options for Gaussian, Logistic, Poisson and Gamma regression are: a)  'san.se', the usual robust estimate. b) 'jack': if approximate jackknife variance estimate should be computed. 
-c) 'j1s': if 1-step jackknife variance estimate should be computed and d) 'fij': logical indicating if fully iterated jackknife variance estimate should be computed. If you have many clusters (sets of repeated measurements) "san.se" is fine as it is astmpotically correct, plus jacknife estimates will take longer. If you have a few clusters, then maybe it's better to use jacknife estimates. 
+c) 'j1s': if 1-step jackknife variance estimate should be computed and d) 'fij': logical indicating if fully iterated jackknife variance estimate should be computed. If you have many clusters (sets of repeated measurements) "san.se" is fine as it is astmpotically correct, plus jacknife estimates will take longer. 
+If you have a few clusters, then maybe it's better to use jacknife estimates. 
 
-The jackknife variance estimator was suggested by Paik (1988), which is quite suitable for cases when the number of subjects is small (K < 30), as in many biological studies. The simulation studies conducted by Ziegler et al. (2000) and Yan and Fine (2004) showed that the approximate jackknife estimates are in many cases in good agreement with the fully iterated ones. This is obsolete for "testIndGEEOrdinal", but is here for compatibility reasons.
+The jackknife variance estimator was suggested by Paik (1988), which is quite suitable for cases when the number of subjects is small (K < 30), as in many biological studies. The simulation studies conducted by Ziegler et al. (2000) and Yan and Fine (2004) showed that the approximate jackknife estimates are in many cases in good agreement with the fully iterated ones. 
 }
 }
 
@@ -91,6 +87,8 @@ If hash = TRUE, testIndGEE requires the arguments 'stat_hash' and 'pvalue_hash' 
 Important: Use these arguments only with the same dataset that was used at initialization. For all the available conditional independence tests that are currently included on the package, please see "?CondIndTests".
 
 This test is for longitudinal and clustered data. Bear in mind that the time effect, for the longitudinal data case, is linear. It could be of higer order as well, but this would be a hyper-parameter, increasing the complexity of the models to be tested. 
+
+Make sure you load the library geepack first. 
 }
 
 \value{
@@ -142,6 +140,7 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 
 \examples{
+library("geepack", quietly = TRUE)
 y <- rnorm(150)
 x <- matrix(rnorm(150 * 5), ncol = 5)
 id <- sample(1:20, 150, replace = TRUE)

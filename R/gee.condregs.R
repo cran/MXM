@@ -109,25 +109,7 @@ gee.condregs <- function(target, reps = NULL, id, dataset, xIndex, csIndex, test
         models$stat <- stat
         models$pvalue <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
         
-        ### GEE ordinal regression
-      } else if ( identical(test, testIndGEEOrdinal ) ) {
-        
-        for (i in xIndex) {
-          if ( is.null(reps) ) {
-            fit2 <- try( geepack::ordgee( target ~ cs + dataset[, i], id = id, weights = wei ), silent = TRUE)
-          } else {
-            fit2 <- try( geepack::ordgee( target ~ reps + cs + dataset[, i], id = id, weights = wei ), silent = TRUE) 
-          }  
-          #calculate the p value and stat.
-          if ( identical( class(fit2), "try-error" ) ) {
-            stat[i] <- 0
-          } else   stat[i] <- anova(fit2)[2, 3]
-        }  ##  end  for (i in xIndex) {
-        
-        models$stat <- stat
-        models$pvalue <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
-        
-    }  else   models <- NULL  ## end of all if (test == )
+      } else   models <- NULL  ## end of all if (test == )
     
     }  else {
       models <- list()

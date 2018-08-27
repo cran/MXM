@@ -57,14 +57,7 @@ For the "big.score.univregs" this is a big.matrix object with continuous data on
 This is by default -1. If the target is not a variable but is in included in the dataset, you can specify the column of dataset playing the role of the target. 
 }
 \item{test}{
-For the "univregs" this can only be one of the following: \bold{testIndFisher}, \bold{testIndSpearman}, 
-\bold{gSquare}, \bold{testIndBeta}, \bold{testIndReg}, \bold{testIndLogistic}, \bold{testIndMultinom}, 
-\bold{testIndOrdinal}, \bold{testIndPois}, \bold{testIndZIP}, \bold{testIndNB}, \bold{testIndClogit}, 
-\bold{testIndBinom}, \bold{testIndIGreg}, \bold{censIndCR}, \bold{censIndWR}, \bold{censIndWR}, 
-\bold{testIndGamma} or \bold{testIndNormLog}. For the \bold{testIndSpearman} the user must supply 
-the ranked target and ranked dataset. The reason for this, is because this function is called 
-internally by SES and MMPC, the ranks have already been applied and there is no reason to 
-re-rank the data. 
+For the "univregs" this can only be one of the following: \bold{testIndFisher}, \bold{testIndSpearman}, \bold{gSquare}, \bold{testIndBeta}, \bold{testIndReg}, \bold{testIndLogistic}, \bold{testIndMultinom}, \bold{testIndOrdinal}, \bold{testIndPois}, \bold{testIndZIP}, \bold{testIndNB}, \bold{testIndClogit}, \bold{testIndBinom}, \bold{testIndIGreg}, \bold{censIndCR}, \bold{censIndWR}, \bold{censIndWR}, \bold{testIndGamma}, \bold{testIndNormLog} or \bold{testIndSPML} for a circular target. For the \bold{testIndSpearman} the user must supply the ranked target and ranked dataset. The reason for this, is because this function is called internally by SES and MMPC, the ranks have already been applied and there is no reason to re-rank the data. 
 
 For the "wald.univregs" this can only be one of the following: \bold{waldBeta}, \bold{waldCR}, \bold{waldWR}, 
 \bold{waldER}, \bold{waldClogit}, 
@@ -79,7 +72,10 @@ For the "score.univregs" and "big.score.univregs" this can only be one of the fo
 \bold{testIndPois}, \bold{testIndNB}, \bold{testIndGamma} or \bold{censIndWR} but with no censored values and simply the vector, 
 not a Surv object. Ordinal regression is not supported. 
 
-For the "glmm.gee.univregs" this can only be one of the following: \bold{testIndGLMMReg}, \bold{testIndGLMMLogistic}, 
+For the "glmm.univregs" this can only be one of the following: \bold{testIndGLMMReg}, \bold{testIndLMM}, \bold{testIndGLMMLogistic}, 
+\bold{testIndGLMMOrdinal}, \bold{testIndGLMMPois}, \bold{testIndGLMMGamma}, \bold{testIndGLMMNormLog} or \bold{testIndGLMMCR}. 
+
+For the "gee.univregs" this can only be one of the following: \bold{testIndGLMMReg}, \bold{testIndGLMMLogistic}, 
 \bold{testIndGLMMOrdinal}, \bold{testIndGLMMPois}, \bold{testIndGLMMGamma} or \bold{testIndGLMMNormLog}. 
 
 \bold{Note that in all cases you must give the name of the test, without " "}. 
@@ -119,7 +115,7 @@ The tolerance value to terminate the Newton-Raphson algorithm in the random effe
 Should random slopes for the ime effect be fitted as well? Default value is FALSE. 
 }
 \item{correl}{
-The correlation structure. For the Gaussian, Logistic, Poisson and Gamma regression this can be either "exchangeable" (compound symmetry, suitable for clustered data) or "ar1" (AR(1) model, suitable for longitudinal data). For the ordinal logistic regression its only the "exchangeable" correlation sturcture. This is obsolete for "testIndGEEOrdinal", but is here for compatibility reasons. 
+The correlation structure. For the Gaussian, Logistic, Poisson and Gamma regression this can be either "exchangeable" (compound symmetry, suitable for clustered data) or "ar1" (AR(1) model, suitable for longitudinal data). For the ordinal logistic regression its only the "exchangeable" correlation sturcture.  
 }
 \item{se}{
 The method for estimating standard errors. This is very important and crucial. The available options for Gaussian, Logistic, Poisson and Gamma regression are: a)  'san.se', the usual robust estimate. b) 'jack': if approximate jackknife variance estimate should be computed. 
@@ -135,6 +131,8 @@ This function is more as a help function for SES and MMPC, but it can also be ca
 For the score.univregs, score based tests are used which are extremely fast. 
 
 For the rint.regs, we perform linear mixed models (weights are not allowed) with random intercepts only (no ranodm slopes). This function works for clustered or longitudinal data. The covariance structure we impose is compound symmetry, hence for longitudinal data, this may not be the best option, yet it will work. 
+
+If you want to use the GEE methodology, make sure you load the library geepack first. 
 }
 
 \value{
@@ -158,6 +156,8 @@ Biometrika, 95(3): 759-771.
 Eugene Demidenko (2013). Mixed Models: Theory and Applications with R, 2nd Edition. New Jersey: Wiley \& Sons.
 
 McCullagh, Peter, and John A. Nelder. Generalized linear models.  CRC press, USA, 2nd edition, 1989.
+
+Presnell Brett, Morrison Scott P. and Littell Ramon C. (1998). Projected multivariate linear models for directional data. Journal of the American Statistical Association, 93(443): 1068-1077.
 }
 
 \author{

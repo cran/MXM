@@ -23,88 +23,106 @@ mmpc2 <- function(target, dataset, max_k = 3, threshold = 0.05, test = "testIndL
   }
 
  av_tests = c("testIndReg", "testIndBeta", "censIndCR", "censIndWR", "testIndClogit", "testIndOrdinal",
-              "testIndLogistic", "testIndPois", "testIndNB", "testIndBinom", "auto", "testIndZIP", "testIndRQ",
-              "testIndGamma", "testIndNormLog", "testIndTobit", "testIndQPois", "censIndCR", "censIndWR", 
-		          "censIndER", "testdIndQBinom", "testIndMMReg", "testIndMultinom", "testIndIGreg", NULL);
+              "testIndLogistic", "testIndPois", "testIndNB", "testIndBinom", "auto", "testIndZIP", 
+              "testIndRQ", "testIndGamma", "testIndNormLog", "testIndTobit", "testIndQPois", "censIndCR", 
+              "censIndWR", "censIndER", "testdIndQBinom", "testIndMMReg", "testIndMultinom", "testIndIGreg", 
+              "testIndSPML", NULL);
 
-    ci_test = test
-    
-    if(length(test) == 1) {   #avoid vectors, matrices etc
-      test = match.arg(test, av_tests, TRUE);
-      #convert to closure type
-      if (test == "testIndReg") {   ## F test
-        test = testIndReg;
-              
-      } else if(test == "testIndMVreg") {
-        if ( min(target) > 0  &  Rfast::Var( Rfast::rowsums(target) ) == 0 )  target = log( target[, -1]/target[, 1] ) 
-        test = testIndMVreg;
-        
-      } else if(test == "testIndBeta") {
-        test = testIndBeta;
-        
-      } else if(test == "testIndRQ")  {   ## quantile regression
-        test = testIndRQ;
-        
-      } else if (test == "testIndIGreg") { ## Inverse Gaussian regression
-        test = testIndIGreg;
-		
-      } else if (test == "testIndMMReg") { ## Inverse Gaussian regression
-        test = testIndMMReg;
-        
-      } else if (test == "testIndPois") {  ## Poisson regression
-        test = testIndPois;
-
-      } else if (test == "testIndNB") {  ## Negative binomial regression
-        test = testIndNB;
-        
-      } else if (test == "testIndGamma") {  ## Gamma regression
-        test = testIndGamma;
-
-      } else if (test == "testIndNormLog") { ## Normal regression with a log link
-        test = testIndNormLog;
-
-      } else if (test == "testIndZIP") {  ## Zero inflated Poisson regression
-        test = testIndZIP;
-        
-      } else if (test == "testIndTobit") { ## Tobit regression
-        test = testIndTobit;
-        
-      }  else if(test == "censIndCR") {
-        test = censIndCR;
-        
-      } else if(test == "censIndWR") {
-        test = censIndWR;
-        
-      }  else if(test == "censIndER") {
-        test = censIndER;
-        
-      } else if(test == "testIndClogit") {
-        test = testIndClogit;
-        
-      } else if(test == "testIndBinom") {
-        test = testIndBinom;
-        
-      } else if(test == "testIndLogistic") {
-        test = testIndLogistic;
-
-      } else if(test == "testIndMultinom") {
-        test = testIndMultinom;	
-		
-      } else if(test == "testIndOrdinal") {
-        test = testIndOrdinal;	
-        
-      } else if(test == "testIndQBinom") {
-        test = testIndQBinom;
-        
-      } else if(test == "testIndQPois") {
-        test = testIndQPois;
-
-      }
-      #more tests here
-    } else {
-      stop('invalid test option');
-    }
-
+ ci_test <- test
+ if (length(test) == 1) {      #avoid vectors, matrices etc
+   test <- match.arg(test, av_tests, TRUE);
+   if (test == "testIndFisher") {
+     test <- testIndFisher;
+     
+   } else if (test == "testIndMMFisher") {
+     test <- testIndMMFisher;
+     
+   } else if (test == "testIndMMReg") {
+     test <- testIndMMReg;
+     
+   } else if (test == "testIndSpearman")  {
+     target <- rank(target)
+     dataset <- Rfast::colRanks(dataset)  
+     test <- testIndSpearman;  ## Spearman is Pearson on the ranks of the data
+     
+   } else if (test == "testIndReg")  {  ## It uMMPC the F test
+     test <- testIndReg
+     
+   }  else if (test == "testIndMVreg") {
+     if ( min(target) > 0 & sd( Rfast::rowsums(target) ) == 0 )  target = log( target[, -1]/target[, 1] ) 
+     test <- testIndMVreg;
+     
+   } else if (test == "testIndBeta") {
+     test <- testIndBeta;
+     
+   } else if (test == "testIndRQ") {  ## quantile regression
+     #an einai posostiaio target
+     test <- testIndRQ;
+     
+   } else if (test == "testIndIGreg") { ## Inverse Gaussian regression
+     test <- testIndIGreg;
+     
+   } else if (test == "testIndPois") { ## Poisson regression
+     test <- testIndPois;
+     
+   } else if (test == "testIndNB") { ## Negative binomial regression
+     test <- testIndNB;
+     
+   } else if (test == "testIndGamma") {  ## Gamma regression
+     test <- testIndGamma;
+     
+   } else if (test == "testIndNormLog") { ## Normal regression with a log link
+     test <- testIndNormLog;
+     
+   } else if (test == "testIndZIP") { ## Zero inflated Poisson regression
+     test <- testIndZIP;
+     
+   } else if (test == "testIndTobit") { ## Tobit regression
+     test <- testIndTobit;
+     
+   } else if (test == "censIndCR") {
+     test <- censIndCR;
+     
+   } else if (test == "censIndWR") {
+     test <- censIndWR;
+     
+   } else if (test == "censIndER") {
+     test <- censIndER;
+     
+   } else if (test == "testIndClogit") {
+     test <- testIndClogit;
+     
+   } else if (test == "testIndBinom") {
+     test <- testIndBinom;
+     
+   } else if (test == "testIndLogistic") {
+     test <- testIndLogistic;
+     
+   } else if (test == "testIndMultinom") {
+     test <- testIndMultinom;
+     
+   } else if (test == "testIndOrdinal") {
+     test <- testIndOrdinal;
+     
+   } else if (test == "testIndQBinom") {
+     test <- testIndQBinom;
+     
+   } else if (test == "testIndQPois") {
+     test <- testIndQPois;
+     
+   } else if (test == "gSquare") {
+     test <- gSquare;
+     
+   } else if (test == "testIndSPML") {
+     test <- testIndSPML
+     if ( !is.matrix(target) )   target <- cbind( cos(target), sin(target) )
+     
+   }
+   #more tests here
+ } else {
+   stop('invalid test option');
+ }
+ 
   dataset <- as.data.frame(dataset)  
   n.tests <- 0
   alpha <- log(threshold)

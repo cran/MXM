@@ -18,7 +18,6 @@ beta.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL) {
     ##################################
     # target checking and initialize #
     ################################## 
-      dataset <- as.data.frame(dataset)
       ini <- beta.reg( target,  dataset, wei = wei )
       dofini <- length( ini$be )
       likini <- ini$loglik 

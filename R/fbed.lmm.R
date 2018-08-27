@@ -18,10 +18,10 @@ fbed.lmm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0) {
   
   if ( is.null(univ) ) {
     if ( is.null(wei) ) {
-      mod <- rint.regs(y, x, id = id)
-      univ <- list()
-      univ$stat <- mod[, 1]
-      univ$pvalue <- mod[, 2]      
+      univ <- MXM::rint.regs(y, x, id = id)
+      stat <- univ$stat
+      pval <- univ$pvalue
+      n.tests <- p
     } else {
       for ( i in ind ) {
         fit2 <- lme4::lmer( y ~ x[, i] + (1|id), REML = FALSE, weights = wei )

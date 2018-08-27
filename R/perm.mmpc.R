@@ -91,7 +91,7 @@ perm.mmpc <- function(target, dataset, max_k = 3, threshold = 0.05, test = NULL,
             test = "permFisher";
           } 
           else if ( is.data.frame(dataset) ) {
-            if ( length( Rfast::which_isFactor(dataset)  ) > 0  ) {
+            if ( length( Rfast::which.is(dataset)  ) > 0  ) {
               test = "permReg";
             } else   test = "permFisher";
           }

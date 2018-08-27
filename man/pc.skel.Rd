@@ -35,18 +35,26 @@ a data.frame and the non continuous variables must be ordered factors, even the 
 For the pc.con, pc.skel.boot and glmm.pc.skel, dataset can only be a matrix.
 }
 \item{method}{
-If you have continuous data, you can choose either "pearson", "spearman" or "distcor". The latter uses the distance correlation and should not be used with lots of observations as it is by 
-default really slow. If you have categorical data, this must be "cat". If you have a mix of continuous, binary and ordinal data (we will expand the available dataset in the future) then choose 
-"comb.fast" or "comb.mm". These two methods perform the symmetric test for mixed data (Tsagris et al., 2017). See details for more information on this. 
-For the mixed models PC algorithm, this is the same argument, but cuurently only "comb.mm" is acecpted.
+If you have continuous data, you can choose either "pearson", "spearman" or "distcor". The latter uses the distance correlation and 
+should not be used with lots of observations as it is by default really slow. If you have categorical data, this must be "cat". 
+If you have a mix of continuous, binary and ordinal data (we will expand the available dataset in the future) then choose 
+"comb.fast" or "comb.mm". These two methods perform the symmetric test for mixed data (Tsagris et al., 2017). See details for 
+more information on this. For the mixed models PC algorithm, this is the same argument, but cuurently only "comb.mm" is acecpted.
 }
 \item{group}{
-This is to be used in the "glmm.pc.skel" and "gee.pc.skel" only. It is a vector for identifying the grouped data, the correlated observations, the subjects.
+This is to be used in the "glmm.pc.skel" and "gee.pc.skel" only. It is a vector for identifying the grouped data, the correlated 
+observations, the subjects.
 }
 \item{se}{
-The method for estimating standard errors. This is very important and crucial. The available options for Gaussian, Logistic, Poisson and Gamma regression are: a) 'san.se': the usual robust estimate. b) 'jack': approximate jackknife variance estimate. c) 'j1s': if 1-step jackknife variance estimate and d) 'fij': fully iterated jackknife variance estimate. If you have many clusters (sets of repeated measurements) "san.se" is fine as it is asympotically correct, plus jacknife estimates will take longer. If you have a few clusters, then maybe it's better to use jacknife estimates. 
+The method for estimating standard errors. This is very important and crucial. The available options for Gaussian, Logistic, Poisson 
+and Gamma regression are: a) 'san.se': the usual robust estimate. b) 'jack': approximate jackknife variance estimate. c) 'j1s': if 
+1-step jackknife variance estimate and d) 'fij': fully iterated jackknife variance estimate. If you have many clusters (sets of 
+repeated measurements) "san.se" is fine as it is asympotically correct, plus jacknife estimates will take longer. If you have a 
+few clusters, then maybe it's better to use jacknife estimates. 
 
-The jackknife variance estimator was suggested by Paik (1988), which is quite suitable for cases when the number of subjects is small (K < 30), as in many biological studies. The simulation studies conducted by Ziegler et al. (2000) and Yan and Fine (2004) showed that the approximate jackknife estimates are in many cases in good agreement with the fully iterated ones. This is obsolete for "testIndGEEOrdinal", but is here for compatibility reasons.
+The jackknife variance estimator was suggested by Paik (1988), which is quite suitable for cases when the number of subjects is 
+small (K < 30), as in many biological studies. The simulation studies conducted by Ziegler et al. (2000) and Yan and Fine (2004) 
+showed that the approximate jackknife estimates are in many cases in good agreement with the fully iterated ones. 
 }
 \item{alpha}{
 The significance level ( suitable values in (0, 1) ) for assessing the p-values. Default value is 0.01.
@@ -60,7 +68,9 @@ The number of permutations to be conducted. This is taken into consideration for
 is calculated and the p-value is assessed via permutations. There was an extra argument for plotting the skeleton but it does not work 
 with the current visualisation packages, hence we removed the argument. Use \code{\link{plotnetwork}} to plot the skeleton.  
 
-In the pc.skel.boot this is the number of bootstrap resamples to draw. The PC algorithm is performed in each bootstrap sample. In the end, the adjacency matrix on the observed data is returned, along with another adjacency matrix produced by the bootstrap. The latter one contains values from 0 to 1 indicating the proportion of times an edge between two nodes was present.
+In the pc.skel.boot this is the number of bootstrap resamples to draw. The PC algorithm is performed in each bootstrap sample. In the end, 
+the adjacency matrix on the observed data is returned, along with another adjacency matrix produced by the bootstrap. The latter one contains 
+values from 0 to 1 indicating the proportion of times an edge between two nodes was present.
 }
 \item{ncores}{
 The number of cores to use. By default this is set to 1.
@@ -74,27 +84,43 @@ If you have the initial p-values of the univariate associations supply them here
 }
 
 \details{
-The PC algorithm as proposed by Spirtes et al. (2000) is implemented. The variables must be either continuous or categorical, only. The skeleton of the PC algorithm is order independent, since we are using the third heuristic (Spirte et al., 2000, pg. 90). At every ste of the alogirithm use the pairs which are least statistically associated. The conditioning set consists of variables which are most 
-statistically associated with each either of the pair of variables. 
+The PC algorithm as proposed by Spirtes et al. (2000) is implemented. The variables must be either continuous or categorical, only. 
+The skeleton of the PC algorithm is order independent, since we are using the third heuristic (Spirte et al., 2000, pg. 90). 
+At every ste of the alogirithm use the pairs which are least statistically associated. The conditioning set consists of variables 
+which are most statistically associated with each either of the pair of variables. 
 
 For example, for the pair (X, Y) there can be two coniditoning sets for example (Z1, Z2) and (W1, W2). All p-values and test statistics 
 and degrees of freedom have been computed at the first step of the algorithm. Take the p-values between (Z1, Z2) and (X, Y) and between 
-(Z1, Z2) and (X, Y). The conditioning set with the minimum p-value is used first. If the minimum p-values are the same, use the second lowest p-value. In the event of 2 or more p-values being the same (with permutations for example), the test statistic divided by the degrees of freedom is used as a means of choosing which conditioning set is to be used first. If two or more p-values are below the 
-machine epsilon (.Machine$double.eps which is equal to 2.220446e-16), all of them are set to 0. To make the comparison or the ordering feasible we use the logarithm of the p-value. Hence, the logarithm of the p-values is always calculated and used.
+(Z1, Z2) and (X, Y). The conditioning set with the minimum p-value is used first. If the minimum p-values are the same, use the second 
+lowest p-value. In the event of 2 or more p-values being the same (with permutations for example), the test statistic divided by the 
+degrees of freedom is used as a means of choosing which conditioning set is to be used first. If two or more p-values are below the 
+machine epsilon (.Machine$double.eps which is equal to 2.220446e-16), all of them are set to 0. To make the comparison or the ordering 
+feasible we use the logarithm of the p-value. Hence, the logarithm of the p-values is always calculated and used.
 
-In the case of the \eqn{G^2} test of independence (for categorical data) we have incorporated a rule of thumb. I the number of samples is at least 5 times the number of the parameters to be estimated, the test is performed, otherwise, independence is not rejected (see Tsamardinos et al., 2006).
+In the case of the \eqn{G^2} test of independence (for categorical data) we have incorporated a rule of thumb. I the number of samples 
+is at least 5 times the number of the parameters to be estimated, the test is performed, otherwise, independence is not rejected 
+(see Tsamardinos et al., 2006).
 
-The "comb.fast" and "comb.mm" methods are used with mixed variables, continuous, binary and ordinal. The "comb.mm" performs two log-likelihood ratio tests. For every pair of variables each of the two variables is treated as response and the suitable regression model 
-is fitted. Then, two likelihood ratio tests are performed and the 2 p-values are combined in a meta-analytic way. In the case of "comb.fast" one regression model is fitted, the easiest (between the two) to implement. The ordering of the "easiness" is as follows: linear regression > logistic regression > ordinal regression.  
+The "comb.fast" and "comb.mm" methods are used with mixed variables, continuous, binary and ordinal. The "comb.mm" performs two 
+log-likelihood ratio tests. For every pair of variables each of the two variables is treated as response and the suitable regression model 
+is fitted. Then, two likelihood ratio tests are performed and the 2 p-values are combined in a meta-analytic way. In the case of 
+"comb.fast" one regression model is fitted, the easiest (between the two) to implement. The ordering of the "easiness" is as follows: 
+linear regression > logistic regression > ordinal regression.  
 
-The "pc.con" is a faster implementation of the PC algorithm but for continuous data only, without the robust option, unlike pc.skel which is more general and even for the continuous datasets slower. pc.con accepts only "pearson" and "spearman" as correlations. 
+The "pc.con" is a faster implementation of the PC algorithm but for continuous data only, without the robust option, unlike pc.skel 
+which is more general and even for the continuous datasets slower. pc.con accepts only "pearson" and "spearman" as correlations. 
 
 If there are missing values they are placed by their median in case of continuous data and by their mode (most frequent value) if they 
 are categorical. 
 
-The "glmm.pc.skel" and "gee.pc.skel" are designed for clustered or grouped data. It uses linear mixed models and works in the same way as the PC with mixed data. For each variable, a random intercepts model is fitted and the significance of the other variable is assessed. The two p-values are meta-analytically combined. 
+The "glmm.pc.skel" and "gee.pc.skel" are designed for clustered or grouped data. It uses linear mixed models and works in the same way 
+as the PC with mixed data. For each variable, a random intercepts model is fitted and the significance of the other variable is assessed. 
+The two p-values are meta-analytically combined. 
 
-For all cases, we return the maximum logged p-value of the conditional independence tests between the pairs. This can be used to order the strength of association between pairs of variables. In addition, one can use it to estimate the AUC. See the example.
+For all cases, we return the maximum logged p-value of the conditional independence tests between the pairs. This can be used to order 
+the strength of association between pairs of variables. In addition, one can use it to estimate the AUC. See the example in \code{\link{bn.skel.utils}}.
+
+If you want to use the GEE methodology, make sure you load the library geepack first. 
 }
 
 \value{
@@ -117,7 +143,8 @@ C++. We will add those cases in the future.
 Some summary statistics about the edges, minimum, maximum, mean, median number of edges.
 }
 \item{runtime}{
-The run time of the algorithm. A numeric vector. The first element is the user time, the second element is the system time and the third element is the elapsed time.
+The run time of the algorithm. A numeric vector. The first element is the user time, the second element is the system time and the 
+third element is the elapsed time.
 }
 \item{kappa}{
 The maximum value of k, the maximum cardinality of the conditioning set at which the algorithm stopped.
@@ -159,11 +186,14 @@ Multi-modal Variables. arXiv preprint arXiv:1704.02621.
 Szekely G.J. and Rizzo, M.L. (2014). Partial distance correlation with methods for dissimilarities. The Annals of Statistics, 42(6): 
 2382--2412.
 
-Szekely G.J. and Rizzo M.L. (2013). Energy statistics: A class of statistics based on distances. Journal of Statistical Planning and Inference 143(8): 1249--1272.
+Szekely G.J. and Rizzo M.L. (2013). Energy statistics: A class of statistics based on distances. Journal of Statistical Planning 
+and Inference 143(8): 1249--1272.
 
-Paik M.C. (1988). Repeated measurement analysis for nonnormal data in small samples. Communications in Statistics-Simulation and Computation, 17(4): 1155-1171.
+Paik M.C. (1988). Repeated measurement analysis for nonnormal data in small samples. Communications in Statistics-Simulation and 
+Computation, 17(4): 1155-1171.
 
-Ziegler A., Kastner C., Brunner D. and Blettner M. (2000). Familial associations of lipid profiles: A generalised estimating equations approach. Statistics in medicine, 19(24): 3345-3357
+Ziegler A., Kastner C., Brunner D. and Blettner M. (2000). Familial associations of lipid profiles: A generalised estimating 
+equations approach. Statistics in medicine, 19(24): 3345-3357
 
 Yan J. and Fine J. (2004). Estimating equations for association structures. Statistics in medicine, 23(6): 859-874.
 

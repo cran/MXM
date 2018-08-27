@@ -30,10 +30,12 @@ se = "jack", wei = NULL, sesgee.Object, nsignat = 1, test = NULL)
 The class variable. Provide a vector with continuous (normal), binary (binomial) or discrete (Poisson) data.
 }
 \item{dataset}{
-The dataset; provide either a data frame or a matrix (columns = variables, rows = observations). Currently, only continuous datasets are supported. 
+The dataset; provide either a data frame or a matrix (columns = variables, rows = observations). Currently, only continuous 
+datasets are supported. 
 }
 \item{reps}{
-A numeric vector containing the time points of the subjects. Its length is equal to the length of the target variable. If you have clustered data, leave this NULL. 
+A numeric vector containing the time points of the subjects. Its length is equal to the length of the target variable. 
+If you have clustered data, leave this NULL. 
 }
 \item{group}{
 A numeric vector containing the subjects or groups. It must be of the same legnth as target. 
@@ -42,13 +44,20 @@ A numeric vector containing the subjects or groups. It must be of the same legnt
 Should random slopes for the ime effect be fitted as well? Default value is FALSE. 
 }
 \item{correl}{
-The correlation structure. For the Gaussian, Logistic, Poisson and Gamma regression this can be either "exchangeable" (compound symmetry, suitable for clustered data) or "ar1" (AR(1) model, suitable for longitudinal data). For the ordinal logistic regression its only the "exchangeable" correlation sturcture. This is obsolete for "testIndGEEOrdinal", but is here for compatibility reasons. 
+The correlation structure. For the Gaussian, Logistic, Poisson and Gamma regression this can be either "exchangeable" (compound symmetry, 
+suitable for clustered data) or "ar1" (AR(1) model, suitable for longitudinal data). For the ordinal logistic regression its only the 
+"exchangeable" correlation sturcture.  
 }
 \item{se}{
-The method for estimating standard errors. This is very important and crucial. The available options for Gaussian, Logistic, Poisson and Gamma regression are: a)  'san.se', the usual robust estimate. b) 'jack': if approximate jackknife variance estimate should be computed. 
-c) 'j1s': if 1-step jackknife variance estimate should be computed and d) 'fij': logical indicating if fully iterated jackknife variance estimate should be computed. If you have many clusters (sets of repeated measurements) "san.se" is fine as it is astmpotically correct, plus jacknife estimates will take longer. If you have a few clusters, then maybe it's better to use jacknife estimates. 
+The method for estimating standard errors. This is very important and crucial. The available options for Gaussian, Logistic, Poisson and 
+Gamma regression are: a)  'san.se', the usual robust estimate. b) 'jack': if approximate jackknife variance estimate should be computed. 
+c) 'j1s': if 1-step jackknife variance estimate should be computed and d) 'fij': logical indicating if fully iterated jackknife variance 
+estimate should be computed. If you have many clusters (sets of repeated measurements) "san.se" is fine as it is astmpotically correct, 
+plus jacknife estimates will take longer. If you have a few clusters, then maybe it's better to use jacknife estimates. 
 
-The jackknife variance estimator was suggested by Paik (1988), which is quite suitable for cases when the number of subjects is small (K < 30), as in many biological studies. The simulation studies conducted by Ziegler et al. (2000) and Yan and Fine (2004) showed that the approximate jackknife estimates are in many cases in good agreement with the fully iterated ones. This is obsolete for "testIndGEEOrdinal", but is here for compatibility reasons.
+The jackknife variance estimator was suggested by Paik (1988), which is quite suitable for cases when the number of subjects is small 
+(K < 30), as in many biological studies. The simulation studies conducted by Ziegler et al. (2000) and Yan and Fine (2004) showed that 
+the approximate jackknife estimates are in many cases in good agreement with the fully iterated ones. 
 }
 \item{wei}{
 A vector of weights to be used for weighted regression. The default value is NULL. 
@@ -66,7 +75,9 @@ An object with the results of an MMPC.gee run.
 An object with the results of an SES.gee run.
 }
 \item{nsignat}{
-How many signatures to use. If nsignat = 1 (default value) the first set of variables will be used for the model. If you want more, then specify the nubmer of signatures you want. If you want the models based on all signatures, specify "all". If you put a number which is higher than the number of signatures, all models will be returned.
+How many signatures to use. If nsignat = 1 (default value) the first set of variables will be used for the model. If you want more, 
+then specify the nubmer of signatures you want. If you want the models based on all signatures, specify "all". If you put a number 
+which is higher than the number of signatures, all models will be returned.
 }
 \item{test}{
 The conditional independence test to use. Default value is NULL. Currently, the only available conditional independence test are 
@@ -91,7 +102,8 @@ A matrix (or just one vector if one signature only) with the variables of each s
 \references{
 Tsagris, M., Lagani, V., & Tsamardinos, I. (2018). Feature selection for high-dimensional glmm data. BMC bioinformatics, 19(1), 17.
 
-I. Tsamardinos, M. Tsagris and V. Lagani (2015). Feature selection for longitudinal data. Proceedings of the 10th conference of the Hellenic Society for Computational Biology & Bioinformatics (HSCBB15)
+I. Tsamardinos, M. Tsagris and V. Lagani (2015). Feature selection for longitudinal data. Proceedings of the 10th conference of 
+the Hellenic Society for Computational Biology & Bioinformatics (HSCBB15)
 
 Eugene Demidenko (2013). Mixed Models: Theory and Applications with R, 2nd Edition. New Jersey: Wiley \& Sons.
 

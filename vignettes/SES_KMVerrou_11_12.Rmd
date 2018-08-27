@@ -9,7 +9,7 @@ author:
 - name: Michail Tsagris
   affiliation: Mens ex Machina Group, Computer Science Department, University of Crete, Greece
   email: mtsagris@csd.uoc.gr
-
+date: "`r Sys.Date()`"
 output:
   BiocStyle::html_document:
     toc_float: true

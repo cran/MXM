@@ -28,8 +28,7 @@ gee.ci.mm <- function(ind1, ind2, cs = NULL, dat, group, se = "jack") {
         t1 <- 0
         p1 <- log(1)
       } else {
-        mod <- summary(mod1)[[6]]
-        t1 <- mod[2, 3]
+        t1 <- anova(mod1)[1, 2]
         p1 <- pchisq(t1, 1, lower.tail = FALSE, log.p = TRUE)
       }	
     }  ## end if ( Rfast::sort_unique.length(y) == 2 ) 
@@ -58,8 +57,7 @@ gee.ci.mm <- function(ind1, ind2, cs = NULL, dat, group, se = "jack") {
         t2 <- 0
         p2 <- log(1)
       } else {
-        mod <- summary(mod2)[[6]]
-        t2 <- mod[2, 3]
+        t2 <- anova(mod2)[1, 2]
         p2 <- pchisq(t2, 1, lower.tail = FALSE, log.p = TRUE)
       }	
     }  ## end if ( Rfast::sort_unique.length(x) == 2 ) 
@@ -74,7 +72,7 @@ gee.ci.mm <- function(ind1, ind2, cs = NULL, dat, group, se = "jack") {
         t1 <- 0
         p1 <- log(1)
       } else {
-        t1 <- anova(mod1)[2, 3]
+        t1 <- anova(mod1)[2, 2]
         p1 <- pchisq(t1, 1, lower.tail = FALSE, log.p = TRUE)
       }	
     } else if ( sum(round(y) - y) == 0 ) {
@@ -83,7 +81,7 @@ gee.ci.mm <- function(ind1, ind2, cs = NULL, dat, group, se = "jack") {
         t1 <- 0
         p1 <- log(1)
       } else {
-        t1 <- anova(mod1)[2, 3]
+        t1 <- anova(mod1)[2, 2]
         p1 <- pchisq(t1, 1, lower.tail = FALSE, log.p = TRUE)
       }	
     } else {
@@ -92,9 +90,7 @@ gee.ci.mm <- function(ind1, ind2, cs = NULL, dat, group, se = "jack") {
         t1 <- 0
         p1 <- log(1)
       } else {
-        mod <- summary(mod1)[[6]]
-        nr <- dim(mod)[1]
-        t1 <- mod[nr, 3]
+        t1 <- anova(mod1)[2, 2]
         p1 <- pchisq(t1, 1, lower.tail = FALSE, log.p = TRUE)
       }	
     }  ## end if ( Rfast::sort_unique.length(y) == 2 )
@@ -105,7 +101,7 @@ gee.ci.mm <- function(ind1, ind2, cs = NULL, dat, group, se = "jack") {
         t2 <- 0
         p2 <- log(1)
       } else {
-        t2 <- anova(mod2)[2, 3]
+        t2 <- anova(mod2)[2, 2]
         p2 <- pchisq(t2, 1, lower.tail = FALSE, log.p = TRUE)
       }	
     } else if ( sum(round(x) - x) == 0 ) {
@@ -114,7 +110,7 @@ gee.ci.mm <- function(ind1, ind2, cs = NULL, dat, group, se = "jack") {
         t2 <- 0
         p2 <- log(1)
       } else {
-        t2 <- anova(mod2)[2, 3]
+        t2 <- anova(mod2)[2, 2]
         p2 <- pchisq(t2, 1, lower.tail = FALSE, log.p = TRUE)
       }	
     } else {  
@@ -123,9 +119,7 @@ gee.ci.mm <- function(ind1, ind2, cs = NULL, dat, group, se = "jack") {
         t2 <- 0
         p2 <- log(1)
       } else {
-        mod <- summary(mod2)[[6]]
-        nr <- dim(mod)[1]
-        t2 <- mod[nr, 3]
+        t2 <- anova(mod2)[2, 2]
         p2 <- pchisq(t2, 1, lower.tail = FALSE, log.p = TRUE)
       }	
     }  # end if ( Rfast::sort_unique.length(x) == 2 )

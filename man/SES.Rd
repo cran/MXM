@@ -235,11 +235,9 @@ The packages required by the SES and MMPC algorithm operations are:
 
 \bold{quantreg}: for the quantile (median) regression
 
-\bold{MASS}: for negative binomial regression
+\bold{MASS}: for negative binomial regression and simple ordinal regression
 
 \bold{nnet} : also require(stats) and require(MASS) for the testIndLogistic test
-
-and \bold{ordinal} : also require(stats) and require(MASS) for the testIndLogistic test
 
 \bold{survival} : for the censIndCR, censIndWR and the censIndER tests
 

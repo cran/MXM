@@ -48,11 +48,11 @@ testIndQPois = function(target, dataset, xIndex, csIndex, wei = NULL, univariate
     results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
     return(results);
   }
-  xIndex = unique(xIndex);
-  csIndex = unique(csIndex);
+  xIndex <- unique(xIndex);
+  csIndex <- unique(csIndex);
   #extract the data
-  x = dataset[ , xIndex];
-  cs = dataset[ , csIndex];
+  x <- dataset[ , xIndex];
+  cs <- dataset[ , csIndex];
   #That means that the x variable does not add more information to our model due to an exact copy of this in the cs, so it is independent from the target
   if ( length(cs)!=0 )   {
     if ( is.null(dim(cs)[2]) ) {    #cs is a vector
@@ -81,18 +81,18 @@ testIndQPois = function(target, dataset, xIndex, csIndex, wei = NULL, univariate
     fit1 <- glm(target ~ 1, family = quasipoisson(link = log), weights = wei ,model = FALSE)
     fit2 <- glm(target ~ x, family = quasipoisson(link = log), weights = wei ,model = FALSE)
   } else {
-    fit1 = glm(target ~., data = as.data.frame( cs ), family = quasipoisson(link = log), weights = wei, model = FALSE)
-    fit2 = glm(target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ), family = quasipoisson(link = log), weights = wei, model = FALSE)
+    fit1 <- glm(target ~., data = as.data.frame( cs ), family = quasipoisson(link = log), weights = wei, model = FALSE)
+    fit2 <- glm(target ~., data = as.data.frame( dataset[, c(csIndex, xIndex)] ), family = quasipoisson(link = log), weights = wei, model = FALSE)
   } 
   mod <- anova(fit1, fit2, test = "F")
   stat <- mod[2, 5]
   df1 <- mod[2, 3]
   df2 <- mod[2, 1]
-  pvalue = pf( stat, df1, df2, lower.tail = FALSE, log.p = TRUE ) 
+  pvalue <- pf( stat, df1, df2, lower.tail = FALSE, log.p = TRUE ) 
   #last error check
   if ( is.na(pvalue) || is.na(stat) )   {
-    pvalue = log(1);
-    stat = 0;
+    pvalue <- log(1);
+    stat <- 0;
   } else {
     #update hash objects
     if ( hash )  {
@@ -100,7 +100,6 @@ testIndQPois = function(target, dataset, xIndex, csIndex, wei = NULL, univariate
       pvalue_hash[key] <- pvalue;        #.set(pvalue_hash , key , pvalue)
     }
   }
-  #testerrorcaseintrycatch(4);
   results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
   return(results)  
 }

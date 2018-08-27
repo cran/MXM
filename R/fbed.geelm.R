@@ -19,7 +19,7 @@ fbed.geelm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0, c
   if ( is.null(univ) ) {
     for ( i in ind ) {
       fit2 <- geepack::geeglm( y ~ x[, i], family = gaussian, id = id, weights = wei, corstr = correl, std.err = se )
-      stat[i] <- anova(fit2)[1, 2]
+      stat[i] <- summary(fit2)[[ 6 ]][2, 3]
     }  
     n.tests <- p
     pval <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)

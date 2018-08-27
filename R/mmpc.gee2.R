@@ -2,7 +2,7 @@ mmpc.gee2 <- function(target, reps = NULL, group, dataset, max_k = 3, threshold 
                       correl = "exchangeable", se = "jack", ncores = 1) {
   
   runtime <- proc.time()
-  
+
   #check for NA values in the dataset and replace them with the variable median or the mode
   if ( any(is.na(dataset)) ) {
     #dataset = as.matrix(dataset);
@@ -17,15 +17,13 @@ mmpc.gee2 <- function(target, reps = NULL, group, dataset, max_k = 3, threshold 
       test <- "testIndGEEReg"
     } else if (la == 2) {
       test <- "testIndGEELogistic"
-    } else if (la > 2  & is.ordered(target)  ) {
-      test <- "testIndGEEOrdinal"
     } else if ( la > 2  &  sum( target - round(target) ) == 0 ) {
       test <- "testIndGEEPois"
     } 
   }  
   #available conditional independence tests
   av_tests = c("testIndGEEeg", "testIndGEELogistic", "testIndGEEPois", "testIndGEEGamma", 
-               "testIndGEEOrdinal", "testIndGEENormLog", NULL);
+               "testIndGEENormLog", NULL);
   
   ci_test <- test
   if ( length(test) == 1 ) {   #avoid vectors, matrices etc
@@ -41,8 +39,6 @@ mmpc.gee2 <- function(target, reps = NULL, group, dataset, max_k = 3, threshold 
       test <- testIndGEEGamma;
     } else if ( test == "testIndGEENormLog" ) {
       test <- testIndGEENormLog;
-    } else if ( test == "testIndGEEOrdinal" ) {
-      test <- testIndGEEOrdinal;
     }
   } else   stop('invalid test option');
   

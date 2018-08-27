@@ -16,8 +16,7 @@ InternalMMPC.glmm = function(target, reps, group, dataset, max_k, threshold, tes
   stats <- univariateModels$stat;
   #if we dont have any associations , return
   if ( min(pvalues, na.rm = TRUE) > threshold ) {   #or min(pvalues, na.rm=TRUE)
-    cat('No associations!');
-    
+    #cat('No associations!');
     results = NULL;
     results$selectedVars = c();
     class(results$selectedVars) = "numeric";

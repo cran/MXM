@@ -56,7 +56,7 @@ ma.mmpc <- function(target, dataset, ina, statistic = FALSE, max_k = 3, threshol
       if(test == "testIndFisher") {
 
         if ( is.data.frame(dataset) ) {
-          if ( length( which_isFactor(dataset) ) > 0 ) {
+          if ( length( Rfast::which.is(dataset) ) > 0 ) {
             warning("Dataset contains categorical variables (factors). A regression model is advised to be used instead.")
           } else dataset <- as.matrix(dataset)
         }
@@ -66,7 +66,7 @@ ma.mmpc <- function(target, dataset, ina, statistic = FALSE, max_k = 3, threshol
       else if(test == "testIndSpearman") {
 
         if ( is.data.frame(dataset) ) {
-          if ( length( which_isFactor(dataset) ) > 0 ) {
+          if ( length( Rfast::which.is(dataset) ) > 0 ) {
             warning("Dataset contains categorical variables (factors). A regression model is advised to be used instead.")
           } else dataset <- as.matrix(dataset)
         }

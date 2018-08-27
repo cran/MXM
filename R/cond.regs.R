@@ -657,6 +657,32 @@ cond.regs <- function(target, dataset, xIndex, csIndex, test = NULL, wei = NULL,
       models$pvalue <- pchisq(mod[, 1], mod[, 2], lower.tail = FALSE, log.p = TRUE)
     }
     
+  } else if ( identical(test, testIndSPML) ) {  ## Logistic regression
+    if ( !is.matrix(target) )   target <- cbind( cos(target), sin(target) )
+    fit1 <- Rfast::spml.reg( target, dataset[, csIndex] )
+    lik1 <- 2 * fit1$loglik
+
+    if ( ncores <= 1 | is.null(ncores) ) {
+      lik2 <- numeric( cols )
+      for ( i in xIndex ) {
+        fit2 <- Rfast::spml.reg( target, dataset[, c(csIndex, i)] )
+        lik2[i] <- fit2$loglik
+      }
+      models$stat <- 2 * lik2 - lik1
+      models$pvalue <- pchisq(models$stat, 2, lower.tail = FALSE, log.p = TRUE)
+      
+    } else {
+      cl <- makePSOCKcluster(ncores)
+      registerDoParallel(cl)
+      mod <- foreach(i = xIndex, .combine = rbind, .pcakges = "Rfast", .export = "spml.reg") %dopar% {
+        fit2 <- Rfast::spml.reg( target, dataset[, c(csIndex, i)] )
+        return( fit2$loglik )
+      }
+      stopCluster(cl)
+      models$stat <- 2 * as.vector(mod) - lik1
+      models$pvalue <- pchisq(models$stat, 2, lower.tail = FALSE, log.p = TRUE)
+    }
+    
   }  else   models <- NULL  ## end of all if (test == )
   
   models$stat[ - xIndex ] <- 0

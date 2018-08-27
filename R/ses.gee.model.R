@@ -6,8 +6,8 @@ ses.gee.model = function(target, dataset, reps = NULL, group, correl = "exchange
                          wei = NULL, sesgee.Object, nsignat = 1, test = NULL) {
   
   if ( sum( is.na(sesgee.Object@selectedVars) ) > 0 ) {
-    mod = paste("No associations were found, hence no model is produced.")
-    signature = NULL
+    mod <- paste("No associations were found, hence no model is produced.")
+    signature <- NULL
     res <- list(mod = mod, signature = signature)  
     
   } else {
@@ -18,24 +18,16 @@ ses.gee.model = function(target, dataset, reps = NULL, group, correl = "exchange
     }
     
     if ( is.null(test) ) {  
-      ci_test = sesgee.Object@test
-    } else ci_test = test 
+      ci_test <- sesgee.Object@test
+    } else ci_test <- test 
     
     if ( nsignat == 1 || ( nsignat > 1 & nrow(sesgee.Object@signatures) == 1 ) ) {
       signature <- sesgee.Object@selectedVars  
       
-      if (test == "testIndGEEOrdinal") {
-        if ( is.null(reps) ) { 
-          mod <- try( geepack::ordgee( target ~ dataset[, signature], id = group, weights = wei ), silent = TRUE)
-        } else {
-          mod <- try( geepack::ordgee( target ~ reps + dataset[, signature], id = group, weights = wei ), silent = TRUE) 
-        }
-        
-      } else {
-        
-        if(test == "testIndGEEReg") {
+     
+      if (test == "testIndGEEReg") {
           oiko <- gaussian
-        } else if(test == "testIndGEELogistic") {
+        } else if (test == "testIndGEELogistic") {
           oiko <- binomial(logit)
         } else if (test == "testIndGEEPois") {
           oiko <- poisson(log)
@@ -60,8 +52,6 @@ ses.gee.model = function(target, dataset, reps = NULL, group, correl = "exchange
       names(signature)[length(signature)] = "bic"
       
       res <- list(mod = mod, signature = signature)  
-      
-    } 
     
     #############  more than one signatures
     if ( nsignat > 1 & nrow(sesgee.Object@signatures) > 1 ) {
@@ -73,16 +63,8 @@ ses.gee.model = function(target, dataset, reps = NULL, group, correl = "exchange
       mod <- list()
       
       for ( i in 1:nsignat ) {
-        if (test == "testIndGEEOrdinal") {
-          if ( is.null(reps) ) { 
-            mod[[ i ]] <- try( geepack::ordgee( target ~ dataset[, signature], id = group, weights = wei ), silent = TRUE)
-          } else {
-            mod[[ i ]] <- try( geepack::ordgee( target ~ reps + dataset[, signature], id = group, weights = wei ), silent = TRUE) 
-          }
-          
-        } else {
-          
-          if(test == "testIndGEEReg") {
+         
+          if (test == "testIndGEEReg") {
             oiko <- gaussian
           } else if(test == "testIndGEELogistic") {
             oiko <- binomial(logit)
@@ -98,31 +80,21 @@ ses.gee.model = function(target, dataset, reps = NULL, group, correl = "exchange
             mod[[ i ]] <- try( geepack::geeglm( target ~ dataset[, signature], family = oiko, id = group, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
           } else {
             mod[[ i ]] <- try( geepack::geeglm( target ~ reps + dataset[, signature], family = oiko, id = group, weights = wei, corstr = correl, std.err = se ), silent = TRUE) 
-          }       
-          
-        }       
+          }            
         
       }
-      signature = cbind(signature, bic)
+      signature <- cbind(signature, bic)
       
     }
     
     if ( nsignat == "all" ) { 
-      signature = sesgee.Object@signatures
-      bic = numeric( nrow(signature) )
-      mod = list()
+      signature <- sesgee.Object@signatures
+      bic <- numeric( nrow(signature) )
+      mod <- list()
       
       for ( i in 1:nrow(signature) ) {
-          if (test == "testIndGEEOrdinal") {
-            if ( is.null(reps) ) { 
-              mod[[ i ]] <- try( geepack::ordgee( target ~ dataset[, signature], id = group, weights = wei ), silent = TRUE)
-            } else {
-              mod[[ i ]] <- try( geepack::ordgee( target ~ reps + dataset[, signature], id = group, weights = wei ), silent = TRUE) 
-            }
-            
-          } else {
-            
-            if(test == "testIndGEEReg") {
+           
+          if (test == "testIndGEEReg") {
               oiko <- gaussian
             } else if(test == "testIndGEELogistic") {
               oiko <- binomial(logit)
@@ -140,10 +112,8 @@ ses.gee.model = function(target, dataset, reps = NULL, group, correl = "exchange
               mod[[ i ]] <- try( geepack::geeglm( target ~ reps + dataset[, signature], family = oiko, id = group, weights = wei, corstr = correl, std.err = se ), silent = TRUE) 
             }       
             
-          }       
-          
-        }
-        signature = cbind(signature, bic)
+      }       
+      signature <- cbind(signature, bic)
       
     }
     

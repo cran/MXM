@@ -706,6 +706,14 @@ if ( !is.null(user_test) ) {
     univariateModels$pvalue = pf(stat, mod[, 2] - 1, rows - mod[, 2], lower.tail = FALSE, log.p = TRUE)
   }
   
+} else if ( identical(test, testIndSPML) ) {  ## Circular regression
+  if ( is.matrix(target) ) {
+    target <- ( atan(target[, 2]/target[, 1]) + pi * I(target[, 1] < 0) ) %% (2 * pi)
+  }
+  mod <- Rfast::spml.regs(target, dataset, logged = TRUE, parallel = (ncores > 1) )
+  univariateModels$stat <- mod[, 1]
+  univariateModels$pvalue <- mod[, 2]
+  
 }  else   univariateModels <- NULL
   
   if ( !is.null(univariateModels) )  {

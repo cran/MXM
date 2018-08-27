@@ -20,8 +20,6 @@ fbed.reg <- function(target, dataset, ini = NULL, test = NULL, threshold = 0.05,
     }
   }
   
-  id <- Rfast::check_data(dataset)
-  if ( sum(id>0) > 0 )  dataset[, id] <- rnorm( dim(dataset)[1] * length(id) )
   dataset <- as.data.frame(dataset)
   
   if ( length(K) > 1 ) {

@@ -1,5 +1,6 @@
 fbed.gee.reg <- function(target, dataset, id, reps = NULL, ini = NULL, threshold = 0.05, wei = NULL, K = 0, test = "testIndGEEReg", correl = "exchangeable", se = "jack") { 
   
+
   if ( length(K) > 1 ) {
     
     res <- kfbed.gee.reg(y = target, x = dataset, id = id, reps = reps, univ = ini, alpha = threshold, wei = wei, K = K, test = test, correl = correl, se = se) 
@@ -13,16 +14,8 @@ fbed.gee.reg <- function(target, dataset, id, reps = NULL, ini = NULL, threshold
     warning("The dataset contains missing values (NA) and they were replaced automatically by the variable (column) median (for numeric) or by the most frequent level (mode) if the variable is factor")
     dataset <- apply( dataset, 2, function(x){ x[which(is.na(x))] = median(x, na.rm = TRUE) ; return(x) } ) 
   }
-  
-  poia <- Rfast::check_data(dataset)
-  if ( sum(poia>0) > 0 )  dataset[, poia] <- rnorm( dim(dataset)[1] * length(poia) )
-  
-  if ( test == "testIndGEEOrdinal"  &  is.null(reps) ) {
-    res <- fbed.ordgee(y = target, x = dataset, id = id, univ = ini, alpha = threshold, wei = wei, K = K) 
-  } else if ( test == "testIndGEEOrdinal"  &  !is.null(reps) ) {
-    res <- fbed.ordgee.reps(y = target, x = dataset, id = id, reps = reps, univ = ini, alpha = threshold, wei = wei, K = K) 
 
-  } else if ( is.null(reps) ) {
+  if ( is.null(reps) ) {
     if (test == "testIndGEEReg") {
       res <- fbed.geelm(y = target, x = dataset, id = id, univ = ini, alpha = threshold, wei = wei, K = K, correl = correl, se = se) 
     } else  res <- fbed.geeglm(y = target, x = dataset, id = id, univ = ini, alpha = threshold, wei = wei, K = K, test = test, correl = correl, se = se) 

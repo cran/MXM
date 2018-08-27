@@ -13,9 +13,6 @@ fbed.glmm.reg <- function(target, dataset, id, reps = NULL, ini = NULL, threshol
     dataset <- apply( dataset, 2, function(x){ x[which(is.na(x))] = median(x, na.rm = TRUE) ; return(x) } ) 
   }
   
-  poia <- Rfast::check_data(dataset)
-  if ( sum(poia>0) > 0 )  dataset[, poia] <- rnorm( dim(dataset)[1] * length(poia) )
-  
   if ( method =="LR" ) {
     if ( test == "testIndGLMMOrdinal" ) {
       if ( !is.null(reps) ) {

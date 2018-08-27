@@ -5,7 +5,7 @@ SES.gee <- function(target, reps = NULL, group, dataset, max_k = 3, threshold = 
   ##############################
   stat_hash <- NULL;
   pvalue_hash <- NULL;
-  
+
   if ( hash )  {
     if (is.null(hashObject) )  {
       stat_hash <- Rfast::Hash();
@@ -69,10 +69,10 @@ SES.gee <- function(target, reps = NULL, group, dataset, max_k = 3, threshold = 
       } 
     }  
     #available conditional independence tests
-    av_tests = c("testIndGEEReg", "testIndGEELogistic", "testIndGEEPois", "testIndGEEGamma", "testIndGEEOrdinal", "auto",  NULL);
-    ci_test = test
+    av_tests <- c("testIndGEEReg", "testIndGEELogistic", "testIndGEEPois", "testIndGEEGamma", "auto",  NULL);
+    ci_test <- test
     if (length(test) == 1) {   #avoid vectors, matrices etc
-      test = match.arg(test, av_tests, TRUE);
+      test <- match.arg(test, av_tests, TRUE);
       #convert to closure type
       if(test == "testIndGEEReg") {
         test <- testIndGEEReg;
@@ -84,8 +84,6 @@ SES.gee <- function(target, reps = NULL, group, dataset, max_k = 3, threshold = 
         test <- testIndGEEGamma
       } else if (test == "testIndGEENormLog") {
         test <- testIndGEENormLog
-      } else if (test == "testIndGEEOrdinal") {
-        test <- testIndGEEOrdinal
       }  
       
     } else   stop('invalid test option');
@@ -94,8 +92,8 @@ SES.gee <- function(target, reps = NULL, group, dataset, max_k = 3, threshold = 
   # options checking and initialize #
   ###################################
   #extracting the parameters
-  max_k = floor(max_k);
-  varsize = dim(dataset)[[2]];
+  max_k <- floor(max_k);
+  varsize <- dim(dataset)[[2]];
   #option checking
   if ( (typeof(max_k) != "double") || max_k < 1 )   stop('invalid max_k option');
   if (max_k > varsize)   max_k = varsize;
@@ -104,7 +102,7 @@ SES.gee <- function(target, reps = NULL, group, dataset, max_k = 3, threshold = 
   if( !is.null(user_test) )  ci_test = "user_test";
   #######################################################################################
   #call the main SES function after the checks and the initializations
-  results = InternalSES.gee(target, reps, group, dataset, max_k, log(threshold), test, ini, wei, user_test, hash, varsize, stat_hash, 
+  results <- InternalSES.gee(target, reps, group, dataset, max_k, log(threshold), test, ini, wei, user_test, hash, varsize, stat_hash, 
                              pvalue_hash, targetID, correl = correl, se = se, ncores = ncores);
   SES.gee.output <- new("SES.gee.output", selectedVars = results$selectedVars, selectedVarsOrder=results$selectedVarsOrder, 
                         hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, univ = results$univ, 

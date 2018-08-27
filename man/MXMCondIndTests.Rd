@@ -76,8 +76,9 @@ As for the other tests, they share one thing in common. For all of them, two par
   and clustered	\tab  \tab  \tab and log link  \cr
   Non negative longitudinal	\tab Continuous \tab testIndGEEGamma \tab GEE with Gamma regression \cr
   and clustered	\tab  \tab  \tab and log link  \cr
-  Ordinal clustered	\tab Continuous \tab testIndGEEOrdinal \tab GEE with ordinal regression \cr
   Clustered survival	\tab Contiunous \tab testIndGLMMCR \tab Mixed effects Cox regression \cr
+  Circular \tab Continuous \tab testIndSPML \tab Circular-linear regression \cr 
+
 }
 }
 
@@ -131,18 +132,25 @@ As for the other tests, they share one thing in common. For all of them, two par
 
 \item \bold{testIndClogit}. When the data come from a case-control study, the suitable test is via conditional logistic regression. 
 
-\item \bold{testIndMVreg}. In the case of multivariate continuous targets, the suggested test is via a multivariate linear regression.  The target variable can be compositional data as well. These are positive data, whose vectors sum to 1.  They can sum to any constant, as long as it the same, but for convenience reasons we assume that they are normalised to sum to 1.  In this case the additive log-ratio transformation (multivariate logit transformation) is applied beforehand. 
+\item \bold{testIndMVreg}. In the case of multivariate continuous targets, the suggested test is via a multivariate linear regression. 
+The target variable can be compositional data as well. These are positive data, whose vectors sum to 1.  They can sum to any constant, as 
+long as it the same, but for convenience reasons we assume that they are normalised to sum to 1.  In this case the additive log-ratio 
+transformation (multivariate logit transformation) is applied beforehand. 
 
+\item \bold{testIndSPML}. With circular target, the projected bivariate normal distribution (Presnell et al., 1998) is used to perform regression. 
 }
 }
 
 \section{Tests for clustered/longitudinal data}{
 \enumerate{
 
-\item \bold{testIndGLMMReg}, \bold{testIndGLMM}, \bold{testIndGLMMPois} & \bold{testIndGLMMLogistic}. In the case of a longitudinal or clustered targets (continuous, proportions, binary or counts), the suggested test is via a (generalised) linear mixed model. \bold{testIndGLMMCR} stands for mixed effects Cox regression. 
+\item \bold{testIndGLMMReg}, \bold{testIndGLMM}, \bold{testIndGLMMPois} & \bold{testIndGLMMLogistic}. In the case of a longitudinal or 
+clustered targets (continuous, proportions, binary or counts), the suggested test is via a (generalised) linear mixed model. 
+\bold{testIndGLMMCR} stands for mixed effects Cox regression. 
 
-\item \bold{testIndGEEReg}, \bold{testIndGEELogistic}, \bold{testIndGEEPois}, \bold{testIndGEENormLog}, \bold{testIndGEEGamma} & 
-\bold{testIndGEEOrdinal}. In the case of a longitudinal or clustered targets (continuous, proportions, binary, counts, positive, strictly positive, ordinal), the suggested test is via GEE (Generalised Estimating Equations).  
+\item \bold{testIndGEEReg}, \bold{testIndGEELogistic}, \bold{testIndGEEPois}, \bold{testIndGEENormLog} and \bold{testIndGEEGamma}. 
+In the case of a longitudinal or clustered targets (continuous, proportions, binary, counts, positive, strictly positive), 
+the suggested test is via GEE (Generalised Estimating Equations).  
 }
 }
 
@@ -238,8 +246,6 @@ Gail, M.H., Jay H.L., and Lawrence V.R. (1981). Likelihood calculations for matc
 
 Gutenbrunner C., Jureckova J., Koenker R. and Portnoy S. (1993). Tests of Linear Hypothesis based on Regression Rank Scores, Journal of NonParametric Statistics 2, 307-331.
 
-Heagerty P.J. and Zeger S.L. (1996) Marginal regression models for clustered ordinal measurements. Journal of the American Statistical Association, 91(435): 1024-1036.
-
 Hoerl A.E. and Kennard R.W. (1970). Ridge regression: Biased estimation for nonorthogonal problems. Technometrics, 12(1): 55-67.
 
 Joseph M.H. (2011). Negative Binomial Regression. Cambridge University Press, 2nd edition.
@@ -265,6 +271,8 @@ Paik M.C. (1988). Repeated measurement analysis for nonnormal data in small samp
 Pinheiro J., and D. Bates. Mixed-effects models in S and S-PLUS. Springer Science \& Business Media, 2006.
 
 Prentice R.L. and Zhao L.P. (1991). Estimating equations for parameters in means and covariances of multivariate discrete and continuous responses. Biometrics, 47(3): 825-839.
+
+Presnell Brett, Morrison Scott P. and Littell Ramon C. (1998). Projected multivariate linear models for directional data. Journal of the American Statistical Association, 93(443): 1068-1077.
 
 Scholz, F. W. (2001). Maximum likelihood estimation for type I censored Weibull data including covariates. ISSTECH-96-022, Boeing Information & Support Services.
 

@@ -85,25 +85,49 @@ testIndGEELogistic = function(target, reps = NULL, group, dataset, xIndex, csInd
     }
     if ( is.null(reps) ) {
       fit2 <- try( geepack::geeglm( target ~ x, family = binomial(logit), id = group, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
+      #calculate the p value and stat.
+      if ( identical( class(fit2), "try-error" ) ) {
+        stat <- 0
+        pvalue <- log(1)
+      } else {
+        stat <- anova(fit2)[1, 2]
+        pvalue <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
+      }	
     } else {
       fit2 <- try( geepack::geeglm( target ~ reps + x, family = binomial(logit), id = group, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE) 
+      #calculate the p value and stat.
+      if ( identical( class(fit2), "try-error" ) ) {
+        stat <- 0
+        pvalue <- log(1)
+      } else {
+        stat <- anova(fit2)[2, 2]
+        pvalue <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
+      }	
     }
-    
+
   } else {
     if ( is.null(reps) ) {
       fit2 <- try( geepack::geeglm( target ~ cs + x, family = binomial(logit), id = group, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
+      #calculate the p value and stat.
+      if ( identical( class(fit2), "try-error" ) ) {
+        stat <- 0
+        pvalue <- log(1)
+      } else {
+        stat <- anova(fit2)[2, 2]
+        pvalue <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
+      }	
     } else {
       fit2 <- try( geepack::geeglm( target ~ reps + cs + x, family = binomial(logit), id = group, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE) 
-    }  
+    }
+    #calculate the p value and stat.
+    if ( identical( class(fit2), "try-error" ) ) {
+      stat <- 0
+      pvalue <- log(1)
+    } else {
+      stat <- anova(fit2)[3, 2]
+      pvalue <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
+    }	
   }
-  #calculate the p value and stat.
-  if ( identical( class(fit2), "try-error" ) ) {
-    stat <- 0
-    pvalue <- log(1)
-  } else {
-    stat = anova(fit2)[2, 3]
-    pvalue = pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
-  }	
   #update hash objects
   if ( hash )  {
     stat_hash$key <- stat;   #.set(stat_hash , key , stat)

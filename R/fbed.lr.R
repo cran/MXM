@@ -10,7 +10,7 @@ fbed.lr <- function(y, x, alpha = 0.05, univ = NULL, test = NULL, wei = NULL, K 
   pva <- NULL
   
   test <- test.maker(test)
-
+  
   runtime <- proc.time()
   if ( is.null(univ) ) {
     univ <- univregs(y, x, test = test)
@@ -25,6 +25,10 @@ fbed.lr <- function(y, x, alpha = 0.05, univ = NULL, test = NULL, wei = NULL, K 
   s <- which(pval < sig)
   
   if ( length(s) > 0 ) {
+    if ( identical(test, testIndSPML) ) {
+      if ( !is.matrix(target) )   target <- cbind( cos(target), sin(target) )
+    }
+      
     sel <- which.min(pval)
     sela <- sel
     s <- s[ - which(s == sel) ]

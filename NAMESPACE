@@ -47,12 +47,13 @@ importFrom("visNetwork", "visNetwork", "visPhysics", "visInteraction", "visOptio
 importFrom("relations", relation, relation_incidence, transitive_closure)
 
 importFrom("Rfast", colVars, univglms, colmeans, g2Test_univariate, g2Test_univariate_perm, g2tests, g2tests_perm, 
-           g2Test, g2Test_perm, sort_mat, which_isFactor, standardise, colrange, regression, zip.mle, beta.mle, 
+           g2Test, g2Test_perm, sort_mat, which.is, standardise, colrange, regression, zip.mle, beta.mle, 
            rmvnorm, rowMaxs, rowsums, colsums, score.glms, score.betaregs, score.weibregs, score.multinomregs, 
            score.negbinregs, score.gammaregs, sort_unique, Var, data.frame.to_matrix, fs.reg, check_data, colMaxs, 
            cor.fsreg, pc.skel, group.sum, squareform, cora, spdinv, cor.fbed, colRanks, logistic_only, omp, rint.regs,
            poisson_only, mvbetas, ompr, glm_logistic, glm_poisson, prop.reg, normlog.reg, mvnorm.mle, normlog.mle,
-           univglms2, rint.reg, topological_sort, eachcol.apply, auc, Table, min_max, permcor, comb_n, hash2list, Hash)
+           univglms2, rint.reg, topological_sort, eachcol.apply, auc, Table, min_max, permcor, comb_n, hash2list, 
+           Hash, spml.reg, spml.regs)
 
 importFrom("bigmemory", read.big.matrix, sub.big.matrix)
 
@@ -82,13 +83,13 @@ export(SES, InternalSES, MMPC, InternalMMPC, SES.glmm, InternalSES.glmm, MMPC.gl
        glmm.pc.skel, glmm.ci.mm, bn.skel.utils, bn.skel.utils2, conf.edge.lower, pi0est, Ness, pval.mixbeta, cor.drop1, 
        triangles.search, testIndQBinom, testIndQPois, testIndLMM, fbedreg.bic, ida, fbed.gee.reg, testIndMMReg, testIndMMFisher, 
        permMMReg, permMMFisher, testIndMultinom, testIndOrdinal, permMultinom, permOrdinal, bic.mm.fsreg, certificate.of.exclusion, 
-       ebic.univregs, testIndGEEReg, testIndGEEPois, testIndGEELogistic, testIndGEEGamma, testIndGEENormLog, testIndGEEOrdinal, gomp, 
+       ebic.univregs, testIndGEEReg, testIndGEEPois, testIndGEELogistic, testIndGEEGamma, testIndGEENormLog, gomp, 
        MMPC.gee, InternalMMPC.gee, ses.glmm.model, SES.gee, InternalSES.gee, mmpc.gee.model, ses.gee.model, group.mvbetas, 
        testIndTimeLogistic, testIndTimeMultinom, MMPC.timeclass, SES.timeclass, glmm.univregs, gee.univregs, mmpc.timeclass.model, 
        ses.timeclass.model, corfbed.network, ord.resid, modeler, cond.regs, gee.ci.mm, gee.pc.skel, glmm.mmhc.skel, gee.mmhc.skel,
        gomp.path, testIndGLMMGamma, testIndGLMMNormLog, cv.gomp, testIndGLMMOrdinal, bbc, big.gomp, read.big.data, supervised.pca,
 	     big.score.univregs, corgraph, big.fbed.reg, mmpc2, certificate.of.exclusion2, glmm.condregs, gee.condregs, mci.mxm, clogit.mxm,
-       mmpc.glmm2, mmpc.gee2, testIndGLMMCR, ebic.regs, ebic.model)
+       mmpc.glmm2, mmpc.gee2, testIndGLMMCR, ebic.regs, ebic.model, testIndSPML)
 
 exportClasses("SESoutput")
 exportClasses("MMPCoutput")

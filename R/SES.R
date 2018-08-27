@@ -129,7 +129,7 @@ SES <- function(target, dataset, max_k = 3, threshold = 0.05 , test = NULL, ini 
   if ( is.matrix(target) ) {
     if ( ncol(target) >= 2  &  class(target) != "Surv" ) {
       if ( (is.null(test) || test == "auto")  &  is.null(user_test) ) {
-        test = "testIndMVreg"
+        test <- "testIndMVreg"
       }
     }
   }
@@ -139,7 +139,7 @@ SES <- function(target, dataset, max_k = 3, threshold = 0.05 , test = NULL, ini 
   la <- length( unique( as.numeric(target) ) )
   
   if (typeof(user_test) == "closure") {
-    test = user_test;
+    test <- user_test;
   } else {
     #auto detect independence test in case of not defined by the user and the test is null or auto
     if ( is.null(test) || test == "auto" ) {
@@ -149,22 +149,22 @@ SES <- function(target, dataset, max_k = 3, threshold = 0.05 , test = NULL, ini 
       #if target is a factor then use the Logistic test
       if ( "factor" %in% class(target) )  {
         if ( is.ordered(target) &  la > 2 ) {
-          test = "testIndOrdinal"
+          test <- "testIndOrdinal"
         } else if ( !is.ordered(target) & la > 2 ) {
-          test = "testIndMultinom"
+          test <- "testIndMultinom"
         } else test = "testIndLogistic"
         
       } else if ( ( is.numeric(target) || is.integer(target) ) & survival::is.Surv(target) == FALSE ) {
         
         if ( sum( floor(target) - target ) == 0  &  la > 2 ) {
-          test = "testIndPois";
+          test <- "testIndQPois";
         } else {
           if ( is.matrix(dataset) ) { 
-            test = "testIndFisher";
+            test <- "testIndFisher";
           } else if ( is.data.frame(dataset) ) {
-            if ( length( Rfast::which_isFactor(dataset)  ) > 0  ) {
-              test = "testIndReg";
-            } else   test = "testIndFisher";
+            if ( length( Rfast::which.is(dataset)  ) > 0  ) {
+              test <- "testIndReg";
+            } else   test <- "testIndFisher";
           }
         }
         
@@ -173,23 +173,24 @@ SES <- function(target, dataset, max_k = 3, threshold = 0.05 , test = NULL, ini 
       } else   stop('Target must be a factor, vector, matrix with at least 2 columns column or a Surv object');
     }
     #available conditional independence tests
-    av_tests = c("testIndFisher", "testIndSpearman", "testIndReg", "testIndRQ", "testIndBeta", "censIndCR", "censIndWR", "censIndER", 
-                 "testIndClogit", "testIndLogistic", "testIndPois", "testIndNB", "testIndBinom", "gSquare", "auto" , "testIndZIP" , 
-                 "testIndMVreg", "testIndIGreg", "testIndGamma", "testIndNormLog", "testIndTobit", "testIndQPois", "testdIndQBinom", 
-                 "testIndMMReg", "testIndMMFisher", "testIndMultinom", "testIndOrdinal", "testIndTimeLogistic", "testIndTimeMultinom", NULL);
-    ci_test = test
+    av_tests <- c("testIndFisher", "testIndSpearman", "testIndReg", "testIndRQ", "testIndBeta", "censIndCR", "censIndWR", 
+                  "censIndER", "testIndClogit", "testIndLogistic", "testIndPois", "testIndNB", "testIndBinom", "gSquare", 
+                  "auto", "testIndZIP", "testIndMVreg", "testIndIGreg", "testIndGamma", "testIndNormLog", "testIndTobit", 
+                  "testIndQPois", "testdIndQBinom", "testIndMMReg", "testIndMMFisher", "testIndMultinom", "testIndOrdinal", 
+                  "testIndSPML", NULL);
+   ci_test <- test
     #cat(test)
     if (length(test) == 1) {      #avoid vectors, matrices etc
-      test = match.arg(test, av_tests, TRUE);
+      test <- match.arg(test, av_tests, TRUE);
       #convert to closure type
       if (test == "testIndFisher") {
-        test = testIndFisher;
+        test <- testIndFisher;
 
       } else if (test == "testIndMMFisher") {
-        test = testIndMMFisher;
+        test <- testIndMMFisher;
         
       } else if (test == "testIndMMReg") {
-        test = testIndMMReg;
+        test <- testIndMMReg;
 		
       } else if (test == "testIndSpearman")  {
         target <- rank(target)
@@ -197,73 +198,77 @@ SES <- function(target, dataset, max_k = 3, threshold = 0.05 , test = NULL, ini 
         test <- testIndSpearman;  ## Spearman is Pearson on the ranks of the data
 		
       } else if (test == "testIndReg")  {  ## It uMMPC the F test
-        test = testIndReg
+        test <- testIndReg
      
       }  else if (test == "testIndMVreg") {
         if ( min(target) > 0 & sd( Rfast::rowsums(target) ) == 0 )  target = log( target[, -1]/target[, 1] ) 
-        test = testIndMVreg;
+        test <- testIndMVreg;
         
       } else if (test == "testIndBeta") {
-        test = testIndBeta;
+        test <- testIndBeta;
         
       } else if (test == "testIndRQ") {  ## quantile regression
         #an einai posostiaio target
-        test = testIndRQ;
+        test <- testIndRQ;
         
       } else if (test == "testIndIGreg") { ## Inverse Gaussian regression
-        test = testIndIGreg;
+        test <- testIndIGreg;
         
       } else if (test == "testIndPois") { ## Poisson regression
-        test = testIndPois;
+        test <- testIndPois;
         
       } else if (test == "testIndNB") { ## Negative binomial regression
-        test = testIndNB;
+        test <- testIndNB;
         
       } else if (test == "testIndGamma") {  ## Gamma regression
-        test = testIndGamma;
+        test <- testIndGamma;
         
       } else if (test == "testIndNormLog") { ## Normal regression with a log link
-        test = testIndNormLog;
+        test <- testIndNormLog;
 		
       } else if (test == "testIndZIP") { ## Zero inflated Poisson regression
-        test = testIndZIP;
+        test <- testIndZIP;
         
       } else if (test == "testIndTobit") { ## Tobit regression
-        test = testIndTobit;
+        test <- testIndTobit;
         
-      } else if(test == "censIndCR") {
-        test = censIndCR;
+      } else if (test == "censIndCR") {
+        test <- censIndCR;
         
-      } else if(test == "censIndWR") {
-        test = censIndWR;
+      } else if (test == "censIndWR") {
+        test <- censIndWR;
 
-      } else if(test == "censIndER") {
-        test = censIndER;
+      } else if (test == "censIndER") {
+        test <- censIndER;
         
-      } else if(test == "testIndClogit") {
-        test = testIndClogit;
+      } else if (test == "testIndClogit") {
+        test <- testIndClogit;
         
-      } else if(test == "testIndBinom") {
-        test = testIndBinom;
+      } else if (test == "testIndBinom") {
+        test <- testIndBinom;
         
-      } else if(test == "testIndLogistic") {
-        test = testIndLogistic;
+      } else if (test == "testIndLogistic") {
+        test <- testIndLogistic;
 
-      } else if(test == "testIndMultinom") {
-        test = testIndMultinom;
+      } else if (test == "testIndMultinom") {
+        test <- testIndMultinom;
 
-      } else if(test == "testIndOrdinal") {
-        test = testIndOrdinal;
+      } else if (test == "testIndOrdinal") {
+        test <- testIndOrdinal;
         
-      } else if(test == "testIndQBinom") {
-        test = testIndQBinom;
+      } else if (test == "testIndQBinom") {
+        test <- testIndQBinom;
         
-      } else if(test == "testIndQPois") {
-        test = testIndQPois;
+      } else if (test == "testIndQPois") {
+        test <- testIndQPois;
         
-      } else if(test == "gSquare") {
-        test = gSquare;
-
+      } else if (test == "gSquare") {
+        test <- gSquare;
+        
+      } else if (test == "testIndSPML") {
+        test <- testIndSPML
+        if ( !is.matrix(target) )   target <- cbind( cos(target), sin(target) )
+        
       }
       #more tests here
     } else {
@@ -273,8 +278,8 @@ SES <- function(target, dataset, max_k = 3, threshold = 0.05 , test = NULL, ini 
   ###################################
   # options checking and initialize #
   #extracting the parameters
-  max_k = floor(max_k);
-  varsize = dim(dataset)[2];
+  max_k <- floor(max_k);
+  varsize <- dim(dataset)[2];
   #option checking
   if ( (typeof(max_k)!="double") || max_k < 1 )  stop('invalid max_k option');
   if ( max_k > varsize )   max_k = varsize;

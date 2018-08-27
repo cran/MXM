@@ -42,8 +42,7 @@ How many times should the process be repated? The default value is 0.
 }
 \item{test}{
 This is for the type of regression to be used, "testIndGEEReg", for Gaussian regression, 
-"testIndGEEGamma" for Gamma regression, "testIndGEELogistic for logistic regression, "testIndGEEOrdinal" for 
-ordinal regression, "testIndGEENormLog" for linear regression witha log link, or "testIndGEEPois" for Poisson regression.
+"testIndGEEGamma" for Gamma regression, "testIndGEELogistic for logistic regression, "testIndGEENormLog" for linear regression witha log link, or "testIndGEEPois" for Poisson regression.
 }
 %\item{ncores}{
 %How many cores to use. This plays an important role if you have tens of thousands of variables or really large sample sizes and tens of thousands of variables and a regression based test which requires numerical optimisation. In other cases it will not make a difference in the overall time (in fact it can be slower). The parallel computation is used in the first step of the algorithm, where univariate associations are examined, those take place in parallel. We have seen a reduction in time of 50\% with 4 cores in comparison to 1 core. Note also, that the amount of reduction is not linear in the number of cores.
@@ -66,6 +65,8 @@ Since GEE are likelihood free, all significance tests take place using the Wald 
 algorithm is suitable for both clustered and longitudinal (glmm) data. 
 
 If you specify a range of values of K it returns the results of fbed.reg for this range of values of K. For example, instead of runnning fbed.reg with K=0, K=1, K=2 and so on, you can run fbed.reg with K=0:2 and the selected variables found at K=2, K=1 and K=0 are returned. Note also, that you may specify maximum value of K to be 10, but the maximum value FBED used was 4 (for example). 
+
+Make sure you load the library geepack first. 
 }
 
 \value{
@@ -100,9 +101,6 @@ Liang  K.Y.  and  Zeger  S.L. (1986). Longitudinal data analysis using generaliz
 
 Prentice R.L. and Zhao L.P. (1991). Estimating equations for parameters in means and covariances
 of multivariate discrete and continuous responses. Biometrics, 47(3): 825-839.
-
-Heagerty P.J. and Zeger S.L. (1996) Marginal regression models for clustered ordinal measurements. Journal of the American 
-Statistical Association, 91(435): 1024-1036.
 
 Paik M.C. (1988). Repeated measurement analysis for nonnormal data in small samples. Communications in
 Statistics-Simulation and Computation, 17(4): 1155-1171.
