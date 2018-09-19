@@ -63,8 +63,8 @@ testIndOrdinal = function(target, dataset, xIndex, csIndex, wei = NULL, univaria
   if (length(cs) == 0) {
     #if the univariate models have been already compute
     if ( !is.null(univariateModels) ) {
-      pvalue = univariateModels$pvalue[[xIndex]];
-      stat = univariateModels$stat[[xIndex]];
+      pvalue <- univariateModels$pvalue[[xIndex]];
+      stat <- univariateModels$stat[[xIndex]];
       results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
       return(results);
     }
@@ -75,7 +75,7 @@ testIndOrdinal = function(target, dataset, xIndex, csIndex, wei = NULL, univaria
     dof <- length( coef(fit2) ) - length( coef(fit1) )
   } else {
     #Fitting ordinal Logistic regression
-    fit1 = ordinal::clm( target ~., data = data.frame( cs ), weights = wei )
+    fit1 <- ordinal::clm( target ~., data = data.frame( cs ), weights = wei )
     fit2 <- ordinal::clm(target ~., data = data.frame( dataset[, c(csIndex, xIndex)] ), weights = wei )
     stat <- 2 * fit2$logLik - 2 * fit1$logLik
     dof <- length( coef(fit2) ) - length( coef(fit1) )
@@ -88,8 +88,8 @@ testIndOrdinal = function(target, dataset, xIndex, csIndex, wei = NULL, univaria
   }
   #last error check
   if ( is.na(pvalue) || is.na(stat) ) {
-    pvalue = log(1);
-    stat = 0;
+    pvalue <- log(1);
+    stat <- 0;
   } else {
     #update hash objects
     if (hash) {

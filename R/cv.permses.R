@@ -196,7 +196,7 @@ cv.permses <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, a
     mat <- matrix(nrow = length(best_model[[ 1 ]]), ncol = kfolds)
     for ( i in 1:dim(mat)[1] )  mat[i, ] <- as.vector( best_model[[ 1 ]][[ i ]]$performances )  
     
-    opti <- Rfast::rowmeans(mat)
+    opti <- rowMeans(mat, na.rm = TRUE)
     bestpar <- which.max(opti)
     best_model$best_configuration <- conf_ses[[bestpar]]$configuration
     best_model$best_performance <- max( opti )

@@ -1,6 +1,7 @@
 \name{Generalised orthogonal matching pursuit (gOMP)}
 \alias{gomp}
 \alias{gomp.path}
+\alias{boot.gomp}
 \title{
 Generalised orthogonal matching pursuit (gOMP)
 }
@@ -13,6 +14,9 @@ Generalised orthogonal matching pursuit.
 gomp(target, dataset, tol = qchisq(0.95, 1), test = "testIndLogistic", method = "ar2" ) 
 
 gomp.path(target, dataset, tol = c(4, 5, 6), test = "testIndLogistic", method = "ar2" ) 
+
+boot.gomp(target, dataset, tol = qchisq(0.95, 1), test = "testIndLogistic", 
+method = "ar2", B = 500, ncores = 1) 
 }
 
 \arguments{
@@ -37,7 +41,16 @@ The possible values are "testIndFisher" (or "testIndReg" for the same purpose), 
 "testIndGamma", "testIndMMReg", "testIndRQ", "testIndOrdinal", "testIndTobit", "censIndCR" and "censIndWR".
 }
 \item{method}{
-This is only for the "testIndFisher". You can either specify, "ar2" for the adjusted R-square or "sse" for the sum of squares of errors. The tolerance value in both cases must a number between 0 and 1. That will denote a percentage. If the percentage increase or decrease is less than the nubmer the algorithm stops. An alternative is "BIC" for BIC and the tolerance values are like in all other regression models.
+This is only for the "testIndFisher". You can either specify, "ar2" for the adjusted R-square or "sse" for the sum of squares 
+of errors. The tolerance value in both cases must a number between 0 and 1. That will denote a percentage. If the percentage 
+increase or decrease is less than the nubmer the algorithm stops. An alternative is "BIC" for BIC and the tolerance values 
+are like in all other regression models.
+}
+\item{B}{
+How many bootstrap samples to generate. The gOMP will be performed for each of these samples. 
+}
+\item{ncores}{
+How many cores to use. This argument is valid only if you have a multi-threaded machine.
 }
 }
 
@@ -47,12 +60,15 @@ A list including:
 The runtime of the algorithm
 }
 \item{phi}{
-The \eqn{phi} coefficient, returned in the quasi binomial (testIndQBinom), quasi Poisson (testIndQPois), Gamma (testIndGamma) and Gaussian with log link (testIndNormLog). In all other cases this is NULL. 
+The \eqn{phi} coefficient, returned in the quasi binomial (testIndQBinom), quasi Poisson (testIndQPois), Gamma (testIndGamma) and 
+Gaussian with log link (testIndNormLog). In all other cases this is NULL. 
 }
 \item{res}{
 For the case of "gomp" a matrix with two columns. The selected variable(s) and the criterion value at every step. 
 For the case of "gomp.path" a matrix with many columns. Every column contains the selected variables for each tolerance calue, 
-starting from the smallest value (which selected most variables). The final column is the deviance of the model at each step.
+starting from the smallest value (which selected most variables). The final column is the deviance of the model at each step. 
+For the "boot.gomp" this is a matrix with two columns. The first one is the selected variables and the second column is their
+proportion of selection.
 }
 }
 

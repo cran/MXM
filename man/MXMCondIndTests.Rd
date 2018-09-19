@@ -137,7 +137,7 @@ The target variable can be compositional data as well. These are positive data, 
 long as it the same, but for convenience reasons we assume that they are normalised to sum to 1.  In this case the additive log-ratio 
 transformation (multivariate logit transformation) is applied beforehand. 
 
-\item \bold{testIndSPML}. With circular target, the projected bivariate normal distribution (Presnell et al., 1998) is used to perform regression. 
+\item \bold{testIndSPML}. With a circular target, the projected bivariate normal distribution (Presnell et al., 1998) is used to perform regression. 
 }
 }
 

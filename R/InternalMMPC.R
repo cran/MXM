@@ -1,19 +1,18 @@
-InternalMMPC = function(target, dataset, max_k, threshold, test=NULL, ini=NULL, wei=NULL, user_test=NULL, hash=FALSE, 
+InternalMMPC <- function(target, dataset, max_k, threshold, test=NULL, ini=NULL, wei=NULL, user_test=NULL, hash=FALSE, 
                varsize, stat_hash, pvalue_hash, targetID, ncores)  {
   #get the current time
-  runtime <- proc.time();
   #######################################################################################
   #univariate feature selection test
   if ( is.null(ini) ) { 
-    univariateModels = univregs(target = target, dataset = dataset, targetID = targetID, test = test, user_test = user_test, wei = wei, ncores = ncores) 
+    univariateModels <- univregs(target = target, dataset = dataset, targetID = targetID, test = test, user_test = user_test, wei = wei, ncores = ncores) 
   } else  univariateModels = ini
   
-  pvalues = univariateModels$pvalue;      
-  stats = univariateModels$stat;
+  pvalues <- univariateModels$pvalue;      
+  stats <- univariateModels$stat;
   #if we dont have any associations , return
   if ( min(pvalues, na.rm = TRUE) > threshold )  {
     #cat('No associations!');
-    results = NULL;
+    results <- NULL;
     results$selectedVars = c();
     class(results$selectedVars) = "numeric";
     results$selectedVarsOrder = c();
@@ -26,8 +25,6 @@ InternalMMPC = function(target, dataset, max_k, threshold, test=NULL, ini=NULL, 
     results$univ = univariateModels
     results$max_k = max_k;
     results$threshold = threshold;
-    runtime = proc.time() - runtime;
-    results$runtime = runtime;
     results$n.tests <- length(stats)
     
     return(results);
@@ -97,8 +94,6 @@ InternalMMPC = function(target, dataset, max_k, threshold, test=NULL, ini=NULL, 
   results$univ = univariateModels
   results$max_k = max_k
   results$threshold = threshold
-  runtime = proc.time() - runtime
-  results$runtime = runtime
   results$n.tests <- length(stats) + length( hashObject$stat_hash )
   return(results)
 }

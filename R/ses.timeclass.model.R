@@ -3,7 +3,7 @@ ses.timeclass.model <- function(target, dataset, id, reps, wei = NULL, sestimecl
   signature <- sestimeclass.Object@signatures
   
   if ( sum( is.na(signature) ) > 0 ) {
-    mod = paste("No associations were found, hence no model is produced.")
+    mod <- paste("No associations were found, hence no model is produced.")
     signature = NULL
     
   } else {

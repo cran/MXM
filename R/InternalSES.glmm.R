@@ -1,7 +1,5 @@
 InternalSES.glmm = function(target, reps, group, dataset, max_k = 3, threshold = 0.05, test = NULL, ini, wei = NULL, user_test = NULL, 
                                 hash = FALSE, varsize, stat_hash, pvalue_hash, targetID, slopes, ncores) {
-  #get the current time
-  runtime = proc.time();
   #univariate feature selection test
   if ( is.null(ini) ) {
     univariateModels <- glmm.univregs(target = target, reps = reps, id = group, dataset = dataset, targetID = targetID, test = test, wei = wei, 
@@ -32,8 +30,6 @@ InternalSES.glmm = function(target, reps, group, dataset, max_k = 3, threshold =
     results$univ = univariateModels;
     results$max_k = max_k;
     results$threshold = threshold;
-    runtime = proc.time() - runtime;
-    results$runtime = runtime;
     results$slope = slopes
     results$n.tests = length(stats)
     
@@ -127,8 +123,6 @@ InternalSES.glmm = function(target, reps, group, dataset, max_k = 3, threshold =
   results$univ = univariateModels;
   results$max_k = max_k;
   results$threshold = threshold;
-  runtime = proc.time() - runtime;
-  results$runtime = runtime;
   results$slope = slopes
   results$n.tests = length(stats) + length( hashObject$stat_hash )
   

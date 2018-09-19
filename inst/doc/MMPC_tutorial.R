@@ -1,15 +1,14 @@
 ## ---- eval = FALSE-------------------------------------------------------
 #  
-#  #_____________ OVERVIEW of the MXM::`MMPC()` FUNCTION _______________
+#  # Overview the MXM::`MMPC()` function
 #  
 #  mmpc <- MXM::MMPC(
 #  
 #         target,           # The target variable vector
-#         dataset,          # The initial dataset with the target column removed
-#         max_k = 3,        #  the maximum size of the conditioning set to use
+#         dataset,          # The dataset with the target column removed
+#         max_k = 3,        # The maximum size of the conditioning set to use
 #         threshold = 0.05, # level of alpha for statistical  significance
 #         test = 'testIndFisher',
-#  
 #         ini = NULL,        # if TRUE, the calculated univariate associations
 #                            # are stored for runtime efficiency in subsequent
 #                            # MMPC runs with diferent hyper-parameters.
@@ -30,7 +29,6 @@
 # 0. INSTALL and LOAD the MXM R Package:
 #install.packages('MXM', dependencies = TRUE )
 library(MXM)
-library(dplyr)
 
 # 1. DOWNLOAD the wine dataset from UCI:
 URL  <- "ftp://ftp.ics.uci.edu/pub/machine-learning-databases/wine/wine.data"
@@ -73,11 +71,13 @@ str(wine)
 ## ---- warning = FALSE, message = FALSE-----------------------------------
 
 # 0. Exclude target variable column
-wine_dataset <- dplyr::select(wine, -contains('Nonflavanoids'))   #dplyr <3 
+targetVariable <- wine$Nonflavanoids
+targetVariable <- NULL
+
 
 # 1. Convert dataframe to matrix:
-wine_dataset <- as.matrix(wine_dataset)
-head(wine_dataset,2)
+wine_dataset <- as.matrix(wine)
+head(wine_dataset, 2)
 
 
 ## ---- warning = FALSE, message = FALSE-----------------------------------
@@ -97,7 +97,7 @@ str(target_NonFlav,2)
 
 ## ---- warning = FALSE, message = FALSE-----------------------------------
 
-#__________ MMPC on the WINE DATASET: __________
+# MMPC on the wine dataset: 
 
 library('MXM')
 mmpc_object_wine_NonFlav <- MXM::MMPC( target  = target_NonFlav,            
@@ -113,8 +113,11 @@ mmpc_object_wine_NonFlav <- MXM::MMPC( target  = target_NonFlav,
                                                         
 
 ## ------------------------------------------------------------------------
-str(mmpc_object_wine_NonFlav@hashObject) # Cache of the stats calculated in the MMPC run.
-str(mmpc_object_wine_NonFlav@univ)       # a list with the univariate associations 
+# Cache of the stats calculated in the MMPC run
+str(mmpc_object_wine_NonFlav@hashObject) 
+
+# a list with the univariate associations
+str(mmpc_object_wine_NonFlav@univ)        
 
 ## ------------------------------------------------------------------------
 execution_time_1st_MMPC_run <- mmpc_object_wine_NonFlav@runtime
@@ -122,7 +125,7 @@ execution_time_1st_MMPC_run
 
 ## ---- warning = FALSE, message = FALSE-----------------------------------
 
-#____________ MMPC on the WINE DATASET: _________________
+# MMPC on the wine dataset: 
 
 library('MXM')
 mmpc_object_2nd_run <- MXM::MMPC(target  = target_NonFlav,            
@@ -152,17 +155,17 @@ execution_time_2nd_MMPC_run
 
 ## ---- warning = FALSE, message = FALSE-----------------------------------
 
-#___ Grid Search for MMPC hyper-parameter tuning ___
+# Grid Search for MMPC hyper-parameter tuning 
 
 library('MXM')
 mmpc_GridSearch <- MXM::mmpc.path(
                   
                   target  = target_NonFlav,            
-                  dataset = wine_dataset  ,            
+                  dataset = wine_dataset,            
                  
                   max_ks = c(3,4,5,6),  # a vector of k to try
                   
-                  alphas = NULL  ,   # a vector of thresholds; 
+                  alphas = NULL,   # a vector of thresholds; 
                                         # If NULL, 0.1, 0.05 and 0.01 
                                         # will be tested.
                   
@@ -202,7 +205,7 @@ colnames(wine_dataset)[5]
 
 ## ---- warning = FALSE, message = FALSE-----------------------------------
 
-# ___ MODEL ESTIMATES USING MMPC'S FEATURE SUBSET AS PrEDICTORs_______
+# MODEL ESTIMATES USING MMPC'S FEATURE SUBSET AS PrEDICTORs 
 
 mmpc_model_wine_NonFlav<- mmpc.model(
                                    target = target_NonFlav, 

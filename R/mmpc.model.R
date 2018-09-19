@@ -31,18 +31,18 @@ mmpc.model = function(target, dataset, wei = NULL, mmpcObject, test = NULL) {
   
   if ( is.null(test) ) {  
     ci_test = mmpcObject@test
-  } else ci_test = test 
+  } else ci_test <- test 
   
     signature <- mmpcObject@selectedVars  
     p <- length(signature)
 
     if ( ci_test == "testIndFisher" || ci_test == "testIndReg" ) {
-      mod = lm( target ~ ., data = as.data.frame(dataset[, signature ]), weights = wei )
-      bic = BIC(mod)       
+      mod <- lm( target ~ ., data = as.data.frame(dataset[, signature ]), weights = wei )
+      bic <- BIC(mod)       
     
     } else if ( ci_test == "tesIndMMReg" ) {
-      mod = MASS::rlm(target ~., data = data.frame(dataset[, signature ]), maxit = 2000, weights = wei )
-      bic = BIC( mod )       
+      mod <- MASS::rlm(target ~., data = data.frame(dataset[, signature ]), maxit = 2000, weights = wei )
+      bic <- BIC( mod )       
 	
     } else if ( ci_test == "testIndSpearman" || ci_test == "testIndRQ" ) {
 

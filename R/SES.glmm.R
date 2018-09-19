@@ -3,6 +3,7 @@ SES.glmm = function(target, reps = NULL, group, dataset, max_k = 3, threshold = 
   ##############################
   # initialization part of SES #
   ##############################
+  runtime <- proc.time()
   stat_hash <- NULL;
   pvalue_hash <- NULL;
  
@@ -115,12 +116,14 @@ SES.glmm = function(target, reps = NULL, group, dataset, max_k = 3, threshold = 
   if( !is.null(user_test) )  ci_test = "user_test";
   #######################################################################################
   #call the main SES function after the checks and the initializations
-  results = InternalSES.glmm(target, reps, group, dataset, max_k, log(threshold), test, ini, wei, user_test, hash, varsize, stat_hash, pvalue_hash, 
+  results <- InternalSES.glmm(target, reps, group, dataset, max_k, log(threshold), test, ini, wei, user_test, hash, varsize, stat_hash, pvalue_hash, 
                                  targetID, slopes, ncores);
-  SES.glmm.output <-new("SES.glmm.output", selectedVars = results$selectedVars, selectedVarsOrder=results$selectedVarsOrder, 
-                            queues=results$queues, signatures=results$signatures, hashObject=results$hashObject, pvalues=results$pvalues, 
-                            stats=results$stats, univ = results$uni, max_k=results$max_k, threshold = results$threshold, 
-                            n.tests = results$n.tests, runtime=results$runtime, test = ci_test, slope = results$slope);
+  
+  runtime <- proc.time() - runtime
+  SES.glmm.output <-new("SES.glmm.output", selectedVars = results$selectedVars, selectedVarsOrder = results$selectedVarsOrder, 
+                            queues = results$queues, signatures = results$signatures, hashObject = results$hashObject, pvalues = results$pvalues, 
+                            stats = results$stats, univ = results$uni, max_k = results$max_k, threshold = results$threshold, 
+                            n.tests = results$n.tests, runtime = runtime, test = ci_test, slope = results$slope);
   
   return(SES.glmm.output);
 }

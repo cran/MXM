@@ -130,7 +130,7 @@ cv.gomp <- function(target, dataset, kfolds = 10, folds = NULL, tol = seq(4, 9, 
     runtime <- proc.time() - tic
     perf <- matrix(0, nrow = kfolds, ncol = ntol)
     for (i in 1:kfolds)  perf[i, ] <- cv_results_all[[ i ]]$performances
-    perf <- colMeans(perf)
+    perf <- colMeans(perf, na.rm = TRUE)
     best_performance <- max(perf)
     best_configuration <- tol[ which.max(perf) ]
     list(cv_results_all = cv_results_all, best_performance = best_performance, best_configuration = best_configuration, 

@@ -1,7 +1,5 @@
-wald.Internalses = function(target, dataset, max_k, threshold, test = NULL, ini, wei=NULL, user_test=NULL, hash=FALSE, varsize, stat_hash, pvalue_hash, targetID, ncores)
-{
-  #get the current time
-  runtime = proc.time();
+wald.Internalses = function(target, dataset, max_k, threshold, test = NULL, ini, wei=NULL, user_test=NULL, hash=FALSE, varsize, 
+                            stat_hash, pvalue_hash, targetID, ncores) {
 
   if ( is.null(ini) ) { 
     univariateModels = wald.univregs(target = target, dataset = dataset, targetID = targetID, test = test, user_test = user_test, wei = wei, ncores = ncores) 
@@ -29,8 +27,6 @@ wald.Internalses = function(target, dataset, max_k, threshold, test = NULL, ini,
     results$univ = univariateModels
     results$max_k = max_k;
     results$threshold = threshold;
-    runtime = proc.time() - runtime;
-    results$runtime = runtime;
     results$n.tests <- length(stats)
     return(results);
   }
@@ -121,8 +117,6 @@ wald.Internalses = function(target, dataset, max_k, threshold, test = NULL, ini,
   results$univ = univariateModels
   results$max_k = max_k;
   results$threshold = threshold;
-  runtime = proc.time() - runtime;
-  results$runtime = runtime;
   results$n.tests <- length(stats) + length( hashObject$stat_hash )
   
   return(results);

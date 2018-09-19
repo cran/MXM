@@ -52,6 +52,8 @@ MMPC <- function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini 
   ##############################
   # initialization part of MMPC 
   #############################
+  runtime <- proc.time()
+  
   stat_hash <- NULL;
   pvalue_hash <- NULL;
   
@@ -275,7 +277,6 @@ MMPC <- function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini 
       } else if (test == "testIndSPML") {
         test <- testIndSPML
         if ( !is.matrix(target) )   target <- cbind( cos(target), sin(target) )
-        
       }
       #more tests here
     } else {
@@ -311,9 +312,11 @@ MMPC <- function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini 
     results$pvalues[varsToIterate] <- bc$pvalues
     results$n.tests <- results$n.tests + bc$counter
   }
+  runtime <- proc.time() - runtime
+  
   MMPCoutput <-new("MMPCoutput", selectedVars = results$selectedVars, selectedVarsOrder = results$selectedVarsOrder, 
                    hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, univ=results$univ, 
-                   max_k=results$max_k, threshold = results$threshold, n.tests = results$n.tests, runtime=results$runtime, test=ci_test);
+                   max_k=results$max_k, threshold = results$threshold, n.tests = results$n.tests, runtime=runtime, test=ci_test);
   return(MMPCoutput);
 }
 

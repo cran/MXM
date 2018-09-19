@@ -1,5 +1,5 @@
-mmpc.path <- function(target, dataset, wei = NULL, max_ks = NULL, alphas = NULL , test = NULL , user_test = NULL, ncores = 1) {
-  
+perm.mmpc.path <- function(target, dataset, wei = NULL, max_ks = NULL, alphas = NULL, test = NULL, user_test = NULL, R = 999, ncores = 1) {
+
   if( is.null(alphas) )  alphas <- c(0.1, 0.05, 0.01)
   if( is.null(max_ks) )   max_ks <- c(4, 3, 2)  
   
@@ -21,15 +21,16 @@ mmpc.path <- function(target, dataset, wei = NULL, max_ks = NULL, alphas = NULL 
   
   for (i in 1:nalpha) {
     for (j in 1:nmaxk) {
-      
-      results <- MMPC(target, dataset, max_k = max_ks[j], threshold = alphas[i], test = test, ini = iniset, wei = wei, hash = TRUE, hashObject = inihash, ncores = ncores)
+
+      results <- perm.mmpc(target, dataset, max_k = max_ks[j], threshold = alphas[i], test = test, ini = iniset, wei = wei, 
+                           hash = TRUE, hashObject = inihash, R = R, ncores = ncores) 
       iniset <- results@univ
       inihash <- results@hashObject;
       
       a <- mmpc.model(target, dataset, wei = wei, results)$signature 
       
       if ( !is.null(a) ) {
-      bic[i, j] <- a[length(a)]    
+        bic[i, j] <- a[length(a)]    
       } else bic[i, j] <- NULL
       
       size[i, j] <- length( results@selectedVars );    
@@ -48,4 +49,3 @@ mmpc.path <- function(target, dataset, wei = NULL, max_ks = NULL, alphas = NULL 
   list(bic = bic, size = size, variables = vars, runtime = runtime)
   
 }
-    

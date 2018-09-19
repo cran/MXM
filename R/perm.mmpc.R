@@ -3,6 +3,7 @@ perm.mmpc <- function(target, dataset, max_k = 3, threshold = 0.05, test = NULL,
   ##############################
   # initialization part of MMPC 
   #############################
+  runtime <- proc.time()
   stat_hash <- NULL
   pvalue_hash <- NULL
   
@@ -66,7 +67,7 @@ perm.mmpc <- function(target, dataset, max_k = 3, threshold = 0.05, test = NULL,
   ################################
   la <- length( unique( as.numeric(target) ) ) 
   if (typeof(user_test) == "closure") {
-    test = user_test;
+    test <- user_test;
   } else {
     #auto detect independence test in case of not defined by the user and the test is null or auto
     if (is.null(test) || test == "auto") {
@@ -202,7 +203,7 @@ perm.mmpc <- function(target, dataset, max_k = 3, threshold = 0.05, test = NULL,
   if ( !is.null(user_test) )  ci_test = "user_test";
   #call the main MMPC function after the checks and the initializations
   options(warn = -1)
-  results = perm.Internalmmpc(target, dataset, max_k, log(threshold), test, ini, wei, user_test, hash, varsize, stat_hash, pvalue_hash, targetID, R = R, ncores = ncores);
+  results <- perm.Internalmmpc(target, dataset, max_k, log(threshold), test, ini, wei, user_test, hash, varsize, stat_hash, pvalue_hash, targetID, R = R, ncores = ncores);
   #for testing backward phase
   #   results$selectedVars = c(results$selectedVars,15)
   #   results$selectedVarsOrder = c(results$selectedVarsOrder,15)
@@ -222,9 +223,10 @@ perm.mmpc <- function(target, dataset, max_k = 3, threshold = 0.05, test = NULL,
     results$n.tests <- results$n.tests + bc$counter
   }
   
-  MMPCoutput <-new("MMPCoutput", selectedVars = results$selectedVars, selectedVarsOrder=results$selectedVarsOrder, 
-                   hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, univ=results$univ, 
-                   max_k=results$max_k, threshold = results$threshold, n.tests = results$n.tests, runtime=results$runtime, test=ci_test);
+  runtime <- proc.time() - runtime
+  MMPCoutput <-new("MMPCoutput", selectedVars = results$selectedVars, selectedVarsOrder = results$selectedVarsOrder, 
+                   hashObject = results$hashObject, pvalues = results$pvalues, stats = results$stats, univ = results$univ, 
+                   max_k = results$max_k, threshold = results$threshold, n.tests = results$n.tests, runtime = runtime, test = ci_test);
   return(MMPCoutput);
 }
 

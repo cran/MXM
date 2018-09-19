@@ -26,8 +26,8 @@ fbed.lr <- function(y, x, alpha = 0.05, univ = NULL, test = NULL, wei = NULL, K 
   
   if ( length(s) > 0 ) {
     if ( identical(test, testIndSPML) ) {
-      if ( !is.matrix(target) )   target <- cbind( cos(target), sin(target) )
-    }
+      if ( !is.matrix(y) )   y <- cbind( cos(y), sin(y) )
+    }  
       
     sel <- which.min(pval)
     sela <- sel

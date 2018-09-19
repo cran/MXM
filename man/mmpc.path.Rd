@@ -1,6 +1,7 @@
 \name{MMPC solution paths for many combinations of hyper-parameters}
 \alias{mmpc.path}
-\alias{waldmmpc.path}
+\alias{wald.mmpc.path}
+\alias{perm.mmpc.path}
 \title{
 MMPC solution paths for many combinations of hyper-parameters
 }
@@ -13,8 +14,11 @@ MMPC solution paths for many combinations of hyper-parameters.
 mmpc.path(target, dataset, wei = NULL, max_ks = NULL, alphas = NULL, test = NULL,
 user_test = NULL, ncores = 1)
 
-waldmmpc.path(target, dataset, wei = NULL, max_ks = NULL, alphas = NULL, test = NULL,
+wald.mmpc.path(target, dataset, wei = NULL, max_ks = NULL, alphas = NULL, test = NULL,
 user_test = NULL, ncores = 1)
+
+perm.mmpc.path(target, dataset, wei = NULL, max_ks = NULL, alphas = NULL, test = NULL,
+user_test = NULL, R = 999, ncores = 1)
 }
 
 \arguments{
@@ -39,6 +43,9 @@ The conditional independence test to use. Default value is NULL. See also \code{
 }
 \item{user_test}{
 A user-defined conditional independence test (provide a closure type object). Default value is NULL. If this is defined, the "test" argument is ignored.
+}
+\item{R}{
+The number of permutations, set to 999 by default. There is a trick to avoind doing all permutations. As soon as the number of times the permuted test statistic is more than the observed test statistic is more than 50 (if threshold = 0.05 and R = 999), the p-value has exceeded the signifiance level (threshold value) and hence the predictor variable is not significant. There is no need to continue do the extra permutations, as a decision has already been made. 
 }
 \item{ncores}{
 How many cores to use. This plays an important role if you have tens of thousands of variables or really large sample sizes and tens of thousands of variables and a regression based test which requires numerical optimisation. In other cases it will not make a difference in the overall time (in fact it can be slower). The parallel computation is used in the first step of the algorithm, where univariate associations are examined, those take place in parallel. We have seen a reduction in time of 50\% with 4 cores in comparison to 1 core. Note also, that the amount of reduction is not linear in the number of cores. This argument is used only in the first run of MMPC and for the univariate associations only and the results are stored (hashed). In the enxt runs of MMPC the results are used (cashed) and so the process is faster. 

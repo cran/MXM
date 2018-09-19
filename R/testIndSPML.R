@@ -1,6 +1,5 @@
 testIndSPML = function(target, dataset, xIndex, csIndex, wei = NULL, univariateModels=NULL, 
-                        hash = FALSE, stat_hash = NULL, pvalue_hash = NULL) 
-{
+                        hash = FALSE, stat_hash = NULL, pvalue_hash = NULL) {
   # TESTINDREG Conditional Independence Test for continous class variables 
   # PVALUE = TESTINDREG(Y, DATA, XINDEX, CSINDEX)
   # This test provides a p-value PVALUE for the NULL hypothesis H0 which is
@@ -82,17 +81,27 @@ testIndSPML = function(target, dataset, xIndex, csIndex, wei = NULL, univariateM
           y <- ( atan(target[, 2]/target[, 1]) + pi * I(target[, 1] < 0) ) %% (2 * pi)
           fit1 <- Rfast::spml.mle(y)
         } else  fit1 <- Rfast::spml.mle(target)
-        fit2 <- Rfast::spml.reg(target, x)
-        stat <- 2 * fit2$loglik - 2 * fit1$loglik
-        pvalue <- pchisq(stat, 2, lower.tail = FALSE, log.p = TRUE)
+        fit2 <- try( spml.reg2(target, x), silent = TRUE)
+        if ( identical( class(fit2), "try-error" ) )  {
+          pvalue <- log(1)
+          stat <- 0
+        } else {
+          stat <- 2 * fit2$loglik - 2 * fit1$loglik
+          pvalue <- pchisq(stat, 2, lower.tail = FALSE, log.p = TRUE)
+        }  
       } else {
-        fit1 <- Rfast::spml.reg(target, cs)
-        fit2 <- Rfast::spml.reg( target, dataset[, c(csIndex, xIndex)] )
-        stat <- 2 * fit2$loglik - 2 * fit1$loglik
-        pvalue <- pchisq(stat, 2, lower.tail = FALSE, log.p = TRUE)
+        fit1 <- try( spml.reg2(target, cs), silent = TRUE)
+        fit2 <- try( spml.reg2( target, dataset[, c(csIndex, xIndex)] ), silent = TRUE)
+        if ( identical( class(fit1), "try-error" )  |  identical( class(fit2), "try-error" ) )  {
+          pvalue <- log(1)
+          stat <- 0
+        } else {          
+          stat <- 2 * fit2$loglik - 2 * fit1$loglik
+          pvalue <- pchisq(stat, 2, lower.tail = FALSE, log.p = TRUE)
+        }  
       }
       #last error check
-      if (is.na(pvalue) || is.na(stat) )  {
+      if ( is.na(pvalue) || is.na(stat) )  {
         pvalue <- log(1);
         stat <- 0;
       } else {

@@ -174,11 +174,12 @@ Spirtes P.,  Glymour C. and Scheines R. (2001). Causation, Prediction, and Searc
 Tsamardinos, Ioannis, and Laura E. Brown. Bounding the False Discovery Rate in Local Bayesian Network Learning. AAAI, 2008.
 
 Tsagris M., Borboudakis G., Lagani V. and Tsamardinos I. (2018). Constraint-based Causal Discovery with Mixed Data. 
-International Journal of Data Science and Analytics. 
+International Journal of Data Science and Analytics, 6: 19-30. 
 
-https://link.springer.com/content/pdf/10.1007%2Fs41060-018-0097-y.pdf
- 
 http://nugget.unisa.edu.au/CD2017/papersonly/constraint-based-causal-r1.pdf
+
+Tsagris M. Bayesian network learning with the PC algorithm: an improved and correct variation. 
+Applied Artificial Intelligence (Accepted for publication).
 
 Sedgewick, A. J., Ramsey, J. D., Spirtes, P., Glymour, C., & Benos, P. V. (2017). Mixed Graphical Models for Causal Analysis of 
 Multi-modal Variables. arXiv preprint arXiv:1704.02621.

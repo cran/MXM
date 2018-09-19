@@ -3,6 +3,7 @@ perm.ses <- function(target, dataset , max_k = 3 , threshold = 0.05 , test = NUL
   ##############################
   # initialization part of SES #
   ##############################
+  runtime <- proc.time()
   stat_hash <- NULL;
   pvalue_hash <- NULL;
   
@@ -218,10 +219,11 @@ perm.ses <- function(target, dataset , max_k = 3 , threshold = 0.05 , test = NUL
     results$n.tests <- results$n.tests + bc$counter
   }
   
-  SESoutput <-new("SESoutput", selectedVars = results$selectedVars, selectedVarsOrder=results$selectedVarsOrder, queues=results$queues, 
-                  signatures=results$signatures, hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, 
-                  univ = results$univ, max_k=results$max_k, threshold = results$threshold, n.tests = results$n.tests, 
-                  runtime=results$runtime, test=ci_test);
+  runtime <- proc.time() - runtime
+  SESoutput <-new("SESoutput", selectedVars = results$selectedVars, selectedVarsOrder = results$selectedVarsOrder, queues = results$queues, 
+                  signatures = results$signatures, hashObject = results$hashObject, pvalues = results$pvalues, stats = results$stats, 
+                  univ = results$univ, max_k = results$max_k, threshold = results$threshold, n.tests = results$n.tests, 
+                  runtime = runtime, test = ci_test);
   return(SESoutput);
 }
 

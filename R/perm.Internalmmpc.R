@@ -1,7 +1,6 @@
-perm.Internalmmpc = function(target, dataset, max_k, threshold, test=NULL, ini=NULL, wei=NULL, user_test=NULL, hash=FALSE, varsize, stat_hash, pvalue_hash, targetID, R = 999, ncores)
-{
-  #get the current time
-  runtime <- proc.time();
+perm.Internalmmpc = function(target, dataset, max_k, threshold, test=NULL, ini=NULL, wei=NULL, user_test=NULL, hash=FALSE, 
+                             varsize, stat_hash, pvalue_hash, targetID, R = 999, ncores) {
+
   #univariate feature selection test
   if ( is.null(ini) ) { 
     univariateModels = perm.univregs(target = target, dataset = dataset, targetID = targetID, test = test, user_test = user_test, wei = wei, threshold = threshold, R = R, ncores = ncores) 
@@ -25,8 +24,6 @@ perm.Internalmmpc = function(target, dataset, max_k, threshold, test=NULL, ini=N
     results$univ = univariateModels
     results$max_k = max_k;
     results$threshold = threshold;
-    runtime = proc.time() - runtime;
-    results$runtime = runtime;
     results$n.tests <- length(stats)
     return(results);
   }
@@ -98,15 +95,8 @@ perm.Internalmmpc = function(target, dataset, max_k, threshold, test=NULL, ini=N
   results$pvalues = pvalues
   results$stats = stats;
   results$univ = univariateModels
-  #   results$all_queues = all_queues;
-  #   already known
-  #   results$data = dataset;
-  #   results$target = target;
-  #   results$test = test;
   results$max_k = max_k
   results$threshold = threshold
-  runtime = proc.time() - runtime
-  results$runtime = runtime
   results$n.tests <- length(stats) + length( hashObject$stat_hash )
   return(results)
 }

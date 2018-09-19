@@ -40,7 +40,7 @@ plotnetwork <- function(G, titlos = NULL) {
     from <- edges$from
     to <- edges$to
     type <- edges$type
-    a = type
+    a <- type
     a[type == 1] = "to"
     a[type == 0] = ""
 

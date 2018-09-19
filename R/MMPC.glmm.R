@@ -3,6 +3,7 @@ MMPC.glmm <- function(target, reps = NULL, group, dataset, max_k = 3, threshold 
   ##############################
   # initialization part of MMPC #
   ##############################
+  runtime <- proc.time()
   stat_hash <- NULL;
   pvalue_hash <- NULL;
   
@@ -116,10 +117,11 @@ MMPC.glmm <- function(target, reps = NULL, group, dataset, max_k = 3, threshold 
   #call the main MMPC.glmm function after the checks and the initializations
   results <- InternalMMPC.glmm(target, reps, group, dataset, max_k, log(threshold), test, ini, wei, user_test, hash, varsize, 
                                    stat_hash, pvalue_hash, targetID, slopes = slopes, ncores = ncores);
-
+  
+  runtime <- proc.time() - runtime
   MMPC.glmm.output <-new("MMPC.glmm.output", selectedVars = results$selectedVars, selectedVarsOrder = results$selectedVarsOrder, 
                              hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, univ = results$univ, 
-                             max_k = results$max_k, threshold = results$threshold, n.tests = results$n.tests, runtime = results$runtime, 
+                             max_k = results$max_k, threshold = results$threshold, n.tests = results$n.tests, runtime = runtime, 
                              test = ci_test, slope = slopes);
   return(MMPC.glmm.output);
 }

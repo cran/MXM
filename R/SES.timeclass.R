@@ -3,6 +3,7 @@ SES.timeclass <- function(target, reps, id, dataset, max_k = 3, threshold = 0.05
   ##############################
   # initialization part of MMPC 
   #############################
+  runtime <- proc.time()
   stat_hash <- NULL;
   pvalue_hash <- NULL;
   
@@ -59,9 +60,11 @@ SES.timeclass <- function(target, reps, id, dataset, max_k = 3, threshold = 0.05
   #  results$pvalues[varsToIterate] = bc$pvalues
   #  results$n.tests <- results$n.tests + bc$counter
   #}
-  SES.timeclass.output <- new("SESoutput", selectedVars = results$selectedVars, selectedVarsOrder=results$selectedVarsOrder, queues=results$queues, 
-                   signatures=results$signatures, hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, univ = results$univ,
-                   max_k=results$max_k, threshold = results$threshold, n.tests = results$n.tests, runtime=results$runtime, test=ci_test);
+  
+  runtime <- proc.time() - runtime
+  SES.timeclass.output <- new("SESoutput", selectedVars = results$selectedVars, selectedVarsOrder = results$selectedVarsOrder, queues = results$queues, 
+                   signatures = results$signatures, hashObject = results$hashObject, pvalues = results$pvalues, stats = results$stats, univ = results$univ,
+                   max_k = results$max_k, threshold = results$threshold, n.tests = results$n.tests, runtime = runtime, test = ci_test);
   
   return(SES.timeclass.output);
 }

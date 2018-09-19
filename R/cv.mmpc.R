@@ -145,7 +145,7 @@ cv.mmpc <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, alph
       sign_data <- train_set[, curr_sign, drop = FALSE]
       sign_test <- test_set[, curr_sign, drop = FALSE]
       
-      if( length(variables) > 0 ) {
+      if ( length(variables) > 0 ) {
         #generate a model due to the task and find the performance
         #logistic model for a classification task, linear model for the regression task and a cox model for the survival task
         moda <- modelerFunction(train_target, sign_data, sign_test, wei = wtrain)
@@ -164,15 +164,15 @@ cv.mmpc <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, alph
           conf_mmpc[[mmpc_conf_id]]$preds[[k]] <- preds
           conf_mmpc[[mmpc_conf_id]]$performances[k] <- performance
         }
-    }
+    }  ##  end for (mmpc_conf_id in 1:nmmpcConfs) {
     #clear the hashmap 
     if ( !is.null(mmpcHashMap$pvalue_hash) )   mmpcHashMap$pvalue_hash <- NULL
     if ( !is.null(mmpcHashMap$stat_hash) )     mmpcHashMap$stat_hash <- NULL
-  }
+  }  ##  end  for (k in 1:kfolds) {
   
   #finding the best performance for the metric  
-  index = 1;
-  best_perf = mean(conf_mmpc[[1]]$performances, na.rm = TRUE);
+  index <- 1;
+  best_perf <- mean(conf_mmpc[[1]]$performances, na.rm = TRUE);
   for ( i in 2:length(conf_mmpc) ) {
     averagePerf <- mean(conf_mmpc[[i]]$performances, na.rm = TRUE);
     if ( !is.na(averagePerf)  &  !is.na(best_perf) ) {
@@ -191,9 +191,9 @@ cv.mmpc <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, alph
   mat <- matrix(nrow = length(best_model[[ 1 ]]), ncol = kfolds)
   for ( i in 1:nrow(mat) )  mat[i, ] <- as.vector( best_model[[ 1 ]][[ i ]]$performances )  
   
-  opti <- Rfast::rowmeans(mat)
+  opti <- rowMeans(mat, na.rm = TRUE)
   bestpar <- which.max(opti)
-  best_model$best_configuration = conf_mmpc[[bestpar]]$configuration
+  best_model$best_configuration <- conf_mmpc[[bestpar]]$configuration
   best_model$best_performance <- max( opti )
   best_model$bbc_best_performance <- NULL
   

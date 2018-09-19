@@ -62,8 +62,8 @@ gomp <- function(target, dataset, tol = qchisq(0.95, 1), test = "testIndLogistic
       rho[2] <-  - 2 * as.numeric( logLik(mod) )
       ind[sel] <- 0
       i <- 2
-      r <- rep(NA, d)
       while ( (rho[i - 1] - rho[i]) > tol ) {
+        r <- rep(NA, d)
         i <- i + 1
         ## r[ind] <- Rfast::colsums( dataset[, ind, drop = FALSE] * res )
         r[ind] <- Rfast::eachcol.apply(dataset, res, indices = ind[ind > 0 ], oper = "*", apply = "sum") 
@@ -73,7 +73,6 @@ gomp <- function(target, dataset, tol = qchisq(0.95, 1), test = "testIndLogistic
         res <- target - fitted(mod)
         rho[i] <-  - 2 * as.numeric( logLik(mod) )
         ind[sela] <- 0
-        r[sela] <- NA
       } ## end while ( (rho[i - 1] - rho[i]) > tol )
       runtime <- proc.time() - tic
       len <- length(sela)
@@ -100,8 +99,8 @@ gomp <- function(target, dataset, tol = qchisq(0.95, 1), test = "testIndLogistic
         ind[sel] <- 0
       }  
       i <- 2
-      r <- rep(NA, d)
       while ( (rho[i - 1] - rho[i]) > tol ) {
+        r <- rep(NA, d)
         i <- i + 1
         ##r[ind] <- Rfast::colsums( dataset[, ind, drop = FALSE] * res )
         r[ind] <- Rfast::eachcol.apply(dataset, res, indices = ind[ind > 0 ], oper = "*", apply = "sum") 
@@ -115,7 +114,6 @@ gomp <- function(target, dataset, tol = qchisq(0.95, 1), test = "testIndLogistic
           res <- target - est / (1 + est)
           rho[i] <-  - 2 * mod$loglik
           ind[sela] <- 0
-          r[sela] <- NA
         }  
       } ## end while ( (rho[i - 1] - rho[i]) > tol )
       runtime <- proc.time() - tic
@@ -138,8 +136,8 @@ gomp <- function(target, dataset, tol = qchisq(0.95, 1), test = "testIndLogistic
       rho[2] <-  - 2 * as.numeric( logLik(mod) ) 
       ind[sel] <- 0
       i <- 2
-      r <- rep(NA, d)
       while ( (rho[i - 1] - rho[i]) > tol ) {
+        r <- rep(NA, d)
         i <- i + 1
         ##r[ind] <- Rfast::colsums( dataset[, ind, drop = FALSE] * res )
         r[ind] <- Rfast::eachcol.apply(dataset, res, indices = ind[ind > 0 ], oper = "*", apply = "sum") 
@@ -152,7 +150,6 @@ gomp <- function(target, dataset, tol = qchisq(0.95, 1), test = "testIndLogistic
           res <- mod$residuals
           rho[i] <-  - 2 * as.numeric( logLik(mod) ) 
           ind[sela] <- 0
-          r[sela] <- NA
         }  
       } ## end while ( (rho[i - 1] - rho[i]) > tol )
       runtime <- proc.time() - tic
@@ -175,8 +172,8 @@ gomp <- function(target, dataset, tol = qchisq(0.95, 1), test = "testIndLogistic
       rho[2] <-  - 2 * as.numeric( logLik(mod) ) 
       ind[sel] <- 0
       i <- 2
-      r <- rep(NA, d)
       while ( (rho[i - 1] - rho[i]) > tol ) {
+        r <- rep(NA, d)
         i <- i + 1
         ##r[ind] <- Rfast::colsums( dataset[, ind, drop = FALSE] * res )
         r[ind] <- Rfast::eachcol.apply(dataset, res, indices = ind[ind > 0 ], oper = "*", apply = "sum") 
@@ -189,7 +186,6 @@ gomp <- function(target, dataset, tol = qchisq(0.95, 1), test = "testIndLogistic
           res <- mod$residuals
           rho[i] <-  - 2 * as.numeric( logLik(mod) ) 
           ind[sela] <- 0
-          r[sela] <- NA
         }  
       } ## end while ( (rho[i - 1] - rho[i]) > tol )
       runtime <- proc.time() - tic
@@ -212,18 +208,21 @@ gomp <- function(target, dataset, tol = qchisq(0.95, 1), test = "testIndLogistic
       rho[2] <-  - 2 * as.numeric( logLik(mod) )
       ind[sel] <- 0
       i <- 2
-      r <- rep(NA, d)
       while ( (rho[i - 1] - rho[i]) > tol ) {
+        r <- rep(NA, d)
         i <- i + 1
         ##r[ind] <- Rfast::colsums( dataset[, ind, drop = FALSE] * res )
         r[ind] <- Rfast::eachcol.apply(dataset, res, indices = ind[ind > 0 ], oper = "*", apply = "sum") 
         sel <- which.max( abs(r) )
         sela <- c(sela, sel)
-        mod <- MASS::polr(target ~ dataset[, sela])        
-        res <- ord.resid(target, mod$fitted.values)
-        rho[i] <-  - 2 * as.numeric( logLik(mod) )
-        ind[sela] <- 0
-        r[sela] <- NA
+        mod <- try( MASS::polr(target ~ dataset[, sela]), silent = TRUE)
+        if ( identical( class(mod), "try-error" ) ) {
+          rho[i] <- rho[i - 1]
+        } else {
+          res <- ord.resid(target, mod$fitted.values)
+          rho[i] <-  - 2 * as.numeric( logLik(mod) ) 
+          ind[sela] <- 0
+        }  
       } ## end while ( (rho[i - 1] - rho[i]) > tol )
       runtime <- proc.time() - tic
       len <- length(sela)
@@ -245,8 +244,8 @@ gomp <- function(target, dataset, tol = qchisq(0.95, 1), test = "testIndLogistic
       rho[2] <-  - 2 * as.numeric( logLik(mod) ) 
       ind[sel] <- 0
       i <- 2
-      r <- rep(NA, d)
       while ( (rho[i - 1] - rho[i]) > tol ) {
+        r <- rep(NA, d)
         i <- i + 1
         ##r[ind] <- Rfast::colsums( dataset[, ind, drop = FALSE] * res )
         r[ind] <- Rfast::eachcol.apply(dataset, res, indices = ind[ind > 0 ], oper = "*", apply = "sum") 
@@ -259,7 +258,6 @@ gomp <- function(target, dataset, tol = qchisq(0.95, 1), test = "testIndLogistic
           res <- resid(mod)
           rho[i] <-  - 2 * as.numeric( logLik(mod) ) 
           ind[sela] <- 0
-          r[sela] <- NA
         }  
       } ## end while ( (rho[i - 1] - rho[i]) > tol )
       runtime <- proc.time() - tic
@@ -282,8 +280,8 @@ gomp <- function(target, dataset, tol = qchisq(0.95, 1), test = "testIndLogistic
       rho[2] <-  - 2 * as.numeric( logLik(mod) ) 
       ind[sel] <- 0
       i <- 2
-      r <- rep(NA, d)
       while ( (rho[i - 1] - rho[i]) > tol ) {
+        r <- rep(NA, d)
         i <- i + 1
         ##r[ind] <- Rfast::colsums( dataset[, ind, drop = FALSE] * res )
         r[ind] <- Rfast::eachcol.apply(dataset, res, indices = ind[ind > 0 ], oper = "*", apply = "sum") 
@@ -296,7 +294,6 @@ gomp <- function(target, dataset, tol = qchisq(0.95, 1), test = "testIndLogistic
           res <- mod$residuals   ## martingale residuals
           rho[i] <-  - 2 * as.numeric( logLik(mod) ) 
           ind[sela] <- 0
-          r[sela] <- NA
         }  
       } ## end while ( (rho[i - 1] - rho[i]) > tol )
       runtime <- proc.time() - tic
@@ -320,8 +317,8 @@ gomp <- function(target, dataset, tol = qchisq(0.95, 1), test = "testIndLogistic
       if ( is.na(rho[2]) )  rho[2] <- rho[1]
       ind[sel] <- 0
       i <- 2
-      r <- rep(NA, d)
       while ( (rho[i - 1] - rho[i]) > tol ) {
+        r <- rep(NA, d)
         i <- i + 1
         ##r[ind] <- Rfast::colsums( dataset[, ind, drop = FALSE] * res )
         r[ind] <- Rfast::eachcol.apply(dataset, res, indices = ind[ind > 0 ], oper = "*", apply = "sum") 
@@ -334,7 +331,6 @@ gomp <- function(target, dataset, tol = qchisq(0.95, 1), test = "testIndLogistic
           res <- resid(mod)
           rho[i] <-  - 2 * as.numeric( logLik(mod) ) 
           ind[sela] <- 0  
-          r[sela] <- NA
         }  
       } ## end while ( (rho[i - 1] - rho[i]) > tol )
       runtime <- proc.time() - tic

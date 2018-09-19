@@ -3,8 +3,9 @@ MMPC.timeclass = function(target, reps, id, dataset, max_k = 3, threshold = 0.05
   ##############################
   # initialization part of MMPC 
   #############################
-  stat_hash = NULL;
-  pvalue_hash = NULL;
+  runtime <- proc.time()
+  stat_hash <- NULL;
+  pvalue_hash <- NULL;
   
   if ( hash )  {
     if (is.null(hashObject) )  {
@@ -61,9 +62,11 @@ MMPC.timeclass = function(target, reps, id, dataset, max_k = 3, threshold = 0.05
   #  results$pvalues[varsToIterate] = bc$pvalues
   #  results$n.tests <- results$n.tests + bc$counter
   #}
+  runtime <- proc.time() - runtime
+  
   MMPCoutput <- new("MMPCoutput", selectedVars = results$selectedVars, selectedVarsOrder = results$selectedVarsOrder, 
-                    hashObject = results$hashObject, pvalues=results$pvalues, stats=results$stats, univ = results$univ, 
-                    max_k=results$max_k, threshold = results$threshold, n.tests = results$n.tests, runtime=results$runtime, test = ci_test);
+                    hashObject = results$hashObject, pvalues = results$pvalues, stats = results$stats, univ = results$univ, 
+                    max_k = results$max_k, threshold = results$threshold, n.tests = results$n.tests, runtime = runtime, test = ci_test);
     return(MMPCoutput);
 }
 

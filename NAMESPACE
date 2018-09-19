@@ -53,7 +53,7 @@ importFrom("Rfast", colVars, univglms, colmeans, g2Test_univariate, g2Test_univa
            cor.fsreg, pc.skel, group.sum, squareform, cora, spdinv, cor.fbed, colRanks, logistic_only, omp, rint.regs,
            poisson_only, mvbetas, ompr, glm_logistic, glm_poisson, prop.reg, normlog.reg, mvnorm.mle, normlog.mle,
            univglms2, rint.reg, topological_sort, eachcol.apply, auc, Table, min_max, permcor, comb_n, hash2list, 
-           Hash, spml.reg, spml.regs)
+           Hash, spml.regs, spml.mle)
 
 importFrom("bigmemory", read.big.matrix, sub.big.matrix)
 
@@ -75,7 +75,7 @@ export(SES, InternalSES, MMPC, InternalMMPC, SES.glmm, InternalSES.glmm, MMPC.gl
        wald.poissonregs, wald.logisticregs, rdag2, wald.univregs, wald.betaregs, wald.zipregs, waldBeta, waldLogistic, waldBinom, 
        waldCR, waldER, waldWR, waldIGreg, waldMMReg, waldNB, waldPois, waldOrdinal, waldZIP, permgSquare, permBeta, permLogistic, 
        permBinom, permCR, permER, permWR, permClogit, permReg, permMVreg, permRQ, permIGreg, permNB, permPois, permZIP, perm.mmpc, 
-       perm.ses, wald.mmpc, wald.ses, cv.waldses, cv.waldmmpc, cv.permses, cv.permmmpc, waldses.model, waldmmpc.model, waldmmpc.path, 
+       perm.ses, wald.mmpc, wald.ses, cv.waldses, cv.waldmmpc, cv.permses, cv.permmmpc, waldses.model, waldmmpc.model, wald.mmpc.path, 
        mmpc.glmm.model, mmpcbackphase, shd, is.dag, topological_sort, corfs.network, testIndGamma, waldGamma, permGamma, 
        testIndNormLog, waldNormLog, permNormLog, gammafsreg, normlog.fsreg, gammabsreg, normlog.bsreg, bic.gammafsreg, 
        bic.normlog.fsreg, testIndTobit, waldTobit, permTobit, permDcor, rint.regs, ordinal.reg, fbed.reg, ebic.bsreg, ci.mm, ci.fast, 
@@ -89,7 +89,7 @@ export(SES, InternalSES, MMPC, InternalMMPC, SES.glmm, InternalSES.glmm, MMPC.gl
        ses.timeclass.model, corfbed.network, ord.resid, modeler, cond.regs, gee.ci.mm, gee.pc.skel, glmm.mmhc.skel, gee.mmhc.skel,
        gomp.path, testIndGLMMGamma, testIndGLMMNormLog, cv.gomp, testIndGLMMOrdinal, bbc, big.gomp, read.big.data, supervised.pca,
 	     big.score.univregs, corgraph, big.fbed.reg, mmpc2, certificate.of.exclusion2, glmm.condregs, gee.condregs, mci.mxm, clogit.mxm,
-       mmpc.glmm2, mmpc.gee2, testIndGLMMCR, ebic.regs, ebic.model, testIndSPML)
+       mmpc.glmm2, mmpc.gee2, testIndGLMMCR, ebic.regs, ebic.model, testIndSPML, perm.mmpc.path, boot.gomp)
 
 exportClasses("SESoutput")
 exportClasses("MMPCoutput")

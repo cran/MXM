@@ -1,7 +1,6 @@
 InternalMMPC.glmm = function(target, reps, group, dataset, max_k, threshold, test = NULL, ini, wei, user_test = NULL,  
                                  hash=FALSE, varsize, stat_hash, pvalue_hash, targetID, slopes, ncores) {
   #get the current time
-  runtime = proc.time();
   #######################################################################################
   dm <- dim(dataset)
   rows <- dm[1]
@@ -30,8 +29,6 @@ InternalMMPC.glmm = function(target, reps, group, dataset, max_k, threshold, tes
     results$univ = univariateModels
     results$max_k = max_k;
     results$threshold = threshold;
-    runtime = proc.time() - runtime;
-    results$runtime = runtime;
     results$slope = slopes
     results$n.tests = length(stats)
     
@@ -101,8 +98,6 @@ InternalMMPC.glmm = function(target, reps, group, dataset, max_k, threshold, tes
   results$univ = univariateModels
   results$max_k = max_k;
   results$threshold = threshold;
-  runtime = proc.time() - runtime;
-  results$runtime = runtime;
   results$slope = slopes
   results$n.tests = length(stats) + length( hashObject$stat_hash )
   

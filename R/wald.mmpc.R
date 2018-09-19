@@ -1,8 +1,9 @@
 wald.mmpc <- function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini = NULL, wei = NULL, user_test = NULL, 
-                     hash=FALSE, hashObject=NULL, ncores = 1, backward = FALSE) {
+                     hash = FALSE, hashObject = NULL, ncores = 1, backward = FALSE) {
   ##############################
   # initialization part of MMPC 
   #############################
+  runtime <- proc.time()
   stat_hash <- NULL
   pvalue_hash <- NULL
   
@@ -25,7 +26,7 @@ wald.mmpc <- function(target, dataset, max_k = 3, threshold = 0.05, test = NULL,
   }  
   if ( is.null(dataset) || is.null(target) ) {  #|| (dim(as.matrix(target))[2] != 1 & class(target) != "Surv" ))
     stop('invalid dataset or target (class feature) arguments.');
-  } else  target = target;
+  } else  target <- target;
   if ( any(is.na(dataset)) ) {
     warning("The dataset contains missing values (NA) and they were replaced automatically by the variable (column) median (for numeric) or by the most frequent level (mode) if the variable is factor")
     dataset <- apply( dataset, 2, function(x){ x[which(is.na(x))] = median(x, na.rm = TRUE) ; return(x) } ) 
@@ -174,15 +175,16 @@ wald.mmpc <- function(target, dataset, max_k = 3, threshold = 0.05, test = NULL,
     varsOrder <- results$selectedVarsOrder
     bc <- mmpcbackphase(target, dataset[, varsToIterate], test = test, wei = wei, max_k = max_k, threshold = threshold ) 
     met <- bc$met
-    results$selectedVars = varsToIterate[met]
-    results$selectedVarsOrder = varsOrder[met]
+    results$selectedVars <- varsToIterate[met]
+    results$selectedVarsOrder <- varsOrder[met]
     results$pvalues[varsToIterate] <- bc$pvalues
     results$n.tests <- results$n.tests + bc$counter
   }
   
-  MMPCoutput <-new("MMPCoutput", selectedVars = results$selectedVars, selectedVarsOrder=results$selectedVarsOrder, 
-                   hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, univ=results$univ, 
-                   max_k=results$max_k, threshold = results$threshold, n.tests = results$n.tests, runtime=results$runtime, test=ci_test);
+  runtime <- proc.time() - runtime
+  MMPCoutput <-new("MMPCoutput", selectedVars = results$selectedVars, selectedVarsOrder = results$selectedVarsOrder, 
+                   hashObject = results$hashObject, pvalues = results$pvalues, stats = results$stats, univ = results$univ, 
+                   max_k = results$max_k, threshold = results$threshold, n.tests = results$n.tests, runtime = runtime, test = ci_test);
   return(MMPCoutput);
 }
 

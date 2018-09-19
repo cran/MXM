@@ -15,10 +15,10 @@ hash = FALSE, stat_hash = NULL, pvalue_hash = NULL)
 
 \arguments{
 \item{target}{
-A numeric vector containing the values of the target variable, expressed in radians. Alternatively, a 2 column matrix with the cosinus and sinus of the radians. See examples for more information on this. 
+A numerical vector with the data expressed in radians, or a 2 column matrix with the cosine and sine of the response (i.e. unit vector). See examples for more information on this. 
 }
 \item{dataset}{
-A numeric matrix with the variables for performing the test. Rows as samples and columns as features. 
+A numeric matrix with the variables for performing the test. Rows as samples and columns as features. currently this test accepts only continuous variables.
 }
 \item{xIndex}{
 The index of the variable whose association with the target we want to test.
@@ -94,7 +94,7 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 \examples{
 y <- runif(100, - pi, pi)  ## suppose these are radians
 x <- matrix( rnorm(100 * 3), ncol = 3)
-testIndSPML(y, x, csIndex = 1, xIndex = 2)
+testIndSPML(y1, x, csIndex = 1, xIndex = 2)
 ## alternatively
 y1 <- cbind(cos(y), sin(y)) ## a matrix with two columns
 testIndSPML(y1, x, csIndex = 1, xIndex = 2)

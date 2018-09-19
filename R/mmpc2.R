@@ -116,7 +116,6 @@ mmpc2 <- function(target, dataset, max_k = 3, threshold = 0.05, test = "testIndL
    } else if (test == "testIndSPML") {
      test <- testIndSPML
      if ( !is.matrix(target) )   target <- cbind( cos(target), sin(target) )
-     
    }
    #more tests here
  } else {
@@ -231,9 +230,9 @@ mmpc2 <- function(target, dataset, max_k = 3, threshold = 0.05, test = "testIndL
       for ( i in 2:max_k ) {  
         cand <- Rfast::comb_n(sort(sela), i)
         cand <- cand[, which(cand == sela[dm], arr.ind = TRUE)[, 2], drop = FALSE ]
-          j <- 1
-          #for ( j in 1:dim(cand)[2] ) {
-          while ( length(vars) > 0  &  j < dim(cand)[2] ) {
+        j <- 1
+        #for ( j in 1:dim(cand)[2] ) {
+        while ( length(vars) > 0  &  j <= dim(cand)[2] ) {
           pval2 <- cond.regs(target, dataset, xIndex = vars, csIndex = cand[, j], test = test, wei = wei, ncores = 1)$pvalue
           kapa_pval[[ i ]] <- cbind( kapa_pval[[ i ]], rbind( pval2[vars], vars, matrix( rep(cand[, j], length(vars)), ncol = length(vars) ) ) )
           n.tests <- n.tests + length(vars)
@@ -241,7 +240,7 @@ mmpc2 <- function(target, dataset, max_k = 3, threshold = 0.05, test = "testIndL
           ide <- which(pval[vars] < alpha)
           vars <- vars[ide]
           j <- j + 1
-        }  ## end  for ( j in 1:dim(cand)[2] ) {
+        }  ## end  while ( length(vars) > 0  &  j <= dim(cand)[2] ) {
       }  ## end  for ( i in 2:max_k ) {  
     }  ## end  if ( max_k >= 2 ) {
     sel <- which.min(pval[vars])

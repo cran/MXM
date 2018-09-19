@@ -83,17 +83,20 @@ bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
       res <- tobit.bsreg(target = target, dataset = dataset, wei = wei, threshold = exp( threshold ) ) 	
       
     } else if ( test == "testIndClogit" ) {
-      res <- clogit.bsreg(target = target, dataset = dataset, threshold = exp( threshold ) ) 	
+      res <- clogit.bsreg(target = target, dataset = dataset, wei = wei, threshold = exp( threshold ) ) 	
       
     } else if ( test == "testIndQPois" ) {
-      res <- quasipois.bsreg(target = target, dataset = dataset, threshold = exp( threshold ) ) 
+      res <- quasipois.bsreg(target = target, dataset = dataset, wei = wei, threshold = exp( threshold ) ) 
       
     } else if ( test == "testIndQBinom" ) {
-      res <- quasibinom.bsreg(target = target, dataset = dataset, threshold = exp( threshold ) ) 
+      res <- quasibinom.bsreg(target = target, dataset = dataset, wei = wei, threshold = exp( threshold ) ) 
       
 	  } else if ( test == "gSquare" ) {
 	    res <- bs.g2(target, dataset, threshold = exp( threshold ) )
-      
+	    
+	  } else if ( test == "testIndClogit" ) {
+	    res <- spml.bsreg(target = target, dataset = dataset, threshold = exp( threshold ) ) 	
+	    
     } else {
 	   
      if ( test == "censIndCR" ) {
@@ -125,9 +128,10 @@ bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
 	  likini <- logLik(ini) 
 	  stat <- dof <- numeric(p)
 	  if (p == 1) {
-		   mod <- test( target ~1, weights = wei )
+		   mod <- test( target ~ 1, weights = wei )
        if ( ci_test == "censIndCR")  {
 		     stat <- 2 * likini - 2 * mod$loglik
+		     dof <- dofini
 		   } else  stat <- 2 * ( likini - logLik(mod) )
 		   dof <- dofini - length( coef(mod) ) 	  
 	  }	else {
@@ -165,7 +169,7 @@ bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
 		      if ( k == 1 ) {
 		        mod <- test(target ~ 1, weights = wei)
 		        if ( ci_test == "censIndCR")  {
-		          dof <- dof + 1
+		          dof <- dofini
 		          stat <- 2 * ( likini - mod$loglik )
 		        } else {
 		          stat <- 2 * ( likini - logLik(mod) )

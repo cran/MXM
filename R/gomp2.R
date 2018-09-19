@@ -21,8 +21,8 @@ gomp2 <- function (y, x, tol = qchisq(0.95, 1) + log( length(y) ), test = "testI
     phi[2] <- summary(mod)[[ 14 ]]
     ind[sel] <- 0
     i <- 2
-    r <- rep(NA, d)
     while ( (rho[i - 1] - rho[i]) / phi[i] > tol ) {
+      r <- rep(NA, d)
       i <- i + 1
       ##r[ind] <- Rfast::colsums( x[, ind, drop = FALSE] * res )
       r[ind] <- Rfast::eachcol.apply(x, res, indices = ind[ind > 0 ], oper = "*", apply = "sum") 
@@ -33,7 +33,6 @@ gomp2 <- function (y, x, tol = qchisq(0.95, 1) + log( length(y) ), test = "testI
       rho[i] <- mod$deviance
       phi[i] <- summary(mod)[[ 14 ]]
       ind[sela] <- 0
-      r[sela] <- NA
     } ## end while ( (rho[i - 1] - rho[i]) > tol )
 
   runtime <- proc.time() - tic

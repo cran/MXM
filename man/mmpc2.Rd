@@ -30,7 +30,7 @@ Threshold (suitable values in (0, 1)) for assessing p-values significance. Defau
 One of the following: "testIndBeta", "testIndReg", "testIndRQ", "testIndLogistic", "testIndMultinom", 
 "testIndOrdinal", "testIndPois", "testIndQPois", "testIndZIP", "testIndNB", "testIndClogit", 
 "testIndBinom", "testIndQBinom", "testIndIGreg", "censIndCR", "censIndWR", "censIndER", "testIndMMReg",
-"testIndMVreg", "testIndMultinom", "testIndOrdinal", "testIndTobit", "testIndGamma" or "testIndNormLog". 
+"testIndMVreg", "testIndMultinom", "testIndOrdinal", "testIndTobit", "testIndGamma", "testIndNormLog" or "testIndSPML". 
 }
 \item{ini}{
 This is a supposed to be a list. To avoid calculating the univariate associations (first step of SES, MMPC and of FBED) again, you can extract them from the first run of omne of these algorithms and plug them here. 

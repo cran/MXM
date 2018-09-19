@@ -1,7 +1,5 @@
 InternalMMPC.gee = function(target, reps, group, dataset, max_k, threshold, test = NULL, ini, wei, user_test = NULL,  
                                  hash = FALSE, varsize, stat_hash, pvalue_hash, targetID, correl, se, ncores) {
-  #get the current time
-  runtime = proc.time();
   #univariate feature selection test
   if ( is.null(ini) ) {
     univariateModels <- gee.univregs(target = target, reps = reps, id = group, dataset = dataset, targetID = targetID, test = test, wei = wei, 
@@ -26,8 +24,6 @@ InternalMMPC.gee = function(target, reps, group, dataset, max_k, threshold, test
     results$univ = univariateModels
     results$max_k = max_k;
     results$threshold = threshold;
-    runtime = proc.time() - runtime;
-    results$runtime = runtime;
     results$correl = correl
     results$se = se
     results$n.tests = length(stats)
@@ -96,8 +92,6 @@ InternalMMPC.gee = function(target, reps, group, dataset, max_k, threshold, test
   results$univ = univariateModels
   results$max_k = max_k;
   results$threshold = threshold;
-  runtime = proc.time() - runtime;
-  results$runtime = runtime;
   results$correl = correl
   results$se = se
   results$n.tests = length(stats) + length( hashObject$stat_hash )

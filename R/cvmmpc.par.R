@@ -179,9 +179,9 @@ cvmmpc.par <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, a
     #recording the best results
     #TT
     mat <- mod  
-    opti <- Rfast::rowmeans(mat)
+    opti <- rowMeans(mat, na.rm = TRUE)
     bestpar <- which.max(opti)
-    vale = numeric(nAlpha * nMax_ks)
+    vale <- numeric(nAlpha * nMax_ks)
     for (i in 1:nAlpha) {
       for (j in 1:nMax_ks) {
         k <- (i - 1) * nMax_ks + j
@@ -190,13 +190,13 @@ cvmmpc.par <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, a
     }
     colnames(mat) <- vale
     
-    opti <- Rfast::colmeans(mat) 
+    opti <- colMeans(mat, na.rm = TRUE) 
     bestpar <- which.max(opti)
     
     best_model <- NULL
-    best_model$cv_results_all = mat
+    best_model$cv_results_all <- mat
     best_model$best_performance <- max( opti )
-    best_model$best_configuration = mmpc_configurations[[ bestpar ]]   
+    best_model$best_configuration <- mmpc_configurations[[ bestpar ]]   
     best_model$bbc_best_performance <- NULL
     
     if ( B > 1) {

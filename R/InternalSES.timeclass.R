@@ -1,7 +1,5 @@
 InternalSES.timeclass = function(target, dataset, max_k, threshold, test=NULL, ini, wei=NULL, hash=FALSE, 
                                  varsize, stat_hash, pvalue_hash)  {
-  #get the current time
-  runtime <- proc.time();
   #univariate feature selection test
   univariateModels = ini
   pvalues = univariateModels$pvalue;      
@@ -26,8 +24,6 @@ InternalSES.timeclass = function(target, dataset, max_k, threshold, test=NULL, i
     results$univ = univariateModels
     results$max_k = max_k;
     results$threshold = threshold;
-    runtime = proc.time() - runtime;
-    results$runtime = runtime;
     results$n.tests <- length(stats)
     
     return(results);
@@ -116,8 +112,6 @@ InternalSES.timeclass = function(target, dataset, max_k, threshold, test=NULL, i
   results$univ = univariateModels
   results$max_k = max_k;
   results$threshold = threshold;
-  runtime = proc.time() - runtime;
-  results$runtime = runtime;
   results$n.tests <- length(stats) + length( hashObject$stat_hash )
   
   return(results);

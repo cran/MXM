@@ -135,7 +135,7 @@ cond.regs <- function(target, dataset, xIndex, csIndex, test = NULL, wei = NULL,
       for ( i in xIndex ) {
         fit2 <- ordinal::clm( target ~., data = dataset[, c(csIndex, i)], weights = wei )
         lik2[i] <- as.numeric( logLik(fit2) )
-        dof[i] <- length( coef(fit2) ) - df1
+        dof[i] <- length( coef(fit2) ) - d1
       }
       models$stat <- 2 * (lik2 - lik1)
       models$pvalue <- pchisq(models$stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
@@ -217,19 +217,19 @@ cond.regs <- function(target, dataset, xIndex, csIndex, test = NULL, wei = NULL,
   } else if ( identical(test, testIndBinom) ) {  ## Binomial regression
     wei <- target[, 2] 
     y <- target[, 1] / wei
-    fit1 = glm( y ~., data = dataset[, csIndex, drop = FALSE], binomial, weights = wei )
-    lik1 = fit1$deviance
+    fit1 <- glm( y ~., data = dataset[, csIndex, drop = FALSE], binomial, weights = wei )
+    lik1 <- fit1$deviance
     d1 <- length(fit1$coefficients)
     
     if ( ncores <= 1 | is.null(ncores) ) {
       lik2 <- dof <- numeric( cols )
       for ( i in xIndex ) {
-        fit2 = glm( y ~., data = dataset[, c(csIndex, i)], binomial, weights = wei )
-        lik2[i] = fit2$deviance
-        dof[i] = length( coef(fit2) ) 
+        fit2 <- glm( y ~., data = dataset[, c(csIndex, i)], binomial, weights = wei )
+        lik2[i] <- fit2$deviance
+        dof[i] <- length( coef(fit2) ) 
       }
-      models$stat = lik1 - lik2
-      models$pvalue = pchisq(models$stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
+      models$stat <- lik1 - lik2
+      models$pvalue <- pchisq(models$stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
       
     } else {
       cl <- makePSOCKcluster(ncores)
@@ -657,16 +657,18 @@ cond.regs <- function(target, dataset, xIndex, csIndex, test = NULL, wei = NULL,
       models$pvalue <- pchisq(mod[, 1], mod[, 2], lower.tail = FALSE, log.p = TRUE)
     }
     
-  } else if ( identical(test, testIndSPML) ) {  ## Logistic regression
+  } else if ( identical(test, testIndSPML) ) {  ## Circular regression
     if ( !is.matrix(target) )   target <- cbind( cos(target), sin(target) )
-    fit1 <- Rfast::spml.reg( target, dataset[, csIndex] )
+    fit1 <- spml.reg2( target, dataset[, csIndex] )
     lik1 <- 2 * fit1$loglik
 
     if ( ncores <= 1 | is.null(ncores) ) {
       lik2 <- numeric( cols )
       for ( i in xIndex ) {
-        fit2 <- Rfast::spml.reg( target, dataset[, c(csIndex, i)] )
-        lik2[i] <- fit2$loglik
+        fit2 <- try( spml.reg2( target, dataset[, c(csIndex, i)] ), silent = TRUE )
+        if ( identical( class(fit2), "try-error" ) )   {
+          lik2[i] <- lik1
+        } else   lik2[i] <- fit2$loglik
       }
       models$stat <- 2 * lik2 - lik1
       models$pvalue <- pchisq(models$stat, 2, lower.tail = FALSE, log.p = TRUE)
@@ -674,8 +676,8 @@ cond.regs <- function(target, dataset, xIndex, csIndex, test = NULL, wei = NULL,
     } else {
       cl <- makePSOCKcluster(ncores)
       registerDoParallel(cl)
-      mod <- foreach(i = xIndex, .combine = rbind, .pcakges = "Rfast", .export = "spml.reg") %dopar% {
-        fit2 <- Rfast::spml.reg( target, dataset[, c(csIndex, i)] )
+      mod <- foreach(i = xIndex, .combine = rbind, .export = "spml.reg3") %dopar% {
+        fit2 <- spml.reg2( target, dataset[, c(csIndex, i)] )
         return( fit2$loglik )
       }
       stopCluster(cl)

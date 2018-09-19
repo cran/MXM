@@ -179,7 +179,7 @@ cvpermses.par <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL
   #recording the best results
   #TT
   mat <- mod  
-  opti <- Rfast::rowmeans(mat)
+  opti <- rowMeans(mat, na.rm = TRUE)
   bestpar <- which.max(opti)
   
   vale <- numeric( nAlpha * nMax_ks)
@@ -191,7 +191,7 @@ cvpermses.par <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL
   }
   colnames(mat) = vale
   
-  opti <- as.vector( Rfast::colmeans(mat) )
+  opti <- colMeans(mat, na.rm = TRUE) 
   bestpar <- which.max(opti)
   best_model <- NULL
   

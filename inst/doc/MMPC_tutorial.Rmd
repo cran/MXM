@@ -1,10 +1,15 @@
 ---
 title: 'Tutorial: Feature selection with the MMPC algorithm'
 author:
-- name: "Christina Chatzipantsiou, Michail Tsagris"
+- name: "Michail Tsagris"
   affiliation: 
   - Computer Science Department, Univeristy of Crete
   email: mtsagris@csd.uoc.gr
+- name: "Christina Chatzipantsiou"
+  affiliation: 
+  - Computer Science Department, Univeristy of Crete
+  - School of Medicine, University of Crete
+  email: chatzipantsiou@gmail.com
 package: MXM
 date: "`r Sys.Date()`"
 output:
@@ -28,7 +33,7 @@ vignette: >
 
 # Introduction: The MXM R package for Feature Selection
 
-The MXM R Package, short for the latin 'Mens ex Machina' ( Mind from the Machine ), is a collection of utility functions for feature selection, cross validation and Bayesian Networks. The package supports conditional independence tests for various combinations of __target__ and __predictor__ variables (continuous, categorical). MXM offers many feature selection algorithms focused on providing one or more minimal feature subsets, refered also as variable signatures, that can be used to improve the performance of downstream analysis tasks such as regression and classification, by excluding irrelevant and redundant variables. In this tutorial we will learn how to use the __MMPC__ algorithm.
+The __MXM R Package__, short for the latin __'Mens ex Machina'__ ( Mind from the Machine ), is a collection of utility functions for feature selection, cross validation and Bayesian Networks. The package supports conditional independence tests for various combinations of __target__ and __predictor__ variables (continuous, categorical). ```MXM``` offers many feature selection algorithms focused on providing one or more minimal feature subsets, refered also as variable signatures, that can be used to improve the performance of downstream analysis tasks such as regression and classification, by excluding irrelevant and redundant variables. In this tutorial we will learn how to use the __MMPC__ algorithm.
 
 
 # Overview of the MMPC algorithm
@@ -51,16 +56,15 @@ Several hyper-parameters are also provided as optional arguments in the `MXM::MM
 
 ```{r, eval = FALSE}
 
-#_____________ OVERVIEW of the MXM::`MMPC()` FUNCTION _______________
+# Overview the MXM::`MMPC()` function 
 
 mmpc <- MXM::MMPC(
   
        target,           # The target variable vector
-       dataset,          # The initial dataset with the target column removed
-       max_k = 3,        #  the maximum size of the conditioning set to use 
+       dataset,          # The dataset with the target column removed
+       max_k = 3,        # The maximum size of the conditioning set to use 
        threshold = 0.05, # level of alpha for statistical  significance
        test = 'testIndFisher',   
-        
        ini = NULL,        # if TRUE, the calculated univariate associations
                           # are stored for runtime efficiency in subsequent 
                           # MMPC runs with diferent hyper-parameters.
@@ -79,12 +83,11 @@ mmpc <- MXM::MMPC(
 <br>
 <br>
 
-Default Arguments:
 
 
 # Applying the MMPC algorithm on the UCI wine dataset 
 
-For this tutorial we will use the UCI wine dataset. The dataset contains the results of a __chemical analysis__ performed on __3 different types of wines__ and includes  __12 quality related characteristics__ plus the information of the __wine class__ as the first attribute (__Type__: 1,2 or 3). More information about the wine dataset is available at the UCI repository and can be found here: <http://bit.ly/UCI_wine_description>. 
+For this tutorial we will use the UCI wine dataset. The dataset contains the results of a __chemical analysis__ performed on __3 different types of wines__ and includes  __12 quality related characteristics__ plus the information of the __wine class__ as the first attribute (__Type__: 1,2 or 3). More information about the wine dataset is available at the UCI repository.
 
 The following block installs the __MXM package__, takes care of package dependencies, downloads and then cleans the dataset for the subsequent steps. The categorical variable _(class information)_ is omitted for this example and we retain only the numerical variables (continuous and count data). We will then apply the __MMPC__ algorithm to acquire a __minimal, highly relevant subset__ of variables that can be used to best model the `"NonFlavanoids"` content.
 
@@ -96,7 +99,6 @@ __PACKAGE DEPENDENCIES and UCI WINE DATASET LOADING:__
 # 0. INSTALL and LOAD the MXM R Package:
 #install.packages('MXM', dependencies = TRUE )
 library(MXM)
-library(dplyr)
 
 # 1. DOWNLOAD the wine dataset from UCI:
 URL  <- "ftp://ftp.ics.uci.edu/pub/machine-learning-databases/wine/wine.data"
@@ -155,11 +157,13 @@ And now, we will tailor the `target` ( _non-flavanoids content variable_ ) and t
 ```{r, warning = FALSE, message = FALSE }
 
 # 0. Exclude target variable column
-wine_dataset <- dplyr::select(wine, -contains('Nonflavanoids'))   #dplyr <3 
+targetVariable <- wine$Nonflavanoids
+targetVariable <- NULL
+
 
 # 1. Convert dataframe to matrix:
-wine_dataset <- as.matrix(wine_dataset)
-head(wine_dataset,2)
+wine_dataset <- as.matrix(wine)
+head(wine_dataset, 2)
 
 ```
 
@@ -197,7 +201,7 @@ For a comprehensive overview of the __hyper-parameter options__ type `?MMPC` in 
 
 ```{r, warning = FALSE, message = FALSE }
 
-#__________ MMPC on the WINE DATASET: __________
+# MMPC on the wine dataset: 
 
 library('MXM')
 mmpc_object_wine_NonFlav <- MXM::MMPC( target  = target_NonFlav,            
@@ -219,11 +223,14 @@ mmpc_object_wine_NonFlav <- MXM::MMPC( target  = target_NonFlav,
 
 Let's now explore the __output__ of the `MMPC` function, the __mmpc_object__. The generic function `summary()` can be used to display the indices of the features that are included in the signature, and also contains information about the `MMPC()` run, such as the __selected hyperparameters, execution runtime and also statistics__ about the distribution of the p-values from the performed tests. For more specific information, you can access ```the mmpc_object```  fields with the ```@``` operator, the operator for accessing __S4 class objects in R__ . This is essentially the same as using the dollar operator  ```$``` for accessing __R5 class objects__ ' slots, typically used with dataframes for example. The fields contain the  output results of the __`MMPC()`__ run and also two lists that can be re-used for subsequent __MMPC__ runs for computation time efficiency.
 
-Below, we can see the two objects that facilitate the computation time efficiency in the ```MMPC()``` re-runs.  After running __MMPC___ with some hyper-parameters you might want to run the algorithm again with different hyper-parameters (`max_k` for example). To avoid calculating the univariate associations (first step of MMPC) again, you can take the list `univ` from the first run and provide it as input to the argument ```ini``` in the subsequent runs  the algorithm. This can speed up the second run (and subequent runs of course) up to __ 50% __, which is crucial if you are handling datasets with a very high number of features.
+Below, we can see the two objects that facilitate the computation time efficiency in the ```MMPC()``` re-runs.  After running __MMPC___ with some hyper-parameters you might want to run the algorithm again with different hyper-parameters (`max_k` for example). To avoid calculating the univariate associations (first step of MMPC) again, you can take the list `univ` from the first run and provide it as input to the argument ```ini``` in the subsequent runs  the algorithm. This can speed up the second run (and subequent runs of course) up to __50%__, which is crucial if you are handling datasets with a very high number of features.
 
 ```{r}
-str(mmpc_object_wine_NonFlav@hashObject) # Cache of the stats calculated in the MMPC run.
-str(mmpc_object_wine_NonFlav@univ)       # a list with the univariate associations 
+# Cache of the stats calculated in the MMPC run
+str(mmpc_object_wine_NonFlav@hashObject) 
+
+# a list with the univariate associations
+str(mmpc_object_wine_NonFlav@univ)        
 ```
 
 Let's also save the `runtime` of the first MMPC run in a variable, to compare later.
@@ -234,11 +241,11 @@ execution_time_1st_MMPC_run
 ```
 
 ## `MMPC()` subsequent run: Efficiency with the `ini` and `hashObject` arguments
-Now, we can run `MMPC()` again to check how we can use the `hashObject` and `univ` lists to maximize runtime efficiency when multiple runs are required. 
+Now, we can run `MMPC()` again to check how we can use the `hashObject` and `univ` lists to maximize runtime efficiency when multiple runs are requirted. 
 
 ```{r, warning = FALSE, message = FALSE }
 
-#____________ MMPC on the WINE DATASET: _________________
+# MMPC on the wine dataset: 
 
 library('MXM')
 mmpc_object_2nd_run <- MXM::MMPC(target  = target_NonFlav,            
@@ -296,17 +303,17 @@ The desired hyperparameters to be checked can be given as vectors in the relativ
 
 ```{r, warning = FALSE, message = FALSE }
 
-#___ Grid Search for MMPC hyper-parameter tuning ___
+# Grid Search for MMPC hyper-parameter tuning 
 
 library('MXM')
 mmpc_GridSearch <- MXM::mmpc.path(
                   
                   target  = target_NonFlav,            
-                  dataset = wine_dataset  ,            
+                  dataset = wine_dataset,            
                  
                   max_ks = c(3,4,5,6),  # a vector of k to try
                   
-                  alphas = NULL  ,   # a vector of thresholds; 
+                  alphas = NULL,   # a vector of thresholds; 
                                         # If NULL, 0.1, 0.05 and 0.01 
                                         # will be tested.
                   
@@ -374,7 +381,7 @@ We can actually create a __regression model__, using the above signature variabl
 
 ```{r, warning = FALSE, message = FALSE }
 
-# ___ MODEL ESTIMATES USING MMPC'S FEATURE SUBSET AS PrEDICTORs_______
+# MODEL ESTIMATES USING MMPC'S FEATURE SUBSET AS PrEDICTORs 
 
 mmpc_model_wine_NonFlav<- mmpc.model(
                                    target = target_NonFlav, 
@@ -413,7 +420,7 @@ If you are working with very large datasets, in order to save computational time
 The function `perm.`MMPC()`` has the same arguments as the `MMPC()` function, with an additional option called `R` which is the number of permutations.
 
 ```
-#________________ TESTS WITH PERMUTATIONS:  ________________
+# TESTS WITH PERMUTATIONS:  
 
 library('MXM')
 permutation_MMPC_model <- MXM::perm.mmpc (target_NonFlav,
@@ -452,7 +459,8 @@ Brown, L. E., Tsamardinos, I., & Aliferis, C. F. (2004). A novel algorithm for s
 
 Tsamardinos, I., Aliferis, C. F., & Statnikov, A. (2003). Time and sample efficient discovery of Markov blankets and direct causal relations. In Proceedings of the ninth ACM SIGKDD international conference on Knowledge discovery and data mining (pp. 673-678). ACM.
 
-Statnikov, A. R., Tsamardinos, I., & Aliferis, C. F. (2003). An Algorithm For Generation of Large Bayesian Networks. 
+Statnikov, A. R., Tsamardinos, I., & Aliferis, C. F. (2003). An Algorithm For Generation of Large Bayesian Networks.
+
 ```{r, warning = FALSE, message = FALSE }
 sessionInfo()
 ```

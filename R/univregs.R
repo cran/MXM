@@ -52,49 +52,49 @@ if ( !is.null(user_test) ) {
   univariateModels$pvalue = mod[, 2]
 
 } else if ( identical(test, testIndMMReg) ) {  ## M (Robust) linear regression
-  fit1 = MASS::rlm(target ~ 1, maxit = 2000, method = "MM")
-  lik1 = as.numeric( logLik(fit1) )
-  lik2 = numeric(cols)
-  dof = numeric(cols)
+  fit1 <- MASS::rlm(target ~ 1, maxit = 2000, method = "MM")
+  lik1 <- as.numeric( logLik(fit1) )
+  lik2 <- numeric(cols)
+  dof <- numeric(cols)
   ina <- 1:cols
 
   if ( ncores <= 1 | is.null(ncores) ) {
     for ( i in 1:cols ) {
-      fit2 = MASS::rlm(target ~ dataset[, i], maxit = 2000, method = "MM" )
-      lik2[i] = as.numeric( logLik(fit2) )
-      dof[i] = length( coef(fit2) ) - 1
+      fit2 <- MASS::rlm(target ~ dataset[, i], maxit = 2000, method = "MM" )
+      lik2[i] <- as.numeric( logLik(fit2) )
+      dof[i] <- length( coef(fit2) ) - 1
     } 
-    stat = 2 * (lik2 - lik1)
-    univariateModels$stat = stat
-    univariateModels$pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
+    stat <- 2 * (lik2 - lik1)
+    univariateModels$stat <- stat
+    univariateModels$pvalue <- pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
 
   } else {
     cl <- makePSOCKcluster(ncores)
     registerDoParallel(cl)
     mod <- foreach(i = 1:cols, .combine = rbind, .packages = "MASS") %dopar% {
-       fit2 = MASS::rlm(target ~ dataset[, i], maxit = 2000, method = "MM" )
-       lik2 = as.numeric( logLik(fit2) )
+       fit2 <- MASS::rlm(target ~ dataset[, i], maxit = 2000, method = "MM" )
+       lik2 <- as.numeric( logLik(fit2) )
        return( c(lik2, length( coef(fit2) ) ) )
     }  
     stopCluster(cl)
-    stat = as.vector( 2 * abs(lik1 - mod[, 1]) )
-    dof = as.vector( mod[, 2] ) - 1 
-    univariateModels$stat = stat
-    univariateModels$pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
+    stat <- as.vector( 2 * abs(lik1 - mod[, 1]) )
+    dof <- as.vector( mod[, 2] ) - 1 
+    univariateModels$stat <- stat
+    univariateModels$pvalue <- pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
   }   
   
 } else if ( identical(test, testIndReg)  &  !is.null(wei) ) {  ## Weighted linear regression
   
-  univariateModels = list();
-  stat = pval = numeric(cols)
+  univariateModels <- list();
+  stat <- pval <- numeric(cols)
 
   if ( ncores <= 1 | is.null(ncores) ) {
     for ( i in 1:cols ) {
-      fit2 = lm( target ~ dataset[, i], weights = wei, y = FALSE, model = FALSE )
-      tab = anova(fit2)
-      stat[i] = tab[1, 4] 
-      df1 = tab[1, 1]    ;   df2 = tab[2, 1]
-      pval[i] = pf( stat[i], df1, df2, lower.tail = FALSE, log.p = TRUE )
+      fit2 <- lm( target ~ dataset[, i], weights = wei, y = FALSE, model = FALSE )
+      tab <- anova(fit2)
+      stat[i] <- tab[1, 4] 
+      df1 <- tab[1, 1]    ;   df2 = tab[2, 1]
+      pval[i] <- pf( stat[i], df1, df2, lower.tail = FALSE, log.p = TRUE )
     }
     univariateModels$stat = stat
     univariateModels$pvalue = pval
@@ -697,19 +697,18 @@ if ( !is.null(user_test) ) {
     cl <- makePSOCKcluster(ncores)
     registerDoParallel(cl)
     mod <- foreach(i = ina, .combine = rbind) %dopar% {
-      fit2 = glm( target ~ dataset[, i], family = quasipoisson(link = log), weights = wei )
+      fit2 <- glm( target ~ dataset[, i], family = quasipoisson(link = log), weights = wei )
       return( c(fit2$deviance, length( fit2$coefficients ), summary(fit2)[[14]] ) )
     }
     stopCluster(cl)
-    stat = as.vector( lik1 - mod[, 1] ) / (mod[, 2] - 1) / mod[, 3] 
+    stat <- as.vector( lik1 - mod[, 1] ) / (mod[, 2] - 1) / mod[, 3] 
     univariateModels$stat = stat
     univariateModels$pvalue = pf(stat, mod[, 2] - 1, rows - mod[, 2], lower.tail = FALSE, log.p = TRUE)
   }
   
 } else if ( identical(test, testIndSPML) ) {  ## Circular regression
-  if ( is.matrix(target) ) {
-    target <- ( atan(target[, 2]/target[, 1]) + pi * I(target[, 1] < 0) ) %% (2 * pi)
-  }
+  if ( is.matrix(target) )  target <- ( atan(target[, 2]/target[, 1]) + pi * I(target[, 1] < 0) ) %% (2 * pi)
+  if ( !is.matrix(dataset) )  dataset <- as.matrix(dataset)
   mod <- Rfast::spml.regs(target, dataset, logged = TRUE, parallel = (ncores > 1) )
   univariateModels$stat <- mod[, 1]
   univariateModels$pvalue <- mod[, 2]
