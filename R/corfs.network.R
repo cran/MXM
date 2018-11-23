@@ -22,7 +22,7 @@ corfs.network <- function(x, threshold = 0.05, tolb = 2, tolr = 0.02, stopping =
     cl <- makePSOCKcluster(nc)
     registerDoParallel(cl)
     sel <- numeric(n)
-    mod <- foreach(i = 1:n, .combine = rbind, .export = c("cor.fsreg"), .packages = "Rfast" ) %dopar% {
+    mod <- foreach(i = 1:D, .combine = rbind, .export = c("cor.fsreg"), .packages = "Rfast" ) %dopar% {
 	  id <- 1:D
       id <- id[-i] 
       sela <- numeric(n)  

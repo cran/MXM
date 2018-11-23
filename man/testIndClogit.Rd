@@ -100,23 +100,22 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr>, Vinc
 
 \examples{
 #simulate a dataset with continuous data
-dataset <- matrix(rnorm(300 * 40), nrow = 300 ) 
+dataset <- matrix(rnorm(200 * 20), nrow = 200 ) 
 #the target feature is the last column of the dataset as a vector
-case <- rbinom(300, 1, 0.6)
+case <- rbinom(200, 1, 0.6)
 ina <- which(case == 1)
 ina <- sample(ina, 100)
 case[-ina] = 0 
-id <- rep(1:100, 3)
+id <- rep(1:100, 2)
 target <- cbind(case, id)
 
-results <- testIndClogit(target, dataset, xIndex = 34, csIndex = 30)
+results <- testIndClogit(target, dataset, xIndex = 14, csIndex = 20)
 results
 
 #run the SES algorithm using the testIndClogit conditional independence test
-a1 <- SES(target, dataset, max_k = 3, threshold = 0.05, test = "testIndClogit");
-a2 <- MMPC(target, dataset, max_k = 3, threshold = 0.05, test = "testIndClogit");
+a <- MMPC(target, dataset, max_k = 3, threshold = 0.05, test = "testIndClogit");
 # print summary of the SES output
-summary(a1);
+summary(a);
 }
 
 \keyword{ Conditional logistic regression}

@@ -19,7 +19,9 @@ A vector of p-values.
 }
 
 \details{
-The p-values are assumed to follow a mixture of two beta distributions. The null p-values follow Be(1, 1) and the non-null p-values follow Be(\eqn{xi}, 1). In the first step, the proportion of true null values using Storey and Tibshirani (2003) is calculated and then MLE is adopted to obtain \eqn{xi}. For more information on this see Triantafillou (2014).
+The p-values are assumed to follow a mixture of two beta distributions. The null p-values follow Be(1, 1) and the non-null p-values follow Be(\eqn{\xi}, 1). 
+In the first step, the proportion of true null values using Storey and Tibshirani (2003) is calculated and then MLE is adopted to obtain \eqn{\xi}. 
+For more information on this see Triantafillou (2014).
 }
 
 \value{
@@ -27,7 +29,8 @@ A vector with the estimated \eqn{\pi_0} and \eqn{\xi} values.
 }
 
 \references{
-Triantafillou S., Tsamardinos I. and Roumpelaki A. (2014). Learning neighborhoods of high confidence in constraint-based causal discovery. In European Workshop on Probabilistic Graphical Models, pp. 487-502.
+Triantafillou S., Tsamardinos I. and Roumpelaki A. (2014). Learning neighborhoods of high confidence in constraint-based causal discovery. 
+In European Workshop on Probabilistic Graphical Models, pp. 487-502.
 
 Storey J.D. and Tibshirani R. (2003). Statistical significance for genome-wide experiments. Proceedings of the National Academy of Sciences, 100: 9440-9445. 
 }

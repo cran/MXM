@@ -14,7 +14,7 @@ mmpc.or <- function(x, max_k = 5, threshold = 0.01, test = "testIndFisher", back
   initial.tests <- 0
   ini <- NULL
     
-  if ( is.null(ini.pvalue) ) {
+  if ( is.null(ini.pvalue)  &  !is.null(test) ) {
     initial.tests <- 0.5 * p * (p - 1)
     if ( test == "testIndSpearman" ) {
       x <- apply(x, 2, rank)

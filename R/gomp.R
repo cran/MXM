@@ -5,17 +5,19 @@ gomp <- function(target, dataset, tol = qchisq(0.95, 1), test = "testIndLogistic
     res <- Rfast::ompr(target, dataset, method = method, tol)
     runtime <- proc.time() - tic
     result <- list(runtime = runtime, phi = NULL, res = res)
+	
   } else if ( test == "testIndLogistic" ) {
     tic <- proc.time()
     res <- Rfast::omp(target, dataset, tol, type = "logistic")
     runtime <- proc.time() - tic
     result <- list(runtime = runtime, phi = NULL, res = res$info)
+	
   } else if ( test == "testIndPois" ) {
     tic <- proc.time()
     res <- Rfast::omp(target, dataset, tol, type = "poisson")
     runtime <- proc.time() - tic
     result <- list(runtime = runtime, phi = NULL, res = res$info)
-
+	
   } else if ( test == "testIndQPois" ) {
     tic <- proc.time()
     res <- Rfast::omp(target, dataset, tol, type = "quasipoisson")
@@ -27,19 +29,24 @@ gomp <- function(target, dataset, tol = qchisq(0.95, 1), test = "testIndLogistic
     res <- Rfast::omp(target, dataset, tol, type = "mv")
     runtime <- proc.time() - tic
     result <- list(runtime = runtime, phi = NULL, res = res$info)
+	
   } else if ( test == "testIndQBinom" ) {
     tic <- proc.time()
     res <- Rfast::omp(target, dataset, tol, type = "quasibinomial")
     runtime <- proc.time() - tic
     result <- list(runtime = runtime, phi = res$phi, res = res$info)
+	
   } else if ( test == "testIndNormLog" ) {
     tic <- proc.time()
     res <- Rfast::omp(target, dataset, tol, type = "normlog")
     runtime <- proc.time() - tic
     result <- list(runtime = runtime, phi = res$phi, res = res$info)
-    
+	
   } else if ( test == "testIndGamma" ) {
-    result <- gomp2(target, dataset, tol, test = test)
+    tic <- proc.time()
+    res <- Rfast::omp(target, dataset, tol, type = "gamma")
+    runtime <- proc.time() - tic
+    result <- list(runtime = runtime, phi = res$phi, res = res$info)
     
   } else {
     d <- dim(dataset)[2]
