@@ -26,7 +26,7 @@ censIndWR = function(target, dataset, xIndex, csIndex, wei = NULL, univariateMod
   #if the censored indicator is empty, a dummy variable is created
   numCases = dim(dataset)[1];
   if (length(event) == 0)  event = vector('numeric',numCases) + 1;
-      if (is.na(csIndex) || length(csIndex) == 0 || csIndex == 0) {
+      if ( length(csIndex) == 0 || sum(csIndex == 0, na.rm = TRUE) > 0 ) {
         weibull_results <- try( survival::survreg( target ~ x, weights = wei, control = list(iter.max = 5000) ), silent = TRUE )
         if ( identical( class(weibull_results), "try-error" ) ) {
           stat <- NA  

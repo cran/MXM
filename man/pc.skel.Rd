@@ -9,7 +9,8 @@ The skeleton of a Bayesian network produced by the PC algorithm
 }
 
 \description{
-The skeleton of a Bayesian network produced by the PC algorithm. No orientations are involved. The pc.con is for continuous data only and it calls the same C++ as pc.skel. Hence, you are advised to use pc.skel. 
+The skeleton of a Bayesian network produced by the PC algorithm. No orientations are involved. 
+The pc.con is for continuous data only and it calls the same C++ as pc.skel. Hence, you are advised to use pc.skel. 
 }
 
 \usage{
@@ -29,10 +30,13 @@ ini.pvalue = NULL)
 
 \arguments{
 \item{dataset}{
-A matrix with the variables. The user must know if they are continuous or if they are categorical. \bold{If you have categorical data though, the user must transform the data.frame into a matrix. In addition, the numerical matrix must have values starting from 0. For example, 0, 1, 2, instead of "A", "B" and "C"}. In the case of mixed variables, continuous, binary and ordinal this must 
-a data.frame and the non continuous variables must be ordered factors, even the binary variables. 
+A matrix with the variables. The user must know if they are continuous or if they are categorical. 
+\bold{If you have categorical data though, the user must transform the data.frame into a matrix. 
+In addition, the numerical matrix must have values starting from 0. For example, 0, 1, 2, instead of "A", "B" and "C"}. 
+In the case of mixed variables, continuous, binary and ordinal this must a data.frame and the non continuous variables 
+must be ordered factors, even the binary variables. 
 
-For the pc.con, pc.skel.boot and glmm.pc.skel, dataset can only be a matrix.
+For the pc.con, pc.skel.boot and glmm.pc.skel, the dataset can only be a matrix.
 }
 \item{method}{
 If you have continuous data, you can choose either "pearson", "spearman" or "distcor". The latter uses the distance correlation and 

@@ -26,7 +26,7 @@ censIndER = function(target, dataset, xIndex, csIndex, wei = NULL, univariateMod
   #if the censored indicator is empty, a dummy variable is created
   numCases = dim(dataset)[1];
   if (length(event) == 0)  event = vector('numeric',numCases) + 1;
-      if (is.na(csIndex) || length(csIndex) == 0 || csIndex == 0) {
+      if ( length(csIndex) == 0 || sum(csIndex == 0, na.rm = TRUE) > 0 ) {
         expo_results <- try( survival::survreg(target ~ x, dist = "exponential", weights = wei), silent = TRUE )
         if ( identical( class(expo_results), "try-error" ) ) {
           stat <- NA  

@@ -496,7 +496,7 @@ SelectedVars_indecies_Ordered
 </code></pre>
 
 <pre><code>##    user  system elapsed 
-##    0.04    0.00    0.04
+##    0.03    0.00    0.04
 </code></pre>
 
 <h2>Running SES 2nd time</h2>
@@ -644,7 +644,7 @@ SelectedVars_indecies_Ordered
 </code></pre>
 
 <pre><code>##    user  system elapsed 
-##       3       0       3
+##    2.98    0.00    2.98
 </code></pre>
 
 <h2>Creating the model</h2>
@@ -802,10 +802,10 @@ cv_ses_model &lt;- MXM::cv.ses(target   = wine[, 1], # Using the 1st column as t
 </code></pre>
 
 <pre><code>## $id
-## [1] 3
+## [1] 6
 ## 
 ## $a
-## [1] 0.1
+## [1] 0.05
 ## 
 ## $max_k
 ## [1] 3
@@ -814,7 +814,7 @@ cv_ses_model &lt;- MXM::cv.ses(target   = wine[, 1], # Using the 1st column as t
 <pre><code class="r">cv_ses_model$best_performance
 </code></pre>
 
-<pre><code>## [1] 0.9385714
+<pre><code>## [1] 0.9492063
 </code></pre>
 
 <p>As we see, the id, the significance threshold (&ldquo;a&rdquo;) and the best max_k are returned. </p>
@@ -839,33 +839,38 @@ Here we check separately the results for the first configuration.</p>
 <pre><code class="r">cv_ses_model$cv_results_all[[1]]$performances # those are the performances.
 </code></pre>
 
-<pre><code>## [1] 0.9722222 0.8888889 0.8888889 0.9428571 0.9714286
+<pre><code>## [1] 0.9166667 0.9444444 0.9166667 0.9142857 0.9714286
 </code></pre>
 
 <pre><code class="r">cv_ses_model$cv_results_all[[1]]$signatures # signatures created by this configuration
 </code></pre>
 
 <pre><code>## [[1]]
-##      Var1 Var2 Var3 Var4 Var5
-## [1,]    1    3    7   10   13
-## [2,]    1   11    7   10   13
-## [3,]    1   12    7   10   13
+##      Var1 Var2 Var3 Var4
+## [1,]    1    4    7   13
+## [2,]    1   10    7   13
+## [3,]    1   11    7   13
+## [4,]    1    4    7    3
+## [5,]    1   10    7    3
+## [6,]    1   11    7    3
 ## 
 ## [[2]]
 ##      Var1 Var2 Var3 Var4
-## [1,]    1    7   10   13
+## [1,]    1    7   11   13
 ## 
 ## [[3]]
-##      Var1 Var2 Var3
-## [1,]    1    7   13
+##      Var1 Var2 Var3 Var4
+## [1,]    7   10   11   13
+## [2,]    1   10   11   13
+## [3,]   12   10   11   13
 ## 
 ## [[4]]
 ##      Var1 Var2 Var3 Var4
-## [1,]    1    7   11   13
+## [1,]    1    7   10   13
 ## 
 ## [[5]]
-##      Var1 Var2 Var3 Var4
-## [1,]    1    7   10   13
+##      Var1 Var2 Var3 Var4 Var5
+## [1,]    1    3    7   10   13
 </code></pre>
 
 <p><strong>Note:</strong> By asking the best performance <code>$best_performance</code>, we get the mean value of all folds of the best configuration. If we ask for the performances of the best configuration (here it is the first configuration) <code>$cv_results_all[[1]]$performances</code> we get all performance values of each fold (here 5). </p>
@@ -873,20 +878,20 @@ Here we check separately the results for the first configuration.</p>
 <pre><code class="r">cv_ses_model$best_performance
 </code></pre>
 
-<pre><code>## [1] 0.9385714
+<pre><code>## [1] 0.9492063
 </code></pre>
 
 <pre><code class="r">index&lt;-cv_ses_model$best_configuration$id
 cv_ses_model$cv_results_all[[index]]$performances
 </code></pre>
 
-<pre><code>## [1] 0.9722222 0.8888889 0.8888889 0.9714286 0.9714286
+<pre><code>## [1] 0.9722222 0.9444444 0.9722222 0.8857143 0.9714286
 </code></pre>
 
 <pre><code class="r">mean(cv_ses_model$cv_results_all[[index]]$performances)  
 </code></pre>
 
-<pre><code>## [1] 0.9385714
+<pre><code>## [1] 0.9492063
 </code></pre>
 
 <h1>Tips</h1>
@@ -946,7 +951,7 @@ Hope that you found this tutorial helpful.    </p>
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] dplyr_0.7.4 MXM_1.4.1  
+## [1] dplyr_0.7.4 MXM_1.4.2  
 ## 
 ## loaded via a namespace (and not attached):
 ##  [1] slam_0.1-43         sets_1.0-18         splines_3.5.0      

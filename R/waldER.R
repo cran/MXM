@@ -23,7 +23,7 @@ waldER = function(target, dataset, xIndex, csIndex, wei = NULL, univariateModels
   #if the censored indicator is empty, a dummy variable is created
   numCases = dim(dataset)[1];
   if (length(event) == 0)  event = vector('numeric',numCases) + 1;
-      if (is.na(csIndex) || length(csIndex) == 0 || csIndex == 0) {
+      if ( length(csIndex) == 0 || sum(csIndex == 0, na.rm = TRUE) > 0 ) {
         expo_results <- survival::survreg(target ~ x, dist = "exponential", weights = wei)
         res = summary(expo_results)[[ 9 ]]
         stat = res[2, 3]^2

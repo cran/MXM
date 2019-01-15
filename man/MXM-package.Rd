@@ -17,8 +17,8 @@ For more information the reader is addressed to Lagani V., Athineou G., Farcomen
 \tabular{ll}{
 Package: \tab MXM\cr
 Type: \tab Package\cr
-Version: \tab 1.4.1\cr
-Date: \tab 2018-11-23\cr
+Version: \tab 1.4.2\cr
+Date: \tab 2019-01-14\cr
 License: \tab GPL-2\cr
 }
 }
@@ -82,7 +82,7 @@ European Union's Seventh Framework Programme (FP/2007-2013) / ERC Grant Agreemen
 Michail Tsagris would like to express his acknowledgments to Marios Dimitriadis and Manos Papadakis, 
 undergraduate students in the department of computer science, university of Crete, for their programming tips and advice. Their help has been very valuable. Dr David Gomez Cabrero Lopez is also acknowledged. Dr Uwe Ligges and Prof Kurt Hornik from the CRAN team are greatly 
 acknowledged for their assistance. Prof Achim Zeileis is grealty acknowledged for this help with the quasi Poisson and quasi 
-binomial regression models. Christina Chatzipantsiou and Kleio Maria Verrou are acknowledged for their suggestions. 
+binomial regression models. Christina Chatzipantsiou and Kleio Maria Verrou are acknowledged for their suggestions. Margarita Rebolledo is acknowledged for spotting a bug. 
 
 \bold{Disclaimer:} Professor Tsamardinos is the creator of this package. Mr Athineou built it, supervised by Dr Lagani.
 Dr Tsagris is the maintainer.

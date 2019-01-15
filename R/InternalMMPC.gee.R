@@ -34,7 +34,7 @@ InternalMMPC.gee = function(target, reps, group, dataset, max_k, threshold, test
   selectedVars = numeric(varsize);
   selectedVarsOrder = numeric(varsize);
   #select the variable with the highest association
-  selectedVar = which( stats == stats[[which.max(stats)]] );
+  selectedVar = which.max(stats)
   selectedVars[selectedVar] = 1;
   selectedVarsOrder[selectedVar] = 1; #CHANGE
   #lets check the first selected var

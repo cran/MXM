@@ -224,6 +224,8 @@ Harrell F. E., Lee K. L. and Mark D. B. (1996). Multivariable prognostic models:
 Hanley J. A. and McNeil B. J. (1982). The meaning and use of the area under a receiver operating characteristic (ROC) curve. Radiology, 143(1), 29-36.
 
 Brentnall A. R., Cuzick J., Field J. and Duffy S. W. (2015). A concordance index for matched case-control studies with applications in cancer risk. Statistics in medicine, 34(3), 396-405.
+
+Pedregosa F., Bach F. \& Gramfort A. (2017). On the consistency of ordinal regression methods. The Journal of Machine Learning Research, 18(1), 1769-1803.
 }
 
 \author{

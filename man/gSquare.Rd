@@ -22,10 +22,10 @@ pvalue_hash = NULL, threshold = 0.05, R = 999)
 
 \arguments{
 \item{target}{
-A numeric vector containing the values of the target variable.
+A numeric vector containing the values of the target variable. \bold{The minimum value must be 0}.
 }
 \item{dataset}{
-A numeric matrix containing the variables for performing the test. Rows as samples and columns as features.
+A numeric matrix containing the variables for performing the test. Rows as samples and columns as features. \bold{The minimum value must be 0}.
 }
 \item{xIndex}{
 The index of the variable whose association with the target we want to test.

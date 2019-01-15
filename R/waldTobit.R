@@ -20,7 +20,7 @@ waldTobit = function(target, dataset, xIndex, csIndex, wei = NULL, univariateMod
   results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
   #if the censored indicator is empty, a dummy variable is created
   numCases = dim(dataset)[1];
-  if (is.na(csIndex) || length(csIndex) == 0 || csIndex == 0) {
+  if  ( length(csIndex) == 0 || sum(csIndex == 0, na.rm = TRUE) > 0 ) {
     tob <- survival::survreg(target ~ dataset[, xIndex], weights = wei, dist = "gaussian")
     res = summary(tob)[[ 9 ]]
     stat = res[2, 3]^2

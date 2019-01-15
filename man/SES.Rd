@@ -46,7 +46,7 @@ R = 999, ncores = 1, backward = FALSE)
 The class variable. Provide either a string, an integer, a numeric value, a vector, a factor, an ordered factor or a Surv object. See also Details.
 }
 \item{dataset}{
-The data-set; provide either a data frame or a matrix (columns = variables , rows = samples).
+The data-set; provide either a data frame or a matrix (columns = variables, rows = samples).
 }
 \item{max_k}{
 The maximum conditioning set to use in the conditional indepedence test (see Details). Integer, default value is 3.

@@ -27,7 +27,7 @@ waldMMReg = function(target, dataset, xIndex, csIndex, wei = NULL, univariateMod
     return(results);
   }
   #check input validity
-  if (xIndex < 0 || csIndex < 0) {
+  if ( any(xIndex < 0) || any(csIndex < 0) ) {
     message(paste("error in testIndReg : wrong input of xIndex or csIndex"))
     results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
     return(results);

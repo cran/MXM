@@ -41,7 +41,7 @@ InternalSES.glmm = function(target, reps, group, dataset, max_k = 3, threshold =
   queues = vector('list' , varsize);
   queues <- lapply(1:varsize , function(i){queues[[i]] = i;})
   #select the variable with the highest association
-  selectedVar = which( stats == stats[[which.max(stats)]] );
+  selectedVar = which.max(stats);
   selectedVars[selectedVar] = 1;
   selectedVarsOrder[selectedVar] = 1; #CHANGE
   #lets check the first selected var

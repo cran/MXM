@@ -35,7 +35,7 @@ InternalSES.timeclass = function(target, dataset, max_k, threshold, test=NULL, i
   queues = vector('list', varsize);
   queues <- lapply( 1:varsize, function(i){ queues[[i]] = i; } )
   #select the variable with the highest association
-  selectedVar = which( pvalues == pvalues[[ which.min(pvalues) ]] );
+  selectedVar = which.min(pvalues)
   selectedVars[selectedVar] = 1;
   selectedVarsOrder[selectedVar] = 1; #CHANGE
   #print(paste("rep: ",0,", selected var: ",selectedVar,", pvalue = ",exp(pvalues[selectedVar])))

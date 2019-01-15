@@ -10,7 +10,7 @@ corfbed.network <- function(x, threshold = 0.05, symmetry = TRUE, nc = 1) {
     for (i in 1:D) {
       id <- 1:D
       id <- id[-i] 
-      a <- Rfast::cor.fbed(x[, i], x[, -i], threshold = threshold)$res[, 1]
+      a <- Rfast::cor.fbed(x[, i], x[, -i], alpha = threshold)$res[, 1]
       sel <- id[a]        
       G[i, sel] <- 1 
       counter <- counter + sum(D - 0:a)
@@ -25,8 +25,8 @@ corfbed.network <- function(x, threshold = 0.05, symmetry = TRUE, nc = 1) {
     mod <- foreach(i = 1:D, .combine = rbind, .export = c("cor.fbed"), .packages = "Rfast" ) %dopar% {
       id <- 1:D
       id <- id[-i] 
-      sela <- numeric(n)  
-      a <- Rfast::cor.fbed(x[, i], x[, -i], threshold = threshold)$res[, 1]
+      sela <- numeric(D)  
+      a <- Rfast::cor.fbed(x[, i], x[, -i], alpha = threshold)$res[, 1]
       sel <- id[a]  
       sela[sel] <- 1
       return( sum(D - 0:a), sela)

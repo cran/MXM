@@ -45,7 +45,7 @@ testIndSpearman = function(target, dataset, xIndex, csIndex, wei = NULL, statist
   }
   
   #check input validity
-  if(xIndex < 0 || csIndex < 0)  {
+  if( any(xIndex < 0) || any(csIndex < 0) )  {
     message(paste("error in testIndFisher : wrong input of xIndex or csIndex"))
     results <- list(pvalue = pvalue, stat = 0, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
     return(results);
@@ -175,7 +175,7 @@ finally={}
     aa[[ i ]] <- list(pvalue = log(1), z = 0, stat = 0, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
   }
   #check input validity
-  if(xIndex < 0 || csIndex < 0)  {
+  if( any(xIndex < 0) || any(csIndex < 0) )  {
     message(paste("error in testIndFisher : wrong input of xIndex or csIndex"))
     aa[[ i ]] <- list(pvalue = pvalue, z = 0, stat = 0, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
   }

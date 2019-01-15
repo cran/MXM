@@ -25,8 +25,8 @@ censIndCR = function(target, dataset, xIndex, csIndex, wei = NULL, univariateMod
   event = target[,2]
   numCases = dim(dataset)[1];
   if ( length(event) == 0 )  event = vector('numeric',numCases) + 1;
-      if (is.na(csIndex) || length(csIndex) == 0 || csIndex == 0) {
-	    options(warn = -1)
+      if ( length(csIndex) == 0 || sum(csIndex == 0, na.rm = TRUE) > 0 ) {
+	      options(warn = -1)
         cox_results <- try( survival::coxph(target ~ dataset[, xIndex], weights = wei ), silent = TRUE )
         if ( identical( class(cox_results), "try-error" ) ) {
           stat <- NA

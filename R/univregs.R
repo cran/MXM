@@ -120,7 +120,7 @@ if ( !is.null(user_test) ) {
   univariateModels$stat = mod[, 1]
   univariateModels$pvalue = mod[, 2]
 
-} else if ( identical(test, testIndMVreg)  &  !is.null(wei) ) {  ## Weighted linear regression
+} else if ( identical(test, testIndMVreg) ) {  ## Weighted linear regression
   
   univariateModels = list();
   stat = pval = numeric(cols)

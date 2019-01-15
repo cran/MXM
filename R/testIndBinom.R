@@ -44,8 +44,8 @@ testIndBinom = function(target, dataset, xIndex, csIndex, wei =  NULL, univariat
     return(results);
   }
   #check input validity
-  if(xIndex < 0 || csIndex < 0)  {
-    message(paste("error in testIndPois : wrong input of xIndex or csIndex"))
+  if( any(xIndex < 0) || any(csIndex < 0) )  {
+    message( paste("error in testIndPois : wrong input of xIndex or csIndex") )
     results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
     return(results);
   }
@@ -81,7 +81,7 @@ testIndBinom = function(target, dataset, xIndex, csIndex, wei =  NULL, univariat
   y = target[, 1]
   wei = target[, 2]
       #if the conditioning set (cs) is empty, we use a simplified formula
-      if(length(cs) == 0)  {
+      if ( length(cs) == 0 )  {
         fit2 = glm(y / wei ~ x, binomial, weights = wei, model = FALSE)
         stat = fit2$null.deviance - fit2$deviance
         dof = length( fit2$coefficients ) - 1

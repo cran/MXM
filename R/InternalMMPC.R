@@ -33,7 +33,7 @@ InternalMMPC <- function(target, dataset, max_k, threshold, test=NULL, ini=NULL,
   selectedVars = numeric(varsize);
   selectedVarsOrder = numeric(varsize);
   #select the variable with the highest association
-  selectedVar = which(pvalues == pvalues[[which.min(pvalues)]]);
+  selectedVar = which.min(pvalues)
   selectedVars[selectedVar] = 1;
   selectedVarsOrder[selectedVar] = 1; #CHANGE
   #remaining variables to be considered

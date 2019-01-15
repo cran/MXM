@@ -21,7 +21,7 @@ permTobit = function(target, dataset, xIndex, csIndex, wei = NULL, univariateMod
   stat = 0;
   results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
   x <- dataset[ , xIndex]
-  if (is.na(csIndex) || length(csIndex) == 0 || csIndex == 0) {
+  if ( length(csIndex) == 0 || sum(csIndex == 0, na.rm = TRUE) > 0 ) {
     tob <- survival::survreg(target ~ x, weights = wei, dist = "gaussian")
     stat = 2 * abs( diff(tob$loglik) )
     if (stat > 0) {

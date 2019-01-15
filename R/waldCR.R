@@ -26,7 +26,7 @@ waldCR = function(target, dataset, xIndex, csIndex, wei = NULL, univariateModels
   x = dataset[ , xIndex];
   numCases = dim(dataset)[1];
   if ( length(event) == 0 )  event = vector('numeric',numCases) + 1;
-      if (is.na(csIndex) || length(csIndex) == 0 || csIndex == 0) {
+      if ( length(csIndex) == 0 || sum(csIndex == 0, na.rm = TRUE) > 0 ) {
         cox_results <- survival::coxph(target ~ x, weights = wei )
         stat <- cox_results$wald.test
         pvalue <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE);

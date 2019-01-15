@@ -25,7 +25,7 @@ corfs.network <- function(x, threshold = 0.05, tolb = 2, tolr = 0.02, stopping =
     mod <- foreach(i = 1:D, .combine = rbind, .export = c("cor.fsreg"), .packages = "Rfast" ) %dopar% {
 	  id <- 1:D
       id <- id[-i] 
-      sela <- numeric(n)  
+      sela <- numeric(D)  
       a <- Rfast::cor.fsreg(x[, i], x[, -i], threshold = threshold, tolb = tolb, tolr = tolr, stopping = stopping)[, 1]
       sel <- id[a]  
       sela[sel] <- 1

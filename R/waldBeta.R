@@ -28,7 +28,7 @@ waldBeta = function(target, dataset, xIndex, csIndex, wei = NULL, univariateMode
     return(results);
   }
   #check input validity
-  if (xIndex < 0 || csIndex < 0) {
+  if ( any(xIndex < 0) || any(csIndex < 0) ) {
     message(paste("error in testIndBeta : wrong input of xIndex or csIndex"))
     results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
     return(results);
@@ -36,7 +36,7 @@ waldBeta = function(target, dataset, xIndex, csIndex, wei = NULL, univariateMode
   #extract the data
   x = dataset[ , xIndex];
   cs = dataset[ , csIndex];
-  if ( length(cs) == 0 || is.na(cs) )  cs = NULL;
+  if ( length(cs) == 0 || any( is.na(cs) ) )  cs = NULL;
   #That means that the x variable does not add more information to our model due to an exact copy of this in the cs, so it is independent from the target
   if ( length(cs) != 0 )   {
     if ( is.null(dim(cs)[2]) ) {  #cs is a vector

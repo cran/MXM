@@ -125,7 +125,7 @@ MMPC <- function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini 
   }
   #checking if target is a single number
   if ( is.numeric(target)  &  length(target) == 1) {
-    if (target > dim(dataset)[2]){
+    if (targetID > dim(dataset)[2]){
       warning('Target index larger than the number of variables');
       return(NULL);
     }
