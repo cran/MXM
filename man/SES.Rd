@@ -171,7 +171,9 @@ A matrix reporting all equivalent signatures (one signature for each row). Featu
 The hashObject caching the statistic calculated in the current run.
 }
 \item{pvalues}{
-For each feature included in the dataset, this vector reports the strength of its association with the target in the context of all other variable. Particularly, this vector reports the max p-values found when the association of each variable with the target is tested against different conditional sets. Lower values indicate higher association.
+For each feature included in the dataset, this vector reports the strength of its association with the target in the context of all other variable. 
+Particularly, this vector reports the max p-values found when the association of each variable with the target is tested against different conditional sets. 
+Lower values indicate higher association. Note that these are the logged p-values, natural logarithm of the pvalues, and not the p-values.
 }
 \item{stats}{
 The statistics corresponding to "pvalues" (higher values indicates higher association).
@@ -270,10 +272,6 @@ dataset[, 130] <- dataset[, 100] + rnorm(1000, 0, 2)
 sesObject <- SES(target , dataset, max_k = 5, threshold = 0.05, test = "testIndFisher", 
 hash = TRUE, hashObject = NULL);
 
-# print summary of the SES output
-summary(sesObject);
-# plot the SES output
-# plot(sesObject, mode = "all");
 # get the queues with the equivalences for each selected variable
 sesObject@queues
 #get the generated signatures
@@ -286,16 +284,9 @@ hashObj <- sesObject@hashObject;
 sesObject2 <- SES(target, dataset, max_k = 2, threshold = 0.01, test = "testIndFisher", 
 hash = TRUE, hashObject = hashObj);
 
-sesObject3 <- SES(target, dataset, max_k = 2, threshold = 0.01, test = "testIndFisher", 
-ini = sesObject@univ, hash = TRUE, hashObject = hashObj);
-
-# retrieve the results: summary, plot, sesObject2@...)
-summary(sesObject2)
 # get the run time
 sesObject@runtime;
 sesObject2@runtime;
-sesObject3@runtime;
-
 
 # MMPC algorithm 
 mmpcObject <- MMPC(target, dataset, max_k = 3, threshold = 0.05, test="testIndFisher");

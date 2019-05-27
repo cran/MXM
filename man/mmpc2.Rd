@@ -110,7 +110,7 @@ http://mensxmachina.org/site/wp-content/uploads/2018/04/Guide-on-performing-feat
 \author{
 Ioannis Tsamardinos, Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>. 
+R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>. 
 }
 
 \seealso{
@@ -121,7 +121,7 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>.
 set.seed(123)
 
 #simulate a dataset with continuous data
-dataset <- matrix(runif(100 * 500, 1, 100), ncol = 500)
+dataset <- matrix(runif(100 * 100, 1, 100), ncol = 100)
 
 #define a simulated class variable 
 target <- 3 * dataset[, 10] + 2 * dataset[, 100] + 3 * dataset[, 20] + rnorm(100, 0, 5)

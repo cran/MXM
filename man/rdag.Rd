@@ -97,7 +97,7 @@ Colombo, Diego, and Marloes H. Maathuis (2014). Order-independent constraint-bas
 }
 
 \author{
-R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
 }
 
 
@@ -115,13 +115,6 @@ b <- pc.or(mod)
 plotnetwork(tru) 
 dev.new()
 plotnetwork(b$G)
-
-y <- rmdag(1000, p = 10, nei = 3)
-x <- y$x
-## make every factor numerical starting from 0.
-for (i in 1:dim(x)[2]) {
-  if ( is.factor(x[, i]) )  x[, i] <- as.numeric(x[, i]) - 1  
-}
 
 }
 

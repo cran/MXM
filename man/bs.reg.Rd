@@ -65,7 +65,7 @@ The final regression model.
 \author{
 Michail Tsagris
  
-R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
 }
 
 \seealso{
@@ -74,8 +74,8 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 
 \examples{
 set.seed(123)
-dataset <- matrix( runif(1000 * 10, 1, 100), ncol = 10 )
-target <- rnorm(1000)
+dataset <- matrix( runif(500 * 10, 1, 100), ncol = 10 )
+target <- rnorm(500)
 a <- bs.reg(target, dataset, threshold = 0.05, test = "testIndRQ") 
 b <- bs.reg(target, dataset, threshold = 0.05, test = "testIndReg") 
 b2 <- bs.reg(target, dataset, threshold = 0.05, test = "testIndFisher") 

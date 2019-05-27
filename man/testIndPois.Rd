@@ -127,7 +127,7 @@ Joseph M.H. (2011). Negative Binomial Regression. Cambridge University Press, 2n
 \author{
 Vincenzo Lagani, Ioannis Tsamardinos, Michail Tsagris and Giorgos Athineou
 
-R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr>, Vincenzo Lagani <vlagani@csd.uoc.gr> and Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr>, Vincenzo Lagani <vlagani@csd.uoc.gr> and Michail Tsagris <mtsagris@uoc.gr>
 }
 
 %\note{
@@ -139,18 +139,16 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr>, Vinc
 }
 
 \examples{
-
 #simulate a dataset with continuous data
-dataset <- matrix(runif(400 * 50, 1, 50), ncol = 50 ) 
+dataset <- matrix(runif(100 * 20, 1, 50), ncol = 20 ) 
 #the target feature is the last column of the dataset as a vector
-target <- rpois(400, 10)
-results <- testIndPois(target, dataset, xIndex = 24, csIndex = 10)
+target <- rpois(100, 10)
+results <- testIndPois(target, dataset, xIndex = 14, csIndex = 10)
 results
 
 #run the SES algorithm using the testIndPois conditional independence test
-sesObject <- SES(target, dataset, max_k = 3, threshold = 0.05, test = "testIndPois");
-sesObject2 <- SES(target, dataset, max_k = 3, threshold = 0.05, test = "testIndNB");
-summary(sesObject);
+m1 <- MMPC(target, dataset, max_k = 3, threshold = 0.05, test = "testIndPois");
+m2 <- MMPC(target, dataset, max_k = 3, threshold = 0.05, test = "testIndNB");
 }
 
 \keyword{ Poisson regression }

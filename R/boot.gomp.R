@@ -10,13 +10,13 @@ boot.gomp <- function(target, dataset, tol = qchisq(0.95, 1), test = "testIndLog
     
     for (i in 1:B) {
       ina <- sample(n, n, replace = TRUE)
-      sel <- c(sel, MXM::gomp(target[ina, ], dataset[ina, ], tol = tol, test = test, method = method)$res[-1, 1])
+      sel <- c(sel, gomp(target[ina, ], dataset[ina, ], tol = tol, test = test, method = method)$res[-1, 1])
     }
     
   } else {
     cl <- makePSOCKcluster(ncores)
     registerDoParallel(cl)
-    mod <- foreach(i = 1:B, .packages = "MXM", .export = "omp") %dopar% {
+    mod <- foreach(i = 1:B, .packages = "MXM", .export = "gomp") %dopar% {
       ina <- sample(n, n, replace = TRUE)
       sel <- MXM::gomp(target[ina, ], dataset[ina, ], tol = tol, test = test, method = method)$res[-1, 1]
       return( sel )

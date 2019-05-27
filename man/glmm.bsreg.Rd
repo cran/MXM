@@ -64,7 +64,7 @@ Eugene Demidenko (2013). Mixed Models: Theory and Applications with R, 2nd Editi
 \author{
 Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
 }
 
 \seealso{
@@ -75,10 +75,12 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 \dontrun{
 require(lme4)
 data(sleepstudy)
-attach(sleepstudy)
-x <- matrix(rnorm(180 * 20),ncol = 20) ## unrelated preidctor variables
-m1 <- glmm.bsreg(Reaction, x, Subject, wei = NULL, gam = NULL, type = "gaussian") 
-m2 <- MMPC.glmm(target = Reaction, group = Subject, dataset = x)
+reaction <- sleepstudy$Reaction
+days <- sleepstudy$Days
+subject <- sleepstudy$Subject
+x <- matrix(rnorm(180 * 10),ncol = 10) ## unrelated preidctor variables
+m1 <- glmm.bsreg(Reaction, x, subject) 
+m2 <- MMPC.glmm(target = reaction, group = subject, dataset = x)
 }
 }
 

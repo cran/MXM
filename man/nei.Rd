@@ -39,7 +39,7 @@ Bear in mind that the values can be extracted with the $ symbol, i.e. this is an
 \author{
  Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
 }
 
 %\note{
@@ -52,7 +52,7 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 \examples{
 # simulate a dataset with continuous data
 set.seed(1234)
-dataset <- matrix(runif(1000 * 20, 1, 100), nrow = 1000 ) 
+dataset <- matrix(runif(500 * 20, 1, 100), nrow = 500 ) 
 G <- pc.con(dataset)$G
 plotnetwork(G)
 dev.new()

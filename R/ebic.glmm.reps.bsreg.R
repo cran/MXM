@@ -77,7 +77,7 @@ ebic.glmm.reps.bsreg <- function(target, dataset, id, reps = NULL, wei = NULL, g
           
           i <- 2  
           
-          if ( tool[2] > 0 ) {
+          if ( tool[2] != 0 ) {
             
             while ( tool[i - 1] - tool[i ] > 0  &  NCOL(dat) > 0 )  {   
               

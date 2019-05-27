@@ -14,13 +14,13 @@ plotnetwork <- function(G, titlos = NULL) {
   
     if ( sum( abs( G - t(G) ) ) == 0 ) { ## no orientations
       ed <- which(G > 0, arr.ind = TRUE) 
-      ed <- unique( t( Rfast::sort_mat( t(ed) ) ) )
+      ed <- unique( t( Rfast::colSort( t(ed) ) ) )
       edges <- data.frame( from = nam[ed[, 1]], to = nam[ed[, 2]], type = numeric( dim(ed)[1] ) )
     
     } else {
       ed1 <- which(G == 2, arr.ind = TRUE)
       ed0 <- which(G == 1, arr.ind = TRUE)
-      ed0 <- unique( t( Rfast::sort_mat( t(ed0) ) ) )
+      ed0 <- unique( t( Rfast::colSort( t(ed0) ) ) )
       ed <- rbind(ed1, ed0)
       edges <- data.frame( from = nam[ed[, 1]], to = nam[ed[, 2]], type = c(numeric( dim(ed1)[1] ) + 1, numeric( dim(ed0)[1] )) )
     }

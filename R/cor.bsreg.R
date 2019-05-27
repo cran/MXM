@@ -1,5 +1,6 @@
 cor.bsreg <- function(target, dataset, threshold = 0.05) {
-  
+
+  tic <- proc.time() 
   threshold <- log(threshold)
   dm <- dim(dataset)
   if ( is.null(dm) ) {
@@ -33,7 +34,6 @@ cor.bsreg <- function(target, dataset, threshold = 0.05) {
       }
     }
     dataset <- as.data.frame(dataset)
-    tic <- proc.time()
     ci_test <- "testIndFisher"  
     mat <- cor.drop1(target, dataset, logged = TRUE)
     mat <- cbind(1:p, mat[, 2], mat[, 1] )
@@ -51,7 +51,8 @@ cor.bsreg <- function(target, dataset, threshold = 0.05) {
       info[1, ] <- mat[sel, ]
       mat <- mat[-sel, , drop = FALSE] 
       dat <- dataset[, -sel, drop = FALSE] 
-          
+      final <- "No variables were selected"
+    
       i <- 1  
           
         while ( info[i, 2] > threshold  &  dim(dat)[2] > 0 )  {   

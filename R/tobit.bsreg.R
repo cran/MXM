@@ -58,14 +58,14 @@ tobit.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL) {
     info <- matrix( c(0, -10, -10) , ncol = 3 )
 
     if ( mat[sel, 2] < threshold ) {
-      res <- list(mat = mat, final = ini  ) 
+      runtime <- proc.time() - runtime
+      res <- list(runtime = runtime, info = matrix(0, 0, 3), mat = mat, ci_test = "testIndTobit", final = ini ) 
       
     } else {
       
       info[1, ] <- mat[sel, ]
       mat <- mat[-sel, , drop = FALSE] 
       dat <- dataset[, -sel ,drop = FALSE]
-    } 
     
     i <- 1  
     
@@ -84,7 +84,7 @@ tobit.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL) {
               final <- "No variables were selected"
               info <- rbind(info, c(mat[, 1], pval, stat) )
               dat <- dataset[, -info[, 1], drop = FALSE ]
-              mat <- NULL
+              mat <- matrix(nrow = 0, ncol = 3)
             } else {
               info <- rbind(info, c(0, -10, -10)) 
               final <- ini
@@ -115,11 +115,12 @@ tobit.bsreg <- function(target, dataset, threshold = 0.05, wei = NULL) {
           }  
         }  ## end while
     
-  }  
-  
-  info <- info[ info[, 1] > 0, , drop = FALSE ]
-  res <- list(runtime = runtime, info = info, mat = mat, ci_test = "testIndTobit", final = final ) 
-  
+    info <- info[ info[, 1] > 0, , drop = FALSE ]
+    res <- list(runtime = runtime, info = info, mat = mat, ci_test = "testIndTobit", final = final ) 
+    
+    }  ## end  if ( mat[sel, 2] < threshold ) else 
+  }  ##  end if ( p > n ) else  
+
 }    
 
 

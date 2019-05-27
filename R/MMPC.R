@@ -114,14 +114,14 @@ MMPC <- function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini 
   ##################################
   targetID <-  -1;
   #check if the target is a string
-  if (is.character(target) & length(target) == 1) {
+  if ( is.character(target) & length(target) == 1 ) {
     findingTarget <- target == colnames(dataset);#findingTarget <- target %in% colnames(dataset);
-    if (!sum(findingTarget)==1){
+    if ( !sum(findingTarget) == 1 ) {
       warning('Target name not in colnames or it appears multiple times');
       return(NULL);
     }
     targetID <- which(findingTarget);
-    target <- dataset[ , targetID];
+    target <- dataset[, targetID];
   }
   #checking if target is a single number
   if ( is.numeric(target)  &  length(target) == 1) {
@@ -136,7 +136,7 @@ MMPC <- function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini 
   if ( sum( class(target) == "matrix") == 1 ) {
     if (ncol(target) >= 2 & class(target) != "Surv") {
       if ( (is.null(test) || test == "auto") & (is.null(user_test)) ) {
-        test = "testIndMVreg"
+        test <- "testIndMVreg"
       }
     }
   }
@@ -160,7 +160,7 @@ MMPC <- function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini 
           test <- "testIndOrdinal"
         } else if ( !is.ordered(target) & length( unique(target) ) > 2 ) {
           test <- "testIndMultinom" 
-        } else test = "testIndLogistic"
+        } else test <- "testIndLogistic"
         
       } else if ( ( is.numeric(target) || is.integer(target) ) & survival::is.Surv(target) == FALSE ) {
         
@@ -183,7 +183,7 @@ MMPC <- function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini 
     }
 
     av_tests <- c("testIndFisher", "testIndSpearman", "testIndReg", "testIndRQ", "testIndBeta", "censIndCR", "censIndWR", 
-                  "censIndER", "testIndClogit", "testIndLogistic", "testIndPois", "testIndNB", "testIndBinom", "gSquare", 
+                  "censIndER", "censIndLLR", "testIndClogit", "testIndLogistic", "testIndPois", "testIndNB", "testIndBinom", "gSquare", 
                   "auto", "testIndZIP", "testIndMVreg", "testIndIGreg", "testIndGamma", "testIndNormLog", "testIndTobit", 
                   "testIndQPois", "testdIndQBinom", "testIndMMReg", "testIndMMFisher", "testIndMultinom", "testIndOrdinal", 
                    "testIndSPML", NULL);
@@ -250,6 +250,9 @@ MMPC <- function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini 
       } else if (test == "censIndER") {
         test <- censIndER;
         
+      } else if (test == "censIndLLR") {
+        test <- censIndLLR;
+        
       } else if (test == "testIndClogit") {
         test <- testIndClogit;
         
@@ -294,18 +297,55 @@ MMPC <- function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini 
   if ( max_k > varsize )   max_k = varsize;
   if ( (typeof(threshold) != "double") || threshold < 0 || threshold >= 1 )   stop('invalid threshold option');
   #######################################################################################
-  if ( !is.null(user_test) )  ci_test = "user_test";
+  if ( !is.null(user_test) )  ci_test <- "user_test";
   #call the main MMPC function after the checks and the initializations
   options(warn = -1)
-  results <- InternalMMPC(target, dataset, max_k, log(threshold), test, ini, wei, user_test, hash, varsize, stat_hash, pvalue_hash, 
-                         targetID, ncores = ncores);
-
+  if ( identical(ci_test, "testIndFisher") ) {
+    if ( !is.matrix(dataset) )   dataset <- as.matrix(dataset)
+    if ( !is.null(hashObject)  & length(hashObject) == 0 )   hashObject <- NULL
+    if ( targetID != -1 )  { 
+      options(warn = -1)
+      a <- as.vector( cor(target, dataset) )
+      dof <- dim(dataset)[1] - 3; #degrees of freedom
+      wa <- 0.5 * log( (1 + a) / (1 - a) ) * sqrt(dof)
+      id <- which( is.na(a) )
+      if ( length(id) > 0)  wa[id] <- 0
+      wa[targetID] <- 0
+      ini <- list()
+      ini$stat <- wa
+      ini$pvalue <- log(2) + pt( abs(wa), dof, lower.tail = FALSE, log.p = TRUE) 
+    }
+    results <- Rfast2::mmpc(target, dataset, max_k = max_k, alpha = threshold, method = "pearson", ini = ini,
+                            hash = hash, hashobject = hashObject)
+    results$selectedVarsOrder <- results$selected
+    results$selectedVars <- sort(results$selected)
+    results$selected <- NULL
+    lista <- as.list.environment( results$hashobject$pvalue_hash ) 
+    results$hashObject <- list()
+    if ( length(lista) > 0 )  {
+      results$hashObject$stat_hash <- results$hashobject$stat_hash
+      results$hashobject$stat_hash <- NULL
+      results$hashObject$pvalue_hash <- results$hashobject$pvalue_hash
+      results$hashobject$pvalue_hash <- NULL
+      results$hashobject <- NULL
+    } else  {
+      results$hashobject <- NULL
+      results$hashObject$stat_hash <- NULL
+      results$hashObject$pvalue_hash <- NULL
+    }  
+    results$threshold <- results$alpha
+    results$alpha <- NULL
+  } else {
+    results <- InternalMMPC(target, dataset, max_k, log(threshold), test, ini, wei, user_test, hash, varsize, stat_hash, 
+                          pvalue_hash, targetID, ncores = ncores);
+  }
   #backward phase
   varsToIterate <- results$selectedVarsOrder
   
-  if ( backward  & length( varsToIterate ) > 0  ) {
+  if ( backward & length( varsToIterate ) > 0 ) {
     varsOrder <- results$selectedVarsOrder
-    bc <- mmpcbackphase(target, dataset[, varsToIterate, drop = FALSE], test = test, wei = wei, max_k = max_k, threshold = threshold)
+    bc <- MXM::mmpcbackphase(target, dataset[, varsToIterate, drop = FALSE], test = test, wei = wei, max_k = max_k, 
+                             threshold = threshold)
     met <- bc$met
     results$selectedVars <- varsOrder[met]
     results$selectedVarsOrder <- varsOrder[met]
@@ -315,8 +355,9 @@ MMPC <- function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini 
   runtime <- proc.time() - runtime
   
   MMPCoutput <-new("MMPCoutput", selectedVars = results$selectedVars, selectedVarsOrder = results$selectedVarsOrder, 
-                   hashObject=results$hashObject, pvalues=results$pvalues, stats=results$stats, univ=results$univ, 
-                   max_k=results$max_k, threshold = results$threshold, n.tests = results$n.tests, runtime=runtime, test=ci_test);
+                   hashObject = results$hashObject, pvalues=results$pvalues, stats = results$stats, univ = results$univ, 
+                   max_k = results$max_k, threshold = results$threshold, n.tests = results$n.tests, runtime = runtime, 
+                   test = ci_test);
   return(MMPCoutput);
 }
 

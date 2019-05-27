@@ -304,6 +304,25 @@ ebic.regs <- function(target, dataset, xIndex, csIndex, gam = NULL, test = NULL,
           lik2 <- as.vector( mod[, 1] )
         }
         
+      } else if ( identical(test, censIndLLR) ) {  ## Log-logistic regression
+        
+        if ( ncores <= 1 | is.null(ncores) ) {
+          for ( i in xIndex ) {
+            fit2 <- survival::survreg( target ~., data = dataset[, c(csIndex, i)], weights = wei, dist = "loglogistic" )
+            lik2[i] <-  - 2 * logLik(fit2) + (length(fit2$coefficients) + 1) * logn
+          }
+          
+        } else {
+          cl <- makePSOCKcluster(ncores)
+          registerDoParallel(cl)
+          mod <- foreach(i = xIndex, .combine = rbind, .packages = "survival") %dopar% {
+            fit2 <- survival::survreg( target ~., data = dataset[, c(csIndex, i)], weights = wei, dist = "loglogistic" )
+            return( - 2 * logLik(fit2) + (length(fit2$coefficients) + 1) * logn )
+          }
+          stopCluster(cl)
+          lik2 <- as.vector( mod[, 1] )
+        }
+        
       } else if ( identical(test, testIndTobit) ) {  ## Tobit regression
         
         if ( ncores <= 1 | is.null(ncores) ) {

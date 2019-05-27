@@ -19,11 +19,11 @@ mmpc.glmm.model = function(target, dataset, reps = NULL, group, slopes = FALSE, 
   if ( is.null(test) ) {  
     ci_test <- mmpcglmm.Object@test
     slopes <- mmpcglmm.Object@slope
-  } else ci_test = test 
+  } else ci_test <- test 
   
   signature <- mmpcglmm.Object@selectedVars  
 
-    if ( test == "testIndGLMMLogistic" ) {
+    if ( ci_test == "testIndGLMMLogistic" ) {
       if ( is.null(reps) ) {
         mod <- lme4::glmer( target ~ dataset[, signature] + (1|group), weights = wei, family = binomial ) 
       } else {
@@ -33,7 +33,7 @@ mmpc.glmm.model = function(target, dataset, reps = NULL, group, slopes = FALSE, 
         } else  mod <- lme4::glmer( target ~ reps + dataset[, signature] + (1|group), weights = wei, family = binomial ) 
       }
       
-    } else if ( test == "testIndGLMMPois" )  {  
+    } else if ( ci_test == "testIndGLMMPois" )  {  
       if ( is.null(reps) ) {
         mod <- lme4::glmer( target ~ dataset[, signature] + (1|group), weights = wei, family = poisson ) 
       } else {
@@ -43,7 +43,7 @@ mmpc.glmm.model = function(target, dataset, reps = NULL, group, slopes = FALSE, 
         } else  mod <- lme4::glmer( target ~ reps + dataset[, signature] + (1|group), weights = wei, family = poisson ) 
       }
       
-    } else if ( test == "testIndGLMMGamma" )  {  
+    } else if ( ci_test == "testIndGLMMGamma" )  {  
       if ( is.null(reps) ) {
         mod <- lme4::glmer( target ~ dataset[, signature] + (1|group), weights = wei, family = Gamma(log) ) 
       } else {
@@ -53,7 +53,7 @@ mmpc.glmm.model = function(target, dataset, reps = NULL, group, slopes = FALSE, 
         } else  mod <- lme4::glmer( target ~ reps + dataset[, signature] + (1|group), weights = wei, family = Gamma(log) ) 
       }
       
-    } else if ( test == "testIndGLMMNormLog" )  {  
+    } else if ( ci_test == "testIndGLMMNormLog" )  {  
       if ( is.null(reps) ) {
         mod <- lme4::glmer( target ~ dataset[, signature] + (1|group), weights = wei, family = gaussian(log) ) 
       } else {
@@ -63,13 +63,13 @@ mmpc.glmm.model = function(target, dataset, reps = NULL, group, slopes = FALSE, 
         } else  mod <- lme4::glmer( target ~ reps + dataset[, signature] + (1|group), weights = wei, family = gaussian(log) ) 
       }
       
-    } else if ( test == "testIndGLMMOrdinal" )  {  
+    } else if ( ci_test == "testIndGLMMOrdinal" )  {  
        mod <- ordinal::clmm( target ~ dataset[, signature] + (1|group), weights = wei )
        
-    } else if ( test == "testIndGLMMCR" )  {  
+    } else if ( ci_test == "testIndGLMMCR" )  {  
       mod <- coxme::coxme( target ~ dataset[, signature] + (1|group), weights = wei )
        
-    } else if ( test == "testIndGLMMReg"  |  test == "testIndLMM" ) {
+    } else if ( ci_test == "testIndGLMMReg"  |  ci_test == "testIndLMM" ) {
       if ( is.null(reps) ) {
         mod <- lme4::lmer( target ~ dataset[, signature] + (1|group), weights = wei, REML = FALSE )
       } else {

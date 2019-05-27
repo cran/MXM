@@ -2,11 +2,12 @@
 # sesObject: the outcome of the ses
 # nisgnat: Number of signatures and generated models. It could be numeric from 1 to total number of signatures or "all" for all the 
 ## signatures. Default is 1.
-mmpc.model = function(target, dataset, wei = NULL, mmpcObject, test = NULL) {
+mmpc.model <- function(target, dataset, wei = NULL, mmpcObject, test = NULL) {
   
-  if ( sum( is.na(mmpcObject@selectedVars) ) > 0 ) {
-    mod = paste("No associations were found, hence no model is produced.")
-    signature = NULL
+  signature <- mmpcObject@selectedVars  
+  if ( sum( is.na(signature) ) > 0 | length(signature) == 0 ) {
+    mod <- paste("No associations were found, hence no model is produced.")
+    signature <- NULL
     res <- list(mod = mod, signature = signature)  
     
   } else {
@@ -30,10 +31,9 @@ mmpc.model = function(target, dataset, wei = NULL, mmpcObject, test = NULL) {
   }
   
   if ( is.null(test) ) {  
-    ci_test = mmpcObject@test
+    ci_test <- mmpcObject@test
   } else ci_test <- test 
   
-    signature <- mmpcObject@selectedVars  
     p <- length(signature)
 
     if ( ci_test == "testIndFisher" || ci_test == "testIndReg" ) {
@@ -108,7 +108,11 @@ mmpc.model = function(target, dataset, wei = NULL, mmpcObject, test = NULL) {
       bic <-  - 2 * as.numeric( logLik(mod) ) + ( length( mod$coefficients ) + 1 ) * log( NROW(dataset) )
       
     } else if (ci_test == "censIndER") {
-      mod <- survival::survreg( target ~ ., data = data.frame(dataset[, signature ]), weights = wei, distribution = "exponential" )
+      mod <- survival::survreg( target ~ ., data = data.frame(dataset[, signature ]), weights = wei, dist = "exponential" )
+      bic <-  - 2 * as.numeric( logLik(mod) ) + ( length( mod$coefficients ) + 1 ) * log( NROW(dataset) )
+      
+    } else if (ci_test == "censIndLLR") {
+      mod <- survival::survreg( target ~ ., data = data.frame(dataset[, signature ]), weights = wei, dist = "loglogistic" )
       bic <-  - 2 * as.numeric( logLik(mod) ) + ( length( mod$coefficients ) + 1 ) * log( NROW(dataset) )
       
     } else if (ci_test == "testIndClogit") {

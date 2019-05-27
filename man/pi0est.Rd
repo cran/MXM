@@ -38,7 +38,7 @@ Storey J.D. and Tibshirani R. (2003). Statistical significance for genome-wide e
 \author{
 Michail Tsagris
   
-R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
 }
 
 %\note{
@@ -50,8 +50,8 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 
 \examples{
 ## simulate a dataset with continuous data
-y <- rdag2(500, p = 25, nei = 3)
-ind <- sample(1:25, 25)
+y <- rdag2(1000, p = 20, nei = 3)
+ind <- sample(1:20, 20)
 x <- y$x[, ind]
 mod <- pc.skel( x, method = "comb.fast", alpha = 0.01 ) 
 pval <- exp(mod$pvalue)

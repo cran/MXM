@@ -39,7 +39,7 @@ A matrix with two columns, the test statistic values and its associated p-value.
 \author{
  Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
 }
 
 %\note{
@@ -51,8 +51,8 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 
 \examples{
-y <- rnorm(1000)
-x <- matrix( rnorm(1000 * 20), ncol = 20)
+y <- rnorm(500)
+x <- matrix( rnorm(500 * 20), ncol = 20)
 cor.drop1(y, x)
 }
 

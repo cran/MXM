@@ -44,8 +44,11 @@ ebic.univregs <- function(target, dataset, targetID = -1, test = NULL, user_test
       stopCluster(cl)
     }   
     
+  } else if ( identical(test, testIndReg)  &  is.matrix(dataset)  &  is.null(wei) ) {  ## logistic regression
+    ebic <- Rfast2::bic.regs(target, dataset, family = "normal")
+	
   } else if ( identical(test, testIndReg) ) {  ## linear regression
-
+      
     if ( ncores <= 1 | is.null(ncores) ) {
       ebic <- numeric(cols)
       for ( i in 1:cols ) {
@@ -82,6 +85,10 @@ ebic.univregs <- function(target, dataset, targetID = -1, test = NULL, user_test
       stopCluster(cl)
     }
     
+  } else if ( identical(test, testIndMultinom)  &  is.matrix(dataset)  &  is.null(wei) ) {  ## logistic regression
+    if ( is.factor(target) )   target <- as.numeric(target) - 1
+    ebic <- Rfast2::bic.regs(target, dataset, family = "multinomial")
+	
   } else if ( identical(test, testIndMultinom) ) {  ## multinomial regression
 
     if ( ncores <= 1 | is.null(ncores) ) {
@@ -103,7 +110,7 @@ ebic.univregs <- function(target, dataset, targetID = -1, test = NULL, user_test
     
   } else if ( identical(test, testIndLogistic)  &  is.matrix(dataset)  &  is.null(wei) ) {  ## logistic regression
     if ( is.factor(target) )   target <- as.numeric(target) - 1
-    ebic <- Rfast::logistic_only(dataset, target) + 2 * logn
+    ebic <- Rfast2::bic.regs(target, dataset, family = "binomial")
     
   } else if ( identical(test, testIndLogistic) ) {  ## Logistic regression
 
@@ -148,8 +155,8 @@ ebic.univregs <- function(target, dataset, targetID = -1, test = NULL, user_test
     }
     
   } else if ( identical(test, testIndPois)  &  is.matrix(dataset)  &  is.null(wei) ) {  ## Poisson regression
-    ebic <- Rfast::poisson_only(dataset, target) - 2 * sum(target * log(target), na.rm = TRUE ) + 2 * sum(target) + 2* sum(lgamma(target + 1) ) + 2 * logn
-
+    ebic <- Rfast2::bic.regs(target, dataset, family = "poisson")
+	
   } else if ( identical(test, testIndPois) ) {  ## Poisson regression
 
     if ( ncores <= 1 | is.null(ncores) ) {
@@ -188,6 +195,9 @@ ebic.univregs <- function(target, dataset, targetID = -1, test = NULL, user_test
       stopCluster(cl)
     }
     
+  } else if ( identical(test, testIndNormLog)  &  is.matrix(dataset)  &  is.null(wei) ) {  ## Poisson regression
+    ebic <- Rfast2::bic.regs(target, dataset, family = "normlog")
+	
   } else if ( identical(test, testIndNormLog)   ) {  ## Normal log link regression
 
     if ( ncores <= 1 | is.null(ncores) ) {
@@ -281,6 +291,25 @@ ebic.univregs <- function(target, dataset, targetID = -1, test = NULL, user_test
       registerDoParallel(cl)
       ebic <- foreach(i = 1:cols, .combine = rbind, .packages = "survival") %dopar% {
         fit2 <- survival::survreg( target ~ dataset[, i], weights = wei )
+        return( - 2 * logLik(fit2) + (length(fit2$coefficients) + 1) * logn )
+      }
+      stopCluster(cl)
+    }
+    
+  } else if ( identical(test, censIndLLR) ) {  ## Weibull regression
+    
+    if ( ncores <= 1 | is.null(ncores) ) {
+      ebic <- numeric(cols)
+      for ( i in 1:cols ) {
+        fit2 <- survival::survreg( target ~ dataset[, i], weights = wei, dist = "loglogistic" )
+        ebic[i] <-  - 2 * logLik(fit2) + (length(fit2$coefficients) + 1) * logn 
+      }
+      
+    } else {
+      cl <- makePSOCKcluster(ncores)
+      registerDoParallel(cl)
+      ebic <- foreach(i = 1:cols, .combine = rbind, .packages = "survival") %dopar% {
+        fit2 <- survival::survreg( target ~ dataset[, i], weights = wei, dist = "loglogistic" )
         return( - 2 * logLik(fit2) + (length(fit2$coefficients) + 1) * logn )
       }
       stopCluster(cl)

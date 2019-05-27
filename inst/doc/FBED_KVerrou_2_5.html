@@ -381,9 +381,9 @@ fbed_cont_eBIC$res
 </code></pre>
 
 <pre><code>##      Vars eBIC difference
-## [1,]    7       -248.3668
-## [2,]    3       -285.0515
-## [3,]    5       -287.6778
+## [1,]    7       -240.5425
+## [2,]    3       -280.7062
+## [3,]    5       -291.0249
 </code></pre>
 
 <pre><code class="r">SelectedVars_names&lt;-colnames(wine_dataset[fbed_cont_eBIC$res[,1]])
@@ -422,7 +422,7 @@ SelectedVars_names
 <pre><code class="r">fbed_cont_eBIC$res[,2]
 </code></pre>
 
-<pre><code>## [1] -248.3668 -285.0515 -287.6778
+<pre><code>## [1] -240.5425 -280.7062 -291.0249
 </code></pre>
 
 <pre><code class="r">fbed_cont_LR$res[,2]
@@ -494,14 +494,14 @@ SelectedVars_names
 </code></pre>
 
 <pre><code>##    user  system elapsed 
-##    0.06    0.00    0.06
+##    0.07    0.01    0.10
 </code></pre>
 
 <pre><code class="r">fbed_cont_LR$runtime 
 </code></pre>
 
 <pre><code>##    user  system elapsed 
-##    0.02    0.00    0.02
+##       0       0       0
 </code></pre>
 
 <p>Since the dataset is small, we do not see any special runtime difference.</p>
@@ -747,14 +747,14 @@ SelectedVars_names
 </code></pre>
 
 <pre><code>##    user  system elapsed 
-##    0.38    0.00    0.39
+##    0.54    0.00    0.53
 </code></pre>
 
 <pre><code class="r">fbed_categorical_LR$runtime 
 </code></pre>
 
 <pre><code>##    user  system elapsed 
-##    0.44    0.00    0.43
+##    0.64    0.00    0.64
 </code></pre>
 
 <p>Really quick, since the dataset is small. </p>
@@ -807,9 +807,9 @@ Hope that you found this tutorial helpful.    </p>
 <pre><code class="r">sessionInfo()
 </code></pre>
 
-<pre><code>## R version 3.5.0 (2018-04-23)
+<pre><code>## R version 3.6.0 (2019-04-26)
 ## Platform: x86_64-w64-mingw32/x64 (64-bit)
-## Running under: Windows 10 x64 (build 16299)
+## Running under: Windows 10 x64 (build 17134)
 ## 
 ## Matrix products: default
 ## 
@@ -822,30 +822,31 @@ Hope that you found this tutorial helpful.    </p>
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] dplyr_0.7.4 MXM_1.4.2  
+## [1] dplyr_0.8.1 MXM_1.4.3  
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] slam_0.1-43         sets_1.0-18         splines_3.5.0      
-##  [4] lattice_0.20-35     htmltools_0.3.6     survival_2.41-3    
-##  [7] rlang_0.2.0         R.oo_1.22.0         nloptr_1.0.4       
-## [10] pillar_1.2.1        glue_1.2.0          R.utils_2.6.0      
-## [13] RcppZiggurat_0.1.4  bindrcpp_0.2.2      foreach_1.4.4      
-## [16] R.cache_0.13.0      bindr_0.1.1         stringr_1.3.0      
-## [19] MatrixModels_0.4-1  bdsmatrix_1.3-3     R.methodsS3_1.7.1  
-## [22] visNetwork_2.0.3    htmlwidgets_1.2     codetools_0.2-15   
-## [25] evaluate_0.10.1     geepack_1.2-1       coxme_2.2-10       
-## [28] knitr_1.20          SparseM_1.77        doParallel_1.0.11  
-## [31] quantreg_5.35       parallel_3.5.0      Rfast_1.9.2        
-## [34] Rcpp_0.12.16        relations_0.6-8     jsonlite_1.5       
-## [37] R.rsp_0.42.0        lme4_1.1-17         digest_0.6.15      
-## [40] stringi_1.1.7       ordinal_2018.4-19   grid_3.5.0         
-## [43] tools_3.5.0         magrittr_1.5        tibble_1.4.2       
-## [46] cluster_2.0.7-1     ucminf_1.1-4        bigmemory.sri_0.1.3
-## [49] bigmemory_4.5.33    pkgconfig_2.0.1     MASS_7.3-49        
-## [52] Matrix_1.2-14       energy_1.7-2        iterators_1.0.9    
-## [55] assertthat_0.2.0    minqa_1.2.4         R6_2.2.2           
-## [58] boot_1.3-20         nnet_7.3-12         nlme_3.1-137       
-## [61] compiler_3.5.0
+##  [1] Rfast2_0.0.2        tidyselect_0.2.5    xfun_0.7           
+##  [4] slam_0.1-45         sets_1.0-18         purrr_0.3.2        
+##  [7] splines_3.6.0       lattice_0.20-38     htmltools_0.3.6    
+## [10] survival_2.44-1.1   rlang_0.3.4         R.oo_1.22.0        
+## [13] nloptr_1.2.1        pillar_1.4.0        glue_1.3.1         
+## [16] R.utils_2.8.0       RcppZiggurat_0.1.5  foreach_1.4.4      
+## [19] R.cache_0.13.0      stringr_1.4.0       MatrixModels_0.4-1 
+## [22] bdsmatrix_1.3-3     R.methodsS3_1.7.1   visNetwork_2.0.6   
+## [25] htmlwidgets_1.3     codetools_0.2-16    evaluate_0.13      
+## [28] geepack_1.2-1       coxme_2.2-10        knitr_1.22         
+## [31] SparseM_1.77        doParallel_1.0.14   parallel_3.6.0     
+## [34] quantreg_5.38       Rfast_1.9.3         Rcpp_1.0.1         
+## [37] relations_0.6-8     jsonlite_1.6        R.rsp_0.43.1       
+## [40] lme4_1.1-21         digest_0.6.18       stringi_1.4.3      
+## [43] ordinal_2019.4-25   numDeriv_2016.8-1   grid_3.6.0         
+## [46] tools_3.6.0         magrittr_1.5        tibble_2.1.1       
+## [49] cluster_2.0.8       ucminf_1.1-4        bigmemory.sri_0.1.3
+## [52] bigmemory_4.5.33    crayon_1.3.4        pkgconfig_2.0.2    
+## [55] MASS_7.3-51.4       Matrix_1.2-17       energy_1.7-5       
+## [58] iterators_1.0.10    assertthat_0.2.1    minqa_1.2.4        
+## [61] R6_2.4.0            boot_1.3-22         nnet_7.3-12        
+## [64] nlme_3.1-139        compiler_3.6.0
 </code></pre>
 
 <h1>References {.unnumbered}</h1>

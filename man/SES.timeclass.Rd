@@ -80,8 +80,9 @@ A matrix reporting all equivalent signatures (one signature for each row). Featu
 The hashObject caching the statistic calculated in the current run.
 }
 \item{pvalues}{
-For each feature included in the dataset, this vector reports the strength of its association with the target in the context of all other variables. Particularly, this vector reports the 
-max p-values foudn when the association of each variable with the target is tested against different conditional sets. Lower values indicate higher association.
+For each feature included in the dataset, this vector reports the strength of its association with the target in the context of all other variables. 
+Particularly, this vector reports the max p-values found when the association of each variable with the target is tested against different conditional sets. 
+Lower values indicate higher association. Note that these are the logged p-values, natural logarithm of the pvalues, and not the p-values.
 }
 \item{stats}{
 The statistics corresponding to "pvalues" (higher values indicates higher association).
@@ -138,7 +139,7 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> Vince
 
 \examples{
 ## assume these are longitudinal data, each column is a variable (or feature)
-dataset <- matrix( rnorm(400 * 100), ncol = 100 ) 
+dataset <- matrix( rnorm(400 * 50), ncol = 50 ) 
 id <- rep(1:80, each = 5)  ## 80 subjects
 reps <- rep( seq(4, 12, by = 2), 80)  ## 5 time points for each subject
 ## dataset contains are the regression coefficients of each subject's values on the 

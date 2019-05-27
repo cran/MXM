@@ -50,7 +50,7 @@ R implementation and documentation: Anna Roumpelaki <anna.roumpelaki@gmail.com>
 \examples{
 # example adjacency matrix
 # simulate a dataset with continuous data
-dataset <- matrix( runif(1000 * 10, 1, 100), nrow = 1000 ) 
+dataset <- matrix( runif(300 * 20, 1, 100), nrow = 300 ) 
 test <- pc.con( dataset, method = "pearson", alpha = 0.05 )$G 
 transitiveClosure(test)
 }

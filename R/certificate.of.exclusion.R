@@ -39,7 +39,7 @@ certificate.of.exclusion <- function(xIndex, sesObject = NULL, mmpcObject = NULL
         names(info[[ i ]])[2:3] <- c("statistic", "p-value")
       } else {
         for ( j in 1:length(pval) ) {
-		  if ( pval[[ j ]][1] == xIndex[i] ) {
+		      if ( pval[[ j ]][1] == xIndex[i] ) {
             d <- length(pval[[ j ]])
             if ( pval[[ j ]][d] > threshold) {
               info[[ i ]] <- c( stat[[ j ]][-1], pval[[ j ]][ d ] )

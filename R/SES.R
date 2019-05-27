@@ -175,7 +175,7 @@ SES <- function(target, dataset, max_k = 3, threshold = 0.05 , test = NULL, ini 
     }
     #available conditional independence tests
     av_tests <- c("testIndFisher", "testIndSpearman", "testIndReg", "testIndRQ", "testIndBeta", "censIndCR", "censIndWR", 
-                  "censIndER", "testIndClogit", "testIndLogistic", "testIndPois", "testIndNB", "testIndBinom", "gSquare", 
+                  "censIndER", "censIndLLR", "testIndClogit", "testIndLogistic", "testIndPois", "testIndNB", "testIndBinom", "gSquare", 
                   "auto", "testIndZIP", "testIndMVreg", "testIndIGreg", "testIndGamma", "testIndNormLog", "testIndTobit", 
                   "testIndQPois", "testdIndQBinom", "testIndMMReg", "testIndMMFisher", "testIndMultinom", "testIndOrdinal", 
                   "testIndSPML", NULL);
@@ -241,6 +241,9 @@ SES <- function(target, dataset, max_k = 3, threshold = 0.05 , test = NULL, ini 
 
       } else if (test == "censIndER") {
         test <- censIndER;
+        
+      } else if (test == "censIndLLR") {
+        test <- censIndLLR;
         
       } else if (test == "testIndClogit") {
         test <- testIndClogit;

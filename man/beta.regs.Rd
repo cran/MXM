@@ -61,7 +61,7 @@ Ferrari S.L.P. and Cribari-Neto F. (2004). Beta Regression for Modelling Rates a
 \author{
  Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
 }
 
 %\note{
@@ -73,10 +73,10 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 
 \examples{
-y <- rbeta(60, 5, 3)
-x <- matrix( rnorm(60 * 10), ncol = 10)
+y <- rbeta(80, 5, 3)
+x <- matrix( rnorm(80 * 7), ncol = 7)
 a1 <- beta.regs(y, x)
-a2 <- perm.betaregs(y, x[, 1:5])
+a2 <- perm.betaregs(y, x[, 1:4], R = 499)
 }
 
 \keyword{ Regression models }

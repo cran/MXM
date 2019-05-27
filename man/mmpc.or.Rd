@@ -92,7 +92,7 @@ Spirtes P., Glymour C. and Scheines R. (2001). Causation, Prediction, and Search
 \author{
 Michail Tsagris
   
-R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> and Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> and Michail Tsagris <mtsagris@uoc.gr>
 }
 
 %\note{
@@ -103,11 +103,11 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> and M
 }
 
 \examples{
-y <- rdag2(1000, p = 20, nei = 3)
+y <- rdag2(500, p = 20, nei = 3)
 ind <- sample(1:20, 20)
 x <- y$x[, ind]
 a1 <- mmpc.or(x, max_k = 3, threshold = 0.01, test = "testIndFisher" ) 
-b <- pc.skel( x, method = "comb.fast", alpha = 0.01 ) 
+b <- pc.skel( x, alpha = 0.01 ) 
 a2 <- pc.or(b)
 }
 

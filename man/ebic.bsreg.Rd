@@ -71,7 +71,7 @@ https://arxiv.org/pdf/1705.10770.pdf
 \author{
 Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
 }
 
 \seealso{
@@ -80,7 +80,7 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 
 \examples{
 #simulate a dataset with continuous data
-dataset <- matrix( runif(100 * 30, 1, 100), ncol = 30 )
+dataset <- matrix( runif(100 * 20, 1, 100), ncol = 20 )
 #define a simulated class variable 
 target <- rt(100, 10)
 

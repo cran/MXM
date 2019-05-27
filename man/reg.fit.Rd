@@ -73,7 +73,7 @@ Almost the same as in \code{\link{CondIndTests}}.
 \author{
  Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
 }
 
 %\note{
@@ -86,7 +86,7 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 
 \examples{
 #simulate a dataset with continuous data
-dataset <- matrix(runif(100 * 10, 1, 100), nrow = 100 ) 
+dataset <- matrix(runif(100 * 5, 1, 100), nrow = 100 ) 
 #the target feature is the last column of the dataset as a vector
 target <- dataset[, 1]
 dataset <- dataset[, -1]

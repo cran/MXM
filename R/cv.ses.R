@@ -328,7 +328,7 @@ ci.mxm <- function(predictions, test_target, theta = NULL) {
   survival::survConcordance(test_target ~ predictions)$concordance
 }
 
-#cindex for weibull and exponential regession
+#cindex for weibull, exponential and log-logistic regession 
 ciwr.mxm <- function(predictions, test_target, theta = NULL) {
   ## Hmisc::rcorr.cens(predictions, test_target)[1];
   1 - survival::survConcordance(test_target ~ predictions)$concordance
@@ -486,9 +486,18 @@ weibreg.mxm <- function(train_target, sign_data, sign_test, wei) {
 ## exponential regression
 exporeg.mxm <- function(train_target, sign_data, sign_test, wei) {
   x <- sign_data
-  sign_model <- survreg(train_target~., data = data.frame(x), dist = "exponential", weights = wei)
+  sign_model <- survreg(train_target~., data = data.frame(x), weights = wei, dist = "exponential")
   x <- sign_test
   x <- model.frame
+  preds <- predict(sign_model, newdata = data.frame(x) )
+  list(preds = preds, theta = NULL)
+}
+
+## weibull regression
+llrreg.mxm <- function(train_target, sign_data, sign_test, wei) {
+  x <- sign_data
+  sign_model <- survival::survreg(train_target~., data = data.frame(x), weights = wei, dist = "loglogistic")
+  x <- sign_test
   preds <- predict(sign_model, newdata = data.frame(x) )
   list(preds = preds, theta = NULL)
 }

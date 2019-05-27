@@ -68,7 +68,7 @@ ebic.nb.bsreg <- function(target, dataset, wei = NULL, gam = NULL) {
       
       i <- 2  
       
-      if ( tool[2] > 0 ) {
+      if ( tool[2] != 0 ) {
         
         while ( tool[i - 1] - tool[i ] > 0  &  NCOL(dat) > 0 )  {   
           

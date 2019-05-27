@@ -2,12 +2,15 @@
 \alias{censIndCR}
 \alias{censIndWR}
 \alias{censIndER}
+\alias{censIndLLR}
 \alias{permCR}
 \alias{permWR}
 \alias{permER}
+\alias{permLLR}
 \alias{waldCR}
 \alias{waldWR}
 \alias{waldER}
+\alias{waldLLR}
 \title{
 Conditional independence test for survival data 
 }
@@ -26,6 +29,9 @@ univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL)
 censIndER(target, dataset, xIndex, csIndex, wei = NULL, 
 univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL)
 
+censIndLLR(target, dataset, xIndex, csIndex, wei = NULL, 
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL)
+
 permCR(target, dataset, xIndex, csIndex, wei = NULL, 
 univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
 threshold = 0.05, R = 999)
@@ -35,6 +41,10 @@ univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL,
 threshold = 0.05, R = 999)
 
 permER(target, dataset, xIndex, csIndex, wei = NULL, 
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
+threshold = 0.05, R = 999)
+
+permLLR(target, dataset, xIndex, csIndex, wei = NULL, 
 univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, 
 threshold = 0.05, R = 999)
 
@@ -53,7 +63,7 @@ univariateModels = NULL, hash = FALSE, stat_hash = NULL, pvalue_hash = NULL)
 A Survival object (class Surv from package survival) containing the time to event data (time) and the status indicator vector (event). View \link{Surv} documentation for more information. 
 }
 \item{dataset}{
-A numeric matrix or data frame, in case of categorical predictors (factors), containing the variables for performing the test. Rows as samples and columns as features. In the cases of "waldCR", "waldWR", "waldER", "waldCR", "permWR" and "permER" this is strictly a matrix. 
+A numeric matrix or data frame, in case of categorical predictors (factors), containing the variables for performing the test. Rows as samples and columns as features. In the cases of "waldCR", "waldWR", "waldER", "waldCR", "permWR", "permER" and "permLLR" this is strictly a matrix. 
 }
 \item{xIndex}{
 The index of the variable whose association with the target we want to test.
@@ -87,9 +97,10 @@ The number of permutations, set to 999 by default. There is a trick to avoind do
 \details{
 The censIndCR implies the Cox (semiparametric) regression, the censIndWR the Weibull (parametric) regression and the censIndER the exponential (parametric) regression, 
 which is a special case of the Weibull regression (when shape parameter is 1). \bold{Note}: When there are observations with zero values (time=0) the Weibull and Exponential
-regressions will not work. Only Cox regression will run.
+regressions will not work. Only Cox regression will run. The censIndLLR is the log-logistic regression. This is a pure AFT model, unlike Weibull which is either a proportional hazards
+model or and AFT.
 
-If hash = TRUE, censIndCR, censIndWR and censIndER require the arguments 'stat_hash' and 'pvalue_hash' for the hash-based implementation of the statistic test. 
+If hash = TRUE, censIndCR, censIndWR, censIndER and censIndLLR require the arguments 'stat_hash' and 'pvalue_hash' for the hash-based implementation of the statistic test. 
 These hash Objects are produced or updated by each run of SES (if hash == TRUE) and they can be reused in order to speed up next runs of the current statistic test. 
 If "SESoutput" is the output of a SES run, then these objects can be retrieved by SESoutput@hashObject$stat_hash and the SESoutput@hashObject$pvalue_hash.
 
@@ -141,12 +152,12 @@ This test uses the functions coxph and Surv of the package survival and the func
 
 \examples{
 #create a survival simulated dataset
-dataset <- matrix(runif(1000 * 20, 1, 100), nrow = 1000 , ncol = 20)
+dataset <- matrix(runif(400 * 20, 1, 100), nrow = 400 , ncol = 20)
 dataset <- as.data.frame(dataset);
-timeToEvent <- numeric(1000)
-event <- numeric(1000)
-ca <- numeric(1000)
-for(i in 1:1000) {
+timeToEvent <- numeric(400)
+event <- numeric(400)
+ca <- numeric(400)
+for(i in 1:400) {
   timeToEvent[i] <- dataset[i, 1] + 0.5 * dataset[i, 10] + 2 * dataset[i, 15] + runif(1, 0, 3);
   event[i] <- sample( c(0, 1), 1)
   ca[i] <- runif(1, 0, timeToEvent[i] - 0.5)
@@ -166,9 +177,3 @@ ses2 <- SES(target, dataset, max_k = 1, threshold = 0.05, test = "censIndWR");
 }
 }
 
-\keyword{ Survival }
-\keyword{ Cox regression }
-\keyword{ Weibull regression }
-\keyword{ exponential regression }
-\keyword{ Log likelihood ratio }
-\keyword{ Conditional independence test }

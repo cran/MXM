@@ -86,7 +86,7 @@ wald.mmpc <- function(target, dataset, max_k = 3, threshold = 0.05, test = NULL,
     }
     #cat("\nConditional independence test used: ");cat(test);cat("\n");
     #available conditional independence tests
-    av_tests = c("waldBeta", "waldCR", "waldWR", "waldER", "waldClogit", "waldLogistic", "waldPois", "waldNB", 
+    av_tests = c("waldBeta", "waldCR", "waldWR", "waldER", "waldLLR", "waldClogit", "waldLogistic", "waldPois", "waldNB", 
                  "waldBinom", "auto", "waldZIP", "waldMMReg", "waldIGreg", "waldOrdinal", "waldGamma", 
 				 "waldNormLog", "waldTobit", "waldQPois", "waldQBinom", NULL);
     ci_test = test
@@ -130,6 +130,9 @@ wald.mmpc <- function(target, dataset, max_k = 3, threshold = 0.05, test = NULL,
       } else if (test == "waldER") {
         test = waldER;
 
+      } else if (test == "waldLLR") {
+        test = waldLLR;
+        
       } else if (test == "waldBinom") {
         test = waldBinom;
         

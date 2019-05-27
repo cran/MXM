@@ -49,14 +49,13 @@ The final model with all selected variables.
 }
 
 \references{
-Borboudakis G. and Tsamardinos I. (2017). Forward-Backward Selection with Early Dropping. 
-https://arxiv.org/pdf/1705.10770.pdf
+Borboudakis G. and Tsamardinos I. (2019). Forward-backward selection with early dropping. Journal of Machine Learning Research, 20(8): 1-39.
 }
 
 \author{
 Michail Tsagris
   
-R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
 }
 
 %\note{
@@ -67,9 +66,9 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 
 \examples{
-dataset <- matrix( runif(100 * 100, 1, 100), ncol = 100 )
+dataset <- matrix( runif(400 * 50, 1, 100), ncol = 50 )
 #define a simulated class variable 
-target <- rt(100, 10)
+target <- rt(400, 10)
 a <- fbed.reg(target, dataset, K = 10, test = "testIndFisher", method = "eBIC") 
 fbedreg.bic(target, dataset, fbedreg.object = a, test = "testIndFisher")
 }

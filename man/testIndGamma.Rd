@@ -117,7 +117,7 @@ McCullagh P., and Nelder J.A. (1989). Generalized linear models.  CRC press, USA
 \author{
 Michail Tsagris
   
-R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
 }
 
 %\note{
@@ -130,14 +130,14 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 
 \examples{
 #simulate a dataset with continuous data
-dataset <- matrix(rnorm(400 * 50, 1, 5), ncol = 50 ) 
+dataset <- matrix( rnorm(200 * 20, 1, 5), ncol = 20 ) 
 #the target feature is the last column of the dataset as a vector
-target <- rgamma(400, 1, 3)
-testIndGamma(target, dataset, xIndex = 24, csIndex = 10)
-testIndNormLog(target, dataset, xIndex = 24, csIndex = 10)
-#run the SES algorithm using the testIndPois conditional independence test
-sesObject <- SES(target, dataset, max_k = 3, threshold = 0.05, test = "testIndGamma");
-sesObject2 <- SES(target, dataset, max_k = 3, threshold = 0.05, test = "testIndNormLog");
+target <- rgamma(200, 1, 3)
+testIndGamma(target, dataset, xIndex = 14, csIndex = 10)
+testIndNormLog(target, dataset, xIndex = 14, csIndex = 10)
+#run the MMPC algorithm using the testIndPois conditional independence test
+m1 <- MMPC(target, dataset, max_k = 3, threshold = 0.05, test = "testIndGamma");
+m2 <- MMPC(target, dataset, max_k = 3, threshold = 0.05, test = "testIndNormLog");
 }
 
 \keyword{ Gamma regression }

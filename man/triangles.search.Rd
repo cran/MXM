@@ -33,7 +33,7 @@ A matrix with thre columns. If there are no triangles, the matrix is empty. If t
 \author{
  Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
 }
 
 %\note{
@@ -46,7 +46,7 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 
 \examples{
 set.seed(123)
-x <- rdag2(1000, p = 30, nei = 5)$x
+x <- rdag2(1000, p = 20, nei = 4)$x
 a <- pc.skel(x, alpha = 0.05)
 plotnetwork(a$G)
 triangles.search(a$G)

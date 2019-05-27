@@ -57,8 +57,7 @@ A matrix with the selected variables and their eBIC.
 }
 
 \references{
-Borboudakis G. and Tsamardinos I. (2017). Forward-Backward Selection with Early Dropping. 
-https://arxiv.org/pdf/1705.10770.pdf
+Borboudakis G. and Tsamardinos I. (2019). Forward-backward selection with early dropping. Journal of Machine Learning Research, 20(8): 1-39.
 
 Eugene Demidenko (2013). Mixed Models: Theory and Applications with R, 2nd Edition. New Jersey: Wiley \& Sons.
 }
@@ -67,7 +66,7 @@ Eugene Demidenko (2013). Mixed Models: Theory and Applications with R, 2nd Editi
 \author{
 Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
 }
 
 \seealso{
@@ -78,10 +77,12 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 \dontrun{
 require(lme4)
 data(sleepstudy)
-attach(sleepstudy)
+reaction <- sleepstudy$Reaction
+days <- sleepstudy$Days
+subject <- sleepstudy$Subject
 x <- matrix(rnorm(180 * 20),ncol = 20) ## unrelated preidctor variables
-m1 <- ebic.glmm.bsreg(Reaction, x, Subject, wei = NULL, gam = NULL, type = "gaussian") 
-m2 <- MMPC.glmm(target = Reaction, group = Subject, dataset = x)
+m1 <- ebic.glmm.bsreg(reaction, x, id = subject) 
+m2 <- MMPC.glmm(reaction, group = subject, dataset = x)
 }
 }
 

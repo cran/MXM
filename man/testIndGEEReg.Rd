@@ -128,7 +128,7 @@ Tsagris, M., Lagani, V., & Tsamardinos, I. (2018). Feature selection for high-di
 \author{
 Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
 }
 
 %\note{
@@ -144,6 +144,6 @@ library("geepack", quietly = TRUE)
 y <- rnorm(150)
 x <- matrix(rnorm(150 * 5), ncol = 5)
 id <- sample(1:20, 150, replace = TRUE)
-testIndGEEReg(y, group=id, dataset=x, xIndex=1, csIndex=3)
+testIndGEEReg(y, group = id, dataset = x, xIndex = 1, csIndex = 3)
 }
 

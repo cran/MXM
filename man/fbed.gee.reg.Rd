@@ -94,8 +94,7 @@ A list where each element refers to a K value. If you run FBEd with method = "LR
 }
 
 \references{
-Borboudakis G. and Tsamardinos I. (2017). Forward-Backward Selection with Early Dropping. 
-https://arxiv.org/pdf/1705.10770.pdf
+Borboudakis G. and Tsamardinos I. (2019). Forward-backward selection with early dropping. Journal of Machine Learning Research, 20(8): 1-39.
   
 Liang  K.Y.  and  Zeger  S.L. (1986). Longitudinal data analysis using generalized linear models. Biometrika, 73(1): 13-22.
 
@@ -117,7 +116,7 @@ Eugene Demidenko (2013). Mixed Models: Theory and Applications with R, 2nd Editi
 \author{
 Michail Tsagris
   
-R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
 }
 
 \seealso{
@@ -128,10 +127,12 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 \dontrun{
 require(lme4)
 data(sleepstudy)
-attach(sleepstudy)
+reaction <- sleepstudy$Reaction
+days <- sleepstudy$Days
+subject <- sleepstudy$Subject
 x <- matrix(rnorm(180 * 20),ncol = 20) ## unrelated preidctor variables
-m1 <- fbed.gee.reg(Reaction, x, Subject) 
-m2 <- fbed.glmm.reg(Reaction, x, Subject, backward = FALSE) 
+m1 <- fbed.gee.reg(reaction, x, subject) 
+m2 <- fbed.glmm.reg(reaction, x, subject, backward = FALSE) 
 }
 }
 

@@ -198,7 +198,9 @@
 \alias{fbed.lr}
 \alias{fbed.ebic}
 \alias{spml.bsreg}
-\alias{spml.reg2}
+\alias{bic.llr.fsreg}
+\alias{ebic.llr.bsreg}
+\alias{llr.bsreg}
 
 \title{ Internal MXM Functions }
 \description{
@@ -404,7 +406,9 @@ Internal functions of Package \pkg{MXM}
 \item fbed.lr( ... )
 \item fbed.ebic( ... )
 \item spml.bsreg( ... )
-\item spml.reg2( ... )
+\item bic.llr.fsreg( ... )
+\item ebic.llr.bsreg( ... )
+\item llr.bsreg( ... )
 
 }
 }

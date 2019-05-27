@@ -1,57 +1,64 @@
-gomp <- function(target, dataset, tol = qchisq(0.95, 1), test = "testIndLogistic", method = "ar2") {
+gomp <- function(target, dataset, xstand = TRUE, tol = qchisq(0.95, 1), test = "testIndLogistic", method = "ar2") {
 
+  if ( xstand )  dataset <- Rfast::standardise(dataset)
+    
   if ( test == "testIndReg" | test == "testIndFisher" ) {
     tic <- proc.time()
-    res <- Rfast::ompr(target, dataset, method = method, tol)
+    res <- Rfast::ompr(target, dataset, xstand = FALSE, method = method, tol = tol)
     runtime <- proc.time() - tic
     result <- list(runtime = runtime, phi = NULL, res = res)
 	
   } else if ( test == "testIndLogistic" ) {
     tic <- proc.time()
-    res <- Rfast::omp(target, dataset, tol, type = "logistic")
+    res <- Rfast::omp(target, dataset, xstand = FALSE, tol, type = "logistic")
     runtime <- proc.time() - tic
     result <- list(runtime = runtime, phi = NULL, res = res$info)
 	
   } else if ( test == "testIndPois" ) {
     tic <- proc.time()
-    res <- Rfast::omp(target, dataset, tol, type = "poisson")
+    res <- Rfast::omp(target, dataset, xstand = FALSE, tol = tol, type = "poisson")
     runtime <- proc.time() - tic
     result <- list(runtime = runtime, phi = NULL, res = res$info)
 	
   } else if ( test == "testIndQPois" ) {
     tic <- proc.time()
-    res <- Rfast::omp(target, dataset, tol, type = "quasipoisson")
+    res <- Rfast::omp(target, dataset, xstand = FALSE, tol = tol, type = "quasipoisson")
     runtime <- proc.time() - tic
     result <- list(runtime = runtime, phi = res$phi, res = res$info)
     
   } else if (test == "testIndMVreg") {	
     tic <- proc.time()
-    res <- Rfast::omp(target, dataset, tol, type = "mv")
+    res <- Rfast::omp(target, dataset, xstand = FALSE, tol = tol, type = "mv")
     runtime <- proc.time() - tic
     result <- list(runtime = runtime, phi = NULL, res = res$info)
 	
   } else if ( test == "testIndQBinom" ) {
     tic <- proc.time()
-    res <- Rfast::omp(target, dataset, tol, type = "quasibinomial")
+    res <- Rfast::omp(target, dataset, xstand = FALSE, tol = tol, type = "quasibinomial")
     runtime <- proc.time() - tic
     result <- list(runtime = runtime, phi = res$phi, res = res$info)
 	
   } else if ( test == "testIndNormLog" ) {
     tic <- proc.time()
-    res <- Rfast::omp(target, dataset, tol, type = "normlog")
+    res <- Rfast::omp(target, dataset, xstand = FALSE, tol = tol, type = "normlog")
     runtime <- proc.time() - tic
     result <- list(runtime = runtime, phi = res$phi, res = res$info)
 	
   } else if ( test == "testIndGamma" ) {
     tic <- proc.time()
-    res <- Rfast::omp(target, dataset, tol, type = "gamma")
+    res <- Rfast::omp(target, dataset, xstand = FALSE, tol = tol, type = "gamma")
+    runtime <- proc.time() - tic
+    result <- list(runtime = runtime, phi = res$phi, res = res$info)
+    
+  } else if ( test == "testIndMultinom" ) {
+    tic <- proc.time()
+    res <- Rfast::omp(target, dataset, xstand = FALSE, tol = tol, type = "multinomial")
     runtime <- proc.time() - tic
     result <- list(runtime = runtime, phi = res$phi, res = res$info)
     
   } else {
     d <- dim(dataset)[2]
     ind <- 1:d
-    dataset <- Rfast::standardise(dataset)
     can <- which( is.na( Rfast::colsums(dataset) ) )
     ind[can] <- 0
 	
@@ -345,7 +352,44 @@ gomp <- function(target, dataset, tol = qchisq(0.95, 1), test = "testIndLogistic
       res <- cbind(c(0, sela[-len]), rho[1:len])
       colnames(res) <- c("Selected Vars", "Deviance") 
       result <- list(runtime = runtime, phi = NULL, res = res)
-    } ##  end if (test == "testIndNB")
+      
+    } else if ( test == "censIndLLR") {
+      tic <- proc.time()
+      mod <- survival::survreg(target ~ 1, dist = "loglogistic")
+      rho <-  - 2 * as.numeric( logLik(mod) ) 
+      res <- resid(mod)
+      ela <- as.vector( cov(res, dataset) )
+      sel <- which.max( abs(ela) )  
+      sela <- sel
+      names(sela) <- NULL
+      mod <- survival::survreg(target ~ dataset[, sela], control = list(iter.max = 5000), dist = "loglogistic" )
+      res <- resid(mod)
+      rho[2] <-  - 2 * as.numeric( logLik(mod) ) 
+      if ( is.na(rho[2]) )  rho[2] <- rho[1]
+      ind[sel] <- 0
+      i <- 2
+      while ( (rho[i - 1] - rho[i]) > tol ) {
+        r <- rep(NA, d)
+        i <- i + 1
+        ##r[ind] <- Rfast::colsums( dataset[, ind, drop = FALSE] * res )
+        r[ind] <- Rfast::eachcol.apply(dataset, res, indices = ind[ind > 0 ], oper = "*", apply = "sum") 
+        sel <- which.max( abs(r) )
+        sela <- c(sela, sel)
+        mod <- try( survival::survreg(target ~ dataset[, sela], control = list(iter.max = 5000), dist = "loglogistic" ), silent = TRUE )
+        if ( identical( class(mod), "try-error" ) ) {
+          rho[i] <- rho[i - 1]
+        } else {  
+          res <- resid(mod)
+          rho[i] <-  - 2 * as.numeric( logLik(mod) ) 
+          ind[sela] <- 0  
+        }  
+      } ## end while ( (rho[i - 1] - rho[i]) > tol )
+      runtime <- proc.time() - tic
+      len <- length(sela)
+      res <- cbind(c(0, sela[-len]), rho[1:len])
+      colnames(res) <- c("Selected Vars", "Deviance") 
+      result <- list(runtime = runtime, phi = NULL, res = res)
+    } ##  end if (test == "censIndWR")
     
   }  ##  end if ( test == "testIndReg" | test == "testIndfisher" ) 
   

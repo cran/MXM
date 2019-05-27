@@ -104,7 +104,7 @@ perm.ses <- function(target, dataset , max_k = 3 , threshold = 0.05 , test = NUL
     }
     
     #available conditional independence tests
-    av_tests = c("permFisher", "permReg", "permRQ", "permBeta", "permCR", "permWR", "permER", "permClogit", 
+    av_tests = c("permFisher", "permReg", "permRQ", "permBeta", "permCR", "permWR", "permER", "permLLR", "permClogit", 
                  "permLogistic", "permPois", "permNB", "permBinom", "permgSquare", "permZIP", "permMVreg", 
                  "permIGreg", "permGamma", "permNormLog", "permTobit", "permDcor", "auto", "permMMReg", 
                  "permMMFisher", "permMultinom", "permOrdinal", NULL);
@@ -167,6 +167,9 @@ perm.ses <- function(target, dataset , max_k = 3 , threshold = 0.05 , test = NUL
         
       }  else if (test == "permER") {
         test = permER;
+        
+      }  else if (test == "permLLR") {
+        test = permLLR;
         
       } else if (test == "permClogit") {
         test = permClogit;

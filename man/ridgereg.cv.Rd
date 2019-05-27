@@ -74,7 +74,7 @@ Tibshirani R.J., and Tibshirani R. (2009). A bias correction for the minimum err
 \author{
  Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
 }
 
 \note{
@@ -87,9 +87,9 @@ The values can be extracted with the $ symbol, i.e. this is an S3 class output.
 
 \examples{
 #simulate a dataset with continuous data
-dataset <- matrix(runif(200 * 50, 1, 100), nrow = 200 ) 
+dataset <- matrix(runif(200 * 40, 1, 100), nrow = 200 ) 
 #the target feature is the last column of the dataset as a vector
-target <- dataset[, 50]
+target <- dataset[, 40]
 a1 <- ridgereg.cv(target, dataset, auto = TRUE)
 a2 <- ridgereg.cv( target, dataset, K = 10, lambda = seq(0, 1, by = 0.1) )
 }

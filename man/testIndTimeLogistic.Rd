@@ -78,7 +78,7 @@ McCullagh, Peter, and John A. Nelder. Generalized linear models.  CRC press, USA
 \author{
 Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
 }
 
 \note{
@@ -91,15 +91,15 @@ This test uses the function multinom (package nnet) for multinomial logistic reg
 
 \examples{
 ## assume these are longitudinal data, each column is a variable (or feature)
-x <- matrix( rnorm(400 * 100), ncol = 100 ) 
+x <- matrix( rnorm(400 * 50), ncol = 50 ) 
 id <- rep(1:80, each = 5)  ## 80 subjects
 reps <- rep( seq(4, 12, by = 2), 80)  ## 5 time points for each subject
 dataset <- group.mvbetas(x, id, reps)
 ## these are the regression coefficients of the first subject's values on the 
 ## reps (which is assumed to be time in this example)
 target <- rbinom(80, 1, 0.5)
-testIndTimeLogistic(target, dataset, xIndex = 1 ,csIndex = 0)
-testIndTimeLogistic(target, dataset, xIndex = 1 ,csIndex = 2)
+testIndTimeLogistic(target, dataset, xIndex = 1, csIndex = 0)
+testIndTimeLogistic(target, dataset, xIndex = 1, csIndex = 2)
 }
 
 \keyword{ Binary logistic regression }

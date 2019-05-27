@@ -50,6 +50,9 @@ test.maker <- function(test) {
   
   } else if (test == "censIndER") {
     test <- censIndER;
+    
+  } else if (test == "censIndLLR") {
+    test <- censIndLLR;
   
   } else if (test == "testIndClogit") {
     test <- testIndClogit;

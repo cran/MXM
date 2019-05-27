@@ -114,7 +114,14 @@ modeler <- function(target,dataset = NULL, test = "testIndFisher") {
     } else if ( test == "censIndWR" ) {
       mod <- survival::survreg(target ~ 1 )
       res <- resid(mod)
-      dev <-  -2 * mod$loglik
+      dev <-  -2 * mod$loglik[2]
+      bic <- dev + 2 * log(n)
+      
+      ## Log-logistic regression
+    } else if ( test == "censIndLLR" ) {
+      mod <- survival::survreg(target ~ 1, dist = "loglogistic" )
+      res <- resid(mod)
+      dev <-  -2 * mod$loglik[2]
       bic <- dev + 2 * log(n)
     }
     
@@ -258,9 +265,23 @@ modeler <- function(target,dataset = NULL, test = "testIndFisher") {
         bic <- NA
       } else {
         res <- resid(mod)
-        dev <-  -2 * mod$loglik
+        dev <-  -2 * mod$loglik[2]
         bic <- dev + (length(mod$coefficients) + 1) * log(n)
-      } 
+      }
+      
+      ## Log-logistic regression
+    } else if ( test == "censIndLLR" ) {
+      mod <- try( survival::survreg(target ~ dataset, dist = "loglogistic" ), silent = TRUE )
+      if ( identical( class(mod), "try-error" ) ) {
+        res <- NA
+        dev <- NA
+        bic <- NA
+      } else {
+        res <- resid(mod)
+        dev <-  -2 * mod$loglik[2]
+        bic <- dev + (length(mod$coefficients) + 1) * log(n)
+      }
+      
     }
     
   } ## end if ( is.null(dataset) )

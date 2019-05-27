@@ -93,10 +93,10 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> Vince
 \examples{
 set.seed(123)
 # simulate a dataset with continuous data
-dataset <- matrix(runif(1000 * 101, 1, 100), nrow = 1000 ) 
+dataset <- matrix(runif(500 * 51, 1, 100), nrow = 500 ) 
 #the target feature is the last column of the dataset as a vector
-target <- dataset[, 101]
-dataset <- dataset[, -101]
+target <- dataset[, 51]
+dataset <- dataset[, -51]
 
 a <- mmpc.path(target, dataset, max_ks = NULL, alphas = NULL, test = NULL, 
 user_test = NULL, ncores = 1)

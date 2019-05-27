@@ -17,10 +17,10 @@ ci.mm <- function(ind1, ind2, cs = NULL, dat, type, rob = FALSE, R = 1) {
       dof1 <- a1[1, 1]
       p1 <- pf(t1, dof1, a1[2, 1], lower.tail = FALSE, log.p = TRUE)
     } else if ( is.ordered(y) ) {
-      mod1 <- ordinal.reg(y ~., data = ds)  ## ordinal regression
-      mod0 <- ordinal.reg(y ~ 1, data = ds)
+      mod1 <- MXM::ordinal.reg(y ~., data = ds)  ## ordinal regression
+      mod0 <- MXM::ordinal.reg(y ~ 1, data = ds)
       t1 <-  mod0$devi - mod1$devi
-      dof1 <- length( mod1$be ) - length( mod0$be )
+      dof1 <- abs( length( mod1$be ) - length( mod0$be ) )
       p1 <- pchisq(t1, dof1, lower.tail = FALSE, log.p = TRUE)
     } else if ( is.factor(y)  &  !is.ordered(y) ) {  ## multinomial regression
       mod1 <- nnet::multinom(y ~., data = ds, trace = FALSE)
@@ -43,10 +43,10 @@ ci.mm <- function(ind1, ind2, cs = NULL, dat, type, rob = FALSE, R = 1) {
       dof2 <- a2[1, 1]
       p2 <- pf(t2, dof2, a2[2, 1], lower.tail = FALSE, log.p = TRUE)
     } else if ( is.ordered(x) ) {
-      mod2 <- ordinal.reg(x ~., data = ds)  ## ordinal regression
-      mod0 <- ordinal.reg(x ~ 1, data = ds)
+      mod2 <- MXM::ordinal.reg(x ~., data = ds)  ## ordinal regression
+      mod0 <- MXM::ordinal.reg(x ~ 1, data = ds)
       t2 <- mod0$devi - mod2$devi
-      dof2 <- length( mod2$be ) - length( mod0$be )
+      dof2 <- abs( length( mod2$be ) - length( mod0$be ) )
       p2 <- pchisq(t2, dof2, lower.tail = FALSE, log.p = TRUE)
     } else if ( is.factor(x)  &  !is.ordered(x) ) {
       mod2 <- nnet::multinom(x ~., data = ds, trace = FALSE)  ## multinomial regression
@@ -60,7 +60,7 @@ ci.mm <- function(ind1, ind2, cs = NULL, dat, type, rob = FALSE, R = 1) {
     ### with conditioning set   
     ds0 <- dat[, cs, drop = FALSE ]
     ds1 <- dat[, c(cs, ind2) ]
-    if ( length( unique(y) ) == 2) { 
+    if ( length( unique(y) ) == 2 ) { 
       mod1 <- glm(y ~., data = ds1, binomial)  ## logistic regression
       mod0 <- glm(y ~., data = ds0, binomial)
       a1 <- anova(mod0, mod1)
@@ -80,10 +80,11 @@ ci.mm <- function(ind1, ind2, cs = NULL, dat, type, rob = FALSE, R = 1) {
         p1 <- pf(t1, dof1, df2, lower.tail = FALSE, log.p = TRUE)
       }  
     } else if ( is.ordered(y) ) {
-      mod1 <- ordinal.reg(y ~., data = ds1)   ## ordinal regression
-      mod0 <- ordinal.reg(y ~., data = ds0 )
+      mod1 <- MXM::ordinal.reg(y ~., data = ds1)   ## ordinal regression
+      mod0 <- MXM::ordinal.reg(y ~., data = ds0)
       t1 <- mod0$devi - mod1$devi
-      dof1 <- length( mod1$be ) - length( mod0$be )
+      if (t1 <0 )  t1 <- 0
+      dof1 <- abs( length( mod1$be ) - length( mod0$be ) )
       p1 <- pchisq(t1, dof1, lower.tail = FALSE, log.p = TRUE)
     } else if ( is.factor(y)  &  !is.ordered(y) ) {
       mod1 <- nnet::multinom(y ~., data = ds1, trace = FALSE)  ## multinomial regression
@@ -113,10 +114,11 @@ ci.mm <- function(ind1, ind2, cs = NULL, dat, type, rob = FALSE, R = 1) {
         p2 <- pf(t2, dof2, df2, lower.tail = FALSE, log.p = TRUE)
       }  
     } else if ( is.ordered(x) ) {
-      mod2 <- ordinal.reg(x ~., data = ds2)  ## ordinal regression
-      mod0 <- ordinal.reg(x ~., data = ds0)
+      mod2 <- MXM::ordinal.reg(x ~., data = ds2)  ## ordinal regression
+      mod0 <- MXM::ordinal.reg(x ~., data = ds0)
       t2 <- mod0$devi - mod2$devi
-      dof2 <- length( mod2$be ) - length( mod0$be )
+      if (t2 <0 )  t2 <- 0
+      dof2 <- abs( length( mod2$be ) - length( mod0$be ) )
       p2 <- pchisq(t2, dof2, lower.tail = FALSE, log.p = TRUE)
     } else if ( is.factor(x)  &  !is.ordered(x) ) {
       mod2 <- nnet::multinom(x ~., data = ds2, trace = FALSE)  ## multinomial regression

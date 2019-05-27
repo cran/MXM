@@ -35,7 +35,7 @@ Proceedings of the 11th Conference on Uncertainty in Artificial Intelligence, Mo
 \author{
 Ioannis Tsamardinos and Michail Tsagris
 
-R implementation and documentation:  Ioannis Tsamardinos <tsamard@csd.uoc.gr> and Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation:  Ioannis Tsamardinos <tsamard@csd.uoc.gr> and Michail Tsagris <mtsagris@uoc.gr>
 }
 
 %\note{
@@ -49,7 +49,7 @@ R implementation and documentation:  Ioannis Tsamardinos <tsamard@csd.uoc.gr> an
 \examples{
 # simulate a dataset with continuous data
 # simulate a dataset with continuous data
-G = rdag(1000, 10, 0.3)$G
+G = rdag(100, 10, 0.3)$G
 G[G == 2] <- 1
 G[G == 3] <- 0
 topological_sort(G)

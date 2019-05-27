@@ -80,7 +80,7 @@ Tsamardinos I., Aliferis C. F. and Statnikov, A. (2003). Time and sample efficie
 \author{
 Michail Tsagris
 
-R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> Michail Tsagris <mtsagris@uoc.gr>
 }
 
 \seealso{
@@ -89,8 +89,8 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> Micha
 
 \examples{
 set.seed(123)
-dataset <- matrix( runif(1000 * 20, 1, 100), ncol = 20 )
-target <- 3 * dataset[, 10] + 2 * dataset[, 15] + 3 * dataset[, 20] + rnorm(1000, 0, 5)
+dataset <- matrix( runif(500 * 20, 1, 100), ncol = 20 )
+target <- 3 * dataset[, 10] + 2 * dataset[, 15] + 3 * dataset[, 20] + rnorm(500, 0, 5)
 
 a1 <- bic.fsreg(target, dataset, tol = 4, ncores = 1, test = "testIndReg" ) 
 a3 <- MMPC(target, dataset, ncores = 1)

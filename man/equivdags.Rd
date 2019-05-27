@@ -43,7 +43,7 @@ Tsamardinos, Brown and Aliferis (2006). The max-min hill-climbing Bayesian netwo
 \author{
  Michail Tsagris
 
-R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> and Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> and Michail Tsagris <mtsagris@uoc.gr>
 }
 
 %\note{

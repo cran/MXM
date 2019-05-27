@@ -25,8 +25,8 @@ mmpc2 <- function(target, dataset, max_k = 3, threshold = 0.05, test = "testIndL
  av_tests = c("testIndReg", "testIndBeta", "censIndCR", "censIndWR", "testIndClogit", "testIndOrdinal",
               "testIndLogistic", "testIndPois", "testIndNB", "testIndBinom", "auto", "testIndZIP", 
               "testIndRQ", "testIndGamma", "testIndNormLog", "testIndTobit", "testIndQPois", "censIndCR", 
-              "censIndWR", "censIndER", "testdIndQBinom", "testIndMMReg", "testIndMultinom", "testIndIGreg", 
-              "testIndSPML", NULL);
+              "censIndWR", "censIndER", "censIndLLR", "testdIndQBinom", "testIndMMReg", "testIndMultinom", 
+              "testIndIGreg", "testIndSPML", NULL);
 
  ci_test <- test
  if (length(test) == 1) {      #avoid vectors, matrices etc
@@ -88,6 +88,9 @@ mmpc2 <- function(target, dataset, max_k = 3, threshold = 0.05, test = "testIndL
      
    } else if (test == "censIndER") {
      test <- censIndER;
+     
+   } else if (test == "censIndLLR") {
+     test <- censIndLLR;
      
    } else if (test == "testIndClogit") {
      test <- testIndClogit;

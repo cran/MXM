@@ -66,7 +66,7 @@ McCullagh P., and Nelder J.A. (1989). Generalized linear models. CRC press, USA,
 \author{
 Michail Tsagris
   
-R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
 }
 
 %\note{
@@ -78,7 +78,7 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 
 \examples{
 ## assume these are longitudinal data, each column is a variable (or feature)
-dataset <- matrix( rnorm(400 * 100), ncol = 100 ) 
+dataset <- matrix( rnorm(400 * 50), ncol = 50 ) 
 id <- rep(1:80, each = 5)  ## 80 subjects
 reps <- rep( seq(4, 12, by = 2), 80)  ## 5 time points for each subject
 ## dataset contains are the regression coefficients of each subject's values on the 

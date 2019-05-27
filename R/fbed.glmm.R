@@ -21,8 +21,8 @@ fbed.glmm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0, te
   sa <- NULL
   pva <- NULL
   
-  ep <- Rfast::check_data(x)
-  if ( sum(ep>0) > 0 )  x[, ep] <- rnorm( n * ep )
+  zevar <- Rfast::check_data(x)
+  if ( sum(zevar > 0) > 0 )  x[, zevar] <- rnorm( n * length( zevar ) )
   
   runtime <- proc.time()
   
@@ -37,6 +37,8 @@ fbed.glmm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0, te
     univ <- list()
     univ$stat <- stat
     univ$pvalue <- pval
+	  univ$stat[zevar] <- 0
+	  univ$pvalue[zevar] <- 0
   } else {
     n.tests <- 0
     stat <- univ$stat
@@ -77,11 +79,11 @@ fbed.glmm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0, te
     card <- sum(sela > 0)
     
     if (K == 1) {
-      for ( i in ind[-sela] )  {
+      for ( i in ind[-c(sela, zevar)] )  {
         fit2 <- lme4::glmer( y ~ x[, c(sela, i)] + (1|id), family = oiko, weights = wei )
         lik2[i] <- logLik( fit2 )
       }
-      n.tests[2] <- length( ind[-sela] )
+      n.tests[2] <- length( ind[-c(sela, zevar)] )
       stat <- 2 * (lik2 - lik1)
       pval <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
       s <- which(pval < sig)

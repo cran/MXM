@@ -124,7 +124,7 @@ Jose Pinheiro Jose and Douglas Bates. Mixed-effects models in S and S-PLUS. Spri
 \author{
 Vincenzo Lagani, Ioannis Tsamardinos, Michail Tsagris and Giorgos Athineou
 
-R implementation and documentation: Giorgos Athineou <athineou@csd.gr>, Vincenzo Lagani <vlagani@csd.uoc.gr> and Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Giorgos Athineou <athineou@csd.gr>, Vincenzo Lagani <vlagani@csd.uoc.gr> and Michail Tsagris <mtsagris@uoc.gr>
 }
 
 %\note{
@@ -139,8 +139,8 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.gr>, Vincenzo
 y <- rnorm(150)
 x <- matrix(rnorm(150 * 5), ncol = 5)
 id <- sample(1:20, 150, replace = TRUE)
-testIndGLMMReg(y, group=id, dataset=x, xIndex=1, csIndex=3)
-testIndLMM(y, group=id, dataset=x, xIndex=1, csIndex=3)
+testIndGLMMReg(y, group = id, dataset = x, xIndex = 1, csIndex = 3)
+testIndLMM(y, group = id, dataset = x, xIndex = 1, csIndex = 3)
 }
 
 \keyword{ Linear mixed model }

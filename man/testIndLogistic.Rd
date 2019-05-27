@@ -126,7 +126,7 @@ McCullagh, Peter, and John A. Nelder. Generalized linear models.  CRC press, USA
 \author{
 Vincenzo Lagani and Ioannis Tsamardinos 
 
-R implementation and documentation: Vincenzo Lagani <vlagani@csd.uoc.gr>, Giorgos Athineou <athineou@csd.uoc.gr> and Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Vincenzo Lagani <vlagani@csd.uoc.gr>, Giorgos Athineou <athineou@csd.uoc.gr> and Michail Tsagris <mtsagris@uoc.gr>
 }
 
 \note{
@@ -138,65 +138,41 @@ This test uses the function multinom (package nnet) for multinomial logistic reg
 }
 
 \examples{
-#require(nnet)
-#require(ordinal)
-
 #simulate a dataset with categorical data 
-dataset_m <- matrix( sample(c(0, 1, 2), 50 * 100, replace = TRUE), ncol = 50)
+dataset_m <- matrix( sample(c(0, 1, 2), 20 * 100, replace = TRUE), ncol = 20)
 #initialize categorical target
-target_m <- dataset_m[, 50]
+target_m <- dataset_m[, 20]
 #remove target from the dataset
-dataset_m <- dataset_m[, -50]
+dataset_m <- dataset_m[, -20]
 
-  #run the conditional independence test for the nominal class variable
-  results_m <- testIndMultinom(target_m, dataset_m, xIndex = 44, csIndex = c(10, 20) )
-  results_m
-
-  #run the SES algorithm using the testIndLogistic conditional independence test 
-  #for the nominal class variable
-  sesObject <- SES(as.factor(target_m), dataset_m, max_k = 3, threshold = 0.05, 
-  test = "testIndMultinom");
-  #print summary of the SES output
-  summary(sesObject);
-  # plot the SES output
-  # plot(sesObject, mode = "all");
-
+#run the conditional independence test for the nominal class variable
+testIndMultinom(target_m, dataset_m, xIndex = 14, csIndex = c(1, 2) )
 
 ########################################################################
-  #run the conditional independence test for the ordinal class variable
-  results_o <- testIndOrdinal( factor(target_m, ordered = TRUE), dataset_m, 
-  xIndex = 44, csIndex = c(10, 20) )
-  results_o
-  
-  #run the SES algorithm using the testIndLogistic conditional independence test 
-  #for the ordinal class variable
-  sesObject <- SES(factor(target_m, ordered=TRUE), dataset_m, max_k = 3 , 
-  threshold = 0.05, test = "testIndOrdinal");
-  #print summary of the SES output
-  summary(sesObject);
-  # plot the SES output
-  # plot(sesObject, mode = "all");
+#run the conditional independence test for the ordinal class variable
+testIndOrdinal( factor(target_m, ordered = TRUE), dataset_m, 
+xIndex = 14, csIndex = c(1, 2) )
 
+#run the SES algorithm using the testIndLogistic conditional independence test 
+#for the ordinal class variable
+sesObject <- SES(factor(target_m, ordered=TRUE), dataset_m, max_k = 3, 
+threshold = 0.05, test = "testIndOrdinal")
 
 ########################################################################
-
 #simulate a dataset with binary data
-dataset_b <- matrix(sample(c(0,1),50 * 60, replace = TRUE), ncol = 50)
+dataset_b <- matrix(sample(c(0,1), 50 * 20, replace = TRUE), ncol = 20)
 #initialize binary target
-target_b <- dataset_b[, 50]
+target_b <- dataset_b[, 20]
 #remove target from the dataset
-dataset_b <- dataset_b[, -50]
+dataset_b <- dataset_b[, -20]
 
-  #run the conditional independence test for the binary class variable
-  results_b <- testIndLogistic( target_b, dataset_b, xIndex = 44, csIndex = c(10, 20) )
-  results_b
-  
-  #run the SES algorithm using the testIndLogistic conditional independence test
-  #for the binary class variable
-  sesObject <- SES(target_b, dataset_b, max_k = 3, threshold = 0.05, 
-  test = "testIndLogistic");
-  #print summary of the SES output
-  summary(sesObject);
+#run the conditional independence test for the binary class variable
+testIndLogistic( target_b, dataset_b, xIndex = 14, csIndex = c(1, 2) )
+
+#run the MMPC algorithm using the testIndLogistic conditional independence test
+#for the binary class variable
+mmpcObject <- MMPC(target_b, dataset_b, max_k = 3, threshold = 0.05, 
+test = "testIndLogistic")
 }
 
 \keyword{ Binary logistic regression }

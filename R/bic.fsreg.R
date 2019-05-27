@@ -47,8 +47,9 @@ bic.fsreg <- function( target, dataset, test = NULL, wei = NULL, tol = 2, ncores
     }  ## end if ( is.null(test) )
     #available conditional independence tests
   }	 ## end if ( is.null(test) )
-    av_models = c("testIndReg", "testIndRQ", "testIndBeta", "censIndCR", "censIndWR", "testIndLogistic", "testIndPois", "testIndNB", 
-                  "testIndZIP", "testIndGamma", "testIndNormLog", "testIndTobit", "testIndMMReg"); 
+    av_models = c("testIndReg", "testIndRQ", "testIndBeta", "censIndCR", "censIndWR", "censIndLLR", 
+                  "testIndLogistic", "testIndPois", "testIndNB", "testIndZIP", "testIndGamma", 
+                  "testIndNormLog", "testIndTobit", "testIndMMReg"); 
   
   dataset <- as.data.frame(dataset)
     
@@ -76,6 +77,9 @@ bic.fsreg <- function( target, dataset, test = NULL, wei = NULL, tol = 2, ncores
   } else if ( test == "censIndWR" ) {
     result <- bic.wr.fsreg(target, dataset, wei = wei, tol = tol, ncores = ncores )
     
+  } else if ( test == "censIndLLR" ) {
+    result <- bic.llr.fsreg(target, dataset, wei = wei, tol = tol, ncores = ncores )
+    
   } else if ( test == "testIndClogit" ) {
     result <- bic.clogit.fsreg(target, dataset, wei = wei, tol = tol, ncores = ncores )
     
@@ -86,9 +90,9 @@ bic.fsreg <- function( target, dataset, test = NULL, wei = NULL, tol = 2, ncores
     if ( test == "censIndCR" ) {
       test <- survival::coxph 
 
-	} else if ( test == "censIndWR" ) {
+	  } else if ( test == "censIndWR" ) {
       test <- survival::survreg 
-
+      
     } else if ( test == "testIndOrdinal" ) {  
       test <- ordinal::clm
   

@@ -57,7 +57,7 @@ Tsamardinos, Brown and Aliferis (2006). The max-min hill-climbing Bayesian netwo
 \author{
  Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
 }
 
 %\note{
@@ -69,18 +69,17 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 
 \examples{
 # simulate a dataset with continuous data
-dataset <- matrix(runif(1000 * 30, 1, 100), nrow = 1000 ) 
+dataset <- matrix(runif(500 * 30, 1, 100), nrow = 500 ) 
 a1 <- mmhc.skel(dataset, max_k = 3, threshold = 0.05, test = "testIndFisher") 
 a2 <- local.mmhc.skel(dataset, 4)
 a1$runtime  
 a2$runtime 
 
-dataset <- rdag2(1000, p = 20, nei = 4)$x
+dataset <- rdag2(500, p = 20, nei = 3)$x
 a1 <- mmhc.skel(dataset, max_k = 3, threshold = 0.05, test = "testIndFisher") 
 a2 <- local.mmhc.skel(dataset, 5)
 a1$runtime  
 a2$runtime 
-
 
 }
 

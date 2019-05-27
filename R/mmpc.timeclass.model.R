@@ -1,8 +1,7 @@
 mmpc.timeclass.model <- function(target, dataset, id, reps, wei = NULL, mmpctimeclass.Object) {
   
   signature <- mmpctimeclass.Object@selectedVars
-  
-  if ( sum( is.na(signature) ) > 0 ) {
+  if ( sum( is.na(signature) ) > 0 | length(signature) == 0 )  {
     mod = paste("No associations were found, hence no model is produced.")
     signature = NULL
 

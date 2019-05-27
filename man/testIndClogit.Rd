@@ -87,7 +87,7 @@ Michell H. Gail, Jay H. Lubin and Lawrence V. Rubinstein (1980). Likelihood calc
 \author{
 Vincenzo Lagani, Ioannis Tsamardinos, Giorgos Athineou and Michail Tsagris
 
-R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr>, Vincenzo Lagani <vlagani@csd.uoc.gr> and Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr>, Vincenzo Lagani <vlagani@csd.uoc.gr> and Michail Tsagris <mtsagris@uoc.gr>
 }
 
 %\note{
@@ -100,22 +100,20 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr>, Vinc
 
 \examples{
 #simulate a dataset with continuous data
-dataset <- matrix(rnorm(200 * 20), nrow = 200 ) 
+dataset <- matrix( rnorm(100 * 7), nrow = 100 ) 
 #the target feature is the last column of the dataset as a vector
-case <- rbinom(200, 1, 0.6)
+case <- rbinom(100, 1, 0.6)
 ina <- which(case == 1)
-ina <- sample(ina, 100)
+ina <- sample(ina, 50)
 case[-ina] = 0 
-id <- rep(1:100, 2)
+id <- rep(1:50, 2)
 target <- cbind(case, id)
 
-results <- testIndClogit(target, dataset, xIndex = 14, csIndex = 20)
+results <- testIndClogit(target, dataset, xIndex = 4, csIndex = 1)
 results
 
 #run the SES algorithm using the testIndClogit conditional independence test
-a <- MMPC(target, dataset, max_k = 3, threshold = 0.05, test = "testIndClogit");
-# print summary of the SES output
-summary(a);
+a <- MMPC(target, dataset, max_k = 3, threshold = 0.01, test = "testIndClogit")
 }
 
 \keyword{ Conditional logistic regression}

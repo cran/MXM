@@ -67,6 +67,14 @@ ebic.model <- function(target, test = NULL, wei = NULL) {
   } else if ( identical(test, censIndWR) ) {  ## Weibull regression
     fit2 <- survival::survreg( target ~ 1, weights = wei )
     ebic <-  - 2 * logLik(fit2) + (length(fit2$coefficients) + 1) * logn 
+    
+  } else if ( identical(test, censIndER) ) {  ## Exponential regression
+    fit2 <- survival::survreg( target ~ 1, weights = wei, dist = "exponential" )
+    ebic <-  - 2 * logLik(fit2) + (length(fit2$coefficients) + 1) * logn 
+    
+  } else if ( identical(test, censIndLLR) ) {  ## Log-logistic regression
+    fit2 <- survival::survreg( target ~ 1, weights = wei, dist = "loglogistic" )
+    ebic <-  - 2 * logLik(fit2) + (length(fit2$coefficients) + 1) * logn 
 
   } else if ( identical(test, testIndTobit) ) {  ## Tobit regression
     fit2 <- survival::survreg( target ~ 1, weights = wei, dist = "gaussian" )
@@ -77,10 +85,6 @@ ebic.model <- function(target, test = NULL, wei = NULL) {
     case <- as.logical(target[, 1]);  ## case 
     fit2 <- survival::clogit( case ~ 1 + strata(subject) ) 
     ebic <- BIC(fit2)
-    
-  } else if ( identical(test, censIndER) ) {  ## Exponential regression
-    fit2 <- survival::survreg( target ~ 1, dist = "exponential", weights = wei )
-    ebic <-  - 2 * logLik(fit2) + (length(fit2$coefficients) + 1) * logn 
     
   }  else  ebic <- NULL
   

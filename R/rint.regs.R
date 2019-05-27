@@ -207,7 +207,7 @@ rint.regs <- function(target, dataset, targetID = -1, id, reps = NULL, tol = 1e-
 #       stat[i] <- b2[3]^2 / seb
 #     }  
 #     univariateModels$stat = stat
-#     univariateModels$pvalue = pf(stat, 1, n - 5, lower.tail = FALSE, log.p = TRUE)
+#     univariateModels$pvalue = pf(stat, 1, n - 4, lower.tail = FALSE, log.p = TRUE)
 #   
 #   }  ## else if ( is.null(reps) )
 #   if ( sum(poia>0) > 0 ) {

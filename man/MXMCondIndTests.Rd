@@ -30,6 +30,8 @@ As for the other tests, they share one thing in common. For all of them, two par
   Strictly positive \tab Mixed \tab testIndGamma \tab Gamma regression \cr 
   Non negative \tab Mixed \tab testIndNormLog \tab Gaussian regression with log link \cr 
   Strictly Positive \tab Mixed \tab censIndWR \tab Weibull regression \cr
+  Strictly Positive \tab Mixed \tab censIndER \tab Exponential regression \cr
+  Strictly Positive \tab Mixed \tab censIndLLR \tab Log-logistic regression \cr
   Successes \& totals \tab Mixed \tab testIndBinom \tab Binomial regression \cr
   Discrete \tab	Mixed \tab testIndPois \tab Poisson regression \cr 
   Discrete \tab	Mixed \tab testIndZIP \tab Zero Inflated \cr 
@@ -51,6 +53,7 @@ As for the other tests, they share one thing in common. For all of them, two par
   Survival	\tab Mixed \tab censIndCR \tab Cox regression \cr
   Survival	\tab Mixed \tab censIndWR \tab Weibull regression \cr
   Survival	\tab Mixed \tab censIndER \tab Exponential regression \cr
+    Survival	\tab Mixed \tab censIndLLR \tab Log-logistic regression \cr
   Left censored	\tab Mixed \tab testIndTobit \tab Tobit regression \cr
   Case-control  \tab Mixed \tab testIndClogit \tab Conditional logistic regression \cr
   Multivariate continuous \tab Mixed \tab testIndMVreg  \tab Multivariate linear regression \cr 
@@ -184,6 +187,7 @@ The available tests for wald.ses and wald.mmpc are listed below. Note, that only
   Survival \tab waldCR \tab Cox regression \cr
   Survival \tab waldWR \tab Weibull regression \cr
   Survival \tab waldER \tab Exponential regression \cr
+  Survival \tab waldLLR \tab Log-logistic regression \cr
 }
 }
 
@@ -220,6 +224,7 @@ The available tests for perm.ses and perm.mmpc are listed below. Note, that only
   Survival	 \tab permCR \tab Cox regression \cr
   Survival	 \tab permWR \tab Weibull regression \cr
   Survival	 \tab permER \tab Exponential regression \cr
+  Survival	 \tab permLLR \tab Log-logistic regression \cr
 }
 }
 
@@ -292,7 +297,7 @@ Ziegler A., Kastner C., Brunner D. and Blettner M. (2000). Familial associations
 }
 
 \author{
-Michail Tsagris <mtsagris@csd.uoc.gr>
+Michail Tsagris <mtsagris@uoc.gr>
 }
 
 \keyword{ Conditional independence tests }

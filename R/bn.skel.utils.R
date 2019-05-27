@@ -11,7 +11,7 @@ bn.skel.utils <- function(mod, G = NULL, roc = TRUE, alpha = 0.01) {
   fdr <- min(1, length(p) / length(sig.p) * max(sig.p) )
   theseis <- which( mod$pvalue < log(alpha), arr.ind = TRUE )
   sig.p <- cbind(theseis, mod$pvalue[theseis])
-  sig.p <- Rfast::sort_mat(sig.p, by.row = TRUE)
+  sig.p <- Rfast::rowSort(sig.p)
   sig.p <- unique(sig.p)
   sig.p <- cbind(sig.p[, 2:3], sig.p[, 1] )
   sig.p <- sig.p[order(sig.p[, 3]), ]

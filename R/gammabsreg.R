@@ -59,7 +59,7 @@ gammabsreg <- function(target, dataset, threshold = 0.05, wei = NULL) {
           mat <- mat[-sel, , drop = FALSE] 
           dat <- dataset[, -sel, drop = FALSE] 
 
-        i <- 1  
+          i <- 1  
         
             while ( info[i, 2] > threshold  &  dim(dat)[2] > 0 )  {   
               i <- i + 1

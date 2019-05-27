@@ -75,7 +75,7 @@ http://mensxmachina.org/site/wp-content/uploads/2018/04/Guide-on-performing-feat
 \author{
 Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
 }
 
 \seealso{
@@ -84,10 +84,9 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 
 \examples{
 set.seed(123)
-dataset <- matrix( runif(100 * 100, 1, 100), ncol = 100 )
-target <- rnorm(100)
+dataset <- matrix( runif(100 * 50, 1, 100), ncol = 50 )
 
-target = rpois(100, 10)
+target <- rpois(100, 10)
 a1 <- iamb(target, dataset, threshold = 0.05, stopping = "BIC", tol = 0, back = "iambbs")
 a2 <- iamb(target, dataset, threshold = 0.05, stopping = "BIC", tol = 0, back = "bs")
 }

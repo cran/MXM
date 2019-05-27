@@ -37,7 +37,7 @@ Li C., & Shepherd B. E. (2012). A new residual for ordinal outcomes. Biometrika,
 \author{
 Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
 }
 
 %\note{
@@ -50,8 +50,8 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 
 \examples{
 library(MASS)
-y <- factor( rbinom(500, 4, 0.6), ordered = TRUE )
-x <- rnorm(500)
+y <- factor( rbinom(400, 3, 0.6), ordered = TRUE )
+x <- rnorm(400)
 mod <- MASS::polr(y ~ x) 
 res <- ord.resid(y, mod$fitted.values)
 }

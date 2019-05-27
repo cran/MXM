@@ -14,6 +14,6 @@ triangles.search <- function(G) {
        }   ## end for (j in 1:length( a[[ i ]]) )  
     }   ## end if ( length( a[[ i ]] > 0 ) )
   }  ## end for (i in 1:n) 
-  trigwna <- Rfast::sort_mat(trigwna, by.row = TRUE)
+  trigwna <- Rfast::rowSort(trigwna)
   unique(trigwna)
 }

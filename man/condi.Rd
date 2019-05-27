@@ -72,7 +72,7 @@ Szekely G.J. and Rizzo M.L. (2013).  Energy statistics: A class of statistics ba
 \author{
 Michail Tsagris
 
-R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> and Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> and Michail Tsagris <mtsagris@uoc.gr>
 }
 %\note{
 %%  ~~further notes~~

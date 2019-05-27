@@ -12,6 +12,7 @@ wine.url <- "ftp://ftp.ics.uci.edu/pub/machine-learning-databases/wine/wine.data
 wine <- read.csv(wine.url,
                  check.names = FALSE,
                  header = FALSE) 
+wine[, 1] <- as.factor(wine[, 1])
 head(wine)
 str(wine)
 colnames(wine) <- c('Type', 'Alcohol', 'Malic', 'Ash', 
@@ -22,7 +23,7 @@ colnames(wine) <- c('Type', 'Alcohol', 'Malic', 'Ash',
 
 ## ------------------------------------------------------------------------
 ### ~ ~ ~ Running MMHC skeleton with MMPC ~ ~ ~ ###
-MmhcSkeleton <- MXM::mmhc.skel(dataset    = wine, 
+MmhcSkeleton <- MXM::mmhc.skel(dataset    = wine[, 1:8], 
                                max_k      = 3, 
                                threshold  = 0.05,
                                test       = NULL,
@@ -59,7 +60,7 @@ MmhcSkeleton$runtime
 
 ## ------------------------------------------------------------------------
 ### ~ ~ ~ Running MMHC skeleton with MMPC ~ ~ ~ ###
-MmhcLocalSkeleton <- MXM::local.mmhc.skel(dataset    = wine, 
+MmhcLocalSkeleton <- MXM::local.mmhc.skel(dataset    = wine[, 1:5], 
                                node       = 1,
                                max_k      = 3, 
                                threshold  = 0.05,
@@ -67,11 +68,11 @@ MmhcLocalSkeleton <- MXM::local.mmhc.skel(dataset    = wine,
 
 ## ------------------------------------------------------------------------
 ### ~ ~ ~ Running MMHC skeleton with MMPC ~ ~ ~ ###
-PcSkeleton <- MXM::pc.skel(dataset    = wine, 
+PcSkeleton <- MXM::pc.skel(dataset    = wine[, 1:8], 
                                method      = "comb.fast" ,
                                alpha       = 0.01,
                                rob       = FALSE,
-                               R   = 2)
+                               R   = 1)
 
 ## ------------------------------------------------------------------------
 head(PcSkeleton$G)
@@ -105,7 +106,7 @@ PcSkeleton$sepset[[1]][1:5,]
 
 ## ---- message==FALSE-----------------------------------------------------
 ### ~ ~ ~  Running FS skeleton  ~ ~ ~ ###
-FSSkeleton <- MXM::corfs.network(x    = as.matrix(wine[,-1]), 
+FSSkeleton <- MXM::corfs.network(x = as.matrix(wine[, -1]), 
                                threshold  = 0.05,
                                symmetry = TRUE,
                                tolb       = 2,

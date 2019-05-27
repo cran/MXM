@@ -38,7 +38,7 @@ This is a computational non parametric (permutation based) correlation coefficie
 
 \value{
 For the case of "permcor" a vector consisting of two values, the Pearson correlation and the permutation based p-value. 
-For the "permcorrels" a vector with three values, the Pearson correlation, the test statistic value and the permutation based p-value.
+For the "permcorrels" a vector with three values, the Pearson correlation, the test statistic value and the permutation based logged p-value.
 }
 
 \references{
@@ -48,7 +48,7 @@ Legendre Pierre (2000). Comparison of permutation methods for the partial correl
 \author{
 Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
 }
 %\note{
 %%  ~~further notes~~
@@ -59,8 +59,8 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 
 \examples{
-MXM::permcor(iris[, 1], iris[, 2], R = 9999)
-x <- matrix(rnorm(50 * 2000), ncol = 2000)
+MXM::permcor(iris[, 1], iris[, 2], R = 999)
+x <- matrix( rnorm(50 * 100), ncol = 100)
 a <- permcorrels(iris[1:50, 1], x)
 }
 

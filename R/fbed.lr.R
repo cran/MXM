@@ -17,9 +17,11 @@ fbed.lr <- function(y, x, alpha = 0.05, univ = NULL, test = NULL, wei = NULL, K 
     stat <- univ$stat
     pval <- univ$pvalue
     n.tests <- p
+    zevar <- which(stat == 0)
   } else {
     stat <- univ$stat
     pval <- univ$pvalue
+    zevar <- which(stat == 0)
     n.tests <- 0
   }  
   s <- which(pval < sig)
@@ -36,7 +38,7 @@ fbed.lr <- function(y, x, alpha = 0.05, univ = NULL, test = NULL, wei = NULL, K 
     pva <- pval[sel]
     #########
     while ( sum(s>0) > 0 ) {
-      mod <- cond.regs(y, x, ind[s], sela, test = test, wei = wei, ncores = 1)
+      mod <- cond.regs(y, x, xIndex = ind[s], csIndex = sela, test = test, wei = wei, ncores = 1)
       n.tests <- n.tests + length( ind[s] ) 
       stat <- mod$stat
       pval <- mod$pvalue
@@ -51,8 +53,8 @@ fbed.lr <- function(y, x, alpha = 0.05, univ = NULL, test = NULL, wei = NULL, K 
     card <- sum(sela > 0)
     
     if (K == 1) {
-      mod <- cond.regs(y, x, ind[-sela], sela, test = test, wei = wei, ncores = 1)
-      n.tests[2] <- length( ind[-sela] )
+      mod <- cond.regs(y, x, xIndex = ind[-c(sela, zevar)], csIndex = sela, test = test, wei = wei, ncores = 1)
+      n.tests[2] <- length( ind[-c(sela, zevar)] )
       stat <- mod$stat
       pval <- mod$pvalue
       s <- which(pval < sig)
@@ -62,7 +64,7 @@ fbed.lr <- function(y, x, alpha = 0.05, univ = NULL, test = NULL, wei = NULL, K 
       sela <- c(sela, sel[sel>0])
       s <- s[ - which(s == sel) ]
       while ( sum(s>0) > 0 ) {
-        mod <- cond.regs(y, x, ind[s], sela, test = test, wei = wei, ncores = 1)
+        mod <- cond.regs(y, x, xIndex = ind[s], csIndex = sela, test = test, wei = wei, ncores = 1)
         n.tests[2] <- n.tests[2] + length( ind[s] )
         stat <- mod$stat
         pval <- mod$pvalue
@@ -78,8 +80,8 @@ fbed.lr <- function(y, x, alpha = 0.05, univ = NULL, test = NULL, wei = NULL, K 
     
     if ( K > 1) {
       
-      mod <- cond.regs(y, x, ind[-sela], sela, test = test, wei = wei, ncores = 1)
-      n.tests[2] <- length( ind[-sela] ) 
+      mod <- cond.regs(y, x, xIndex = ind[-c(sela, zevar)], csIndex = sela, test = test, wei = wei, ncores = 1)
+      n.tests[2] <- length( ind[-c(sela, zevar)] ) 
       stat <- mod$stat
       pval <- mod$pvalue
       s <- which(pval < sig)
@@ -90,7 +92,7 @@ fbed.lr <- function(y, x, alpha = 0.05, univ = NULL, test = NULL, wei = NULL, K 
       s <- s[ - which(s == sel) ]
  
       while ( sum(s > 0) > 0 ) {
-        mod <- cond.regs(y, x, ind[s], sela, test = test, wei = wei, ncores = 1)
+        mod <- cond.regs(y, x, xIndex = ind[s], csIndex = sela, test = test, wei = wei, ncores = 1)
         n.tests[2] <- n.tests[2] + length( ind[s] )  
         stat <- mod$stat
         pval <- mod$pvalue
@@ -106,8 +108,8 @@ fbed.lr <- function(y, x, alpha = 0.05, univ = NULL, test = NULL, wei = NULL, K 
       vim <- 1
       while ( vim < K  & card[vim + 1] - card[vim] > 0 ) {
         vim <- vim + 1
-        mod <- cond.regs(y, x, ind[-sela], sela, test = test, wei = wei, ncores = 1)
-        n.tests[vim + 1] <- length( ind[-sela] )
+        mod <- cond.regs(y, x, xIndex = ind[-c(sela, zevar)], csIndex = sela, test = test, wei = wei, ncores = 1)
+        n.tests[vim + 1] <- length( ind[-c(sela, zevar)] ) 
         stat <- mod$stat
         pval <- mod$pvalue
         s <- which(pval < sig)
@@ -118,7 +120,7 @@ fbed.lr <- function(y, x, alpha = 0.05, univ = NULL, test = NULL, wei = NULL, K 
         s <- s[ - which(s == sel) ]
  
         while ( sum(s > 0) > 0 ) {
-          mod <- cond.regs(y, x, ind[s], sela, test = test, wei = wei, ncores = 1)
+          mod <- cond.regs(y, x, xIndex = ind[s], csIndex = sela, test = test, wei = wei, ncores = 1)
           n.tests[vim + 1] <- n.tests[vim + 1] + length( ind[s] )
           stat <- mod$stat
           pval <- mod$pvalue

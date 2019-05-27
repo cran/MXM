@@ -807,6 +807,59 @@ if ( !is.null(user_test) ) {
     univariateModels$pvalue = mod[, 2]
   }
 
+} else if ( identical(test, permLLR) ) {  ## Log-logistic regression
+  fit1 = survival::survreg(target ~ 1, weights = wei, dist = "loglogistic")
+  lik1 = as.numeric( logLik(fit1) )
+  lik2 = numeric(cols)
+  pval = numeric(cols)
+  
+  if ( ncores <= 1 | is.null(ncores) ) {
+    for ( i in 1:cols ) {
+      fit2 = survival::survreg( target ~ dataset[, i], weights = wei, control = list(iter.max = 5000), dist = "loglogistic" )
+      lik2[i] = as.numeric( logLik(fit2) )
+      step <- 0
+      j <- 1		
+      x <- dataset[, i]
+      while (j <= R & step < thres ) {
+        xb <- sample(x, rows)  
+        bit2 <- survival::survreg( target ~ xb, weights = wei, control = list(iter.max = 5000), dist = "loglogistic" ) 
+        qa <- ( as.numeric( logLik(bit2) ) > lik2[i] )
+        if ( is.na(qa) )  qa <- 0
+        step <- step + qa
+        j <- j + 1
+      }
+      pval[i] <- (step + 1) / (R + 1) 
+    }
+    stat <- 2 * (lik2 - lik1)
+    univariateModels$stat <- stat
+    univariateModels$pvalue <- pval
+    
+  } else {
+    cl <- makePSOCKcluster(ncores)
+    registerDoParallel(cl)
+    mod <- foreach(i = 1:cols, .combine = rbind, .packages = "survival") %dopar% {
+      fit2 <- survival::survreg( target ~ dataset[, i], weights = wei, control = list(iter.max = 5000), dist = "loglogistic" )
+      lik2 <- as.numeric( logLik(fit2) )
+      step <- 0
+      j <- 1		
+      x <- dataset[, i]
+      while (j <= R & step < thres ) {
+        xb <- sample(x, rows)  
+        bit2 <- survival::survreg( target ~ xb, weights = wei, control = list(iter.max = 5000), dist = "loglogistic" ) 
+        qa <- ( as.numeric( logLik(bit2) ) > lik2[i] )
+        if ( is.na(qa) )  qa <- 0
+        step <- step + qa
+        j <- j + 1
+      }
+      pval <- (step + 1) / (R + 1) 
+      return( c(lik2, pval) )
+    }
+    stopCluster(cl)
+    univariateModels$stat <- 2 * (mod[, 1] - lik1) 
+    univariateModels$pvalue <- mod[, 2]
+  }
+  
+  
 } else if ( identical(test, permTobit) ) {  ## Tobit regression
   fit1 = survival::survreg(target ~ 1, weights = wei, dist = "gaussian")
   lik1 = as.numeric( logLik(fit1) )
@@ -958,8 +1011,7 @@ if ( !is.null(user_test) ) {
   }
   
 } else   univariateModels <- NULL
-  
-  
+   
   if ( !is.null(univariateModels) )  {
     univariateModels$pvalue <- log( univariateModels$pvalue )
     if (targetID != - 1) {

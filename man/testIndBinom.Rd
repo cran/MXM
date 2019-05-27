@@ -92,7 +92,7 @@ McCullagh P., and Nelder J.A. (1989). Generalized linear models.  CRC press, USA
 \author{
 Vincenzo Lagani, Ioannis Tsamardinos, Giorgos Athineou and Michail Tsagris.
   
-R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr>, Vincenzo Lagani <vlagani@csd.uoc.gr> and Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr>, Vincenzo Lagani <vlagani@csd.uoc.gr> and Michail Tsagris <mtsagris@uoc.gr>
 }
 
 %\note{
@@ -105,17 +105,15 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr>, Vinc
 
 \examples{
 #simulate a dataset with continuous data
-dataset <- matrix(runif(400 * 50, 1, 50), ncol = 50 ) 
+dataset <- matrix(runif(200 * 20, 1, 50), ncol = 20 ) 
 #the target feature is the last column of the dataset as a vector
-y <- rbinom(400, 10, 0.6)
-N <- sample(11:20, 400, replace = TRUE)
+y <- rbinom(200, 10, 0.6)
+N <- sample(11:20, 200, replace = TRUE)
 target <- cbind(y, N)
-results <- testIndBinom(target, dataset, xIndex = 24, csIndex = 10)
-results
+testIndBinom(target, dataset, xIndex = 14, csIndex = 10)
 
-#run the SES algorithm using the testIndPois conditional independence test
-a1 <- SES(target, dataset, max_k = 3, threshold = 0.05, test = "testIndBinom");
-a2 <- MMPC(target, dataset, max_k = 3, threshold = 0.05, test = "testIndBinom");
+#run the MMPC algorithm using the testIndPois conditional independence test
+a <- MMPC(target, dataset, max_k = 3, threshold = 0.05, test = "testIndBinom")
 }
 
 \keyword{ Binomial logistic regression }

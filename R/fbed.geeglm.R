@@ -11,9 +11,9 @@ fbed.geeglm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0, 
   sa <- NULL
   pva <- NULL
   
-  ep <- Rfast::check_data(x)
-  if ( sum(ep>0) > 0 )  x[, ep] <- rnorm( n * ep )
-  
+  zevar <- Rfast::check_data(x)
+  if ( sum( zevar > 0 ) > 0 )  x[, zevar] <- rnorm( n * length(zevar) )
+
   if ( test == "testIndGEELogistic" ) {
     oiko <- binomial(logit)
   } else if ( test == "testIndGEEPois" ) {
@@ -36,6 +36,8 @@ fbed.geeglm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0, 
     univ <- list()
     univ$stat <- stat
     univ$pvalue <- pval
+    univ$stat[zevar] <- 0
+    univ$pvalue[zevar] <- 0
   } else {
     n.tests <- 0
     stat <- univ$stat
@@ -76,7 +78,7 @@ fbed.geeglm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0, 
     card <- sum(sela > 0)
     
     if (K == 1) {
-      for ( i in ind[-sela] )  {
+      for ( i in ind[-c(sela, zevar)] )  {
         fit2 <- try( geepack::geeglm( y ~ x[, sela] + x[, i], family = oiko, id = id, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
         if ( identical( class(fit2), "try-error" ) ) {
           stat[i] <- 0
@@ -86,7 +88,7 @@ fbed.geeglm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0, 
           stat[i] <- mod[nr, 2]
         } 
       }
-      n.tests[2] <- length( ind[-sela] )
+      n.tests[2] <- length( ind[-c(sela, zevar)] ) 
       pval <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
       s <- which(pval < sig)
       sel <- which.min(pval) * ( length(s)>0 )
@@ -121,7 +123,7 @@ fbed.geeglm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0, 
     
     if ( K > 1) {
       
-      for ( i in ind[-sela] )  {
+      for ( i in ind[-c(sela, zevar)] )  {
         fit2 <- try( geepack::geeglm( y ~ x[, sela] + x[, i], family = oiko, id = id, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
         if ( identical( class(fit2), "try-error" ) ) {
           stat[i] <- 0
@@ -131,7 +133,7 @@ fbed.geeglm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0, 
           stat[i] <- mod[nr, 2]
         } 
       }
-      n.tests[2] <- length( ind[-sela] )
+      n.tests[2] <- length( ind[-c(sela, zevar)] )
       pval <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
       s <- which(pval < sig)
       sel <- which.min(pval) * ( length(s)>0 )
@@ -167,7 +169,7 @@ fbed.geeglm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0, 
       vim <- 1
       while ( vim < K  & card[vim + 1] - card[vim] > 0 ) {
         vim <- vim + 1
-        for ( i in ind[-sela] )  {
+        for ( i in ind[-c(sela, zevar)] )  {
           fit2 <- try( geepack::geeglm( y ~ x[, sela] + x[, i], family = oiko, id = id, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
           if ( !identical( class(fit2), "try-error" ) ) {
             stat[i] <- 0
@@ -177,7 +179,7 @@ fbed.geeglm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0, 
             stat[i] <- mod[nr, 2]
           } 
         }
-        n.tests[vim + 1] <- length( ind[-sela] )
+        n.tests[vim + 1] <- length( ind[-c(sela ,zevar)] )
         pval <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
         s <- which(pval < sig)
         sel <- which.min(pval) * ( length(s)>0 )

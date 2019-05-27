@@ -20,8 +20,8 @@ ebic.bsreg <- function(target, dataset, test = NULL, wei = NULL, gam = NULL) {
     }
   }
   
-  id <- Rfast::check_data(dataset)
-  if ( sum(id>0) > 0 )  dataset[, id] <- rnorm( dim(dataset)[1] * length(id) )
+  zevar <- Rfast::check_data(dataset)
+  if ( sum( zevar > 0 ) > 0 )  dataset[, zevar] <- rnorm( dim(dataset)[1] * length(zevar) )
   dataset <- as.data.frame(dataset)
   
   if (test == "testIndReg") {
@@ -53,6 +53,9 @@ ebic.bsreg <- function(target, dataset, test = NULL, wei = NULL, gam = NULL) {
   
   } else if (test == "censIndWR") {
     result <- ebic.wr.bsreg(target, dataset, gam = gam, wei = wei)
+    
+  } else if (test == "censIndLLR") {
+    result <- ebic.llr.bsreg(target, dataset, gam = gam, wei = wei)
   
   } else if (test == "testIndBeta") {
     result <- ebic.beta.bsreg(target, dataset, gam = gam, wei = wei)

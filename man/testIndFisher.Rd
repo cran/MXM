@@ -155,21 +155,18 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> Vince
 
 \examples{
 #simulate a dataset with continuous data
-dataset <- matrix(runif(1000 * 200, 1, 1000), nrow = 1000 )
+dataset <- matrix(runif(300 * 50, 1, 1000), nrow = 50 )
 #the target feature is the last column of the dataset as a vector
-target <- dataset[, 200]
-res1 <- testIndFisher(target, dataset, xIndex = 44, csIndex = 100)
-res2 <- testIndSpearman(target, dataset, xIndex = 44, csIndex = 100)
-res3 <- permFisher(target, dataset, xIndex = 44, csIndex = 100, R = 999)
-res4 <- permDcor(target, dataset, xIndex = 44, csIndex = 100, R = 99)
+target <- dataset[, 50]
+res1 <- testIndFisher(target, dataset, xIndex = 44, csIndex = 10)
+res2 <- testIndSpearman(target, dataset, xIndex = 44, csIndex = 10)
+res3 <- permFisher(target, dataset, xIndex = 44, csIndex = 10, R = 999)
+res4 <- permDcor(target, dataset, xIndex = 44, csIndex = 10, R = 99)
 
 #define class variable (here tha last column of the dataset)
-dataset <- dataset[, -200];
-#run the SES algorithm using the testIndFisher conditional independence test
-sesObject <- SES(target, dataset, max_k = 3, threshold = 0.05, test = "testIndFisher");
-
-#print summary of the SES output
-summary(sesObject);
+dataset <- dataset[, -50]
+#run the MMPC algorithm using the testIndFisher conditional independence test
+mmpcObject <- MMPC(target, dataset, max_k = 3, threshold = 0.05, test = "testIndFisher")
 }
 
 \keyword{ Fisher's Test}

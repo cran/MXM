@@ -41,7 +41,7 @@ Brown P. J. (1994). Measurement, Regression and Calibration. Oxford Science Publ
 \author{
  Michail Tsagris
 
-R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr>, Vincenzo Lagani <vlagani@csd.uoc.gr> and Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr>, Vincenzo Lagani <vlagani@csd.uoc.gr> and Michail Tsagris <mtsagris@uoc.gr>
 }
 
 %\note{
@@ -55,7 +55,7 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr>, Vinc
 
 \examples{
 #simulate a dataset with continuous data
-dataset <- matrix(runif(300 * 20, 1, 20), nrow = 300 ) 
+dataset <- matrix( runif(300 * 20, 1, 20), nrow = 300 ) 
 #the target feature is the last column of the dataset as a vector
 target <- dataset[, 20]
 dataset <- dataset[, -20]

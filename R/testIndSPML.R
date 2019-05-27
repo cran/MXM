@@ -81,7 +81,7 @@ testIndSPML = function(target, dataset, xIndex, csIndex, wei = NULL, univariateM
           y <- ( atan(target[, 2]/target[, 1]) + pi * I(target[, 1] < 0) ) %% (2 * pi)
           fit1 <- Rfast::spml.mle(y)
         } else  fit1 <- Rfast::spml.mle(target)
-        fit2 <- try( spml.reg2(target, x), silent = TRUE)
+        fit2 <- try( Rfast::spml.reg(target, x), silent = TRUE)
         if ( identical( class(fit2), "try-error" ) )  {
           pvalue <- log(1)
           stat <- 0
@@ -90,8 +90,8 @@ testIndSPML = function(target, dataset, xIndex, csIndex, wei = NULL, univariateM
           pvalue <- pchisq(stat, 2, lower.tail = FALSE, log.p = TRUE)
         }  
       } else {
-        fit1 <- try( spml.reg2(target, cs), silent = TRUE)
-        fit2 <- try( spml.reg2( target, dataset[, c(csIndex, xIndex)] ), silent = TRUE)
+        fit1 <- try( Rfast::spml.reg(target, cs), silent = TRUE)
+        fit2 <- try( Rfast::spml.reg( target, dataset[, c(csIndex, xIndex)] ), silent = TRUE)
         if ( identical( class(fit1), "try-error" )  |  identical( class(fit2), "try-error" ) )  {
           pvalue <- log(1)
           stat <- 0

@@ -57,14 +57,14 @@ Spirtes P.,  Glymour C. and Scheines R. (2001). Causation, Prediction, and Searc
 Zhang, Jiji. (2008). On the completeness of orientation rules for causal discovery in the presence of latent confounders and selection bias. 
 Artificial Intelligence 172(16): 1873--1896.
 
-Tsagris M. Bayesian network learning with the PC algorithm: an improved and correct variation. 
-Applied Artificial Intelligence (Accepted for publication).
+Tsagris M. (2019). Bayesian network learning with the PC algorithm: an improved and correct variation. 
+Applied Artificial Intelligence 33(2): 101-123.
 }
 
 \author{
  Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
 }
 
 %\note{

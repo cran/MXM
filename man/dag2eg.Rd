@@ -39,7 +39,7 @@ Chickering, D.M. (1995). A transformational characterization of equivalent Bayes
 \author{
 Ioannis Tsamardinos and Michail Tsagris
 
-R implementation and documentation: Ioannis Tsamardinos <tsamard@csd.uoc.gr> and  and Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Ioannis Tsamardinos <tsamard@csd.uoc.gr> and  and Michail Tsagris <mtsagris@uoc.gr>
 }
 
 %\note{
@@ -52,10 +52,9 @@ R implementation and documentation: Ioannis Tsamardinos <tsamard@csd.uoc.gr> and
 
 \examples{
 # simulate a dataset with continuous data
-# simulate a dataset with continuous data
-y = rdag(1000, 10, 0.3)
-tru = y$G 
-eg = dag2eg(tru)
+y <- rdag(1000, 10, 0.3)
+tru <- y$G 
+eg <- dag2eg(tru)
 par( mfrow = c(1, 2) )
 plotnetwork(tru)
 plotnetwork(eg)

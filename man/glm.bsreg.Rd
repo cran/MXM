@@ -68,7 +68,7 @@ The final regression model.
 \author{
 Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
 }
 
 \seealso{
@@ -79,16 +79,16 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 set.seed(123)
 
 #simulate a dataset with continuous data
-dataset <- matrix( runif(100 * 10, 1, 100), ncol = 10 )
+dataset <- matrix( runif(200 * 10, 1, 100), ncol = 10 )
 
 #define a simulated class variable 
-target <- rpois(100, 10)
+target <- rpois(200, 10)
 a <- glm.bsreg(target, dataset, threshold = 0.05) 
 
-target <- rbinom(100, 1, 0.6)
+target <- rbinom(200, 1, 0.6)
 b <- glm.bsreg(target, dataset, threshold = 0.05)
 
-target <- rgamma(100, 1, 2)
+target <- rgamma(200, 1, 2)
 b1 <- gammabsreg(target, dataset, threshold = 0.05)
 b2 <- normlog.bsreg(target, dataset, threshold = 0.05)
 }

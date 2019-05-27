@@ -210,7 +210,7 @@ Eugene Demidenko (2013). Mixed Models: Theory and Applications with R, 2nd Editi
 \author{
  Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
 }
 
 %\note{
@@ -227,8 +227,8 @@ ind <- sample(1:20, 20)
 x <- y$x[, ind]
 a <- mmhc.skel(x, max_k = 3, threshold = 0.05, test = "testIndFisher" ) 
 b <- pc.skel( x, method = "pearson", alpha = 0.05 ) 
-a$runtime ## 
-b$runtime ## 
+a$runtime  
+b$runtime  
 
 }
 

@@ -113,7 +113,7 @@ Pinheiro J. and D. Bates. Mixed-effects models in S and S-PLUS. Springer Science
 \author{
  Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
 }
 
 %\note{
@@ -127,11 +127,13 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 \dontrun{
 require(lme4)
 data(sleepstudy)
-attach(sleepstudy)
-x <- matrix(rnorm(180 * 100),ncol = 100) ## unrelated predictor variables
-m1 <- SES.glmm(Reaction, Days, Subject, x)
-m2 <- MMPC.glmm(Reaction, Days, Subject, x)
-mod <- mmpc.glmm.model(target, dataset = x, reps = Days, group = Subject, slopes = FALSE, 
+reaction <- sleepstudy$Reaction
+days <- sleepstudy$Days
+subject <- sleepstudy$Subject
+x <- matrix(rnorm(180 * 50),ncol = 50) ## unrelated predictor variables
+m1 <- SES.glmm(reaction, days, subject, x)
+m2 <- MMPC.glmm(reaction, days, subject, x)
+mod <- mmpc.glmm.model(reaction, dataset = x, reps = days, group = subject, slopes = FALSE, 
 mmpcglmm.Object = m2) 
 }
 }

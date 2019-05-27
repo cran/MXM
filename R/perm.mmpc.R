@@ -103,7 +103,7 @@ perm.mmpc <- function(target, dataset, max_k = 3, threshold = 0.05, test = NULL,
       } else   stop('Target must be a factor, vector, matrix with at least 2 columns column or a Surv object');
     }
     #available conditional independence tests
-    av_tests = c("permFisher", "permReg", "permRQ", "permBeta", "permCR", "permWR", "permER", "permClogit", 
+    av_tests = c("permFisher", "permReg", "permRQ", "permBeta", "permCR", "permWR", "permER", "permLLR", "permClogit", 
                  "permLogistic", "permPois", "permNB", "permBinom", "permgSquare", "permZIP", "permMVreg", 
                  "permIGreg", "permGamma", "permNormLog", "permTobit", "permDcor", "auto", "permMMReg", 
                  "permMMFisher", "permMultinom", "permOrdinal", NULL);
@@ -165,6 +165,9 @@ perm.mmpc <- function(target, dataset, max_k = 3, threshold = 0.05, test = NULL,
         
       }  else if (test == "permER") {
         test = permER;
+        
+      }  else if (test == "permLLR") {
+        test = permLLR;
         
       } else if (test == "permClogit") {
         test = permClogit;

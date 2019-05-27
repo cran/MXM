@@ -30,9 +30,9 @@ The index or indices of the variable(s) to condition on. If this is 0, the the f
 In case the method is chosen to be "eBIC" one can also specify the \eqn{gamma} parameter. The default value is "NULL", so that the value is automatically calculated.
 }
 \item{test}{
-For the "cond.regs" one of the following: \bold{testIndBeta}, \bold{testIndReg}, \bold{testIndLogistic}, \bold{testIndOrdinal}, 
+One of the following: \bold{testIndBeta}, \bold{testIndReg}, \bold{testIndLogistic}, \bold{testIndOrdinal}, 
 \bold{testIndPois}, \bold{testIndZIP}, \bold{testIndNB}, \bold{testIndClogit}, \bold{testIndBinom}, \bold{testIndIGreg}, 
-\bold{censIndCR}, \bold{censIndWR}, \bold{censIndER}, \bold{testIndMultinom}, \bold{testIndTobit}, \bold{testIndGamma} or 
+\bold{censIndCR}, \bold{censIndWR}, \bold{censIndER}, \bold{censIndLLR} \bold{testIndMultinom}, \bold{testIndTobit}, \bold{testIndGamma} or 
 \bold{testIndNormLog}. 
 
 Note that in all cases you must give the name of the test, without " ". 
@@ -72,7 +72,7 @@ McCullagh, Peter, and John A. Nelder. Generalized linear models.  CRC press, USA
 \author{
  Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
 }
 
 %\note{
@@ -84,8 +84,8 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 
 \examples{
-y <- rpois(50, 15)
-x <- matrix( rnorm(50 * 10), ncol = 10)
+y <- rpois(100, 15)
+x <- matrix( rnorm(100 * 10), ncol = 10)
 a1 <- univregs(y, x, test = testIndPois)
 a2 <- perm.univregs(y, x, test = permPois)
 a3 <- wald.univregs(y, x, test = waldPois)

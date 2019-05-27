@@ -71,7 +71,7 @@ The final regression model.
 \author{
 Michail Tsagris
 
-R implementation and documentation: Giorgos Aathineou <athineou@csd.uoc.gr> Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Giorgos Aathineou <athineou@csd.uoc.gr> Michail Tsagris <mtsagris@uoc.gr>
 }
 
 \seealso{
@@ -80,8 +80,8 @@ R implementation and documentation: Giorgos Aathineou <athineou@csd.uoc.gr> Mich
 
 \examples{
 set.seed(123)
-dataset <- matrix( runif(1000 * 50, 1, 100), ncol = 50 )
-target <- 3 * dataset[, 10] + 2 * dataset[, 20] + 3 * dataset[, 30] + rnorm(1000, 0, 5)
+dataset <- matrix( runif(500 * 50, 1, 100), ncol = 50 )
+target <- 3 * dataset[, 10] + 2 * dataset[, 20] + 3 * dataset[, 30] + rnorm(500, 0, 5)
 a1 <- bic.glm.fsreg(target, dataset, tol = 2, ncores = 1 ) 
 a2 <- bic.glm.fsreg( round(target), dataset, tol = 2, ncores = 1 ) 
 y <- target   ;   me <- median(target)  ;   y[ y < me ] <- 0   ;   y[ y >= me ] <- 1

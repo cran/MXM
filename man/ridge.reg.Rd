@@ -57,7 +57,7 @@ Brown P. J. (1994). Measurement, Regression and Calibration. Oxford Science Publ
 \author{
  Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
 }
 
 %\note{
@@ -70,11 +70,10 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 
 \examples{
 #simulate a dataset with continuous data
-dataset <- matrix(runif(100 * 50, 1, 100), nrow = 100 ) 
+dataset <- matrix(runif(100 * 30, 1, 100), nrow = 100 ) 
 #the target feature is the last column of the dataset as a vector
 target <- dataset[, 10]
 dataset <- dataset[, -10]
-a0 <- ridge.reg(target, dataset, lambda = 0, B = 1, newdata = NULL)
 a1 <- ridge.reg(target, dataset, lambda = 0.5, B = 1, newdata = NULL)
 a2 <- ridge.reg(target, dataset, lambda = 0.5, B = 100, newdata = NULL) 
 }

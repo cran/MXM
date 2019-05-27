@@ -180,10 +180,12 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> Vince
 \dontrun{
 require(lme4)
 data(sleepstudy)
-attach(sleepstudy)
-x <- matrix(rnorm(180 * 100),ncol = 100) ## unrelated preidctor variables
-m1 <- SES.glmm(Reaction, Days, Subject, x)
-m2 <- MMPC.glmm(Reaction, Days, Subject, x)
+reaction <- sleepstudy$Reaction
+days <- sleepstudy$Days
+subject <- sleepstudy$Subject
+x <- matrix(rnorm(180 * 100), ncol = 100) ## unrelated predictor variables
+m1 <- mmpc.glmm2(reaction, days, subject, x)
+m2 <- MMPC.glmm(reaction, days, subject, x)
 }
 }
 

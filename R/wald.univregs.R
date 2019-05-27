@@ -273,6 +273,29 @@ wald.univregs <- function(target, dataset, targetID = - 1, test = NULL, user_tes
       univariateModels$pvalue = pchisq(mod, 1, lower.tail = FALSE, log.p = TRUE)
     }
     
+  } else if ( identical(test, waldLLR) ) {  ## Log-logistic regression
+    
+    if ( ncores <= 1 | is.null(ncores) ) {
+      stat = numeric(cols)
+      for ( i in 1:cols ) {
+        fit = survival::survreg( target ~ dataset[, i], weights = wei, control = list(iter.max = 5000), dist = "loglogistic" )
+        stat[i] = summary(fit)[[ 9 ]][2, 3]^2
+      }
+      univariateModels$stat = stat
+      univariateModels$pvalue = pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
+      
+    } else {
+      cl <- makePSOCKcluster(ncores)
+      registerDoParallel(cl)
+      mod <- foreach(i = 1:cols, .combine = rbind, .packages = "survival") %dopar% {
+        fit = survival::survreg( target ~ dataset[, i], weights = wei, control = list(iter.max = 5000), dist = "loglogistic" )
+        return( summary(fit)[[ 9 ]][2, 3]^2 )
+      }
+      stopCluster(cl)
+      univariateModels$stat = mod
+      univariateModels$pvalue = pchisq(mod, 1, lower.tail = FALSE, log.p = TRUE)
+    }
+    
   } else if ( identical(test, waldTobit) ) {  ## Tobit regression
     
     if ( ncores <= 1 | is.null(ncores) ) {

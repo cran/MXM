@@ -51,7 +51,7 @@ bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
     }
   }
    
-  av_models = c("testIndReg", "testIndMMReg", "testIndBeta", "censIndCR", "testIndRQ", "censIndWR", 
+  av_models = c("testIndReg", "testIndMMReg", "testIndBeta", "censIndCR", "censIndWR", "censIndLLR", "testIndRQ",
                 "testIndLogistic", "testIndPois", "testIndNB", "testIndZIP", "testIndBinom", "testIndGamma", 
                 "testIndNormLog", "testIndTobit", "testIndClogit", "testIndFisher", "testIndQPois", 
                 "testIndQBinom", "testIndMultinom", "testIndOrdinal")
@@ -94,8 +94,11 @@ bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
 	  } else if ( test == "gSquare" ) {
 	    res <- bs.g2(target, dataset, threshold = exp( threshold ) )
 	    
-	  } else if ( test == "testIndClogit" ) {
+	  } else if ( test == "testIndSPML" ) {
 	    res <- spml.bsreg(target = target, dataset = dataset, threshold = exp( threshold ) ) 	
+	    
+	  } else if ( test == "censIndLLR" ) {
+	    res <- llr.bsreg(target = target, dataset = dataset, threshold = exp( threshold ) ) 	
 	    
     } else {
 	   
@@ -104,7 +107,7 @@ bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
 
 	  } else if ( test == "censIndWR" ) {
       test <- survival::survreg 
-
+      
     } else if ( test == "testIndOrdinal" ) {
       test <- ordinal::clm
 
@@ -155,9 +158,10 @@ bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
         info[1, ] <- mat[sel, ]
         mat <- mat[-sel, , drop = FALSE] 
         dat <- dataset[, -sel, drop = FALSE] 
-
+        final <- "No variables were selected"
+		
         i <- 1  
-
+         
          while ( info[i, 2] > threshold  &  dim(dat)[2] > 0 )  {   
 
            ini <- test( target ~., data = dat, weights = wei )
@@ -208,17 +212,18 @@ bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
                dat <- dataset[, -info[, 1], drop = FALSE ]
              }
  
-           }
-         }
+           }  ##  end if ( k == 1 ) 
+         }  ##  end while ( info[i, 2] > threshold  &  dim(dat)[2] > 0 ) 
+		 
         runtime <- proc.time() - tic
         info <- info[ info[, 1] > 0, , drop = FALSE]
         colnames(mat) <- c("Variables", "log.p-values", "statistic")
         res <- list(runtime = runtime, info = info, mat = mat, ci_test = ci_test, final = final ) 
 
-      }  
-    }
+      }  ##  end if ( mat[sel, 2] < threshold )  else 
+    }  ## end if test ==
     
-  }
+  }  ## end if ( p > n ) else
   
   res
 }  

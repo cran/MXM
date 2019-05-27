@@ -22,9 +22,7 @@ ordinal.reg <- function(formula, data) {
   } else {
     yd <- model.matrix( ~ y - 1)
     y <- as.numeric(y)
-    dm <- dim(x)  
-    n <- dm[1]
-    m <- dm[2]
+    m <- dim(x)[2]
     b <- matrix(0, m, k - 1)
     options(warn = -1)  
     for (i in 1:(k - 1) ) {
@@ -33,7 +31,10 @@ ordinal.reg <- function(formula, data) {
       y1[ y > i ] <- 1
       b[, i] <-  - glm.fit(x, y1, family = binomial(logit) )$coefficients 
     }
-    u <- x %*% b
+    ia <- which( is.na( rowSums(b) ) )
+    if ( length(ia) > 0 ) {
+      u <- x[, -ia] %*% b[-ia, ]
+    } else  u <- x %*% b
     cump <- 1 / (1 + exp(-u) )
     p <- cbind(cump[, 1], Rfast::coldiffs(cump), 1 - cump[, k - 1] )
     mess <- NULL
@@ -43,14 +44,14 @@ ordinal.reg <- function(formula, data) {
       a <- p[poia, , drop = FALSE]
       a <- abs( a )  
       a <- a / Rfast::rowsums(a)   
-      p[poia, ] = a
+      p[poia, ] <- a
       mess <- "problematic region"
     }
   
     rownames(b) <- colnames(x)
     colnames(b) <- paste("Y", 1:(k-1), sep = "" )
     devi <-  - 2 * sum( log( p[yd > 0] ) )
-    res <- list(mess = mess, be = b, devi = devi)
+    res <- list(message = mess, be = b, devi = devi)
   }
   res
 }

@@ -69,9 +69,9 @@ R implementation and documentation: Michail Tsagris <mtsagris@yahoo.gr> and Mano
 }
 
 \examples{
-## 200 variables, hence 200 univariate regressions are to be fitted
-x <- matrix( rnorm(100 * 1000), ncol = 1000 )
-y <- rpois(100, 4)
+## 100 variables, hence 100 univariate regressions are to be fitted
+x <- matrix( rnorm(200 * 100), ncol = 100 )
+y <- rpois(200, 4)
 a <- wald.poissonregs(y, x)
 b <- univregs(y, x, test = testIndPois)
 cor(exp(a[, 2]), exp(b$pvalue) )

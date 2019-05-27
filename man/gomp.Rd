@@ -11,12 +11,14 @@ Generalised orthogonal matching pursuit.
 }
 
 \usage{
-gomp(target, dataset, tol = qchisq(0.95, 1), test = "testIndLogistic", method = "ar2" ) 
+gomp(target, dataset, xstand = TRUE, tol = qchisq(0.95, 1), 
+test = "testIndLogistic", method = "ar2" ) 
 
-gomp.path(target, dataset, tol = c(4, 5, 6), test = "testIndLogistic", method = "ar2" ) 
+gomp.path(target, dataset, xstand = TRUE, tol = c(4, 5, 6), 
+test = "testIndLogistic", method = "ar2" ) 
 
-boot.gomp(target, dataset, tol = qchisq(0.95, 1), test = "testIndLogistic", 
-method = "ar2", B = 500, ncores = 1) 
+boot.gomp(target, dataset, tol = qchisq(0.95, 1), 
+test = "testIndLogistic", method = "ar2", B = 500, ncores = 1) 
 }
 
 \arguments{
@@ -25,6 +27,9 @@ The response variable, a numeric vector, a matrix or a Surv object.
 }
 \item{dataset}{
 A matrix with continuous data, where the rows denote the samples and the columns are the variables. 
+}
+\item{xstand}{
+If this is TRUE the independent variables are standardised. 
 }
 \item{tol}{
 The tolerance value to terminate the algorithm. This is the change in the criterion value 
@@ -38,7 +43,8 @@ It returns the whole path of solutions.
 This denotes the parametric model to be used each time. It depends upon the nature of the target variable. 
 The possible values are "testIndFisher" (or "testIndReg" for the same purpose), "testIndLogistic", 
 "testIndPois", "testIndQPois", "testIndQbinom", "testIndNormLog", "testIndMVreg", "testIndNB", "testIndBeta", 
-"testIndGamma", "testIndMMReg", "testIndRQ", "testIndOrdinal", "testIndTobit", "censIndCR" and "censIndWR".
+"testIndGamma", "testIndMMReg", "testIndRQ", "testIndOrdinal", "testIndTobit", "censIndCR", "censIndWR", "censIndLLR" and 
+"testIndMultinom".
 }
 \item{method}{
 This is only for the "testIndFisher". You can either specify, "ar2" for the adjusted R-square or "sse" for the sum of squares 
@@ -115,8 +121,8 @@ R implementation and documentation: Michail Tsagris <mtsagris@yahoo.gr>.
 }
 
 \examples{
-x <- matrix( rnorm(100 * 100), ncol = 100)
-y <- rnorm(100)
+x <- matrix( rnorm(500 * 50), ncol = 50)
+y <- rnorm(500)
 b <- MXM::gomp(y, x, test = "testIndFisher")
 }
 

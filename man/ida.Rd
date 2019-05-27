@@ -56,7 +56,7 @@ Pearl (2005). Causality. Models, reasoning and inference. Cambridge University P
 \author{
 Michail Tsagris
   
-R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
 }
 
 %\note{
@@ -68,7 +68,7 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 
 \examples{
-dataset <- rdag2(1000, p=20, nei = 3)$x
+dataset <- rdag2(1000, p = 20, nei = 3)$x
 mod <- pc.skel(dataset ,alpha = 0.01)
 G <- pc.or(mod)$G
 ida(10, 15, G, dataset)

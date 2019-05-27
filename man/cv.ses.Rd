@@ -30,7 +30,9 @@
 \alias{ordinal.mxm}
 \alias{beta.mxm}
 \alias{clogit.mxm}
+\alias{exporeg.mxm}
 \alias{mci.mxm}
+\alias{llrreg.mxm}
 
 \title{
 Cross-Validation for SES and MMPC

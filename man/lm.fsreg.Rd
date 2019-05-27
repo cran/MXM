@@ -75,7 +75,7 @@ The final regression model.
 \author{
 Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
 }
 
 \seealso{
@@ -86,10 +86,10 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 set.seed(123)
 
 #simulate a dataset with continuous data
-dataset <- matrix( runif(1000 * 30, 1, 100), ncol = 30 )
+dataset <- matrix( runif(500 * 30, 1, 100), ncol = 30 )
 
 #define a simulated class variable 
-target <- 3 * dataset[, 10] + 2 * dataset[, 20] + rnorm(1000, 0, 5)
+target <- 3 * dataset[, 10] + 2 * dataset[, 20] + rnorm(500, 0, 5)
 a1 <- lm.fsreg(target, dataset, threshold = 0.05, stopping = "BIC", tol = 2) 
 }
 

@@ -139,7 +139,7 @@ John Aitchison. The Statistical Analysis of Compositional Data, Chapman & Hall; 
 \author{
 Vincenzo Lagani, Ioannis Tsamardinos, Michail Tsagris and Giorgos Athineou
 
-R implementation and documentation: Giorgos Athineou <athineou@csd.gr>, Vincenzo Lagani <vlagani@csd.uoc.gr> and Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Giorgos Athineou <athineou@csd.gr>, Vincenzo Lagani <vlagani@csd.uoc.gr> and Michail Tsagris <mtsagris@uoc.gr>
 }
 
 %\note{
@@ -152,24 +152,19 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.gr>, Vincenzo
 
 \examples{
 #simulate a dataset with continuous data
-dataset <- matrix(runif(100 * 100, 1, 100), ncol = 100 )
+dataset <- matrix(runif(100 * 50, 1, 100), ncol = 50 )
 #the target feature is the last column of the dataset as a vector
-target <- dataset[, 100]
-dataset <- dataset[, -100]
+target <- dataset[, 50]
+dataset <- dataset[, -50]
 
-testIndReg(target, dataset, xIndex = 44, csIndex = 50)
-testIndMMReg(target, dataset, xIndex = 44, csIndex = 50)
-testIndRQ(target, dataset, xIndex = 44, csIndex = 50)
-testIndIGreg(target, dataset, xIndex = 44, csIndex = 50)
+testIndReg(target, dataset, xIndex = 44, csIndex = 10)
+testIndMMReg(target, dataset, xIndex = 44, csIndex = 10)
+testIndRQ(target, dataset, xIndex = 44, csIndex = 10)
+testIndIGreg(target, dataset, xIndex = 44, csIndex = 10)
 
-#define class variable (here tha last column of the dataset)
-#run the SES algorithm using the testIndReg conditional independence test
-sesObject <- SES(target, dataset, max_k = 3, threshold = 0.05, test = "testIndReg");
-sesObject2 <- SES(target, dataset, max_k = 3, threshold = 0.05, test = "testIndRQ");
-#print summary of the SES output
-
-summary(sesObject);
-summary(sesObject2);
+#run the MMPC algorithm using the testIndReg conditional independence test
+m1 <- MMPC(target, dataset, max_k = 3, threshold = 0.05, test = "testIndReg")
+m2 <- MMPC(target, dataset, max_k = 3, threshold = 0.05, test = "testIndRQ")
 }
 
 \keyword{ Linear regression test}

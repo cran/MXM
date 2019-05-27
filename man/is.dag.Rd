@@ -34,7 +34,7 @@ Chickering, D.M. (1995). A transformational characterization of equivalent Bayes
 \author{
 Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
 }
 
 %\note{
@@ -48,7 +48,7 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 \examples{
 # simulate a dataset with continuous data
 # simulate a dataset with continuous data
-G <- rdag(100, 40, 0.3)$G
+G <- rdag(100, 20, 0.3)$G
 is.dag(G)  ## TRUE 
 }
 

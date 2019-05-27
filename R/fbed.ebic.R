@@ -19,14 +19,16 @@ fbed.ebic <- function(y, x, test = NULL, univ = NULL, gam = NULL, wei = NULL, K 
   
   if ( is.null(univ) ) {
     lik2 <- ebic.univregs(y, x, test = test, wei = wei, ncores = ncores, gam = gam)$ebic
-    n.tests <- p
     stat <- lik1 - lik2
     univ <- list()
     univ$ebic <- lik2
+    n.tests <- p
+    zevar <- which( is.infinite(lik2) )
   } else {  
-    n.tests <- 0
     lik2 <- univ$ebic
     stat <- lik1 - lik2
+    n.tests <- 0
+    zevar <- which( is.infinite(lik2) )
   } 
   s <- which(stat > 0)
   
@@ -59,9 +61,9 @@ fbed.ebic <- function(y, x, test = NULL, univ = NULL, gam = NULL, wei = NULL, K 
     
     if (K == 1) {
       M <- length(sela) + 1
-      lik2 <- ebic.regs(y, x, xIndex = ind[-sela], csIndex = sela, gam = gam, test = test, wei = wei)
+      lik2 <- ebic.regs(y, x, xIndex = ind[-c(sela, zevar)], csIndex = sela, gam = gam, test = test, wei = wei)
       lik2[ -ind[-sela] ] <- lik1
-      n.tests[2] <- length( ind[-sela] )
+      n.tests[2] <- length( ind[-c(sela, zevar)] )
       stat <- lik1 - lik2
       s <- which(stat > 0) 
       sel <- which.max(stat) * ( length(s)>0 )
@@ -93,9 +95,9 @@ fbed.ebic <- function(y, x, test = NULL, univ = NULL, gam = NULL, wei = NULL, K 
     
     if ( K > 1) {
       M <- length(sela) + 1
-      lik2 <- ebic.regs(y, x, xIndex = ind[-sela], csIndex = sela, gam = gam, test = test, wei = wei)
+      lik2 <- ebic.regs(y, x, xIndex = ind[-c(sela, zevar)], csIndex = sela, gam = gam, test = test, wei = wei)
       lik2[ -ind[-sela] ] <- lik1
-      n.tests[2] <- length(ind[-sela])
+      n.tests[2] <- length( ind[-c(sela, zevar)] )
       stat <- lik1 - lik2
       s <- which(stat > 0) 
       sel <- which.max(stat) * ( length(s)>0 )
@@ -128,9 +130,9 @@ fbed.ebic <- function(y, x, test = NULL, univ = NULL, gam = NULL, wei = NULL, K 
       while ( vim < K  & card[vim + 1] - card[vim] > 0 ) {
         vim <- vim + 1
         M <- length(sela) + 1
-        lik2 <- ebic.regs(y, x, xIndex = ind[-sela], csIndex = sela, gam = gam, test = test, wei = wei)
+        lik2 <- ebic.regs(y, x, xIndex = ind[-c(sela, zevar)], csIndex = sela, gam = gam, test = test, wei = wei)
         lik2[ -ind[-sela] ] <- lik1
-        n.tests[vim + 1] <- length(ind[-sela])
+        n.tests[vim + 1] <- length( ind[-c(sela, zevar)] ) 
         stat <- lik1 - lik2
         s <- which(stat > 0)
         sel <- which.max(stat) * ( length(s)>0 )

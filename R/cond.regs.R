@@ -589,7 +589,37 @@ cond.regs <- function(target, dataset, xIndex, csIndex, test = NULL, wei = NULL,
       registerDoParallel(cl)
       fit1 <- survival::survreg( target ~., data = dataset[, csIndex, drop = FALSE], dist = "exponential", weights = wei )
       mod <- foreach(i = xIndex, .combine = rbind, .packages = "survival") %dopar% {
-        fit2 = survival::survreg( target ~., data = dataset[, c(csIndex, i)], dist = "exponential", weights = wei )
+        fit2 <- survival::survreg( target ~., data = dataset[, c(csIndex, i)], dist = "exponential", weights = wei )
+        res <- anova(fit1, fit2)
+        ## stat <- res[2, 6]
+        ## dof <- res[2, 5]
+        return( c( res[2, 6],res[2, 5] ) )
+      }
+      stopCluster(cl)
+      models$stat <- mod[, 1]
+      models$pvalue <- pchisq(models$stat, mod[, 2], lower.tail = FALSE, log.p = TRUE)
+    }
+    
+  } else if ( identical(test, censIndLLR) ) {  ## Log-logistic regression
+    
+    if ( ncores <= 1 | is.null(ncores) ) {
+      stat <- dof <- numeric(cols)
+      fit1 <- survival::survreg( target ~., data = dataset[, csIndex, drop = FALSE], weights = wei, dist = "loglogistic" )
+      for ( i in xIndex ) {
+        fit2 <- survival::survreg( target ~., data = dataset[, c(csIndex, i)], weights = wei, dist = "loglogistic" )
+        res <- anova(fit1, fit2)
+        stat[i] <- res[2, 6]
+        dof[i] <- res[2, 5]
+      }
+      models$stat <- stat
+      models$pvalue <- pchisq(models$stat, dof, lower.tail = FALSE, log.p = TRUE)
+      
+    } else {
+      cl <- makePSOCKcluster(ncores)
+      registerDoParallel(cl)
+      fit1 <- survival::survreg( target ~., data = dataset[, csIndex, drop = FALSE], weights = wei, dist = "loglogistic" )
+      mod <- foreach(i = xIndex, .combine = rbind, .packages = "survival") %dopar% {
+        fit2 <- survival::survreg( target ~., data = dataset[, c(csIndex, i)], weights = wei, dist = "loglogistic" )
         res <- anova(fit1, fit2)
         ## stat <- res[2, 6]
         ## dof <- res[2, 5]
@@ -659,13 +689,13 @@ cond.regs <- function(target, dataset, xIndex, csIndex, test = NULL, wei = NULL,
     
   } else if ( identical(test, testIndSPML) ) {  ## Circular regression
     if ( !is.matrix(target) )   target <- cbind( cos(target), sin(target) )
-    fit1 <- spml.reg2( target, dataset[, csIndex] )
+    fit1 <- Rfast::spml.reg( target, dataset[, csIndex] )
     lik1 <- 2 * fit1$loglik
 
     if ( ncores <= 1 | is.null(ncores) ) {
       lik2 <- numeric( cols )
       for ( i in xIndex ) {
-        fit2 <- try( spml.reg2( target, dataset[, c(csIndex, i)] ), silent = TRUE )
+        fit2 <- try( Rfast::spml.reg( target, dataset[, c(csIndex, i)] ), silent = TRUE )
         if ( identical( class(fit2), "try-error" ) )   {
           lik2[i] <- lik1
         } else   lik2[i] <- fit2$loglik
@@ -676,8 +706,8 @@ cond.regs <- function(target, dataset, xIndex, csIndex, test = NULL, wei = NULL,
     } else {
       cl <- makePSOCKcluster(ncores)
       registerDoParallel(cl)
-      mod <- foreach(i = xIndex, .combine = rbind, .export = "spml.reg3") %dopar% {
-        fit2 <- spml.reg2( target, dataset[, c(csIndex, i)] )
+      mod <- foreach(i = xIndex, .combine = rbind, .pcakages = "Rfast", .export = "spml.reg") %dopar% {
+        fit2 <- Rfast::spml.reg( target, dataset[, c(csIndex, i)] )
         return( fit2$loglik )
       }
       stopCluster(cl)

@@ -25,8 +25,8 @@ if ( !is.null(user_test) ) {
   wa <- 0.5 * log( (1 + a) / (1 - a) ) * sqrt(dof)
   id <- which( is.na(a) )
   if ( length(id) > 0)  wa[id] <- 0
-  univariateModels$stat = wa;
-  univariateModels$pvalue = log(2) + pt( abs(wa), dof, lower.tail = FALSE, log.p = TRUE) ;
+  univariateModels$stat <- wa;
+  univariateModels$pvalue <- log(2) + pt( abs(wa), dof, lower.tail = FALSE, log.p = TRUE) ;
 
 } else if ( identical(test, testIndSpearman) ) {  ## Spearman's correlation
   a <- as.vector( cor(target, dataset) )
@@ -34,8 +34,8 @@ if ( !is.null(user_test) ) {
   wa <- 0.5 * log( (1 + a) / (1 - a) ) * sqrt(dof) / 1.029563
   id <- which( is.na(a) )
   if ( length(id) > 0)  wa[id] <- 0
-  univariateModels$stat = wa 
-  univariateModels$pvalue = log(2) + pt( abs(wa), dof, lower.tail = FALSE, log.p = TRUE);
+  univariateModels$stat <- wa 
+  univariateModels$pvalue <- log(2) + pt( abs(wa), dof, lower.tail = FALSE, log.p = TRUE);
 
 } else if ( identical(test, gSquare) ) {  ## G^2 test
   z <- cbind(dataset, target)
@@ -43,8 +43,8 @@ if ( !is.null(user_test) ) {
   dc <- Rfast::colrange(z, cont = FALSE)
   a <- Rfast::g2tests(data = z, x = 1:cols, y = cols + 1, dc = dc)
   stat <- a$statistic
-  univariateModels$stat = stat
-  univariateModels$pvalue = pchisq(stat, a$df, lower.tail = FALSE, log.p = TRUE)
+  univariateModels$stat <- stat
+  univariateModels$pvalue <- pchisq(stat, a$df, lower.tail = FALSE, log.p = TRUE)
 
 } else if ( identical(test, testIndBeta) ) {  ## Beta regression
   mod <- beta.regs(target, dataset, wei, logged = TRUE, ncores = ncores)
@@ -189,7 +189,7 @@ if ( !is.null(user_test) ) {
   
 } else if ( identical(test, testIndMultinom) ) {  ## multinomial regression
   
-  target = as.factor( as.numeric( target ) );
+  target = as.factor( as.numeric( target ) )
   lik2 = numeric(cols)
   dof = numeric(cols)
   fit1 = nnet::multinom(target ~ 1, trace = FALSE, weights = wei)
@@ -525,33 +525,63 @@ if ( !is.null(user_test) ) {
   }
   
 } else if ( identical(test, censIndWR) ) {  ## Weibull regression
-  fit1 = survival::survreg(target ~ 1, weights = wei)
-  lik1 = as.numeric( logLik(fit1) )
-  lik2 = numeric(cols)
-  dof = numeric(cols)
+  fit1 <- survival::survreg(target ~ 1, weights = wei)
+  lik1 <- as.numeric( logLik(fit1) )
+  lik2 <- numeric(cols)
+  dof <- numeric(cols)
 
   if ( ncores <= 1 | is.null(ncores) ) {
     for ( i in 1:cols ) {
-      fit2 = survival::survreg( target ~ dataset[, i], weights = wei, control=list(iter.max = 5000)  )
-      lik2[i] = as.numeric( logLik(fit2) )
-      dof[i] = length( coef(fit2) ) - 1
+      fit2 <- survival::survreg( target ~ dataset[, i], weights = wei, control=list(iter.max = 5000)  )
+      lik2[i] <- as.numeric( logLik(fit2) )
+      dof[i] <- length( coef(fit2) ) - 1
     }
-    stat = 2 * (lik2 - lik1)
-    univariateModels$stat = stat
-    univariateModels$pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
+    stat <- 2 * (lik2 - lik1)
+    univariateModels$stat <- stat
+    univariateModels$pvalue <- pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
 
   } else {
     cl <- makePSOCKcluster(ncores)
     registerDoParallel(cl)
     mod <- foreach(i = 1:cols, .combine = rbind, .packages = "survival") %dopar% {
-        fit2 = survival::survreg( target ~ dataset[, i], weights = wei, control=list(iter.max = 5000)  )
-        lik2 = as.numeric( logLik(fit2) )
+        fit2 <- survival::survreg( target ~ dataset[, i], weights = wei, control=list(iter.max = 5000)  )
+        lik2 <- as.numeric( logLik(fit2) )
         return( c(lik2, length( coef(fit2) ) - 1 ) )
     }
     stopCluster(cl)
-    stat = as.vector( 2 * (mod[, 1] - lik1) )
+    stat <- as.vector( 2 * (mod[, 1] - lik1) )
+    univariateModels$stat <- stat
+    univariateModels$pvalue <- pchisq(stat, mod[, 2], lower.tail = FALSE, log.p = TRUE)
+  }
+  
+} else if ( identical(test, censIndLLR) ) {  ## Weibull regression
+  fit1 <- survival::survreg(target ~ 1, weights = wei, dist = "loglogistic")
+  lik1 <- as.numeric( logLik(fit1) )
+  lik2 <- numeric(cols)
+  dof <- numeric(cols)
+  
+  if ( ncores <= 1 | is.null(ncores) ) {
+    for ( i in 1:cols ) {
+      fit2 <- survival::survreg( target ~ dataset[, i], weights = wei, control = list(iter.max = 5000), dist = "loglogistic" )
+      lik2[i] <- as.numeric( logLik(fit2) )
+      dof[i] <- length( coef(fit2) ) - 1
+    }
+    stat <- 2 * (lik2 - lik1)
     univariateModels$stat = stat
-    univariateModels$pvalue = pchisq(stat, mod[, 2], lower.tail = FALSE, log.p = TRUE)
+    univariateModels$pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
+    
+  } else {
+    cl <- makePSOCKcluster(ncores)
+    registerDoParallel(cl)
+    mod <- foreach(i = 1:cols, .combine = rbind, .packages = "survival") %dopar% {
+      fit2 <- survival::survreg( target ~ dataset[, i], weights = wei, control = list(iter.max = 5000), dist = "loglogistic" )
+      lik2 <- as.numeric( logLik(fit2) )
+      return( c(lik2, length( coef(fit2) ) - 1 ) )
+    }
+    stopCluster(cl)
+    stat <- as.vector( 2 * (mod[, 1] - lik1) )
+    univariateModels$stat <- stat
+    univariateModels$pvalue <- pchisq(stat, mod[, 2], lower.tail = FALSE, log.p = TRUE)
   }
   
 } else if ( identical(test, testIndTobit) ) {  ## Tobit regression
@@ -717,12 +747,12 @@ if ( !is.null(user_test) ) {
   
   if ( !is.null(univariateModels) )  {
     if (targetID != - 1) {
-      univariateModels$stat[targetID] = 0
-      univariateModels$pvalue[targetID] = log(1)
+      univariateModels$stat[targetID] <- 0
+      univariateModels$pvalue[targetID] <- log(1)
     }
-    if ( sum(id>0) > 0 ) {
-      univariateModels$stat[id] = 0
-      univariateModels$pvalue[id] = log(1)
+    if ( sum( id > 0 ) > 0 ) {
+      univariateModels$stat[id] <- 0
+      univariateModels$pvalue[id] <- log(1)
     }
   }
   

@@ -63,7 +63,6 @@ R implementation and documentation: Anna Roumpelaki <anna.roumpelaki@gmail.com>
 
 \examples{
 # simulate a dataset with continuous data
-# simulate a dataset with continuous data
 y = rdag(1000, 10, 0.3)
 tru = y$G 
 x = y$x

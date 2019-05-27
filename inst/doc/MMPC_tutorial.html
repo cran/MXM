@@ -229,8 +229,7 @@ hr {
 
 <pre><code class="r"># Overview the MXM::`MMPC()` function 
 
-mmpc &lt;- MXM::MMPC(
-
+mod &lt;- MXM::MMPC(
        target,           # The target variable vector
        dataset,          # The dataset with the target column removed
        max_k = 3,        # The maximum size of the conditioning set to use 
@@ -240,11 +239,9 @@ mmpc &lt;- MXM::MMPC(
                           # are stored for runtime efficiency in subsequent 
                           # MMPC runs with diferent hyper-parameters.
        hash =  TRUE,      # if TRUE, the calculated statistics are stored.
-       hashObject = NULL, # the mmpc_object from a previous run
-
+       hashObject = NULL, # the mmpcobject from a previous run
        ncores = 1,        # number of cores for parallel execution. 
                           # Recommended for thousands of variables.
-
        backward = TRUE)   # If TRUE, the backward phase
                           # (or symmetry correction) is implemented.
                           # Falsely included variables,
@@ -303,13 +300,13 @@ head(wine, 2)
 
 <pre><code class="r"># 5. CHECK for missing or non-numeric values in the dataframe:
 
-sum(is.na(as.matrix(wine[,])))
+sum(is.na(wine))
 </code></pre>
 
 <pre><code>## [1] 0
 </code></pre>
 
-<pre><code class="r">sum(is.nan(as.matrix(wine[,])))  #if 0, then No NAs, none NaNs, good to go!
+<pre><code class="r">sum(is.nan(as.matrix(wine)))  #if 0, then No NAs, none NaNs, good to go!
 </code></pre>
 
 <pre><code>## [1] 0
@@ -351,16 +348,17 @@ targetVariable &lt;- NULL
 
 
 # 1. Convert dataframe to matrix:
-wine_dataset &lt;- as.matrix(wine)
+wine_dataset &lt;- as.matrix(wine[, -8])
+wine_dataset[, 12] &lt;- as.numeric(wine_dataset[, 12])
 head(wine_dataset, 2)
 </code></pre>
 
 <pre><code>##      Alcohol Malic  Ash Alcalinity Magnesium Phenols Flavanoids
 ## [1,]   14.23  1.71 2.43       15.6       127    2.80       3.06
 ## [2,]   13.20  1.78 2.14       11.2       100    2.65       2.76
-##      Nonflavanoids Proanthocyanins Color  Hue Dilution Proline
-## [1,]          0.28            2.29  5.64 1.04     3.92    1065
-## [2,]          0.26            1.28  4.38 1.05     3.40    1050
+##      Proanthocyanins Color  Hue Dilution Proline
+## [1,]            2.29  5.64 1.04     3.92    1065
+## [2,]            1.28  4.38 1.05     3.40    1050
 </code></pre>
 
 <p>We check once more the dimension of our <code>dataset</code> object. We expect it to be in the form <strong>Instances x Features</strong>.</p>
@@ -371,7 +369,7 @@ head(wine_dataset, 2)
 dim(wine_dataset)
 </code></pre>
 
-<pre><code>## [1] 178  13
+<pre><code>## [1] 178  12
 </code></pre>
 
 <pre><code class="r"># The output should be 178 x 12, 
@@ -396,7 +394,7 @@ For a comprehensive overview of the <strong>hyper-parameter options</strong> typ
 <pre><code class="r"># MMPC on the wine dataset: 
 
 library(&#39;MXM&#39;)
-mmpc_object_wine_NonFlav &lt;- MXM::MMPC( target  = target_NonFlav,            
+mmpcobject_wine_NonFlav &lt;- MXM::MMPC( target  = target_NonFlav,            
                                        dataset = wine_dataset,            
                                        max_k = 3,          
                                        threshold = 0.05,                                         
@@ -408,33 +406,33 @@ mmpc_object_wine_NonFlav &lt;- MXM::MMPC( target  = target_NonFlav,
                                        backward = TRUE)   
 </code></pre>
 
-<h2><code>MMPC()</code> output: The <code>mmpc_object</code> and the feature signature</h2>
+<h2><code>MMPC()</code> output: The <code>mmpcobject</code> and the feature signature</h2>
 
-<p>Let&#39;s now explore the <strong>output</strong> of the <code>MMPC</code> function, the <strong>mmpc_object</strong>. The generic function <code>summary()</code> can be used to display the indices of the features that are included in the signature, and also contains information about the <code>MMPC()</code> run, such as the <strong>selected hyperparameters, execution runtime and also statistics</strong> about the distribution of the p-values from the performed tests. For more specific information, you can access <code>the mmpc_object</code>  fields with the <code>@</code> operator, the operator for accessing <strong>S4 class objects in R</strong> . This is essentially the same as using the dollar operator  <code>$</code> for accessing <strong>R5 class objects</strong> &#39; slots, typically used with dataframes for example. The fields contain the  output results of the <strong><code>MMPC()</code></strong> run and also two lists that can be re-used for subsequent <strong>MMPC</strong> runs for computation time efficiency.</p>
+<p>Let&#39;s now explore the <strong>output</strong> of the <code>MMPC</code> function, the <strong>mmpcobject</strong>. The generic function <code>summary()</code> can be used to display the indices of the features that are included in the signature, and also contains information about the <code>MMPC()</code> run, such as the <strong>selected hyperparameters, execution runtime and also statistics</strong> about the distribution of the p-values from the performed tests. For more specific information, you can access <code>the mmpcobject</code>  fields with the <code>@</code> operator, the operator for accessing <strong>S4 class objects in R</strong> . This is essentially the same as using the dollar operator  <code>$</code> for accessing <strong>R5 class objects</strong> &#39; slots, typically used with dataframes for example. The fields contain the  output results of the <strong><code>MMPC()</code></strong> run and also two lists that can be re-used for subsequent <strong>MMPC</strong> runs for computation time efficiency.</p>
 
 <p>Below, we can see the two objects that facilitate the computation time efficiency in the <code>MMPC()</code> re-runs.  After running <strong>MMPC</strong>_ with some hyper-parameters you might want to run the algorithm again with different hyper-parameters (<code>max_k</code> for example). To avoid calculating the univariate associations (first step of MMPC) again, you can take the list <code>univ</code> from the first run and provide it as input to the argument <code>ini</code> in the subsequent runs  the algorithm. This can speed up the second run (and subequent runs of course) up to <strong>50%</strong>, which is crucial if you are handling datasets with a very high number of features.</p>
 
 <pre><code class="r"># Cache of the stats calculated in the MMPC run
-str(mmpc_object_wine_NonFlav@hashObject) 
+str(mmpcobject_wine_NonFlav@hashObject) 
 </code></pre>
 
 <pre><code>## List of 2
-##  $ stat_hash  :Class &#39;Hash&#39; &lt;environment: 0x0000000024c19440&gt; 
-##  $ pvalue_hash:Class &#39;Hash&#39; &lt;environment: 0x0000000024c1ae48&gt;
+##  $ stat_hash  :Class &#39;Hash&#39; &lt;environment: 0x000000001e2846a8&gt; 
+##  $ pvalue_hash:Class &#39;Hash&#39; &lt;environment: 0x000000001e2842f0&gt;
 </code></pre>
 
 <pre><code class="r"># a list with the univariate associations
-str(mmpc_object_wine_NonFlav@univ)        
+str(mmpcobject_wine_NonFlav@univ)        
 </code></pre>
 
 <pre><code>## List of 2
-##  $ stat  : num [1:13] -2.08 3.99 2.49 5.01 -3.47 ...
-##  $ pvalue: num [1:13] -3.24 -9.25 -4.3 -13.56 -7.32 ...
+##  $ stat  : num [1:12] -2.08 3.99 2.49 5.01 -3.47 ...
+##  $ pvalue: num [1:12] -3.24 -9.25 -4.3 -13.56 -7.32 ...
 </code></pre>
 
 <p>Let&#39;s also save the <code>runtime</code> of the first MMPC run in a variable, to compare later.</p>
 
-<pre><code class="r">execution_time_1st_MMPC_run &lt;- mmpc_object_wine_NonFlav@runtime
+<pre><code class="r">execution_time_1st_MMPC_run &lt;- mmpcobject_wine_NonFlav@runtime
 execution_time_1st_MMPC_run
 </code></pre>
 
@@ -449,29 +447,23 @@ execution_time_1st_MMPC_run
 <pre><code class="r"># MMPC on the wine dataset: 
 
 library(&#39;MXM&#39;)
-mmpc_object_2nd_run &lt;- MXM::MMPC(target  = target_NonFlav,            
+mmpcobject_2nd_run &lt;- MXM::MMPC(target  = target_NonFlav,            
                                  dataset = wine_dataset  ,            
-
                            # it was set to 3 in the 1st run 
                            max_k = 5, 
-
                            # it was set to 0.05 in the 1st run
                            threshold = 0.01, 
-
                            test = &#39;testIndFisher&#39;,
-
                            #the cached univariate tests
-                           ini = mmpc_object_wine_NonFlav@univ,
-
+                           ini = mmpcobject_wine_NonFlav@univ,
                            # cached stats, p-values
-                           hashObject = mmpc_object_wine_NonFlav@hashObject)  
+                           hashObject = mmpcobject_wine_NonFlav@hashObject)  
 </code></pre>
 
 <p>We used the <code>stored stats, p-values and univariate tests</code> performed in the first run for avoiding redundant calculations. 
 Our example dataset is very small to highlight the impact of such an implementation in  the algorithm, but let&#39;s compare the runtimes for first and second run of <code>MMPC()</code>. </p>
 
-<pre><code class="r">execution_time_2nd_MMPC_run &lt;- mmpc_object_2nd_run@runtime
-
+<pre><code class="r">execution_time_2nd_MMPC_run &lt;- mmpcobject_2nd_run@runtime
 
 execution_time_1st_MMPC_run
 </code></pre>
@@ -510,31 +502,27 @@ execution_time_1st_MMPC_run
 <pre><code class="r"># Grid Search for MMPC hyper-parameter tuning 
 
 library(&#39;MXM&#39;)
-mmpc_GridSearch &lt;- MXM::mmpc.path(
-
+mmpcGridSearch &lt;- MXM::mmpc.path(
                   target  = target_NonFlav,            
                   dataset = wine_dataset,            
-
                   max_ks = c(3,4,5,6),  # a vector of k to try
-
                   alphas = NULL,   # a vector of thresholds; 
                                         # If NULL, 0.1, 0.05 and 0.01 
                                         # will be tested.
-
                   test = &#39;testIndFisher&#39;,   
                   ncores = 1)
 </code></pre>
 
 <p>We can acces the <code>mmpc.path()</code> objects using the dollar <code>$</code> operator and then use the generic <code>which</code> function to retrieve the lowest value for BIC and the repsective hyper-parameters. </p>
 
-<pre><code class="r">BIC_results &lt;- as.data.frame(mmpc_GridSearch$bic)
+<pre><code class="r">BIC_results &lt;- as.data.frame(mmpcGridSearch$bic)
 head(BIC_results, 4)
 </code></pre>
 
 <pre><code>##              max_k=6   max_k=5   max_k=4   max_k=3
-## alpha=0.1  -12620.92 -12620.92 -12620.92 -12620.92
-## alpha=0.05 -12620.92 -12620.92 -12620.92 -12620.92
-## alpha=0.01 -12620.92 -12620.92 -12620.92 -12620.92
+## alpha=0.1  -288.7666 -288.7666 -288.7666 -288.7666
+## alpha=0.05 -288.7666 -288.7666 -288.7666 -288.7666
+## alpha=0.01 -286.5281 -286.5281 -286.5281 -286.5281
 </code></pre>
 
 <pre><code class="r"># We can retrieve the indices of the minimum BIC values:
@@ -544,30 +532,26 @@ which(BIC_results == min(BIC_results), arr.ind = TRUE)
 <pre><code>##            row col
 ## alpha=0.1    1   1
 ## alpha=0.05   2   1
-## alpha=0.01   3   1
 ## alpha=0.1    1   2
 ## alpha=0.05   2   2
-## alpha=0.01   3   2
 ## alpha=0.1    1   3
 ## alpha=0.05   2   3
-## alpha=0.01   3   3
 ## alpha=0.1    1   4
 ## alpha=0.05   2   4
-## alpha=0.01   3   4
 </code></pre>
 
 <p>Above we observe that the highest alpha level, 0.1, is the one with the <strong>lowest BIC</strong>. However, since the difference is miniscule in the BIC change, we will select a lower alpha level, to avoid including false positives in our model.</p>
 
 <p>We can display also the <code>size</code> of the selected signatures, which is the number variables the signature of ech configuration contains.</p>
 
-<pre><code class="r">size_of_signature_results &lt;- as.data.frame(mmpc_GridSearch$size)
+<pre><code class="r">size_of_signature_results &lt;- as.data.frame(mmpcGridSearch$size)
 head(size_of_signature_results, 4)
 </code></pre>
 
 <pre><code>##            max_k=6 max_k=5 max_k=4 max_k=3
-## alpha=0.1        1       1       1       1
-## alpha=0.05       1       1       1       1
-## alpha=0.01       1       1       1       1
+## alpha=0.1        4       4       4       4
+## alpha=0.05       4       4       4       4
+## alpha=0.01       2       2       2       2
 </code></pre>
 
 <pre><code class="r"># We can retrieve the indices of the maximum subset:
@@ -577,39 +561,35 @@ which(size_of_signature_results == max(size_of_signature_results), arr.ind = TRU
 <pre><code>##            row col
 ## alpha=0.1    1   1
 ## alpha=0.05   2   1
-## alpha=0.01   3   1
 ## alpha=0.1    1   2
 ## alpha=0.05   2   2
-## alpha=0.01   3   2
 ## alpha=0.1    1   3
 ## alpha=0.05   2   3
-## alpha=0.01   3   3
 ## alpha=0.1    1   4
 ## alpha=0.05   2   4
-## alpha=0.01   3   4
 </code></pre>
 
 <p>We can also preview, the indices of the actual variables that were included in the signature in each configuration:</p>
 
-<pre><code class="r">head(mmpc_GridSearch$variables, 4)
+<pre><code class="r">head(mmpcGridSearch$variables, 4)
 </code></pre>
 
 <pre><code>## $`alpha=0.1 &amp; max_k=6`
-## [1] 8
+## [1]  4  5  7 11
 ## 
 ## $`alpha=0.1 &amp; max_k=5`
-## [1] 8
+## [1]  4  5  7 11
 ## 
 ## $`alpha=0.1 &amp; max_k=4`
-## [1] 8
+## [1]  4  5  7 11
 ## 
 ## $`alpha=0.1 &amp; max_k=3`
-## [1] 8
+## [1]  4  5  7 11
 </code></pre>
 
 <p>Let&#39;s now get back at our initial <code>MMPC()</code> run, and explore the output summary:</p>
 
-<pre><code class="r">summary(mmpc_object_wine_NonFlav)
+<pre><code class="r">summary(mmpcobject_wine_NonFlav)
 </code></pre>
 
 <pre><code>##     Length      Class       Mode 
@@ -618,10 +598,10 @@ which(size_of_signature_results == max(size_of_signature_results), arr.ind = TRU
 
 <p>We can retrieve the selected <strong>MMPC signature</strong>, by choosing <code>selectedVarsOrder</code> from the MMPC output object; this way, the features are printed based on highest statistical significance. </p>
 
-<pre><code class="r">mmpc_object_wine_NonFlav@selectedVarsOrder
+<pre><code class="r">mmpcobject_wine_NonFlav@selectedVarsOrder
 </code></pre>
 
-<pre><code>## [1] 8
+<pre><code>## [1]  7  4  5 11
 </code></pre>
 
 <pre><code class="r"># The signature should include the variables with indices 7, 4, 5
@@ -652,24 +632,22 @@ which(size_of_signature_results == max(size_of_signature_results), arr.ind = TRU
 <p>We can actually create a <strong>regression model</strong>, using the above signature variables and check how the model performs. We will call the <code>mmpc.model</code> function and use the <code>mmpcObject</code> from the <code>MMPC()</code> run above, as input. For a more detailed overview the the function <code>mmpc.model()</code>, you can type<code>&quot;?mmpc.model&quot;</code> in your rstudio console.</p>
 
 <pre><code class="r"># MODEL ESTIMATES USING MMPC&#39;S FEATURE SUBSET AS PrEDICTORs 
-
-mmpc_model_wine_NonFlav&lt;- mmpc.model(
+mmpcmodel_wine_NonFlav&lt;- mmpc.model(
                                    target = target_NonFlav, 
                                    dataset = wine_dataset,
                                    wei = NULL, 
-                                   mmpcObject = mmpc_object_wine_NonFlav, 
+                                   mmpcObject = mmpcobject_wine_NonFlav, 
                                    test = &#39;testIndFisher&#39;)
 
-
-summary(mmpc_model_wine_NonFlav) ; 
+summary(mmpcmodel_wine_NonFlav) ; 
 </code></pre>
 
 <pre><code>##           Length Class  Mode   
 ## mod       12     lm     list   
-## signature  2     -none- numeric
+## signature  5     -none- numeric
 </code></pre>
 
-<pre><code class="r">mmpc_model_wine_NonFlav$ypografi
+<pre><code class="r">mmpcmodel_wine_NonFlav$ypografi
 </code></pre>
 
 <pre><code>## NULL
@@ -679,7 +657,7 @@ summary(mmpc_model_wine_NonFlav) ;
 
 <p>Above, the <code>ypografi</code> variable denotes the indices of the <strong>MMPC selected features</strong> and also the <strong>BIC (Bayesian Information Criterion)</strong> of the final model. If you are not familiar with BIC as a model selection criterion, you can type <code>?BIC</code> in your <strong>Rstudio</strong> console for a brief introduction. As a rough estimate, when comparing models of the same Y as target variable, the model with the lowest <strong>BIC</strong> is prefered.   Below, we will retrieve the <strong>beta Coefficients</strong> and the <strong>intercept</strong> for the selected model, so that we can write the actual formula for the regression model, for the <code>&quot;NonFlavanoids&quot;</code> as target variable. </p>
 
-<pre><code class="r">mmpc_model_wine_NonFlav$mod
+<pre><code class="r">mmpcmodel_wine_NonFlav$mod
 </code></pre>
 
 <pre><code>## 
@@ -688,8 +666,8 @@ summary(mmpc_model_wine_NonFlav) ;
 ##     weights = wei)
 ## 
 ## Coefficients:
-##            (Intercept)  `dataset[, signature]`  
-##             -3.329e-16               1.000e+00
+## (Intercept)   Flavanoids   Alcalinity    Magnesium     Dilution  
+##    0.549466    -0.029591     0.007240    -0.001543    -0.043972
 </code></pre>
 
 <p>Let the <code>&quot;NonFlavanoids&quot;</code> target variable, be <strong>Y</strong>, then the formula for the model can be written as follows:</p>
@@ -731,7 +709,7 @@ where <strong>N</strong> is the number of instances.</p>
 
 <p>You can use more than one cores to speed up execution time. However, this only pays off when working with large datasets. For small datasets, like in our example <code>ncore = 1</code> is recommended.</p>
 
-<p>You are now ready to apply the <code>MMPC()</code> algorithm and explore your very own dataset! The <code>MXM</code> is under intensive development and will be regularly updated with new functionalities. For questions, algorithm requests and suggestions, do not hesitate to contact us at <strong><a href="mailto:mtsagris@csd.uoc.gr">mtsagris@csd.uoc.gr</a></strong>.</p>
+<p>You are now ready to apply the <code>MMPC()</code> algorithm and explore your very own dataset! The <code>MXM</code> is under intensive development and will be regularly updated with new functionalities. For questions, algorithm requests and suggestions, do not hesitate to contact us at <strong><a href="mailto:mtsagris@uoc.gr">mtsagris@uoc.gr</a></strong>.</p>
 
 <h1>References</h1>
 
@@ -750,9 +728,9 @@ where <strong>N</strong> is the number of instances.</p>
 <pre><code class="r">sessionInfo()
 </code></pre>
 
-<pre><code>## R version 3.5.0 (2018-04-23)
+<pre><code>## R version 3.6.0 (2019-04-26)
 ## Platform: x86_64-w64-mingw32/x64 (64-bit)
-## Running under: Windows 10 x64 (build 16299)
+## Running under: Windows 10 x64 (build 17134)
 ## 
 ## Matrix products: default
 ## 
@@ -765,30 +743,31 @@ where <strong>N</strong> is the number of instances.</p>
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] dplyr_0.7.4 MXM_1.4.2  
+## [1] dplyr_0.8.1 MXM_1.4.3  
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] slam_0.1-43         sets_1.0-18         splines_3.5.0      
-##  [4] lattice_0.20-35     htmltools_0.3.6     survival_2.41-3    
-##  [7] rlang_0.2.0         R.oo_1.22.0         nloptr_1.0.4       
-## [10] pillar_1.2.1        glue_1.2.0          R.utils_2.6.0      
-## [13] RcppZiggurat_0.1.4  bindrcpp_0.2.2      foreach_1.4.4      
-## [16] R.cache_0.13.0      bindr_0.1.1         stringr_1.3.0      
-## [19] MatrixModels_0.4-1  bdsmatrix_1.3-3     R.methodsS3_1.7.1  
-## [22] visNetwork_2.0.3    htmlwidgets_1.2     codetools_0.2-15   
-## [25] evaluate_0.10.1     geepack_1.2-1       coxme_2.2-10       
-## [28] knitr_1.20          SparseM_1.77        doParallel_1.0.11  
-## [31] quantreg_5.35       parallel_3.5.0      markdown_0.8       
-## [34] Rfast_1.9.2         Rcpp_0.12.16        relations_0.6-8    
-## [37] jsonlite_1.5        R.rsp_0.42.0        lme4_1.1-17        
-## [40] digest_0.6.15       stringi_1.1.7       ordinal_2018.4-19  
-## [43] grid_3.5.0          tools_3.5.0         magrittr_1.5       
-## [46] tibble_1.4.2        cluster_2.0.7-1     ucminf_1.1-4       
-## [49] bigmemory.sri_0.1.3 bigmemory_4.5.33    pkgconfig_2.0.1    
-## [52] MASS_7.3-49         Matrix_1.2-14       energy_1.7-2       
-## [55] iterators_1.0.9     assertthat_0.2.0    minqa_1.2.4        
-## [58] R6_2.2.2            boot_1.3-20         nnet_7.3-12        
-## [61] nlme_3.1-137        compiler_3.5.0
+##  [1] Rfast2_0.0.2        tidyselect_0.2.5    xfun_0.7           
+##  [4] slam_0.1-45         sets_1.0-18         purrr_0.3.2        
+##  [7] splines_3.6.0       lattice_0.20-38     htmltools_0.3.6    
+## [10] survival_2.44-1.1   rlang_0.3.4         R.oo_1.22.0        
+## [13] nloptr_1.2.1        pillar_1.4.0        glue_1.3.1         
+## [16] R.utils_2.8.0       RcppZiggurat_0.1.5  foreach_1.4.4      
+## [19] R.cache_0.13.0      stringr_1.4.0       MatrixModels_0.4-1 
+## [22] bdsmatrix_1.3-3     R.methodsS3_1.7.1   visNetwork_2.0.6   
+## [25] htmlwidgets_1.3     codetools_0.2-16    evaluate_0.13      
+## [28] geepack_1.2-1       coxme_2.2-10        knitr_1.22         
+## [31] SparseM_1.77        doParallel_1.0.14   parallel_3.6.0     
+## [34] quantreg_5.38       markdown_0.9        Rfast_1.9.3        
+## [37] Rcpp_1.0.1          relations_0.6-8     jsonlite_1.6       
+## [40] R.rsp_0.43.1        lme4_1.1-21         digest_0.6.18      
+## [43] stringi_1.4.3       ordinal_2019.4-25   numDeriv_2016.8-1  
+## [46] grid_3.6.0          tools_3.6.0         magrittr_1.5       
+## [49] tibble_2.1.1        cluster_2.0.8       ucminf_1.1-4       
+## [52] bigmemory.sri_0.1.3 bigmemory_4.5.33    crayon_1.3.4       
+## [55] pkgconfig_2.0.2     MASS_7.3-51.4       Matrix_1.2-17      
+## [58] energy_1.7-5        iterators_1.0.10    assertthat_0.2.1   
+## [61] minqa_1.2.4         R6_2.4.0            boot_1.3-22        
+## [64] nnet_7.3-12         nlme_3.1-139        compiler_3.6.0
 </code></pre>
 
 </body>

@@ -34,7 +34,7 @@ The indices of the variables whose association with the target you want to test.
 The index or indices of the variable(s) to condition on. If this is 0, the the function \code{\link{univregs}} will be called.
 }
 \item{test}{
-For the "cond.regs" one of the following: \bold{testIndBeta}, \bold{testIndReg}, \bold{testIndLogistic}, \bold{testIndOrdinal}, \bold{testIndPois}, \bold{testIndQPois}, \bold{testIndZIP}, \bold{testIndNB}, \bold{testIndClogit}, \bold{testIndBinom}, \bold{testIndQBinom}, \bold{testIndIGreg}, \bold{censIndCR}, \bold{censIndWR}, \bold{censIndER}, \bold{testIndMMReg}, \bold{testIndMVreg}, \bold{testIndMultinom}, \bold{testIndTobit}, \bold{testIndGamma}, \bold{testIndNormLog} or \bold{testIndSPML} for a circular target. 
+For the "cond.regs" one of the following: \bold{testIndBeta}, \bold{testIndReg}, \bold{testIndLogistic}, \bold{testIndOrdinal}, \bold{testIndPois}, \bold{testIndQPois}, \bold{testIndZIP}, \bold{testIndNB}, \bold{testIndClogit}, \bold{testIndBinom}, \bold{testIndQBinom}, \bold{testIndIGreg}, \bold{censIndCR}, \bold{censIndWR}, \bold{censIndER}, \bold{censIndLLR}, \bold{testIndMMReg}, \bold{testIndMVreg}, \bold{testIndMultinom}, \bold{testIndTobit}, \bold{testIndGamma}, \bold{testIndNormLog} or \bold{testIndSPML} for a circular target. 
 
 For the "glmm.condregs" one of the following: \bold{testIndLMReg}, \bold{testIndGLMMLogistic}, 
 \bold{testIndGLMMPois}, \bold{testIndGLMMOrdinal},  \bold{testIndGLMMGamma} or \bold{testIndGLMMNormLog}. 
@@ -116,7 +116,7 @@ Presnell Brett, Morrison Scott P. and Littell Ramon C. (1998). Projected multiva
 \author{
  Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
 }
 
 %\note{
@@ -128,12 +128,10 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 }
 
 \examples{
-y <- rpois(50, 15)
-x <- matrix( rnorm(50 * 10), ncol = 10)
+y <- rpois(100, 15)
+x <- matrix( rnorm(100 * 10), ncol = 10)
 a1 <- univregs(y, x, test = testIndPois)
-a2 <- perm.univregs(y, x, test = permPois)
-a3 <- wald.univregs(y, x, test = waldPois)
-a4 <- cond.regs(y, as.data.frame(x), xIndex = 1:4, csIndex = 5, test = testIndPois)
+a4 <- cond.regs(y, as.data.frame(x), xIndex = 1:9, csIndex = 10, test = testIndPois)
 }
 
 \keyword{ Regression models }

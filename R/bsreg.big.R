@@ -43,7 +43,8 @@ bsreg.big <- function(target, dataset, threshold = 0.01, test = "testIndLogistic
         info[1, ] <- mat[sel, ]
         mat <- mat[-sel, , drop = FALSE] 
         ind[sel] <- 0
-        
+        final <- "No variables were selected"
+ 
         i <- 1  
         
           while ( info[i, 2] > threshold  &  sum(ind) > 0 )  {   
@@ -94,7 +95,7 @@ bsreg.big <- function(target, dataset, threshold = 0.01, test = "testIndLogistic
                 ind[sel] <- 0
               }
               
-            }
+            }  ##  end  if ( k == 1 )
           }  ##  end  while ( info[i, 2] > threshold  &  sum(ind) > 0 )  { 
           runtime <- proc.time() - tic
           info <- info[ info[, 1] > 0, , drop = FALSE]

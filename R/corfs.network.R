@@ -5,12 +5,13 @@ corfs.network <- function(x, threshold = 0.05, tolb = 2, tolr = 0.02, stopping =
   D <- dm[2]
   G <- matrix(0, D, D)
   counter <- 0
+  x <- Rfast::standardise(x)
   if ( nc <= 1  || is.null(nc) ) {
     pa <- proc.time()
        for (i in 1:D) {
          id <- 1:D
          id <- id[-i] 
-         a <- Rfast::cor.fsreg(x[, i], x[, -i], threshold = threshold, tolb = tolb, tolr = tolr, stopping = stopping)[, 1]
+         a <- Rfast::cor.fsreg(x[, i], x[, -i], ystand = FALSE, xstand = FALSE, threshold = threshold, tolb = tolb, tolr = tolr, stopping = stopping)[, 1]
          sel <- id[a]        
          G[i, sel] <- 1 
 		     counter <- counter + sum(D - 0:a)
@@ -22,11 +23,11 @@ corfs.network <- function(x, threshold = 0.05, tolb = 2, tolr = 0.02, stopping =
     cl <- makePSOCKcluster(nc)
     registerDoParallel(cl)
     sel <- numeric(n)
-    mod <- foreach(i = 1:D, .combine = rbind, .export = c("cor.fsreg"), .packages = "Rfast" ) %dopar% {
+    mod <- foreach(i = 1:D, .combine = rbind, .export = "cor.fsreg", .packages = "Rfast" ) %dopar% {
 	  id <- 1:D
       id <- id[-i] 
       sela <- numeric(D)  
-      a <- Rfast::cor.fsreg(x[, i], x[, -i], threshold = threshold, tolb = tolb, tolr = tolr, stopping = stopping)[, 1]
+      a <- Rfast::cor.fsreg(x[, i], x[, -i], ystand = FALSE, xstand = FALSE, threshold = threshold, tolb = tolb, tolr = tolr, stopping = stopping)[, 1]
       sel <- id[a]  
       sela[sel] <- 1
       return( sum(D - 0:a), sela)

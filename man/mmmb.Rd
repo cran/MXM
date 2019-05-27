@@ -63,7 +63,7 @@ http://mensxmachina.org/site/wp-content/uploads/2018/04/Guide-on-performing-feat
 \author{
 Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
 }
 
 \seealso{
@@ -72,14 +72,13 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 
 \examples{
 set.seed(123)
-
 #simulate a dataset with continuous data
-dataset <- matrix( runif(1000 * 50, 1, 100), ncol = 50 )
+dataset <- matrix( runif(200 * 50, 1, 100), ncol = 50 )
 #define a simulated class variable 
-target <- 3 * dataset[, 10] + 2 * dataset[, 50] + 3 * dataset[, 20] + rnorm(1000, 0, 5)
-aa <- mmmb(target , dataset , max_k = 3 , threshold = 0.05, test= "testIndFisher", 
+target <- 3 * dataset[, 10] + 2 * dataset[, 50] + 3 * dataset[, 20] + rnorm(200, 0, 5)
+a1 <- mmmb(target , dataset , max_k = 3 , threshold = 0.05, test= "testIndFisher", 
 ncores = 1,)
-ab <- SES(target, dataset, test="testIndFisher")
+a2 <- MMPC(target, dataset, test="testIndFisher")
 }
 
 \keyword{ Markov Blanket }

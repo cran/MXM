@@ -12,8 +12,8 @@ fbed.glmm.cr <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0)
   sa <- NULL
   pva <- NULL
   
-  ep <- Rfast::check_data(x)
-  if ( sum(ep>0) > 0 )  x[, ep] <- rnorm( n * ep )
+  zevar <- Rfast::check_data(x)
+  if ( sum( zevar > 0 ) > 0 )  x[, zevar] <- rnorm( n * length(zevar) )
   
   runtime <- proc.time()
   
@@ -21,11 +21,13 @@ fbed.glmm.cr <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0)
     for ( i in ind )   lik2[i] <- coxme::coxme( y ~ x[, i] + (1|id), weights = wei )$loglik[2]
     n.tests <- p
     stat <- 2 * (lik2 - lik1)
-    stat[ep] <- 0
+    stat[zevar] <- 0
     pval <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
     univ <- list()
     univ$stat <- stat
     univ$pvalue <- pval
+	univ$stat[zevar] <- 0
+	univ$pvalue[zevar] <- 0
   } else {
     n.tests <- 0
     stat <- univ$stat
@@ -63,8 +65,8 @@ fbed.glmm.cr <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0)
     card <- sum(sela > 0)
     
     if (K == 1) {
-      for ( i in ind[-sela] )   lik2[i] <- coxme::coxme( y ~ x[, c(sela, i)] + (1|id), weights = wei )$loglik[2]
-      n.tests[2] <- length( ind[-sela] )
+      for ( i in ind[-c(sela, zevar)] )   lik2[i] <- coxme::coxme( y ~ x[, c(sela, i)] + (1|id), weights = wei )$loglik[2]
+      n.tests[2] <- length( ind[-c(sela, zevar)] )
       stat <- 2 * (lik2 - lik1)
       pval <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
       s <- which(pval < sig)
@@ -98,8 +100,8 @@ fbed.glmm.cr <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0)
     
     if ( K > 1) {
       
-      for ( i in ind[-sela] )   lik2[i] <- coxme::coxme( y ~ x[, c(sela, i)] + (1|id), weights = wei )$loglik[2]
-      n.tests[2] <- length( ind[-sela] ) 
+      for ( i in ind[-c(sela, zevar)] )   lik2[i] <- coxme::coxme( y ~ x[, c(sela, i)] + (1|id), weights = wei )$loglik[2]
+      n.tests[2] <- length( ind[-c(sela, zevar)] ) 
       stat <- 2 * (lik2 - lik1)
       pval <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
       s <- which(pval < sig)
@@ -133,8 +135,8 @@ fbed.glmm.cr <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0)
       vim <- 1
       while ( vim < K  & card[vim + 1] - card[vim] > 0 ) {
         vim <- vim + 1
-        for ( i in ind[-sela] )   lik2[i] <- coxme::coxme( y ~ x[, c(sela, i)] + (1|id), weights = wei )$loglik[2]
-        n.tests[vim + 1] <- length( ind[-sela] )
+        for ( i in ind[-c(sela, zevar)] )   lik2[i] <- coxme::coxme( y ~ x[, c(sela, i)] + (1|id), weights = wei )$loglik[2]
+        n.tests[vim + 1] <- length( ind[-c(sela, zevar)] )
         stat <- 2 * (lik2 - lik1)
         pval <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
         s <- which(pval < sig)

@@ -20,7 +20,7 @@ dag2eg <- function(dag, type = NULL) {
         eg <- essential + t(essential)
         a <- which(eg == 2) 
         b <- which(eg == 1, arr.ind = TRUE)   
-        b <- t( Rfast::sort_mat( t(b) ) )   ## t( apply(b, 1, sort ) )         
+        b <- t( Rfast::colSort( t(b) ) )   ## t( apply(b, 1, sort ) )         
         b <- unique( b )
         if ( nrow(b) > 0 ) {  
           eg[cbind(b[, 2], b[, 1]) ] <- 3

@@ -39,7 +39,7 @@ Borboudakis G. and Tsamardinos I. (2015). Bayesian Network Learning with Discret
 \author{
 Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
 }
 
 %\note{

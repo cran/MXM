@@ -61,7 +61,7 @@ Lambert D. (1992). Zero-inflated Poisson regression, with an application to defe
 \author{
  Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
 }
 
 %\note{
@@ -74,10 +74,10 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 
 \examples{
 y <- rpois(50, 3)
-x <- matrix( rnorm(50 * 10), ncol = 10)
+x <- matrix( rnorm(50 * 7), ncol = 7)
 y[1:10] <- 0
 a1 <- zip.regs(y, x)
-a2 <- perm.zipregs(y, x[, 1:3])
+a2 <- perm.zipregs(y, x[, 1:3], R = 499)
 }
 
 \keyword{ Regression models }

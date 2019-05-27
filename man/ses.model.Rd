@@ -96,7 +96,7 @@ McCullagh P., and Nelder J.A. (1989). Generalized linear models. CRC press, USA,
 \author{
  Michail Tsagris
 
-R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> and Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> and Michail Tsagris <mtsagris@uoc.gr>
 }
 
 %\note{
@@ -108,14 +108,14 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> and M
 
 \examples{
 # simulate a dataset with continuous data
-dataset <- matrix(runif(1000 * 101, 1, 100), nrow = 1000 ) 
+dataset <- matrix( runif(500 * 20, 1, 20), nrow = 500 ) 
 #the target feature is the last column of the dataset as a vector
-target <- dataset[, 101]
-dataset <- dataset[, -101]
-sesObject <- SES(target , dataset , max_k=3 , threshold = 0.05);
+target <- dataset[, 20]
+dataset <- dataset[, -20]
+sesObject <- SES(target , dataset , max_k=3 , threshold = 0.05)
 ses.model(target, dataset, sesObject = sesObject, nsignat = 1, test = NULL) 
 ses.model(target, dataset, sesObject = sesObject, nsignat = 40, test = NULL)
-mmpcObject <- MMPC(target , dataset , max_k=3 , threshold = 0.05);
+mmpcObject <- MMPC(target, dataset, max_k=3, threshold = 0.05)
 mmpc.model(target, dataset, mmpcObject = mmpcObject, test = NULL) 
 }
 

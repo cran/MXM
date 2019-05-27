@@ -83,7 +83,7 @@ Machine learning, 65(1), 31-78.
 \author{
 Ioannis Tsamardinos, Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>  
+R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>  
 }
 
 \seealso{
@@ -94,15 +94,10 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 set.seed(123)
 
 #simulate a dataset with continuous data
-dataset <- matrix(runif(1000 * 200, 1, 100), ncol = 200)
+dataset <- matrix(runif(500 * 100, 1, 100), ncol = 100)
 
 #define a simulated class variable 
-target <- 3 * dataset[, 10] + 2 * dataset[, 100] + 3 * dataset[, 20] + rnorm(1000, 0, 5)
-
-# define some simulated equivalences
-dataset[, 15] <- dataset[, 10] + rnorm(1000, 0, 2)
-dataset[, 150] <- dataset[, 100] + rnorm(1000, 0, 2) 
-dataset[, 130] <- dataset[, 100] + rnorm(1000, 0, 2)
+target <- 3 * dataset[, 10] + 2 * dataset[, 100] + 3 * dataset[, 20] + rnorm(500, 0, 5)
 
 # MMPC algorithm 
 m1 <- MMPC(target, dataset, max_k = 3, threshold = 0.05, test="testIndFisher");

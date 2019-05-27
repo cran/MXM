@@ -79,7 +79,7 @@ The final regression model.
 \author{
 Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
 }
 
 \seealso{
@@ -90,10 +90,10 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 set.seed(123)
 
 #simulate a dataset with continuous data
-dataset <- matrix( runif(1000 * 50, 1, 100), ncol = 50 )
+dataset <- matrix( runif(500 * 40, 1, 100), ncol = 40 )
 
 #define a simulated class variable 
-target <- rpois(1000, 10)
+target <- rpois(500, 10)
 
 a <- glm.fsreg(target, dataset, threshold = 0.05, tol = 2, ncores = 1 ) 
 b <- MMPC(target, dataset, max_k = 3, threshold = 0.05, test = "testIndPois")

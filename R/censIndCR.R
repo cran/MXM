@@ -1,4 +1,5 @@
-censIndCR = function(target, dataset, xIndex, csIndex, wei = NULL, univariateModels=NULL, hash = FALSE, stat_hash=NULL, pvalue_hash=NULL){
+censIndCR = function(target, dataset, xIndex, csIndex, wei = NULL, univariateModels = NULL, hash = FALSE, 
+                     stat_hash = NULL, pvalue_hash = NULL) {
   # Conditional independence test based on the Log Likelihood ratio test
   if ( !survival::is.Surv(target) )   stop('The survival test can not be performed without a Surv object target');
   csIndex[ which( is.na(csIndex) ) ] = 0;
@@ -24,7 +25,7 @@ censIndCR = function(target, dataset, xIndex, csIndex, wei = NULL, univariateMod
   #timeIndex = dim(dataset)[2];
   event = target[,2]
   numCases = dim(dataset)[1];
-  if ( length(event) == 0 )  event = vector('numeric',numCases) + 1;
+  if ( length(event) == 0 )   event = vector('numeric', numCases) + 1;
       if ( length(csIndex) == 0 || sum(csIndex == 0, na.rm = TRUE) > 0 ) {
 	      options(warn = -1)
         cox_results <- try( survival::coxph(target ~ dataset[, xIndex], weights = wei ), silent = TRUE )

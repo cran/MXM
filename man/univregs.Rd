@@ -57,19 +57,18 @@ For the "big.score.univregs" this is a big.matrix object with continuous data on
 This is by default -1. If the target is not a variable but is in included in the dataset, you can specify the column of dataset playing the role of the target. 
 }
 \item{test}{
-For the "univregs" this can only be one of the following: \bold{testIndFisher}, \bold{testIndSpearman}, \bold{gSquare}, \bold{testIndBeta}, \bold{testIndReg}, \bold{testIndLogistic}, \bold{testIndMultinom}, \bold{testIndOrdinal}, \bold{testIndPois}, \bold{testIndZIP}, \bold{testIndNB}, \bold{testIndClogit}, \bold{testIndBinom}, \bold{testIndIGreg}, \bold{censIndCR}, \bold{censIndWR}, \bold{censIndWR}, \bold{testIndGamma}, \bold{testIndNormLog} or \bold{testIndSPML} for a circular target. For the \bold{testIndSpearman} the user must supply the ranked target and ranked dataset. The reason for this, is because this function is called internally by SES and MMPC, the ranks have already been applied and there is no reason to re-rank the data. 
+For the "univregs" this can only be one of the following: \bold{testIndFisher}, \bold{testIndSpearman}, \bold{gSquare}, \bold{testIndBeta}, \bold{testIndReg}, \bold{testIndLogistic}, \bold{testIndMultinom}, \bold{testIndOrdinal}, \bold{testIndPois}, \bold{testIndZIP}, \bold{testIndNB}, \bold{testIndClogit}, \bold{testIndBinom}, \bold{testIndIGreg}, \bold{censIndCR}, \bold{censIndWR}, \bold{censIndER}, \bold{censIndLLR} \bold{testIndGamma}, \bold{testIndNormLog} or \bold{testIndSPML} for a circular target. For the \bold{testIndSpearman} the user must supply the ranked target and ranked dataset. The reason for this, is because this function is called internally by SES and MMPC, the ranks have already been applied and there is no reason to re-rank the data. 
 
 For the "wald.univregs" this can only be one of the following: \bold{waldBeta}, \bold{waldCR}, \bold{waldWR}, 
-\bold{waldER}, \bold{waldClogit}, 
+\bold{waldER}, \bold{waldLLR}, \bold{waldClogit}, 
 \bold{waldLogistic}, \bold{waldPois}, \bold{waldNB}, \bold{waldBinom}, \bold{waldZIP}, \bold{waldMMReg}, 
 \bold{waldIGreg}, \bold{waldOrdinal}, \bold{waldGamma} or \bold{waldNormLog}.
 
 For the "perm.univregs" this can only be one of the following: \bold{permFisher}, \bold{permReg}, \bold{permRQ}, \bold{permBeta}, \bold{permCR}, 
-\bold{permWR}, \bold{permER}, \bold{permClogit}, \bold{permLogistic}, \bold{permPois}, \bold{permNB}, \bold{permBinom}, \bold{permgSquare}, 
-\bold{permZIP}, \bold{permMVreg}, \bold{permIGreg}, \bold{permGamma} or \bold{permNormLog}.
+\bold{permWR}, \bold{permER}, \bold{permLLR}, \bold{permClogit}, \bold{permLogistic}, \bold{permPois}, \bold{permNB}, \bold{permBinom}, 
+\bold{permgSquare}, \bold{permZIP}, \bold{permMVreg}, \bold{permIGreg}, \bold{permGamma} or \bold{permNormLog}.
 
-For the "score.univregs" and "big.score.univregs" this can only be one of the following: \bold{testIndBeta}, \bold{testIndLogistic}, \bold{testIndMultinom}, 
-\bold{testIndPois}, \bold{testIndNB}, \bold{testIndGamma} or \bold{censIndWR} but with no censored values and simply the vector, 
+For the "score.univregs" and "big.score.univregs" this can only be one of the following: \bold{testIndBeta}, \bold{testIndLogistic}, \bold{testIndMultinom}, \bold{testIndPois}, \bold{testIndNB}, \bold{testIndGamma} or \bold{censIndWR} but with no censored values and simply the vector, 
 not a Surv object. Ordinal regression is not supported. 
 
 For the "glmm.univregs" this can only be one of the following: \bold{testIndGLMMReg}, \bold{testIndLMM}, \bold{testIndGLMMLogistic}, 
@@ -138,14 +137,14 @@ If you want to use the GEE methodology, make sure you load the library geepack f
 \value{
 In the case of "ebic.univregs" a list with one element 
 \item{ebic}{ 
-The eBIc of every model. 
+The eBIc of every model. If the i-th value is "Inf" it means that the i-th variable had zero variance. It had the same value everywhere.
 }
 For all other cases a list including:
 \item{stat}{
-The value of the test statistic.
+The value of the test statistic. If the i-th value is zero (0) it means that the i-th variable had zero variance. It had the same value everywhere.
 }
 \item{pvalue}{
-The logarithm of the p-value of the test. 
+The logarithm of the p-value of the test. If the i-th value is zero (0) it means that the i-th variable had zero variance. It had the same value everywhere.
 }
 }
 
@@ -163,7 +162,7 @@ Presnell Brett, Morrison Scott P. and Littell Ramon C. (1998). Projected multiva
 \author{
  Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
 }
 
 %\note{
@@ -176,7 +175,7 @@ R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
 
 \examples{
 y <- rpois(50, 15)
-x <- matrix( rnorm(50 * 10), ncol = 10)
+x <- matrix( rnorm(50 * 7), ncol = 7)
 a1 <- univregs(y, x, test = testIndPois)
 a2 <- perm.univregs(y, x, test = permPois)
 a3 <- wald.univregs(y, x, test = waldPois)

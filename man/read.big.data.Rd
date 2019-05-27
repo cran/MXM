@@ -35,7 +35,7 @@ A big.matrix object.
 \author{
 Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>. For more information see the "bigmemory" package.
+R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>. For more information see the "bigmemory" package.
 }
 
 \seealso{

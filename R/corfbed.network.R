@@ -5,12 +5,13 @@ corfbed.network <- function(x, threshold = 0.05, symmetry = TRUE, nc = 1) {
   D <- dm[2]
   G <- matrix(0, D, D)
   counter <- 0
+  x <- Rfast::standardise(x)
   if ( nc <= 1  || is.null(nc) ) {
     pa <- proc.time()
     for (i in 1:D) {
       id <- 1:D
       id <- id[-i] 
-      a <- Rfast::cor.fbed(x[, i], x[, -i], alpha = threshold)$res[, 1]
+      a <- Rfast::cor.fbed(x[, i], x[, -i], ystand = FALSE, xstand = FALSE, alpha = threshold)$res[, 1]
       sel <- id[a]        
       G[i, sel] <- 1 
       counter <- counter + sum(D - 0:a)
@@ -22,11 +23,11 @@ corfbed.network <- function(x, threshold = 0.05, symmetry = TRUE, nc = 1) {
     cl <- makePSOCKcluster(nc)
     registerDoParallel(cl)
     sel <- numeric(n)
-    mod <- foreach(i = 1:D, .combine = rbind, .export = c("cor.fbed"), .packages = "Rfast" ) %dopar% {
+    mod <- foreach(i = 1:D, .combine = rbind, .export = "cor.fbed", .packages = "Rfast" ) %dopar% {
       id <- 1:D
       id <- id[-i] 
       sela <- numeric(D)  
-      a <- Rfast::cor.fbed(x[, i], x[, -i], alpha = threshold)$res[, 1]
+      a <- Rfast::cor.fbed(x[, i], x[, -i], ystand = FALSE, xstand = FALSE, alpha = threshold)$res[, 1]
       sel <- id[a]  
       sela[sel] <- 1
       return( sum(D - 0:a), sela)

@@ -69,7 +69,7 @@ waldmmpc.model = function(target, dataset, wei = NULL, wald.mmpcObject, test = N
     bic <- BIC(mod)
     
   } else if (ci_test == "waldER") {
-    mod <- survival::survreg( target ~ ., data = as.data.frame(dataset[, signature ]), weights = wei, distribution = "exponential" )
+    mod <- survival::survreg( target ~ ., data = as.data.frame(dataset[, signature ]), weights = wei, dist = "exponential" )
     bic <- BIC(mod)
 
   } else if ( ci_test == "waldBinary" ) {

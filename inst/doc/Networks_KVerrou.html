@@ -239,6 +239,7 @@ wine.url &lt;- &quot;ftp://ftp.ics.uci.edu/pub/machine-learning-databases/wine/w
 wine &lt;- read.csv(wine.url,
                  check.names = FALSE,
                  header = FALSE) 
+wine[, 1] &lt;- as.factor(wine[, 1])
 head(wine)
 </code></pre>
 
@@ -255,7 +256,7 @@ head(wine)
 </code></pre>
 
 <pre><code>## &#39;data.frame&#39;:    178 obs. of  14 variables:
-##  $ V1 : int  1 1 1 1 1 1 1 1 1 1 ...
+##  $ V1 : Factor w/ 3 levels &quot;1&quot;,&quot;2&quot;,&quot;3&quot;: 1 1 1 1 1 1 1 1 1 1 ...
 ##  $ V2 : num  14.2 13.2 13.2 14.4 13.2 ...
 ##  $ V3 : num  1.71 1.78 2.36 1.95 2.59 1.76 1.87 2.15 1.64 1.35 ...
 ##  $ V4 : num  2.43 2.14 2.67 2.5 2.87 2.45 2.45 2.61 2.17 2.27 ...
@@ -316,7 +317,7 @@ Firstly, MMPC runs on every variable. The backward phase (see Tsamardinos et al.
 <h3>mmhc.skel : Run</h3>
 
 <pre><code class="r">### ~ ~ ~ Running MMHC skeleton with MMPC ~ ~ ~ ###
-MmhcSkeleton &lt;- MXM::mmhc.skel(dataset    = wine, 
+MmhcSkeleton &lt;- MXM::mmhc.skel(dataset    = wine[, 1:8], 
                                max_k      = 3, 
                                threshold  = 0.05,
                                test       = NULL,
@@ -336,19 +337,12 @@ MmhcSkeleton &lt;- MXM::mmhc.skel(dataset    = wine,
 </code></pre>
 
 <pre><code>##            Type Alcohol Malic Ash Alcalinity Magnesium Phenols Flavanoids
-## Type          0       0     0   0          1         0       0          1
-## Alcohol       0       0     0   0          0         0       0          0
+## Type          0       1     0   1          1         0       0          1
+## Alcohol       1       0     0   0          0         0       0          0
 ## Malic         0       0     0   0          0         0       0          0
-## Ash           0       0     0   0          1         1       0          0
+## Ash           1       0     0   0          1         1       0          0
 ## Alcalinity    1       0     0   1          0         0       0          0
 ## Magnesium     0       0     0   1          0         0       0          0
-##            Nonflavanoids Proanthocyanins Color Hue Dilution Proline
-## Type                   0               0     0   0        1       1
-## Alcohol                0               0     1   0        0       1
-## Malic                  0               0     0   1        0       0
-## Ash                    0               0     1   0        0       0
-## Alcalinity             0               0     0   0        0       0
-## Magnesium              1               0     0   0        0       1
 </code></pre>
 
 <p>In order to see the graph, we may use the <code>plotnetwork</code> function and an interactive graph is constructed.</p>
@@ -362,13 +356,13 @@ MmhcSkeleton &lt;- MXM::mmhc.skel(dataset    = wine,
 </code></pre>
 
 <pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##   1.000   2.000   2.500   2.571   3.000   5.000
+##    0.00    1.00    1.50    1.75    2.25    4.00
 </code></pre>
 
 <pre><code class="r">MmhcSkeleton$density
 </code></pre>
 
-<pre><code>## [1] 0.1978022
+<pre><code>## [1] 0.25
 </code></pre>
 
 <p>The matrix with the final p-values is also returned </p>
@@ -376,34 +370,20 @@ MmhcSkeleton &lt;- MXM::mmhc.skel(dataset    = wine,
 <pre><code class="r">head(MmhcSkeleton$pvalue)
 </code></pre>
 
-<pre><code>##                     Type      Alcohol      Malic         Ash  Alcalinity
-## Type         0.000000000 -0.005017764 -1.7036157  -0.6694174 -14.8161975
-## Alcohol     -0.005017764  0.000000000 -1.5508624  -1.4597535  -0.4946206
-## Malic       -1.703615711 -1.550862386  0.0000000  -0.5462332  -1.2390004
-## Ash         -0.669417427 -1.459753458 -0.5462332   0.0000000 -20.7174265
-## Alcalinity -14.816197507 -0.494620568 -1.2390004 -20.7174265   0.0000000
-## Magnesium   -0.824842878 -0.298539416 -0.7532327  -6.8921228  -1.3067601
-##             Magnesium    Phenols   Flavanoids Nonflavanoids
-## Type       -0.8248429 -0.1460697 -23.97912056    -0.1481924
-## Alcohol    -0.2985394 -0.6327745  -0.32965907    -0.4367580
-## Malic      -0.7532327 -0.5765902  -1.10767841    -1.5255269
-## Ash        -6.8921228 -2.4307692  -2.05537818    -0.3789372
-## Alcalinity -1.3067601 -0.4660573  -1.15406743    -2.9056760
-## Magnesium   0.0000000 -0.2405022  -0.02139885    -5.1682204
-##            Proanthocyanins       Color         Hue     Dilution
-## Type            -2.5723973  -1.3194232  -2.5626911 -9.802003285
-## Alcohol         -2.6520269 -22.3680827  -1.0699154 -1.081637272
-## Malic           -1.0087816  -0.8854112 -15.3712318 -0.556038834
-## Ash             -0.1069805  -4.4961637  -1.1278148 -0.042078935
-## Alcalinity      -0.5939033  -0.2174639  -0.9934286 -0.003141871
-## Magnesium       -2.2445584  -0.9277099  -0.7674958 -0.959492361
-##                Proline
-## Type       -30.4367372
-## Alcohol    -27.8979127
-## Malic       -0.9882318
-## Ash         -2.3149596
-## Alcalinity  -0.9253457
-## Magnesium   -7.6750368
+<pre><code>##                  Type      Alcohol      Malic        Ash  Alcalinity
+## Type         0.000000 -34.57419750 -1.2899274  -8.401684 -16.7240722
+## Alcohol    -34.574197   0.00000000 -1.5602574  -1.144140  -0.9777993
+## Malic       -1.289927  -1.56025742  0.0000000  -0.548314  -2.4545047
+## Ash         -8.401684  -1.14414005 -0.5483140   0.000000 -26.0703528
+## Alcalinity -16.724072  -0.97779927 -2.4545047 -26.070353   0.0000000
+## Magnesium   -2.601032  -0.02754831 -0.7564002  -4.525253  -1.3136856
+##              Magnesium     Phenols   Flavanoids
+## Type       -2.60103201 -0.04979364 -52.94060381
+## Alcohol    -0.02754831 -2.21132896  -0.33078218
+## Malic      -0.75640022 -0.44128360  -0.08744842
+## Ash        -4.52525285 -2.45121237  -2.07053875
+## Alcalinity -1.31368558 -0.46776108  -0.29538868
+## Magnesium   0.00000000 -1.49005503  -0.24959600
 </code></pre>
 
 <p>and the p-values of all pairwise univariate associations refers to the <code>$ini.pvalue</code> matrix.</p>
@@ -411,27 +391,20 @@ MmhcSkeleton &lt;- MXM::mmhc.skel(dataset    = wine,
 <pre><code class="r">head(MmhcSkeleton$ini.pvalue)
 </code></pre>
 
-<pre><code>##             [,1]       [,2]        [,3]        [,4]       [,5]       [,6]
-## [1,]   0.0000000 -11.000747 -19.7416122  -0.6694174 -28.380075 -5.3095232
-## [2,] -11.3385108   0.000000  -1.5508624  -5.2932559 -10.243934 -8.0558968
-## [3,] -19.4067842  -1.550862   0.0000000  -3.5114371  -9.002578 -0.7532327
-## [4,]  -0.6696684  -5.293256  -3.5114371   0.0000000 -19.887345 -8.8974741
-## [5,] -27.0019310 -10.243934  -9.0025777 -19.8873446   0.000000 -1.3067601
-## [6,]  -5.2847778  -8.212376  -0.7586787  -9.0903353  -1.313686  0.0000000
-##            [,7]        [,8]       [,9]       [,10]       [,11]       [,12]
-## [1,] -63.798420 -105.222613 -24.526540 -27.5730108  -8.0621948 -43.9741518
-## [2,]  -9.035709   -6.396320  -3.243966  -2.6520269 -30.1033764  -1.0699154
-## [3,] -11.777748  -17.202464  -9.251082  -5.6821926  -6.9671385 -31.8200581
-## [4,]  -2.430769   -2.055378  -4.297126  -0.1069805  -7.4508478  -1.1278148
-## [5,] -10.898547  -12.839048 -13.558111  -4.7205488  -0.2174639  -8.2205489
-## [6,]  -5.499187   -4.730965  -7.592579  -6.5629528  -4.8316092  -0.7717934
-##             [,13]      [,14]
-## [1,] -81.60097002 -48.528573
-## [2,]  -1.08163727 -42.591756
-## [3,] -14.03253776  -4.515128
-## [4,]  -0.04207894  -5.806908
-## [5,]  -8.36879900 -19.648347
-## [6,]  -0.96552406 -16.455915
+<pre><code>##           [,1]       [,2]        [,3]       [,4]       [,5]        [,6]
+## [1,]   0.00000 -77.252723 -26.3781997 -12.790326 -32.143710 -11.8691788
+## [2,] -81.69325   0.000000  -1.5602574  -5.384322 -10.594634  -8.2696065
+## [3,] -30.81859  -1.560257   0.0000000  -3.552083  -9.271166  -0.7564002
+## [4,] -12.39241  -5.384322  -3.5520829   0.000000 -21.281510  -9.1596408
+## [5,] -29.99076 -10.594634  -9.2711662 -21.281510   0.000000  -1.3138901
+## [6,] -11.33496  -8.212376  -0.7586787  -9.090335  -1.313686   0.0000000
+##            [,7]        [,8]
+## [1,] -61.991352 -110.258167
+## [2,]  -9.306339   -6.529742
+## [3,] -12.246011  -18.232525
+## [4,]  -2.451212   -2.070539
+## [5,] -11.297231  -13.399195
+## [6,]  -5.499187   -4.730965
 </code></pre>
 
 <p>The number of the tests that SES or MMPC (<em>Here</em> it is about MMPC, since this selection method was used) are included in the <code>$ntests</code> variable</p>
@@ -440,13 +413,11 @@ MmhcSkeleton &lt;- MXM::mmhc.skel(dataset    = wine,
 </code></pre>
 
 <pre><code>## univariate tests             Type          Alcohol            Malic 
-##                0               76               24               30 
+##                0               58               14               14 
 ##              Ash       Alcalinity        Magnesium          Phenols 
-##               35               49               33               28 
-##       Flavanoids    Nonflavanoids  Proanthocyanins            Color 
-##              135               63               24               64 
-##              Hue         Dilution          Proline 
-##               38               66               76
+##               25               19               14               17 
+##       Flavanoids 
+##               19
 </code></pre>
 
 <p>and if SES was used, a vector denoting which variables had more than one signature, i.e. more than one set of variables associated with them, would be appended in the <code>$ms</code>.</p>
@@ -457,7 +428,7 @@ MmhcSkeleton &lt;- MXM::mmhc.skel(dataset    = wine,
 </code></pre>
 
 <pre><code>##    user  system elapsed 
-##       1       0       1
+##    1.41    0.00    1.43
 </code></pre>
 
 <h2>Specific node</h2>
@@ -465,7 +436,7 @@ MmhcSkeleton &lt;- MXM::mmhc.skel(dataset    = wine,
 <p>It is clear from the above run, that the whole skeleton of the network was constructed. In case we are interested only about one node, <code>local.mmhc.skel</code> can be used. The arguments here are less, since the backward phase takes place automatically, the symmetry can not be examined, there is no need for parallel computations etc. <em>Here</em> we use as examined node the first column (Type) of the dataset ( <code>node = 1</code>). </p>
 
 <pre><code class="r">### ~ ~ ~ Running MMHC skeleton with MMPC ~ ~ ~ ###
-MmhcLocalSkeleton &lt;- MXM::local.mmhc.skel(dataset    = wine, 
+MmhcLocalSkeleton &lt;- MXM::local.mmhc.skel(dataset    = wine[, 1:5], 
                                node       = 1,
                                max_k      = 3, 
                                threshold  = 0.05,
@@ -499,11 +470,11 @@ MmhcLocalSkeleton &lt;- MXM::local.mmhc.skel(dataset    = wine,
 <h3>pc.skel : Run</h3>
 
 <pre><code class="r">### ~ ~ ~ Running MMHC skeleton with MMPC ~ ~ ~ ###
-PcSkeleton &lt;- MXM::pc.skel(dataset    = wine, 
+PcSkeleton &lt;- MXM::pc.skel(dataset    = wine[, 1:8], 
                                method      = &quot;comb.fast&quot; ,
                                alpha       = 0.01,
                                rob       = FALSE,
-                               R   = 2)
+                               R   = 1)
 </code></pre>
 
 <h3>pc.skel : Output</h3>
@@ -514,19 +485,12 @@ PcSkeleton &lt;- MXM::pc.skel(dataset    = wine,
 </code></pre>
 
 <pre><code>##            Type Alcohol Malic Ash Alcalinity Magnesium Phenols Flavanoids
-## Type          0       0     0   0          1         0       0          1
-## Alcohol       0       0     0   0          0         0       0          0
-## Malic         0       0     0   0          0         0       0          0
-## Ash           0       0     0   0          1         1       0          0
+## Type          0       1     1   1          1         0       0          1
+## Alcohol       1       0     0   0          0         0       0          0
+## Malic         1       0     0   0          0         0       0          0
+## Ash           1       0     0   0          1         0       0          0
 ## Alcalinity    1       0     0   1          0         0       0          0
-## Magnesium     0       0     0   1          0         0       0          0
-##            Nonflavanoids Proanthocyanins Color Hue Dilution Proline
-## Type                   0               0     0   1        1       1
-## Alcohol                0               0     1   0        0       1
-## Malic                  0               0     0   1        0       0
-## Ash                    0               0     0   0        0       0
-## Alcalinity             0               0     0   0        0       0
-## Magnesium              0               0     0   0        0       1
+## Magnesium     0       0     0   0          0         0       0          0
 </code></pre>
 
 <p>The network interactive network can be again created.  </p>
@@ -542,72 +506,58 @@ PcSkeleton &lt;- MXM::pc.skel(dataset    = wine,
 </code></pre>
 
 <pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##   1.000   1.250   2.000   2.286   2.750   5.000
+##    0.00    1.00    1.50    1.75    2.00    5.00
 </code></pre>
 
 <pre><code class="r">PcSkeleton$density
 </code></pre>
 
-<pre><code>## [1] 0.1758242
+<pre><code>## [1] 0.25
 </code></pre>
 
 <pre><code class="r">head(PcSkeleton$pvalue)
 </code></pre>
 
-<pre><code>##                 Type    Alcohol      Malic        Ash  Alcalinity
-## Type        0.000000 -4.1359663 -4.2850938  -0.672369  -9.2503542
-## Alcohol    -4.135966  0.0000000 -1.5602574  -1.468313  -0.4964556
-## Malic      -4.285094 -1.5602574  0.0000000  -3.552083  -3.7171584
-## Ash        -0.672369 -1.4683134 -3.5520829   0.000000 -21.2815102
-## Alcalinity -9.250354 -0.4964556 -3.7171584 -21.281510   0.0000000
-## Magnesium  -1.303731 -0.2995402 -0.7564002  -5.800109  -1.3138901
-##             Magnesium    Phenols  Flavanoids Nonflavanoids Proanthocyanins
-## Type       -1.3037307 -0.6894544 -23.5891932     -1.121556      -2.5951918
-## Alcohol    -0.2995402 -3.8416319  -0.3307822     -3.278903      -2.6759944
-## Malic      -0.7564002 -0.5788210  -1.3188071     -4.188236      -1.0136120
-## Ash        -5.8001095 -2.4512124  -2.0705388     -4.357315      -0.1073036
-## Alcalinity -1.3138901 -0.4677611  -3.2327091     -2.934231      -0.5962215
-## Magnesium   0.0000000 -1.4900550  -0.2495960     -4.201597      -2.9546439
-##                  Color         Hue      Dilution    Proline
-## Type        -2.4732367  -8.8664097 -10.240037968 -15.304462
-## Alcohol    -24.1609568  -1.0751577  -1.086965997 -36.238163
-## Malic       -0.8894074 -16.1955378  -0.558167718  -4.581486
-## Ash         -3.9233995  -1.1334911  -0.042201909  -2.110486
-## Alcalinity  -0.2181590  -0.9981509  -0.003150927  -3.738682
-## Magnesium   -0.9319834  -0.7707462  -0.963954542  -8.337290
+<pre><code>##                  Type      Alcohol      Malic        Ash  Alcalinity
+## Type         0.000000 -53.12342795 -7.6163785  -7.974090 -13.0122570
+## Alcohol    -53.123428   0.00000000 -1.5602574  -1.705724  -0.9777993
+## Malic       -7.616379  -1.56025742  0.0000000  -3.552083  -3.2387142
+## Ash         -7.974090  -1.70572446 -3.5520829   0.000000 -21.2815102
+## Alcalinity -13.012257  -0.97779927 -3.2387142 -21.281510   0.0000000
+## Magnesium   -3.951545  -0.02776847 -0.7564002  -4.525253  -1.3138901
+##              Magnesium    Phenols  Flavanoids
+## Type       -3.95154463 -3.0910480 -52.9406038
+## Alcohol    -0.02776847 -3.8416319  -0.3307822
+## Malic      -0.75640022 -0.5788210  -0.2209009
+## Ash        -4.52525285 -2.4512124  -2.0705388
+## Alcalinity -1.31389013 -0.4677611  -3.2327091
+## Magnesium   0.00000000 -1.4900550  -0.2495960
 </code></pre>
 
 <pre><code class="r">head(PcSkeleton$ini.pvalue)
 </code></pre>
 
-<pre><code>##            [,1]       [,2]        [,3]       [,4]       [,5]       [,6]
-## [1,]   0.000000 -11.771275 -20.7315296  -0.672369 -29.644379 -5.2833468
-## [2,] -11.771275   0.000000  -1.5602574  -5.384322 -10.594634 -8.2696065
-## [3,] -20.731530  -1.560257   0.0000000  -3.552083  -9.271166 -0.7564002
-## [4,]  -0.672369  -5.384322  -3.5520829   0.000000 -21.281510 -9.1596408
-## [5,] -29.644379 -10.594634  -9.2711662 -21.281510   0.000000 -1.3138901
-## [6,]  -5.283347  -8.269607  -0.7564002  -9.159641  -1.313890  0.0000000
-##            [,7]        [,8]       [,9]       [,10]      [,11]       [,12]
-## [1,] -66.564665 -114.122519 -26.175495 -27.3479113  -7.991750 -44.5688709
-## [2,]  -9.306339   -6.529742  -3.278903  -2.6759944 -33.421542  -1.0751577
-## [3,] -12.246011  -18.232525  -9.535182  -5.7872040  -7.125910 -35.5472088
-## [4,]  -2.451212   -2.070539  -4.357315  -0.1073036  -7.632954  -1.1334911
-## [5,] -11.297231  -13.399195 -14.185452  -4.7930197  -0.218159  -8.4433258
-## [6,]  -5.507681   -4.731090  -7.498233  -6.5118719  -4.899300  -0.7707462
-##             [,13]      [,14]
-## [1,] -88.02821419 -47.551694
-## [2,]  -1.08696600 -49.466480
-## [3,] -14.70641151  -4.581486
-## [4,]  -0.04220191  -5.916619
-## [5,]  -8.59991158 -21.007755
-## [6,]  -0.96395454 -16.700250
+<pre><code>##           [,1]       [,2]        [,3]       [,4]       [,5]        [,6]
+## [1,]   0.00000 -81.693248 -30.8185851 -12.392410 -29.990762 -11.6223614
+## [2,] -81.69325   0.000000  -1.5602574  -5.384322 -10.594634  -8.2696065
+## [3,] -30.81859  -1.560257   0.0000000  -3.552083  -9.271166  -0.7564002
+## [4,] -12.39241  -5.384322  -3.5520829   0.000000 -21.281510  -9.1596408
+## [5,] -29.99076 -10.594634  -9.2711662 -21.281510   0.000000  -1.3138901
+## [6,] -11.62236  -8.269607  -0.7564002  -9.159641  -1.313890   0.0000000
+##            [,7]        [,8]
+## [1,] -63.712666 -113.848714
+## [2,]  -9.306339   -6.529742
+## [3,] -12.246011  -18.232525
+## [4,]  -2.451212   -2.070539
+## [5,] -11.297231  -13.399195
+## [6,]  -5.507681   -4.731090
 </code></pre>
 
 <pre><code class="r">PcSkeleton$runtime
 </code></pre>
 
 <pre><code>##    user  system elapsed 
-##    0.61    0.00    0.60
+##    0.42    0.00    0.44
 </code></pre>
 
 <p>Furthermore, the <code>pc.skel</code> object includes information about the test statistics of the univariate associations &hellip;</p>
@@ -615,27 +565,20 @@ PcSkeleton &lt;- MXM::pc.skel(dataset    = wine,
 <pre><code class="r">head(PcSkeleton$stat)
 </code></pre>
 
-<pre><code>##                  Type   Alcohol      Malic        Ash Alcalinity
-## Type        0.0000000 21.249632 41.7269323  0.4348147  64.495659
-## Alcohol    21.2496324  0.000000  1.5823981  8.2451774  18.743225
-## Malic      41.7269323  1.582398  0.0000000  4.8673049  15.978879
-## Ash         0.4348147  8.245177  4.8673049  0.0000000  43.061994
-## Alcalinity 64.4956586 18.743225 15.9788786 43.0619936   0.000000
-## Magnesium   8.0534458 13.927719  0.5257716 15.7486903   1.230762
-##             Magnesium    Phenols Flavanoids Nonflavanoids Proanthocyanins
-## Type        8.0534458 188.537094 448.671871     55.343880     58.39495012
-## Alcohol    13.9277185  16.051566  10.456738      4.385903      3.35141782
-## Malic       0.5257716  22.273425  35.774268     16.525546      9.01560293
-## Ash        15.7486903   2.977418   2.362009      6.323296      0.01639766
-## Alcalinity  1.2307620  20.234475  24.789646     26.528693      7.13072210
-## Magnesium   0.0000000   8.480164   7.015208     12.373631     10.42175180
-##                  Color         Hue     Dilution    Proline
-## Type       13.36525937 108.3960646 2.887550e+02 118.116155
-## Alcohol    74.89589567   0.9106761 9.259485e-01 124.533867
-## Malic      11.63200236  80.9541315 2.769130e+01   6.737164
-## Ash        12.64337170   0.9867265 2.692441e-03   9.264856
-## Alcalinity  0.06177781  14.2808569 1.460013e+01  42.396331
-## Magnesium   7.32951493   0.5417997 7.701024e-01  32.216234
+<pre><code>##                 Type    Alcohol      Malic       Ash Alcalinity  Magnesium
+## Type         0.00000 135.077624 36.9434250 13.312901  35.771637 12.4295843
+## Alcohol    135.07762   0.000000  1.5823981  8.245177  18.743225 13.9277185
+## Malic       36.94342   1.582398  0.0000000  4.867305  15.978879  0.5257716
+## Ash         13.31290   8.245177  4.8673049  0.000000  43.061994 15.7486903
+## Alcalinity  35.77164  18.743225 15.9788786 43.061994   0.000000  1.2307620
+## Magnesium   12.42958  13.927719  0.5257716 15.748690   1.230762  0.0000000
+##              Phenols Flavanoids
+## Type       93.733010 233.925873
+## Alcohol    16.051566  10.456738
+## Malic      22.273425  35.774268
+## Ash         2.977418   2.362009
+## Alcalinity 20.234475  24.789646
+## Magnesium   8.480164   7.015208
 </code></pre>
 
 <p>&hellip; the maximum value of k, the maximum cardinality of the conditioning set at which the algorithm stopped&hellip;</p>
@@ -643,7 +586,7 @@ PcSkeleton &lt;- MXM::pc.skel(dataset    = wine,
 <pre><code class="r">PcSkeleton$kappa
 </code></pre>
 
-<pre><code>## [1] 2
+<pre><code>## [1] 3
 </code></pre>
 
 <p>&hellip; and a list with the separating sets for every value of k.</p>
@@ -651,12 +594,12 @@ PcSkeleton &lt;- MXM::pc.skel(dataset    = wine,
 <pre><code class="r">PcSkeleton$sepset[[1]][1:5,]
 </code></pre>
 
-<pre><code>##      X  Y SepVar 1       stat logged.p-value
-## [1,] 6  8        7 0.07890734     -0.2495960
-## [2,] 5 10        8 0.35710801     -0.5962215
-## [3,] 6 11        2 0.73086472     -0.9319834
-## [4,] 1  6        8 1.21673490     -1.3037307
-## [5,] 2  4       14 1.44900376     -1.4683134
+<pre><code>##      X Y SepVar 1        stat logged.p-value
+## [1,] 6 8        7 0.078907336    -0.24959600
+## [2,] 2 4        1 1.798509596    -1.70572446
+## [3,] 6 7        8 1.480336516    -1.49005503
+## [4,] 2 8        7 0.130488679    -0.33078218
+## [5,] 2 6        1 0.001181986    -0.02776847
 </code></pre>
 
 <h1>Partial Correlation based on Forward Selection</h1>
@@ -682,7 +625,7 @@ PcSkeleton &lt;- MXM::pc.skel(dataset    = wine,
 <p><code>stopping</code> :  The stopping rule. &ldquo;BIC&rdquo; is the default value, but can change to &ldquo;ar2&rdquo; and in this case the adjusted R<sup>2</sup> is used. If you want both of these criteria to be satisfied, type &ldquo;BICR2&rdquo;. <em>Here</em> we choose <code>&quot;BICR2&quot;</code>.</p>
 
 <pre><code class="r">### ~ ~ ~  Running FS skeleton  ~ ~ ~ ###
-FSSkeleton &lt;- MXM::corfs.network(x    = as.matrix(wine[,-1]), 
+FSSkeleton &lt;- MXM::corfs.network(x = as.matrix(wine[, -1]), 
                                threshold  = 0.05,
                                symmetry = TRUE,
                                tolb       = 2,
@@ -713,9 +656,9 @@ Hope that you found this tutorial helpful.    </p>
 <pre><code class="r">sessionInfo()
 </code></pre>
 
-<pre><code>## R version 3.5.0 (2018-04-23)
+<pre><code>## R version 3.6.0 (2019-04-26)
 ## Platform: x86_64-w64-mingw32/x64 (64-bit)
-## Running under: Windows 10 x64 (build 16299)
+## Running under: Windows 10 x64 (build 17134)
 ## 
 ## Matrix products: default
 ## 
@@ -728,30 +671,31 @@ Hope that you found this tutorial helpful.    </p>
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] dplyr_0.7.4 MXM_1.4.2  
+## [1] dplyr_0.8.1 MXM_1.4.3  
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] slam_0.1-43         sets_1.0-18         splines_3.5.0      
-##  [4] lattice_0.20-35     htmltools_0.3.6     survival_2.41-3    
-##  [7] rlang_0.2.0         R.oo_1.22.0         nloptr_1.0.4       
-## [10] pillar_1.2.1        glue_1.2.0          R.utils_2.6.0      
-## [13] RcppZiggurat_0.1.4  bindrcpp_0.2.2      foreach_1.4.4      
-## [16] R.cache_0.13.0      bindr_0.1.1         stringr_1.3.0      
-## [19] MatrixModels_0.4-1  bdsmatrix_1.3-3     R.methodsS3_1.7.1  
-## [22] visNetwork_2.0.3    htmlwidgets_1.2     codetools_0.2-15   
-## [25] evaluate_0.10.1     geepack_1.2-1       coxme_2.2-10       
-## [28] knitr_1.20          SparseM_1.77        doParallel_1.0.11  
-## [31] quantreg_5.35       parallel_3.5.0      markdown_0.8       
-## [34] Rfast_1.9.2         Rcpp_0.12.16        relations_0.6-8    
-## [37] jsonlite_1.5        R.rsp_0.42.0        lme4_1.1-17        
-## [40] digest_0.6.15       stringi_1.1.7       ordinal_2018.4-19  
-## [43] grid_3.5.0          tools_3.5.0         magrittr_1.5       
-## [46] tibble_1.4.2        cluster_2.0.7-1     ucminf_1.1-4       
-## [49] bigmemory.sri_0.1.3 bigmemory_4.5.33    pkgconfig_2.0.1    
-## [52] MASS_7.3-49         Matrix_1.2-14       energy_1.7-2       
-## [55] iterators_1.0.9     assertthat_0.2.0    minqa_1.2.4        
-## [58] R6_2.2.2            boot_1.3-20         nnet_7.3-12        
-## [61] nlme_3.1-137        compiler_3.5.0
+##  [1] Rfast2_0.0.2        tidyselect_0.2.5    xfun_0.7           
+##  [4] slam_0.1-45         sets_1.0-18         purrr_0.3.2        
+##  [7] splines_3.6.0       lattice_0.20-38     htmltools_0.3.6    
+## [10] survival_2.44-1.1   rlang_0.3.4         R.oo_1.22.0        
+## [13] nloptr_1.2.1        pillar_1.4.0        glue_1.3.1         
+## [16] R.utils_2.8.0       RcppZiggurat_0.1.5  foreach_1.4.4      
+## [19] R.cache_0.13.0      stringr_1.4.0       MatrixModels_0.4-1 
+## [22] bdsmatrix_1.3-3     R.methodsS3_1.7.1   visNetwork_2.0.6   
+## [25] htmlwidgets_1.3     codetools_0.2-16    evaluate_0.13      
+## [28] geepack_1.2-1       coxme_2.2-10        knitr_1.22         
+## [31] SparseM_1.77        doParallel_1.0.14   parallel_3.6.0     
+## [34] quantreg_5.38       markdown_0.9        Rfast_1.9.3        
+## [37] Rcpp_1.0.1          relations_0.6-8     jsonlite_1.6       
+## [40] R.rsp_0.43.1        lme4_1.1-21         digest_0.6.18      
+## [43] stringi_1.4.3       ordinal_2019.4-25   numDeriv_2016.8-1  
+## [46] grid_3.6.0          tools_3.6.0         magrittr_1.5       
+## [49] tibble_2.1.1        cluster_2.0.8       ucminf_1.1-4       
+## [52] bigmemory.sri_0.1.3 bigmemory_4.5.33    crayon_1.3.4       
+## [55] pkgconfig_2.0.2     MASS_7.3-51.4       Matrix_1.2-17      
+## [58] energy_1.7-5        iterators_1.0.10    assertthat_0.2.1   
+## [61] minqa_1.2.4         R6_2.4.0            boot_1.3-22        
+## [64] nnet_7.3-12         nlme_3.1-139        compiler_3.6.0
 </code></pre>
 
 <h1>References {.unnumbered}</h1>

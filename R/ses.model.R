@@ -2,10 +2,11 @@
 # sesObject: the outcome of the ses
 # nisgnat: Number of signatures and generated models. It could be numeric from 1 to total number of signatures or "all" for all the 
 ## signatures. Default is 1.
-ses.model = function(target, dataset, wei = NULL, sesObject, nsignat = 1, test = NULL) {
+ses.model <- function(target, dataset, wei = NULL, sesObject, nsignat = 1, test = NULL) {
   
-    if ( sum( is.na(sesObject@selectedVars) ) > 0 ) {
-    mod = paste("No associations were found, hence no model is produced.")
+  signature <- sesObject@selectedVars  
+  if ( sum( is.na(signature) ) > 0 | length(signature) == 0 ) {
+    mod <- paste("No associations were found, hence no model is produced.")
     signature = NULL
     res <- list(mod = mod, signature = signature)  
     
@@ -31,11 +32,10 @@ ses.model = function(target, dataset, wei = NULL, sesObject, nsignat = 1, test =
   }
   
   if ( is.null(test) ) {  
-    ci_test = sesObject@test
-  } else ci_test = test 
+    ci_test <- sesObject@test
+  } else ci_test <- test 
 
   if ( nsignat == 1 || ( nsignat > 1 & nrow(sesObject@signatures) == 1 ) ) {
-    signature = sesObject@selectedVars  
     p <- length(signature)
     
    if ( ci_test == "testIndFisher"  |  ci_test == "testIndReg" ) {
@@ -108,6 +108,10 @@ ses.model = function(target, dataset, wei = NULL, sesObject, nsignat = 1, test =
     } else if (ci_test == "censIndER") {
       mod = survival::survreg( target ~ ., data = data.frame(dataset[, signature ]), weights = wei, dist = "exponential" )
       bic = - 2 * logLik(mod) + (length(mod$coefficients) + 1) * log( NROW(dataset)  )
+      
+    } else if (ci_test == "censIndLLR") {
+      mod <- survival::survreg( target ~ ., data = data.frame(dataset[, signature ]), weights = wei, dist = "loglogistic" )
+      bic <-  - 2 * as.numeric( logLik(mod) ) + ( length( mod$coefficients ) + 1 ) * log( NROW(dataset) )
       
     } else if (ci_test == "testIndClogit") {
       case = as.logical(target[, 1]);  
@@ -219,6 +223,10 @@ ses.model = function(target, dataset, wei = NULL, sesObject, nsignat = 1, test =
        mod[[ i ]] = survival::survreg( target ~ ., data = data.frame( dataset[, signature[i, ] ] ), weights = wei, dist = "exponential" )
        bic[i] = - 2 * logLik(mod[[ i ]]) + (length(mod[[ i ]]$coefficients) + 1) * con
        
+     } else if (ci_test == "censIndLLR") {
+       mod[[ i ]] = survival::survreg( target ~ ., data = data.frame( dataset[, signature[i, ] ] ), weights = wei, dist = "loglogistic" )
+       bic[i] = - 2 * logLik(mod[[ i ]]) + (length(mod[[ i ]]$coefficients) + 1) * con
+       
      } else if (ci_test == "testIndClogit") {
        case = as.logical(target[, 1]);  
        id = target[, 2]
@@ -322,6 +330,10 @@ ses.model = function(target, dataset, wei = NULL, sesObject, nsignat = 1, test =
      } else if (ci_test == "censIndER") {
        mod[[ i ]] = survival::survreg( target ~ ., data = data.frame( dataset[, signature[i, ] ] ), weights = wei, dist = "exponential" )
        bic[i] = BIC( mod[[ i ]] )
+       
+     } else if (ci_test == "censIndLLR") {
+       mod[[ i ]] = survival::survreg( target ~ ., data = data.frame( dataset[, signature[i, ] ] ), weights = wei, dist = "loglogistic" )
+       bic[i] = - 2 * logLik(mod[[ i ]]) + (length(mod[[ i ]]$coefficients) + 1) * con
        
      } else if (ci_test == "testIndClogit") {
        case = as.logical(target[, 1]);  

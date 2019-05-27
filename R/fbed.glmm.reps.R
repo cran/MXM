@@ -21,8 +21,8 @@ fbed.glmm.reps <- function(y, x, id, reps, univ = NULL, alpha = 0.05, wei = NULL
   sa <- NULL
   pva <- NULL
   
-  ep <- Rfast::check_data(x)
-  if ( sum(ep>0) > 0 )  x[, ep] <- rnorm( n * ep )
+  zevar <- Rfast::check_data(x)
+  if ( sum( zevar > 0 ) > 0 )  x[, zevar] <- rnorm( n * length(zevar) )
   
   runtime <- proc.time()
   
@@ -37,6 +37,8 @@ fbed.glmm.reps <- function(y, x, id, reps, univ = NULL, alpha = 0.05, wei = NULL
     univ <- list()
     univ$stat <- stat
     univ$pvalue <- pval
+    univ$stat[zevar] <- 0
+    univ$pvalue[zevar] <- 0
   } else {
     n.tests <- 0
     stat <- univ$stat
@@ -77,11 +79,11 @@ fbed.glmm.reps <- function(y, x, id, reps, univ = NULL, alpha = 0.05, wei = NULL
     card <- sum(sela > 0)
     
     if (K == 1) {
-      for ( i in ind[-sela] )  {
+      for ( i in ind[-c(sela, zevar)] )  {
         fit2 <- lme4::glmer( y ~ x[, c(sela, i)] + reps + (1|id), family = oiko, weights = wei )
         lik2[i] <- logLik( fit2 )
       }
-      n.tests[2] <- length( ind[-sela] )
+      n.tests[2] <- length( ind[-c(sela, zevar)] )
       stat <- 2 * (lik2 - lik1)
       pval <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
       s <- which(pval < sig)
@@ -118,11 +120,11 @@ fbed.glmm.reps <- function(y, x, id, reps, univ = NULL, alpha = 0.05, wei = NULL
     
     if ( K > 1) {
       
-      for ( i in ind[-sela] )  {
+      for ( i in ind[-c(sela, zevar)] )  {
         fit2 <- lme4::glmer( y ~ x[, c(sela, i)] + reps + (1|id), family = oiko, weights = wei )
         lik2[i] <- logLik( fit2 )
       }
-      n.tests[2] <- length( ind[-sela] ) 
+      n.tests[2] <- length( ind[-c(sela, zevar)] ) 
       stat <- 2 * (lik2 - lik1)
       pval <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
       s <- which(pval < sig)
@@ -159,11 +161,11 @@ fbed.glmm.reps <- function(y, x, id, reps, univ = NULL, alpha = 0.05, wei = NULL
       vim <- 1
       while ( vim < K  & card[vim + 1] - card[vim] > 0 ) {
         vim <- vim + 1
-        for ( i in ind[-sela] )  {
+        for ( i in ind[-c(sela, zevar)] )  {
           fit2 <- lme4::glmer( y ~ x[, c(sela, i)] + reps + (1|id), family = oiko, weights = wei )
           lik2[i] <- logLik( fit2 )
         }
-        n.tests[vim + 1] <- length( ind[-sela] )
+        n.tests[vim + 1] <- length( ind[-c(sela, zevar)] )
         stat <- 2 * (lik2 - lik1)
         pval <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
         s <- which(pval < sig)

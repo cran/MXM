@@ -18,6 +18,9 @@ ebic.fbed.glmm.reps <- function(y, x, id, reps = NULL, univ = NULL, gam = NULL, 
   sela <- NULL
   card <- 0
   
+  zevar <- Rfast::check_data(x)
+  if ( sum( zevar > 0 ) > 0 )  x[, zevar] <- rnorm( n * length(zevar) )
+  
   if ( is.null(gam) ) {
     con <- 2 - log(p) / log(n)
   } else  con <- 2 * gam
@@ -31,6 +34,7 @@ ebic.fbed.glmm.reps <- function(y, x, id, reps = NULL, univ = NULL, gam = NULL, 
       fit2 <- lme4::glmer( y ~ x[, i] + reps + (1|id), family = oiko, weights = wei ) 
       lik2[i] <- BIC(fit2) + con * log(p)
     }
+    lik2[zevar] <- Inf
     n.tests <- p
     stat <- lik1 - lik2
     univ <- list()
@@ -38,6 +42,7 @@ ebic.fbed.glmm.reps <- function(y, x, id, reps = NULL, univ = NULL, gam = NULL, 
   } else {
     n.tests <- 0
     lik2 <- univ$ebic
+    lik2[zevar] <- Inf
     stat <- lik1 - lik2
   }  
   s <- which(stat > 0)
@@ -73,11 +78,11 @@ ebic.fbed.glmm.reps <- function(y, x, id, reps = NULL, univ = NULL, gam = NULL, 
     
     if (K == 1) {
       M <- length(sela) + 1
-      for ( i in ind[-sela] )  {
+      for ( i in ind[-c(sela, zevar)] )  {
         fit2 <- lme4::glmer( y ~ x[, c(sela, i)] + reps + (1|id), family = oiko, weights = wei )
         lik2[i] <- BIC(fit2) + con * lchoose(p, M)
       }
-      n.tests[2] <- length( ind[-sela] )
+      n.tests[2] <- length( ind[-c(sela, zevar)] )
       stat <- lik1 - lik2
       s <- which(stat > 0) 
       sel <- which.max(stat) * ( length(s)>0 )
@@ -111,11 +116,11 @@ ebic.fbed.glmm.reps <- function(y, x, id, reps = NULL, univ = NULL, gam = NULL, 
     
     if ( K > 1) {
       M <- length(sela) + 1
-      for ( i in ind[-sela] )  {
+      for ( i in ind[-c(sela, zevar)] )  {
         fit2 <- lme4::glmer( y ~ x[, c(sela, i)] + reps + (1|id), family = oiko, weights = wei )
         lik2[i] <- BIC(fit2) + con * lchoose(p, M)
       }
-      n.tests[2] <- length(ind[-sela])
+      n.tests[2] <- length(ind[-c(sela, zevar)])
       stat <- lik1 - lik2
       s <- which(stat > 0) 
       sel <- which.max(stat) * ( length(s)>0 )
@@ -150,11 +155,11 @@ ebic.fbed.glmm.reps <- function(y, x, id, reps = NULL, univ = NULL, gam = NULL, 
       while ( vim < K  & card[vim + 1] - card[vim] > 0 ) {
         vim <- vim + 1
         M <- length(sela) + 1
-        for ( i in ind[-sela] )  {
+        for ( i in ind[-c(sela, zevar)] )  {
           fit2 <- lme4::glmer( y ~ x[, c(sela, i)] + reps + (1|id), family = oiko, weights = wei )
           lik2[i] <- BIC(fit2) + con * lchoose(p, M)
         }
-        n.tests[vim + 1] <- length(ind[-sela])
+        n.tests[vim + 1] <- length(ind[-c(sela, zevar)])
         stat <- lik1 - lik2
         s <- which(stat > 0)
         sel <- which.max(stat) * ( length(s)>0 )

@@ -20,6 +20,7 @@ mmhc.skel <- function(dataset, max_k = 3, threshold = 0.05, test = "testIndFishe
   
   if ( !is.null(test) ) {
     if ( is.null(ini.pvalue)  & ( test == "testIndSpearman" | test == "testIndFisher" | test == "gSquare") ) {
+      if ( !is.matrix(dataset) )   dataset <- as.matrix(dataset)
       initial.tests <- 0.5 * n * (n - 1)
       if ( test == "testIndSpearman" ) {
         dataset <- Rfast::colRanks(dataset)

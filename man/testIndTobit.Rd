@@ -110,7 +110,7 @@ require(survival, quietly = TRUE)
 x <- matrix( rnorm(100 * 30), ncol = 30)
 y <- x[, 1] - x[, 2] + rnorm(100, 5)
 y[y < 0 ] <- 0
-y <- Surv(y, y>0, type = 'left') 
+y <- survival::Surv(y, y>0, type = 'left') 
   
 #run the censIndCR   conditional independence test
 testIndTobit(y, x, xIndex = 12, csIndex = c(5, 7, 4) )
@@ -119,7 +119,7 @@ permTobit(y, x, xIndex = 12, csIndex = c(5, 7, 4), R = 499 )
   
 #run the SES algorithm using the censIndCR conditional independence
 #test for the survival class variable
-a <- SES(y, x, max_k = 2, threshold = 0.05, test = "testIndTobit");
+a <- MMPC(y, x, max_k = 2, threshold = 0.05, test = "testIndTobit");
 }
 
 \keyword{ Survival }

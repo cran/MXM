@@ -32,7 +32,7 @@ The plot of the directed graph. This is interactive, in the sense that the user 
 \author{
  Michail Tsagris
 
-R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> and Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> and Michail Tsagris <mtsagris@uoc.gr>
 }
 
 %\note{
@@ -44,7 +44,7 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> and M
 
 \examples{
 # simulate a dataset with continuous data
-dataset <- matrix(runif(1000 * 20, 1, 100), nrow = 1000 ) 
+dataset <- matrix( runif(500 * 20, 1, 100), nrow = 500 ) 
 a <- mmhc.skel(dataset, max_k = 3, threshold = 0.05, test = "testIndFisher", 
 nc = 1) 
 plotnetwork(a$G)

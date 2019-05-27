@@ -57,19 +57,18 @@ The area under the curve, plus a circle with the point where Youden's J is locat
 \author{
  Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
 }
 
 %\note{
 %%  ~~further notes~~
 %}
 \seealso{
-\code{ \link{SES}, \link{MMPC}, \link{testIndLogistic} 
+\code{ \link{bbc}, \link{testIndLogistic} 
 }
 }
 
 \examples{
-# simulate a dataset with continuous data
 g <- rbinom(150, 1, 0.6)
 f <- rnorm(150)
 auc(g, f, roc = FALSE)

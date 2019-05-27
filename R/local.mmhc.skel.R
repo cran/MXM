@@ -12,7 +12,7 @@ local.mmhc.skel = function(dataset, node, max_k = 3, threshold = 0.05, test = "t
     nam <- colnames(dataset)
     colnames(G) <- rownames(G) <- nam  
   }
-
+  
   a <- MMPC(node, dataset, max_k = max_k, threshold = threshold, test = test, backward = TRUE)
   pct <- a@selectedVars;
   G[node, pct] <- 1

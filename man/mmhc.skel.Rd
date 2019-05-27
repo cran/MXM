@@ -133,7 +133,7 @@ Liang K.Y. and Zeger S.L. (1986). Longitudinal data analysis using generalized l
 \author{
 Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
 }
 
 %\note{
@@ -149,9 +149,8 @@ y <- rdag2(500, p = 20, nei = 3)
 x <- y$x
 a <- mmhc.skel(x, max_k = 5, threshold = 0.01, test = "testIndFisher" ) 
 b <- pc.skel( x, alpha = 0.01 ) 
-a$runtime ## 
-b$runtime ## 
- 
+a$runtime  
+b$runtime 
 }
 
 \keyword{ MMHC algorithm }

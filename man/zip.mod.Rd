@@ -58,7 +58,7 @@ Lambert D. (1992). Zero-inflated Poisson regression, with an application to defe
 \author{
  Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
 }
 
 %\note{

@@ -68,7 +68,7 @@ https://link.springer.com/article/10.1007/s10994-018-5714-4
 }
 
 \examples{
-predictions <- matrix(rbinom(100 * 200, 1, 0.7), ncol = 200) 
+predictions <- matrix(rbinom(200 * 100, 1, 0.7), ncol = 100) 
 target <- rbinom(200, 1, 0.5)
 bbc(predictions, target, metric = "auc.mxm")
 }

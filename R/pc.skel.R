@@ -51,15 +51,15 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.01, rob = FALSE, R = 
     } else if ( method == "distcor" ) {
       ci.test <- dist.condi
       type <- NULL
-      rob <- NULL
+      rob <- FALSE
     } else if (method == "comb.fast" ) {
       ci.test <- ci.fast
       type <- NULL
-      rob <- NULL
+      rob <- FALSE
     } else if (method == "comb.mm" ) {
       ci.test <- ci.mm
       type <- NULL
-      rob <- NULL
+      rob <- FALSE
     }  
     dm <- dim(dataset)
     n <- dm[2]
@@ -142,67 +142,67 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.01, rob = FALSE, R = 
     G[pvalue > alpha] <- 0   ## removes edges from non significantly related pairs
     
     diag(pvalue) = diag(pv) = 0
-    ina = 1:n 
-    sep = list()
-    n.tests = NULL
+    ina <- 1:n 
+    sep <- list()
+    n.tests <- NULL
     #### some more initial stuff 
-    dial = which( pv <= alpha, arr.ind = TRUE )
-    zeu = cbind( dial, stadf[ dial ], pv[ dial ] )  ## all significant pairs of variables
+    dial <- which( pv <= alpha, arr.ind = TRUE )
+    zeu <- cbind( dial, stadf[ dial ], pv[ dial ] )  ## all significant pairs of variables
     zeu <- zeu[ order( - zeu[, 4], zeu[, 3] ), , drop = FALSE] ## order of the pairs based on their strength
     duo = dim(zeu)[1]  ## number of pairs to be checked for conditional independence
     n.tests[1] = n * (n - 1) / 2
     #### main search
     if (duo == 0) {
-      diag(G) = 0
-      res = list(kappa = k, G = G) 
+      diag(G) <- 0
+      res <- list(kappa = k, G = G) 
     } else {
       
-      ell = 2
+      ell <- 2
       ## Execute PC algorithm: main loop
       while ( k < ell & duo > 0 )  {
-        k = k + 1   ## size of the seperating set will change now
-        tes = 0
+        k <- k + 1   ## size of the seperating set will change now
+        tes <- 0
         met <- matrix(0, duo, k + 2)
         
         for ( i in 1:nrow(zeu) ) {
           candpair <- zeu[i, 1:2]
-          adjx = ina[ G[ candpair[1], ] == 2 ]   ;   lx = length(adjx)  ## adjacents to x
-          adjy = ina[ G[ candpair[2], ] == 2 ]   ;   ly = length(adjy)  ## adjacents to y
+          adjx <- ina[ G[ candpair[1], ] == 2 ]   ;   lx <- length(adjx)  ## adjacents to x
+          adjy <- ina[ G[ candpair[2], ] == 2 ]   ;   ly <- length(adjy)  ## adjacents to y
           
           if ( lx >= k )  {
-            pvalx = pvalue[ candpair[1], adjx ]
-            infox = cbind( adjx, pvalx)
-            infox = infox[ order( - pvalx ), ]
+            pvalx <- pvalue[ candpair[1], adjx ]
+            infox <- cbind( adjx, pvalx)
+            infox <- infox[ order( - pvalx ), ]
             if ( !is.matrix(infox) ) {
-              samx = cbind( infox[1], infox[2] )
-            } else  samx = cbind( t( combn(infox[, 1], k) ), t( combn(infox[, 2], k) ) )  ## factorial, all possible unordered pairs
+              samx <- cbind( infox[1], infox[2] )
+            } else  samx <- cbind( t( combn(infox[, 1], k) ), t( combn(infox[, 2], k) ) )  ## factorial, all possible unordered pairs
           }  ## end if ( lx >= k )
           
           if ( ly >= k ) {
-            pvaly = pvalue[ candpair[2], adjy ]
-            infoy = cbind(adjy, pvaly)
-            infoy = infoy[ order( - pvaly ), ]
+            pvaly <- pvalue[ candpair[2], adjy ]
+            infoy <- cbind(adjy, pvaly)
+            infoy <- infoy[ order( - pvaly ), ]
             if ( !is.matrix(infoy) ) {
-              samy = cbind( infoy[1], infoy[2] )
+              samy <- cbind( infoy[1], infoy[2] )
             } else  samy = cbind( t( combn(infoy[, 1], k) ), t( combn(infoy[, 2], k) ) )  ## factorial, all possible unordered pairs
           }  ## end if ( ly >= k )
           
           if ( !is.null(samx) ) sx = 1  else sx = 0
           if ( !is.null(samy) ) sy = 1  else sy = 0 
-          sam = rbind( samx * sx, samy * sy ) 
-          sam = unique(sam)
+          sam <- rbind( samx * sx, samy * sy ) 
+          sam <- unique(sam)
           ## sam contains either the sets of k neighbours of X, or of Y or of both
           ## if the X and Y have common k neighbours, they are removed below
           rem = intersect( zeu[i, 1:2], sam )
           if ( length(rem) > 0 ) {
-            pam = list()
+            pam <- list()
             for ( j in 1:length(rem) ) {
-              pam[[ j ]] = as.vector( which(sam == rem[j], arr.ind = TRUE)[, 1] ) 
+              pam[[ j ]] <- as.vector( which(sam == rem[j], arr.ind = TRUE)[, 1] ) 
             }
           }  ## end if ( length(rem) > 0 )
           
-          pam = unlist(pam)
-          sam = sam[ - pam, ] 
+          pam <- unlist(pam)
+          sam <- sam[ - pam, ] 
           
           if ( !is.matrix(sam) ) {
             sam = matrix( sam, nrow = 1 ) 
@@ -210,7 +210,7 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.01, rob = FALSE, R = 
             G = G 
             
           } else { 
-            if (k == 1) {
+            if ( k == 1 ) {
               sam = sam[ order( sam[, 2 ] ), ]
             } else {
               an <- t( apply(sam[, -c(1:2)], 1, sort, decreasing = TRUE) )
@@ -223,22 +223,22 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.01, rob = FALSE, R = 
           }  ## end if if ( !is.matrix(sam) )
           
           if ( dim(sam)[1] == 0 ) {
-            G = G  
+            G <- G  
           } else {
-            a = ci.test( candpair[1], candpair[2], sam[1, 1:k], dataset, type = type, rob = rob, R = R )
+            a <- ci.test( candpair[1], candpair[2], sam[1, 1:k], dataset, type = type, rob = rob, R = R )
             b <- a[2]
             if ( a[2] > alpha ) {
               G[ candpair[1], candpair[2] ] = 0  ## remove the edge between two variables
               G[ candpair[2], candpair[1] ] = 0  ## remove the edge between two variables 
-              met[i, ] = c( sam[1, 1:k], a[1:2] )
-              tes = tes + 1 
+              met[i, ] <- c( sam[1, 1:k], a[1:2] )
+              tes <- tes + 1 
             } else {
-              m = 1
+              m <- 1
               while ( a[2] < alpha  &  m < nrow(sam) ) {
-                m = m + 1
-                a = ci.test( candpair[1], candpair[2], sam[m, 1:k], dataset, type = type, rob = rob, R = R )
+                m <- m + 1
+                a <- ci.test( candpair[1], candpair[2], sam[m, 1:k], dataset, type = type, rob = rob, R = R )
                 b <- c(b, a[2])
-                tes = tes + 1
+                tes <- tes + 1
               }  ## end while ( a[2] < alpha  &  m < nrow(sam) )
               if (a[2] > alpha) {
                 G[ candpair[1], candpair[2] ] = 0  ## remove the edge between two variables
@@ -258,19 +258,19 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.01, rob = FALSE, R = 
           ax[[ i ]] = ina[ G[ zeu[i, 1], ] == 2 ]  ;  lx[i] = length( ax[[ i ]] )
           ay[[ i ]] = ina[ G[ zeu[i, 2], ] == 2 ]  ;  ly[i] = length( ay[[ i ]] ) 
         }
-        ell = max(lx, ly)
-        id = which( rowSums(met) > 0 )
+        ell <- max(lx, ly)
+        id <- which( rowSums(met) > 0 )
         if (length(id) == 1) {
           sep[[ k ]] = c( zeu[id, 1:2], met[id, ] )
         } else  sep[[ k ]] = cbind( zeu[id, 1:2], met[id, ] )
-        zeu = zeu[-id, , drop = FALSE]  
+        zeu <- zeu[-id, , drop = FALSE]  
         duo <- dim(zeu)[1]
         n.tests[ k + 1 ] = tes
       }  ## end while ( k <= ell & duo > 0 )
       
       G <- G/2
-      diag(G) = 0
-      durat = proc.time() - durat
+      diag(G) <- 0
+      durat <- proc.time() - durat
       ###### end of the algorithm
       for ( l in 1:k ) { 
         if ( is.matrix(sep[[ l ]]) ) {
@@ -282,9 +282,9 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.01, rob = FALSE, R = 
       }   ## end for ( l in 1:k ) 
       #######################
     }  
-    n.tests = n.tests[ n.tests>0 ]
-    k = length(n.tests) - 1
-    sepset = list()
+    n.tests <- n.tests[ n.tests>0 ]
+    k <- length(n.tests) - 1
+    sepset <- list()
     
     if (k == 0) {
       sepset = NULL
@@ -296,7 +296,7 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.01, rob = FALSE, R = 
         } else sepset[[ l ]] = sep[[ l ]]    
       }
     }  ## end if (k == 0) 
-    names(n.tests) = paste("k=", 0:k, sep ="")
+    names(n.tests) <- paste("k=", 0:k, sep ="")
     info <- summary( Rfast::rowsums(G) )
     density <- sum(G) / n / ( n - 1 ) 
     if ( is.null( colnames(dataset) ) ) {

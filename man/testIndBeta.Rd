@@ -91,7 +91,7 @@ Ferrari S.L.P. and Cribari-Neto F. (2004). Beta Regression for Modelling Rates a
 \author{
 Vincenzo Lagani, Ioannis Tsamardinos, Michail Tsagris and Giorgos Athineou
 
-R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr>, Vincenzo Lagani <vlagani@csd.uoc.gr> and Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr>, Vincenzo Lagani <vlagani@csd.uoc.gr> and Michail Tsagris <mtsagris@uoc.gr>
 }
 
 %\note{
@@ -104,19 +104,16 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr>, Vinc
 
 \examples{
 #simulate a dataset with continuous data
-dataset <- matrix(runif(100 * 20, 1, 1000), ncol = 20 ) 
+dataset <- matrix(runif(100 * 10, 1, 1000), ncol = 10 ) 
 #the target feature is the last column of the dataset as a vector
-target <- dataset[, 20]
-dataset <- dataset[, -20]
+target <- dataset[, 10]
+dataset <- dataset[, -10]
 target <- target / (max(target) + 2 )
 
-results <- testIndBeta(target, dataset, xIndex = 14, csIndex = 9)
-results
+testIndBeta(target, dataset, xIndex = 4, csIndex = 9)
 
-#run the SES algorithm using the testIndBeta conditional independence test
-sesObject <- SES(target, dataset, max_k = 3, threshold = 0.05, test = "testIndBeta");
-#print summary of the SES output
-summary(sesObject);
+#run the MMPC algorithm using the testIndBeta conditional independence test
+mmpcObject <- MMPC(target, dataset, max_k = 3, threshold = 0.05, test = "testIndBeta")
 }
 
 \keyword{Beta regression}

@@ -87,8 +87,7 @@ The number of models fitted in the backward phase.
 }
 
 \references{
-Borboudakis G. and Tsamardinos I. (2017). Forward-Backward Selection with Early Dropping. 
-https://arxiv.org/pdf/1705.10770.pdf
+Borboudakis G. and Tsamardinos I. (2019). Forward-backward selection with early dropping. Journal of Machine Learning Research, 20(8): 1-39.
 
 Tsagis M. (2018). Guide on performing feature selection with the R package MXM.
 http://mensxmachina.org/site/wp-content/uploads/2018/04/Guide-on-performing-feature-selection-with-the-R-package-MXM.pdf
@@ -97,7 +96,7 @@ http://mensxmachina.org/site/wp-content/uploads/2018/04/Guide-on-performing-feat
 \author{
 Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@csd.uoc.gr>
+R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
 }
 
 \seealso{

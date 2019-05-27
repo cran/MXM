@@ -3,11 +3,11 @@ title: 'Tutorial: Feature selection with the MMPC algorithm'
 author:
 - name: "Michail Tsagris"
   affiliation: 
-  - Computer Science Department, Univeristy of Crete
-  email: mtsagris@csd.uoc.gr
+  - Computer Science Department, University of Crete
+  email: mtsagris@uoc.gr
 - name: "Christina Chatzipantsiou"
   affiliation: 
-  - Computer Science Department, Univeristy of Crete
+  - Computer Science Department, University of Crete
   - School of Medicine, University of Crete
   email: chatzipantsiou@gmail.com
 package: MXM
@@ -58,8 +58,7 @@ Several hyper-parameters are also provided as optional arguments in the `MXM::MM
 
 # Overview the MXM::`MMPC()` function 
 
-mmpc <- MXM::MMPC(
-  
+mod <- MXM::MMPC(
        target,           # The target variable vector
        dataset,          # The dataset with the target column removed
        max_k = 3,        # The maximum size of the conditioning set to use 
@@ -69,21 +68,16 @@ mmpc <- MXM::MMPC(
                           # are stored for runtime efficiency in subsequent 
                           # MMPC runs with diferent hyper-parameters.
        hash =  TRUE,      # if TRUE, the calculated statistics are stored.
-       hashObject = NULL, # the mmpc_object from a previous run
-
+       hashObject = NULL, # the mmpcobject from a previous run
        ncores = 1,        # number of cores for parallel execution. 
                           # Recommended for thousands of variables.
-       
        backward = TRUE)   # If TRUE, the backward phase
                           # (or symmetry correction) is implemented.
                           # Falsely included variables,
                           # in the MMPC output signature are removed. 
-
 ```
 <br>
 <br>
-
-
 
 # Applying the MMPC algorithm on the UCI wine dataset 
 
@@ -130,8 +124,8 @@ head(wine, 2)
 ```{r, warning = FALSE, message = FALSE }
 # 5. CHECK for missing or non-numeric values in the dataframe:
 
-sum(is.na(as.matrix(wine[,])))
-sum(is.nan(as.matrix(wine[,])))  #if 0, then No NAs, none NaNs, good to go!
+sum(is.na(wine))
+sum(is.nan(as.matrix(wine)))  #if 0, then No NAs, none NaNs, good to go!
  
 ```
 
@@ -162,12 +156,11 @@ targetVariable <- NULL
 
 
 # 1. Convert dataframe to matrix:
-wine_dataset <- as.matrix(wine)
+wine_dataset <- as.matrix(wine[, -8])
+wine_dataset[, 12] <- as.numeric(wine_dataset[, 12])
 head(wine_dataset, 2)
 
 ```
-
-
 
 We check once more the dimension of our `dataset` object. We expect it to be in the form __Instances x Features__.
 
@@ -182,8 +175,6 @@ dim(wine_dataset)
 #178 instances and 12 features; if so, we're good to go
 ```
 
-
-
 If desired, you can allocate the `target` variable in a new data structure, merely for the purpose of keeping functions' input easy to read.
  
 ```{r, warning = FALSE, message = FALSE }
@@ -191,7 +182,6 @@ If desired, you can allocate the `target` variable in a new data structure, mere
 target_NonFlav <- as.vector(wine$Nonflavanoids)
 str(target_NonFlav,2)
 ```
-
 
 
 After the brief __EDA (Exploratory Data Analysis)__ of the UCI wine dataset, it's time to actually apply `MMPC`.
@@ -204,7 +194,7 @@ For a comprehensive overview of the __hyper-parameter options__ type `?MMPC` in 
 # MMPC on the wine dataset: 
 
 library('MXM')
-mmpc_object_wine_NonFlav <- MXM::MMPC( target  = target_NonFlav,            
+mmpcobject_wine_NonFlav <- MXM::MMPC( target  = target_NonFlav,            
                                        dataset = wine_dataset,            
                                        max_k = 3,          
                                        threshold = 0.05,                                         
@@ -214,29 +204,26 @@ mmpc_object_wine_NonFlav <- MXM::MMPC( target  = target_NonFlav,
                                        hashObject = NULL,                                        
                                        ncores = 1,         
                                        backward = TRUE)   
-                                                        
 ```
 
+## `MMPC()` output: The `mmpcobject` and the feature signature
 
-## `MMPC()` output: The `mmpc_object` and the feature signature
-
-
-Let's now explore the __output__ of the `MMPC` function, the __mmpc_object__. The generic function `summary()` can be used to display the indices of the features that are included in the signature, and also contains information about the `MMPC()` run, such as the __selected hyperparameters, execution runtime and also statistics__ about the distribution of the p-values from the performed tests. For more specific information, you can access ```the mmpc_object```  fields with the ```@``` operator, the operator for accessing __S4 class objects in R__ . This is essentially the same as using the dollar operator  ```$``` for accessing __R5 class objects__ ' slots, typically used with dataframes for example. The fields contain the  output results of the __`MMPC()`__ run and also two lists that can be re-used for subsequent __MMPC__ runs for computation time efficiency.
+Let's now explore the __output__ of the `MMPC` function, the __mmpcobject__. The generic function `summary()` can be used to display the indices of the features that are included in the signature, and also contains information about the `MMPC()` run, such as the __selected hyperparameters, execution runtime and also statistics__ about the distribution of the p-values from the performed tests. For more specific information, you can access ```the mmpcobject```  fields with the ```@``` operator, the operator for accessing __S4 class objects in R__ . This is essentially the same as using the dollar operator  ```$``` for accessing __R5 class objects__ ' slots, typically used with dataframes for example. The fields contain the  output results of the __`MMPC()`__ run and also two lists that can be re-used for subsequent __MMPC__ runs for computation time efficiency.
 
 Below, we can see the two objects that facilitate the computation time efficiency in the ```MMPC()``` re-runs.  After running __MMPC___ with some hyper-parameters you might want to run the algorithm again with different hyper-parameters (`max_k` for example). To avoid calculating the univariate associations (first step of MMPC) again, you can take the list `univ` from the first run and provide it as input to the argument ```ini``` in the subsequent runs  the algorithm. This can speed up the second run (and subequent runs of course) up to __50%__, which is crucial if you are handling datasets with a very high number of features.
 
 ```{r}
 # Cache of the stats calculated in the MMPC run
-str(mmpc_object_wine_NonFlav@hashObject) 
+str(mmpcobject_wine_NonFlav@hashObject) 
 
 # a list with the univariate associations
-str(mmpc_object_wine_NonFlav@univ)        
+str(mmpcobject_wine_NonFlav@univ)        
 ```
 
 Let's also save the `runtime` of the first MMPC run in a variable, to compare later.
 
 ```{r}
-execution_time_1st_MMPC_run <- mmpc_object_wine_NonFlav@runtime
+execution_time_1st_MMPC_run <- mmpcobject_wine_NonFlav@runtime
 execution_time_1st_MMPC_run
 ```
 
@@ -248,31 +235,24 @@ Now, we can run `MMPC()` again to check how we can use the `hashObject` and `uni
 # MMPC on the wine dataset: 
 
 library('MXM')
-mmpc_object_2nd_run <- MXM::MMPC(target  = target_NonFlav,            
+mmpcobject_2nd_run <- MXM::MMPC(target  = target_NonFlav,            
                                  dataset = wine_dataset  ,            
-                           
                            # it was set to 3 in the 1st run 
                            max_k = 5, 
-                           
                            # it was set to 0.05 in the 1st run
                            threshold = 0.01, 
-                           
                            test = 'testIndFisher',
-                           
                            #the cached univariate tests
-                           ini = mmpc_object_wine_NonFlav@univ,
-                           
+                           ini = mmpcobject_wine_NonFlav@univ,
                            # cached stats, p-values
-                           hashObject = mmpc_object_wine_NonFlav@hashObject)  
-
+                           hashObject = mmpcobject_wine_NonFlav@hashObject)  
 ```
 
 We used the `stored stats, p-values and univariate tests` performed in the first run for avoiding redundant calculations. 
 Our example dataset is very small to highlight the impact of such an implementation in  the algorithm, but let's compare the runtimes for first and second run of `MMPC()`. 
 
 ```{r, warning = FALSE, message = FALSE }
-execution_time_2nd_MMPC_run <- mmpc_object_2nd_run@runtime
-
+execution_time_2nd_MMPC_run <- mmpcobject_2nd_run@runtime
 
 execution_time_1st_MMPC_run
 execution_time_2nd_MMPC_run
@@ -306,17 +286,13 @@ The desired hyperparameters to be checked can be given as vectors in the relativ
 # Grid Search for MMPC hyper-parameter tuning 
 
 library('MXM')
-mmpc_GridSearch <- MXM::mmpc.path(
-                  
+mmpcGridSearch <- MXM::mmpc.path(
                   target  = target_NonFlav,            
                   dataset = wine_dataset,            
-                 
                   max_ks = c(3,4,5,6),  # a vector of k to try
-                  
                   alphas = NULL,   # a vector of thresholds; 
                                         # If NULL, 0.1, 0.05 and 0.01 
                                         # will be tested.
-                  
                   test = 'testIndFisher',   
                   ncores = 1)
 ```
@@ -324,7 +300,7 @@ mmpc_GridSearch <- MXM::mmpc.path(
 We can acces the `mmpc.path()` objects using the dollar `$` operator and then use the generic `which` function to retrieve the lowest value for BIC and the repsective hyper-parameters. 
  
 ```{r, warning = FALSE, message = FALSE }
-BIC_results <- as.data.frame(mmpc_GridSearch$bic)
+BIC_results <- as.data.frame(mmpcGridSearch$bic)
 head(BIC_results, 4)
 
 # We can retrieve the indices of the minimum BIC values:
@@ -335,7 +311,7 @@ Above we observe that the highest alpha level, 0.1, is the one with the __lowest
 We can display also the ```size``` of the selected signatures, which is the number variables the signature of ech configuration contains.
 
 ```{r, warning = FALSE, message = FALSE }
-size_of_signature_results <- as.data.frame(mmpc_GridSearch$size)
+size_of_signature_results <- as.data.frame(mmpcGridSearch$size)
 head(size_of_signature_results, 4)
 
 # We can retrieve the indices of the maximum subset:
@@ -345,21 +321,21 @@ which(size_of_signature_results == max(size_of_signature_results), arr.ind = TRU
 We can also preview, the indices of the actual variables that were included in the signature in each configuration:
 
 ```{r, warning = FALSE, message = FALSE }
-head(mmpc_GridSearch$variables, 4)
+head(mmpcGridSearch$variables, 4)
 
 ```
 
 Let's now get back at our initial `MMPC()` run, and explore the output summary:
 
 ```{r, warning = FALSE, message = FALSE }
-summary(mmpc_object_wine_NonFlav)
+summary(mmpcobject_wine_NonFlav)
 ```
 
 
 We can retrieve the selected __MMPC signature__, by choosing `selectedVarsOrder` from the MMPC output object; this way, the features are printed based on highest statistical significance. 
 
 ```{r, warning = FALSE, message = FALSE }
-mmpc_object_wine_NonFlav@selectedVarsOrder
+mmpcobject_wine_NonFlav@selectedVarsOrder
 
 # The signature should include the variables with indices 7, 4, 5
 ```
@@ -382,37 +358,30 @@ We can actually create a __regression model__, using the above signature variabl
 ```{r, warning = FALSE, message = FALSE }
 
 # MODEL ESTIMATES USING MMPC'S FEATURE SUBSET AS PrEDICTORs 
-
-mmpc_model_wine_NonFlav<- mmpc.model(
+mmpcmodel_wine_NonFlav<- mmpc.model(
                                    target = target_NonFlav, 
                                    dataset = wine_dataset,
                                    wei = NULL, 
-                                   mmpcObject = mmpc_object_wine_NonFlav, 
+                                   mmpcObject = mmpcobject_wine_NonFlav, 
                                    test = 'testIndFisher')
 
-
-summary(mmpc_model_wine_NonFlav) ; 
-mmpc_model_wine_NonFlav$ypografi
+summary(mmpcmodel_wine_NonFlav) ; 
+mmpcmodel_wine_NonFlav$ypografi
 ```
 
 The __MMPC__ algorithm follows a forward-backward filter approach for feature selection in order to provide a minimal, highly-predictive feature subset of a high dimensional dataset. The ``` max_k``` hyper-parameter dictates the maximum number of variables as a conditioning set to use in the conditioning independence test. In our example, 12 model where built in the process, amongst them also the one with the final selected features as variables.
 
 Above, the `ypografi` variable denotes the indices of the __MMPC selected features__ and also the __BIC (Bayesian Information Criterion)__ of the final model. If you are not familiar with BIC as a model selection criterion, you can type `?BIC` in your __Rstudio__ console for a brief introduction. As a rough estimate, when comparing models of the same Y as target variable, the model with the lowest __BIC__ is prefered.   Below, we will retrieve the __beta Coefficients__ and the __intercept__ for the selected model, so that we can write the actual formula for the regression model, for the `"NonFlavanoids"` as target variable. 
 
-
 ```{r, warning = FALSE, message = FALSE }
-mmpc_model_wine_NonFlav$mod
+mmpcmodel_wine_NonFlav$mod
 ```
 
 Let the `"NonFlavanoids"` target variable, be __Y__, then the formula for the model can be written as follows:
 
-
-
 __Y =  -0.087194 + 0.032057 Alcalinity -0.006664 Magnesium  -0.236471 Flavanoids__
 
-
 #  Optimized performance tips and tricks
-
 ## Permutation option
 The `MXM` package offers a permutation version of the statistical tests, which is recommended for small sample size datasets.
 If you are working with very large datasets, in order to save computational time, there is a trick to avoind doing all permutations. As soon as the number of times the permuted test statistic is more than the observed test statistic is more than 50 (if threshold = 0.05 and R = 999), the p-value has exceeded the signifiance level (threshold value) and hence the predictor variable is not significant. There is no need to continue do the extra permutations, as a decision has already been made.
@@ -445,7 +414,7 @@ For example, in a __gene expression dataset__, where N = 100 and features = 5000
 You can use more than one cores to speed up execution time. However, this only pays off when working with large datasets. For small datasets, like in our example ```ncore = 1``` is recommended.
 
 
-You are now ready to apply the `MMPC()` algorithm and explore your very own dataset! The `MXM` is under intensive development and will be regularly updated with new functionalities. For questions, algorithm requests and suggestions, do not hesitate to contact us at __mtsagris@csd.uoc.gr__.
+You are now ready to apply the `MMPC()` algorithm and explore your very own dataset! The `MXM` is under intensive development and will be regularly updated with new functionalities. For questions, algorithm requests and suggestions, do not hesitate to contact us at __mtsagris@uoc.gr__.
 
 # References
 

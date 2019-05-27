@@ -123,11 +123,8 @@ results
 sesObject <- SES(target, dataset, max_k = 3, threshold = 0.05, test = "gSquare");
 target <- as.factor(target)
 sesObject2 <- SES(target, dataset, max_k = 3, threshold = 0.05, test = "testIndLogistic");
-#print summary of the SES output
-summary(sesObject);
-summary(sesObject2);
 }
 
-\keyword{ \eqn{G^2} test }
+\keyword{ G-square test }
 \keyword{ Log likelihood ratio }
 \keyword{ Conditional independence test }

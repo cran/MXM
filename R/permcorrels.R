@@ -16,6 +16,6 @@ permcorrels <- function(y, x, R = 999) {
   tb <- log( (1 + tb) / (1 - tb) )  ## the test statistic
   pvalue <- ( Rfast::rowsums( abs(tb) > test ) + 1 ) / (R + 1)  ## bootstrap p-value
   res <- cbind(r, test, log( pvalue) )
-  names(res) <- c("correlation", "statistic", "p-value")
+  colnames(res) <- c("correlation", "statistic", "log p-value")
   res
 }
