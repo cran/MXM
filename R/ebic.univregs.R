@@ -23,7 +23,7 @@ ebic.univregs <- function(target, dataset, targetID = -1, test = NULL, user_test
     ebic <- ebicScore(target, dataset, test = user_test, wei, targetID)
 
   } else if ( identical(test, testIndBeta) ) {  ## Beta regression
-    ebic <- beta.regs(target, dataset, wei, logged = TRUE, ncores = ncores)[, 3]
+    ebic <- MXM::beta.regs(target, dataset, wei, logged = TRUE, ncores = ncores)[, 3]
 
   } else if ( identical(test, testIndMMReg) ) {  ## M (Robust) linear regression
 
@@ -35,16 +35,16 @@ ebic.univregs <- function(target, dataset, targetID = -1, test = NULL, user_test
       } 
 
     } else {
-      cl <- makePSOCKcluster(ncores)
-      registerDoParallel(cl)
-      ebic <- foreach(i = 1:cols, .combine = rbind, .packages = "MASS") %dopar% {
+      cl <- parallel::makePSOCKcluster(ncores)
+      doParallel::registerDoParallel(cl)
+      ebic <- foreach::foreach(i = 1:cols, .combine = rbind, .packages = "MASS") %dopar% {
         fit2 <- MASS::rlm(target ~ dataset[, i], maxit = 2000, method = "MM" )
         return( BIC(fit2) ) 
       }  
-      stopCluster(cl)
+      parallel::stopCluster(cl)
     }   
     
-  } else if ( identical(test, testIndReg)  &  is.matrix(dataset)  &  is.null(wei) ) {  ## logistic regression
+  } else if ( ( identical(test, testIndReg) | identical(test, testIndFisher) )  &  is.matrix(dataset)  &  is.null(wei) ) {  ## logistic regression
     ebic <- Rfast2::bic.regs(target, dataset, family = "normal")
 	
   } else if ( identical(test, testIndReg) ) {  ## linear regression
@@ -57,13 +57,13 @@ ebic.univregs <- function(target, dataset, targetID = -1, test = NULL, user_test
       }
 
     } else {
-      cl <- makePSOCKcluster(ncores)
-      registerDoParallel(cl)
-      ebic <- foreach(i = 1:cols, .combine = rbind) %dopar% {
+      cl <- parallel::makePSOCKcluster(ncores)
+      doParallel::registerDoParallel(cl)
+      ebic <- foreach::foreach(i = 1:cols, .combine = rbind) %dopar% {
         ww <- lm( target ~ dataset[, i], weights = wei, y = FALSE, model = FALSE )
         return( BIC( ww ) )
       }
-      stopCluster(cl)
+      parallel::stopCluster(cl)
     }   
     
   } else if ( identical(test, testIndOrdinal) ) {  ## ordinal regression
@@ -76,13 +76,13 @@ ebic.univregs <- function(target, dataset, targetID = -1, test = NULL, user_test
       }
 
     } else {
-      cl <- makePSOCKcluster(ncores)
-      registerDoParallel(cl)
-      ebic <- foreach(i = 1:cols, .combine = rbind, .packages = "ordinal") %dopar% {
+      cl <- parallel::makePSOCKcluster(ncores)
+      doParallel::registerDoParallel(cl)
+      ebic <- foreach::foreach(i = 1:cols, .combine = rbind, .packages = "ordinal") %dopar% {
         fit2 <- ordinal::clm(target ~ dataset[, i], weights = wei)
         return( BIC(fit2) )
       } 
-      stopCluster(cl)
+      parallel::stopCluster(cl)
     }
     
   } else if ( identical(test, testIndMultinom)  &  is.matrix(dataset)  &  is.null(wei) ) {  ## logistic regression
@@ -99,13 +99,13 @@ ebic.univregs <- function(target, dataset, targetID = -1, test = NULL, user_test
       }
       
     } else {
-      cl <- makePSOCKcluster(ncores)
-      registerDoParallel(cl)
-      ebic <- foreach(i = 1:cols, .combine = rbind, .packages = "nnet") %dopar% {
+      cl <- parallel::makePSOCKcluster(ncores)
+      doParallel::registerDoParallel(cl)
+      ebic <- foreach::foreach(i = 1:cols, .combine = rbind, .packages = "nnet") %dopar% {
         fit2 <- nnet::multinom(target ~ dataset[, i], weights = wei)
         return( BIC(fit2) )
       }
-      stopCluster(cl)
+      parallel::stopCluster(cl)
     }
     
   } else if ( identical(test, testIndLogistic)  &  is.matrix(dataset)  &  is.null(wei) ) {  ## logistic regression
@@ -122,13 +122,13 @@ ebic.univregs <- function(target, dataset, targetID = -1, test = NULL, user_test
       }
       
     } else {
-      cl <- makePSOCKcluster(ncores)
-      registerDoParallel(cl)
-      ebic <- foreach(i = 1:cols, .combine = rbind) %dopar% {
+      cl <- parallel::makePSOCKcluster(ncores)
+      doParallel::registerDoParallel(cl)
+      ebic <- foreach::foreach(i = 1:cols, .combine = rbind) %dopar% {
         fit2 <- glm( target ~ dataset[, i], binomial, weights = wei )
         return( BIC(fit2) )
       }
-      stopCluster(cl)
+      parallel::stopCluster(cl)
     }
     
   } else if ( identical(test, testIndBinom) ) {  ## Binomial regression
@@ -143,15 +143,15 @@ ebic.univregs <- function(target, dataset, targetID = -1, test = NULL, user_test
       }
       
     } else {
-      cl <- makePSOCKcluster(ncores)
-      registerDoParallel(cl)
+      cl <- parallel::makePSOCKcluster(ncores)
+      doParallel::registerDoParallel(cl)
       wei <- target[, 2] 
       y <- target[, 1] / wei
-      ebic <- foreach(i = ina, .combine = rbind) %dopar% {
+      ebic <- foreach::foreach(i = ina, .combine = rbind) %dopar% {
         fit2 <- glm( y ~ dataset[, i], binomial, weights = wei )
         return( BIC(fit2) )
       }
-      stopCluster(cl)
+      parallel::stopCluster(cl)
     }
     
   } else if ( identical(test, testIndPois)  &  is.matrix(dataset)  &  is.null(wei) ) {  ## Poisson regression
@@ -167,13 +167,13 @@ ebic.univregs <- function(target, dataset, targetID = -1, test = NULL, user_test
       }
 
     } else {
-      cl <- makePSOCKcluster(ncores)
-      registerDoParallel(cl)
-      ebic <- foreach(i = ina, .combine = rbind) %dopar% {
+      cl <- parallel::makePSOCKcluster(ncores)
+      doParallel::registerDoParallel(cl)
+      ebic <- foreach::foreach(i = ina, .combine = rbind) %dopar% {
         fit2 <- glm( target ~ dataset[, i], poisson, weights = wei )
         return( BIC(fit2) )
       }
-      stopCluster(cl)
+      parallel::stopCluster(cl)
     }
     
   } else if ( identical(test, testIndNB) ) {  ## Negative binomial regression
@@ -186,13 +186,13 @@ ebic.univregs <- function(target, dataset, targetID = -1, test = NULL, user_test
       }
 
     } else {
-      cl <- makePSOCKcluster(ncores)
-      registerDoParallel(cl)
-      ebic <- foreach(i = ina, .combine = rbind, .packages = "MASS") %dopar% {
+      cl <- parallel::makePSOCKcluster(ncores)
+      doParallel::registerDoParallel(cl)
+      ebic <- foreach::foreach(i = ina, .combine = rbind, .packages = "MASS") %dopar% {
         fit2 <- MASS::glm.nb( target ~ dataset[, i], weights = wei )
         return( BIC(fit2) ) 
       }
-      stopCluster(cl)
+      parallel::stopCluster(cl)
     }
     
   } else if ( identical(test, testIndNormLog)  &  is.matrix(dataset)  &  is.null(wei) ) {  ## Poisson regression
@@ -208,13 +208,13 @@ ebic.univregs <- function(target, dataset, targetID = -1, test = NULL, user_test
       }
 
     } else {
-      cl <- makePSOCKcluster(ncores)
-      registerDoParallel(cl)
-      ebic <- foreach(i = ina, .combine = rbind) %dopar% {
+      cl <- parallel::makePSOCKcluster(ncores)
+      doParallel::registerDoParallel(cl)
+      ebic <- foreach::foreach(i = ina, .combine = rbind) %dopar% {
         fit2 <- glm( target ~ dataset[, i], family = gaussian(link = log), weights = wei )
         return( BIC(fit2) )
       }
-      stopCluster(cl)
+      parallel::stopCluster(cl)
     }
     
   } else if ( identical(test, testIndGamma)   ) {  ## Gamma regression
@@ -227,13 +227,13 @@ ebic.univregs <- function(target, dataset, targetID = -1, test = NULL, user_test
       }
 
     } else {
-      cl <- makePSOCKcluster(ncores)
-      registerDoParallel(cl)
-      ebic <- foreach(i = ina, .combine = rbind) %dopar% {
+      cl <- parallel::makePSOCKcluster(ncores)
+      doParallel::registerDoParallel(cl)
+      ebic <- foreach::foreach(i = ina, .combine = rbind) %dopar% {
         fit2 <- glm( target ~ dataset[, i], family = Gamma(link = log), weights = wei )
         return( BIC(fit2) )
       }
-      stopCluster(cl)
+      parallel::stopCluster(cl)
     } 
     
   } else if ( identical(test, testIndZIP) ) {  ## Zero-inflated Poisson regression
@@ -249,13 +249,13 @@ ebic.univregs <- function(target, dataset, targetID = -1, test = NULL, user_test
       }
 
     } else {
-      cl <- makePSOCKcluster(ncores)
-      registerDoParallel(cl)
-      ebic <- foreach(i = 1:cols, .combine = rbind) %dopar% {
+      cl <- parallel::makePSOCKcluster(ncores)
+      doParallel::registerDoParallel(cl)
+      ebic <- foreach::foreach(i = 1:cols, .combine = rbind) %dopar% {
         fit2 <- glm( target ~ dataset[, i], family = inverse.gaussian(link = log), weights = wei )
         return( BIC(fit2) )
       }
-      stopCluster(cl)
+      parallel::stopCluster(cl)
     }
     
   } else if ( identical(test, censIndCR) ) {  ## Cox regression
@@ -268,13 +268,13 @@ ebic.univregs <- function(target, dataset, targetID = -1, test = NULL, user_test
       }
 
     } else {
-      cl <- makePSOCKcluster(ncores)
-      registerDoParallel(cl)
-      ebic <- foreach(i = 1:cols, .combine = rbind, .packages = "survival") %dopar% {
+      cl <- parallel::makePSOCKcluster(ncores)
+      doParallel::registerDoParallel(cl)
+      ebic <- foreach::foreach(i = 1:cols, .combine = rbind, .packages = "survival") %dopar% {
         fit2 <- survival::coxph( target ~ dataset[, i], weights = wei )
         return( BIC(fit2) )
       }
-      stopCluster(cl)
+      parallel::stopCluster(cl)
     }
     
   } else if ( identical(test, censIndWR) ) {  ## Weibull regression
@@ -287,13 +287,13 @@ ebic.univregs <- function(target, dataset, targetID = -1, test = NULL, user_test
       }
 
     } else {
-      cl <- makePSOCKcluster(ncores)
-      registerDoParallel(cl)
-      ebic <- foreach(i = 1:cols, .combine = rbind, .packages = "survival") %dopar% {
+      cl <- parallel::makePSOCKcluster(ncores)
+      doParallel::registerDoParallel(cl)
+      ebic <- foreach::foreach(i = 1:cols, .combine = rbind, .packages = "survival") %dopar% {
         fit2 <- survival::survreg( target ~ dataset[, i], weights = wei )
         return( - 2 * logLik(fit2) + (length(fit2$coefficients) + 1) * logn )
       }
-      stopCluster(cl)
+      parallel::stopCluster(cl)
     }
     
   } else if ( identical(test, censIndLLR) ) {  ## Weibull regression
@@ -306,13 +306,13 @@ ebic.univregs <- function(target, dataset, targetID = -1, test = NULL, user_test
       }
       
     } else {
-      cl <- makePSOCKcluster(ncores)
-      registerDoParallel(cl)
-      ebic <- foreach(i = 1:cols, .combine = rbind, .packages = "survival") %dopar% {
+      cl <- parallel::makePSOCKcluster(ncores)
+      doParallel::registerDoParallel(cl)
+      ebic <- foreach::foreach(i = 1:cols, .combine = rbind, .packages = "survival") %dopar% {
         fit2 <- survival::survreg( target ~ dataset[, i], weights = wei, dist = "loglogistic" )
         return( - 2 * logLik(fit2) + (length(fit2$coefficients) + 1) * logn )
       }
-      stopCluster(cl)
+      parallel::stopCluster(cl)
     }
     
   } else if ( identical(test, testIndTobit) ) {  ## Tobit regression
@@ -325,13 +325,13 @@ ebic.univregs <- function(target, dataset, targetID = -1, test = NULL, user_test
       }
 
     } else {
-      cl <- makePSOCKcluster(ncores)
-      registerDoParallel(cl)
-      ebic <- foreach(i = 1:cols, .combine = rbind, .packages = "survival") %dopar% {
+      cl <- parallel::makePSOCKcluster(ncores)
+      doParallel::registerDoParallel(cl)
+      ebic <- foreach::foreach(i = 1:cols, .combine = rbind, .packages = "survival") %dopar% {
         fit2 <- survival::survreg( target ~ dataset[, i], weights = wei, dist = "gaussian" )
         return( - 2 * logLik(fit2) + (length(fit2$coefficients) + 1) * logn )
       }
-      stopCluster(cl)
+      parallel::stopCluster(cl)
     }
     
   } else if ( identical(test, testIndClogit) ) {  ## Conditional logistic regression
@@ -346,13 +346,13 @@ ebic.univregs <- function(target, dataset, targetID = -1, test = NULL, user_test
       }
 
     } else {
-      cl <- makePSOCKcluster(ncores)
-      registerDoParallel(cl)
-      ebic <- foreach(i = 1:cols, .combine = rbind, .packages = "survival") %dopar% {
+      cl <- parallel::makePSOCKcluster(ncores)
+      doParallel::registerDoParallel(cl)
+      ebic <- foreach::foreach(i = 1:cols, .combine = rbind, .packages = "survival") %dopar% {
         fit2 <- survival::clogit(case ~ dataset[, i] + strata(subject) ) 
         return( BIC(fit2) )
       }
-      stopCluster(cl)
+      parallel::stopCluster(cl)
     }
     
   } else if ( identical(test, censIndER) ) {  ## Exponential regression
@@ -365,14 +365,21 @@ ebic.univregs <- function(target, dataset, targetID = -1, test = NULL, user_test
       }
 
     } else {
-      cl <- makePSOCKcluster(ncores)
-      registerDoParallel(cl)
-      ebic <- foreach(i = 1:cols, .combine = rbind, .packages = "survival") %dopar% {
+      cl <- parallel::makePSOCKcluster(ncores)
+      doParallel::registerDoParallel(cl)
+      ebic <- foreach::foreach(i = 1:cols, .combine = rbind, .packages = "survival") %dopar% {
         fit2 <- survival::survreg( target ~ dataset[, i], dist = "exponential", weights = wei )
         return( - 2 * logLik(fit2) + (length(fit2$coefficients) + 1) * logn )
       }
-      stopCluster(cl)
+      parallel::stopCluster(cl)
     }
+    
+  } else if ( identical(test, testIndSPML) ) {  ## Circular regression
+    if ( !is.matrix(dataset) )  dataset <- as.matrix(dataset)
+    stat <- Rfast::spml.regs(target, dataset, logged = TRUE, parallel = (ncores > 1) )[, 1]
+    if ( is.matrix(target) )  target <- ( atan(target[, 2]/target[, 1]) + pi * I(target[, 1] < 0) ) %% (2 * pi)
+    ini <- Rfast::spml.mle(target)$loglik
+    ebic <- - stat - 2 * ini + 4 * logn
     
   }  else  ebic <- NULL
   

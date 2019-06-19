@@ -1,4 +1,4 @@
-testIndGLMMGamma = function(target, reps = NULL, group, dataset, xIndex, csIndex,  wei =  NULL, univariateModels = NULL,
+testIndGLMMGamma <- function(target, reps = NULL, group, dataset, xIndex, csIndex,  wei =  NULL, univariateModels = NULL,
                                hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, slopes = FALSE) {
   #   TESTINDGLMM Conditional Independence Test based on generalised linear mixed models for normal, binary ro discrete variables
   #   target: a vector containing the values of the target variable. 
@@ -12,24 +12,23 @@ testIndGLMMGamma = function(target, reps = NULL, group, dataset, xIndex, csIndex
   #   csIndex: the indices of the variables to condition on. They can be mixed variables, either continous or categorical
   #   this method returns: the pvalue PVALUE, the statistic STAT.
   #cast factor into numeric vector
-  target = as.numeric(as.vector(target));
-  csIndex[which(is.na(csIndex))] = 0
+  csIndex[which(is.na(csIndex))] <- 0
   
   if( hash )  {
-    csIndex2 = csIndex[which(csIndex!=0)]
-    csIndex2 = sort(csIndex2)
-    xcs = c(xIndex,csIndex2)
-    key = paste(as.character(xcs) , collapse=" ");
+    csIndex2 <- csIndex[which(csIndex!=0)]
+    csIndex2 <- sort(csIndex2)
+    xcs <- c(xIndex,csIndex2)
+    key <- paste(as.character(xcs) , collapse=" ");
     if( !is.null(stat_hash[key]) )  {
-      stat = stat_hash[key];
-      pvalue = pvalue_hash[key];
+      stat <- stat_hash[key];
+      pvalue <- pvalue_hash[key];
       results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
       return(results);
     }
   }
   #if the test cannot performed succesfully these are the returned values
-  pvalue = log(1);
-  stat = 0; 
+  pvalue <- log(1);
+  stat <- 0; 
   #information with respect to cs
   if ( !is.na(match(xIndex, csIndex)) )  {
     if ( hash )  {      #update hash objects
@@ -46,10 +45,12 @@ testIndGLMMGamma = function(target, reps = NULL, group, dataset, xIndex, csIndex
     return(results);
   }
   #extract the data
-  x = dataset[ , xIndex];
-  cs = dataset[ , csIndex];
-  if(length(cs) == 0 || any( is.na(cs) ) )  cs = NULL;
+  x <- dataset[ , xIndex];
+  cs <- dataset[ , csIndex];
+  if ( length(cs) == 0 || any( is.na(cs) ) )  cs <- NULL;
   #That means that the x variable does not add more information to our model due to an exact copy of this in the cs, so it is independent from the target
+  oop <- options(warn = -1) 
+  on.exit( options(oop) )
   if ( length(cs) != 0 )  {
     if ( is.null(dim(cs)[2]) )  {     #cs is a vector
       if ( identical(x, cs) )  {    #if(!any(x == cs) == FALSE)
@@ -73,55 +74,54 @@ testIndGLMMGamma = function(target, reps = NULL, group, dataset, xIndex, csIndex
       }
     }
   }
-  options(warn = -1)
   #if the conditioning set (cs) is empty, we use the t-test on the coefficient of x.
   if (length(cs) == 0)  {
     #if the univariate models have been already compute
     if ( !is.null(univariateModels) )  {
-      pvalue = univariateModels$pvalue[[xIndex]];
-      stat = univariateModels$stat[[xIndex]];
+      pvalue <- univariateModels$pvalue[[xIndex]];
+      stat <- univariateModels$stat[[xIndex]];
       results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
       return(results);
     }
     if ( is.null(reps) ) {
-      fit1 = lme4::glmer( target ~ (1|group), weights = wei, family = Gamma(log) ) 
-      fit2 = lme4::glmer( target ~ (1|group) + x, weights = wei, family = Gamma(log) ) 
+      fit1 <- lme4::glmer( target ~ (1|group), weights = wei, family = Gamma(log) ) 
+      fit2 <- lme4::glmer( target ~ (1|group) + x, weights = wei, family = Gamma(log) ) 
     } else {
       reps <- reps 
       if ( slopes ) {
-        fit1 = lme4::glmer( target ~ reps + (reps|group), weights = wei, family = Gamma(log) ) 
-        fit2 = lme4::glmer( target ~ reps + (reps|group) + x, weights = wei, family = Gamma(log) ) 
+        fit1 <- lme4::glmer( target ~ reps + (reps|group), weights = wei, family = Gamma(log) ) 
+        fit2 <- lme4::glmer( target ~ reps + (reps|group) + x, weights = wei, family = Gamma(log) ) 
       } else {
-        reps = reps 
-        fit1 = lme4::glmer( target ~ reps + (1|group), weights = wei, family = Gamma(log) )  
-        fit2 = lme4::glmer( target ~ reps + (1|group) + x, weights = wei, family = Gamma(log) )  
+        reps <- reps 
+        fit1 <- lme4::glmer( target ~ reps + (1|group), weights = wei, family = Gamma(log) )  
+        fit2 <- lme4::glmer( target ~ reps + (1|group) + x, weights = wei, family = Gamma(log) )  
       }
     }
     
   } else {  ## (length(cs) > 0)  
     if ( is.null(reps) ) {
-      fit1 = lme4::glmer( target ~ (1|group) + cs, weights = wei, family = Gamma(log) )    
-      fit2 = lme4::glmer( target ~ (1|group) + cs + x, weights = wei, family = Gamma(log) )    
+      fit1 <- lme4::glmer( target ~ (1|group) + cs, weights = wei, family = Gamma(log) )    
+      fit2 <- lme4::glmer( target ~ (1|group) + cs + x, weights = wei, family = Gamma(log) )    
     } else {
-      reps = reps 
+      reps <- reps 
       if (slopes ) {
-        fit1 = lme4::glmer( target ~ reps + (reps|group) + cs, weights = wei, family = Gamma(log))
-        fit2 = lme4::glmer( target ~ reps + (reps|group) + cs + x, weights = wei, family = Gamma(log) )
+        fit1 <- lme4::glmer( target ~ reps + (reps|group) + cs, weights = wei, family = Gamma(log))
+        fit2 <- lme4::glmer( target ~ reps + (reps|group) + cs + x, weights = wei, family = Gamma(log) )
       } else {
-        fit1 = lme4::glmer( target ~ reps + (1|group) + cs, weights = wei, family = Gamma(log)) 
-        fit2 = lme4::glmer( target ~ reps + (1|group) + cs + x, weights = wei, family = Gamma(log) ) 
+        fit1 <- lme4::glmer( target ~ reps + (1|group) + cs, weights = wei, family = Gamma(log)) 
+        fit2 <- lme4::glmer( target ~ reps + (1|group) + cs + x, weights = wei, family = Gamma(log) ) 
       }
     }  
   }
-  #calculate the p value and stat.
+  #calculate the p value and stat
   mod <- anova(fit1, fit2)
   stat <- mod[2, 6]
   pvalue <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
   #update hash objects
   if ( hash )  {
-    stat_hash$key <- stat;   #.set(stat_hash , key , stat)
-    pvalue_hash$key <- pvalue;    #.set(pvalue_hash , key , pvalue)
+    stat_hash$key <- stat;   #.set(stat_hash, key, stat)
+    pvalue_hash$key <- pvalue;    #.set(pvalue_hash, key, pvalue)
   }
-  results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+  results <- list(pvalue = pvalue, stat = stat, stat_hash = stat_hash, pvalue_hash = pvalue_hash);
   return(results);
 }

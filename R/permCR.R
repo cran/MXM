@@ -24,11 +24,12 @@ permCR = function(target, dataset, xIndex, csIndex, wei = NULL, univariateModels
   results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
   cox_results = NULL;
   cox_results_full = NULL;
-  #timeIndex = dim(dataset)[2];
   event = target[,2]
   x = dataset[, xIndex];
   #if the censored indicator is empty, a dummy variable is created
   numCases = dim(dataset)[1];
+  oop <- options(warn = -1) 
+  on.exit( options(oop) )
   if (length(event)==0)  event = vector('numeric',numCases) + 1;
       if ( length(csIndex) == 0 || sum(csIndex == 0, na.rm = TRUE) > 0 ) {
         cox_results <- survival::coxph(target ~ x, weights = wei )
@@ -39,34 +40,33 @@ permCR = function(target, dataset, xIndex, csIndex, wei = NULL, univariateModels
           n <- length(x)
           while (j <= R & step < thres ) {
             xb <- sample(x, n)  
-            bit2 = survival::coxph( target ~ xb, weights = wei )
+            bit2 <- survival::coxph( target ~ xb, weights = wei )
             step <- step + ( anova(bit2)[2, 2] > stat )
             j <- j + 1
           }
           pvalue <- log( (step + 1) / (R + 1) )
 		}  
       } else {
-	      options(warn = -1)
         cox_results_full <- survival::coxph(target ~ ., data = as.data.frame(  dataset[ , c(csIndex, xIndex)] ), weights = wei) 
-        res = anova(cox_results_full)
-        pr = nrow(res)
-        stat = res[pr, 2]
+        res <- anova(cox_results_full)
+        pr <- nrow(res)
+        stat <- res[pr, 2]
 		    if (stat > 0) {
           j <- 1		
           step <- 0
           n <- length(x)
-          while (j <= R & step < thres ) {
+          while (j <= R  &  step < thres ) {
             xb <- sample(x, n)  
-            bit2 = survival::coxph( target ~ ., data = as.data.frame( cbind( dataset[, csIndex], xb ) ), weights = wei )
+            bit2 <- survival::coxph( target ~ ., data = as.data.frame( cbind( dataset[, csIndex], xb ) ), weights = wei )
             step <- step + ( anova(bit2)[pr, 2] > stat )
             j <- j + 1
           }
           pvalue <- log( (step + 1) / (R + 1) )
-		}  
+		}
       }  
       if ( is.na(pvalue) || is.na(stat) ) {
-        pvalue = log(1)
-        stat = 0;
+        pvalue <- log(1)
+        stat <- 0;
       } else {
         #update hash objects
         if( hash )  {

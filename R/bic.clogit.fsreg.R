@@ -43,7 +43,7 @@ bic.clogit.fsreg <- function( target, dataset, wei = NULL, tol = 0, ncores = 1) 
     
   } else {
     cl <- makePSOCKcluster(ncores)
-    registerDoParallel(cl)
+    doParallel::registerDoParallel(cl)
     mod <- foreach( i = 1:p, .combine = rbind, .export = "clogit", .packages = "survival") %dopar% {
       ww <- survival::clogit( y ~ dataset[, i] + strata(id) )
       return( BIC(ww) )
@@ -89,13 +89,13 @@ bic.clogit.fsreg <- function( target, dataset, wei = NULL, tol = 0, ncores = 1) 
       
     } else {
       
-      cl <- makePSOCKcluster(ncores)
-      registerDoParallel(cl)
+      cl <- parallel::makePSOCKcluster(ncores)
+      doParallel::registerDoParallel(cl)
       mod <- foreach( i = 1:pn, .combine = rbind, .export = "clogit", .packages = "survival") %dopar% {
         ww <- survival::clogit( y ~ dataset[, sel ] + dataset[, mat[i, 1] ] + strata(id))
         return( BIC(ww) )
       }
-      stopCluster(cl)
+      parallel::stopCluster(cl)
       
       mat[, 2] <- mod
     }

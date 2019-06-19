@@ -24,7 +24,7 @@ kfbed.reg <- function(y, x, univ = NULL, test = NULL, alpha = 0.05, wei = NULL, 
      
   } else {  ##  end if (test == "gSquare")   
   
-    a <- fbed.reg(target = y, dataset = x, ini = univ, test = test, threshold = alpha, wei = wei, K = max(K), method = method, gam = gam, backward = FALSE)
+    a <- MXM::fbed.reg(target = y, dataset = x, ini = univ, test = test, threshold = alpha, wei = wei, K = max(K), method = method, gam = gam, backward = FALSE)
   
     info <- a$info
     res <- a$res
@@ -33,11 +33,11 @@ kfbed.reg <- function(y, x, univ = NULL, test = NULL, alpha = 0.05, wei = NULL, 
     if ( k > 0  & info[1, 1] > 0 ) {
       if (info[k, 1] == info[k - 1, 1])   k <- k - 1
       sel <- info[1:k, 1]
-      if (backward) {
-        if (method == "LR") {
+      if ( backward ) {
+        if ( method == "LR" ) {
          
           for (i in 1:k) {
-            b <- bs.reg(y, x[, a$res[1:sel[i], 1], drop = FALSE], threshold = alpha, wei = wei, test = test)
+            b <- MXM::bs.reg(y, x[, a$res[1:sel[i], 1], drop = FALSE], threshold = alpha, wei = wei, test = test)
             if ( typeof(b) == "list" ) {
               mod[[ i ]] <- cbind(a$res[b$mat[, 1], 1], b$mat[, 3], b$mat[, 2])
               colnames(mod[[ i ]]) <- c("Vars", "stat", "log p-value")
@@ -46,7 +46,7 @@ kfbed.reg <- function(y, x, univ = NULL, test = NULL, alpha = 0.05, wei = NULL, 
         } else {
       
           for (i in 1:k) {
-            b <- ebic.bsreg(y, x[, res[1:sel[i], 1], drop = FALSE], test = test, wei = wei, gam = gam) 
+            b <- MXM::ebic.bsreg(y, x[, res[1:sel[i], 1], drop = FALSE], test = test, wei = wei, gam = gam) 
             if ( typeof(b) == "list" ) {
               mod[[ i ]] <- b$mat
             } else  mod[[ i ]] <- NULL

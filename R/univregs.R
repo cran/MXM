@@ -48,8 +48,8 @@ if ( !is.null(user_test) ) {
 
 } else if ( identical(test, testIndBeta) ) {  ## Beta regression
   mod <- beta.regs(target, dataset, wei, logged = TRUE, ncores = ncores)
-  univariateModels$stat = mod[, 1]
-  univariateModels$pvalue = mod[, 2]
+  univariateModels$stat <- mod[, 1]
+  univariateModels$pvalue <- mod[, 2]
 
 } else if ( identical(test, testIndMMReg) ) {  ## M (Robust) linear regression
   fit1 <- MASS::rlm(target ~ 1, maxit = 2000, method = "MM")
@@ -69,14 +69,14 @@ if ( !is.null(user_test) ) {
     univariateModels$pvalue <- pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
 
   } else {
-    cl <- makePSOCKcluster(ncores)
-    registerDoParallel(cl)
+    cl <- parallel::makePSOCKcluster(ncores)
+    doParallel::registerDoParallel(cl)
     mod <- foreach(i = 1:cols, .combine = rbind, .packages = "MASS") %dopar% {
        fit2 <- MASS::rlm(target ~ dataset[, i], maxit = 2000, method = "MM" )
        lik2 <- as.numeric( logLik(fit2) )
        return( c(lik2, length( coef(fit2) ) ) )
     }  
-    stopCluster(cl)
+    parallel::stopCluster(cl)
     stat <- as.vector( 2 * abs(lik1 - mod[, 1]) )
     dof <- as.vector( mod[, 2] ) - 1 
     univariateModels$stat <- stat
@@ -96,12 +96,12 @@ if ( !is.null(user_test) ) {
       df1 <- tab[1, 1]    ;   df2 = tab[2, 1]
       pval[i] <- pf( stat[i], df1, df2, lower.tail = FALSE, log.p = TRUE )
     }
-    univariateModels$stat = stat
-    univariateModels$pvalue = pval
+    univariateModels$stat <- stat
+    univariateModels$pvalue <- pval
 
   } else {
-    cl <- makePSOCKcluster(ncores)
-    registerDoParallel(cl)
+    cl <- parallel::makePSOCKcluster(ncores)
+    doParallel::registerDoParallel(cl)
     mod <- foreach(i = 1:cols, .combine = rbind) %dopar% {
         ww <- lm( target ~ dataset[, i], weights = wei, y = FALSE, model = FALSE )
         tab <- anova( ww )
@@ -110,15 +110,15 @@ if ( !is.null(user_test) ) {
         pval <- pf( stat, df1, df2, lower.tail = FALSE, log.p = TRUE )
         return( c(stat, pval) )
     }
-    stopCluster(cl)
-    univariateModels$stat = mod[, 1]
-    univariateModels$pvalue = mod[, 2]
+    parallel::stopCluster(cl)
+    univariateModels$stat <- mod[, 1]
+    univariateModels$pvalue <- mod[, 2]
   }   
   
 } else if ( identical(test, testIndReg)  &  is.null(wei) ) {  ## linear regression
   mod <- Rfast::regression(dataset, target, logged = TRUE)
-  univariateModels$stat = mod[, 1]
-  univariateModels$pvalue = mod[, 2]
+  univariateModels$stat <- mod[, 1]
+  univariateModels$pvalue <- mod[, 2]
 
 } else if ( identical(test, testIndMVreg) ) {  ## Weighted linear regression
   
@@ -133,12 +133,12 @@ if ( !is.null(user_test) ) {
       df1 = tab[2, 4]    ;   df2 = tab[2, 5]
       pval[i] = pf( stat[i], df1, df2, lower.tail = FALSE, log.p = TRUE )
     }
-    univariateModels$stat = stat
-    univariateModels$pvalue = pval
+    univariateModels$stat <- stat
+    univariateModels$pvalue <- pval
     
   } else {
-    cl <- makePSOCKcluster(ncores)
-    registerDoParallel(cl)
+    cl <- parallel::makePSOCKcluster(ncores)
+    doParallel::registerDoParallel(cl)
     mod <- foreach(i = 1:cols, .combine = rbind) %dopar% {
       ww <- lm( target ~ dataset[, i], weights = wei, y = FALSE, model = FALSE )
       tab <- anova( ww )
@@ -147,9 +147,9 @@ if ( !is.null(user_test) ) {
       pval <- pf( stat, df1, df2, lower.tail = FALSE, log.p = TRUE )
       return( c(stat, pval) )
     }
-    stopCluster(cl)
-    univariateModels$stat = mod[, 1]
-    univariateModels$pvalue = mod[, 2]
+    parallel::stopCluster(cl)
+    univariateModels$stat <- mod[, 1]
+    univariateModels$pvalue <- mod[, 2]
   }   
   
 } else if ( identical(test, testIndOrdinal) ) {  ## ordinal regression
@@ -167,23 +167,23 @@ if ( !is.null(user_test) ) {
       dof[i] <- length( coef(fit2) ) - df1
     }
     stat = 2 * (lik2 - lik1)
-    univariateModels$stat = stat
-    univariateModels$pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
+    univariateModels$stat <- stat
+    univariateModels$pvalue <- pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
 
   } else {
     
-    cl <- makePSOCKcluster(ncores)
-    registerDoParallel(cl)
+    cl <- parallel::makePSOCKcluster(ncores)
+    doParallel::registerDoParallel(cl)
     mod <- foreach(i = 1:cols, .combine = rbind, .packages = "ordinal") %dopar% {
         mat <- model.matrix(target ~ dataset[, i] )
         fit2 <- ordinal::clm.fit(target, mat, weights = wei)
         lik2 <- as.numeric( fit2$logLik )
         return( c(lik2, length( coef(fit2) ) ) )
     } 
-    stopCluster(cl)
+    parallel::stopCluster(cl)
     stat = 2 * (mod[, 1] - lik1)
-    univariateModels$stat = stat
-    univariateModels$pvalue = pchisq(stat, mod[, 2] - df1, lower.tail = FALSE, log.p = TRUE)
+    univariateModels$stat <- stat
+    univariateModels$pvalue <- pchisq(stat, mod[, 2] - df1, lower.tail = FALSE, log.p = TRUE)
 
   }
   
@@ -203,35 +203,35 @@ if ( !is.null(user_test) ) {
       dof[i] = length( coef(fit2) ) - df1
     }
     stat = 2 * (lik2 - lik1)
-    univariateModels$stat = stat
-    univariateModels$pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
+    univariateModels$stat <- stat
+    univariateModels$pvalue <- pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
 
   } else {
-    cl <- makePSOCKcluster(ncores)
-    registerDoParallel(cl)
+    cl <- parallel::makePSOCKcluster(ncores)
+    doParallel::registerDoParallel(cl)
     mod <- foreach(i = 1:cols, .combine = rbind, .packages = "nnet") %dopar% {
         fit2 = nnet::multinom(target ~ dataset[, i], weights = wei)
         lik2 = as.numeric( logLik(fit2 ) )
         return( c(lik2, length( coef(fit2) ) ) )
 
     }
-    stopCluster(cl)
+    parallel::stopCluster(cl)
     stat = 2 * (mod[, 1] - lik1)
-    univariateModels$stat = stat
-    univariateModels$pvalue = pchisq(stat, mod[, 2] - df1, lower.tail = FALSE, log.p = TRUE)
+    univariateModels$stat <- stat
+    univariateModels$pvalue <- pchisq(stat, mod[, 2] - df1, lower.tail = FALSE, log.p = TRUE)
   }
   
 } else if ( identical(test, testIndLogistic)  &  is.matrix(dataset)  &  is.null(wei) ) {  ## logistic regression
   if ( is.factor(target) )   target <- as.numeric(target) - 1
   mod <- Rfast::univglms( target, dataset, oiko = "binomial", logged = TRUE )
-  univariateModels$stat = mod[, 1]
-  univariateModels$pvalue = mod[, 2]
+  univariateModels$stat <- mod[, 1]
+  univariateModels$pvalue <- mod[, 2]
   
 } else if ( identical(test, testIndLogistic)  &  is.data.frame(dataset)  &  is.null(wei) ) {  ## logistic regression
   if ( is.factor(target) )   target <- as.numeric(target) - 1
   mod <- Rfast::univglms2( target, dataset, oiko = "binomial", logged = TRUE )
-  univariateModels$stat = mod[, 1]
-  univariateModels$pvalue = mod[, 2]
+  univariateModels$stat <- mod[, 1]
+  univariateModels$pvalue <- mod[, 2]
 
 } else if ( identical(test, testIndLogistic)  &  !is.null(wei) ) {  ## Logistic regression
   fit1 = glm(target ~ 1, binomial, weights = wei)
@@ -246,21 +246,21 @@ if ( !is.null(user_test) ) {
       dof[i] = length( coef(fit2) ) - 1
     }
     stat = lik1 - lik2
-    univariateModels$stat = stat
-    univariateModels$pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
+    univariateModels$stat <- stat
+    univariateModels$pvalue <- pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
 
   } else {
-    cl <- makePSOCKcluster(ncores)
-    registerDoParallel(cl)
+    cl <- parallel::makePSOCKcluster(ncores)
+    doParallel::registerDoParallel(cl)
     mod <- foreach(i = 1:cols, .combine = rbind) %dopar% {
         fit2 = glm( target ~ dataset[, i], binomial, weights = wei )
         lik2 = fit2$deviance
         return( c(lik2, length( coef(fit2) ) - 1 ) )
     }
-    stopCluster(cl)
+    parallel::stopCluster(cl)
     stat = lik1 - mod[, 1]
-    univariateModels$stat = stat
-    univariateModels$pvalue = pchisq(stat, mod[, 2], lower.tail = FALSE, log.p = TRUE)
+    univariateModels$stat <- stat
+    univariateModels$pvalue <- pchisq(stat, mod[, 2], lower.tail = FALSE, log.p = TRUE)
   }
   
 } else if ( identical(test, testIndBinom) ) {  ## Binomial regression
@@ -278,12 +278,12 @@ if ( !is.null(user_test) ) {
       dof[i] = length( coef(fit2) ) - 1
     }
     stat = lik1 - lik2
-    univariateModels$stat = stat
-    univariateModels$pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
+    univariateModels$stat <- stat
+    univariateModels$pvalue <- pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
 
   } else {
-    cl <- makePSOCKcluster(ncores)
-    registerDoParallel(cl)
+    cl <- parallel::makePSOCKcluster(ncores)
+    doParallel::registerDoParallel(cl)
     wei <- target[, 2] 
     y <- target[, 1] / wei
     mod <- foreach(i = ina, .combine = rbind) %dopar% {
@@ -291,21 +291,21 @@ if ( !is.null(user_test) ) {
         lik2 = as.numeric( logLik(fit2) )
         return( c(lik2, length( coef(fit2) ) - 1 ) )
     }
-    stopCluster(cl)
+    parallel::stopCluster(cl)
     stat = as.vector( lik1 - mod[, 1] )
-    univariateModels$stat = stat
-    univariateModels$pvalue = pchisq(stat, mod[, 2], lower.tail = FALSE, log.p = TRUE)
+    univariateModels$stat <- stat
+    univariateModels$pvalue <- pchisq(stat, mod[, 2], lower.tail = FALSE, log.p = TRUE)
   }
   
 } else if ( identical(test, testIndPois)  &  is.matrix(dataset)  &  is.null(wei) ) {  ## Poisson regression
   mod <- Rfast::univglms( target, dataset, oiko = "poisson", logged = TRUE ) 
-  univariateModels$stat = mod[, 1]
-  univariateModels$pvalue = mod[, 2]
+  univariateModels$stat <- mod[, 1]
+  univariateModels$pvalue <- mod[, 2]
   
 } else if ( identical(test, testIndPois)  &  is.data.frame(dataset)  &  is.null(wei) ) {  ## Poisson regression
   mod <- Rfast::univglms2( target, dataset, oiko = "poisson", logged = TRUE ) 
-  univariateModels$stat = mod[, 1]
-  univariateModels$pvalue = mod[, 2]
+  univariateModels$stat <- mod[, 1]
+  univariateModels$pvalue <- mod[, 2]
 
 } else if ( identical(test, testIndPois)  &  !is.null(wei) ) {  ## Poisson regression
   fit1 = glm(target ~ 1, poisson, weights = wei)
@@ -321,20 +321,20 @@ if ( !is.null(user_test) ) {
       dof[i] = length( coef(fit2) ) - 1
     }
     stat = lik1 - lik2
-    univariateModels$stat = stat
-    univariateModels$pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
+    univariateModels$stat <- stat
+    univariateModels$pvalue <- pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
 
   } else {
-    cl <- makePSOCKcluster(ncores)
-    registerDoParallel(cl)
+    cl <- parallel::makePSOCKcluster(ncores)
+    doParallel::registerDoParallel(cl)
     mod <- foreach(i = ina, .combine = rbind) %dopar% {
         fit2 = glm( target ~ dataset[, i], poisson, weights = wei )
         return( c(fit2$deviance, length( coef(fit2) ) - 1 ) )
     }
-    stopCluster(cl)
+    parallel::stopCluster(cl)
     stat = as.vector( lik1 - mod[, 1] )
-    univariateModels$stat = stat
-    univariateModels$pvalue = pchisq(stat, mod[, 2], lower.tail = FALSE, log.p = TRUE)
+    univariateModels$stat <- stat
+    univariateModels$pvalue <- pchisq(stat, mod[, 2], lower.tail = FALSE, log.p = TRUE)
   }
   
 } else if ( identical(test, testIndNB) ) {  ## Negative binomial regression
@@ -348,20 +348,20 @@ if ( !is.null(user_test) ) {
       dof[i] = length( coef(fit2) ) - 1
     }
     stat = lik2 - lik1
-    univariateModels$stat = stat
-    univariateModels$pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
+    univariateModels$stat <- stat
+    univariateModels$pvalue <- pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
 
   } else {
-    cl <- makePSOCKcluster(ncores)
-    registerDoParallel(cl)
+    cl <- parallel::makePSOCKcluster(ncores)
+    doParallel::registerDoParallel(cl)
     mod <- foreach(i = ina, .combine = rbind, .packages = "MASS") %dopar% {
         fit2 = MASS::glm.nb( target ~ dataset[, i], weights = wei )
         return( c(fit2$twologlik, length( coef(fit2) ) - 1 ) )
     }
-    stopCluster(cl)
+    parallel::stopCluster(cl)
     stat <- as.vector(mod[, 1]) - lik1
-    univariateModels$stat = stat
-    univariateModels$pvalue = pchisq(stat, mod[, 2], lower.tail = FALSE, log.p = TRUE)
+    univariateModels$stat <- stat
+    univariateModels$pvalue <- pchisq(stat, mod[, 2], lower.tail = FALSE, log.p = TRUE)
   }
 
 } else if ( identical(test, testIndNormLog) ) {  ## Normal log link regression
@@ -380,20 +380,20 @@ if ( !is.null(user_test) ) {
       dof[i] = length( fit2$coefficients )
     }
     stat = (lik1 - lik2 ) / (dof - 1) / phi 
-    univariateModels$stat = stat
-    univariateModels$pvalue = pf(stat, dof - 1, rows - dof, lower.tail = FALSE, log.p = TRUE)
+    univariateModels$stat <- stat
+    univariateModels$pvalue <- pf(stat, dof - 1, rows - dof, lower.tail = FALSE, log.p = TRUE)
     
   } else {
-    cl <- makePSOCKcluster(ncores)
-    registerDoParallel(cl)
+    cl <- parallel::makePSOCKcluster(ncores)
+    doParallel::registerDoParallel(cl)
     mod <- foreach(i = ina, .combine = rbind) %dopar% {
       fit2 = glm( target ~ dataset[, i], family = gaussian(link = log), weights = wei )
       return( c(fit2$deviance, length( fit2$coefficients ), summary(fit2)[[14]] ) )
     }
-    stopCluster(cl)
+    parallel::stopCluster(cl)
     stat = as.vector( lik1 - mod[, 1] ) / (mod[, 2] - 1) / mod[, 3] 
-    univariateModels$stat = stat
-    univariateModels$pvalue = pf(stat, mod[, 2] - 1, rows - mod[, 2], lower.tail = FALSE, log.p = TRUE)
+    univariateModels$stat <- stat
+    univariateModels$pvalue <- pf(stat, mod[, 2] - 1, rows - mod[, 2], lower.tail = FALSE, log.p = TRUE)
   }
    
 } else if ( identical(test, testIndGamma)   ) {  ## Gamma regression
@@ -412,26 +412,26 @@ if ( !is.null(user_test) ) {
       dof[i] = length( fit2$coefficients)
     }
     stat = (lik1 - lik2) / (dof - 1) / phi
-    univariateModels$stat = stat
-    univariateModels$pvalue = pf(stat, dof - 1, rows - dof, lower.tail = FALSE, log.p = TRUE)
+    univariateModels$stat <- stat
+    univariateModels$pvalue <- pf(stat, dof - 1, rows - dof, lower.tail = FALSE, log.p = TRUE)
     
   } else {
-    cl <- makePSOCKcluster(ncores)
-    registerDoParallel(cl)
+    cl <- parallel::makePSOCKcluster(ncores)
+    doParallel::registerDoParallel(cl)
     mod <- foreach(i = ina, .combine = rbind) %dopar% {
       fit2 = glm( target ~ dataset[, i], family = Gamma(link = log), weights = wei )
       return( c(fit2$deviance, length( fit2$coefficients ), summary(fit2)[[14]] ) )
     }
-    stopCluster(cl)
+    parallel::stopCluster(cl)
     stat = as.vector( lik1 - mod[, 1] ) / (mod[, 2] - 1) / mod[, 3] 
-    univariateModels$stat = stat
-    univariateModels$pvalue = pf(stat, mod[, 2] - 1, rows - mod[, 2], lower.tail = FALSE, log.p = TRUE)
+    univariateModels$stat <- stat
+    univariateModels$pvalue <- pf(stat, mod[, 2] - 1, rows - mod[, 2], lower.tail = FALSE, log.p = TRUE)
   } 
   
 } else if ( identical(test, testIndZIP) ) {  ## Zero-inflated Poisson regression
   moda <- zip.regs(target, dataset, wei, logged = TRUE, ncores = ncores) 
-  univariateModels$stat = moda[, 1]
-  univariateModels$pvalue = moda[, 2]
+  univariateModels$stat <- moda[, 1]
+  univariateModels$pvalue <- moda[, 2]
 
 } else if ( identical(test, testIndRQ) ) {  ## Median (quantile) regression
   
@@ -447,12 +447,12 @@ if ( !is.null(user_test) ) {
       stat[i] = as.numeric( ww[[1]][3] )
       pval[i] = pf(stat[i], df1, df2, lower.tail = FALSE, log.p = TRUE)
     }
-    univariateModels$stat = stat
-    univariateModels$pvalue = pval
+    univariateModels$stat <- stat
+    univariateModels$pvalue <- pval
 
   } else {
-    cl <- makePSOCKcluster(ncores)
-    registerDoParallel(cl)
+    cl <- parallel::makePSOCKcluster(ncores)
+    doParallel::registerDoParallel(cl)
     mod <- foreach(i = ina, .combine = rbind, .packages = "quantreg") %dopar% {
         fit2 = quantreg::rq(target ~ dataset[, i], weights = wei )
         ww = anova(fit1, fit2, test = "rank")
@@ -462,9 +462,9 @@ if ( !is.null(user_test) ) {
         pval = pf(stat, df1, df2, lower.tail = FALSE, log.p = TRUE)
         return( c(stat, pval ) )
     }
-    stopCluster(cl)
-    univariateModels$stat = as.vector( mod[, 1] )
-    univariateModels$pvalue = as.vector( mod[, 2] )
+    parallel::stopCluster(cl)
+    univariateModels$stat <- as.vector( mod[, 1] )
+    univariateModels$pvalue <- as.vector( mod[, 2] )
   }
   
 } else if ( identical(test, testIndIGreg) ) {  ## Inverse Gaussian regression
@@ -480,21 +480,21 @@ if ( !is.null(user_test) ) {
         dof[i] = length( coef(fit2) ) - 1
       }
     stat = 2 * (lik2 - lik1)
-    univariateModels$stat = stat
-    univariateModels$pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
+    univariateModels$stat <- stat
+    univariateModels$pvalue <- pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
 
   } else {
-    cl <- makePSOCKcluster(ncores)
-    registerDoParallel(cl)
+    cl <- parallel::makePSOCKcluster(ncores)
+    doParallel::registerDoParallel(cl)
     mod <- foreach(i = 1:cols, .combine = rbind) %dopar% {
         fit2 = glm( target ~ dataset[, i], family = inverse.gaussian(link = log), weights = wei )
         lik2 = as.numeric( logLik(fit2) )
         return( c(lik2, length( coef(fit2) ) - 1 ) )
     }
-    stopCluster(cl)
+    parallel::stopCluster(cl)
     stat = as.vector( 2 * (mod[, 1] - lik1) )
-    univariateModels$stat = stat
-    univariateModels$pvalue = pchisq(stat, mod[, 2], lower.tail = FALSE, log.p = TRUE)
+    univariateModels$stat <- stat
+    univariateModels$pvalue <- pchisq(stat, mod[, 2], lower.tail = FALSE, log.p = TRUE)
   }
   
 } else if ( identical(test, censIndCR) ) {  ## Cox regression
@@ -508,20 +508,20 @@ if ( !is.null(user_test) ) {
       dof[i] <- res[2, 3]
       stat[i] <- res[2, 2]
     }
-    univariateModels$stat = stat
-    univariateModels$pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
+    univariateModels$stat <- stat
+    univariateModels$pvalue <- pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
 
   } else {
-    cl <- makePSOCKcluster(ncores)
-    registerDoParallel(cl)
+    cl <- parallel::makePSOCKcluster(ncores)
+    doParallel::registerDoParallel(cl)
     mod <- foreach(i = 1:cols, .combine = rbind, .packages = "survival") %dopar% {
         fit2 = survival::coxph( target ~ dataset[, i], weights = wei )
         res <- anova(fit2)
         return( c(res[2, 2], res[2, 3] ) )
     }
-    stopCluster(cl)
-    univariateModels$stat = mod[, 1]
-    univariateModels$pvalue = pchisq(mod[, 1], mod[, 2], lower.tail = FALSE, log.p = TRUE)
+    parallel::stopCluster(cl)
+    univariateModels$stat <- mod[, 1]
+    univariateModels$pvalue <- pchisq(mod[, 1], mod[, 2], lower.tail = FALSE, log.p = TRUE)
   }
   
 } else if ( identical(test, censIndWR) ) {  ## Weibull regression
@@ -541,14 +541,14 @@ if ( !is.null(user_test) ) {
     univariateModels$pvalue <- pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
 
   } else {
-    cl <- makePSOCKcluster(ncores)
-    registerDoParallel(cl)
+    cl <- parallel::makePSOCKcluster(ncores)
+    doParallel::registerDoParallel(cl)
     mod <- foreach(i = 1:cols, .combine = rbind, .packages = "survival") %dopar% {
         fit2 <- survival::survreg( target ~ dataset[, i], weights = wei, control=list(iter.max = 5000)  )
         lik2 <- as.numeric( logLik(fit2) )
         return( c(lik2, length( coef(fit2) ) - 1 ) )
     }
-    stopCluster(cl)
+    parallel::stopCluster(cl)
     stat <- as.vector( 2 * (mod[, 1] - lik1) )
     univariateModels$stat <- stat
     univariateModels$pvalue <- pchisq(stat, mod[, 2], lower.tail = FALSE, log.p = TRUE)
@@ -567,18 +567,18 @@ if ( !is.null(user_test) ) {
       dof[i] <- length( coef(fit2) ) - 1
     }
     stat <- 2 * (lik2 - lik1)
-    univariateModels$stat = stat
-    univariateModels$pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
+    univariateModels$stat <- stat
+    univariateModels$pvalue <- pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
     
   } else {
-    cl <- makePSOCKcluster(ncores)
-    registerDoParallel(cl)
+    cl <- parallel::makePSOCKcluster(ncores)
+    doParallel::registerDoParallel(cl)
     mod <- foreach(i = 1:cols, .combine = rbind, .packages = "survival") %dopar% {
       fit2 <- survival::survreg( target ~ dataset[, i], weights = wei, control = list(iter.max = 5000), dist = "loglogistic" )
       lik2 <- as.numeric( logLik(fit2) )
       return( c(lik2, length( coef(fit2) ) - 1 ) )
     }
-    stopCluster(cl)
+    parallel::stopCluster(cl)
     stat <- as.vector( 2 * (mod[, 1] - lik1) )
     univariateModels$stat <- stat
     univariateModels$pvalue <- pchisq(stat, mod[, 2], lower.tail = FALSE, log.p = TRUE)
@@ -597,18 +597,18 @@ if ( !is.null(user_test) ) {
       dof[i] = length( coef(fit2) ) - 1
     }
     stat = 2 * (lik2 - lik1)
-    univariateModels$stat = stat
-    univariateModels$pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
+    univariateModels$stat <- stat
+    univariateModels$pvalue <- pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
     
   } else {
-    cl <- makePSOCKcluster(ncores)
-    registerDoParallel(cl)
+    cl <- parallel::makePSOCKcluster(ncores)
+    doParallel::registerDoParallel(cl)
     mod <- foreach(i = 1:cols, .combine = rbind, .packages = "survival") %dopar% {
       fit2 = survival::survreg( target ~ dataset[, i], weights = wei, dist = "gaussian" )
       lik2 = as.numeric( logLik(fit2) )
       return( c(lik2, length( coef(fit2) ) - 1 ) )
     }
-    stopCluster(cl)
+    parallel::stopCluster(cl)
     stat = as.vector( 2 * (mod[, 1] - lik1) )
     univariateModels$stat <- stat
     univariateModels$pvalue <- pchisq(stat, mod[, 2], lower.tail = FALSE, log.p = TRUE)
@@ -630,13 +630,13 @@ if ( !is.null(user_test) ) {
     univariateModels$pvalue <- pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
 
   } else {
-    cl <- makePSOCKcluster(ncores)
-    registerDoParallel(cl)
+    cl <- parallel::makePSOCKcluster(ncores)
+    doParallel::registerDoParallel(cl)
     mod <- foreach(i = 1:cols, .combine = rbind, .packages = "survival") %dopar% {
         fit2 <- survival::clogit(case ~ dataset[, i] + strata(subject) ) 
         return( c( diff(fit2$loglik) , length( fit2$coefficients ) ) )
     }
-    stopCluster(cl)
+    parallel::stopCluster(cl)
     univariateModels$stat <- 2 * as.vector( mod[, 1] )
     univariateModels$pvalue <- pchisq(mod[, 1], mod[, 2], lower.tail = FALSE, log.p = TRUE)
   }
@@ -658,16 +658,16 @@ if ( !is.null(user_test) ) {
     univariateModels$pvalue <- pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE)
 
   } else {
-    cl <- makePSOCKcluster(ncores)
-    registerDoParallel(cl)
+    cl <- parallel::makePSOCKcluster(ncores)
+    doParallel::registerDoParallel(cl)
     mod <- foreach(i = 1:cols, .combine = rbind, .packages = "survival") %dopar% {
         fit2 <- survival::survreg( target ~ dataset[, i], dist = "exponential", weights = wei )
         return( c(as.numeric( logLik(fit2) ), length( coef(fit2) ) - 1 ) )
     }
-    stopCluster(cl)
+    parallel::stopCluster(cl)
     stat = as.vector( 2 * (mod[, 1] - lik1) )
-    univariateModels$stat = stat
-    univariateModels$pvalue = pchisq(stat, mod[ ,2], lower.tail = FALSE, log.p = TRUE)
+    univariateModels$stat <- stat
+    univariateModels$pvalue <- pchisq(stat, mod[ ,2], lower.tail = FALSE, log.p = TRUE)
   }
   
 } else if ( identical(test, testIndQBinom)   ) {  ## Quasi Binomial regression
@@ -691,13 +691,13 @@ if ( !is.null(user_test) ) {
     univariateModels$pvalue <- pf(stat, dof - 1, rows - dof, lower.tail = FALSE, log.p = TRUE)
   
   } else {
-    cl <- makePSOCKcluster(ncores)
-    registerDoParallel(cl)
+    cl <- parallel::makePSOCKcluster(ncores)
+    doParallel::registerDoParallel(cl)
     mod <- foreach(i = ina, .combine = rbind) %dopar% {
       fit2 <- glm( target ~ dataset[, i], family = quasibinomial(link = logit), weights = wei )
       return( c(fit2$deviance, length( fit2$coefficients ), summary(fit2)[[14]] ) )
     }
-    stopCluster(cl)
+    parallel::stopCluster(cl)
     stat <- as.vector( lik1 - mod[, 1] ) / (mod[, 2] - 1) / mod[, 3] 
     univariateModels$stat <- stat
     univariateModels$pvalue <- pf(stat, mod[, 2] - 1, rows - mod[, 2], lower.tail = FALSE, log.p = TRUE)
@@ -724,20 +724,19 @@ if ( !is.null(user_test) ) {
     univariateModels$pvalue <- pf(stat, dof - 1, rows - dof, lower.tail = FALSE, log.p = TRUE)
     
   } else {
-    cl <- makePSOCKcluster(ncores)
-    registerDoParallel(cl)
+    cl <- parallel::makePSOCKcluster(ncores)
+    doParallel::registerDoParallel(cl)
     mod <- foreach(i = ina, .combine = rbind) %dopar% {
       fit2 <- glm( target ~ dataset[, i], family = quasipoisson(link = log), weights = wei )
       return( c(fit2$deviance, length( fit2$coefficients ), summary(fit2)[[14]] ) )
     }
-    stopCluster(cl)
+    parallel::stopCluster(cl)
     stat <- as.vector( lik1 - mod[, 1] ) / (mod[, 2] - 1) / mod[, 3] 
-    univariateModels$stat = stat
-    univariateModels$pvalue = pf(stat, mod[, 2] - 1, rows - mod[, 2], lower.tail = FALSE, log.p = TRUE)
+    univariateModels$stat <- stat
+    univariateModels$pvalue <- pf(stat, mod[, 2] - 1, rows - mod[, 2], lower.tail = FALSE, log.p = TRUE)
   }
   
 } else if ( identical(test, testIndSPML) ) {  ## Circular regression
-  if ( is.matrix(target) )  target <- ( atan(target[, 2]/target[, 1]) + pi * I(target[, 1] < 0) ) %% (2 * pi)
   if ( !is.matrix(dataset) )  dataset <- as.matrix(dataset)
   mod <- Rfast::spml.regs(target, dataset, logged = TRUE, parallel = (ncores > 1) )
   univariateModels$stat <- mod[, 1]

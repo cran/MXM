@@ -29,8 +29,8 @@ Feature Selection with the R Package MXM: Discovering Statistically Equivalent F
 \tabular{ll}{
 Package: \tab MXM\cr
 Type: \tab Package\cr
-Version: \tab 1.4.3\cr
-Date: \tab 2019-05-26\cr
+Version: \tab 1.4.4\cr
+Date: \tab 2019-06-19\cr
 License: \tab GPL-2\cr
 }
 }
@@ -82,6 +82,9 @@ Spirtes P.,  Glymour C. and Scheines R. (2001). Causation, Prediction, and Searc
 
 Tsagris M. (2019). Bayesian network learning with the PC algorithm: an improved and correct variation. 
 Applied Artificial Intelligence 33(2): 101-123.
+
+Tsagris, M., Papadovasilakis, Z., Lakiotaki, K. and Tsamardinos, I. (2018). Efficient feature selection on gene expression data: 
+Which algorithm to use? BioRxiv preprint. 
 
 Tsagris M. (2018). Guide on performing feature selection with the R package MXM.
 http://mensxmachina.org/site/wp-content/uploads/2018/04/Guide-on-performing-feature-selection-with-the-R-package-MXM.pdf

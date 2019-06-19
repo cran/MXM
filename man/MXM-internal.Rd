@@ -201,6 +201,8 @@
 \alias{bic.llr.fsreg}
 \alias{ebic.llr.bsreg}
 \alias{llr.bsreg}
+\alias{beta.reg}
+\alias{ebic.spml.bsreg}
 
 \title{ Internal MXM Functions }
 \description{
@@ -409,6 +411,8 @@ Internal functions of Package \pkg{MXM}
 \item bic.llr.fsreg( ... )
 \item ebic.llr.bsreg( ... )
 \item llr.bsreg( ... )
+\item beta.reg( ... )
+\item ebic.spml.bsreg( ... )
 
 }
 }

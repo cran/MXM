@@ -1,11 +1,12 @@
 ebic.regs <- function(target, dataset, xIndex, csIndex, gam = NULL, test = NULL, wei = NULL, ncores = 1) {
   
   if ( identical(csIndex, 0) ) {
-    models <- ebic.univregs(target = target, dataset = dataset, test = test, wei = wei, ncores = ncores, gam = gam)
+    models <- MXM::ebic.univregs(target = target, dataset = dataset, test = test, wei = wei, ncores = ncores, gam = gam)
   } else {
 
     if ( length(xIndex) > 0 ) {
-
+      oop <- options(warn = -1) 
+      on.exit( options(oop) )
       dm <- dim(dataset)
       n <- dm[1]
       p <- dm[2]
@@ -19,7 +20,6 @@ ebic.regs <- function(target, dataset, xIndex, csIndex, gam = NULL, test = NULL,
       M <- length(csIndex) + 1
       common <- con * lchoose(p, M)
       
-      options(warn = -1)
       if ( identical(test, testIndBeta) ) {  ## Beta regression
         for (i in xIndex) {
           fit2 <- beta.reg(target, dataset[, c(csIndex, xIndex[i] ) ])$loglik
@@ -35,13 +35,13 @@ ebic.regs <- function(target, dataset, xIndex, csIndex, gam = NULL, test = NULL,
           } 
 
         } else {
-          cl <- makePSOCKcluster(ncores)
-          registerDoParallel(cl)
-          mod <- foreach(i = xIndex, .combine = rbind, .packages = "MASS") %dopar% {
+          cl <- parallel::makePSOCKcluster(ncores)
+          doParallel::registerDoParallel(cl)
+          mod <- foreach::foreach(i = xIndex, .combine = rbind, .packages = "MASS") %dopar% {
             fit2 <- MASS::rlm( target ~., data = dataset[, c(csIndex, i)], maxit = 2000, method = "MM" )
             return( BIC(fit2) )
           }  
-          stopCluster(cl)
+          parallel::stopCluster(cl)
           lik2 <- as.vector( mod[, 1] )
         }   
         
@@ -55,13 +55,13 @@ ebic.regs <- function(target, dataset, xIndex, csIndex, gam = NULL, test = NULL,
           }
           
         } else {
-          cl <- makePSOCKcluster(ncores)
-          registerDoParallel(cl)
-          mod <- foreach(i = xIndex, .combine = rbind) %dopar% {
+          cl <- parallel::makePSOCKcluster(ncores)
+          doParallel::registerDoParallel(cl)
+          mod <- foreach::foreach(i = xIndex, .combine = rbind) %dopar% {
             fit2 <- lm( target ~., data = dataset[, c(csIndex, i)], weights = wei, y = FALSE, model = FALSE )
             return( BIC(fit2) )
           }
-          stopCluster(cl)
+          parallel::stopCluster(cl)
           lik2 <- as.vector(mod[, 1])
         }   
         
@@ -75,13 +75,13 @@ ebic.regs <- function(target, dataset, xIndex, csIndex, gam = NULL, test = NULL,
  
         } else {
           
-          cl <- makePSOCKcluster(ncores)
-          registerDoParallel(cl)
-          mod <- foreach(i = xIndex, .combine = rbind, .packages = "ordinal") %dopar% {
+          cl <- parallel::makePSOCKcluster(ncores)
+          doParallel::registerDoParallel(cl)
+          mod <- foreach::foreach(i = xIndex, .combine = rbind, .packages = "ordinal") %dopar% {
             fit2 <- ordinal::clm( y ~., data = dataset[, c(csIndex, i)], weights = wei, model = FALSE )
             return( BIC(fit2) )
           } 
-          stopCluster(cl)
+          parallel::stopCluster(cl)
           lik2 <- as.vector(mod[, 1])
           
         }
@@ -97,13 +97,13 @@ ebic.regs <- function(target, dataset, xIndex, csIndex, gam = NULL, test = NULL,
           }
 
         } else {
-          cl <- makePSOCKcluster(ncores)
-          registerDoParallel(cl)
-          mod <- foreach(i = xIndex, .combine = rbind, .packages = "nnet") %dopar% {
+          cl <- parallel::makePSOCKcluster(ncores)
+          doParallel::registerDoParallel(cl)
+          mod <- foreach::foreach(i = xIndex, .combine = rbind, .packages = "nnet") %dopar% {
             fit2 <- nnet::multinom( target ~., data = dataset[, c(csIndex, i)], weights = wei, trace = FALSE )
             return( BIC(fit2) )
           }
-          stopCluster(cl)
+          parallel::stopCluster(cl)
           lik2 <- as.vector(mod[, 1])
         }
         
@@ -115,13 +115,13 @@ ebic.regs <- function(target, dataset, xIndex, csIndex, gam = NULL, test = NULL,
           }
 
         } else {
-          cl <- makePSOCKcluster(ncores)
-          registerDoParallel(cl)
-          mod <- foreach(i = xIndex, .combine = rbind) %dopar% {
+          cl <- parallel::makePSOCKcluster(ncores)
+          doParallel::registerDoParallel(cl)
+          mod <- foreach::foreach(i = xIndex, .combine = rbind) %dopar% {
             fit2 <- glm( target ~., data = dataset[, c(csIndex, i)], binomial, weights = wei )
             return( BIC(fit2) )
           }
-          stopCluster(cl)
+          parallel::stopCluster(cl)
           lik2 <- as.vector(mod[, 1])
         }
         
@@ -135,15 +135,15 @@ ebic.regs <- function(target, dataset, xIndex, csIndex, gam = NULL, test = NULL,
           }
 
         } else {
-          cl <- makePSOCKcluster(ncores)
-          registerDoParallel(cl)
+          cl <- parallel::makePSOCKcluster(ncores)
+          doParallel::registerDoParallel(cl)
           wei <- target[, 2] 
           y <- target[, 1] / wei
-          mod <- foreach(i = xIndex, .combine = rbind) %dopar% {
+          mod <- foreach::foreach(i = xIndex, .combine = rbind) %dopar% {
             fit2 <- glm( y ~., data = dataset[, c(csIndex, i)], binomial, weights = wei )
             return( BIC(fit2) )
           }
-          stopCluster(cl)
+          parallel::stopCluster(cl)
           lik2 <- as.vector(mod[, 1])
         }
         
@@ -156,13 +156,13 @@ ebic.regs <- function(target, dataset, xIndex, csIndex, gam = NULL, test = NULL,
           }
 
         } else {
-          cl <- makePSOCKcluster(ncores)
-          registerDoParallel(cl)
-          mod <- foreach(i = xIndex, .combine = rbind) %dopar% {
+          cl <- parallel::makePSOCKcluster(ncores)
+          doParallel::registerDoParallel(cl)
+          mod <- foreach::foreach(i = xIndex, .combine = rbind) %dopar% {
             fit2 <- glm( target ~., data = dataset[, c(csIndex, i)], poisson, weights = wei )
             return( BIC(fit2) )
           }
-          stopCluster(cl)
+          parallel::stopCluster(cl)
           lik2 <- as.vector( mod[, 1] )
         }
         
@@ -175,13 +175,13 @@ ebic.regs <- function(target, dataset, xIndex, csIndex, gam = NULL, test = NULL,
           }
 
         } else {
-          cl <- makePSOCKcluster(ncores)
-          registerDoParallel(cl)
-          mod <- foreach(i = xIndex, .combine = rbind, .packages = "MASS") %dopar% {
+          cl <- parallel::makePSOCKcluster(ncores)
+          doParallel::registerDoParallel(cl)
+          mod <- foreach::foreach(i = xIndex, .combine = rbind, .packages = "MASS") %dopar% {
             fit2 <- MASS::glm.nb( target ~., data = dataset[, c(csIndex, i)], weights = wei )
             return( BIC(fit2) )
           }
-          stopCluster(cl)
+          parallel::stopCluster(cl)
           lik2 <- as.vector(mod[, 1])
         }
 
@@ -194,13 +194,13 @@ ebic.regs <- function(target, dataset, xIndex, csIndex, gam = NULL, test = NULL,
           }
  
         } else {
-          cl <- makePSOCKcluster(ncores)
-          registerDoParallel(cl)
-          mod <- foreach(i = xIndex, .combine = rbind) %dopar% {
+          cl <- parallel::makePSOCKcluster(ncores)
+          doParallel::registerDoParallel(cl)
+          mod <- foreach::foreach(i = xIndex, .combine = rbind) %dopar% {
             fit2 <- glm( target ~ dataset[, i], family = gaussian(link = log), weights = wei )
             return( BIC(fit2) )
           }
-          stopCluster(cl)
+          parallel::stopCluster(cl)
           lik2 <- as.vector( mod[, 1] )
 
         }
@@ -213,13 +213,13 @@ ebic.regs <- function(target, dataset, xIndex, csIndex, gam = NULL, test = NULL,
           }
 
         } else {
-          cl <- makePSOCKcluster(ncores)
-          registerDoParallel(cl)
-          mod <- foreach(i = xIndex, .combine = rbind) %dopar% {
+          cl <- parallel::makePSOCKcluster(ncores)
+          doParallel::registerDoParallel(cl)
+          mod <- foreach::foreach(i = xIndex, .combine = rbind) %dopar% {
             fit2 <- glm( target ~., data = dataset[, c(csIndex, i)], family = Gamma(link = log), weights = wei )
             return( BIC(fit2) )
           }
-          stopCluster(cl)
+          parallel::stopCluster(cl)
           lik2 <- as.vector( mod[, 1] )
         } 
         
@@ -232,13 +232,13 @@ ebic.regs <- function(target, dataset, xIndex, csIndex, gam = NULL, test = NULL,
           }
 
         } else {
-          cl <- makePSOCKcluster(ncores)
-          registerDoParallel(cl)
-          mod <- foreach(i = xIndex, .combine = rbind) %dopar% {
+          cl <- parallel::makePSOCKcluster(ncores)
+          doParallel::registerDoParallel(cl)
+          mod <- foreach::foreach(i = xIndex, .combine = rbind) %dopar% {
             fit2 <- glm( target ~., data = dataset[, c(csIndex, i)], family = inverse.gaussian(link = log), weights = wei )
             return( BIC(fit2) )
           }
-          stopCluster(cl)
+          parallel::stopCluster(cl)
           lik2 <- as.vector( mod[, 1] )
         }
         
@@ -257,13 +257,13 @@ ebic.regs <- function(target, dataset, xIndex, csIndex, gam = NULL, test = NULL,
           }
           
         } else {
-          cl <- makePSOCKcluster(ncores)
-          registerDoParallel(cl)
-          mod <- foreach(i = xIndex, .combine = rbind, .packages = "survival") %dopar% {
+          cl <- parallel::makePSOCKcluster(ncores)
+          doParallel::registerDoParallel(cl)
+          mod <- foreach::foreach(i = xIndex, .combine = rbind, .packages = "survival") %dopar% {
             fit2 <- survival::coxph( target ~., data = dataset[, c(csIndex, i)], weights = wei )
             return( BIC(fit2) )
           }
-          stopCluster(cl)
+          parallel::stopCluster(cl)
           lik2 <- as.vector( mod[, 1] )
         }
         
@@ -276,13 +276,13 @@ ebic.regs <- function(target, dataset, xIndex, csIndex, gam = NULL, test = NULL,
           }
 
         } else {
-          cl <- makePSOCKcluster(ncores)
-          registerDoParallel(cl)
-          mod <- foreach(i = xIndex, .combine = rbind, .packages = "survival") %dopar% {
+          cl <- parallel::makePSOCKcluster(ncores)
+          doParallel::registerDoParallel(cl)
+          mod <- foreach::foreach(i = xIndex, .combine = rbind, .packages = "survival") %dopar% {
             fit2 <- survival::survreg( target ~., data = dataset[, c(csIndex, i)], weights = wei )
             return( - 2 * logLik(fit2) + (length(fit2$coefficients) + 1) * logn )
           }
-          stopCluster(cl)
+          parallel::stopCluster(cl)
           lik2 <- as.vector( mod[, 1] )
         }
         
@@ -294,13 +294,13 @@ ebic.regs <- function(target, dataset, xIndex, csIndex, gam = NULL, test = NULL,
           }
 
         } else {
-          cl <- makePSOCKcluster(ncores)
-          registerDoParallel(cl)
-          mod <- foreach(i = xIndex, .combine = rbind, .packages = "survival") %dopar% {
+          cl <- parallel::makePSOCKcluster(ncores)
+          doParallel::registerDoParallel(cl)
+          mod <- foreach::foreach(i = xIndex, .combine = rbind, .packages = "survival") %dopar% {
             fit2 <- survival::survreg( target ~., data = dataset[, c(csIndex, i)], dist = "exponential", weights = wei )
             return( - 2 * logLik(fit2) + (length(fit2$coefficients) + 1) * logn )
           }
-          stopCluster(cl)
+          parallel::stopCluster(cl)
           lik2 <- as.vector( mod[, 1] )
         }
         
@@ -313,13 +313,13 @@ ebic.regs <- function(target, dataset, xIndex, csIndex, gam = NULL, test = NULL,
           }
           
         } else {
-          cl <- makePSOCKcluster(ncores)
-          registerDoParallel(cl)
-          mod <- foreach(i = xIndex, .combine = rbind, .packages = "survival") %dopar% {
+          cl <- parallel::makePSOCKcluster(ncores)
+          doParallel::registerDoParallel(cl)
+          mod <- foreach::foreach(i = xIndex, .combine = rbind, .packages = "survival") %dopar% {
             fit2 <- survival::survreg( target ~., data = dataset[, c(csIndex, i)], weights = wei, dist = "loglogistic" )
             return( - 2 * logLik(fit2) + (length(fit2$coefficients) + 1) * logn )
           }
-          stopCluster(cl)
+          parallel::stopCluster(cl)
           lik2 <- as.vector( mod[, 1] )
         }
         
@@ -333,13 +333,13 @@ ebic.regs <- function(target, dataset, xIndex, csIndex, gam = NULL, test = NULL,
 
           
         } else {
-          cl <- makePSOCKcluster(ncores)
-          registerDoParallel(cl)
-          mod <- foreach(i = xIndex, .combine = rbind, .packages = "survival") %dopar% {
+          cl <- parallel::makePSOCKcluster(ncores)
+          doParallel::registerDoParallel(cl)
+          mod <- foreach::foreach(i = xIndex, .combine = rbind, .packages = "survival") %dopar% {
             fit2 <- survival::survreg( target ~., data = dataset[, c(csIndex, i)], weights = wei, dist = "gaussian" )
             return( - 2 * logLik(fit2) + (length(fit2$coefficients) + 1) * logn )
           }
-          stopCluster(cl)
+          parallel::stopCluster(cl)
           lik2 <- as.vector( mod[, 1] )
         }
         
@@ -354,13 +354,31 @@ ebic.regs <- function(target, dataset, xIndex, csIndex, gam = NULL, test = NULL,
           }
 
         } else {
-          cl <- makePSOCKcluster(ncores)
-          registerDoParallel(cl)
-          mod <- foreach(i = xIndex, .combine = rbind, .packages = "survival") %dopar% {
+          cl <- parallel::makePSOCKcluster(ncores)
+          doParallel::registerDoParallel(cl)
+          mod <- foreach::foreach(i = xIndex, .combine = rbind, .packages = "survival") %dopar% {
             fit2 <- survival::clogit( case ~., data = dataset[, c(csIndex, i)] + strata(subject) ) 
             return( BIC(fit2) )
           }
-          stopCluster(cl)
+          parallel::stopCluster(cl)
+          lik2 <- as.vector( mod[, 1] )
+        }
+        
+      } else if ( identical(test, testIndSPML) ) {  ## Conditional logistic regression
+        if ( ncores <= 1 | is.null(ncores) ) {
+          for ( i in xIndex ) {
+            fit2 <- Rfast::spml.reg( target, x = dataset[, c(csIndex, i)] ) 
+            lik2[i] <-  -2 * fit2$loglik + length(fit2$be) * logn
+          }
+          
+        } else {
+          cl <- parallel::makePSOCKcluster(ncores)
+          doParallel::registerDoParallel(cl)
+          mod <- foreach::foreach(i = xIndex, .combine = rbind, .packages = "Rfast") %dopar% {
+            fit2 <- Rfast::spml.reg( target, data = dataset[, c(csIndex, i)] ) 
+            return( -2 * fit2$loglik + length(fit2$be) * logn )
+          }
+          parallel::stopCluster(cl)
           lik2 <- as.vector( mod[, 1] )
         }
         

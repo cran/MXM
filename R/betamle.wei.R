@@ -11,9 +11,9 @@ betamle.wei <- function(y, wei) {
   
   iniphi <- sum( y * (1 - y) ) / Rfast::Var(y) / n 
   a1 <- sum(y) * iniphi / n        ;        a2 <- iniphi - a1
-  options(warn = -1)
+  oop <- options(warn = -1) 
+  on.exit( options(oop) )
   lik <- nlm( betawei, c( log(a1), log(a2) ), ly1 = ly1, ly2 = ly2, iterlim = 10000 )
   lik2 <- nlm( betawei, lik$estimate, ly1 = ly1, ly2 = ly2, iterlim = 10000 )  
-  
   list(iters = lik$iterations + lik2$iterations, param = exp(lik2$estimate), loglik = -lik2$minimum )
 }

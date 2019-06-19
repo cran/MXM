@@ -1,4 +1,4 @@
-testIndReg = function(target, dataset, xIndex, csIndex, wei = NULL, univariateModels=NULL, 
+testIndReg <- function(target, dataset, xIndex, csIndex, wei = NULL, univariateModels=NULL, 
                       hash = FALSE, stat_hash = NULL, pvalue_hash = NULL) {
   # TESTINDREG Conditional Independence Test for continous class variables 
   # PVALUE = TESTINDREG(Y, DATA, XINDEX, CSINDEX)
@@ -101,8 +101,8 @@ testIndReg = function(target, dataset, xIndex, csIndex, wei = NULL, univariateMo
    }
   #last error check
   if (is.na(pvalue) || is.na(stat) )  {
-    pvalue = log(1);
-    stat = 0;
+    pvalue <- log(1);
+    stat <- 0;
   } else {
     #update hash objects
     if ( hash )  {
@@ -114,9 +114,9 @@ testIndReg = function(target, dataset, xIndex, csIndex, wei = NULL, univariateMo
   results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
   return(results);
 },
-error=function(cond) {
-  pvalue = log(1);
-  stat = 0;
+error = function(cond) {
+  pvalue <- log(1);
+  stat <- 0;
   results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
   return(results);
 },

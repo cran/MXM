@@ -36,8 +36,9 @@ ridgereg.cv <- function( target, dataset, K = 10, lambda = seq(0, 2, by = 0.1),
       nu <- sample(1:n, min( n, round(n / K) * K ) )
       ## It may be the case this new nu is not exactly the same
       ## as the one specified by the user
-      options(warn = -1)  # if the length of nu does not fit 
+      oop <- options(warn = -1)   # if the length of nu does not fit 
       ## to a matrix a warning message should appear 
+      on.exit( options(oop) )
       mat <- matrix( nu, ncol = K ) 
     } else mat <- mat
       rmat <- dim(mat)[1]
@@ -73,12 +74,12 @@ ridgereg.cv <- function( target, dataset, K = 10, lambda = seq(0, 2, by = 0.1),
     } else {
       
       runtime <- proc.time()
-      cl <- makePSOCKcluster(ncores)
-      registerDoParallel(cl)
+      cl <- parallel::makePSOCKcluster(ncores)
+      doParallel::registerDoParallel(cl)
       mi <- length(lambda)
       pe <- numeric(mi)
 	  
-      per <- foreach(vim = 1:K, .combine = rbind) %dopar% {
+      per <- foreach::foreach(vim = 1:K, .combine = rbind) %dopar% {
         ytest <- as.vector( target[mat[, vim] ] )  ## test set dependent vars
         ytrain <- as.vector( target[-mat[, vim] ] )  ## train set dependent vars
         my <- sum(ytrain) / (n - rmat)
@@ -97,7 +98,7 @@ ridgereg.cv <- function( target, dataset, K = 10, lambda = seq(0, 2, by = 0.1),
         }
         return(pe)
       }
-      stopCluster(cl)
+      parallel::stopCluster(cl)
       runtime <- proc.time() - runtime
     }
 

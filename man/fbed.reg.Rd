@@ -27,9 +27,9 @@ If you already have the test statistics and the p-values of the univariate assoc
 The available tests: "testIndReg", "testIndPois", "testIndNB", "testIndLogistic", 
 "testIndMMReg", "testIndBinom", "censIndCR", "censIndWR", "testIndBeta", "testIndZIP", 
 "testIndGamma, "testIndNormLog", "testIndTobit", "testIndQPois",  "testIndQBinom", 
-"testIndFisher" "testIndMultinom", "testIndOrdinal", "testIndClogit". Note that not all 
+"testIndFisher" "testIndMultinom", "testIndOrdinal", "testIndClogit" and "testIndSPML". Note that not all 
 of them work with eBIC. The only test that does not have "eBIC" and no weights (input argument "wei") 
-is the test "gSquare".
+is the test "gSquare". The tests "testIndFisher" and "testIndSPML" have no weights.
 }
 \item{threshold}{
 Threshold (suitable values in (0, 1)) for assessing p-values significance. Default value is 0.05.

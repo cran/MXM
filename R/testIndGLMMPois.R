@@ -46,10 +46,12 @@ testIndGLMMPois = function(target, reps = NULL, group, dataset, xIndex, csIndex,
     return(results);
   }
   #extract the data
-  x = dataset[ , xIndex];
-  cs = dataset[ , csIndex];
-  if(length(cs) == 0 || any( is.na(cs) ) )  cs = NULL;
+  x <- dataset[ , xIndex];
+  cs <- dataset[ , csIndex];
+  if ( length(cs) == 0 || any( is.na(cs) ) )  cs <- NULL;
   #That means that the x variable does not add more information to our model due to an exact copy of this in the cs, so it is independent from the target
+  oop <- options(warn = -1) 
+  on.exit( options(oop) )
   if ( length(cs) != 0 )  {
     if ( is.null(dim(cs)[2]) )  {     #cs is a vector
       if ( identical(x, cs) )  {    #if(!any(x == cs) == FALSE)
@@ -73,7 +75,6 @@ testIndGLMMPois = function(target, reps = NULL, group, dataset, xIndex, csIndex,
       }
     }
   }
-  options(warn = -1)
  #if the conditioning set (cs) is empty, we use the t-test on the coefficient of x.
   if (length(cs) == 0)  {
     #if the univariate models have been already compute
@@ -84,32 +85,32 @@ testIndGLMMPois = function(target, reps = NULL, group, dataset, xIndex, csIndex,
       return(results);
     }
    if ( is.null(reps) ) {
-     fit1 = lme4::glmer( target ~ (1|group), weights = wei, family = poisson ) 
-     fit2 = lme4::glmer( target ~ (1|group) + dataset[, xIndex], weights = wei, family = poisson ) 
+     fit1 <- lme4::glmer( target ~ (1|group), weights = wei, family = poisson ) 
+     fit2 <- lme4::glmer( target ~ (1|group) + dataset[, xIndex], weights = wei, family = poisson ) 
    } else {
       reps <- reps 
       if ( slopes ) {
-        fit1 = lme4::glmer( target ~ reps + (reps|group), weights = wei, family = poisson ) 
-        fit2 = lme4::glmer( target ~ reps + (reps|group) + x, weights = wei, family = poisson ) 
+        fit1 <- lme4::glmer( target ~ reps + (reps|group), weights = wei, family = poisson ) 
+        fit2 <- lme4::glmer( target ~ reps + (reps|group) + x, weights = wei, family = poisson ) 
       } else {
-        reps = reps 
-        fit1 = lme4::glmer( target ~ reps + (1|group), weights = wei, family = poisson )  
-        fit2 = lme4::glmer( target ~ reps + (1|group) + x, weights = wei, family = poisson )  
+        reps <- reps 
+        fit1 <- lme4::glmer( target ~ reps + (1|group), weights = wei, family = poisson )  
+        fit2 <- lme4::glmer( target ~ reps + (1|group) + x, weights = wei, family = poisson )  
       }
    }
    
   } else {
     if ( is.null(reps) ) {
-      fit1 = lme4::glmer( target ~ (1|group) + cs, weights = wei, family = poisson )    
-      fit2 = lme4::glmer( target ~ (1|group) + cs + x, weights = wei, family = poisson )    
+      fit1 <- lme4::glmer( target ~ (1|group) + cs, weights = wei, family = poisson )    
+      fit2 <- lme4::glmer( target ~ (1|group) + cs + x, weights = wei, family = poisson )    
     } else {
-      reps = reps 
+      reps <- reps 
       if (slopes ) {
-        fit1 = lme4::glmer( target ~ reps + (reps|group) + cs, weights = wei, family = poisson )
-        fit2 = lme4::glmer( target ~ reps + (reps|group) + cs + x, weights = wei, family = poisson )
+        fit1 <- lme4::glmer( target ~ reps + (reps|group) + cs, weights = wei, family = poisson )
+        fit2 <- lme4::glmer( target ~ reps + (reps|group) + cs + x, weights = wei, family = poisson )
       } else {
-        fit1 = lme4::glmer( target ~ reps + (1|group) + cs, weights = wei, family = poisson ) 
-        fit2 = lme4::glmer( target ~ reps + (1|group) + cs + x, weights = wei, family = poisson ) 
+        fit1 <- lme4::glmer( target ~ reps + (1|group) + cs, weights = wei, family = poisson ) 
+        fit2 <- lme4::glmer( target ~ reps + (1|group) + cs + x, weights = wei, family = poisson ) 
       }
     }  
   }
@@ -117,11 +118,12 @@ testIndGLMMPois = function(target, reps = NULL, group, dataset, xIndex, csIndex,
   mod <- anova(fit1, fit2)
   stat <- mod[2, 6]
   pvalue <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
+  oop <- options(warn = -1) 
   #update hash objects
   if ( hash )  {
-    stat_hash$key <- stat;   #.set(stat_hash , key , stat)
-    pvalue_hash$key <- pvalue;    #.set(pvalue_hash , key , pvalue)
+    stat_hash$key <- stat;   #.set(stat_hash, key, stat)
+    pvalue_hash$key <- pvalue;    #.set(pvalue_hash, key, pvalue)
   }
-  results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+  results <- list(pvalue = pvalue, stat = stat, stat_hash = stat_hash, pvalue_hash = pvalue_hash)
   return(results);
 }

@@ -496,7 +496,7 @@ SelectedVars_indecies_Ordered
 </code></pre>
 
 <pre><code>##    user  system elapsed 
-##    0.05    0.00    0.04
+##    0.05    0.00    0.05
 </code></pre>
 
 <h2>Running SES 2nd time</h2>
@@ -644,7 +644,7 @@ SelectedVars_indecies_Ordered
 </code></pre>
 
 <pre><code>##    user  system elapsed 
-##    4.08    0.00    4.20
+##    4.14    0.00    4.44
 </code></pre>
 
 <h2>Creating the model</h2>
@@ -802,10 +802,10 @@ cv_ses_model &lt;- MXM::cv.ses(target   = wine[, 1], # Using the 1st column as t
 </code></pre>
 
 <pre><code>## $id
-## [1] 1
+## [1] 4
 ## 
 ## $a
-## [1] 0.1
+## [1] 0.05
 ## 
 ## $max_k
 ## [1] 5
@@ -814,7 +814,7 @@ cv_ses_model &lt;- MXM::cv.ses(target   = wine[, 1], # Using the 1st column as t
 <pre><code class="r">cv_ses_model$best_performance
 </code></pre>
 
-<pre><code>## [1] 0.938254
+<pre><code>## [1] 0.9493651
 </code></pre>
 
 <p>As we see, the id, the significance threshold (&ldquo;a&rdquo;) and the best max_k are returned. </p>
@@ -839,7 +839,7 @@ Here we check separately the results for the first configuration.</p>
 <pre><code class="r">cv_ses_model$cv_results_all[[1]]$performances # those are the performances.
 </code></pre>
 
-<pre><code>## [1] 0.9166667 0.9444444 0.9444444 0.9142857 0.9714286
+<pre><code>## [1] 0.9722222 0.8333333 0.9166667 0.9714286 0.9142857
 </code></pre>
 
 <pre><code class="r">cv_ses_model$cv_results_all[[1]]$signatures # signatures created by this configuration
@@ -847,30 +847,28 @@ Here we check separately the results for the first configuration.</p>
 
 <pre><code>## [[1]]
 ##      Var1 Var2 Var3 Var4
-## [1,]    1    7   10   13
-## [2,]    1    7    4   13
+## [1,]    1    7   11   13
 ## 
 ## [[2]]
-##      Var1 Var2 Var3 Var4 Var5
-## [1,]    1    3    4    7   12
-## [2,]    1    3   10    7   12
+##      Var1 Var2 Var3 Var4
+## [1,]    7   10   12   13
+## [2,]    3   10   12   13
+## [3,]    7   10   11   13
+## [4,]    3   10   11   13
 ## 
 ## [[3]]
 ##      Var1 Var2 Var3 Var4
 ## [1,]    1    7   10   13
-## [2,]    3    7   10   13
-## [3,]   11    7   10   13
-## [4,]   12    7   10   13
+## [2,]    1    7    4   13
+## [3,]    1    7   11   13
 ## 
 ## [[4]]
 ##      Var1 Var2 Var3 Var4
 ## [1,]    1    7   11   13
-## [2,]    1    7   10   13
 ## 
 ## [[5]]
 ##      Var1 Var2 Var3 Var4
-## [1,]    1    7   11   13
-## [2,]    1    7   11    3
+## [1,]    1    7   10   13
 </code></pre>
 
 <p><strong>Note:</strong> By asking the best performance <code>$best_performance</code>, we get the mean value of all folds of the best configuration. If we ask for the performances of the best configuration (here it is the first configuration) <code>$cv_results_all[[1]]$performances</code> we get all performance values of each fold (here 5). </p>
@@ -878,20 +876,20 @@ Here we check separately the results for the first configuration.</p>
 <pre><code class="r">cv_ses_model$best_performance
 </code></pre>
 
-<pre><code>## [1] 0.938254
+<pre><code>## [1] 0.9493651
 </code></pre>
 
 <pre><code class="r">index&lt;-cv_ses_model$best_configuration$id
 cv_ses_model$cv_results_all[[index]]$performances
 </code></pre>
 
-<pre><code>## [1] 0.9166667 0.9444444 0.9444444 0.9142857 0.9714286
+<pre><code>## [1] 0.9722222 0.9722222 0.9166667 0.9714286 0.9142857
 </code></pre>
 
 <pre><code class="r">mean(cv_ses_model$cv_results_all[[index]]$performances)  
 </code></pre>
 
-<pre><code>## [1] 0.938254
+<pre><code>## [1] 0.9493651
 </code></pre>
 
 <h1>Tips</h1>
@@ -951,7 +949,7 @@ Hope that you found this tutorial helpful.    </p>
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] dplyr_0.8.1 MXM_1.4.3  
+## [1] dplyr_0.8.1 MXM_1.4.4  
 ## 
 ## loaded via a namespace (and not attached):
 ##  [1] Rfast2_0.0.2        tidyselect_0.2.5    xfun_0.7           
@@ -965,7 +963,7 @@ Hope that you found this tutorial helpful.    </p>
 ## [25] htmlwidgets_1.3     codetools_0.2-16    evaluate_0.13      
 ## [28] geepack_1.2-1       coxme_2.2-10        knitr_1.22         
 ## [31] SparseM_1.77        doParallel_1.0.14   parallel_3.6.0     
-## [34] quantreg_5.38       markdown_0.9        Rfast_1.9.3        
+## [34] quantreg_5.38       markdown_0.9        Rfast_1.9.4        
 ## [37] Rcpp_1.0.1          relations_0.6-8     jsonlite_1.6       
 ## [40] R.rsp_0.43.1        lme4_1.1-21         digest_0.6.18      
 ## [43] stringi_1.4.3       ordinal_2019.4-25   numDeriv_2016.8-1  

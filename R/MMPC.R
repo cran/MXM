@@ -299,12 +299,12 @@ MMPC <- function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini 
   #######################################################################################
   if ( !is.null(user_test) )  ci_test <- "user_test";
   #call the main MMPC function after the checks and the initializations
-  options(warn = -1)
   if ( identical(ci_test, "testIndFisher") ) {
+    oop <- options(warn = -1) 
+	on.exit( options(oop) )  
     if ( !is.matrix(dataset) )   dataset <- as.matrix(dataset)
     if ( !is.null(hashObject)  & length(hashObject) == 0 )   hashObject <- NULL
     if ( targetID != -1 )  { 
-      options(warn = -1)
       a <- as.vector( cor(target, dataset) )
       dof <- dim(dataset)[1] - 3; #degrees of freedom
       wa <- 0.5 * log( (1 + a) / (1 - a) ) * sqrt(dof)

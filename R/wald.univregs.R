@@ -18,61 +18,61 @@ wald.univregs <- function(target, dataset, targetID = - 1, test = NULL, user_tes
     univariateModels <- wald.univariateScore(target, dataset, test = user_test, wei, targetID)
     
   } else if ( identical(test, waldBeta) ) {  ## Beta regression
-    mod <- wald.betaregs(target, dataset, wei, logged = TRUE, ncores = ncores)
-    univariateModels$stat = mod[, 1]
-    univariateModels$pvalue = mod[, 2]
+    mod <- MXM::wald.betaregs(target, dataset, wei, logged = TRUE, ncores = ncores)
+    univariateModels$stat <- mod[, 1]
+    univariateModels$pvalue <- mod[, 2]
 
   } else if ( identical(test, waldMMReg) ) {  ## M (Robust) linear regression
     if ( ncores <= 1 | is.null(ncores) ) {
       stat <- numeric(cols)
       for ( i in 1:cols ) {
-        fit = MASS::rlm(target ~ dataset[, i], maxit = 2000, method = "MM" )
-        stat[i] = summary(fit)[[ 4 ]][2, 3]^2
+        fit <- MASS::rlm(target ~ dataset[, i], maxit = 2000, method = "MM" )
+        stat[i] <- summary(fit)[[ 4 ]][2, 3]^2
       }
-      univariateModels$stat = stat
-      univariateModels$pvalue = pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
+      univariateModels$stat <- stat
+      univariateModels$pvalue <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
 
     } else {
       
-      cl <- makePSOCKcluster(ncores)
-      registerDoParallel(cl)
-      mod <- foreach(i = 1:cols, .combine = rbind, .packages = "MASS") %dopar% {
+      cl <- parallel::makePSOCKcluster(ncores)
+      doParallel::registerDoParallel(cl)
+      mod <- foreach::foreach(i = 1:cols, .combine = rbind, .packages = "MASS") %dopar% {
         fit = MASS::rlm(target ~ dataset[, i], maxit = 2000, method = "MM" )
         res <- summary(fit)[[ 4 ]]
         return( res[2, 3]^2 )
       } 
-      stopCluster(cl)
-      univariateModels$stat = mod
-      univariateModels$pvalue = pchisq(mod, 1, lower.tail = FALSE, log.p = TRUE)
+      parallel::stopCluster(cl)
+      univariateModels$stat <- mod
+      univariateModels$pvalue <- pchisq(mod, 1, lower.tail = FALSE, log.p = TRUE)
     }   
 
   } else if ( identical(test, waldLogistic) ) {  ## logistic regression
     
-    mod <- wald.logisticregs(target, dataset, wei = wei, logged = TRUE) 
-    univariateModels$stat = mod[, 1]
-    univariateModels$pvalue = mod[, 2]
+    mod <- MXM::wald.logisticregs(target, dataset, wei = wei, logged = TRUE) 
+    univariateModels$stat <- mod[, 1]
+    univariateModels$pvalue <- mod[, 2]
 
   } else if ( identical(test, waldOrdinal) ) {  ## Zero-inflated Poisson regression
     
     if ( ncores <= 1 | is.null(ncores) ) {
       stat <- numeric(cols)
       for ( i in 1:cols ) {
-        fit = ordinal::clm(target ~ dataset[, i], weights = wei)
-        stat[i] = summary(fit)[[ 5 ]][2, 3]^2
+        fit <- ordinal::clm(target ~ dataset[, i], weights = wei)
+        stat[i] <- summary(fit)[[ 5 ]][2, 3]^2
       }
-      univariateModels$stat = stat
-      univariateModels$pvalue = pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
+      univariateModels$stat <- stat
+      univariateModels$pvalue <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
       
     } else {
-      cl <- makePSOCKcluster(ncores)
-      registerDoParallel(cl)
-      mod <- foreach(i = 1:cols, .combine = rbind, .packages = "ordinal") %dopar% {
+      cl <- parallel::makePSOCKcluster(ncores)
+      doParallel::registerDoParallel(cl)
+      mod <- foreach::foreach(i = 1:cols, .combine = rbind, .packages = "ordinal") %dopar% {
         fit = ordinal::clm(target ~ dataset[, i], weights = wei)
         return( summary(fit)[[ 5 ]][2, 3]^2 )
       }
-      stopCluster(cl)
-      univariateModels$stat = mod
-      univariateModels$pvalue = pchisq(mod, 1, lower.tail = FALSE, log.p = TRUE)
+      parallel::stopCluster(cl)
+      univariateModels$stat <- mod
+      univariateModels$pvalue <- pchisq(mod, 1, lower.tail = FALSE, log.p = TRUE)
     }
 
   } else if ( identical(test, waldBinom)  ) {  ## Logistic regression
@@ -85,21 +85,21 @@ wald.univregs <- function(target, dataset, targetID = - 1, test = NULL, user_tes
         fit <- glm( y ~ dataset[, i], binomial, weights = wei )
         stat[i] <- summary(fit)[[ 12 ]][2, 3]^2
       }
-      univariateModels$stat = stat
-      univariateModels$pvalue = pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
+      univariateModels$stat <- stat
+      univariateModels$pvalue <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
 
     } else {
-      cl <- makePSOCKcluster(ncores)
-      registerDoParallel(cl)
+      cl <- parallel::makePSOCKcluster(ncores)
+      doParallel::registerDoParallel(cl)
       wei <- target[, 2] 
       y <- target[, 1] / wei
-      mod <- foreach(i = 1:cols, .combine = rbind) %dopar% {
+      mod <- foreach::foreach(i = 1:cols, .combine = rbind) %dopar% {
           fit <- glm( y ~ dataset[, i], binomial, weights = wei )
           return( summary(fit)[[ 12 ]][2, 3]^2 )
       }
-      stopCluster(cl)
-      univariateModels$stat = mod
-      univariateModels$pvalue = pchisq(mod, 1, lower.tail = FALSE, log.p = TRUE)
+      parallel::stopCluster(cl)
+      univariateModels$stat <- mod
+      univariateModels$pvalue <- pchisq(mod, 1, lower.tail = FALSE, log.p = TRUE)
     }
     
   } else if ( identical(test, waldPois) ) {  ## Poisson regression
@@ -115,19 +115,19 @@ wald.univregs <- function(target, dataset, targetID = - 1, test = NULL, user_tes
         fit = glm( target ~ dataset[, i], family = Gamma(link = log), weights = wei )
         stat[i] = summary(fit)[[ 12 ]][2, 3]^2 / summary(fit)[[ 14 ]]
       }
-      univariateModels$stat = stat
-      univariateModels$pvalue = pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
+      univariateModels$stat <- stat
+      univariateModels$pvalue <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
       
     } else {
-      cl <- makePSOCKcluster(ncores)
-      registerDoParallel(cl)
-      mod <- foreach(i = 1:cols, .combine = rbind) %dopar% {
+      cl <- parallel::makePSOCKcluster(ncores)
+      doParallel::registerDoParallel(cl)
+      mod <- foreach::foreach(i = 1:cols, .combine = rbind) %dopar% {
         fit <- glm( target ~ dataset[, i], family = Gamma(link = log), weights = wei )
         return( summary(fit)[[ 12 ]]  [2, 3]^2 / summary(fit)[[ 14 ]] )
       }
-      stopCluster(cl)
-      univariateModels$stat = mod
-      univariateModels$pvalue = pchisq(mod, 1, lower.tail = FALSE, log.p = TRUE)
+      parallel::stopCluster(cl)
+      univariateModels$stat <- mod
+      univariateModels$pvalue <- pchisq(mod, 1, lower.tail = FALSE, log.p = TRUE)
     }
     
   } else if ( identical(test, waldNormLog) ) {      ## Gaussian regression with a log link
@@ -138,19 +138,19 @@ wald.univregs <- function(target, dataset, targetID = - 1, test = NULL, user_tes
         fit = glm( target ~ dataset[, i], family = gaussian(link = log), weights = wei )
         stat[i] = summary(fit)[[ 12 ]][2, 3]^2 / summary(fit)[[ 14 ]]
       }
-      univariateModels$stat = stat
-      univariateModels$pvalue = pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
+      univariateModels$stat <- stat
+      univariateModels$pvalue <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
       
     } else {
-      cl <- makePSOCKcluster(ncores)
-      registerDoParallel(cl)
-      mod <- foreach(i = 1:cols, .combine = rbind) %dopar% {
+      cl <- parallel::makePSOCKcluster(ncores)
+      doParallel::registerDoParallel(cl)
+      mod <- foreach::foreach(i = 1:cols, .combine = rbind) %dopar% {
         fit <- glm( target ~ dataset[, i], family = gaussian(link = log), weights = wei )
         return( summary(fit)[[ 12 ]]  [2, 3]^2 / summary(fit)[[ 14 ]] )
       }
-      stopCluster(cl)
-      univariateModels$stat = mod
-      univariateModels$pvalue = pchisq(mod, 1, lower.tail = FALSE, log.p = TRUE)
+      parallel::stopCluster(cl)
+      univariateModels$stat <- mod
+      univariateModels$pvalue <- pchisq(mod, 1, lower.tail = FALSE, log.p = TRUE)
     }
     
   } else if ( identical(test, waldNB) ) {  ## Zero-inflated Poisson regression
@@ -161,25 +161,25 @@ wald.univregs <- function(target, dataset, targetID = - 1, test = NULL, user_tes
         fit = MASS::glm.nb( target ~ dataset[, i], weights = wei )
         stat[i] = summary(fit)[[ 11 ]][2, 3]^2
       }
-      univariateModels$stat = stat
-      univariateModels$pvalue = pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
+      univariateModels$stat <- stat
+      univariateModels$pvalue <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
 
     } else {
-      cl <- makePSOCKcluster(ncores)
-      registerDoParallel(cl)
-      mod <- foreach(i = 1:cols, .combine = rbind, .packages = "MASS") %dopar% {
+      cl <- parallel::makePSOCKcluster(ncores)
+      doParallel::registerDoParallel(cl)
+      mod <- foreach::foreach(i = 1:cols, .combine = rbind, .packages = "MASS") %dopar% {
           fit = MASS::glm.nb( target ~ dataset[, i], weights = wei )
           return( summary(fit)[[ 11 ]][2, 3]^2 )
       }
-      stopCluster(cl)
-      univariateModels$stat = mod
-      univariateModels$pvalue = pchisq(mod, 1, lower.tail = FALSE, log.p = TRUE)
+      parallel::stopCluster(cl)
+      univariateModels$stat <- mod
+      univariateModels$pvalue <- pchisq(mod, 1, lower.tail = FALSE, log.p = TRUE)
     }
     
   } else if ( identical(test, waldZIP) ) {  ## Zero-inflated Poisson regression
     mod <- wald.zipregs(target, dataset, wei, logged = TRUE, ncores = ncores) 
-    univariateModels$stat = mod[, 1]
-    univariateModels$pvalue = mod[, 2]
+    univariateModels$stat <- mod[, 1]
+    univariateModels$pvalue <- mod[, 2]
 
   } else if ( identical(test, waldIGreg) ) {  ## Poisson regression
 
@@ -189,19 +189,19 @@ wald.univregs <- function(target, dataset, targetID = - 1, test = NULL, user_tes
         fit = glm( target ~ dataset[, i], family = inverse.gaussian(link = log), weights = wei )
         stat[i] = summary(fit)[[ 12 ]][2, 3]^2
       }
-      univariateModels$stat = stat
-      univariateModels$pvalue = pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
+      univariateModels$stat <- stat
+      univariateModels$pvalue <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
 
     } else {
-      cl <- makePSOCKcluster(ncores)
-      registerDoParallel(cl)
-      mod <- foreach(i = 1:cols, .combine = rbind) %dopar% {
+      cl <- parallel::makePSOCKcluster(ncores)
+      doParallel::registerDoParallel(cl)
+      mod <- foreach::foreach(i = 1:cols, .combine = rbind) %dopar% {
           fit <- glm( target ~ dataset[, i], family = inverse.gaussian(link = log), weights = wei )
           return( summary(fit)[[ 12 ]]  [2, 3]^2 )
       }
-      stopCluster(cl)
-      univariateModels$stat = mod
-      univariateModels$pvalue = pchisq(mod, 1, lower.tail = FALSE, log.p = TRUE)
+      parallel::stopCluster(cl)
+      univariateModels$stat <- mod
+      univariateModels$pvalue <- pchisq(mod, 1, lower.tail = FALSE, log.p = TRUE)
     }
     
   } else if ( identical(test, waldCR) ) {  ## Cox regression
@@ -212,19 +212,19 @@ wald.univregs <- function(target, dataset, targetID = - 1, test = NULL, user_tes
          fit = survival::coxph( target ~ dataset[, i], weights = wei)
          stat[i] = fit$wald.test
       }
-      univariateModels$stat = stat
-      univariateModels$pvalue = pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
+      univariateModels$stat <- stat
+      univariateModels$pvalue <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
 
     } else {
-      cl <- makePSOCKcluster(ncores)
-      registerDoParallel(cl)
-      mod <- foreach(i = 1:cols, .combine = rbind, .packages = "survival") %dopar% {
+      cl <- parallel::makePSOCKcluster(ncores)
+      doParallel::registerDoParallel(cl)
+      mod <- foreach::foreach(i = 1:cols, .combine = rbind, .packages = "survival") %dopar% {
           fit <- survival::coxph( target ~ dataset[, i], weights = wei)
           return( fit$wald.test )
       }
-      stopCluster(cl)
-      univariateModels$stat = mod
-      univariateModels$pvalue = pchisq(mod, 1, lower.tail = FALSE, log.p = TRUE)
+      parallel::stopCluster(cl)
+      univariateModels$stat <- mod
+      univariateModels$pvalue <- pchisq(mod, 1, lower.tail = FALSE, log.p = TRUE)
     }
     
   } else if ( identical(test, waldWR) ) {  ## Weibull regression
@@ -235,19 +235,19 @@ wald.univregs <- function(target, dataset, targetID = - 1, test = NULL, user_tes
         fit = survival::survreg( target ~ dataset[, i], weights = wei, control = list(iter.max = 5000) )
         stat[i] = summary(fit)[[ 9 ]][2, 3]^2
       }
-      univariateModels$stat = stat
-      univariateModels$pvalue = pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
+      univariateModels$stat <- stat
+      univariateModels$pvalue <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
 
     } else {
-      cl <- makePSOCKcluster(ncores)
-      registerDoParallel(cl)
-      mod <- foreach(i = 1:cols, .combine = rbind, .packages = "survival") %dopar% {
+      cl <- parallel::makePSOCKcluster(ncores)
+      doParallel::registerDoParallel(cl)
+      mod <- foreach::foreach(i = 1:cols, .combine = rbind, .packages = "survival") %dopar% {
           fit = survival::survreg( target ~ dataset[, i], weights = wei, control = list(iter.max = 5000) )
           return( summary(fit)[[ 9 ]][2, 3]^2 )
       }
-      stopCluster(cl)
-      univariateModels$stat = mod
-      univariateModels$pvalue = pchisq(mod, 1, lower.tail = FALSE, log.p = TRUE)
+      parallel::stopCluster(cl)
+      univariateModels$stat <- mod
+      univariateModels$pvalue <- pchisq(mod, 1, lower.tail = FALSE, log.p = TRUE)
     }
     
   } else if ( identical(test, waldER) ) {  ## Exponential regression
@@ -258,19 +258,19 @@ wald.univregs <- function(target, dataset, targetID = - 1, test = NULL, user_tes
         fit = survival::survreg( target ~ dataset[, i], dist = "exponential", weights = wei )
         stat[i] = summary(fit)[[ 9 ]][2, 3]^2
       }
-      univariateModels$stat = stat
-      univariateModels$pvalue = pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
+      univariateModels$stat <- stat
+      univariateModels$pvalue <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
 
     } else {
-      cl <- makePSOCKcluster(ncores)
-      registerDoParallel(cl)
-      mod <- foreach(i = 1:cols, .combine = rbind, .packages = "survival") %dopar% {
+      cl <- parallel::makePSOCKcluster(ncores)
+      doParallel::registerDoParallel(cl)
+      mod <- foreach::foreach(i = 1:cols, .combine = rbind, .packages = "survival") %dopar% {
           fit = survival::survreg( target ~ dataset[, i], dist = "exponential", weights = wei )
           return( summary(fit)[[ 9 ]][2, 3]^2 )
       }
-      stopCluster(cl)
-      univariateModels$stat = mod
-      univariateModels$pvalue = pchisq(mod, 1, lower.tail = FALSE, log.p = TRUE)
+      parallel::stopCluster(cl)
+      univariateModels$stat <- mod
+      univariateModels$pvalue <- pchisq(mod, 1, lower.tail = FALSE, log.p = TRUE)
     }
     
   } else if ( identical(test, waldLLR) ) {  ## Log-logistic regression
@@ -281,54 +281,54 @@ wald.univregs <- function(target, dataset, targetID = - 1, test = NULL, user_tes
         fit = survival::survreg( target ~ dataset[, i], weights = wei, control = list(iter.max = 5000), dist = "loglogistic" )
         stat[i] = summary(fit)[[ 9 ]][2, 3]^2
       }
-      univariateModels$stat = stat
-      univariateModels$pvalue = pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
+      univariateModels$stat <- stat
+      univariateModels$pvalue <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
       
     } else {
-      cl <- makePSOCKcluster(ncores)
-      registerDoParallel(cl)
-      mod <- foreach(i = 1:cols, .combine = rbind, .packages = "survival") %dopar% {
+      cl <- parallel::makePSOCKcluster(ncores)
+      doParallel::registerDoParallel(cl)
+      mod <- foreach::foreach(i = 1:cols, .combine = rbind, .packages = "survival") %dopar% {
         fit = survival::survreg( target ~ dataset[, i], weights = wei, control = list(iter.max = 5000), dist = "loglogistic" )
         return( summary(fit)[[ 9 ]][2, 3]^2 )
       }
-      stopCluster(cl)
-      univariateModels$stat = mod
-      univariateModels$pvalue = pchisq(mod, 1, lower.tail = FALSE, log.p = TRUE)
+      parallel::stopCluster(cl)
+      univariateModels$stat <- mod
+      univariateModels$pvalue <- pchisq(mod, 1, lower.tail = FALSE, log.p = TRUE)
     }
     
   } else if ( identical(test, waldTobit) ) {  ## Tobit regression
     
     if ( ncores <= 1 | is.null(ncores) ) {
-      stat = numeric(cols)
+      stat <- numeric(cols)
       for ( i in 1:cols ) {
-        fit = survival::survreg( target ~ dataset[, i], weights = wei, dist = "gaussian" )
-        stat[i] = summary(fit)[[ 9 ]][2, 3]^2
+        fit <- survival::survreg( target ~ dataset[, i], weights = wei, dist = "gaussian" )
+        stat[i] <- summary(fit)[[ 9 ]][2, 3]^2
       }
-      univariateModels$stat = stat
-      univariateModels$pvalue = pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
+      univariateModels$stat <- stat
+      univariateModels$pvalue <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
       
     } else {
-      cl <- makePSOCKcluster(ncores)
-      registerDoParallel(cl)
-      mod <- foreach(i = 1:cols, .combine = rbind, .packages = "survival") %dopar% {
-        fit = survival::survreg( target ~ dataset[, i], weights = wei, dist = "gaussian" )
+      cl <- parallel::makePSOCKcluster(ncores)
+      doParallel::registerDoParallel(cl)
+      mod <- foreach::foreach(i = 1:cols, .combine = rbind, .packages = "survival") %dopar% {
+        fit <- survival::survreg( target ~ dataset[, i], weights = wei, dist = "gaussian" )
         return( summary(fit)[[ 9 ]][2, 3]^2 )
       }
-      stopCluster(cl)
-      univariateModels$stat = mod
-      univariateModels$pvalue = pchisq(mod, 1, lower.tail = FALSE, log.p = TRUE)
+      parallel::stopCluster(cl)
+      univariateModels$stat <- mod
+      univariateModels$pvalue <- pchisq(mod, 1, lower.tail = FALSE, log.p = TRUE)
     }   
     
   } else   univariateModels <- NULL
   
   if ( !is.null(univariateModels) )  {
     if (targetID != - 1) {
-      univariateModels$stat[targetID] = 0
-      univariateModels$pvalue[targetID] = log(1)
+      univariateModels$stat[targetID] <- 0
+      univariateModels$pvalue[targetID] <- log(1)
     }
     if ( sum(id>0) > 0 ) {
-      univariateModels$stat[id] = 0
-      univariateModels$pvalue[id] = log(1)
+      univariateModels$stat[id] <- 0
+      univariateModels$pvalue[id] <- log(1)
     }
   }
   

@@ -12,7 +12,8 @@ gee.condregs <- function(target, reps = NULL, id, dataset, xIndex, csIndex, test
     cols <- dim(dataset)[2]
     stat <- numeric(cols)
     
-    options(warn = -1)
+    oop <- options(warn = -1) 
+    on.exit( options(oop) )
     cs <- dataset[, csIndex]
     
     ### GEE normal regression  

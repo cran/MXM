@@ -86,8 +86,8 @@ Bear in mind that the values can be extracted with the $ symbol, i.e. this is an
 
 \references{
 Tsamardinos I., Greasidou E. and Borboudakis G. (2018). 
-Bootstrapping the out-of-sample predictions for efficient and accurate cross-validation. Machine Learning 107(12): 1895-1922.  
-
+Bootstrapping the out-of-sample predictions for efficient and accurate cross-validation. 
+Machine Learning 107(12): 1895-1922.  
 https://link.springer.com/article/10.1007/s10994-018-5714-4
 }
 

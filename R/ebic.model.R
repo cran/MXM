@@ -86,6 +86,10 @@ ebic.model <- function(target, test = NULL, wei = NULL) {
     fit2 <- survival::clogit( case ~ 1 + strata(subject) ) 
     ebic <- BIC(fit2)
     
+  } else if ( identical(test, testIndSPML) ) {
+    if ( is.matrix(target) )  target <- ( atan(target[, 2]/target[, 1]) + pi * I(target[, 1] < 0) ) %% (2 * pi)
+    ebic <-  -2 *Rfast::spml.mle(target)$loglik + 2 * logn
+    
   }  else  ebic <- NULL
   
   ebic

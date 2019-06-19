@@ -13,7 +13,7 @@ fbed.lr <- function(y, x, alpha = 0.05, univ = NULL, test = NULL, wei = NULL, K 
   
   runtime <- proc.time()
   if ( is.null(univ) ) {
-    univ <- univregs(y, x, test = test)
+    univ <- MXM::univregs(y, x, test = test)
     stat <- univ$stat
     pval <- univ$pvalue
     n.tests <- p
@@ -38,7 +38,7 @@ fbed.lr <- function(y, x, alpha = 0.05, univ = NULL, test = NULL, wei = NULL, K 
     pva <- pval[sel]
     #########
     while ( sum(s>0) > 0 ) {
-      mod <- cond.regs(y, x, xIndex = ind[s], csIndex = sela, test = test, wei = wei, ncores = 1)
+      mod <- MXM::cond.regs(y, x, xIndex = ind[s], csIndex = sela, test = test, wei = wei)
       n.tests <- n.tests + length( ind[s] ) 
       stat <- mod$stat
       pval <- mod$pvalue
@@ -53,7 +53,7 @@ fbed.lr <- function(y, x, alpha = 0.05, univ = NULL, test = NULL, wei = NULL, K 
     card <- sum(sela > 0)
     
     if (K == 1) {
-      mod <- cond.regs(y, x, xIndex = ind[-c(sela, zevar)], csIndex = sela, test = test, wei = wei, ncores = 1)
+      mod <- MXM::cond.regs(y, x, xIndex = ind[-c(sela, zevar)], csIndex = sela, test = test, wei = wei)
       n.tests[2] <- length( ind[-c(sela, zevar)] )
       stat <- mod$stat
       pval <- mod$pvalue
@@ -64,7 +64,7 @@ fbed.lr <- function(y, x, alpha = 0.05, univ = NULL, test = NULL, wei = NULL, K 
       sela <- c(sela, sel[sel>0])
       s <- s[ - which(s == sel) ]
       while ( sum(s>0) > 0 ) {
-        mod <- cond.regs(y, x, xIndex = ind[s], csIndex = sela, test = test, wei = wei, ncores = 1)
+        mod <- MXM::cond.regs(y, x, xIndex = ind[s], csIndex = sela, test = test, wei = wei)
         n.tests[2] <- n.tests[2] + length( ind[s] )
         stat <- mod$stat
         pval <- mod$pvalue
@@ -80,7 +80,7 @@ fbed.lr <- function(y, x, alpha = 0.05, univ = NULL, test = NULL, wei = NULL, K 
     
     if ( K > 1) {
       
-      mod <- cond.regs(y, x, xIndex = ind[-c(sela, zevar)], csIndex = sela, test = test, wei = wei, ncores = 1)
+      mod <- MXM::cond.regs(y, x, xIndex = ind[-c(sela, zevar)], csIndex = sela, test = test, wei = wei)
       n.tests[2] <- length( ind[-c(sela, zevar)] ) 
       stat <- mod$stat
       pval <- mod$pvalue
@@ -92,7 +92,7 @@ fbed.lr <- function(y, x, alpha = 0.05, univ = NULL, test = NULL, wei = NULL, K 
       s <- s[ - which(s == sel) ]
  
       while ( sum(s > 0) > 0 ) {
-        mod <- cond.regs(y, x, xIndex = ind[s], csIndex = sela, test = test, wei = wei, ncores = 1)
+        mod <- MXM::cond.regs(y, x, xIndex = ind[s], csIndex = sela, test = test, wei = wei)
         n.tests[2] <- n.tests[2] + length( ind[s] )  
         stat <- mod$stat
         pval <- mod$pvalue
@@ -108,7 +108,7 @@ fbed.lr <- function(y, x, alpha = 0.05, univ = NULL, test = NULL, wei = NULL, K 
       vim <- 1
       while ( vim < K  & card[vim + 1] - card[vim] > 0 ) {
         vim <- vim + 1
-        mod <- cond.regs(y, x, xIndex = ind[-c(sela, zevar)], csIndex = sela, test = test, wei = wei, ncores = 1)
+        mod <- MXM::cond.regs(y, x, xIndex = ind[-c(sela, zevar)], csIndex = sela, test = test, wei = wei)
         n.tests[vim + 1] <- length( ind[-c(sela, zevar)] ) 
         stat <- mod$stat
         pval <- mod$pvalue
@@ -120,7 +120,7 @@ fbed.lr <- function(y, x, alpha = 0.05, univ = NULL, test = NULL, wei = NULL, K 
         s <- s[ - which(s == sel) ]
  
         while ( sum(s > 0) > 0 ) {
-          mod <- cond.regs(y, x, xIndex = ind[s], csIndex = sela, test = test, wei = wei, ncores = 1)
+          mod <- MXM::cond.regs(y, x, xIndex = ind[s], csIndex = sela, test = test, wei = wei)
           n.tests[vim + 1] <- n.tests[vim + 1] + length( ind[s] )
           stat <- mod$stat
           pval <- mod$pvalue

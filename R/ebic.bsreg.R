@@ -24,17 +24,20 @@ ebic.bsreg <- function(target, dataset, test = NULL, wei = NULL, gam = NULL) {
   if ( sum( zevar > 0 ) > 0 )  dataset[, zevar] <- rnorm( dim(dataset)[1] * length(zevar) )
   dataset <- as.data.frame(dataset)
   
-  if (test == "testIndReg") {
+  if ( test == "testIndReg" ) {
     result <- ebic.lm.bsreg(target, dataset, gam = gam, wei = wei)
   
-  } else if (test == "testIndPois") {
+  } else if ( test == "testIndPois" ) {
     result <- ebic.glm.bsreg(target, dataset, gam = gam, wei = wei, type = "poisson")
-  
-  } else if (test == "testIndNB") {
-    result <- ebic.nb.bsreg(target, dataset, gam = gam, wei = wei)
   
   } else if ( test == "testIndLogistic" ) {
     result <- ebic.glm.bsreg(target, dataset, wei = wei, gam = gam, type = "logistic")
+    
+  } else if ( test == "testIndBinom" ) {
+    result <- ebic.glm.bsreg(target, dataset, gam = gam, wei = wei, type = "binomial")
+    
+  } else if ( test == "testIndNB" ) {
+    result <- ebic.nb.bsreg(target, dataset, gam = gam, wei = wei)
 
   } else if ( test == "testIndMultinom" ) {
     result <- ebic.multinom.bsreg(target, dataset, gam = gam, wei = wei)  
@@ -42,38 +45,38 @@ ebic.bsreg <- function(target, dataset, test = NULL, wei = NULL, gam = NULL) {
   } else if ( test == "testIndOrdinal" ) {
     result <- ebic.ordinal.bsreg(target, dataset, gam = gam, wei = wei)
     
-  } else if (test == "testIndMMReg") {
+  } else if ( test == "testIndMMReg" ) {
     result <- ebic.mm.bsreg(target, dataset, gam = gam, wei = wei)
     
-  } else if (test == "testIndBinom") {
-    result <- ebic.glm.bsreg(target, dataset, gam = gam, wei = wei, type = "binomial")
-  
-  } else if (test == "censIndCR") {
+  } else if ( test == "censIndCR" ) {
     result <- ebic.cr.bsreg(target, dataset, gam = gam, wei = wei)
   
-  } else if (test == "censIndWR") {
+  } else if ( test == "censIndWR" ) {
     result <- ebic.wr.bsreg(target, dataset, gam = gam, wei = wei)
     
-  } else if (test == "censIndLLR") {
+  } else if ( test == "censIndLLR" ) {
     result <- ebic.llr.bsreg(target, dataset, gam = gam, wei = wei)
   
-  } else if (test == "testIndBeta") {
+  } else if ( test == "testIndBeta" ) {
     result <- ebic.beta.bsreg(target, dataset, gam = gam, wei = wei)
   
-  } else if (test == "testIndZIP") {
+  } else if ( test == "testIndZIP" ) {
     result <- ebic.zip.bsreg(target, dataset, gam = gam, wei = wei)
   
-  } else if (test == "testIndGamma") {
+  } else if ( test == "testIndGamma" ) {
     result <- ebic.glm.bsreg(target, dataset, gam = gam, wei = wei, type = "gamma")
   
-  } else if (test == "testIndNormLog") {
+  } else if ( test == "testIndNormLog" ) {
     result <- ebic.glm.bsreg(target, dataset, gam = gam, wei = wei, type = "gaussian")
   
-  } else if (test == "testIndTobit") {
+  } else if ( test == "testIndTobit" ) {
     result <- ebic.tobit.bsreg(target, dataset, gam = gam, wei = wei)
     
-  } else if (test == "testIndClogit") {
+  } else if ( test == "testIndClogit" ) {
     result <- ebic.clogit.bsreg(target, dataset, gam = gam, wei = wei)
+    
+  } else if ( test == "testIndSPML" )  {
+    result <- ebic.spml.bsreg(target, dataset, gam = gam) 
   }
   
   back.rem <- result$info[, 1]

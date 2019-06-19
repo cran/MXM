@@ -52,7 +52,7 @@ lm.fsreg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = N
   } else {
     
     cl <- makePSOCKcluster(ncores)
-    registerDoParallel(cl)
+    doParallel::registerDoParallel(cl)
     mod <- foreach( i = 1:p, .combine = rbind ) %dopar% {
        ww <- lm( target ~., data = dataset[, c(da, pa + i)], weights = wei, y = FALSE, model = FALSE )
        tab <- anova( mi, ww )
@@ -103,7 +103,7 @@ lm.fsreg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = N
       }      
     } else {
       cl <- makePSOCKcluster(ncores)
-      registerDoParallel(cl)
+      doParallel::registerDoParallel(cl)
       mod <- foreach( i = 1:pn, .combine = rbind) %dopar% {
         ww <- lm( target ~., data = dataset[, c(da, sel, pa + mat[i, 1]) ], weights = wei, y = FALSE, model = FALSE )
         tab <- anova( mi, ww )
@@ -173,7 +173,7 @@ lm.fsreg_2 <- function(target, dataset, iniset = NULL, threshold = 0.05, wei = N
         }
       } else {
         cl <- makePSOCKcluster(ncores)
-        registerDoParallel(cl)
+        doParallel::registerDoParallel(cl)
         mod <- foreach( i = 1:pn, .combine = rbind) %dopar% {
           ww <- lm( target ~., data = dataset[, c(da, sela, pa + mat[i, 1]) ], weights = wei, y = FALSE, model = FALSE )
           tab <- anova(ma, ww)

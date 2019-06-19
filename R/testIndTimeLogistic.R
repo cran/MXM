@@ -66,8 +66,8 @@ testIndTimeLogistic = function(target, dataset, xIndex, csIndex, wei = NULL, uni
   if (length(cs) == 0) {
     #if the univariate models have been already computed
     if ( !is.null(univariateModels) ) {
-      pvalue = univariateModels$pvalue[[xIndex]];
-      stat = univariateModels$stat[[xIndex]];
+      pvalue <- univariateModels$pvalue[[xIndex]];
+      stat <- univariateModels$stat[[xIndex]];
       results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
       return(results);
     }
@@ -85,8 +85,8 @@ testIndTimeLogistic = function(target, dataset, xIndex, csIndex, wei = NULL, uni
   }
   #last error check
   if ( is.na(pvalue) || is.na(stat) ) {
-    pvalue = log(1);
-    stat = 0;
+    pvalue <- log(1);
+    stat <- 0;
   } else {
     #update hash objects
     if (hash) {
@@ -94,7 +94,6 @@ testIndTimeLogistic = function(target, dataset, xIndex, csIndex, wei = NULL, uni
       pvalue_hash[key] <- pvalue;      #.set(pvalue_hash , key , pvalue)
     }
   }
-  #testerrorcaseintrycatch(4);
   results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
   return(results);
 }

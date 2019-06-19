@@ -247,7 +247,6 @@ aa[[ i ]] <- tryCatch(
       pvalue_hash[key] <- pvalue;    #.set(pvalue_hash , key , pvalue)
     }
   }
-  #testerrorcaseintrycatch(4);
    list(pvalue = pvalue, nu = n, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
 },
 
@@ -261,7 +260,7 @@ error=function(cond) {
 #    print("\ncsindex = \n");
 #    print(csIndex);
 #   stop();
-  #error case (we are pretty sure that the only error case is when x,cs are highly correlated and the inversion of the matrix is not possible)
+  #error case (I am pretty sure that the only error case is when x,cs are highly correlated and the inversion of the matrix is not possible)
   pvalue = log(1)
   stat = 0;
   list(pvalue = pvalue, nu = n, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);

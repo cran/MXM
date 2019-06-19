@@ -1,6 +1,8 @@
 big.gomp <- function(target = NULL, dataset, tol = qchisq(0.95, 1) + log(dim(x)[1]), test = "testIndFisher", method = "ar2") {
 
   tic <- proc.time()
+  oop <- options(warn = -1) 
+  on.exit( options(oop) )  
   
   if ( is.null(target) ) {
     if (test == "censIndCR" | test == "censIndWR") {
@@ -131,8 +133,7 @@ big.gomp <- function(target = NULL, dataset, tol = qchisq(0.95, 1) + log(dim(x)[
     ela <- cor(y - m, x[])
     sel <- which.max( abs(ela) )
     sela <- sel
-    names(sela) <- NULL
-    options(warn = -1)
+    names(sela) <- NULL 
     mod <- Rfast::normlog.reg(y, x[, sel])
     res <- y - exp( mod$be[1] + x[, sel] * mod$be[2] )
     rho[2] <- mod$deviance
@@ -144,7 +145,6 @@ big.gomp <- function(target = NULL, dataset, tol = qchisq(0.95, 1) + log(dim(x)[
       r[sela] <- NA
       sel <- which.max( abs(r) )
       sela <- c(sela, sel)
-      options(warn = -1)
       mod <- Rfast::normlog.reg(y, x[, sela])        
       res <- y - as.vector( exp( mod$be[1] + x[, sela] %*% mod$be[-1] ) ) 
       rho[i] <- mod$deviance
@@ -165,7 +165,6 @@ big.gomp <- function(target = NULL, dataset, tol = qchisq(0.95, 1) + log(dim(x)[
     sel <- which.max( abs(ela) )
     sela <- sel
     names(sela) <- NULL
-    options(warn = -1)
     mod <- Rfast::glm_logistic(x[, sel], y)
     est <- exp(-mod$be[1] - x[, sel] * mod$be[2])
     res <- y - 1/(1 + est)
@@ -177,7 +176,6 @@ big.gomp <- function(target = NULL, dataset, tol = qchisq(0.95, 1) + log(dim(x)[
 	r[sela] <- NA
       sel <- which.max( abs(r) )
       sela <- c(sela, sel)
-      options(warn = -1)
       mod <- Rfast::glm_logistic(x[, sela], y)
       est <- as.vector(exp(-mod$be[1] - x[, sela] %*% mod$be[-1]))
       res <- y - 1/(1 + est)
@@ -199,7 +197,6 @@ big.gomp <- function(target = NULL, dataset, tol = qchisq(0.95, 1) + log(dim(x)[
     sel <- which.max(abs(ela))
     sela <- sel
     names(sela) <- NULL
-    options(warn = -1)
     mod <- Rfast::prop.reg(y, x[, sel], varb = "glm")
     est <- exp(-mod$info[1, 1] - x[, sel] * mod$info[2, 1])
     p <- 1/(1 + est)
@@ -213,7 +210,6 @@ big.gomp <- function(target = NULL, dataset, tol = qchisq(0.95, 1) + log(dim(x)[
 	    r[sela] <- NA
       sel <- which.max(abs(r))
       sela <- c(sela, sel)
-      options(warn = -1)
       mod <- Rfast::prop.reg(y, x[, sela], varb = "glm")
       est <- as.vector( exp(-mod$info[1, 1] - x[, sela] %*% mod$info[-1, 1]) )
       p <- 1/(1 + est)
@@ -235,7 +231,6 @@ big.gomp <- function(target = NULL, dataset, tol = qchisq(0.95, 1) + log(dim(x)[
     sel <- which.max( abs(ela) )
     sela <- sel
     names(sela) <- NULL
-    options(warn = -1)
     mod <- Rfast::glm_poisson(x[, sel], y)
     res <- y - exp( mod$be[1] + x[, sel] * mod$be[2] )
     rho[2] <- mod$devi
@@ -246,7 +241,6 @@ big.gomp <- function(target = NULL, dataset, tol = qchisq(0.95, 1) + log(dim(x)[
 	    r[sela] <- NA
       sel <- which.max( abs(r) )
       sela <- c(sela, sel)
-      options(warn = -1)
       mod <- Rfast::glm_poisson(x[, sela], y)        
       res <- y - as.vector( exp( mod$be[1] + x[, sela] %*% mod$be[-1] ) ) 
       rho[i] <- mod$devi
@@ -266,7 +260,6 @@ big.gomp <- function(target = NULL, dataset, tol = qchisq(0.95, 1) + log(dim(x)[
     sel <- which.max( abs(ela) )
     sela <- sel
     names(sela) <- NULL
-    options(warn = -1)
     mod <- Rfast::qpois.reg(x[, sel], y)
     phi[2] <- mod$phi
     res <- y - exp( mod$be[1, 1] + x[, sel] * mod$be[2, 1] )
@@ -278,7 +271,6 @@ big.gomp <- function(target = NULL, dataset, tol = qchisq(0.95, 1) + log(dim(x)[
     	r[sela] <- NA
       sel <- which.max( abs(r) )
       sela <- c(sela, sel)
-      options(warn = -1)
       mod <- Rfast::qpois.reg(x[, sela], y)        
       res <- y - as.vector( exp( mod$be[1, 1] + x[, sela] %*% mod$be[-1, 1] ) ) 
       rho[i] <- mod$devi
@@ -518,6 +510,6 @@ big.gomp <- function(target = NULL, dataset, tol = qchisq(0.95, 1) + log(dim(x)[
   } ##  end if (test == "testIndNB")
   
   }  ## end  if else (test == "testIndFisher") 
-
+  
   result
 }

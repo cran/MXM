@@ -7,8 +7,8 @@ clogit.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NU
 
     threshold <- log(threshold)  ## log of the significance level
     dataset <- as.data.frame(dataset)
-    case = as.logical(target[, 1]);  #
-    id = target[, 2] #the patient id
+    case <- as.logical(target[, 1]);  #
+    id <- target[, 2] #the patient id
   
     dm <- dim(dataset)
     p <- dm[2]  ## number of variables
@@ -17,30 +17,32 @@ clogit.fsreg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NU
     k <- 1   ## counter
     n <- dm[1]  ## sample size
     tool <- numeric( min(n, p) )
-    
+    oop <- options(warn = -1) 
+    on.exit( options(oop) )
+	
     runtime <- proc.time()
-    
+	  
     if (ncores <= 1) {
-      options(warn = -1)
+
       for (i in 1:p) {
         mi <- survival::clogit( case ~ dataset[, i] + strata(id) )
         devi[i] <- 2 * abs( diff(mi$loglik) )
         dof[i] <- length( mi$coefficients ) 
       }
-      stat = devi 
-      pval = pchisq( stat, dof, lower.tail = FALSE, log.p = TRUE )
+      stat <- devi 
+      pval <- pchisq( stat, dof, lower.tail = FALSE, log.p = TRUE )
       
     } else {
-      cl <- makePSOCKcluster(ncores)
-      registerDoParallel(cl)
-      mod <- foreach( i = 1:p, .combine = rbind, .export = "survival", .packages = "clogit") %dopar% {
+      cl <- parallel::makePSOCKcluster(ncores)
+      doParallel::registerDoParallel(cl)
+      mod <- foreach::foreach( i = 1:p, .combine = rbind, .export = "survival", .packages = "clogit") %dopar% {
         ww <- survival::clogit( case ~ dataset[, i] + strata(id) )
         return( c( 2 * abs( diff(ww$loglik) ), length( ww$coefficients ) ) )
       }
       stopCluster(cl)
       
-      stat = mod[, 1] 
-      pval = pchisq( stat, mod[, 2] - 1, lower.tail = FALSE, log.p = TRUE )
+      stat <- mod[, 1] 
+      pval <- pchisq( stat, mod[, 2] - 1, lower.tail = FALSE, log.p = TRUE )
     }
     mat <- cbind(1:p, pval, stat) 
     colnames(mat) <- c( "variables", "log.p-value", "stat" )

@@ -15,22 +15,22 @@ mmpc.or <- function(x, max_k = 5, threshold = 0.01, test = "testIndFisher", back
   ini <- NULL
     
   if ( is.null(ini.pvalue)  &  !is.null(test) ) {
+    oop <- options(warn = -1) 
+	on.exit( options(oop) )   
     initial.tests <- 0.5 * p * (p - 1)
     if ( test == "testIndSpearman" ) {
       x <- apply(x, 2, rank)
       R <- Rfast::cora(x)
-      options(warn = -1)
       stat <- 0.5 * log( (1 + R)/( (1 - R) ) ) * sqrt(n - 3) / 1.029563
       ini.pvalue <- log(2) + pt( abs(stat), n - 3, lower.tail = FALSE, log.p = TRUE)
-      diag(ini.pvalue) <- 0
+	  diag(ini.pvalue) <- 0
       R <- NULL
       stat <- NULL
     } else if ( test == "testIndFisher" ) {
       R <- Rfast::cora(x)
-      options(warn = -1)
       stat <- 0.5 * log( (1 + R)/( (1 - R) ) ) * sqrt(n - 3) 
       ini.pvalue <- log(2) + pt( abs(stat), n - 3, lower.tail = FALSE, log.p = TRUE)
-      diag(ini.pvalue) <- 0
+	  diag(ini.pvalue) <- 0
       R <- NULL
       stat <- NULL
     } else  if ( test == "gSquare" ) {

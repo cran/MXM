@@ -12,8 +12,9 @@ glmm.condregs <- function(target, reps = NULL, id, dataset, xIndex, csIndex, tes
     cols <- dim(dataset)[2]
     lik2 <- numeric(cols)
     
-    options(warn = -1)
-
+    oop <- options(warn = -1) 
+    on.exit( options(oop) )
+	
     if ( identical(test, testIndLMM) | ( identical(test, testIndGLMMReg)  &  is.null(wei)  &  !slopes  &  is.null(reps) )  ) {
       stat <- numeric(cols)
       
@@ -253,6 +254,7 @@ glmm.condregs <- function(target, reps = NULL, id, dataset, xIndex, csIndex, tes
      models <- list()
      models$stat <- NULL
      models$pvalue <- NULL
+	 
   }  ##  end  if  ( length(xIndex) > 0 )  
   
   }  ## end if ( identical(csIndex, 0) )

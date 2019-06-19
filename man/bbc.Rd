@@ -60,7 +60,7 @@ https://link.springer.com/article/10.1007/s10994-018-5714-4
 }
 
 \author{
-  R implementation and documentation: Michail Tsagris <mtsagris@yahoo.gr>.
+  R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>.
 }
 
 \seealso{

@@ -7,6 +7,8 @@ zip.regs <- function(target, dataset, wei = NULL, check = FALSE, logged = FALSE,
   }
   
   if ( ncores <= 1 ) {
+    oop <- options(warn = -1) 
+	on.exit( options(oop) ) 
     D <- ncol(dataset)
     n <- length(target)
     dof <- loglik <- numeric(D)   
@@ -25,7 +27,6 @@ zip.regs <- function(target, dataset, wei = NULL, check = FALSE, logged = FALSE,
         g1 <- log( p1 / ( 1 - p1 ) ) 
         pa <- c( g1, mod$coefficients)
         pa[is.na(pa)] <- rnorm( sum(is.na(pa)) )
-        options(warn = -1)
         lik <- nlm( regzip, pa, y1 = target1, x = x, n1 = n1, poia = poia, iterlim = 10000 )
         lik2 <- optim( lik$estimate, regzip, y1 = target1, x = x, n1 = n1, poia = poia, control = (maxit = 10000) )
         loglik[i] <-  - lik2$value 
@@ -43,7 +44,6 @@ zip.regs <- function(target, dataset, wei = NULL, check = FALSE, logged = FALSE,
         g1 <- log( p1 / ( 1 - p1 ) )
         pa <- c( g1, mod$coefficients)
         pa[is.na(pa)] <- rnorm( sum(is.na(pa)) )
-        options(warn = -1)
         lik <- nlm( regzipwei, pa, y1 = target1, x = x, n1 = n1, w1 = w1, w0 = w0, poia = poia, iterlim = 10000 )
         lik2 <- optim( lik$estimate, regzipwei, y1 = target1, x = x, n1 = n1, w1 = w1, w0 = w0, poia = poia, control = list(maxit = 10000) )  
         dof[i] <- length(lik2$par) - 2
@@ -58,8 +58,8 @@ zip.regs <- function(target, dataset, wei = NULL, check = FALSE, logged = FALSE,
   } else {
     
     if ( is.null(wei) ) {
-      cl <- makePSOCKcluster(ncores)
-      registerDoParallel(cl)
+      cl <- parallel::makePSOCKcluster(ncores)
+      doParallel::registerDoParallel(cl)
       poia <- which( target == 0 ) 
       D <- ncol(dataset)
       n <- length(target)
@@ -68,24 +68,25 @@ zip.regs <- function(target, dataset, wei = NULL, check = FALSE, logged = FALSE,
       target1 <- target[ -poia ]   
       lgy <- sum( lgamma(target1 + 1) )  
       ini <- 2 * Rfast::zip.mle(target)$loglik
-
-      mod <- foreach( i = 1:D, .combine = rbind, .export = "regzip") %dopar% {
+      oop <- options(warn = -1) 
+	  on.exit( options(oop) ) 
+	  
+      mod <- foreach::foreach( i = 1:D, .combine = rbind, .export = "regzip") %dopar% {
         x <- model.matrix(target ~ ., as.data.frame(dataset[, i]) )
         mod <- glm.fit(x[-poia, ], target1, family = poisson(log) )
         p1 <- ( n0 - sum( exp( - mod$fitted.values ) ) ) / n
         g1 <- log( p1 / ( 1 - p1 ) )  
         pa <- c( g1, mod$coefficients)
         pa[is.na(pa)] <- rnorm( sum(is.na(pa)) )
-        options(warn = -1)
         lik <- nlm( regzip, pa, y1 = target1, x = x, n1 = n1, poia = poia, iterlim = 10000 )
         lik2 <- optim( lik$estimate, regzip, y1 = target1, x = x, n1 = n1, poia = poia, control = list(maxit = 10000) )
         return( c( - lik2$value, length(lik2$par) - 2 ) )
       }
-      stopCluster(cl)
+      parallel::stopCluster(cl)
 
     } else {  
-      cl <- makePSOCKcluster(ncores)
-      registerDoParallel(cl)
+      cl <-  parallel::makePSOCKcluster(ncores)
+      doParallel::registerDoParallel(cl)
       poia <- which( target == 0 ) 
       D <- ncol(dataset)
       n <- length(target)
@@ -96,20 +97,21 @@ zip.regs <- function(target, dataset, wei = NULL, check = FALSE, logged = FALSE,
       w0 <- wei[poia]    ;   w1 <- wei[-poia] 
       ini <- 2 * zipmle.wei(target, wei)$loglik
       lgy <- sum( w1 * lgamma(target1 + 1) )  
-         
-      mod <- foreach( i = 1:D, .combine = rbind, .export = "regzipwei" ) %dopar% {
+      oop <- options(warn = -1) 
+	  on.exit( options(oop) ) 
+	  
+      mod <- foreach::foreach( i = 1:D, .combine = rbind, .export = "regzipwei" ) %dopar% {
         x <- model.matrix(target ~ ., as.data.frame(dataset[, i]) )
         mod <- glm.fit(x[-poia, ], target1, family = poisson(log), weights = w1 )
         p1 <- ( n0 - sum( exp( - mod$fitted.values ) ) ) / n
         g1 <- log( p1 / ( 1 - p1 ) )
         pa <- c( g1, mod$coefficients)
         pa[is.na(pa)] <- rnorm( sum(is.na(pa)) )
-        options(warn = -1)
         lik <- nlm( regzipwei, pa, y1 = target1, x = x, n1 = n1, w1 = w1, w0 = w0, iterlim = 10000 )
         lik2 <- optim( lik$estimate, regzipwei, y1 = target1, x = x, n1 = n1, w1 = w1, w0 = w0, control = list(maxit = 10000) )  
         return( c( - lik2$value, length(lik2$par) - 2 ) )
       }
-      stopCluster(cl)
+      parallel::stopCluster(cl)
     }
     
     bic <-  - 2 * mod[, 1] +2 * lgy + (mod[, 2] + 2) * log(n) 
@@ -119,9 +121,9 @@ zip.regs <- function(target, dataset, wei = NULL, check = FALSE, logged = FALSE,
 
   if (check) {
     if ( sum(id>0) > 0 ) {
-      stat[id] = 0
-      pvalue[id] = log(1)
-      bic[id] = NA
+      stat[id] <- 0
+      pvalue[id] <- log(1)
+      bic[id] <- NA
     }
   }  
   cbind(stat, pvalue, bic)

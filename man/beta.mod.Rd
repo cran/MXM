@@ -14,7 +14,7 @@ beta.mod(target, dataset, wei = NULL, xnew= NULL)
 
 \arguments{
 \item{target}{
-The target (dependent) variable. It must be a numerical vector with integers. 
+The target (dependent) variable. It must be a numerical vector with proportions, excluding 0s and 1s. 
 }
 \item{dataset}{
 The indendent variable(s). It can be a vector, a matrix or a dataframe with continuous only variables, a data frame with mixed or only categorical variables. If this is NULL, a beta distribution is fitted, no covariates are present.

@@ -1,4 +1,4 @@
-testIndGLMMOrdinal = function(target, reps = NULL, group, dataset, xIndex, csIndex, wei =  NULL, univariateModels = NULL,
+testIndGLMMOrdinal <- function(target, reps = NULL, group, dataset, xIndex, csIndex, wei =  NULL, univariateModels = NULL,
                            hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, slopes = FALSE) {
   #   TESTINDGLMM Conditional Independence Test based on generalised linear mixed models for normal, binary ro discrete variables
   #   target: a vector containing the values of the target variable. 
@@ -45,10 +45,12 @@ testIndGLMMOrdinal = function(target, reps = NULL, group, dataset, xIndex, csInd
     return(results);
   }
   #extract the data
-  x = dataset[ , xIndex];
-  cs = dataset[ , csIndex];
+  x <- dataset[ , xIndex];
+  cs <- dataset[ , csIndex];
   if(length(cs) == 0 || any( is.na(cs) ) )  cs = NULL;
   #That means that the x variable does not add more information to our model due to an exact copy of this in the cs, so it is independent from the target
+  oop <- options(warn = -1) 
+  on.exit( options(oop) )
   if ( length(cs) != 0 )  {
     if ( is.null(dim(cs)[2]) )  {     #cs is a vector
       if ( identical(x, cs) )  {    #if(!any(x == cs) == FALSE)
@@ -72,43 +74,42 @@ testIndGLMMOrdinal = function(target, reps = NULL, group, dataset, xIndex, csInd
       }
     }
   }
-  options(warn = -1)
   #if the conditioning set (cs) is empty, we use the t-test on the coefficient of x.
   if (length(cs) == 0)  {
     #if the univariate models have been already compute
     if ( !is.null(univariateModels) )  {
-      pvalue = univariateModels$pvalue[[xIndex]];
-      stat = univariateModels$stat[[xIndex]];
-      results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+      pvalue <- univariateModels$pvalue[[xIndex]];
+      stat <- univariateModels$stat[[xIndex]];
+      results <- list(pvalue = pvalue, stat = stat, stat_hash = stat_hash, pvalue_hash = pvalue_hash)
       return(results);
     }
     if ( is.null(reps) ) {
-      fit1 = ordinal::clmm( target ~ (1|group), weights = wei ) 
-      fit2 = ordinal::clmm( target ~ (1|group) + dataset[, xIndex], weights = wei) 
+      fit1 <- ordinal::clmm( target ~ (1|group), weights = wei ) 
+      fit2 <- ordinal::clmm( target ~ (1|group) + dataset[, xIndex], weights = wei) 
     } else {
       reps <- reps 
       if ( slopes ) {
-        fit1 = ordinal::clmm( target ~ reps + (reps|group), weights = wei ) 
-        fit2 = ordinal::clmm( target ~ reps + (reps|group) + x, weights = wei ) 
+        fit1 <- ordinal::clmm( target ~ reps + (reps|group), weights = wei ) 
+        fit2 <- ordinal::clmm( target ~ reps + (reps|group) + x, weights = wei ) 
       } else {
-        reps = reps 
-        fit1 = ordinal::clmm( target ~ reps + (1|group), weights = wei )  
-        fit2 = ordinal::clmm( target ~ reps + (1|group) + x, weights = wei )  
+        reps <- reps 
+        fit1 <- ordinal::clmm( target ~ reps + (1|group), weights = wei )  
+        fit2 <- ordinal::clmm( target ~ reps + (1|group) + x, weights = wei )  
       }
     }
     
   } else {
     if ( is.null(reps) ) {
-      fit1 = ordinal::clmm( target ~ (1|group) + cs, weights = wei)    
-      fit2 = ordinal::clmm( target ~ (1|group) + cs + x, weights = wei )    
+      fit1 <- ordinal::clmm( target ~ (1|group) + cs, weights = wei)    
+      fit2 <- ordinal::clmm( target ~ (1|group) + cs + x, weights = wei )    
     } else {
-      reps = reps 
+      reps <- reps 
       if (slopes ) {
-        fit1 = ordinal::clmm( target ~ reps + (reps|group) + cs, weights = wei )
-        fit2 = ordinal::clmm( target ~ reps + (reps|group) + cs + x, weights = wei )
+        fit1 <- ordinal::clmm( target ~ reps + (reps|group) + cs, weights = wei )
+        fit2 <- ordinal::clmm( target ~ reps + (reps|group) + cs + x, weights = wei )
       } else {
-        fit1 = ordinal::clmm( target ~ reps + (1|group) + cs, weights = wei ) 
-        fit2 = ordinal::clmm( target ~ reps + (1|group) + cs + x, weights = wei ) 
+        fit1 <- ordinal::clmm( target ~ reps + (1|group) + cs, weights = wei ) 
+        fit2 <- ordinal::clmm( target ~ reps + (1|group) + cs + x, weights = wei ) 
       }
     }  
   }
@@ -121,6 +122,6 @@ testIndGLMMOrdinal = function(target, reps = NULL, group, dataset, xIndex, csInd
     stat_hash$key <- stat;   #.set(stat_hash , key , stat)
     pvalue_hash$key <- pvalue;    #.set(pvalue_hash , key , pvalue)
   }
-  results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+  results <- list(pvalue = pvalue, stat = stat, stat_hash = stat_hash, pvalue_hash = pvalue_hash);
   return(results);
 }

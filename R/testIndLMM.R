@@ -1,4 +1,4 @@
-testIndLMM = function(target, reps = NULL, group, dataset, xIndex, csIndex,  wei =  NULL, univariateModels = NULL,
+testIndLMM <- function(target, reps = NULL, group, dataset, xIndex, csIndex,  wei =  NULL, univariateModels = NULL,
                        hash = FALSE, stat_hash = NULL, pvalue_hash = NULL, slopes = FALSE) {
   #   TESTINDGLMM Conditional Independence Test based on generalised linear mixed models for normal, binary ro discrete variables
   #   target: a vector containing the values of the target variable. 
@@ -11,7 +11,7 @@ testIndLMM = function(target, reps = NULL, group, dataset, xIndex, csIndex,  wei
   #   must be tested. Can be any type of variable, either continous or categorical.
   #   csIndex: the indices of the variables to condition on. They can be mixed variables, either continous or categorical
   #   this method returns: the pvalue PVALUE, the statistic STAT.
-  csIndex[which(is.na(csIndex))] = 0
+  csIndex[which(is.na(csIndex))] <- 0
   
   if( hash )  {
     csIndex2 = csIndex[which(csIndex!=0)]
@@ -26,8 +26,8 @@ testIndLMM = function(target, reps = NULL, group, dataset, xIndex, csIndex,  wei
     }
   }
   #if the test cannot performed succesfully these are the returned values
-  pvalue = log(1);
-  stat = 0;
+  pvalue <- log(1);
+  stat <- 0;
   #information with respect to cs
   if ( !is.na(match(xIndex, csIndex)) )  {
     if ( hash )  {      #update hash objects
@@ -45,10 +45,12 @@ testIndLMM = function(target, reps = NULL, group, dataset, xIndex, csIndex,  wei
   }
   
   #extract the data
-  x = dataset[ , xIndex];
-  cs = dataset[ , csIndex];
-  if(length(cs) == 0 || any( is.na(cs) ) )  cs = NULL;
+  x <- dataset[ , xIndex];
+  cs <- dataset[ , csIndex];
+  if ( length(cs) == 0 || any( is.na(cs) ) )  cs <- NULL
   #That means that the x variable does not add more information to our model due to an exact copy of this in the cs, so it is independent from the target
+  oop <- options(warn = -1) 
+  on.exit( options(oop) )
   if ( length(cs) != 0 )  {
     if ( is.null(dim(cs)[2]) )  {     #cs is a vector
       if ( identical(x, cs) )  {    #if(!any(x == cs) == FALSE)
@@ -73,16 +75,14 @@ testIndLMM = function(target, reps = NULL, group, dataset, xIndex, csIndex,  wei
     }
   }
   
-  options(warn = -1)
-  
   if (length(cs) == 0) {  #if the conditioning set (cs) is empty, we use the t-test on the coefficient of x.
     if ( !is.null(univariateModels) )  {       #if the univariate models have been already compute
-      pvalue = univariateModels$pvalue[[xIndex]];
-      stat = univariateModels$stat[[xIndex]];
+      pvalue <- univariateModels$pvalue[[xIndex]];
+      stat <- univariateModels$stat[[xIndex]];
       results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
       return(results);
     }
-    fit2 <- rint.reg( target, dataset[, xIndex], group )
+    fit2 <- Rfast::rint.reg( target, dataset[, xIndex], group )
     #calculate the stat and p-value.
     be <- fit2$be
     seb <- fit2$seb
@@ -96,7 +96,7 @@ testIndLMM = function(target, reps = NULL, group, dataset, xIndex, csIndex,  wei
       pvalue <- pf(stat, 1, n - p - 2, lower.tail = FALSE, log.p = TRUE)
     }
   } else {
-    fit2 <- rint.reg( target, dataset[, c(csIndex, xIndex)], group )
+    fit2 <- Rfast::rint.reg( target, dataset[, c(csIndex, xIndex)], group )
     #calculate the stat and p-value.
     be <- fit2$be
     seb <- fit2$seb
@@ -110,11 +110,12 @@ testIndLMM = function(target, reps = NULL, group, dataset, xIndex, csIndex,  wei
       pvalue <- pf(stat, 1, n - p - 2, lower.tail = FALSE, log.p = TRUE)
     }
   }  
+  oop <- options(warn = -1) 
   #update hash objects
   if ( hash )  {
     stat_hash$key <- stat;   #.set(stat_hash , key , stat)
     pvalue_hash$key <- pvalue;    #.set(pvalue_hash , key , pvalue)
   }
-  results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+  results <- list(pvalue = pvalue, stat = stat, stat_hash = stat_hash, pvalue_hash = pvalue_hash);
   return(results);
 }

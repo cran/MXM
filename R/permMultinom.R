@@ -61,7 +61,6 @@ permMultinom = function(target, dataset, xIndex, csIndex, wei = NULL, univariate
       }
     }
   }
-  #trycatch for dealing with errors
   if (length(cs) == 0) {
     # Fitting multinomial Logistic regression
     fit1 <- nnet::multinom(target ~ 1, trace = FALSE, weights = wei)

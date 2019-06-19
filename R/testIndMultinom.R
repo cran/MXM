@@ -81,7 +81,7 @@ testIndMultinom = function(target, dataset, xIndex, csIndex, wei = NULL, univari
     dof <- length( coef(fit2) ) - length( coef(fit1) )
   }
   
-  pvalue = pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE); 
+  pvalue <- pchisq(stat, dof, lower.tail = FALSE, log.p = TRUE); 
   #update hash objects
   if (hash) {
     stat_hash[key] <- stat;      #.set(stat_hash , key , stat)
@@ -89,8 +89,8 @@ testIndMultinom = function(target, dataset, xIndex, csIndex, wei = NULL, univari
   }
   #last error check
   if ( is.na(pvalue) | is.na(stat) ) {
-    pvalue = log(1);
-    stat = 0;
+    pvalue <- log(1);
+    stat <- 0;
   } else {
     #update hash objects
     if (hash) {
@@ -98,7 +98,6 @@ testIndMultinom = function(target, dataset, xIndex, csIndex, wei = NULL, univari
       pvalue_hash[key] <- pvalue;      #.set(pvalue_hash , key , pvalue)
     }
   }
-  #testerrorcaseintrycatch(4);
   results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
   return(results);
 }

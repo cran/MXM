@@ -45,34 +45,36 @@ correl = "echangeable", se = "jack", ncores = 1)
 
 \arguments{
 \item{target}{
-The target (dependent) variable. It must be a numerical vector. In the case of "big.score.univregs" this can also be NULL if it is included 
-in the first column of the dataset.
+The target (dependent) variable. It must be a numerical vector. In the case of "big.score.univregs" this can also be NULL if it is included in the first column of the dataset.
 }
 \item{dataset}{
-The indendent variable(s). For the "univregs" this can be a matrix or a dataframe with continuous only variables, a data frame with mixed or 
-only categorical variables. For the "wald.univregs", "perm.univregs", "score.univregs" and "rint.regs" this can only by a numerical matrix. 
-For the "big.score.univregs" this is a big.matrix object with continuous data only.
+The indendent variable(s). For the "univregs" this can be a matrix or a dataframe with continuous only variables, a data frame with mixed or only categorical variables. For the "wald.univregs", "perm.univregs", "score.univregs" and "rint.regs" this can only by a numerical matrix. For the "big.score.univregs" this is a big.matrix object with continuous data only.
 }
 \item{targetID}{
 This is by default -1. If the target is not a variable but is in included in the dataset, you can specify the column of dataset playing the role of the target. 
 }
 \item{test}{
-For the "univregs" this can only be one of the following: \bold{testIndFisher}, \bold{testIndSpearman}, \bold{gSquare}, \bold{testIndBeta}, \bold{testIndReg}, \bold{testIndLogistic}, \bold{testIndMultinom}, \bold{testIndOrdinal}, \bold{testIndPois}, \bold{testIndZIP}, \bold{testIndNB}, \bold{testIndClogit}, \bold{testIndBinom}, \bold{testIndIGreg}, \bold{censIndCR}, \bold{censIndWR}, \bold{censIndER}, \bold{censIndLLR} \bold{testIndGamma}, \bold{testIndNormLog} or \bold{testIndSPML} for a circular target. For the \bold{testIndSpearman} the user must supply the ranked target and ranked dataset. The reason for this, is because this function is called internally by SES and MMPC, the ranks have already been applied and there is no reason to re-rank the data. 
+For the "univregs" this can only be one of the following: \bold{testIndFisher}, \bold{testIndSpearman}, \bold{gSquare}, \bold{testIndBeta}, \bold{testIndReg}, \bold{testIndLogistic}, \bold{testIndMultinom}, \bold{testIndOrdinal}, 
+\bold{testIndPois}, \bold{testIndZIP}, \bold{testIndNB}, \bold{testIndClogit}, \bold{testIndBinom}, \bold{testIndIGreg}, \bold{censIndCR}, \bold{censIndWR}, \bold{censIndER}, \bold{censIndLLR}, \bold{testIndTobit}, \bold{testIndGamma}, \bold{testIndNormLog} or \bold{testIndSPML} for a circular target. For the \bold{testIndSpearman} the user must supply the ranked target and 
+ranked dataset. The reason for this, is because this function is called internally by SES and MMPC, the ranks have 
+already been applied and there is no reason to re-rank the data. 
+
+For the "ebic.univregs" this can only be one of the following: \bold{testIndFisher}, \bold{testIndBeta}, \bold{testIndReg}, \bold{testIndLogistic}, \bold{testIndMultinom}, \bold{testIndOrdinal}, \bold{testIndPois}, \bold{testIndZIP}, \bold{testIndNB}, \bold{testIndClogit}, \bold{testIndBinom}, \bold{censIndCR}, \bold{censIndWR}, \bold{censIndER}, \bold{censIndLLR}, \bold{testIndTobit}, \bold{testIndGamma}, \bold{testIndNormLog} or \bold{testIndSPML} for a circular target.
 
 For the "wald.univregs" this can only be one of the following: \bold{waldBeta}, \bold{waldCR}, \bold{waldWR}, 
-\bold{waldER}, \bold{waldLLR}, \bold{waldClogit}, 
-\bold{waldLogistic}, \bold{waldPois}, \bold{waldNB}, \bold{waldBinom}, \bold{waldZIP}, \bold{waldMMReg}, 
-\bold{waldIGreg}, \bold{waldOrdinal}, \bold{waldGamma} or \bold{waldNormLog}.
+\bold{waldER}, \bold{waldLLR}, \bold{waldTobit}, \bold{waldClogit}, \bold{waldLogistic}, \bold{waldPois}, \bold{waldNB}, \bold{waldBinom}, \bold{waldZIP}, \bold{waldMMReg}, \bold{waldIGreg}, \bold{waldOrdinal}, \bold{waldGamma} or \bold{waldNormLog}.
 
-For the "perm.univregs" this can only be one of the following: \bold{permFisher}, \bold{permReg}, \bold{permRQ}, \bold{permBeta}, \bold{permCR}, 
-\bold{permWR}, \bold{permER}, \bold{permLLR}, \bold{permClogit}, \bold{permLogistic}, \bold{permPois}, \bold{permNB}, \bold{permBinom}, 
-\bold{permgSquare}, \bold{permZIP}, \bold{permMVreg}, \bold{permIGreg}, \bold{permGamma} or \bold{permNormLog}.
+For the "perm.univregs" this can only be one of the following: \bold{permFisher}, \bold{permReg}, \bold{permRQ}, 
+\bold{permBeta}, \bold{permCR}, \bold{permWR}, \bold{permER}, \bold{permLLR}, \bold{permTobit}, \bold{permClogit}, \bold{permLogistic}, \bold{permPois}, \bold{permNB}, \bold{permBinom}, \bold{permgSquare}, \bold{permZIP}, \bold{permMVreg}, \bold{permIGreg}, \bold{permGamma} or \bold{permNormLog}.
 
-For the "score.univregs" and "big.score.univregs" this can only be one of the following: \bold{testIndBeta}, \bold{testIndLogistic}, \bold{testIndMultinom}, \bold{testIndPois}, \bold{testIndNB}, \bold{testIndGamma} or \bold{censIndWR} but with no censored values and simply the vector, 
+For the "score.univregs" and "big.score.univregs" this can only be one of the following: \bold{testIndBeta}, 
+\bold{testIndLogistic}, \bold{testIndMultinom}, \bold{testIndPois}, \bold{testIndNB}, \bold{testIndGamma} or 
+\bold{censIndWR} but with no censored values and simply the vector, 
 not a Surv object. Ordinal regression is not supported. 
 
-For the "glmm.univregs" this can only be one of the following: \bold{testIndGLMMReg}, \bold{testIndLMM}, \bold{testIndGLMMLogistic}, 
-\bold{testIndGLMMOrdinal}, \bold{testIndGLMMPois}, \bold{testIndGLMMGamma}, \bold{testIndGLMMNormLog} or \bold{testIndGLMMCR}. 
+For the "glmm.univregs" this can only be one of the following: \bold{testIndGLMMReg}, \bold{testIndLMM}, 
+\bold{testIndGLMMLogistic}, \bold{testIndGLMMOrdinal}, \bold{testIndGLMMPois}, \bold{testIndGLMMGamma}, 
+\bold{testIndGLMMNormLog} or \bold{testIndGLMMCR}. 
 
 For the "gee.univregs" this can only be one of the following: \bold{testIndGLMMReg}, \bold{testIndGLMMLogistic}, 
 \bold{testIndGLMMOrdinal}, \bold{testIndGLMMPois}, \bold{testIndGLMMGamma} or \bold{testIndGLMMNormLog}. 

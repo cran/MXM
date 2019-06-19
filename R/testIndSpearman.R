@@ -1,5 +1,5 @@
-testIndSpearman = function(target, dataset, xIndex, csIndex, wei = NULL, statistic = FALSE, univariateModels=NULL , hash = FALSE, stat_hash = NULL,
- pvalue_hash = NULL)  {
+testIndSpearman <- function(target, dataset, xIndex, csIndex, wei = NULL, statistic = FALSE, univariateModels = NULL, 
+                            hash = FALSE, stat_hash = NULL, pvalue_hash = NULL)  {
   # TESTINDFISHER Fisher Conditional Independence Test for continous class variables
   # PVALUE = TESTINDFISHER(Y, DATA, XINDEX, CSINDEX)
   # This test provides a p-value PVALUE for the NULL hypothesis H0 which is
@@ -15,20 +15,20 @@ testIndSpearman = function(target, dataset, xIndex, csIndex, wei = NULL, statist
   # Copyright 2012 Vincenzo Lagani and Ioannis Tsamardinos
   # R Implementation by Giorgos Athineou (10/2013)
   # if the test cannot performed succesfully these are the returned values
-  pvalue = log(1);
-  stat = 0;
+  pvalue <- log(1);
+  stat <- 0;
   
   if ( !is.list(target) ) {
   csIndex[which(is.na(csIndex))] = 0;
   
   if( hash ) {
-    csIndex2 = csIndex[which(csIndex!=0)]
-    csIndex2 = sort(csIndex2)
-    xcs = c(xIndex,csIndex2)
-    key = paste(as.character(xcs) , collapse=" ");
+    csIndex2 <- csIndex[which(csIndex!=0)]
+    csIndex2 <- sort(csIndex2)
+    xcs <- c(xIndex,csIndex2)
+    key <- paste(as.character(xcs) , collapse=" ");
     if(is.null(stat_hash[key]) == FALSE)  {
-      stat = stat_hash[key];
-      pvalue = pvalue_hash[key];
+      stat <- stat_hash[key];
+      pvalue <- pvalue_hash[key];
       results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
       return(results);
     }
@@ -86,32 +86,32 @@ res <- tryCatch(
   #if the conditioning set (cs) is empty, we use a simplified formula
   if ( length(cs) == 0 )  {
     if ( !is.null(univariateModels) )   {
-      pvalue = univariateModels$pvalue[[xIndex]];
-      stat = univariateModels$stat[[xIndex]];
+      pvalue <- univariateModels$pvalue[[xIndex]];
+      stat <- univariateModels$stat[[xIndex]];
       results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
       return(results);
     }
     #compute the correlation coefficient between x,target directly
-    stat = cor(x, target);
+    stat <- cor(x, target);
 	  
   } else {
     #perform the test with the cs
-     tmpm = cbind(x, target, cs);    
-     corrMatrix = cor(tmpm);   
-     xyIdx = 1:2;
-     csIdx = 3:(NCOL(cs) + 2); #or csIdx = 3;    
-     residCorrMatrix = (corrMatrix[xyIdx, xyIdx]) - as.matrix(corrMatrix[xyIdx, csIdx])%*%(solve( as.matrix(corrMatrix[csIdx, csIdx]) , rbind(corrMatrix[csIdx, xyIdx])) );
-     stat = abs(residCorrMatrix[1,2] / sqrt(residCorrMatrix[1,1] * residCorrMatrix[2,2]));
+     tmpm <- cbind(x, target, cs);    
+     corrMatrix <- cor(tmpm);   
+     xyIdx <- 1:2;
+     csIdx <- 3:(NCOL(cs) + 2); #or csIdx = 3;    
+     residCorrMatrix <- (corrMatrix[xyIdx, xyIdx]) - as.matrix(corrMatrix[xyIdx, csIdx])%*%(solve( as.matrix(corrMatrix[csIdx, csIdx]) , rbind(corrMatrix[csIdx, xyIdx])) );
+     stat <- abs(residCorrMatrix[1,2] / sqrt(residCorrMatrix[1,1] * residCorrMatrix[2,2]));
   }
   #lets calculate the p-value
-  z = 0.5 * log( (1 + stat) / (1 - stat) );
-  dof = n - NCOL(cs) - 3; #degrees of freedom
-  w = sqrt(dof) * z / 1.029563;
-  pvalue = log(2) + pt(-abs(w), dof, log.p = TRUE) ;  # ?dt for documentation
+  z <- 0.5 * log( (1 + stat) / (1 - stat) );
+  dof <- n - NCOL(cs) - 3; #degrees of freedom
+  w <- sqrt(dof) * z / 1.029563;
+  pvalue <- log(2) + pt(-abs(w), dof, log.p = TRUE) ;  # ?dt for documentation
   #last error check
   if ( is.na(pvalue) || is.na(stat) )  {
-    pvalue = log(1);
-    stat = 0;
+    pvalue <- log(1);
+    stat <- 0;
   } else {
     #update hash objects
     if( hash )  {
@@ -123,14 +123,14 @@ res <- tryCatch(
   results <- list(pvalue = pvalue, stat = abs(w), stat_hash=stat_hash, pvalue_hash=pvalue_hash);
   return(results);
 },
-error=function(cond) {
+error = function(cond) {
   #error case (we are pretty sure that the only error case is when x,cs are highly correlated and the inversion of the matrix is not possible)
-  pvalue = log(1);
-  stat = 0;
+  pvalue <- log(1);
+  stat <- 0;
   results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
   return(results);
 },
-finally={}
+finally = {}
 )    
 
   
@@ -157,13 +157,13 @@ finally={}
   csIndex[which(is.na(csIndex))] = 0;
   
   if( hash )  {
-    csIndex2 = csIndex[which(csIndex!=0)]
-    csIndex2 = sort(csIndex2)
-    xcs = c(xIndex, csIndex2)
-    key = paste(as.character(xcs) , collapse=" ");
+    csIndex2 <- csIndex[which(csIndex!=0)]
+    csIndex2 <- sort(csIndex2)
+    xcs <- c(xIndex, csIndex2)
+    key <- paste(as.character(xcs) , collapse=" ");
     if(is.null(stat_hash[key]) == FALSE)  {
-      stat = stat_hash[key];
-      pvalue = pvalue_hash[key];
+      stat <- stat_hash[key];
+      pvalue <- pvalue_hash[key];
       aa[[ i ]] <- list(pvalue = pvalue, z = z, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
     }
   }
@@ -180,10 +180,10 @@ finally={}
     aa[[ i ]] <- list(pvalue = pvalue, z = 0, stat = 0, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
   }
   
-  xIndex = unique(xIndex);
-  csIndex = unique(csIndex);
-  x = data[ , xIndex];
-  cs = data[ , csIndex, drop = FALSE];
+  xIndex <- unique(xIndex);
+  csIndex <- unique(csIndex);
+  x <- data[ , xIndex];
+  cs <- data[ , csIndex, drop = FALSE];
   #That means that the x variable does not add more information to our model due to an exact copy of this in the cs, so it is independent from the target
   if ( length(cs) != 0 )   {
     if ( is.null( dim(cs )[2]) )  {     #cs is a vector
@@ -215,20 +215,20 @@ finally={}
     aa[[ i ]] <- list(pvalue = log(1), z = 0, stat = 0, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
   }
   #remove constant columns of cs
-  cs = cs[, apply(cs, 2, var, na.rm=TRUE) != 0 ]
+  cs <- cs[, apply(cs, 2, var, na.rm=TRUE) != 0 ]
   
 aa[[ i ]] <- tryCatch(
 {
   #if the conditioning set (cs) is empty, we use a simplified formula
   if (length(cs) == 0)  {
     if ( !is.null(univariateModels) )  {
-      pvalue = univariateModels$pvalue[[xIndex]];
-      stat = univariateModels$stat[[xIndex]];
+      pvalue <- univariateModels$pvalue[[xIndex]];
+      stat <- univariateModels$stat[[xIndex]];
       results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
       return(results);
     }
     #compute the correlation coefficient between x, target directly
-    stat = cor(x, targ);
+    stat <- cor(x, targ);
 
   } else{
      #perform the test with the cs
@@ -272,16 +272,16 @@ finally={}
   if  ( !statistic ) {
     
 	  pva <- numeric(D) 
-    for ( j in 1:D )   pva[j] = -2 * aa[[ j ]]$pvalue
-    stat = sum(pva)
-    pvalue = pchisq( stat, 2 * D, lower.tail = FALSE, log.p = TRUE ) 
+    for ( j in 1:D )   pva[j] <- -2 * aa[[ j ]]$pvalue
+    stat <- sum(pva)
+    pvalue <- pchisq( stat, 2 * D, lower.tail = FALSE, log.p = TRUE ) 
   
   } else {
     sta <- se <- numeric(D) 
-	  cisa = ncol(cs)
+	  cisa <- ncol(cs)
     for ( j in 1:D )  {
-	    sta[j] = aa[[ j ]]$z
-	    se[j] = 1 / sqrt(aa[ j ]$nu -  cisa - 3 ) 
+	    sta[j] <- aa[[ j ]]$z
+	    se[j] <- 1 / sqrt(aa[ j ]$nu -  cisa - 3 ) 
     }
 	  sse <- sum(se)
 	  stat <- (sta * se) / sqrt( sse )
@@ -293,7 +293,7 @@ finally={}
     pvalue_hash[key] <- pvalue  
   }
 
- res = list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
+ res <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
 }
   
  res

@@ -49,8 +49,10 @@ MMPC.timeclass = function(target, reps, id, dataset, max_k = 3, threshold = 0.05
   if ( max_k > varsize )   max_k = varsize;
   if ( (typeof(threshold) != "double") || threshold < 0 || threshold >= 1 )   stop('invalid threshold option');
   #######################################################################################
-  options(warn = -1)
+  oop <- options(warn = -1) 
+  on.exit( options(oop) )
   results <- InternalMMPC.timeclass(target, dataset, max_k, log(threshold), test, ini, wei, hash, varsize, stat_hash, pvalue_hash);
+  
   #backward phase
   #varsToIterate <- results$selectedVarsOrder
   #if ( backward  & length( varsToIterate ) > 0  ) {

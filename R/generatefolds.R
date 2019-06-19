@@ -6,8 +6,9 @@ generatefolds <- function(target, nfolds = 10, stratified = TRUE, seed = FALSE) 
   
   if ( !stratified ) {
     
-    options(warn = -1)
+    oop <- options(warn = -1) 
     mat <- matrix( sample( length(target) ), ncol = nfolds )
+	on.exit( options(oop) )
     for ( i  in 1:c(nfolds - 1) )  runs[[ i ]] <- mat[, i]
     a <- prod( dim(mat) ) - length(target)
     runs[[ nfolds  ]] <- mat[ 1:c(nrow(mat) - a), nfolds ]

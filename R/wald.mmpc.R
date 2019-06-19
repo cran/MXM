@@ -158,8 +158,8 @@ wald.mmpc <- function(target, dataset, max_k = 3, threshold = 0.05, test = NULL,
   # options checking and initialize #
   ###################################
   #extracting the parameters
-  max_k = floor(max_k);
-  varsize = ncol(dataset);
+  max_k <- floor(max_k);
+  varsize <- ncol(dataset);
   #option checking
   if ( (typeof(max_k)!="double") || max_k < 1 )   stop('invalid max_k option');
   if ( max_k > varsize )    max_k = varsize;
@@ -167,10 +167,10 @@ wald.mmpc <- function(target, dataset, max_k = 3, threshold = 0.05, test = NULL,
   #######################################################################################
   if ( !is.null(user_test) )  ci_test = "user_test";
   #call the main MMPC function after the checks and the initializations
-  options(warn = -1)
+  oop <- options(warn = -1) 
+  on.exit( options(oop) )
   results <- wald.Internalmmpc(target, dataset, max_k, log(threshold), test, ini, wei, user_test, hash, varsize, stat_hash, 
                               pvalue_hash, targetID, ncores = ncores);
-
   varsToIterate <- results$selectedVarsOrder
   
   if ( backward  & length( varsToIterate ) > 0  ) {

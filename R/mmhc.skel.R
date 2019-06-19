@@ -20,12 +20,13 @@ mmhc.skel <- function(dataset, max_k = 3, threshold = 0.05, test = "testIndFishe
   
   if ( !is.null(test) ) {
     if ( is.null(ini.pvalue)  & ( test == "testIndSpearman" | test == "testIndFisher" | test == "gSquare") ) {
+	  oop <- options(warn = -1) 
+	  on.exit( options(oop) ) 
       if ( !is.matrix(dataset) )   dataset <- as.matrix(dataset)
       initial.tests <- 0.5 * n * (n - 1)
       if ( test == "testIndSpearman" ) {
         dataset <- Rfast::colRanks(dataset)
         R <- Rfast::cora(dataset)
-        options(warn = -1)
         stat <- 0.5 * log( (1 + R)/( (1 - R) ) ) * sqrt(m - 3) / 1.029563
         ini.pvalue <- log(2) + pt( abs(stat), m - 3, lower.tail = FALSE, log.p = TRUE)
         diag(ini.pvalue) <- 0
@@ -33,7 +34,6 @@ mmhc.skel <- function(dataset, max_k = 3, threshold = 0.05, test = "testIndFishe
         stat <- NULL
       } else if ( test == "testIndFisher" ) {
         R <- Rfast::cora(dataset)
-        options(warn = -1)
         stat <- 0.5 * log( (1 + R)/( (1 - R) ) ) * sqrt(m - 3) 
         ini.pvalue <- log(2) + pt( abs(stat), m - 3, lower.tail = FALSE, log.p = TRUE)
         diag(ini.pvalue) <- 0

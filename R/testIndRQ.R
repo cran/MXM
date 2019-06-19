@@ -1,4 +1,4 @@
-testIndRQ = function(target, dataset, xIndex, csIndex, wei = NULL, univariateModels=NULL, 
+testIndRQ <- function(target, dataset, xIndex, csIndex, wei = NULL, univariateModels=NULL, 
                      hash = FALSE, stat_hash=NULL, pvalue_hash=NULL) {
   # TESTINDRQ Conditional Independence Test for numerical class variables 
   # PVALUE = TESTINDRQ(Y, DATA, XINDEX, CSINDEX)
@@ -17,18 +17,18 @@ testIndRQ = function(target, dataset, xIndex, csIndex, wei = NULL, univariateMod
   # university press, 2005.
   #initialization
   #if the test cannot performed succesfully these are the returned values
-  pvalue = log(1);
-  stat = 0;
-  csIndex[which(is.na(csIndex))] = 0;
+  pvalue <- log(1)
+  stat <- 0
+  csIndex[which(is.na(csIndex))] <- 0
   
   if( hash )  {
-    csIndex2 = csIndex[which(csIndex!=0)]
-    csIndex2 = sort(csIndex2)
-    xcs = c(xIndex,csIndex2)
-    key = paste(as.character(xcs) , collapse=" ");
+    csIndex2 <- csIndex[which(csIndex!=0)]
+    csIndex2 <- sort(csIndex2)
+    xcs <- c(xIndex,csIndex2)
+    key <- paste(as.character(xcs) , collapse=" ");
     if(is.null(stat_hash[key]) == FALSE)  {
-      stat = stat_hash[key];
-      pvalue = pvalue_hash[key];
+      stat <- stat_hash[key];
+      pvalue <- pvalue_hash[key];
       results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
       return(results);
     }
@@ -50,10 +50,10 @@ testIndRQ = function(target, dataset, xIndex, csIndex, wei = NULL, univariateMod
     return(results);
   }
   
-  xIndex = unique(xIndex);
-  csIndex = unique(csIndex);
-  x = dataset[ , xIndex];
-  cs = dataset[ , csIndex];
+  xIndex <- unique(xIndex);
+  csIndex <- unique(csIndex);
+  x <- dataset[ , xIndex];
+  cs <- dataset[ , csIndex];
   #That means that the x variable does not add more information to our model due to an exact copy of this in the cs, so it is independent from the target
   if ( length(cs) != 0 ) {
     if ( is.null(dim(cs)[2]) )  {   #cs is a vector
@@ -65,7 +65,7 @@ testIndRQ = function(target, dataset, xIndex, csIndex, wei = NULL, univariateMod
         results <- list(pvalue = log(1), stat = 0, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
         return(results);
       }
-    } else { #more than one var
+    } else { # more than one var
       for (col in 1:dim(cs)[2])  {
         if (identical(x, cs[, col]) )  {    #if(!any(x == cs) == FALSE)
           if ( hash ) {      #update hash objects
@@ -78,32 +78,30 @@ testIndRQ = function(target, dataset, xIndex, csIndex, wei = NULL, univariateMod
       }
     }
   }
+  
   res <- tryCatch(
 {
   #if the conditioning set (cs) is empty, we use a simplified formula
   if (length(cs) == 0) {
     #compute the relationship between x,target directly
-    options(warn = -1)
-    fit1 = quantreg::rq(target ~ 1, weights = wei)
-    fit2 = quantreg::rq(target ~ x, weights = wei)
+    fit1 < quantreg::rq(target ~ 1, weights = wei)
+    fit2 <- quantreg::rq(target ~ x, weights = wei)
   } else {
-    kapa = length( csIndex )
-    options(warn = -1)
-    ff1 = as.formula(paste("target ~ ",paste("dataset[,",csIndex[1:kapa],"]",sep="",collapse="+"), sep=""))
-    ff2 = as.formula(paste(paste("target ~ ",paste("dataset[,",csIndex[1:kapa],"]",sep="",collapse="+"), sep="") , "+dataset[,",xIndex,"]", sep = ""))
-    fit1 = quantreg::rq( ff1, weights = wei )
-    fit2 = quantreg::rq( ff2, weights= wei )
+    kapa <- length( csIndex )
+    ff1 <- as.formula(paste("target ~ ",paste("dataset[,",csIndex[1:kapa],"]",sep="",collapse="+"), sep=""))
+    ff2 <- as.formula(paste(paste("target ~ ",paste("dataset[,",csIndex[1:kapa],"]",sep="",collapse="+"), sep="") , "+dataset[,",xIndex,"]", sep = ""))
+    fit1 <- quantreg::rq( ff1, weights = wei )
+    fit2 <- quantreg::rq( ff2, weights= wei )
   }
-    mod = anova(fit1,fit2, test = "rank")
-    df1 = as.numeric( mod[[1]][1] )
-    df2 = as.numeric( mod[[1]][2] )
-    stat = as.numeric( mod[[1]][3] )
-    pvalue = pf(stat, df1, df2, lower.tail = FALSE, log.p = TRUE)
-  
+    mod <- anova(fit1,fit2, test = "rank")
+    df1 <- as.numeric( mod[[1]][1] )
+    df2 <- as.numeric( mod[[1]][2] )
+    stat <- as.numeric( mod[[1]][3] )
+    pvalue <- pf(stat, df1, df2, lower.tail = FALSE, log.p = TRUE)
   #last error check
   if ( is.na(pvalue) || is.na(stat) )  {
-    pvalue = log(1);
-    stat = 0;
+    pvalue <- log(1);
+    stat <- 0;
   } else {
     #update hash objects
     if ( hash ) {
@@ -116,14 +114,14 @@ testIndRQ = function(target, dataset, xIndex, csIndex, wei = NULL, univariateMod
   return(results);
   
 },
-error=function(cond) {
+error = function(cond) {
   #error case
-  pvalue = log(1);
-  stat = 0;
+  pvalue <- log(1);
+  stat <- 0;
   results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
-  return(results);
+  return(results)
 },
-finally={}
+finally = {}
 )    
 return(res);
 }

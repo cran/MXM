@@ -70,7 +70,7 @@ bic.betafsreg <- function( target, dataset, wei = NULL, tol = 2, ncores = 1 ) {
         mat[, 2] <- bico 
       } else {
         cl <- makePSOCKcluster(ncores)
-        registerDoParallel(cl)
+        doParallel::registerDoParallel(cl)
         mod <- foreach( i = 1:pn, .combine = rbind, .export = "beta.reg") %dopar% {
           ww <- beta.reg( target, dataset[, c(sel, mat[i, 1]) ], wei = wei )
           return( - 2 * ww$loglik + ( length(ma$be) + 1 ) * con )
@@ -107,7 +107,7 @@ bic.betafsreg <- function( target, dataset, wei = NULL, tol = 2, ncores = 1 ) {
           } 
         } else {
           cl <- makePSOCKcluster(ncores)
-          registerDoParallel(cl)
+          doParallel::registerDoParallel(cl)
           mod <- foreach( i = 1:pn, .combine = rbind, .export = "beta.reg") %dopar% {
             ww <- beta.reg( target, dataset[, c(sela, mat[i, 1]) ], wei = wei )
             return(  - 2 * ww$loglik + ( length(ww$be) + 1 ) * con )

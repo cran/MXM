@@ -1,4 +1,4 @@
-fbedreg.bic = function(target, dataset, wei = NULL, fbedreg.object, test = NULL, graph = TRUE) {
+fbedreg.bic <- function(target, dataset, wei = NULL, fbedreg.object, test = NULL, graph = TRUE) {
   
   if ( fbedreg.object$info[1, 1] == 0 ) {
     res <- NULL
@@ -23,7 +23,7 @@ fbedreg.bic = function(target, dataset, wei = NULL, fbedreg.object, test = NULL,
     }
   }
   
-  ci_test = test 
+  ci_test <- test 
   p <- dim(fbedreg.object$res)[1]
   bic <- numeric(p)
   dataset <- as.data.frame(dataset[, fbedreg.object$res[, 1], drop = FALSE])
@@ -37,8 +37,8 @@ fbedreg.bic = function(target, dataset, wei = NULL, fbedreg.object, test = NULL,
     
   } else if (test == "testIndMMReg") {
     for (i in 1:p) {
-      mod = MASS::rlm(target ~., data = dataset[, 1:i, drop = FALSE ], maxit = 2000, weights = wei )  
-      bic[i] = BIC( mod )    
+      mod <- MASS::rlm(target ~., data = dataset[, 1:i, drop = FALSE ], maxit = 2000, weights = wei )  
+      bic[i] <- BIC( mod )    
     }
   
   } else if ( ci_test == "testIndRQ" ) {

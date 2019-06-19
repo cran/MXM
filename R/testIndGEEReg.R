@@ -46,10 +46,12 @@ testIndGEEReg = function(target, reps = NULL, group, dataset, xIndex, csIndex,  
     return(results);
   }
   #extract the data
-  x = dataset[ , xIndex];
-  cs = dataset[ , csIndex];
-  if(length(cs) == 0 || any( is.na(cs) ) )   cs = NULL;
+  x <- dataset[ , xIndex];
+  cs <- dataset[ , csIndex];
+  if ( length(cs) == 0 || any( is.na(cs) ) )   cs <- NULL;
   #That means that the x variable does not add more information to our model due to an exact copy of this in the cs, so it is independent from the target
+  oop <- options(warn = -1) 
+  on.exit( options(oop) )
   if ( length(cs) != 0 )  {
     if ( is.null(dim(cs)[2]) )  {     #cs is a vector
       if ( identical(x, cs) )  {    #if(!any(x == cs) == FALSE)
@@ -73,7 +75,6 @@ testIndGEEReg = function(target, reps = NULL, group, dataset, xIndex, csIndex,  
       }
     }
   }
-  options(warn = -1)
   #if the conditioning set (cs) is empty, we use the t-test on the coefficient of x.
   if (length(cs) == 0)  {
     #if the univariate models have been already compute
@@ -128,7 +129,6 @@ testIndGEEReg = function(target, reps = NULL, group, dataset, xIndex, csIndex,  
       }
     }  
   }
-
   #update hash objects
   if ( hash )  {
     stat_hash$key <- stat;   #.set(stat_hash , key , stat)

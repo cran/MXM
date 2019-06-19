@@ -24,7 +24,8 @@ ordinal.reg <- function(formula, data) {
     y <- as.numeric(y)
     m <- dim(x)[2]
     b <- matrix(0, m, k - 1)
-    options(warn = -1)  
+    oop <- options(warn = -1) 
+    on.exit( options(oop) )
     for (i in 1:(k - 1) ) {
       y1 <- y
       y1[y <= i ] <- 0

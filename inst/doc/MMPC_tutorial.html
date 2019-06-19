@@ -417,8 +417,8 @@ str(mmpcobject_wine_NonFlav@hashObject)
 </code></pre>
 
 <pre><code>## List of 2
-##  $ stat_hash  :Class &#39;Hash&#39; &lt;environment: 0x000000001e2846a8&gt; 
-##  $ pvalue_hash:Class &#39;Hash&#39; &lt;environment: 0x000000001e2842f0&gt;
+##  $ stat_hash  :Class &#39;Hash&#39; &lt;environment: 0x000000001ea53628&gt; 
+##  $ pvalue_hash:Class &#39;Hash&#39; &lt;environment: 0x000000001ea53270&gt;
 </code></pre>
 
 <pre><code class="r"># a list with the univariate associations
@@ -437,7 +437,7 @@ execution_time_1st_MMPC_run
 </code></pre>
 
 <pre><code>##    user  system elapsed 
-##       0       0       0
+##    0.02    0.00    0.02
 </code></pre>
 
 <h2><code>MMPC()</code> subsequent run: Efficiency with the <code>ini</code> and <code>hashObject</code> arguments</h2>
@@ -469,14 +469,14 @@ execution_time_1st_MMPC_run
 </code></pre>
 
 <pre><code>##    user  system elapsed 
-##       0       0       0
+##    0.02    0.00    0.02
 </code></pre>
 
 <pre><code class="r">execution_time_2nd_MMPC_run
 </code></pre>
 
 <pre><code>##    user  system elapsed 
-##       0       0       0
+##    0.02    0.00    0.01
 </code></pre>
 
 <p>Even in our small wine dataset, the difference in runtime is impressive. <code>MMPC</code> is designed for, and actually shines in high feature space datasets, such as those in the domains of computer vision and -omics approaches in Life Sciences. </p>
@@ -743,7 +743,7 @@ where <strong>N</strong> is the number of instances.</p>
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] dplyr_0.8.1 MXM_1.4.3  
+## [1] dplyr_0.8.1 MXM_1.4.4  
 ## 
 ## loaded via a namespace (and not attached):
 ##  [1] Rfast2_0.0.2        tidyselect_0.2.5    xfun_0.7           
@@ -757,7 +757,7 @@ where <strong>N</strong> is the number of instances.</p>
 ## [25] htmlwidgets_1.3     codetools_0.2-16    evaluate_0.13      
 ## [28] geepack_1.2-1       coxme_2.2-10        knitr_1.22         
 ## [31] SparseM_1.77        doParallel_1.0.14   parallel_3.6.0     
-## [34] quantreg_5.38       markdown_0.9        Rfast_1.9.3        
+## [34] quantreg_5.38       markdown_0.9        Rfast_1.9.4        
 ## [37] Rcpp_1.0.1          relations_0.6-8     jsonlite_1.6       
 ## [40] R.rsp_0.43.1        lme4_1.1-21         digest_0.6.18      
 ## [43] stringi_1.4.3       ordinal_2019.4-25   numDeriv_2016.8-1  

@@ -117,7 +117,6 @@ testIndBeta = function(target, dataset, xIndex, csIndex, wei = NULL, univariateM
       pvalue_hash[key] <- pvalue;#.set(pvalue_hash , key , pvalue)
     }
   }
-  #testerrorcaseintrycatch(4);
   results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
   return(results);
 },
@@ -128,7 +127,6 @@ error=function(cond) {
   return(results);
 },
 finally={}
-  )
-  
+)
   return(res);
 }

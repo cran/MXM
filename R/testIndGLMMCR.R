@@ -47,8 +47,10 @@ testIndGLMMCR = function(target, reps = NULL, group, dataset, xIndex, csIndex,  
   #extract the data
   x <- dataset[ , xIndex];
   cs <- dataset[ , csIndex];
-  if(length(cs) == 0 || any( is.na(cs) ) )  cs = NULL;
+  if ( length(cs) == 0 || any( is.na(cs) ) )  cs <- NULL;
   #That means that the x variable does not add more information to our model due to an exact copy of this in the cs, so it is independent from the target
+  oop <- options(warn = -1) 
+  on.exit( options(oop) )
   if ( length(cs) != 0 )  {
     if ( is.null(dim(cs)[2]) )  {     #cs is a vector
       if ( identical(x, cs) )  {    #if(!any(x == cs) == FALSE)
@@ -72,7 +74,6 @@ testIndGLMMCR = function(target, reps = NULL, group, dataset, xIndex, csIndex,  
       }
     }
   }
-  options(warn = -1)
   #if the conditioning set (cs) is empty, we use the t-test on the coefficient of x.
   if (length(cs) == 0)  {
     #if the univariate models have been already compute
@@ -82,10 +83,8 @@ testIndGLMMCR = function(target, reps = NULL, group, dataset, xIndex, csIndex,  
       results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
       return(results);
     }
-
     fit1 <- coxme::coxme(target ~ (1|group), weights = wei )
-    fit2 <- coxme::coxme(target ~ (1|group) + x, weights = wei )
-      
+    fit2 <- coxme::coxme(target ~ (1|group) + x, weights = wei ) 
   } else {  ## (length(cs) > 0)  
     fit1 <- coxme::coxme( target ~ (1|group) + cs, weights = wei )    
     fit2 <- coxme::coxme( target ~ (1|group) + cs + x, weights = wei )    
@@ -94,6 +93,7 @@ testIndGLMMCR = function(target, reps = NULL, group, dataset, xIndex, csIndex,  
   mod <- anova(fit1, fit2)
   stat <- mod[2, 2]
   pvalue <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
+  oop <- options(warn = -1) 
   #update hash objects
   if ( hash )  {
     stat_hash$key <- stat;   #.set(stat_hash , key , stat)

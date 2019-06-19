@@ -48,7 +48,7 @@ fbed.reg <- function(target, dataset, ini = NULL, test = NULL, threshold = 0.05,
     if ( backward ) {
       
       if (result$info[1, 1] > 0) {
-        a <- bs.reg(target, dataset[, result$res[, 1], drop = FALSE], threshold = threshold, wei = wei, test = test)
+        a <- MXM::bs.reg(target, dataset[, result$res[, 1], drop = FALSE], threshold = threshold, wei = wei, test = test)
         
         if ( typeof(a) == "list" ) {
           result$back.rem <- result$res[a$info[, 1], 1]
@@ -71,7 +71,7 @@ fbed.reg <- function(target, dataset, ini = NULL, test = NULL, threshold = 0.05,
     
   } else {  ## end of method =="LR"
     
-    if (test == "testIndReg"  |  test == "testIndFisher")    test <- "testIndReg"
+    if ( test == "testIndFisher" )    test <- "testIndReg"
     result <- fbed.ebic(y = target, x = dataset, test = test, univ = ini, gam = gam, wei = wei, K = K)  
     
     result$back.rem <- 0
@@ -80,7 +80,7 @@ fbed.reg <- function(target, dataset, ini = NULL, test = NULL, threshold = 0.05,
     if ( backward ) {
       
       if ( result$info[1, 1] > 0 ) {
-        a <- ebic.bsreg(target, dataset[, result$res[, 1], drop = FALSE], test = test, wei = wei, gam = gam) 
+        a <- MXM::ebic.bsreg(target, dataset[, result$res[, 1], drop = FALSE], test = test, wei = wei, gam = gam) 
        
         if ( typeof(a) == "list" ) {
           back.n.tests <- sum( dim(result$res)[1] : length(a$mat[, 1]) )

@@ -28,9 +28,10 @@ clogit.fsreg_2 <- function(target, dataset, iniset = NULL, wei = NULL, threshold
   ini <- 2 * logLik(mi)
   tool[k] <-  BIC(mi)
   moda[[ k ]] <- mi
-  
+  oop <- options(warn = -1) 
+  on.exit( options(oop) )
+	
   if (ncores <= 1) {
-    options(warn = -1)
     for (i in 1:p) {
       mi <- survival::clogit( case ~ dataset[, pa + i] + strata(id) )
       devi[i] <- 2 * mi$loglik

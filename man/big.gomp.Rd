@@ -73,7 +73,7 @@ R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>. For more 
 \examples{
 \dontrun{
 dataset <- matrix( runif(100 * 50, 1, 100), ncol = 50 )
-read.csv(data, "dataset.csv", sep = ",")
+write.csv(data, "dataset.csv", sep = ",")
 a <- read.big.data("dataset.csv")
 mod <- big.gomp(a, test = "testIndFisher", tol = 0.01)
 }

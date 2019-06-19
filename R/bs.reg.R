@@ -17,7 +17,6 @@ bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
    tic <- proc.time()
    #check for NA values in the dataset and replace them with the variable median or the mode
    if( any(is.na(dataset)) ) {
-     #dataset = as.matrix(dataset);
      warning("The dataset contains missing values (NA) and they were replaced automatically by the variable (column) median (for numeric) or by the most frequent level (mode) if the variable is factor")
      if ( is.matrix(dataset) )  {
        dataset <- apply( dataset, 2, function(x){ x[which(is.na(x))] = median(x, na.rm = TRUE) ; return(x) } ) 
@@ -38,7 +37,7 @@ bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
   ## but other arguments are given. For some cases, these are default cases
   if ( is.null(test)  &  is.null(user_test) ) {
     ## surival data
-    if ( sum( class(target) == "Surv" ) == 1 ) {
+    if ( identical( class(target), "Surv" ) ) {
       ci_test <- test <- "censIndCR"
       ## ordinal, multinomial or perhaps binary data
     } else if ( is.factor(target)  &  length( unique(target) ) == 2 ) {
@@ -54,7 +53,7 @@ bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
   av_models = c("testIndReg", "testIndMMReg", "testIndBeta", "censIndCR", "censIndWR", "censIndLLR", "testIndRQ",
                 "testIndLogistic", "testIndPois", "testIndNB", "testIndZIP", "testIndBinom", "testIndGamma", 
                 "testIndNormLog", "testIndTobit", "testIndClogit", "testIndFisher", "testIndQPois", 
-                "testIndQBinom", "testIndMultinom", "testIndOrdinal")
+                "testIndQBinom", "testIndMultinom", "testIndOrdinal", "testIndSPML")
   
   ci_test <- test
   test <- match.arg(test, av_models, TRUE);

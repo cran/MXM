@@ -32,8 +32,7 @@ In case the method is chosen to be "eBIC" one can also specify the \eqn{gamma} p
 \item{test}{
 One of the following: \bold{testIndBeta}, \bold{testIndReg}, \bold{testIndLogistic}, \bold{testIndOrdinal}, 
 \bold{testIndPois}, \bold{testIndZIP}, \bold{testIndNB}, \bold{testIndClogit}, \bold{testIndBinom}, \bold{testIndIGreg}, 
-\bold{censIndCR}, \bold{censIndWR}, \bold{censIndER}, \bold{censIndLLR} \bold{testIndMultinom}, \bold{testIndTobit}, \bold{testIndGamma} or 
-\bold{testIndNormLog}. 
+\bold{censIndCR}, \bold{censIndWR}, \bold{censIndER}, \bold{censIndLLR} \bold{testIndMultinom}, \bold{testIndTobit}, \bold{testIndSPML}, \bold{testIndGamma} or \bold{testIndNormLog}. 
 
 Note that in all cases you must give the name of the test, without " ". 
 }

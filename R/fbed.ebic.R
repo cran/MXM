@@ -18,7 +18,7 @@ fbed.ebic <- function(y, x, test = NULL, univ = NULL, gam = NULL, wei = NULL, K 
   lik1 <- ebic.model(y, test = test, wei = wei)
   
   if ( is.null(univ) ) {
-    lik2 <- ebic.univregs(y, x, test = test, wei = wei, ncores = ncores, gam = gam)$ebic
+    lik2 <- MXM::ebic.univregs(y, x, test = test, wei = wei, ncores = ncores, gam = gam)$ebic
     stat <- lik1 - lik2
     univ <- list()
     univ$ebic <- lik2
@@ -42,7 +42,7 @@ fbed.ebic <- function(y, x, test = NULL, univ = NULL, gam = NULL, wei = NULL, K 
     #########
     while ( sum(s > 0) > 0 ) {
       M <- length(sela) + 1
-      lik2 <- ebic.regs(y, x, xIndex = ind[s], csIndex = sela, gam = gam, test = test, wei = wei)
+      lik2 <- MXM::ebic.regs(y, x, xIndex = ind[s], csIndex = sela, gam = gam, test = test, wei = wei)
       lik2[ -ind[s] ] <- lik1
       n.tests <- n.tests + length(ind[s])
       stat <- lik1 - lik2
@@ -61,7 +61,7 @@ fbed.ebic <- function(y, x, test = NULL, univ = NULL, gam = NULL, wei = NULL, K 
     
     if (K == 1) {
       M <- length(sela) + 1
-      lik2 <- ebic.regs(y, x, xIndex = ind[-c(sela, zevar)], csIndex = sela, gam = gam, test = test, wei = wei)
+      lik2 <- MXM::ebic.regs(y, x, xIndex = ind[-c(sela, zevar)], csIndex = sela, gam = gam, test = test, wei = wei)
       lik2[ -ind[-sela] ] <- lik1
       n.tests[2] <- length( ind[-c(sela, zevar)] )
       stat <- lik1 - lik2
@@ -76,7 +76,7 @@ fbed.ebic <- function(y, x, test = NULL, univ = NULL, gam = NULL, wei = NULL, K 
       }  
       while ( sum(s > 0) > 0 ) {
         M <- length(sela) + 1
-        lik2 <- ebic.regs(y, x, xIndex = ind[s], csIndex = sela, gam = gam, test = test, wei = wei)
+        lik2 <- MXM::ebic.regs(y, x, xIndex = ind[s], csIndex = sela, gam = gam, test = test, wei = wei)
         lik2[ -ind[s] ] <- lik1
         n.tests[2] <- n.tests[2] + length( ind[s] )
         stat <- lik1 - lik2
@@ -95,7 +95,7 @@ fbed.ebic <- function(y, x, test = NULL, univ = NULL, gam = NULL, wei = NULL, K 
     
     if ( K > 1) {
       M <- length(sela) + 1
-      lik2 <- ebic.regs(y, x, xIndex = ind[-c(sela, zevar)], csIndex = sela, gam = gam, test = test, wei = wei)
+      lik2 <- MXM::ebic.regs(y, x, xIndex = ind[-c(sela, zevar)], csIndex = sela, gam = gam, test = test, wei = wei)
       lik2[ -ind[-sela] ] <- lik1
       n.tests[2] <- length( ind[-c(sela, zevar)] )
       stat <- lik1 - lik2
@@ -110,7 +110,7 @@ fbed.ebic <- function(y, x, test = NULL, univ = NULL, gam = NULL, wei = NULL, K 
       }  
       while ( sum(s > 0) > 0 ) {
         M <- length(sela) + 1
-        lik2 <- ebic.regs(y, x, xIndex = ind[s], csIndex = sela, gam = gam, test = test, wei = wei)
+        lik2 <- MXM::ebic.regs(y, x, xIndex = ind[s], csIndex = sela, gam = gam, test = test, wei = wei)
         lik2[ -ind[s] ] <- lik1
         n.tests[2] <- n.tests[2] + length(ind[s])
         stat <- lik1 - lik2
@@ -130,7 +130,7 @@ fbed.ebic <- function(y, x, test = NULL, univ = NULL, gam = NULL, wei = NULL, K 
       while ( vim < K  & card[vim + 1] - card[vim] > 0 ) {
         vim <- vim + 1
         M <- length(sela) + 1
-        lik2 <- ebic.regs(y, x, xIndex = ind[-c(sela, zevar)], csIndex = sela, gam = gam, test = test, wei = wei)
+        lik2 <- MXM::ebic.regs(y, x, xIndex = ind[-c(sela, zevar)], csIndex = sela, gam = gam, test = test, wei = wei)
         lik2[ -ind[-sela] ] <- lik1
         n.tests[vim + 1] <- length( ind[-c(sela, zevar)] ) 
         stat <- lik1 - lik2
@@ -145,7 +145,7 @@ fbed.ebic <- function(y, x, test = NULL, univ = NULL, gam = NULL, wei = NULL, K 
         }     
         while ( sum(s > 0) > 0 ) {
           M <- length(sela) + 1
-          lik2 <- ebic.regs(y, x, xIndex = ind[s], csIndex = sela, gam = gam, test = test, wei = wei)
+          lik2 <- MXM::ebic.regs(y, x, xIndex = ind[s], csIndex = sela, gam = gam, test = test, wei = wei)
           lik2[ -ind[s] ] <- lik1
           n.tests[vim + 1] <- n.tests[vim + 1] + length(ind[s])
           stat <- lik1 - lik2

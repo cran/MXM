@@ -205,7 +205,8 @@ perm.mmpc <- function(target, dataset, max_k = 3, threshold = 0.05, test = NULL,
   #######################################################################################
   if ( !is.null(user_test) )  ci_test = "user_test";
   #call the main MMPC function after the checks and the initializations
-  options(warn = -1)
+  oop <- options(warn = -1) 
+  on.exit( options(oop) )
   results <- perm.Internalmmpc(target, dataset, max_k, log(threshold), test, ini, wei, user_test, hash, varsize, stat_hash, pvalue_hash, targetID, R = R, ncores = ncores);
   #for testing backward phase
   #   results$selectedVars = c(results$selectedVars,15)
