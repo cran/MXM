@@ -87,11 +87,10 @@ If TRUE, the backward (or symmetry correction) phase will be implemented. This r
 }
 
 \details{
-The SES function implements the Statistically Equivalent Signature (SES) algorithm as presented in "Tsamardinos, Lagani and Pappas, HSCBB 2012" 
-http://www.mensxmachina.org/publications/discovering-multiple-equivalent-biomarker-signatures/
+The SES function implements the Statistically Equivalent Signature (SES) algorithm as presented in "Tsamardinos, Lagani and Pappas, HSCBB 2012".
 
-The MMPC function implements the MMPC algorithm as presented in "Tsamardinos, Brown and Aliferis. The max-min hill-climbing Bayesian network structure learning algorithm" 
-http://www.dsl-lab.org/supplements/mmhc_paper/paper_online.pdf
+The MMPC function implements the MMPC algorithm as presented in "Tsamardinos, Brown and Aliferis. The max-min hill-climbing Bayesian network structure learning algorithm".
+
 
 he output value "univ" along with the output value "hashObject" 
 can speed up the computations of subsequent runs of SES and MMPC. The first run with a specific pair of hyper-parameters (threshold and max_k) the univariate associations tests 
@@ -223,7 +222,7 @@ Tsamardinos, Brown and Aliferis (2006). The max-min hill-climbing Bayesian netwo
 65(1), 31-78.
 
 Tsagis M. (2018). Guide on performing feature selection with the R package MXM.
-http://mensxmachina.org/site/wp-content/uploads/2018/04/Guide-on-performing-feature-selection-with-the-R-package-MXM.pdf
+\url{ http://mensxmachina.org/site/wp-content/uploads/2018/04/Guide-on-performing-feature-selection-with-the-R-package-MXM.pdf }
 }
 
 \author{

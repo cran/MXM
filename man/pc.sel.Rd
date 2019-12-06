@@ -48,13 +48,13 @@ The runtime of the algorithm.
 Buhlmann P., Kalisch M. and Maathuis M. H. (2010). Variable selection in high-dimensional linear models:
 partially faithful distributions and the PC-simple algorithm. Biometrika, 97(2), 261-278.
 
-https://arxiv.org/pdf/0906.3204.pdf
+\url{ https://arxiv.org/pdf/0906.3204.pdf }
 }
 
 \author{
 Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr> 
+R implementation and documentation: Michail Tsagris \email{mtsagris@uoc.gr} 
 }
 
 %\note{

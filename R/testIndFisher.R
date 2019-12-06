@@ -57,10 +57,10 @@ testIndFisher = function(target, dataset, xIndex, csIndex, wei = NULL, statistic
       return(results);
     }
     
-    xIndex = unique(xIndex);
-    csIndex = unique(csIndex);
-    x = dataset[ , xIndex];
-    cs = dataset[ , csIndex, drop = FALSE];
+    xIndex <- unique(xIndex);
+    csIndex <- unique(csIndex);
+    x <- dataset[ , xIndex];
+    cs <- dataset[ , csIndex, drop = FALSE];
     #That means that the x variable does not add more information to our model due to an exact copy of this in the cs, so it is independent from the target
     if ( length(cs) != 0 ) {
       if ( is.null(dim(cs)[2]) )  {    #cs is a vector
@@ -90,30 +90,30 @@ testIndFisher = function(target, dataset, xIndex, csIndex, wei = NULL, statistic
         #if the conditioning set (cs) is empty, we use a simplified formula
         if ( length(cs) == 0 ) {
           if ( !is.null(univariateModels) ) {
-            pvalue = univariateModels$pvalue[[xIndex]];
-            stat = univariateModels$stat[[xIndex]];
+            pvalue <- univariateModels$pvalue[[ xIndex ]];
+            stat <- univariateModels$stat[[ xIndex ]];
             results <- list(pvalue = pvalue, stat = stat, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
             return(results);
           }
           #compute the correlation coefficient between x,target directly
-          stat <- cor(x, target);
+          stat <- cor(x, target)
         } else {
-          tmpm = cbind(x, target, cs);
-          corrMatrix = cor(tmpm);         
-          xyIdx = 1:2;
-          csIdx = 3:(ncol(as.matrix(cs))+2); #or csIdx = 3;          
+          tmpm <- cbind(x, target, cs)
+          corrMatrix <- cor(tmpm)         
+          xyIdx <- 1:2
+          csIdx <- 3:( ncol(as.matrix(cs)) + 2 ) #or csIdx = 3;          
           residCorrMatrix = corrMatrix[xyIdx, xyIdx] - corrMatrix[xyIdx, csIdx] %*% solve( as.matrix(corrMatrix[csIdx, csIdx]) , rbind( corrMatrix[csIdx, xyIdx]) ) ;
-          stat = residCorrMatrix[1, 2] / sqrt(residCorrMatrix[1, 1] * residCorrMatrix[2, 2]);
+          stat <- residCorrMatrix[1, 2] / sqrt(residCorrMatrix[1, 1] * residCorrMatrix[2, 2])
         }
         #lets calculate the p-value
-        z = 0.5*log( (1+stat)/(1-stat) );
-        dof = n - ncol( cs ) - 3; #degrees of freedom
-        stat = sqrt(dof) * abs(z);
-        pvalue = log(2) + pt(stat, dof, lower.tail = FALSE, log.p = TRUE) ;  # ?dt for documentation
+        z <- 0.5*log( (1+stat)/(1-stat) );
+        dof <- n - ncol( cs ) - 3; #degrees of freedom
+        stat <- sqrt(dof) * abs(z);
+        pvalue <- log(2) + pt(stat, dof, lower.tail = FALSE, log.p = TRUE) ;  # ?dt for documentation
         #last error check
         if ( is.na(pvalue) || is.na(stat) ) {
-          pvalue = log(1);
-          stat = 0;
+          pvalue <- log(1);
+          stat <- 0;
         } else {
           #update hash objects
           if( hash ) {

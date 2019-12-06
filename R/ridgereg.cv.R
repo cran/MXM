@@ -1,10 +1,6 @@
 #######################
 ### K-fold cross validation for selecting the optimal lambda in ridge regression
 #######################
- 
-### usage:  ridgereg.cv( target, dataset, K = 10, lambda = seq(0, 1, by = 0.01), 
-### auto = FALSE, seed = FALSE, ncores = 1, mat = NULL )
-
 ridgereg.cv <- function( target, dataset, K = 10, lambda = seq(0, 2, by = 0.1), 
                         auto = FALSE, seed = FALSE, ncores = 1, mat = NULL ) {
   ## target is a dependent continuous variable or a matrix with continuous variables
@@ -17,8 +13,8 @@ ridgereg.cv <- function( target, dataset, K = 10, lambda = seq(0, 2, by = 0.1),
   ## ncores specifies how many cores to be used
   target <- as.vector(target)
   dataset <- as.matrix(dataset)
-  n <- length(target)
-  p <- ncol(dataset)
+  n <- dim(dataset)[1]
+  p <- dim(dataset)[2]
   mspe <- NULL
   performance <- NULL
 

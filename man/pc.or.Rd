@@ -64,7 +64,7 @@ Applied Artificial Intelligence 33(2): 101-123.
 \author{
  Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
+R implementation and documentation: Michail Tsagris \email{mtsagris@uoc.gr}
 }
 
 %\note{

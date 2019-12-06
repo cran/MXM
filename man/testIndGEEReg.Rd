@@ -128,7 +128,7 @@ Tsagris, M., Lagani, V., & Tsamardinos, I. (2018). Feature selection for high-di
 \author{
 Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
+R implementation and documentation: Michail Tsagris \email{mtsagris@uoc.gr}
 }
 
 %\note{

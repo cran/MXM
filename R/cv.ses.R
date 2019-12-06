@@ -324,14 +324,14 @@ mae.mxm <- function(predictions, test_target, theta = NULL) {
 
 #cindex
 ci.mxm <- function(predictions, test_target, theta = NULL) {
-  ## 1 - Hmisc::rcorr.cens(predictions, test_target)[1];
-  survival::survConcordance(test_target ~ predictions)$concordance
+  1 - Hmisc::rcorr.cens(test_target, predictions)[1]
+  #survival::survConcordance(test_target ~ predictions)$concordance
 }
 
 #cindex for weibull, exponential and log-logistic regession 
 ciwr.mxm <- function(predictions, test_target, theta = NULL) {
-  ## Hmisc::rcorr.cens(predictions, test_target)[1];
-  1 - survival::survConcordance(test_target ~ predictions)$concordance
+  Hmisc::rcorr.cens(test_target, predictions)[1]
+  #1 - survival::survConcordance(test_target ~ predictions)$concordance
 }  
 
 #Poisson deviance. Lower values indicate better performance so we multiply with -1 in order to have higher values for better performances

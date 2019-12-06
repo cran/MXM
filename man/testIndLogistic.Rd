@@ -126,7 +126,7 @@ McCullagh, Peter, and John A. Nelder. Generalized linear models.  CRC press, USA
 \author{
 Vincenzo Lagani and Ioannis Tsamardinos 
 
-R implementation and documentation: Vincenzo Lagani <vlagani@csd.uoc.gr>, Giorgos Athineou <athineou@csd.uoc.gr> and Michail Tsagris <mtsagris@uoc.gr>
+R implementation and documentation: Vincenzo Lagani <vlagani@csd.uoc.gr>, Giorgos Athineou <athineou@csd.uoc.gr> and Michail Tsagris \email{mtsagris@uoc.gr}
 }
 
 \note{

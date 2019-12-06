@@ -19,7 +19,7 @@ cond.regs <- function(target, dataset, xIndex, csIndex, test = NULL, wei = NULL,
 	
   if ( identical(test, testIndBeta) ) {  ## Beta regression
     lik2 <- dof <- numeric( cols )
-    fit1 <- beta.reg(target, dataset[, csIndex, drop = FALSE])
+    fit1 <- beta.reg(target, dataset[, csIndex, drop = FALSE], wei = wei)
     lik1 <- fit1$loglik
     d1 <- length(fit1$be)
     for (i in xIndex) {
@@ -84,7 +84,7 @@ cond.regs <- function(target, dataset, xIndex, csIndex, test = NULL, wei = NULL,
         tab <- anova( fit1, ww )
         stat <- tab[2, 5] 
         df1 <- tab[2, 3]  
-        df2 = tab[2, 1]
+        df2 <- tab[2, 1]
         pval <- pf( stat, df1, df2, lower.tail = FALSE, log.p = TRUE )
         return( c(stat, pval) )
       }
@@ -137,7 +137,7 @@ cond.regs <- function(target, dataset, xIndex, csIndex, test = NULL, wei = NULL,
       for ( i in xIndex ) {
         fit2 <- ordinal::clm( target ~., data = dataset[, c(csIndex, i)], weights = wei )
         lik2[i] <- as.numeric( logLik(fit2) )
-        dof[i] <- length( coef(fit2) ) - d1
+        dof[i] <- length( coef(fit2) )
       }
       models$stat <- 2 * (lik2 - lik1)
       models$pvalue <- pchisq(models$stat, dof - d1, lower.tail = FALSE, log.p = TRUE)
@@ -159,15 +159,15 @@ cond.regs <- function(target, dataset, xIndex, csIndex, test = NULL, wei = NULL,
     
   } else if ( identical(test, testIndMultinom) ) {  ## multinomial regression
     
-    target = as.factor( as.numeric( target ) )
+    target <- as.factor( as.numeric( target ) )
     fit1 <- nnet::multinom( target ~., data = dataset[, csIndex, drop = FALSE], weights = wei, trace = FALSE )
-    lik1 = as.numeric( logLik(fit1) )
-    d1 = length( coef(fit1) )
+    lik1 <- as.numeric( logLik(fit1) )
+    d1 <- length( coef(fit1) )
     
     if ( ncores <= 1 | is.null(ncores) ) {
       lik2 <- dof <- numeric( cols )
       for ( i in xIndex ) {
-        fit2 = nnet::multinom( target ~., data = dataset[, c(csIndex, i)], weights = wei, trace = FALSE )
+        fit2 <- nnet::multinom( target ~., data = dataset[, c(csIndex, i)], weights = wei, trace = FALSE )
         lik2[i] <- as.numeric( logLik(fit2) )
         dof[i] <- length( coef(fit2) ) 
       }
@@ -178,8 +178,8 @@ cond.regs <- function(target, dataset, xIndex, csIndex, test = NULL, wei = NULL,
       cl <- parallel::makePSOCKcluster(ncores)
       doParallel::registerDoParallel(cl)
       mod <- foreach::foreach(i = xIndex, .combine = rbind, .packages = "nnet") %dopar% {
-        fit2 = nnet::multinom( target ~., data = dataset[, c(csIndex, i)], weights = wei, trace = FALSE )
-        lik2 = as.numeric( logLik(fit2 ) )
+        fit2 <- nnet::multinom( target ~., data = dataset[, c(csIndex, i)], weights = wei, trace = FALSE )
+        lik2 <- as.numeric( logLik(fit2 ) )
         return( c(lik2, length( coef(fit2) ) ) )
         
       }
@@ -196,7 +196,7 @@ cond.regs <- function(target, dataset, xIndex, csIndex, test = NULL, wei = NULL,
     if ( ncores <= 1 | is.null(ncores) ) {
       lik2 <- dof <- numeric( cols )
       for ( i in xIndex ) {
-        fit2 = glm( target ~., data = dataset[, c(csIndex, i)], binomial, weights = wei )
+        fit2 <- glm( target ~., data = dataset[, c(csIndex, i)], binomial, weights = wei )
         lik2[i] <- fit2$deviance
         dof[i] <- length( fit2$coefficients ) 
       }
@@ -207,8 +207,8 @@ cond.regs <- function(target, dataset, xIndex, csIndex, test = NULL, wei = NULL,
       cl <- parallel::makePSOCKcluster(ncores)
       doParallel::registerDoParallel(cl)
       mod <- foreach::foreach(i = xIndex, .combine = rbind) %dopar% {
-        fit2 = glm( target ~., data = dataset[, c(csIndex, i)], binomial, weights = wei )
-        lik2 = fit2$deviance
+        fit2 <- glm( target ~., data = dataset[, c(csIndex, i)], binomial, weights = wei )
+        lik2 <- fit2$deviance
         return( c(lik2, length( fit2$coefficients ) ) )
       }
       parallel::stopCluster(cl)
@@ -302,7 +302,7 @@ cond.regs <- function(target, dataset, xIndex, csIndex, test = NULL, wei = NULL,
     }
     
   } else if ( identical(test, testIndQBinom)   ) {  ## Quasi Binomial regression
-    
+    stat <- pvalue <- numeric(cols)
     if ( ncores <= 1 | is.null(ncores) ) {
       fit1 <- glm( target ~ ., data = dataset[, csIndex, drop = FALSE], family = quasibinomial(link = logit), weights = wei )
       for ( i in xIndex ) {
@@ -388,7 +388,7 @@ cond.regs <- function(target, dataset, xIndex, csIndex, test = NULL, wei = NULL,
       cl <- parallel::makePSOCKcluster(ncores)
       doParallel::registerDoParallel(cl)
       mod <- foreach::foreach(i = xIndex, .combine = rbind) %dopar% {
-        fit2 <- glm( target ~ dataset[, i], family = gaussian(link = log), weights = wei )
+        fit2 <- glm( target ~ dataset[, c(csIndex, i)], family = gaussian(link = log), weights = wei )
         tab <- anova(fit1, fit2, test = "F")
         stat <- tab[2, 5]
         df1 <- tab[2, 3]   
@@ -486,12 +486,12 @@ cond.regs <- function(target, dataset, xIndex, csIndex, test = NULL, wei = NULL,
       fit1 <- quantreg::rq(target ~., data = dataset[, csIndex, drop = FALSE], weights = wei)
       stat <- pval <- numeric(cols)
       for ( i in xIndex ) {
-        fit2 = quantreg::rq(target ~., data = dataset[, c(csIndex, i)], weights = wei )
-        ww = anova(fit1, fit2, test = "rank")
-        df1 = as.numeric( ww[[1]][1] )
-        df2 = as.numeric( ww[[1]][2] )
-        stat[i] = as.numeric( ww[[1]][3] )
-        pval[i] = pf(stat[i], df1, df2, lower.tail = FALSE, log.p = TRUE)
+        fit2 <- quantreg::rq(target ~., data = dataset[, c(csIndex, i)], weights = wei )
+        ww <- anova(fit1, fit2, test = "rank")
+        df1 <- as.numeric( ww[[1]][1] )
+        df2 <- as.numeric( ww[[1]][2] )
+        stat[i] <- as.numeric( ww[[1]][3] )
+        pval[i] <- pf(stat[i], df1, df2, lower.tail = FALSE, log.p = TRUE)
       }
       models$stat <- stat
       models$pvalue <- pval
@@ -534,7 +534,7 @@ cond.regs <- function(target, dataset, xIndex, csIndex, test = NULL, wei = NULL,
       fit1 <- survival::coxph( target ~., data = dataset[, csIndex, drop = FALSE], weights = wei)
       mod <- foreach::foreach(i = xIndex, .combine = rbind, .packages = "survival") %dopar% {
         fit2 <- survival::coxph( target ~., data = dataset[, c(csIndex, i)], weights = wei )
-        res <- anova(fit2)
+        res <- anova(fit1, fit2)
         return( c(res[2, 2], res[2, 3] ) )
       }
       parallel::stopCluster(cl)

@@ -1,4 +1,4 @@
-fbed.glmm.reg <- function(target, dataset, id, reps = NULL, ini = NULL, threshold = 0.05, wei = NULL, K = 0, method = "LR", gam = NULL, backward = TRUE, test = "testIndGLMMReg") {
+fbed.glmm.reg <- function(target, dataset, id, prior = NULL, reps = NULL, ini = NULL, threshold = 0.05, wei = NULL, K = 0, method = "LR", gam = NULL, backward = TRUE, test = "testIndGLMMReg") {
   
   if ( length(K) > 1 ) {
     
@@ -16,18 +16,18 @@ fbed.glmm.reg <- function(target, dataset, id, reps = NULL, ini = NULL, threshol
   if ( method =="LR" ) {
     if ( test == "testIndGLMMOrdinal" ) {
       if ( !is.null(reps) ) {
-        result <- fbed.glmm.ordinal.reps(y = target, x = dataset, id = id, reps = reps, univ = ini, alpha = threshold, wei = wei, K = K)
-      } else  result <- fbed.glmm.ordinal(y = target, x = dataset, id = id, univ = ini, alpha = threshold, wei = wei, K = K)       
+        result <- fbed.glmm.ordinal.reps(y = target, x = dataset, id = id, prior = prior, reps = reps, univ = ini, alpha = threshold, wei = wei, K = K)
+      } else  result <- fbed.glmm.ordinal(y = target, x = dataset, id = id, prior = prior, univ = ini, alpha = threshold, wei = wei, K = K)       
     } else if ( test == "testIndGLMMCR" ) {
-      result <- fbed.glmm.cr(y = target, x = dataset, id, univ = ini, alpha = threshold, wei = wei, K = K)  
+      result <- fbed.glmm.cr(y = target, x = dataset, id, prior = prior, univ = ini, alpha = threshold, wei = wei, K = K)  
     } else if ( test == "testIndGLMMReg" ) {
       if ( !is.null(reps) ) {
-        result <- fbed.lmm.reps(y = target, x = dataset, id = id, reps = reps, univ = ini, alpha = threshold, wei = wei, K = K)
-      } else  result <- fbed.lmm(y = target, x = dataset, id = id, univ = ini, alpha = threshold, wei = wei, K = K) 
+        result <- fbed.lmm.reps(y = target, x = dataset, id = id, prior = prior, reps = reps, univ = ini, alpha = threshold, wei = wei, K = K)
+      } else  result <- fbed.lmm(y = target, x = dataset, id = id, prior = prior, univ = ini, alpha = threshold, wei = wei, K = K) 
     } else {
       if ( !is.null(reps) ) {
-        result <- fbed.glmm.reps(y = target, x = dataset, id = id, reps = reps, univ = ini, alpha = threshold, wei = wei, K = K, test = test)
-      } else  result <- fbed.glmm(y = target, x = dataset, id = id, univ = ini, alpha = threshold, wei = wei, K = K, test = test)
+        result <- fbed.glmm.reps(y = target, x = dataset, id = id, prior = prior, reps = reps, univ = ini, alpha = threshold, wei = wei, K = K, test = test)
+      } else  result <- fbed.glmm(y = target, x = dataset, id = id, prior = prior, univ = ini, alpha = threshold, wei = wei, K = K, test = test)
     }  
 
     result$back.rem <- 0

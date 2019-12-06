@@ -9,8 +9,9 @@ Forward Backward Early Dropping selection regression with GLMM.
 }
 
 \usage{
-fbed.glmm.reg(target, dataset, id, reps = NULL, ini = NULL, threshold = 0.05, 
-wei = NULL, K = 0, method = "LR", gam = NULL, backward = TRUE, test = "testIndGLMMReg")
+fbed.glmm.reg(target, dataset, id, prior = NULL, reps = NULL, ini = NULL, 
+threshold = 0.05, wei = NULL, K = 0, method = "LR", gam = NULL, 
+backward = TRUE, test = "testIndGLMMReg")
 }
 
 \arguments{
@@ -23,6 +24,9 @@ The dataset; provide a numerical a matrix (columns = variables, rows = samples).
 }
 \item{id}{
 This is a numerical vector of the same size as target denoting the groups or the subjects. 
+}
+\item{prior}{
+If you have prior knowledge of some variables that must be in the variable selection phase add them here. This an be a vector (if you have one variable) or a matrix (if you more variables). This does not work during the backward phase at the moment.
 }
 \item{reps}{
 This is a numerical vector of the same size as target denoting the groups or the subjects. If you have longitudinal data and you know the time points, then supply them here. 
@@ -110,7 +114,7 @@ Eugene Demidenko (2013). Mixed Models: Theory and Applications with R, 2nd Editi
 \author{
 Michail Tsagris
   
-R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
+R implementation and documentation: Michail Tsagris \email{mtsagris@uoc.gr}
 }
 
 \seealso{

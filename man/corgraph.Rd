@@ -47,7 +47,7 @@ The adjancency matrix. A value of 1 in G[i, j] appears in G[j, i] also, indicati
 \author{
 Michail Tsagris
 
-R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> and Michail Tsagris <mtsagris@uoc.gr>
+R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> and Michail Tsagris \email{mtsagris@uoc.gr}
 }
 
 %\note{

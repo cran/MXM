@@ -135,8 +135,6 @@
 \alias{clogit.fsreg}
 \alias{clogit.fsreg_2}
 \alias{bic.clogit.fsreg}
-\alias{quasibinom.bsreg}
-\alias{quasipois.bsreg}
 \alias{quasibinom.fsreg}
 \alias{quasipois.fsreg}
 \alias{quasibinom.fsreg_2}
@@ -203,6 +201,8 @@
 \alias{llr.bsreg}
 \alias{beta.reg}
 \alias{ebic.spml.bsreg}
+\alias{regzinb}
+\alias{zinb.mle}
 
 \title{ Internal MXM Functions }
 \description{
@@ -345,8 +345,6 @@ Internal functions of Package \pkg{MXM}
 \item clogit.fsreg( ... )
 \item clogit.fsreg_2( ... )
 \item bic.clogit.fsreg( ... )
-\item quasibinom.bsreg( ... )
-\item quasipois.bsreg( ... )
 \item quasibinom.fsreg( ... )
 \item quasipois.fsreg( ... )
 \item quasibinom.fsreg_2( ... )
@@ -413,7 +411,8 @@ Internal functions of Package \pkg{MXM}
 \item llr.bsreg( ... )
 \item beta.reg( ... )
 \item ebic.spml.bsreg( ... )
-
+\item regzinb( ... )
+\item zinb.mle( ... )
 }
 }
 \details{

@@ -61,7 +61,7 @@ MMPC <- function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini 
     if (is.null(hashObject) )  {
       stat_hash <- Rfast::Hash();
       pvalue_hash <- Rfast::Hash();
-    } else if ( class(hashObject) == "list" ) {
+    } else if ( identical( class(hashObject), "list" ) ) {
       stat_hash <- hashObject$stat_hash;
       pvalue_hash <- hashObject$pvalue_hash;
     } else   stop('hashObject must be a list of two hash objects (stat_hash, pvalue_hash)')
@@ -91,7 +91,7 @@ MMPC <- function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini 
     stop('invalid dataset or target (class feature) arguments.');
   } else  target <- target;
   #check for NA values in the dataset and replace them with the variable median or the mode
-  if ( any(is.na(dataset)) ) {
+  if ( any( is.na(dataset) ) )  {
     #dataset = as.matrix(dataset);
     warning("The dataset contains missing values (NA) and they were replaced automatically by the variable (column) median (for numeric) or by the most frequent level (mode) if the variable is factor")
     if ( is.matrix(dataset) )  {
@@ -114,7 +114,7 @@ MMPC <- function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini 
   ##################################
   targetID <-  -1;
   #check if the target is a string
-  if ( is.character(target) & length(target) == 1 ) {
+  if ( is.character(target)  &  length(target) == 1 ) {
     findingTarget <- target == colnames(dataset);#findingTarget <- target %in% colnames(dataset);
     if ( !sum(findingTarget) == 1 ) {
       warning('Target name not in colnames or it appears multiple times');
@@ -133,9 +133,9 @@ MMPC <- function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini 
     target <- dataset[ , targetID];
   }
   
-  if ( sum( class(target) == "matrix") == 1 ) {
-    if (ncol(target) >= 2 & class(target) != "Surv") {
-      if ( (is.null(test) || test == "auto") & (is.null(user_test)) ) {
+  if ( is.matrix(target) ) {
+    if ( ncol(target) >= 2  &  sum( class(target) == "Surv" ) == 0 )  {
+      if ( (is.null(test) || test == "auto")  &  (is.null(user_test)) ) {
         test <- "testIndMVreg"
       }
     }
@@ -152,7 +152,7 @@ MMPC <- function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini 
     if ( is.null(test) || test == "auto") {
       
       if ( la == 2 )   target <- as.factor(target)
-      if ( sum( class(target) == "matrix") == 1 )  test = "testIndMVreg"
+      if ( is.matrix(target) )  test = "testIndMVreg"
       
       #if target is a factor then use the Logistic test
       if ( "factor" %in% class(target) )  {
@@ -162,15 +162,15 @@ MMPC <- function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini 
           test <- "testIndMultinom" 
         } else test <- "testIndLogistic"
         
-      } else if ( ( is.numeric(target) || is.integer(target) ) & survival::is.Surv(target) == FALSE ) {
+      } else if ( ( is.numeric(target) | is.integer(target) ) &  survival::is.Surv(target) == FALSE ) {
         
         if ( sum( floor(target) - target ) == 0  &  la > 2 ) {
           test <- "testIndQPois";
         } else {
-          if(class(dataset) == "matrix") {
+          if( is.matrix(dataset) ) {
             test <- "testIndFisher";
           } 
-          else if (class(dataset) == "data.frame") {
+          else if ( is.data.frame(dataset) ) {
             if ( length( Rfast::which.is(dataset)  ) > 0  ) {
               test <- "testIndReg";
             } else   test <- "testIndFisher";
@@ -195,89 +195,89 @@ MMPC <- function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini 
       if (test == "testIndFisher") {
         test <- testIndFisher;
         
-      } else if (test == "testIndMMFisher") {
+      } else if ( identical(test, "testIndMMFisher") ) {
         test <- testIndMMFisher;
         
-      } else if (test == "testIndMMReg") {
+      } else if ( identical(test, "testIndMMReg") ) {
         test <- testIndMMReg;
         
-      } else if (test == "testIndSpearman")  {
+      } else if ( identical(test, "testIndSpearman") )  {
         target <- rank(target)
         dataset <- Rfast::colRanks(dataset)  
         test <- testIndSpearman;  ## Spearman is Pearson on the ranks of the data
         
-      } else if (test == "testIndReg")  {  ## It uMMPC the F test
+      } else if ( identical(test, "testIndReg") )  {  ## It uMMPC the F test
         test <- testIndReg
         
-      }  else if (test == "testIndMVreg") {
+      }  else if ( identical(test, "testIndMVreg") ) {
         if ( min(target) > 0 & sd( Rfast::rowsums(target) ) == 0 )  target = log( target[, -1]/target[, 1] ) 
         test <- testIndMVreg;
         
-      } else if (test == "testIndBeta") {
+      } else if ( identical(test, "testIndBeta") ) {
         test <- testIndBeta;
         
-      } else if (test == "testIndRQ") {  ## quantile regression
+      } else if ( identical(test, "testIndRQ") ) {  ## quantile regression
         #an einai posostiaio target
         test <- testIndRQ;
         
-      } else if (test == "testIndIGreg") { ## Inverse Gaussian regression
+      } else if ( identical(test, "testIndIGreg") ) { ## Inverse Gaussian regression
         test <- testIndIGreg;
         
-      } else if (test == "testIndPois") { ## Poisson regression
+      } else if ( identical(test, "testIndPois") ) { ## Poisson regression
         test <- testIndPois;
         
-      } else if (test == "testIndNB") { ## Negative binomial regression
+      } else if ( identical(test, "testIndNB") ) { ## Negative binomial regression
         test <- testIndNB;
         
-      } else if (test == "testIndGamma") {  ## Gamma regression
+      } else if ( identical(test, "testIndGamma") ) {  ## Gamma regression
         test <- testIndGamma;
         
-      } else if (test == "testIndNormLog") { ## Normal regression with a log link
+      } else if ( identical(test, "testIndNormLog") ) { ## Normal regression with a log link
         test <- testIndNormLog;
         
-      } else if (test == "testIndZIP") { ## Zero inflated Poisson regression
+      } else if ( identical(test, "testIndZIP") ) { ## Zero inflated Poisson regression
         test <- testIndZIP;
         
-      } else if (test == "testIndTobit") { ## Tobit regression
+      } else if ( identical(test, "testIndTobit") ) { ## Tobit regression
         test <- testIndTobit;
         
-      } else if (test == "censIndCR") {
+      } else if ( identical(test, "censIndCR") ) {
         test <- censIndCR;
         
-      } else if (test == "censIndWR") {
+      } else if ( identical(test, "censIndWR") ) {
         test <- censIndWR;
         
-      } else if (test == "censIndER") {
+      } else if ( identical(test, "censIndER") ) {
         test <- censIndER;
         
-      } else if (test == "censIndLLR") {
+      } else if ( identical(test, "censIndLLR") ) {
         test <- censIndLLR;
         
-      } else if (test == "testIndClogit") {
+      } else if ( identical(test, "testIndClogit") ) {
         test <- testIndClogit;
         
-      } else if (test == "testIndBinom") {
+      } else if ( identical(test, "testIndBinom") ) {
         test <- testIndBinom;
         
-      } else if (test == "testIndLogistic") {
+      } else if ( identical(test, "testIndLogistic") ) {
         test <- testIndLogistic;
         
-      } else if (test == "testIndMultinom") {
+      } else if ( identical(test, "testIndMultinom") ) {
         test <- testIndMultinom;
         
-      } else if (test == "testIndOrdinal") {
+      } else if ( identical(test, "testIndOrdinal") ) {
         test <- testIndOrdinal;
         
-      } else if (test == "testIndQBinom") {
+      } else if ( identical(test, "testIndQBinom") ) {
         test <- testIndQBinom;
         
-      } else if (test == "testIndQPois") {
+      } else if ( identical(test, "testIndQPois") ) {
         test <- testIndQPois;
         
-      } else if (test == "gSquare") {
+      } else if ( identical(test, "gSquare") ) {
         test <- gSquare;
       
-      } else if (test == "testIndSPML") {
+      } else if ( identical(test, "testIndSPML") ) {
         test <- testIndSPML
         if ( !is.matrix(target) )   target <- cbind( cos(target), sin(target) )
       }
@@ -293,15 +293,15 @@ MMPC <- function(target, dataset, max_k = 3, threshold = 0.05, test = NULL, ini 
   max_k <- floor(max_k);
   varsize <- ncol(dataset);
   #option checking
-  if ( (typeof(max_k)!="double") || max_k < 1 )   stop('invalid max_k option');
+  if ( ( typeof(max_k) != "double" ) || max_k < 1 )   stop('invalid max_k option');
   if ( max_k > varsize )   max_k = varsize;
-  if ( (typeof(threshold) != "double") || threshold < 0 || threshold >= 1 )   stop('invalid threshold option');
+  if ( ( typeof(threshold) != "double" ) || threshold < 0 || threshold >= 1 )   stop('invalid threshold option');
   #######################################################################################
   if ( !is.null(user_test) )  ci_test <- "user_test";
   #call the main MMPC function after the checks and the initializations
   if ( identical(ci_test, "testIndFisher") ) {
     oop <- options(warn = -1) 
-	on.exit( options(oop) )  
+	  on.exit( options(oop) )  
     if ( !is.matrix(dataset) )   dataset <- as.matrix(dataset)
     if ( !is.null(hashObject)  & length(hashObject) == 0 )   hashObject <- NULL
     if ( targetID != -1 )  { 

@@ -9,8 +9,8 @@ Forward Backward Early Dropping selection regression.
 }
 
 \usage{
-fbed.reg(target, dataset, ini = NULL, test = NULL, threshold = 0.05, wei = NULL, 
-K = 0, method = "LR", gam = NULL, backward = TRUE) 
+fbed.reg(target, dataset, prior = NULL, ini = NULL, test = NULL, threshold = 0.05, 
+wei = NULL, K = 0, method = "LR", gam = NULL, backward = TRUE) 
 }
 
 \arguments{
@@ -19,6 +19,9 @@ The class variable. Provide either a string, an integer, a numeric value, a vect
 }
 \item{dataset}{
 The dataset; provide either a data frame or a matrix (columns = variables, rows = samples). 
+}
+\item{prior}{
+If you have prior knowledge of some variables that must be in the variable selection phase add them here. This an be a vector (if you have one variable) or a matrix (if you more variables). This does not work during the backward phase at the moment.
 }
 \item{ini}{
 If you already have the test statistics and the p-values of the univariate associations (the first step of FBED) supply them as a list with the names "stat" and "pvalue" respectively. If you have used the EBIc this list contains the eBIC of the univariate associations. Note, that the "gam" argument must be the same though.
@@ -111,7 +114,7 @@ http://mensxmachina.org/site/wp-content/uploads/2018/04/Guide-on-performing-feat
 \author{
 Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
+R implementation and documentation: Michail Tsagris \email{mtsagris@uoc.gr}
 }
 
 \seealso{

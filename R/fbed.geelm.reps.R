@@ -1,4 +1,4 @@
-fbed.geelm.reps <- function(y, x, id, reps, univ = NULL, alpha = 0.05, wei = NULL, K = 0, correl = "exchangeable", se = "jack") { 
+fbed.geelm.reps <- function(y, x, id, prior = prior, reps, univ = NULL, alpha = 0.05, wei = NULL, K = 0, correl = "exchangeable", se = "jack") { 
   
   dm <- dim(x)
   p <- dm[2]
@@ -14,14 +14,33 @@ fbed.geelm.reps <- function(y, x, id, reps, univ = NULL, alpha = 0.05, wei = NUL
   zevar <- Rfast::check_data(x)
   if ( sum( zevar > 0 ) > 0 )  x[, zevar] <- rnorm( n * length(zevar) )
   
+  priorindex <- NULL
+  if ( !is.null(prior) ) {
+    x <- cbind(x, prior)
+    priorindex <- c( (p + 1):dim(x)[2] )
+  }
+  
   runtime <- proc.time()
   
   if ( is.null(univ) ) {
-    for ( i in ind ) {
-      fit2 <- try( geepack::geeglm( y ~ reps + x[, i], family = gaussian, id = id, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE )
-      if ( identical( class(fit2), "try-error" ) ) {
-        stat[i] <- 0
-      } else  stat[i] <- summary(fit2)[[6]][2, 3]
+    if ( is.null(prior) ) {
+      for ( i in ind ) {
+        fit2 <- try( geepack::geeglm( y ~ reps + x[, i], family = gaussian, id = id, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE )
+        if ( identical( class(fit2), "try-error" ) ) {
+          stat[i] <- 0
+        } else  stat[i] <- summary(fit2)[[6]][2, 3]
+      }
+    } else {
+      for ( i in ind )  {
+        fit2 <- try( geepack::geeglm( y ~ reps+ prior + x[, i], family = gaussian, id = id, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
+        if ( identical( class(fit2), "try-error" ) ) {
+          stat[i] <- 0
+        } else {
+          mod <- summary(fit2)[[ 6 ]]
+          nr <- dim(mod)[1]
+          stat[i] <- mod[nr, 3]
+        }  
+      }
     }  
     n.tests <- p
     pval <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
@@ -46,9 +65,8 @@ fbed.geelm.reps <- function(y, x, id, reps, univ = NULL, alpha = 0.05, wei = NUL
     stat <- numeric(p )
     #########
     while ( sum(s>0) > 0 ) {
-      d0 <- length(sela)
       for ( i in ind[s] )  {
-        fit2 <- try( geepack::geeglm( y ~ reps+ x[, sela] + x[, i], family = gaussian, id = id, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
+        fit2 <- try( geepack::geeglm( y ~ reps+ x[, c(priorindex, sela)] + x[, i], family = gaussian, id = id, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
         if ( identical( class(fit2), "try-error" ) ) {
           stat[i] <- 0
         } else {
@@ -71,9 +89,8 @@ fbed.geelm.reps <- function(y, x, id, reps, univ = NULL, alpha = 0.05, wei = NUL
     card <- sum(sela > 0)
     
     if (K == 1) {
-      d0 <- length(sela)
       for ( i in ind[-c(sela, zevar)] )  {
-        fit2 <- try( geepack::geeglm( y ~ reps+ x[, sela] + x[, i], family = gaussian, id = id, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
+        fit2 <- try( geepack::geeglm( y ~ reps+ x[, c(priorindex, sela)] + x[, i], family = gaussian, id = id, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
         if ( identical( class(fit2), "try-error" ) ) {
           stat[i] <- 0
         } else {
@@ -92,9 +109,8 @@ fbed.geelm.reps <- function(y, x, id, reps, univ = NULL, alpha = 0.05, wei = NUL
       s <- s[ - which(s == sel) ]
       if (sel > 0)   stat <- numeric(p)
       while ( sum(s>0) > 0 ) {
-        d0 <- length(sela)
         for ( i in ind[s] )  {
-          fit2 <- try( geepack::geeglm( y ~ reps+ x[, sela] + x[, i], family = gaussian, id = id, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
+          fit2 <- try( geepack::geeglm( y ~ reps+ x[, c(priorindex, sela)] + x[, i], family = gaussian, id = id, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
           if ( identical( class(fit2), "try-error" ) ) {
             stat[i] <- 0
           } else {
@@ -119,7 +135,7 @@ fbed.geelm.reps <- function(y, x, id, reps, univ = NULL, alpha = 0.05, wei = NUL
     if ( K > 1) {
       
       for ( i in ind[-c(sela, zevar)] )  {
-        fit2 <- try( geepack::geeglm( y ~ reps+ x[, sela] + x[, i], family = gaussian, id = id, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
+        fit2 <- try( geepack::geeglm( y ~ reps+ x[, c(priorindex, sela)] + x[, i], family = gaussian, id = id, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
         if ( identical( class(fit2), "try-error" ) ) {
           stat[i] <- 0
         } else {
@@ -140,7 +156,7 @@ fbed.geelm.reps <- function(y, x, id, reps, univ = NULL, alpha = 0.05, wei = NUL
       
       while ( sum(s > 0) > 0 ) {
         for ( i in ind[s] )  {
-          fit2 <- try( geepack::geeglm( y ~ reps+ x[, sela] + x[, i], family = gaussian, id = id, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
+          fit2 <- try( geepack::geeglm( y ~ reps+ x[, c(priorindex, sela)] + x[, i], family = gaussian, id = id, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
           if ( identical( class(fit2), "try-error" ) ) {
             stat[i] <- 0
           } else {
@@ -165,7 +181,7 @@ fbed.geelm.reps <- function(y, x, id, reps, univ = NULL, alpha = 0.05, wei = NUL
       while ( vim < K  & card[vim + 1] - card[vim] > 0 ) {
         vim <- vim + 1
         for ( i in ind[-c(sela, zevar)] )  {
-          fit2 <- try( geepack::geeglm( y ~ reps+ x[, sela] + x[, i], family = gaussian, id = id, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
+          fit2 <- try( geepack::geeglm( y ~ reps+ x[, c(priorindex, sela)] + x[, i], family = gaussian, id = id, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
           if ( identical( class(fit2), "try-error" ) ) {
             stat[i] <- 0
           } else {
@@ -185,7 +201,7 @@ fbed.geelm.reps <- function(y, x, id, reps, univ = NULL, alpha = 0.05, wei = NUL
         if (sel > 0)  stat <- numeric(p)
         while ( sum(s > 0) > 0 ) {
           for ( i in ind[s] )  {
-            fit2 <- try( geepack::geeglm( y ~ reps+ x[, sela] + x[, i], family = gaussian, id = id, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
+            fit2 <- try( geepack::geeglm( y ~ reps+ x[, c(priorindex, sela)] + x[, i], family = gaussian, id = id, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
             if ( identical( class(fit2), "try-error" ) ) {
               stat[i] <- 0
             } else {

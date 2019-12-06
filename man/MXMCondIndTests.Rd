@@ -53,7 +53,7 @@ As for the other tests, they share one thing in common. For all of them, two par
   Survival	\tab Mixed \tab censIndCR \tab Cox regression \cr
   Survival	\tab Mixed \tab censIndWR \tab Weibull regression \cr
   Survival	\tab Mixed \tab censIndER \tab Exponential regression \cr
-    Survival	\tab Mixed \tab censIndLLR \tab Log-logistic regression \cr
+  Survival	\tab Mixed \tab censIndLLR \tab Log-logistic regression \cr
   Left censored	\tab Mixed \tab testIndTobit \tab Tobit regression \cr
   Case-control  \tab Mixed \tab testIndClogit \tab Conditional logistic regression \cr
   Multivariate continuous \tab Mixed \tab testIndMVreg  \tab Multivariate linear regression \cr 

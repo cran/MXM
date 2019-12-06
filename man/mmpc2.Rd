@@ -9,8 +9,8 @@ A fast version of MMPC
 }
 
 \usage{
-mmpc2(target, dataset, max_k = 3, threshold = 0.05, test = "testIndLogistic", 
-ini = NULL, wei = NULL, ncores = 1, backward = FALSE)
+mmpc2(target, dataset, prior = NULL, max_k = 3, threshold = 0.05, 
+test = "testIndLogistic", ini = NULL, wei = NULL, ncores = 1, backward = FALSE)
 }
 
 \arguments{
@@ -19,6 +19,9 @@ The class variable. Provide either a string, an integer, a numeric value, a vect
 }
 \item{dataset}{
 The data-set; provide either a data frame or a matrix (columns = variables , rows = samples).
+}
+\item{prior}{
+If you have prior knowledge of some variables that must be in the variable selection phase add them here. This an be a vector (if you have one variable) or a matrix (if you more variables). This does not work during the backward phase at the moment.
 }
 \item{max_k}{
 The maximum conditioning set to use in the conditional indepedence test (see Details). Integer, default value is 3.
@@ -110,7 +113,7 @@ http://mensxmachina.org/site/wp-content/uploads/2018/04/Guide-on-performing-feat
 \author{
 Ioannis Tsamardinos, Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>. 
+R implementation and documentation: Michail Tsagris \email{mtsagris@uoc.gr}. 
 }
 
 \seealso{

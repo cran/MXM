@@ -35,7 +35,7 @@ Proceedings of the 11th Conference on Uncertainty in Artificial Intelligence, Mo
 \author{
 Ioannis Tsamardinos and Michail Tsagris
 
-R implementation and documentation:  Ioannis Tsamardinos <tsamard@csd.uoc.gr> and Michail Tsagris <mtsagris@uoc.gr>
+R implementation and documentation:  Ioannis Tsamardinos <tsamard@csd.uoc.gr> and Michail Tsagris \email{mtsagris@uoc.gr}
 }
 
 %\note{

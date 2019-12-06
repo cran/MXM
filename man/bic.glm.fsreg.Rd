@@ -71,7 +71,7 @@ The final regression model.
 \author{
 Michail Tsagris
 
-R implementation and documentation: Giorgos Aathineou <athineou@csd.uoc.gr> Michail Tsagris <mtsagris@uoc.gr>
+R implementation and documentation: Giorgos Aathineou <athineou@csd.uoc.gr> Michail Tsagris \email{mtsagris@uoc.gr}
 }
 
 \seealso{

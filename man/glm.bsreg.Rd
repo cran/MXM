@@ -1,7 +1,6 @@
 \name{Backward selection with generalised linear regression models}
 \alias{glm.bsreg}
-\alias{gammabsreg}
-\alias{normlog.bsreg}
+\alias{glm.bsreg2}
 
 \title{
 Variable selection in generalised linear regression models with backward selection
@@ -13,10 +12,7 @@ Variable selection in generalised linear regression models with backward selecti
 
 \usage{
 glm.bsreg(target, dataset, threshold = 0.05, wei = NULL, test = NULL)
-
-gammabsreg(target, dataset, threshold = 0.05, wei = NULL)
-
-normlog.bsreg(target, dataset, threshold = 0.05, wei = NULL)
+glm.bsreg2(target, dataset, threshold = 0.05, wei = NULL, test = NULL)
 }
 
 \arguments{
@@ -33,7 +29,8 @@ Threshold (suitable values in (0, 1)) for assessing p-values significance. Defau
 A vector of weights to be used for weighted regression. The default value is NULL. It is not suggested when robust is set to TRUE.
 }
 \item{test}{
-This can be "testIndLogistic", "testIndPois", "testIndBinom", testIndReg" or "testIndMMReg".
+For "glm.bsreg" this can be "testIndLogistic", "testIndPois", "testIndBinom", testIndReg" or "testIndMMReg".
+For "glm.bsreg2" this can be "testIndGamma", "testIndNormLog", "testIndQPois" or "testIndQBinom".
 }
 }
 
@@ -68,7 +65,7 @@ The final regression model.
 \author{
 Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
+R implementation and documentation: Michail Tsagris \email{mtsagris@uoc.gr}
 }
 
 \seealso{
@@ -89,8 +86,8 @@ target <- rbinom(200, 1, 0.6)
 b <- glm.bsreg(target, dataset, threshold = 0.05)
 
 target <- rgamma(200, 1, 2)
-b1 <- gammabsreg(target, dataset, threshold = 0.05)
-b2 <- normlog.bsreg(target, dataset, threshold = 0.05)
+b1 <- glm.bsreg2(target, dataset, threshold = 0.05, test = "testIndGamma")
+b2 <- glm.bsreg2(target, dataset, threshold = 0.05, test = "testIndNormLog")
 }
 
 \keyword{ Markov Blanket }

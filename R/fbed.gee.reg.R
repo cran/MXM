@@ -1,4 +1,4 @@
-fbed.gee.reg <- function(target, dataset, id, reps = NULL, ini = NULL, threshold = 0.05, wei = NULL, K = 0, test = "testIndGEEReg", correl = "exchangeable", se = "jack") { 
+fbed.gee.reg <- function(target, dataset, id, prior = NULL, reps = NULL, ini = NULL, threshold = 0.05, wei = NULL, K = 0, test = "testIndGEEReg", correl = "exchangeable", se = "jack") { 
   
 
   if ( length(K) > 1 ) {
@@ -17,13 +17,13 @@ fbed.gee.reg <- function(target, dataset, id, reps = NULL, ini = NULL, threshold
 
   if ( is.null(reps) ) {
     if (test == "testIndGEEReg") {
-      res <- fbed.geelm(y = target, x = dataset, id = id, univ = ini, alpha = threshold, wei = wei, K = K, correl = correl, se = se) 
-    } else  res <- fbed.geeglm(y = target, x = dataset, id = id, univ = ini, alpha = threshold, wei = wei, K = K, test = test, correl = correl, se = se) 
+      res <- fbed.geelm(y = target, x = dataset, id = id, prior = prior, univ = ini, alpha = threshold, wei = wei, K = K, correl = correl, se = se) 
+    } else  res <- fbed.geeglm(y = target, x = dataset, id = id, prior = prior, univ = ini, alpha = threshold, wei = wei, K = K, test = test, correl = correl, se = se) 
 
   } else if ( !is.null(reps) ) {
     if (test == "testIndGEEReg") {
-      res <- fbed.geelm.reps(y = target, x = dataset, id = id, reps = reps, univ = ini, alpha = threshold, wei = wei, K = K, correl = correl, se = se) 
-    } else  res <- fbed.geeglm.reps(y = target, x = dataset, id = id, reps = reps, univ = ini, alpha = threshold, wei = wei, K = K, test = test, correl = correl, se = se) 
+      res <- fbed.geelm.reps(y = target, x = dataset, id = id, prior = prior, reps = reps, univ = ini, alpha = threshold, wei = wei, K = K, correl = correl, se = se) 
+    } else  res <- fbed.geeglm.reps(y = target, x = dataset, id = id, prior = prior, reps = reps, univ = ini, alpha = threshold, wei = wei, K = K, test = test, correl = correl, se = se) 
   }
   
   }  ## end if ( length(K) > 1 )

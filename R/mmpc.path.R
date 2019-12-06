@@ -22,12 +22,12 @@ mmpc.path <- function(target, dataset, wei = NULL, max_ks = NULL, alphas = NULL,
   for (i in 1:nalpha) {
     for (j in 1:nmaxk) {
       
-      results <- MMPC(target, dataset, max_k = max_ks[j], threshold = alphas[i], test = test, ini = iniset, 
+      results <- MXM::MMPC(target, dataset, max_k = max_ks[j], threshold = alphas[i], test = test, ini = iniset, 
                       wei = wei, hash = TRUE, hashObject = inihash, ncores = ncores)
       iniset <- results@univ
       inihash <- results@hashObject
       
-      a <- mmpc.model(target, dataset, wei = wei, results)$signature 
+      a <- MXM::mmpc.model(target, dataset, wei = wei, results)$signature 
       
       if ( !is.null(a) ) {
       bic[i, j] <- a[length(a)]    

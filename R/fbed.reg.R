@@ -1,4 +1,4 @@
-fbed.reg <- function(target, dataset, ini = NULL, test = NULL, threshold = 0.05, wei = NULL, K = 0, method = "LR", gam = NULL, backward = TRUE) {
+fbed.reg <- function(target, dataset, prior = NULL, ini = NULL, test = NULL, threshold = 0.05, wei = NULL, K = 0, method = "LR", gam = NULL, backward = TRUE) {
   
   #check for NA values in the dataset and replace them with the variable median or the mode
   if ( any( is.na(dataset) ) ) {
@@ -40,7 +40,7 @@ fbed.reg <- function(target, dataset, ini = NULL, test = NULL, threshold = 0.05,
       result <- Rfast::cor.fbed(target, as.matrix(dataset), alpha = threshold, K = K)
       result$univ <- NULL
       
-    } else  result <- fbed.lr(y = target, x = dataset, alpha = threshold, univ = ini, test = test, wei = wei, K = K)  
+    } else  result <- fbed.lr(y = target, x = dataset, prior = prior, alpha = threshold, univ = ini, test = test, wei = wei, K = K)  
     
     result$back.rem <- 0
     result$back.n.tests <- 0

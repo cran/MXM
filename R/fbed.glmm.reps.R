@@ -1,4 +1,4 @@
-fbed.glmm.reps <- function(y, x, id, reps, univ = NULL, alpha = 0.05, wei = NULL, K = 0, test = "testIndGLMMLogistic") { 
+fbed.glmm.reps <- function(y, x, id, prior = NULL, reps, univ = NULL, alpha = 0.05, wei = NULL, K = 0, test = "testIndGLMMLogistic") { 
   if (test == "testIndGLMMLogistic") {
     oiko <- binomial(logit)
   } else if (test == "testIndGLMMPois") {  
@@ -14,7 +14,9 @@ fbed.glmm.reps <- function(y, x, id, reps, univ = NULL, alpha = 0.05, wei = NULL
   n <- dm[1]
   ind <- 1:p
   sig <- log(alpha)
-  lik1 <- logLik( lme4::glmer(y ~ 1 + reps + (1|id), family = oiko, weights = wei) )
+  if ( is.null(prior) ) {
+    lik1 <- logLik( lme4::glmer(y ~ 1 + reps + (1|id), family = oiko, weights = wei) )
+  } else  lik1 <- logLik( lme4::glmer(y ~ prior + reps + (1|id), family = oiko, weights = wei) )   
   lik2 <- numeric(p)
   sela <- NULL
   card <- 0
@@ -24,12 +26,18 @@ fbed.glmm.reps <- function(y, x, id, reps, univ = NULL, alpha = 0.05, wei = NULL
   zevar <- Rfast::check_data(x)
   if ( sum( zevar > 0 ) > 0 )  x[, zevar] <- rnorm( n * length(zevar) )
   
+  priorindex <- NULL
+  if ( !is.null(prior) ) {
+    x <- cbind(x, prior)
+    priorindex <- c( (p + 1):dim(x)[2] )
+  }
+  
   runtime <- proc.time()
   
   if ( is.null(univ) ) {
     for ( i in ind ) {
-      fit2 <- lme4::glmer( y ~ x[, i] + reps + (1|id), family = oiko, weights = wei )
-      lik2[i] <- logLik( fit2 )
+      fit2 <- lme4::glmer( y ~ x[, c(i, priorindex)] + reps + (1|id), family = oiko, weights = wei )
+      lik2[i] <- logLik(fit2)
     }
     n.tests <- p
     stat <- 2 * (lik2 - lik1)
@@ -58,8 +66,8 @@ fbed.glmm.reps <- function(y, x, id, reps, univ = NULL, alpha = 0.05, wei = NULL
     #########
     while ( sum(s>0) > 0 ) {
       for ( i in ind[s] )  {
-        fit2 <- lme4::glmer( y ~ x[, c(sela, i)] + reps + (1|id), family = oiko, weights = wei )
-        lik2[i] <- logLik( fit2 )
+        fit2 <- lme4::glmer( y ~ x[, c(priorindex, sela, i)] + reps + (1|id), family = oiko, weights = wei )
+        lik2[i] <- logLik(fit2)
       }
       n.tests <- n.tests + length( ind[s] ) 
       stat <- 2 * (lik2 - lik1)
@@ -80,8 +88,8 @@ fbed.glmm.reps <- function(y, x, id, reps, univ = NULL, alpha = 0.05, wei = NULL
     
     if (K == 1) {
       for ( i in ind[-c(sela, zevar)] )  {
-        fit2 <- lme4::glmer( y ~ x[, c(sela, i)] + reps + (1|id), family = oiko, weights = wei )
-        lik2[i] <- logLik( fit2 )
+        fit2 <- lme4::glmer( y ~ x[, c(priorindex, sela, i)] + reps + (1|id), family = oiko, weights = wei )
+        lik2[i] <- logLik(fit2)
       }
       n.tests[2] <- length( ind[-c(sela, zevar)] )
       stat <- 2 * (lik2 - lik1)
@@ -98,8 +106,8 @@ fbed.glmm.reps <- function(y, x, id, reps, univ = NULL, alpha = 0.05, wei = NULL
       } 
       while ( sum(s>0) > 0 ) {
         for ( i in ind[s] )  {
-          fit2 <- lme4::glmer( y ~ x[, c(sela, i)] + reps + (1|id), family = oiko, weights = wei )
-          lik2[i] <- logLik( fit2 )
+          fit2 <- lme4::glmer( y ~ x[, c(priorindex, sela, i)] + reps + (1|id), family = oiko, weights = wei )
+          lik2[i] <- logLik(fit2)
         }
         n.tests[2] <- n.tests[2] + length( ind[s] )
         stat <- 2 * (lik2 - lik1)
@@ -121,8 +129,8 @@ fbed.glmm.reps <- function(y, x, id, reps, univ = NULL, alpha = 0.05, wei = NULL
     if ( K > 1) {
       
       for ( i in ind[-c(sela, zevar)] )  {
-        fit2 <- lme4::glmer( y ~ x[, c(sela, i)] + reps + (1|id), family = oiko, weights = wei )
-        lik2[i] <- logLik( fit2 )
+        fit2 <- lme4::glmer( y ~ x[, c(priorindex, sela, i)] + reps + (1|id), family = oiko, weights = wei )
+        lik2[i] <- logLik(fit2)
       }
       n.tests[2] <- length( ind[-c(sela, zevar)] ) 
       stat <- 2 * (lik2 - lik1)
@@ -139,8 +147,8 @@ fbed.glmm.reps <- function(y, x, id, reps, univ = NULL, alpha = 0.05, wei = NULL
       } 
       while ( sum(s > 0) > 0 ) {
         for ( i in ind[s] )  {
-          fit2 <- lme4::glmer( y ~ x[, c(sela, i)] + reps + (1|id), family = oiko, weights = wei )
-          lik2[i] <- logLik( fit2 )
+          fit2 <- lme4::glmer( y ~ x[, c(priorindex, sela, i)] + reps + (1|id), family = oiko, weights = wei )
+          lik2[i] <- logLik(fit2)
         }
         n.tests[2] <- n.tests[2] + length( ind[s] )  
         stat <- 2 * (lik2 - lik1)
@@ -162,8 +170,8 @@ fbed.glmm.reps <- function(y, x, id, reps, univ = NULL, alpha = 0.05, wei = NULL
       while ( vim < K  & card[vim + 1] - card[vim] > 0 ) {
         vim <- vim + 1
         for ( i in ind[-c(sela, zevar)] )  {
-          fit2 <- lme4::glmer( y ~ x[, c(sela, i)] + reps + (1|id), family = oiko, weights = wei )
-          lik2[i] <- logLik( fit2 )
+          fit2 <- lme4::glmer( y ~ x[, c(priorindex, sela, i)] + reps + (1|id), family = oiko, weights = wei )
+          lik2[i] <- logLik(fit2)
         }
         n.tests[vim + 1] <- length( ind[-c(sela, zevar)] )
         stat <- 2 * (lik2 - lik1)
@@ -180,8 +188,8 @@ fbed.glmm.reps <- function(y, x, id, reps, univ = NULL, alpha = 0.05, wei = NULL
         }    
         while ( sum(s > 0) > 0 ) {
           for ( i in ind[s] )  {
-            fit2 <- lme4::glmer( y ~ x[, c(sela, i)] + reps + (1|id), family = oiko, weights = wei )
-            lik2[i] <- logLik( fit2 )
+            fit2 <- lme4::glmer( y ~ x[, c(priorindex, sela, i)] + reps + (1|id), family = oiko, weights = wei )
+            lik2[i] <- logLik(fit2)
           }
           n.tests[vim + 1] <- n.tests[vim + 1] + length( ind[s] )
           stat <- 2 * (lik2 - lik1)

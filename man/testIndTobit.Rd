@@ -93,7 +93,7 @@ Tobin James (1958). Estimation of relationships for limited dependent variables.
 }
 
 \author{
-R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
+R implementation and documentation: Michail Tsagris \email{mtsagris@uoc.gr}
 }
 
 \note{

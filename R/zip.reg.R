@@ -11,7 +11,7 @@ zip.reg <- function(target, dataset, wei = NULL, lgy = NULL) {
       res <- list(be = lam, prop = prop, loglik = mod$loglik, est = (1 - prop) * lam)
     } else {
       mod <- zipmle.wei(target, wei)
-      res <- list(be = mod$lam, prop = mod$prop, loglik = mod$loglik, est = (1 - mod$prop) * mod$lam)
+      res <- list(be = mod$lam, prop = mod$prop, loglik = mod$loglik)
     }
     
   } else {

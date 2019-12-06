@@ -39,7 +39,7 @@ Chickering, D.M. (1995). A transformational characterization of equivalent Bayes
 \author{
 Ioannis Tsamardinos and Michail Tsagris
 
-R implementation and documentation: Ioannis Tsamardinos <tsamard@csd.uoc.gr> and  and Michail Tsagris <mtsagris@uoc.gr>
+R implementation and documentation: Ioannis Tsamardinos <tsamard@csd.uoc.gr> and  and Michail Tsagris \email{mtsagris@uoc.gr}
 }
 
 %\note{

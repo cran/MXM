@@ -180,7 +180,7 @@ Tsamardinos, Ioannis, and Laura E. Brown. Bounding the False Discovery Rate in L
 Tsagris M., Borboudakis G., Lagani V. and Tsamardinos I. (2018). Constraint-based Causal Discovery with Mixed Data. 
 International Journal of Data Science and Analytics, 6: 19-30. 
 
-http://nugget.unisa.edu.au/CD2017/papersonly/constraint-based-causal-r1.pdf
+\url{ http://nugget.unisa.edu.au/CD2017/papersonly/constraint-based-causal-r1.pdf }
 
 Tsagris M. Bayesian network learning with the PC algorithm: an improved and correct variation. 
 Applied Artificial Intelligence (Accepted for publication).
@@ -210,7 +210,7 @@ Eugene Demidenko (2013). Mixed Models: Theory and Applications with R, 2nd Editi
 \author{
  Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
+R implementation and documentation: Michail Tsagris \email{mtsagris@uoc.gr}
 }
 
 %\note{

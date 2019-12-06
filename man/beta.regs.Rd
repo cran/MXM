@@ -61,7 +61,7 @@ Ferrari S.L.P. and Cribari-Neto F. (2004). Beta Regression for Modelling Rates a
 \author{
  Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
+R implementation and documentation: Michail Tsagris \email{mtsagris@uoc.gr}
 }
 
 %\note{

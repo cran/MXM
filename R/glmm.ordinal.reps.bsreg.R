@@ -15,12 +15,6 @@ glmm.ordinal.reps.bsreg <- function(target, dataset, id, reps, threshold = 0.05,
     } else {
       
       tic <- proc.time()
-      #check for NA values in the dataset and replace them with the variable median or the mode
-      if( any(is.na(dataset)) ) {
-        warning("The dataset contains missing values (NA) and they were replaced automatically by the variable (column) median (for numeric) or by the most frequent level (mode) if the variable is factor")
-        dataset <- apply( dataset, 2, function(x){ x[which(is.na(x))] = median(x, na.rm = TRUE) ; return(x) } ) 
-      }
-      ###################
       ###################
       ini <- ordinal::clmm( target ~ dataset + reps + (1 | id), weights = wei )
       likini <- logLik(ini) 

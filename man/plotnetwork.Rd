@@ -32,7 +32,7 @@ The plot of the directed graph. This is interactive, in the sense that the user 
 \author{
  Michail Tsagris
 
-R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> and Michail Tsagris <mtsagris@uoc.gr>
+R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> and Michail Tsagris \email{mtsagris@uoc.gr}
 }
 
 %\note{

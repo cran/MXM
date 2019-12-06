@@ -64,14 +64,14 @@ The number of models fitted in the backward phase.
 
 \references{
 Borboudakis G. and Tsamardinos I. (2017). Forward-Backward Selection with Early Dropping. 
-https://arxiv.org/pdf/1705.10770.pdf
+\url{https://arxiv.org/pdf/1705.10770.pdf }
 }
 
 
 \author{
 Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
+R implementation and documentation: Michail Tsagris \email{mtsagris@uoc.gr}
 }
 
 \seealso{

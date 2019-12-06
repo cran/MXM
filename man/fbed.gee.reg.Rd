@@ -9,26 +9,29 @@ Forward Backward Early Dropping selection regression with GEE.
 }
 
 \usage{
-fbed.gee.reg(target, dataset, id, reps = NULL, ini = NULL, threshold = 0.05, 
-wei = NULL, K = 0, test = "testIndGEEReg", correl = "exchangeable", se = "jack") 
+fbed.gee.reg(target, dataset, id, prior = NULL, reps = NULL, ini = NULL, 
+threshold = 0.05, wei = NULL, K = 0, test = "testIndGEEReg", 
+correl = "exchangeable", se = "jack") 
 }
 
 \arguments{
 \item{target}{
-The class variable. This can be a numerical vector with continuous data, binary, discrete or an ordered factor variable. It can also be a factor variable with two levels only. Pay attention to this. If you have ordinal data, then supply an ordered factor variable.
+The class variable. This can be a numerical vector with continuous data, binary, discrete or an ordered factor variable. It can also be a factor variable with two levels only. Pay attention to this. If you have ordinal data, then supply an ordered factor variable. The data must be sorted so that observations on a cluster are contiguous rows for all entities in the formula.
 }
 \item{dataset}{
-The set of candidate predictor variables provide a numerical matrix or a data.frame in case of categorical variables (columns = variables, rows = samples). In the case of ordinal regression, this can only be a numerical matrix, i.e. only continuous predictor variables.
+The set of candidate predictor variables provide a numerical matrix or a data.frame in case of categorical variables (columns = variables, rows = samples). In the case of ordinal regression, this can only be a numerical matrix, i.e. only continuous predictor variables. The data must be sorted so that observations on a cluster are contiguous rows for all entities in the formula.
 }
 \item{id}{
-This is a numerical vector of the same size as target denoting the groups or the subjects. 
+This is a numerical vector of the same size as target denoting the groups or the subjects. The data must be sorted so that observations on a cluster are contiguous rows for all entities in the formula.
+}
+\item{prior}{
+If you have prior knowledge of some variables that must be in the variable selection phase add them here. This an be a vector (if you have one variable) or a matrix (if you more variables). 
 }
 \item{reps}{
-This is a numerical vector of the same size as target denoting the groups or the subjects. If you have longitudinal data and you know the time points, then supply them here. 
+This is a numerical vector of the same size as target denoting the groups or the subjects. If you have longitudinal data and you know the time points, then supply them here. The data must be sorted so that observations on a cluster are contiguous rows for all entities in the formula.
 }
 \item{ini}{
-If you already have the test statistics and the logged p-values of the univariate associations (the first step of FBED) supply them as a 
-list with the names "stat" and "pvalue" respectively.
+If you already have the test statistics and the logged p-values of the univariate associations (the first step of FBED) supply them as a list with the names "stat" and "pvalue" respectively.
 }
 \item{threshold}{
 Threshold (suitable values in (0, 1)) for asmmmbsing p-values significance. Default value is 0.05.
@@ -42,17 +45,16 @@ How many times should the process be repated? The default value is 0.
 }
 \item{test}{
 This is for the type of regression to be used, "testIndGEEReg", for Gaussian regression, 
-"testIndGEEGamma" for Gamma regression, "testIndGEELogistic for logistic regression, "testIndGEENormLog" for linear regression witha log link, or "testIndGEEPois" for Poisson regression.
+"testIndGEEGamma" for Gamma regression, "testIndGEELogistic for logistic regression, "testIndGEENormLog" for linear regression witha log link, "testIndGEEPois" for Poisson regression or "testIndGEEOrdinal" for ordinal regression.
 }
 %\item{ncores}{
 %How many cores to use. This plays an important role if you have tens of thousands of variables or really large sample sizes and tens of thousands of variables and a regression based test which requires numerical optimisation. In other cases it will not make a difference in the overall time (in fact it can be slower). The parallel computation is used in the first step of the algorithm, where univariate associations are examined, those take place in parallel. We have seen a reduction in time of 50\% with 4 cores in comparison to 1 core. Note also, that the amount of reduction is not linear in the number of cores.
 %}
 \item{correl}{
-The correlation structure. For the Gaussian, Logistic, Poisson and Gamma regression this can be either "exchangeable" (compound symmetry, suitable for clustered data) or "ar1" (AR(1) model, suitable for longitudinal data). For the ordinal logistic regression its only the "exchangeable" correlation sturcture. 
+The correlation structure. For the Gaussian, Logistic, Poisson and Gamma regression this can be either "exchangeable" (compound symmetry, suitable for clustered data) or "ar1" (AR(1) model, suitable for longitudinal data). If you want to use the AR(1) correlation structure you must be careful with the input dat you give. All data (target and dataset) must be sorted according to the id and time points. All observations must be ordered according to time within each subject. See the vignette of \bold{geepack} to understand how. For the ordinal logistic regression its only the "exchangeable" correlation sturcture. 
 }
 \item{se}{
-The method for estimating standard errors. This is very important and crucial. The available options for Gaussian, Logistic, Poisson and Gamma regression are: a)  'san.se', the usual robust estimate. b) 'jack': if approximate jackknife variance estimate should be computed. 
-c) 'j1s': if 1-step jackknife variance estimate should be computed and d) 'fij': logical indicating if fully iterated jackknife variance estimate should be computed. If you have many clusters (sets of repeated measurements) "san.se" is fine as it is astmpotically correct, plus jacknife estimates will take longer. If you have a few clusters, then maybe it's better to use jacknife estimates. 
+The method for estimating standard errors. This is very important and crucial. The available options for Gaussian, Logistic, Poisson and Gamma regression are: a) 'san.se', the usual robust estimate. b) 'jack': if approximate jackknife variance estimate should be computed. c) 'j1s': if 1-step jackknife variance estimate should be computed and d) 'fij': logical indicating if fully iterated jackknife variance estimate should be computed. If you have many clusters (sets of repeated measurements) "san.se" is fine as it is astmpotically correct, plus jacknife estimates will take longer. If you have a few clusters, then maybe it's better to use jacknife estimates. 
 
 The jackknife variance estimator was suggested by Paik (1988), which is quite suitable for cases when the number of subjects is small (K < 30), as in many biological studies. The simulation studies conducted by Ziegler et al. (2000) and Yan and Fine (2004) showed that the approximate jackknife estimates are in many cases in good agreement with the fully iterated ones. 
 }
@@ -61,12 +63,11 @@ The jackknife variance estimator was suggested by Paik (1988), which is quite su
 \details{
 The algorithm is a variation of the usual forward selection. At every step, the most significant variable enters the selected variables set. In addition, only the significant variables stay and are further examined. The non signifcant ones are dropped. This goes until no variable can enter the set. The user has the option to redo this step 1 or more times (the argument K). In the end, a backward selection is performed to remove falsely selected variables. 
   
-Since GEE are likelihood free, all significance tests take place using the Wald test, hence we decided not to have a backward phase. This 
-algorithm is suitable for both clustered and longitudinal (glmm) data. 
+Since GEE are likelihood free, all significance tests take place using the Wald test, hence we decided not to have a backward phase. This algorithm is suitable for both clustered and longitudinal (glmm) data. 
 
 If you specify a range of values of K it returns the results of fbed.reg for this range of values of K. For example, instead of runnning fbed.reg with K=0, K=1, K=2 and so on, you can run fbed.reg with K=0:2 and the selected variables found at K=2, K=1 and K=0 are returned. Note also, that you may specify maximum value of K to be 10, but the maximum value FBED used was 4 (for example). 
 
-Make sure you load the library geepack first. 
+\bold{For GEE make sure you load the library geepack first}. 
 }
 
 \value{
@@ -80,7 +81,6 @@ A matrix with the number of variables and the number of tests performed (or mode
 \item{runtime}{
 The runtime required.
 }
-
 If K is a sequence of numbers a list tincluding:
 \item{univ}{
 If you have used the log-likelihood ratio test this list contains the test statistics and the associated logged p-values of the univariate associations tests. If you have used the EBIc this list contains the eBIC of the univariate associations.
@@ -110,13 +110,14 @@ estimating equations approach. Statistics in medicine, 19(24): 3345-3357
 Yan J. and Fine J. (2004). Estimating equations for association structures. Statistics in medicine, 23(6): 859-874
 
 Eugene Demidenko (2013). Mixed Models: Theory and Applications with R, 2nd Edition. New Jersey: Wiley \& Sons.
-}
 
+The R package \bold{geepack } vignette.
+}
 
 \author{
 Michail Tsagris
   
-R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
+R implementation and documentation: Michail Tsagris \email{mtsagris@uoc.gr}
 }
 
 \seealso{

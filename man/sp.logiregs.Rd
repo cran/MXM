@@ -42,13 +42,14 @@ Karolina Sikorska, Emmanuel Lesaffre, Patrick FJ Groenen and Paul HC Eilers (201
 GWAS on your notebook: fast semi-parallel linear and logistic regression for genome-wide
 association studies. 
 
-https://bmcbioinformatics.biomedcentral.com/track/pdf/10.1186/1471-2105-14-166
+\url{ https://bmcbioinformatics.biomedcentral.com/track/pdf/10.1186/1471-2105-14-166 
+}
 }
 
 \author{
 Initial author Karolina Sikorska in the above reference paper. Modifications by Michail Tsagris.
 
-R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
+R implementation and documentation: Michail Tsagris \email{mtsagris@uoc.gr}
 }
 
 %\note{

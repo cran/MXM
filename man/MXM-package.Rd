@@ -29,8 +29,8 @@ Feature Selection with the R Package MXM: Discovering Statistically Equivalent F
 \tabular{ll}{
 Package: \tab MXM\cr
 Type: \tab Package\cr
-Version: \tab 1.4.4\cr
-Date: \tab 2019-06-19\cr
+Version: \tab 1.4.5\cr
+Date: \tab 2019-12-06\cr
 License: \tab GPL-2\cr
 }
 }
@@ -40,7 +40,7 @@ Giorgos Athineou <athineou@csd.uoc.gr>, Vincenzo Lagani <vlagani@csd.uoc.gr>, Mi
 }
 
 \section{Maintainer}{
-Michail Tsagris <mtsagris@uoc.gr>
+Michail Tsagris \email{mtsagris@uoc.gr}
 }
 
 \references{

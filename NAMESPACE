@@ -13,6 +13,8 @@ importFrom("MASS", glm.nb, rlm, lm.ridge, polr)
 # censIndCR and censIndWR
 importFrom("survival", is.Surv, coxph, Surv, survreg, clogit, strata, survConcordance)
 
+importFrom("Hmisc", rcorr.cens)
+
 #testIndGLMM
 importFrom("lme4", lmer, glmer)
 
@@ -57,7 +59,7 @@ importFrom("Rfast", colVars, univglms, colmeans, g2Test_univariate, g2Test_univa
 
 importFrom("bigmemory", read.big.matrix, sub.big.matrix)
 
-importFrom("Rfast2", bic.regs, logiquant.regs, sp.logiregs, mmpc)
+importFrom("Rfast2", bic.regs, logiquant.regs, sp.logiregs, mmpc, mmpc2)
 
 import("doParallel")
 import("parallel")
@@ -71,7 +73,7 @@ export(SES, InternalSES, MMPC, InternalMMPC, SES.glmm, InternalSES.glmm, MMPC.gl
        mse.mxm, pve.mxm, mae.mxm, ci.mxm, ciwr.mxm, ord_mae.mxm, poisdev.mxm, nbdev.mxm, glm.mxm, lm.mxm, pois.mxm, nb.mxm, 
 	   multinom.mxm, rq.mxm, lmrob.mxm, ordinal.mxm, coxph.mxm, beta.mxm, weibreg.mxm, ridge.reg, ridgereg.cv, ridge.plot, 
 	   ses.model, mmpc.model, nei, reg.fit, pc.or, undir.path, rdag, mb, mmmb, permcor, findAncestors, findDescendants, 
-	   transitiveClosure, dag2eg, bic.fsreg, bic.glm.fsreg, fs.reg, glm.fsreg, lm.fsreg, glm.bsreg, tc.plot, cv.mmpc, mmpc.path, 
+	   transitiveClosure, dag2eg, bic.fsreg, bic.glm.fsreg, fs.reg, glm.fsreg, lm.fsreg, glm.bsreg, glm.bsreg2, tc.plot, cv.mmpc, mmpc.path, 
 	   condi, cat.ci, partialcor, auc, generatefolds, ma.ses, ma.mmpc, equivdags, testIndIGreg, bs.reg, zip.mod, zip.reg, zip.regs, 
 	   beta.regs, beta.mod, plotnetwork, univregs, iamb.bs, iamb, dist.condi, permFisher, permcorrels, score.univregs, perm.univregs, 
 	   perm.zipregs, perm.betaregs, wald.poissonregs, wald.logisticregs, rdag2, wald.univregs, wald.betaregs, wald.zipregs, waldBeta, 
@@ -79,7 +81,7 @@ export(SES, InternalSES, MMPC, InternalMMPC, SES.glmm, InternalSES.glmm, MMPC.gl
 	   permBeta, permLogistic, permBinom, permCR, permER, permWR, permClogit, permReg, permMVreg, permRQ, permIGreg, permNB, permPois, 
 	   permZIP, perm.mmpc, perm.ses, wald.mmpc, wald.ses, cv.waldses, cv.waldmmpc, cv.permses, cv.permmmpc, waldses.model, waldmmpc.model, 
 	   wald.mmpc.path, mmpc.glmm.model, mmpcbackphase, shd, is.dag, topological_sort, corfs.network, testIndGamma, waldGamma, permGamma, 
-	   testIndNormLog, waldNormLog, permNormLog, gammafsreg, normlog.fsreg, gammabsreg, normlog.bsreg, bic.gammafsreg, bic.normlog.fsreg, 
+	   testIndNormLog, waldNormLog, permNormLog, gammafsreg, normlog.fsreg, bic.gammafsreg, bic.normlog.fsreg, 
 	   testIndTobit, waldTobit, permTobit, permDcor, rint.regs, ordinal.reg, fbed.reg, ebic.bsreg, ci.mm, ci.fast, ci.mm2, ci.fast2, 
 	   rmdag, mmpc.or, condis, local.mmhc.skel, pc.skel.boot, fbed.glmm.reg, ebic.glmm.bsreg, glmm.bsreg, glmm.pc.skel, glmm.ci.mm, 
 	   bn.skel.utils, bn.skel.utils2, conf.edge.lower, pi0est, Ness, pval.mixbeta, cor.drop1, triangles.search, testIndQBinom, testIndQPois, 
@@ -91,7 +93,7 @@ export(SES, InternalSES, MMPC, InternalMMPC, SES.glmm, InternalSES.glmm, MMPC.gl
 	   gee.mmhc.skel, gomp.path, testIndGLMMGamma, testIndGLMMNormLog, cv.gomp, testIndGLMMOrdinal, bbc, big.gomp, read.big.data, 
 	   supervised.pca, big.score.univregs, corgraph, big.fbed.reg, mmpc2, certificate.of.exclusion2, glmm.condregs, gee.condregs, mci.mxm, 
 	   clogit.mxm, mmpc.glmm2, mmpc.gee2, testIndGLMMCR, ebic.regs, ebic.model, testIndSPML, perm.mmpc.path, boot.gomp, censIndLLR, permLLR, 
-	   waldLLR, logiquant.regs, sp.logiregs, pc.sel)
+	   waldLLR, logiquant.regs, sp.logiregs, pc.sel, zinb.mod, zinb.reg)
 
 exportClasses("SESoutput")
 exportClasses("MMPCoutput")

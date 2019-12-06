@@ -80,7 +80,7 @@ Tsamardinos I., Aliferis C. F. and Statnikov, A. (2003). Time and sample efficie
 \author{
 Michail Tsagris
 
-R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> Michail Tsagris <mtsagris@uoc.gr>
+R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> Michail Tsagris \email{mtsagris@uoc.gr}
 }
 
 \seealso{

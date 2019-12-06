@@ -41,7 +41,7 @@ Objects can be created by calls of the form \code{new("MMPC.gee.output", ...)}.
 }
 
 \author{
-Giorgos Athineou and Michail Tsagris <mtsagris@uoc.gr>
+Giorgos Athineou and Michail Tsagris \email{mtsagris@uoc.gr}
 }
 
 \seealso{

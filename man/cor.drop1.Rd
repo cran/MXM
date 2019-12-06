@@ -39,7 +39,7 @@ A matrix with two columns, the test statistic values and its associated p-value.
 \author{
  Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
+R implementation and documentation: Michail Tsagris \email{mtsagris@uoc.gr}
 }
 
 %\note{

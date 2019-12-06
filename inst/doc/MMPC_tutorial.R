@@ -147,8 +147,7 @@ execution_time_2nd_MMPC_run
 # Grid Search for MMPC hyper-parameter tuning 
 
 library('MXM')
-mmpcGridSearch <- MXM::mmpc.path(
-                  target  = target_NonFlav,            
+mmpcGridSearch <- MXM::mmpc.path(target  = target_NonFlav,            
                   dataset = wine_dataset,            
                   max_ks = c(3,4,5,6),  # a vector of k to try
                   alphas = NULL,   # a vector of thresholds; 

@@ -67,7 +67,7 @@ A matrix with two columns. The second one is the logarithm of the p-value. The f
 \references{
 Ramsey, J., Zhang, J., Spirtes, P., 2006. Adjacency-faithfulness and conservative causal
 inference. Proceedings of the 22nd Annual Conference on Uncertainty in Artificial Intelligence (UAI 2006).
-https://arxiv.org/ftp/arxiv/papers/1206/1206.6843.pdf
+\url{ https://arxiv.org/ftp/arxiv/papers/1206/1206.6843.pdf }
 
 Colombo, Diego, and Marloes H. Maathuis (2014). Order-independent constraint-based causal structure learning. The Journal of Machine Learning Research 15(1): 3741--3782.
 }
@@ -75,7 +75,7 @@ Colombo, Diego, and Marloes H. Maathuis (2014). Order-independent constraint-bas
 \author{
  Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
+R implementation and documentation: Michail Tsagris \email{mtsagris@uoc.gr}
 }
 
 %\note{

@@ -1,4 +1,4 @@
-mmpc.glmm2 <- function(target, reps = NULL, group, dataset, max_k = 3, threshold = 0.05, test = NULL, ini = NULL, wei = NULL, slopes = FALSE, ncores = 1) {
+mmpc.glmm2 <- function(target, reps = NULL, group, dataset, prior = NULL, max_k = 3, threshold = 0.05, test = NULL, ini = NULL, wei = NULL, slopes = FALSE, ncores = 1) {
   
   runtime <- proc.time()
   
@@ -64,11 +64,20 @@ mmpc.glmm2 <- function(target, reps = NULL, group, dataset, max_k = 3, threshold
   if ( max_k > varsize )   max_k <- varsize;
   if ( (typeof(threshold) != "double") | threshold <= 0 | threshold > 1 )   stop('invalid threshold option');
   
+  priorindex <- NULL
+  if ( !is.null(prior) )   {
+     dataset <- cbind(dataset, prior)
+     priorindex <- c( c(varsize + 1): dim(dataset)[2] ) 
+  }     
+  
   if ( is.null(ini) ) {
-    mod <- glmm.univregs(target = target, reps = reps, id = group, dataset = dataset, targetID = -1, test = test, wei = wei, 
-                              slopes = slopes, ncores = ncores)
+    if ( is.null(prior) ) {
+      mod <- MXM::glmm.univregs(target = target, reps = reps, id = group, dataset = dataset, targetID = -1, 
+                                test = test, wei = wei, slopes = slopes, ncores = ncores)
+    } else mod <- MXM::glmm.condregs(target = target, reps = reps, id = group, dataset = dataset, xIndex = 1:varsize, 
+                                     csIndex = priorindex, test = test, wei = wei, slopes = slopes, ncores = ncores)
     pval <- mod$pvalue
-    n.tests <- dim(dataset)[2]
+    n.tests <- varsize
   } else pval <- ini$pvalue
   vars <- which(pval < alpha) 
   if ( length(vars) > 0 ) {
@@ -80,8 +89,8 @@ mmpc.glmm2 <- function(target, reps = NULL, group, dataset, max_k = 3, threshold
   if ( length(vars) > 0  &  max_k >= 1 ) {
     a <- paste("kappa=", 1:max_k, sep = "")
     kapa_pval <- sapply(a, function(x) NULL)
-    pval2 <- glmm.condregs(target = target, reps = reps, id = group, dataset = dataset, xIndex = vars, csIndex = sela, test = test, 
-                           wei = wei, slopes = slopes, ncores = 1)$pvalue 
+    pval2 <- MXM::glmm.condregs(target = target, reps = reps, id = group, dataset = dataset, xIndex = vars, 
+                           csIndex = c(sela, priorindex), test = test, wei = wei, slopes = slopes, ncores = 1)$pvalue 
     kapa_pval[[ 1 ]] <- rbind(pval2[vars], vars, sela)
     n.tests <- n.tests + length(vars)
     pval[vars] <- pmax(pval[vars], pval2[vars]) 
@@ -94,16 +103,16 @@ mmpc.glmm2 <- function(target, reps = NULL, group, dataset, max_k = 3, threshold
   
   ## 2 selected
   if ( length(vars) > 0  &  max_k >= 1 ) {
-    pval2 <- glmm.condregs(target = target, reps = reps, id = group, dataset = dataset, xIndex = vars, csIndex = sela[2], test = test, 
-                           wei = wei, slopes = slopes, ncores = 1)$pvalue 
+    pval2 <- MXM::glmm.condregs(target = target, reps = reps, id = group, dataset = dataset, xIndex = vars, 
+                           csIndex = c(sela[2], priorindex), test = test, wei = wei, slopes = slopes, ncores = 1)$pvalue 
     kapa_pval[[ 1 ]] <- cbind( kapa_pval[[ 1 ]], rbind(pval2[vars], vars, sela[2]) )
     n.tests <- n.tests + length(vars)
     pval[vars] <- pmax(pval[vars], pval2[vars]) 
     ide <- which(pval[vars] < alpha)
     vars <- vars[ide]
     if ( max_k >= 2 ) {
-      pval2 <- glmm.condregs(target = target, reps = reps, id = group, dataset = dataset, xIndex = vars, csIndex = sela, test = test, 
-                             wei = wei, slopes = slopes, ncores = 1)$pvalue 
+      pval2 <- MXM::glmm.condregs(target = target, reps = reps, id = group, dataset = dataset, xIndex = vars, 
+                             csIndex = c(sela, priorindex), test = test, wei = wei, slopes = slopes, ncores = 1)$pvalue 
       kapa_pval[[ 2 ]] <- rbind( pval2[vars], vars, matrix( rep(sela, length(vars)), ncol = length(vars) ) )
       pval[vars] <- pmax(pval[vars], pval2[vars]) 
       ide <- which(pval[vars] < alpha)
@@ -118,8 +127,8 @@ mmpc.glmm2 <- function(target, reps = NULL, group, dataset, max_k = 3, threshold
   ## 3 selected  
   if ( length(vars) > 0  &  max_k >= 1 ) {
     if ( max_k >= 1 ) {
-      pval2 <- glmm.condregs(target = target, reps = reps, id = group, dataset = dataset, xIndex = vars, csIndex = sela[3], test = test, 
-                             wei = wei, slopes = slopes, ncores = 1)$pvalue 
+      pval2 <- MXM::glmm.condregs(target = target, reps = reps, id = group, dataset = dataset, xIndex = vars, 
+                             csIndex = c(sela[3], priorindex), test = test, wei = wei, slopes = slopes, ncores = 1)$pvalue 
       kapa_pval[[ 1 ]] <- cbind( kapa_pval[[ 1 ]], rbind(pval2[vars], vars, sela[3]) )
       n.tests <- n.tests + length(vars)
       pval[vars] <- pmax(pval[vars], pval2[vars]) 
@@ -128,15 +137,15 @@ mmpc.glmm2 <- function(target, reps = NULL, group, dataset, max_k = 3, threshold
     }  ## end  if ( max_k >= 1 ) {
     if ( length(vars) > 0  &  max_k >= 2 ) {
       cand <- Rfast::comb_n(sela, 2)[, - 1]
-      pval2 <- glmm.condregs(target = target, reps = reps, id = group, dataset = dataset, xIndex = vars, csIndex = cand[, 1], test = test, 
-                             wei = wei, slopes = slopes, ncores = 1)$pvalue 
+      pval2 <- MXM::glmm.condregs(target = target, reps = reps, id = group, dataset = dataset, xIndex = vars, 
+                             csIndex = c(cand[, 1], priorindex), test = test, wei = wei, slopes = slopes, ncores = 1)$pvalue 
       kapa_pval[[ 2 ]] <- cbind( kapa_pval[[ 2 ]], rbind( pval2[vars], vars, matrix( rep(cand[, 1], length(vars)), ncol = length(vars) ) ) )
       n.tests <- n.tests + length(vars)
       pval[vars] <- pmax(pval[vars], pval2[vars]) 
       ide <- which(pval[vars] < alpha)
       vars <- vars[ide]
-      pval2 <- glmm.condregs(target = target, reps = reps, id = group, dataset = dataset, xIndex = vars, csIndex = cand[, 2], test = test, 
-                             wei = wei, slopes = slopes, ncores = 1)$pvalue 
+      pval2 <- MXM::glmm.condregs(target = target, reps = reps, id = group, dataset = dataset, xIndex = vars, 
+                             csIndex = c( cand[, 2], priorindex ), test = test, wei = wei, slopes = slopes, ncores = 1)$pvalue 
       kapa_pval[[ 2 ]] <- cbind( kapa_pval[[ 2 ]], rbind( pval2[vars], vars, matrix( rep(cand[, 2], length(vars)), ncol = length(vars) ) ) )
       n.tests <- n.tests + length(vars)
       pval[vars] <- pmax(pval[vars], pval2[vars]) 
@@ -144,8 +153,8 @@ mmpc.glmm2 <- function(target, reps = NULL, group, dataset, max_k = 3, threshold
       vars <- vars[ide]
     }  ## end  if ( max_k >= 2 ) {
     if ( length(vars) > 0  &  max_k >= 3 ) {
-      pval2 <- glmm.condregs(target = target, reps = reps, id = group, dataset = dataset, xIndex = vars, csIndex = sela, test = test, 
-                             wei = wei, slopes = slopes, ncores = 1)$pvalue 
+      pval2 <- MXM::glmm.condregs(target = target, reps = reps, id = group, dataset = dataset, xIndex = vars, 
+                             csIndex = c(sela, priorindex), test = test, wei = wei, slopes = slopes, ncores = 1)$pvalue 
       kapa_pval[[ 3 ]] <- rbind( pval2[vars], vars, matrix( rep(sela, length(vars)), ncol = length(vars) ) )
       n.tests <- n.tests + length(vars)
       pval[vars] <- pmax(pval[vars], pval2[vars]) 
@@ -160,8 +169,8 @@ mmpc.glmm2 <- function(target, reps = NULL, group, dataset, max_k = 3, threshold
   ## 4 selected
   while ( length(vars) > 0  &  max_k >= 1 ) {
     dm <- length(sela)
-    pval2 <- glmm.condregs(target = target, reps = reps, id = group, dataset = dataset, xIndex = vars, csIndex = sela[dm], test = test, 
-                           wei = wei, slopes = slopes, ncores = 1)$pvalue 
+    pval2 <- MXM::glmm.condregs(target = target, reps = reps, id = group, dataset = dataset, xIndex = vars, 
+                           csIndex = c(sela[dm], priorindex), test = test, wei = wei, slopes = slopes, ncores = 1)$pvalue 
     kapa_pval[[ 1 ]] <- cbind( kapa_pval[[ 1 ]], rbind(pval2[vars], vars, sela[dm]) )
     n.tests <- n.tests + length(vars)
     pval[vars] <- pmax(pval[vars], pval2[vars]) 
@@ -174,8 +183,8 @@ mmpc.glmm2 <- function(target, reps = NULL, group, dataset, max_k = 3, threshold
         j <- 1
         #for ( j in 1:dim(cand)[2] ) {
         while ( length(vars) > 0  &  j < dim(cand)[2] ) {
-          pval2 <- glmm.condregs(target = target, reps = reps, id = group, dataset = dataset, xIndex = vars, csIndex = cand[, j], test = test, 
-                                 wei = wei, slopes = slopes, ncores = 1)$pvalue 
+          pval2 <- MXM::glmm.condregs(target = target, reps = reps, id = group, dataset = dataset, xIndex = vars, 
+                                 csIndex = c( cand[, j], priorindex), test = test, wei = wei, slopes = slopes, ncores = 1)$pvalue 
           kapa_pval[[ i ]] <- cbind( kapa_pval[[ i ]], rbind( pval2[vars], vars, matrix( rep(cand[, j], length(vars)), ncol = length(vars) ) ) )
           n.tests <- n.tests + length(vars)
           pval[vars] <- pmax(pval[vars], pval2[vars]) 
@@ -191,7 +200,6 @@ mmpc.glmm2 <- function(target, reps = NULL, group, dataset, max_k = 3, threshold
   } ## end  while ( length(vars) > 0  &  max_k >= 1 ) {
   
   runtime <- proc.time() - runtime
-  
   # if ( backward  & length( sela ) > 0  ) {
   #   tic <- proc.time()
   #   pv <- pval[sela]
@@ -203,7 +211,6 @@ mmpc.glmm2 <- function(target, reps = NULL, group, dataset, max_k = 3, threshold
   #   n.tests <- n.tests + bc$counter
   #   runtime <- runtime + proc.time() - tic
   # }  
-  
   list(selectedVars = sela, pvalues = pval, univ = mod$pvalue, kapa_pval = kapa_pval, max_k = max_k, threshold = alpha, 
        n.tests = n.tests, runtime = runtime, test = ci_test, slope = slopes)
 }

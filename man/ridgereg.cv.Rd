@@ -74,7 +74,7 @@ Tibshirani R.J., and Tibshirani R. (2009). A bias correction for the minimum err
 \author{
  Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
+R implementation and documentation: Michail Tsagris \email{mtsagris@uoc.gr}
 }
 
 \note{

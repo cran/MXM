@@ -56,11 +56,11 @@ The (1- conf)\% confidence interval of the BBC performance. It is based on the e
 \references{
 Ioannis Tsamardinos, Elissavet Greasidou and Giorgos Borboudakis (2018). Bootstrapping the out-of-sample predictions for efficient and accurate cross-validation. Machine Learning (To appear).  
 
-https://link.springer.com/article/10.1007/s10994-018-5714-4
+\url{https://link.springer.com/article/10.1007/s10994-018-5714-4}
 }
 
 \author{
-  R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>.
+  R implementation and documentation: Michail Tsagris \email{mtsagris@uoc.gr}.
 }
 
 \seealso{

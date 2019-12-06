@@ -38,7 +38,7 @@ Storey J.D. and Tibshirani R. (2003). Statistical significance for genome-wide e
 \author{
  Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
+R implementation and documentation: Michail Tsagris \email{mtsagris@uoc.gr}
 }
 
 %\note{

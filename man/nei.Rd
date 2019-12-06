@@ -39,7 +39,7 @@ Bear in mind that the values can be extracted with the $ symbol, i.e. this is an
 \author{
  Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
+R implementation and documentation: Michail Tsagris \email{mtsagris@uoc.gr}
 }
 
 %\note{

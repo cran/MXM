@@ -33,7 +33,7 @@ Scutari M. and Nagarajan R. (2013). Identifying significant edges in graphical m
 \author{
 Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
+R implementation and documentation: Michail Tsagris \email{mtsagris@uoc.gr}
 }
 
 %\note{

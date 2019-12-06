@@ -111,10 +111,7 @@ The SES.glmm function implements the Statistically Equivalent Signature (SES) al
 HSCBB 2012" adapted to longitudinal data. The citation for this is "Tsagris, Lagani and tsamardinos, (2018)". These functions presented 
 here are for the \bold{temporal-lonitudinal scenario}. 
 
-http://www.mensxmachina.org/publications/discovering-multiple-equivalent-biomarker-signatures/
-
-The MMPC function mplements the MMPC algorithm as presented in "Tsamardinos, Brown and Aliferis. The max-min hill-climbing Bayesian network
-structure learning algorithm" adapted to longitudinal data. http://www.dsl-lab.org/supplements/mmhc_paper/paper_online.pdf
+The MMPC function mplements the MMPC algorithm as presented in "Tsamardinos, Brown and Aliferis. The max-min hill-climbing Bayesian network structure learning algorithm" adapted to longitudinal data. 
 
 The output value "univ" along with the output value "hashObject" can speed up the computations of subesequent runs of SES and MMPC. 
 The first run with a specific pair of hyper-parameters (threshold and max_k) the univariate associations tests and the conditional 

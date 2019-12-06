@@ -71,17 +71,16 @@ If TRUE, the backward (or symmetry correction) phase will be implemented. This r
 \details{
 This is more at an experimental stage at the present. 
 
-The SES function implements the Statistically Equivalent Signature (SES) algorithm as presented in "Tsamardinos, Lagani and Pappas, HSCBB 2012" 
-http://www.mensxmachina.org/publications/discovering-multiple-equivalent-biomarker-signatures/
+The SES function implements the Statistically Equivalent Signature (SES) algorithm as presented in "Tsamardinos, Lagani and Pappas, HSCBB 2012". 
 
-The MMPC function mplements the MMPC algorithm as presented in "Tsamardinos, Brown and Aliferis. The max-min hill-climbing Bayesian network structure learning algorithm" http://www.dsl-lab.org/supplements/mmhc_paper/paper_online.pdf
+The MMPC function mplements the MMPC algorithm as presented in "Tsamardinos, Brown and Aliferis. The max-min hill-climbing Bayesian network structure learning algorithm".
 
 The output value "univ" along with the output value "hashObject" can speed up the computations of subesequent runs of SES and MMPC. 
 The first run with a specific pair of hyper-parameters (threshold and max_k) the univariate associations tests and the conditional independence tests (test statistic and logarithm of their corresponding p-values) 
 are stored and returned. In the next run(s) with different pair(s) of hyper-parameters you can use this information to save time. With a few thousands of variables you will see the difference, 
 which can be up to 50\%. For the non robust correlation based tests, the difference may not be significant though, because the unconditional correlation coefficients are calcualted very efficiently. 
 
-The max_k option: the maximum size of the conditioning set to use in the conditioning independence test. Larger values provide more accurate results, at the cost of higher computational times. When the sample size is small (e.g., \eqn{<50} observations) the max_k parameter should be \eqn{ \leq 5}, otherwise the conditional independence test may not be able to provide reliable results.
+The max_k option: the maximum size of the conditioning set to use in the conditioning independence test. Larger values provide more accurate results, at the cost of higher computational times. When the sample size is small (e.g., \eqn{<50 } observations) the max_k parameter should be \eqn{ \leq 5 }, otherwise the conditional independence test may not be able to provide reliable results.
 
 If the dataset (predictor variables) contains missing (NA) values, they will automatically be replaced by the current variable (column) mean value with an appropriate warning to the user after the execution.
 
@@ -99,21 +98,21 @@ If the dataset (predictor variables) contains missing (NA) values, they will aut
 
 Conditional independence test functions to be pass through the user_test argument should have the same signature of the included test. See \code{ \link{testIndFisher} } for an example.
 
-For all the available conditional independence tests that are currently included on the package, please see \code{\link{CondIndTests}}. 
+For all the available conditional independence tests that are currently included on the package, please see \code{\link{CondIndTests} }. 
 
 If two or more p-values are below the machine epsilon (.Machine$double.eps which is equal to 2.220446e-16), all of them are set to 0. To make the comparison or the ordering feasible we use the logarithm of the p-value. The max-min heuristic though, requires comparison and an ordering of the p-values. Hence, all conditional independence tests calculate the logarithm of the p-value.
 
 If there are missing values in the dataset (predictor variables) columnwise imputation takes place. The median is used for the continuous variables and the mode for categorical variables. It is a naive and not so clever method. For this reason the user is encouraged to make sure his data contain no missing values. 
 
-If you have percentages, in the (0, 1) interval, they are automatically mapped into \eqn{R} by using the logit transformation. 
+If you have percentages, in the (0, 1) interval, they are automatically mapped into \eqn{R } by using the logit transformation. 
 % If you set the test to \code{\link{testIndBeta}}, beta regression is used. If you have compositional data, positive multivariate data where each vector sums to 1, with NO zeros, they are also mapped into the Euclidean space using the additive log-ratio (multivariate logit) transformation (Aitchison, 1986).
 
 If you use testIndSpearman (argument "test"), the ranks of the data calculated and those are used in the caclulations. This speeds up the whole procedure.
 
 Currently only the testIndFisher and testIndSpearman tests are supported for use in the algorithm. 
 
-If the argument \bold{statistic} is set to FALSE, the p-values from the hypothesis test of each dataset are combined via Fisher's meta-analytic approach, that is \eqn{ T=-2\sum_{i=1}^k\log{p_i} }
-and \eqn{ T~\chi^2_{2k} }. If \bold{statistic} is TRUE, the test statistics are combined as 
+If the argument \bold{statistic } is set to FALSE, the p-values from the hypothesis test of each dataset are combined via Fisher's meta-analytic approach, that is \eqn{ T=-2\sum_{i=1}^k\log{p_i} }
+and \eqn{ T~\chi^2_{2k} }. If \bold{statistic } is TRUE, the test statistics are combined as 
 \eqn{ T = \frac{{\sum_{i=1}^kt_i/se(t_i)}}{\sum_{i=1}^k 1/se(t_i)}} and \eqn{T~N(0,1)}.
 }
 
@@ -176,7 +175,7 @@ Tsamardinos, Brown and Aliferis (2006). The max-min hill-climbing Bayesian netwo
 \author{
 Ioannis Tsamardinos, Vincenzo Lagani
 
-R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr>, Vincenzo Lagani <vlagani@csd.uoc.gr>  and Michail Tsagris <mtsagris@uoc.gr>
+R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr>, Vincenzo Lagani <vlagani@csd.uoc.gr>  and Michail Tsagris \email{mtsagris@uoc.gr}
 }
 
 

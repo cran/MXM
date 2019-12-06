@@ -1,4 +1,4 @@
-mmpc2 <- function(target, dataset, max_k = 3, threshold = 0.05, test = "testIndLogistic", ini = NULL, wei = NULL, ncores = 1, backward = FALSE) {
+mmpc2 <- function(target, dataset, prior = NULL, max_k = 3, threshold = 0.05, test = "testIndLogistic", ini = NULL, wei = NULL, ncores = 1, backward = FALSE) {
   
   runtime <- proc.time()
 
@@ -22,16 +22,114 @@ mmpc2 <- function(target, dataset, max_k = 3, threshold = 0.05, test = "testIndL
     }
   }
 
- av_tests = c("testIndReg", "testIndBeta", "censIndCR", "censIndWR", "testIndClogit", "testIndOrdinal",
+ av_tests <- c("testIndReg", "testIndBeta", "censIndCR", "censIndWR", "testIndClogit", "testIndOrdinal",
               "testIndLogistic", "testIndPois", "testIndNB", "testIndBinom", "auto", "testIndZIP", 
               "testIndRQ", "testIndGamma", "testIndNormLog", "testIndTobit", "testIndQPois", "censIndCR", 
               "censIndWR", "censIndER", "censIndLLR", "testdIndQBinom", "testIndMMReg", "testIndMultinom", 
               "testIndIGreg", "testIndSPML", NULL);
-
+ 
  ci_test <- test
+   
+ if ( ( ci_test == "testIndLogistic" | ci_test == "testIndPois" |  ci_test == "testIndQPois")  &  is.matrix(dataset) ) {
+ 
+ if ( ci_test == "testIndLogistic"  &  is.matrix(dataset) ) {
+   runtime <- proc.time()
+   ep <- Rfast2::mmpc2(y = target, x = dataset, max_k = max_k, threshold = threshold, test = "logistic", parallel = (ncores > 1) )
+   kapa_pval <- ep$kapa_pval
+   len <- length(kapa_pval)
+   if (len > 0 ) {
+     for ( i in 1:length(kapa_pval) ) {
+       if ( !is.null(kapa_pval[[ i ]]) )    kapa_pval[[ i ]] <- t( kapa_pval[[ i ]] )
+     }
+     names(kapa_pval) <- paste("kappa=", 1:max_k, sep = "")
+   }
+   runtime <- proc.time() - runtime
+   runtime[3] <- ep$runtime
+   sela <- as.numeric(ep$selectedVars)
+   
+   if ( backward  & length( sela ) > 0  ) {
+     tic <- proc.time()
+     pv <- pval[sela]
+     sela <- sela[ order(pv) ]
+     bc <- MXM::mmpcbackphase(target, dataset[, sela, drop = FALSE], test = test, wei = wei, max_k = max_k, threshold = threshold)
+     met <- bc$met
+     sela <- sela[met]
+     pval[sela] <- bc$pvalues
+     n.tests <- n.tests + bc$counter
+     runtime <- runtime + proc.time() - tic
+   } 
+   
+   res <- list(selectedVars = as.numeric(ep$selectedVars), pvalues = as.numeric(ep$pvalues), uni = as.numeric(ep$univ), 
+               kapa_pval = kapa_pval, max_k = ep$max_k, threshold = ep$threshold, n.tests = ep$n.tests, runtime = runtime, test = ci_test)
+   
+ } else if ( ci_test == "testIndPois"  &  is.matrix(dataset) ) {  
+   runtime <- proc.time()
+   ep <- Rfast2::mmpc2(y = target, x = dataset, max_k = max_k, threshold = threshold, test = "poisson", parallel = (ncores > 1) )
+   kapa_pval <- ep$kapa_pval
+   len <- length(kapa_pval)
+   if (len > 0 ) {
+     for ( i in 1:length(kapa_pval) ) {
+       if ( !is.null(kapa_pval[[ i ]]) )    kapa_pval[[ i ]] <- t( kapa_pval[[ i ]] )
+     }
+     names(kapa_pval) <- paste("kappa=", 1:max_k, sep = "")
+   }
+   runtime <- proc.time() - runtime
+   runtime[3] <- ep$runtime
+   sela <- as.numeric(ep$selectedVars)
+   
+   if ( backward  & length( sela ) > 0  ) {
+     tic <- proc.time()
+     pv <- pval[sela]
+     sela <- sela[ order(pv) ]
+     bc <- MXM::mmpcbackphase(target, dataset[, sela, drop = FALSE], test = test, wei = wei, max_k = max_k, threshold = threshold)
+     met <- bc$met
+     sela <- sela[met]
+     pval[sela] <- bc$pvalues
+     n.tests <- n.tests + bc$counter
+     runtime <- runtime + proc.time() - tic
+   } 
+   
+   res <- list(selectedVars = as.numeric(ep$selectedVars), pvalues = as.numeric(ep$pvalues), uni = as.numeric(ep$univ), 
+               kapa_pval = kapa_pval, max_k = ep$max_k, threshold = ep$threshold, n.tests = ep$n.tests, runtime = runtime, test = ci_test)
+   
+ } else if ( ci_test == "testIndQPois"  &  is.matrix(dataset) ) {  
+   runtime <- proc.time()
+   ep <- Rfast2::mmpc2(y = target, x = dataset, max_k = max_k, threshold = threshold, test = "qpoisson", parallel = (ncores > 1) )
+   kapa_pval <- ep$kapa_pval
+   len <- length(kapa_pval)
+   if (len > 0 ) {
+     for ( i in 1:length(kapa_pval) ) {
+       if ( !is.null(kapa_pval[[ i ]]) )    kapa_pval[[ i ]] <- t( kapa_pval[[ i ]] )
+     }
+     names(kapa_pval) <- paste("kappa=", 1:max_k, sep = "")
+   }
+   runtime <- proc.time() - runtime
+   runtime[3] <- ep$runtime
+   sela <- as.numeric(ep$selectedVars)
+ }
+ 
+   if ( backward  & length( sela ) > 0  ) {
+     tic <- proc.time()
+     pv <- pval[sela]
+     sela <- sela[ order(pv) ]
+     bc <- MXM::mmpcbackphase(target, dataset[, sela, drop = FALSE], test = test, wei = wei, max_k = max_k, threshold = threshold)
+     met <- bc$met
+     sela <- sela[met]
+     pval[sela] <- bc$pvalues
+     n.tests <- n.tests + bc$counter
+     runtime <- runtime + proc.time() - tic
+   } 
+   
+   res <- list(selectedVars = sela, pvalues = as.numeric(ep$pvalues), uni = as.numeric(ep$univ), 
+               kapa_pval = kapa_pval, max_k = ep$max_k, threshold = ep$threshold, n.tests = ep$n.tests, runtime = runtime, test = ci_test)
+   
+ } else {  ## end if if ( ( ci_test == "testIndLogistic" | ci_test == "testIndPois" |  ci_test == "testIndQPois")  &  is.matrix(dataset) ) { 
+ 
+ 
  if (length(test) == 1) {      #avoid vectors, matrices etc
    test <- match.arg(test, av_tests, TRUE);
-   if (test == "testIndFisher") {
+    
+    if (test == "testIndFisher") {
      test <- testIndFisher;
      
    } else if (test == "testIndMMFisher") {
@@ -134,10 +232,20 @@ mmpc2 <- function(target, dataset, max_k = 3, threshold = 0.05, test = "testIndL
   if ( ( typeof(max_k) != "double" ) | max_k < 1 )   stop('invalid max_k option');
   if ( max_k > varsize )   max_k <- varsize;
   if ( (typeof(threshold) != "double") | threshold <= 0 | threshold > 1 )   stop('invalid threshold option');
-  
+ 
+  priorindex <- NULL
+  if ( !is.null(prior) )   {
+    dataset <- cbind(dataset, prior)
+    priorindex <- c( c(varsize + 1): dim(dataset)[2] ) 
+  }  
+   
   if ( is.null(ini) ) {
-    mod <- univregs(target, dataset, test = test, wei = wei, ncores = ncores) 
+    if ( is.null(prior) ) {
+      mod <- MXM::univregs(target, dataset, test = test, wei = wei, ncores = ncores) 
+    } else  mod <- MXM::cond.regs(target, dataset, xIndex = 1:varsize, csIndex = priorindex, 
+                                  test = test, wei = wei, ncores = ncores) 
     pval <- mod$pvalue
+    univ <- mod$pvalue
     n.tests <- dim(dataset)[2]
   } else pval <- ini$pvalue
   vars <- which(pval < alpha) 
@@ -150,7 +258,7 @@ mmpc2 <- function(target, dataset, max_k = 3, threshold = 0.05, test = "testIndL
   if ( length(vars) > 0  &  max_k >= 1 ) {
     a <- paste("kappa=", 1:max_k, sep = "")
     kapa_pval <- sapply(a, function(x) NULL)
-    pval2 <- cond.regs(target, dataset, xIndex = vars, csIndex = sela, test = test, wei = wei, ncores = 1)$pvalue
+    pval2 <- MXM::cond.regs(target, dataset, xIndex = vars, csIndex = c(sela, priorindex), test = test, wei = wei, ncores = 1)$pvalue
     kapa_pval[[ 1 ]] <- rbind(pval2[vars], vars, sela)
     n.tests <- n.tests + length(vars)
     pval[vars] <- pmax(pval[vars], pval2[vars]) 
@@ -163,14 +271,14 @@ mmpc2 <- function(target, dataset, max_k = 3, threshold = 0.05, test = "testIndL
 
   ## 2 selected
   if ( length(vars) > 0  &  max_k >= 1 ) {
-    pval2 <- cond.regs(target, dataset, xIndex = vars, csIndex = sela[2], test = test, wei = wei, ncores = 1)$pvalue
+    pval2 <- MXM::cond.regs(target, dataset, xIndex = vars, csIndex = c(sela[2], priorindex), test = test, wei = wei, ncores = 1)$pvalue
     kapa_pval[[ 1 ]] <- cbind( kapa_pval[[ 1 ]], rbind(pval2[vars], vars, sela[2]) )
     n.tests <- n.tests + length(vars)
     pval[vars] <- pmax(pval[vars], pval2[vars]) 
     ide <- which(pval[vars] < alpha)
     vars <- vars[ide]
     if ( length(vars) > 0  &  max_k >= 2 ) {
-      pval2 <- cond.regs(target, dataset, xIndex = vars, csIndex = sela, test = test, wei = wei, ncores = 1)$pvalue
+      pval2 <- MXM::cond.regs(target, dataset, xIndex = vars, csIndex = c(sela, priorindex), test = test, wei = wei, ncores = 1)$pvalue
       kapa_pval[[ 2 ]] <- rbind( pval2[vars], vars, matrix( rep(sela, length(vars)), ncol = length(vars) ) )
       pval[vars] <- pmax(pval[vars], pval2[vars]) 
       ide <- which(pval[vars] < alpha)
@@ -185,7 +293,7 @@ mmpc2 <- function(target, dataset, max_k = 3, threshold = 0.05, test = "testIndL
   ## 3 selected  
   if ( length(vars) > 0  &  max_k >= 1 ) {
     if ( max_k >= 1 ) {
-      pval2 <- cond.regs(target, dataset, xIndex = vars, csIndex = sela[3], test = test, wei = wei, ncores = 1)$pvalue
+      pval2 <- MXM::cond.regs(target, dataset, xIndex = vars, csIndex = c(sela[3], priorindex), test = test, wei = wei, ncores = 1)$pvalue
       kapa_pval[[ 1 ]] <- cbind( kapa_pval[[ 1 ]], rbind(pval2[vars], vars, sela[3]) )
       n.tests <- n.tests + length(vars)
       pval[vars] <- pmax(pval[vars], pval2[vars]) 
@@ -194,13 +302,13 @@ mmpc2 <- function(target, dataset, max_k = 3, threshold = 0.05, test = "testIndL
     }  ## end  if ( max_k >= 1 ) {
     if ( length(vars) > 0  &  max_k >= 2 ) {
       cand <- Rfast::comb_n(sela, 2)[, - 1]
-      pval2 <- cond.regs(target, dataset, xIndex = vars, csIndex = cand[, 1], test = test, wei = wei, ncores = 1)$pvalue
+      pval2 <- MXM::cond.regs(target, dataset, xIndex = vars, csIndex = c(cand[, 1], priorindex), test = test, wei = wei, ncores = 1)$pvalue
       kapa_pval[[ 2 ]] <- cbind( kapa_pval[[ 2 ]], rbind( pval2[vars], vars, matrix( rep(cand[, 1], length(vars)), ncol = length(vars) ) ) )
       n.tests <- n.tests + length(vars)
       pval[vars] <- pmax(pval[vars], pval2[vars]) 
       ide <- which(pval[vars] < alpha)
       vars <- vars[ide]
-      pval2 <- cond.regs(target, dataset, xIndex = vars, csIndex = cand[, 2], test = test, wei = wei, ncores = 1)$pvalue
+      pval2 <- MXM::cond.regs(target, dataset, xIndex = vars, csIndex = c(cand[, 2], priorindex), test = test, wei = wei, ncores = 1)$pvalue
       kapa_pval[[ 2 ]] <- cbind( kapa_pval[[ 2 ]], rbind( pval2[vars], vars, matrix( rep(cand[, 2], length(vars)), ncol = length(vars) ) ) )
       n.tests <- n.tests + length(vars)
       pval[vars] <- pmax(pval[vars], pval2[vars]) 
@@ -208,7 +316,7 @@ mmpc2 <- function(target, dataset, max_k = 3, threshold = 0.05, test = "testIndL
       vars <- vars[ide]
     }  ## end  if ( max_k >= 2 ) {
     if ( length(vars) > 0  &  max_k >= 3 ) {
-      pval2 <- cond.regs(target, dataset, xIndex = vars, csIndex = sela, test = test, wei = wei, ncores = 1)$pvalue
+      pval2 <- MXM::cond.regs(target, dataset, xIndex = vars, csIndex = c(sela, priorindex), test = test, wei = wei, ncores = 1)$pvalue
       kapa_pval[[ 3 ]] <- rbind( pval2[vars], vars, matrix( rep(sela, length(vars)), ncol = length(vars) ) )
       n.tests <- n.tests + length(vars)
       pval[vars] <- pmax(pval[vars], pval2[vars]) 
@@ -223,7 +331,7 @@ mmpc2 <- function(target, dataset, max_k = 3, threshold = 0.05, test = "testIndL
   ## 4 selected
   while ( length(vars) > 0  &  max_k >= 1 ) {
     dm <- length(sela)
-    pval2 <- cond.regs(target, dataset, xIndex = vars, csIndex = sela[dm], test = test, wei = wei, ncores = 1)$pvalue
+    pval2 <- MXM::cond.regs(target, dataset, xIndex = vars, csIndex = c(sela[dm], priorindex), test = test, wei = wei, ncores = 1)$pvalue
     kapa_pval[[ 1 ]] <- cbind( kapa_pval[[ 1 ]], rbind(pval2[vars], vars, sela[dm]) )
     n.tests <- n.tests + length(vars)
     pval[vars] <- pmax(pval[vars], pval2[vars]) 
@@ -236,7 +344,7 @@ mmpc2 <- function(target, dataset, max_k = 3, threshold = 0.05, test = "testIndL
         j <- 1
         #for ( j in 1:dim(cand)[2] ) {
         while ( length(vars) > 0  &  j <= dim(cand)[2] ) {
-          pval2 <- cond.regs(target, dataset, xIndex = vars, csIndex = cand[, j], test = test, wei = wei, ncores = 1)$pvalue
+          pval2 <- MXM::cond.regs(target, dataset, xIndex = vars, csIndex = c(cand[, j], priorindex), test = test, wei = wei, ncores = 1)$pvalue
           kapa_pval[[ i ]] <- cbind( kapa_pval[[ i ]], rbind( pval2[vars], vars, matrix( rep(cand[, j], length(vars)), ncol = length(vars) ) ) )
           n.tests <- n.tests + length(vars)
           pval[vars] <- pmax(pval[vars], pval2[vars]) 
@@ -252,21 +360,24 @@ mmpc2 <- function(target, dataset, max_k = 3, threshold = 0.05, test = "testIndL
   } ## end  while ( length(vars) > 0  &  max_k >= 1 ) {
     
   runtime <- proc.time() - runtime
-    
+  
   if ( backward  & length( sela ) > 0  ) {
     tic <- proc.time()
     pv <- pval[sela]
     sela <- sela[ order(pv) ]
-    bc <- mmpcbackphase(target, dataset[, sela, drop = FALSE], test = test, wei = wei, max_k = max_k, threshold = threshold)
+    bc <- MXM::mmpcbackphase(target, dataset[, sela, drop = FALSE], test = test, wei = wei, max_k = max_k, threshold = threshold)
     met <- bc$met
     sela <- sela[met]
     pval[sela] <- bc$pvalues
     n.tests <- n.tests + bc$counter
     runtime <- runtime + proc.time() - tic
   }  
-    
- list(selectedVars = sela, pvalues = pval, univ = mod$pvalue, kapa_pval = kapa_pval, max_k = max_k, threshold = alpha, 
+  
+  res <- list(selectedVars = sela, pvalues = pval, uni = univ, kapa_pval = kapa_pval, max_k = max_k, threshold = alpha, 
       n.tests = n.tests, runtime = runtime, test = ci_test)
+ }
+
+ res
 }
 
 

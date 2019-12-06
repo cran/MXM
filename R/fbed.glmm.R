@@ -1,4 +1,4 @@
-fbed.glmm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0, test = "testIndGLMMLogistic") { 
+fbed.glmm <- function(y, x, id, prior = NULL, univ = NULL, alpha = 0.05, wei = NULL, K = 0, test = "testIndGLMMLogistic") { 
   if (test == "testIndGLMMLogistic") {
     oiko <- binomial(logit)
   } else if (test == "testIndGLMMPois") {  
@@ -14,7 +14,9 @@ fbed.glmm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0, te
   n <- dm[1]
   ind <- 1:p
   sig <- log(alpha)
-  lik1 <- logLik( lme4::glmer(y ~ 1 + (1|id), family = oiko, weights = wei) )
+  if ( is.null(prior) ) {
+    lik1 <- logLik( lme4::glmer(y ~ 1 + (1|id), family = oiko, weights = wei) )
+  } else  lik1 <- logLik( lme4::glmer(y ~ prior + (1|id), family = oiko, weights = wei) )
   lik2 <- numeric(p)
   sela <- NULL
   card <- 0
@@ -24,11 +26,17 @@ fbed.glmm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0, te
   zevar <- Rfast::check_data(x)
   if ( sum(zevar > 0) > 0 )  x[, zevar] <- rnorm( n * length( zevar ) )
   
+  priorindex <- NULL
+  if ( !is.null(prior) ) {
+    x <- cbind(x, prior)
+    priorindex <- c( (p + 1):dim(x)[2] )
+  }
+  
   runtime <- proc.time()
   
   if ( is.null(univ) ) {
     for ( i in ind ) {
-      fit2 <- lme4::glmer( y ~ x[, i] + (1|id), family = oiko, weights = wei )
+      fit2 <- lme4::glmer( y ~ x[, c(i, priorindex)] + (1|id), family = oiko, weights = wei )
       lik2[i] <- logLik( fit2 )
     }
     n.tests <- p
@@ -58,7 +66,7 @@ fbed.glmm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0, te
     #########
     while ( sum(s>0) > 0 ) {
       for ( i in ind[s] )  {
-        fit2 <- lme4::glmer( y ~ x[, c(sela, i)] + (1|id), family = oiko, weights = wei )
+        fit2 <- lme4::glmer( y ~ x[, c(priorindex, sela, i)] + (1|id), family = oiko, weights = wei )
         lik2[i] <- logLik( fit2 )
       }
       n.tests <- n.tests + length( ind[s] ) 
@@ -80,8 +88,8 @@ fbed.glmm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0, te
     
     if (K == 1) {
       for ( i in ind[-c(sela, zevar)] )  {
-        fit2 <- lme4::glmer( y ~ x[, c(sela, i)] + (1|id), family = oiko, weights = wei )
-        lik2[i] <- logLik( fit2 )
+        fit2 <- lme4::glmer( y ~ x[, c(priorindex, sela, i)] + (1|id), family = oiko, weights = wei )
+        lik2[i] <- logLik(fit2)
       }
       n.tests[2] <- length( ind[-c(sela, zevar)] )
       stat <- 2 * (lik2 - lik1)
@@ -89,8 +97,8 @@ fbed.glmm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0, te
       s <- which(pval < sig)
       sel <- which.min(pval) * ( length(s)>0 )
       sa <- c(sa, stat[sel]) 
-      pva <- c(pva, pval[sel])
-      sela <- c(sela, sel[sel>0])
+      pva <- c( pva, pval[sel] )
+      sela <- c( sela, sel[sel > 0] )
       s <- s[ - which(s == sel) ]
       if (sel > 0) {
         lik1 <- lik2[sel] 
@@ -98,8 +106,8 @@ fbed.glmm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0, te
       } 
       while ( sum(s>0) > 0 ) {
         for ( i in ind[s] )  {
-          fit2 <- lme4::glmer( y ~ x[, c(sela, i)] + (1|id), family = oiko, weights = wei )
-          lik2[i] <- logLik( fit2 )
+          fit2 <- lme4::glmer( y ~ x[, c(priorindex, sela, i)] + (1|id), family = oiko, weights = wei )
+          lik2[i] <- logLik(fit2)
         }
         n.tests[2] <- n.tests[2] + length( ind[s] )
         stat <- 2 * (lik2 - lik1)
@@ -107,8 +115,8 @@ fbed.glmm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0, te
         s <- which(pval < sig)
         sel <- which.min(pval) * ( length(s)>0 )
         sa <- c(sa, stat[sel]) 
-        pva <- c(pva, pval[sel])
-        sela <- c(sela, sel[sel>0])
+        pva <- c( pva, pval[sel] )
+        sela <- c( sela, sel[sel > 0] )
         s <- s[ - which(s == sel) ]
         if (sel > 0) {
           lik1 <- lik2[sel] 
@@ -121,8 +129,8 @@ fbed.glmm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0, te
     if ( K > 1) {
       
       for ( i in ind[-sela] )  {
-        fit2 <- lme4::glmer( y ~ x[, c(sela, i)] + (1|id), family = oiko, weights = wei )
-        lik2[i] <- logLik( fit2 )
+        fit2 <- lme4::glmer( y ~ x[, c(priorindex, sela, i)] + (1|id), family = oiko, weights = wei )
+        lik2[i] <- logLik(fit2)
       }
       n.tests[2] <- length( ind[-sela] ) 
       stat <- 2 * (lik2 - lik1)
@@ -130,8 +138,8 @@ fbed.glmm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0, te
       s <- which(pval < sig)
       sel <- which.min(pval) * ( length(s)>0 )
       sa <- c(sa, stat[sel]) 
-      pva <- c(pva, pval[sel])
-      sela <- c(sela, sel[sel>0])
+      pva <- c( pva, pval[sel] )
+      sela <- c( sela, sel[sel > 0] )
       s <- s[ - which(s == sel) ]
       if (sel > 0) {
         lik1 <- lik2[sel] 
@@ -139,8 +147,8 @@ fbed.glmm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0, te
       } 
       while ( sum(s > 0) > 0 ) {
         for ( i in ind[s] )  {
-          fit2 <- lme4::glmer( y ~ x[, c(sela, i)] + (1|id), family = oiko, weights = wei )
-          lik2[i] <- logLik( fit2 )
+          fit2 <- lme4::glmer( y ~ x[, c(priorindex, sela, i)] + (1|id), family = oiko, weights = wei )
+          lik2[i] <- logLik(fit2)
         }
         n.tests[2] <- n.tests[2] + length( ind[s] )  
         stat <- 2 * (lik2 - lik1)
@@ -148,8 +156,8 @@ fbed.glmm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0, te
         s <- which(pval < sig)
         sel <- which.min(pval) * ( length(s)>0 )
         sa <- c(sa, stat[sel]) 
-        pva <- c(pva, pval[sel])
-        sela <- c(sela, sel[sel>0])
+        pva <- c( pva, pval[sel] )
+        sela <- c( sela, sel[sel > 0] )
         s <- s[ - which(s == sel) ]
         if (sel > 0) {
           lik1 <- lik2[sel] 
@@ -162,7 +170,7 @@ fbed.glmm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0, te
       while ( vim < K  & card[vim + 1] - card[vim] > 0 ) {
         vim <- vim + 1
         for ( i in ind[-sela] )  {
-          fit2 <- lme4::glmer( y ~ x[, c(sela, i)] + (1|id), family = oiko, weights = wei )
+          fit2 <- lme4::glmer( y ~ x[, c(priorindex, sela, i)] + (1|id), family = oiko, weights = wei )
           lik2[i] <- logLik( fit2 )
         }
         n.tests[vim + 1] <- length( ind[-sela] )
@@ -171,8 +179,8 @@ fbed.glmm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0, te
         s <- which(pval < sig)
         sel <- which.min(pval) * ( length(s)>0 )
         sa <- c(sa, stat[sel]) 
-        pva <- c(pva, pval[sel])
-        sela <- c(sela, sel[sel>0])
+        pva <- c( pva, pval[sel] )
+        sela <- c( sela, sel[sel > 0] )
         s <- s[ - which(s == sel) ]
         if (sel > 0) {
           lik1 <- lik2[sel] 
@@ -180,8 +188,8 @@ fbed.glmm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0, te
         }    
         while ( sum(s > 0) > 0 ) {
           for ( i in ind[s] )  {
-            fit2 <- lme4::glmer( y ~ x[, c(sela, i)] + (1|id), family = oiko, weights = wei )
-            lik2[i] <- logLik( fit2 )
+            fit2 <- lme4::glmer( y ~ x[, c(priorindex, sela, i)] + (1|id), family = oiko, weights = wei )
+            lik2[i] <- logLik(fit2)
           }
           n.tests[vim + 1] <- n.tests[vim + 1] + length( ind[s] )
           stat <- 2 * (lik2 - lik1)
@@ -189,8 +197,8 @@ fbed.glmm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0, te
           s <- which(pval < sig)
           sel <- which.min(pval) * ( length(s)>0 )
           sa <- c(sa, stat[sel]) 
-          pva <- c(pva, pval[sel])
-          sela <- c(sela, sel[sel>0])
+          pva <- c( pva, pval[sel] )
+          sela <- c( sela, sel[sel > 0] )
           s <- s[ - which(s == sel) ]
           if (sel > 0) {
             lik1 <- lik2[sel] 

@@ -98,7 +98,7 @@ bbc <- function(predictions, target, metric = "auc.mxm", conf = 0.95, B = 1000) 
   } else if (metric == "mae.mxm") {
     for (i in 1:B) {
       ind <- sample.int(n, n, replace = TRUE)
-      in.perf <-  - Rfast:: colmeans( abs(predictions[ind, ] - target[ind]) ) 
+      in.perf <-  - Rfast::colmeans( abs(predictions[ind, ] - target[ind]) ) 
       poio <- which.max(in.perf)
       out.perf[i] <-  - mean( abs(predictions[-ind, ] - target[-ind]) ) 
     } 
@@ -107,18 +107,22 @@ bbc <- function(predictions, target, metric = "auc.mxm", conf = 0.95, B = 1000) 
     in.perf <- numeric(p)
     for (i in 1:B) {
       ind <- sample.int(n, n, replace = TRUE)
-      for (j in 1:p)   in.perf[j] <- survival::survConcordance(target[ind] ~ predictions[ind, j])$concordance
+      #for (j in 1:p)   in.perf[j] <- survival::survConcordance(target[ind, ] ~ predictions[ind, j])$concordance
+      for (j in 1:p)   in.perf[j] <- 1 - Hmisc::rcorr.cens(target[ind, ], predictions[ind, j])[1]
       poio <- which.max(in.perf)
-      out.perf[i] <- survival::survConcordance(target[-ind] ~ predictions[-ind, poio])$concordance
+      #out.perf[i] <- survival::survConcordance(target[-ind, ] ~ predictions[-ind, poio])$concordance
+      out.perf[i] <- Hmisc::rcorr.cens(target[-ind, ], predictions[-ind, poio])[1]
     }
     
   } else if (metric == "ciwr.mxm") {
     in.perf <- numeric(p)
     for (i in 1:B) {
       ind <- sample.int(n, n, replace = TRUE)
-      for (j in 1:p)   in.perf[j] <- 1 - survival::survConcordance(target[ind] ~ predictions[ind, j])$concordance
+      #for (j in 1:p)   in.perf[j] <- 1 - survival::survConcordance(target[ind, ] ~ predictions[ind, j])$concordance
+      for (j in 1:p)   in.perf[j] <- Hmisc::rcorr.cens(target[ind, ], predictions[ind, j])[1]
       poio <- which.max(in.perf)
-      out.perf[i] <- 1 - survival::survConcordance(target[-ind] ~ predictions[-ind, poio])$concordance
+      #out.perf[i] <- 1 - survival::survConcordance(target[-ind, ] ~ predictions[-ind, poio])$concordance
+      out.perf[i] <- Hmisc::rcorr.cens(target[-ind, ],predictions[-ind, poio])[1]
     }
     
   } else if (metric == "poisdev.mxm") {

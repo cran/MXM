@@ -45,7 +45,7 @@ __MMPC__ stands for __Max-Min Parents and Children__, a constraint based feature
 
 At its core, the __MMPC__ algorithm performs multiple conditional independance tests, and progressively excludes irrelevant and/or redundant variables. The final variables that have "survived" through all those elimination stages, are the __MMPC output signature__.
 
-The selection of the appropriate conditional independence test is a crucial decision for the validity and success of downstream statistical analysis and machine learning tasks. Currently the __MXM R package__  supports nummerous tests for different combinations of __target__ ( _dependent_ ) and __predictor__ ( _independent_ ) variables. A detailed summary table to guide you through the selection of the most suitable test is included in __MXM's__ reference manual ( _"CondInditional independence tests"_ ), which can be found here: <http://bit.ly/feature_selection_with_MXM_R_Package>.
+The selection of the appropriate conditional independence test is a crucial decision for the validity and success of downstream statistical analysis and machine learning tasks. Currently the __MXM R package__  supports nummerous tests for different combinations of __target__ ( _dependent_ ) and __predictor__ ( _independent_ ) variables. A detailed summary table to guide you through the selection of the most suitable test is included in __MXM's__ reference manual ( _"CondInditional independence tests"_ )
 
 
 ## The `MMPC()` function:  Required and optional arguments 
@@ -286,8 +286,7 @@ The desired hyperparameters to be checked can be given as vectors in the relativ
 # Grid Search for MMPC hyper-parameter tuning 
 
 library('MXM')
-mmpcGridSearch <- MXM::mmpc.path(
-                  target  = target_NonFlav,            
+mmpcGridSearch <- MXM::mmpc.path(target  = target_NonFlav,            
                   dataset = wine_dataset,            
                   max_ks = c(3,4,5,6),  # a vector of k to try
                   alphas = NULL,   # a vector of thresholds; 

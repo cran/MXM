@@ -401,9 +401,9 @@ fbed_cont_LR$res
 
 <pre><code>##   sel     stat       pval
 ## 1   7 3.681241  -8.077634
-## 3   3 4.847999 -12.795188
-## 4   5 4.107912  -9.694011
-## 5  11 2.087806  -3.262599
+## 2   3 4.847999 -12.795188
+## 3   5 4.107912  -9.694011
+## 4  11 2.087806  -3.262599
 </code></pre>
 
 <pre><code class="r">SelectedVars_names&lt;-colnames(wine_dataset[fbed_cont_LR$res[,1]])
@@ -428,7 +428,7 @@ SelectedVars_names
 <pre><code class="r">fbed_cont_LR$res[,2]
 </code></pre>
 
-<pre><code>##        1        3        4        5 
+<pre><code>##        1        2        3        4 
 ## 3.681241 4.847999 4.107912 2.087806
 </code></pre>
 
@@ -448,10 +448,9 @@ SelectedVars_names
 </code></pre>
 
 <pre><code>##     Number of vars Number of tests
-## K=0              2              19
-## K=1              4              13
-## K=2              5               8
-## K=3              5               7
+## K=0              3              25
+## K=1              4               9
+## K=2              4               8
 </code></pre>
 
 <p>The <code>info</code> matrix describes the number of variables and the number of tests performed (or models fitted) at each round (remember this value of <code>K</code> that in this example we set equal to 10? <em>Here</em> it did not reach K=10 neither with eBIC nor with LR. This happened because there were no difference after the 4th (eBIC) or 3rd (LR) run, so the algorithm stopped running earlier). We see that that LR applied one iteration less. For each <code>K</code> the number of selected variables is returned together with the number of tests performed. Therefore, we see that in the first step, 3 variables were already chosen by LR. </p>
@@ -468,8 +467,7 @@ SelectedVars_names
 <pre><code class="r">fbed_cont_LR$back.rem 
 </code></pre>
 
-<pre><code>## Vars 
-##    6
+<pre><code>## numeric(0)
 </code></pre>
 
 <p>By calling the <code>back.rem</code>, the variables that have been removed in the backward phase are returned. We see that both approaches did not remove any &ldquo;false positive&rdquo; variable.</p>
@@ -485,7 +483,7 @@ SelectedVars_names
 <pre><code class="r">fbed_cont_LR$back.n.tests 
 </code></pre>
 
-<pre><code>## [1] 9
+<pre><code>## [1] 4
 </code></pre>
 
 <p>We see that LR applied one test more during the backward phase. This is expected, since this method chose 4 variables (instead of 3 with eBIC) and all 4 have been checked.</p>
@@ -496,14 +494,14 @@ SelectedVars_names
 </code></pre>
 
 <pre><code>##    user  system elapsed 
-##     0.1     0.0     0.1
+##    0.06    0.00    0.06
 </code></pre>
 
 <pre><code class="r">fbed_cont_LR$runtime 
 </code></pre>
 
 <pre><code>##    user  system elapsed 
-##    0.02    0.00    0.01
+##       0       0       0
 </code></pre>
 
 <p>Since the dataset is small, we do not see any special runtime difference.</p>
@@ -749,14 +747,14 @@ SelectedVars_names
 </code></pre>
 
 <pre><code>##    user  system elapsed 
-##    0.51    0.00    0.55
+##    0.35    0.02    0.36
 </code></pre>
 
 <pre><code class="r">fbed_categorical_LR$runtime 
 </code></pre>
 
 <pre><code>##    user  system elapsed 
-##    0.75    0.00    0.84
+##    0.44    0.00    0.44
 </code></pre>
 
 <p>Really quick, since the dataset is small. </p>
@@ -788,9 +786,10 @@ fbed_cont_eBIC_manyK$mod$`K=1`
 </code></pre>
 
 <pre><code>##   Vars     stat log p-value
-## 1    7 8.237141  -30.806059
-## 3    3 5.039103  -13.658441
-## 4    5 3.870023   -8.778607
+## 1    7 3.681241   -8.077634
+## 2    3 4.847999  -12.795188
+## 3    5 4.107912   -9.694011
+## 4   11 2.087806   -3.262599
 </code></pre>
 
 <h1>Conclusion</h1>
@@ -810,7 +809,7 @@ Hope that you found this tutorial helpful.    </p>
 
 <pre><code>## R version 3.6.0 (2019-04-26)
 ## Platform: x86_64-w64-mingw32/x64 (64-bit)
-## Running under: Windows 10 x64 (build 17134)
+## Running under: Windows 10 x64 (build 16299)
 ## 
 ## Matrix products: default
 ## 
@@ -823,31 +822,38 @@ Hope that you found this tutorial helpful.    </p>
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] dplyr_0.8.1 MXM_1.4.4  
+## [1] dplyr_0.8.3 MXM_1.4.5  
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] Rfast2_0.0.2        tidyselect_0.2.5    xfun_0.7           
-##  [4] slam_0.1-45         sets_1.0-18         purrr_0.3.2        
-##  [7] splines_3.6.0       lattice_0.20-38     htmltools_0.3.6    
-## [10] survival_2.44-1.1   rlang_0.3.4         R.oo_1.22.0        
-## [13] nloptr_1.2.1        pillar_1.4.0        glue_1.3.1         
-## [16] R.utils_2.8.0       RcppZiggurat_0.1.5  foreach_1.4.4      
-## [19] R.cache_0.13.0      stringr_1.4.0       MatrixModels_0.4-1 
-## [22] bdsmatrix_1.3-3     R.methodsS3_1.7.1   visNetwork_2.0.6   
-## [25] htmlwidgets_1.3     codetools_0.2-16    evaluate_0.13      
-## [28] geepack_1.2-1       coxme_2.2-10        knitr_1.22         
-## [31] SparseM_1.77        doParallel_1.0.14   parallel_3.6.0     
-## [34] quantreg_5.38       Rfast_1.9.4         Rcpp_1.0.1         
-## [37] relations_0.6-8     jsonlite_1.6        R.rsp_0.43.1       
-## [40] lme4_1.1-21         digest_0.6.18       stringi_1.4.3      
-## [43] ordinal_2019.4-25   numDeriv_2016.8-1   grid_3.6.0         
-## [46] tools_3.6.0         magrittr_1.5        tibble_2.1.1       
-## [49] cluster_2.0.8       ucminf_1.1-4        bigmemory.sri_0.1.3
-## [52] bigmemory_4.5.33    crayon_1.3.4        pkgconfig_2.0.2    
-## [55] MASS_7.3-51.4       Matrix_1.2-17       energy_1.7-5       
-## [58] iterators_1.0.10    assertthat_0.2.1    minqa_1.2.4        
-## [61] R6_2.4.0            boot_1.3-22         nnet_7.3-12        
-## [64] nlme_3.1-139        compiler_3.6.0
+##  [1] foreach_1.4.4       jsonlite_1.6        splines_3.6.0      
+##  [4] R.utils_2.8.0       Formula_1.2-3       ucminf_1.1-4       
+##  [7] assertthat_0.2.1    latticeExtra_0.6-28 slam_0.1-45        
+## [10] numDeriv_2016.8-1   pillar_1.4.0        backports_1.1.4    
+## [13] lattice_0.20-38     quantreg_5.38       glue_1.3.1         
+## [16] digest_0.6.18       RColorBrewer_1.1-2  checkmate_1.9.4    
+## [19] minqa_1.2.4         colorspace_1.4-1    htmltools_0.3.6    
+## [22] Matrix_1.2-17       R.oo_1.22.0         Rfast2_0.0.4       
+## [25] pkgconfig_2.0.2     SparseM_1.77        purrr_0.3.2        
+## [28] relations_0.6-8     scales_1.0.0        lme4_1.1-21        
+## [31] MatrixModels_0.4-1  htmlTable_1.13.2    tibble_2.1.1       
+## [34] ggplot2_3.2.0       geepack_1.2-1       nnet_7.3-12        
+## [37] lazyeval_0.2.2      survival_2.44-1.1   magrittr_1.5       
+## [40] crayon_1.3.4        evaluate_0.13       ordinal_2019.4-25  
+## [43] R.methodsS3_1.7.1   doParallel_1.0.14   R.cache_0.13.0     
+## [46] nlme_3.1-139        MASS_7.3-51.4       foreign_0.8-71     
+## [49] R.rsp_0.43.1        RcppZiggurat_0.1.5  tools_3.6.0        
+## [52] coxme_2.2-10        data.table_1.12.2   energy_1.7-5       
+## [55] stringr_1.4.0       munsell_0.5.0       cluster_2.0.8      
+## [58] Rfast_1.9.6         compiler_3.6.0      rlang_0.4.0        
+## [61] grid_3.6.0          nloptr_1.2.1        iterators_1.0.10   
+## [64] rstudioapi_0.10     bigmemory.sri_0.1.3 htmlwidgets_1.3    
+## [67] visNetwork_2.0.6    base64enc_0.1-3     boot_1.3-22        
+## [70] codetools_0.2-16    gtable_0.3.0        sets_1.0-18        
+## [73] bigmemory_4.5.33    R6_2.4.0            gridExtra_2.3      
+## [76] knitr_1.22          bdsmatrix_1.3-3     zeallot_0.1.0      
+## [79] Hmisc_4.2-0         stringi_1.4.3       parallel_3.6.0     
+## [82] Rcpp_1.0.1          vctrs_0.2.0         rpart_4.1-15       
+## [85] acepack_1.4.1       tidyselect_0.2.5    xfun_0.7
 </code></pre>
 
 <h1>References {.unnumbered}</h1>

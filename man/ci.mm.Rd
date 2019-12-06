@@ -56,12 +56,12 @@ A vector including the test statistic, it's associated p-value and the relevant 
 }
 
 \references{
-Tsagris M., Borboudakis G., Lagani V. and Tsamardinos I. (2018). Constraint-based Causal Discovery with Mixed Data. 
-International Journal of Data Science and Analytics. 
+Tsagris M., Borboudakis G., Lagani V. and Tsamardinos I. (2018). Constraint-based Causal Discovery with Mixed Data. International Journal of Data Science and Analytics. 
 
-https://link.springer.com/content/pdf/10.1007%2Fs41060-018-0097-y.pdf
+\url{ https://link.springer.com/content/pdf/10.1007%2Fs41060-018-0097-y.pdf 
+}
  
-http://nugget.unisa.edu.au/CD2017/papersonly/constraint-based-causal-r1.pdf
+\url{ http://nugget.unisa.edu.au/CD2017/papersonly/constraint-based-causal-r1.pdf }
 
 Spirtes P.,  Glymour C. and Scheines R. (2001). Causation, Prediction, and Search. The MIT Press, Cambridge, MA, USA, 3nd edition.
 
@@ -71,7 +71,7 @@ Sedgewick, A. J., Ramsey, J. D., Spirtes, P., Glymour, C., & Benos, P. V. (2017)
 \author{
 Michail Tsagris
   
-R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
+R implementation and documentation: Michail Tsagris \email{mtsagris@uoc.gr}
 }
 
 %\note{

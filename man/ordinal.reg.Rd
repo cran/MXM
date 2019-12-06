@@ -54,7 +54,7 @@ Williams, R. (2006). Generalized ordered logit/partial proportional odds models 
 \author{
  Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
+R implementation and documentation: Michail Tsagris \email{mtsagris@uoc.gr}
 }
 
 %\note{

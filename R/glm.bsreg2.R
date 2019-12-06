@@ -1,4 +1,4 @@
-gammabsreg <- function(target, dataset, threshold = 0.05, wei = NULL) {
+glm.bsreg2 <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL) {
   
   threshold <- log(threshold)
   dm <- dim(dataset)
@@ -13,45 +13,38 @@ gammabsreg <- function(target, dataset, threshold = 0.05, wei = NULL) {
     res <- paste("The number of variables is hiher than the sample size. 
                  No backward procedure was attempted")
   } else {
-    #check for NA values in the dataset and replace them with the variable median or the mode
-    if ( any(is.na(dataset)) ) {
-      #dataset = as.matrix(dataset);
-      warning("The dataset contains missing values (NA) and they were replaced automatically by the variable (column) median (for numeric) or by the most frequent level (mode) if the variable is factor")
-      if ( is.matrix(dataset) )  {
-        dataset <- apply( dataset, 2, function(x){ x[which(is.na(x))] = median(x, na.rm = TRUE) ; return(x) } ) 
-      } else {
-        poia <- unique( which( is.na(dataset), arr.ind = TRUE )[, 2] )
-        for( i in poia )  {
-          xi <- dataset[, i]
-          if( is.numeric(xi) )   {                    
-            xi[ which( is.na(xi) ) ] <- median(xi, na.rm = TRUE) 
-          } else if ( is.factor( xi ) ) {
-            xi[ which( is.na(xi) ) ] <- levels(xi)[ which.max( as.vector( table(xi) ) )]
-          }
-          dataset[, i] <- xi
-        }
-      }
-    }
+
       runtime <- proc.time()
       dataset <- as.data.frame(dataset)
+      ci_test <- test
+      
+      if ( test == "testIndGamma" )  {
+        type <- Gamma(link = log)
+      } else if ( test == "testIndNormLog" )  {
+        type <- gaussian(link = log)
+      } else if ( test == "testIndQPois" )  {
+        type <- quasipoisson(link = log)
+      } else if ( test == "testIndQBinom" )  {
+        type <- quasibinomial(link = logit)
+      }
 
-      ini <- glm( target ~.,  data = dataset, family = Gamma(link = log), weights = wei, y = FALSE, model = FALSE )
+      ini <- glm( target ~.,  data = dataset, family = type, weights = wei, y = FALSE, model = FALSE )
       dofini <- length( ini$coefficients )
       tab <- drop1( ini, test = "F" )
       dof <- tab[-1, 1]
       stat <- tab[-1, 4]
         
-        mat <- cbind(1:p, pf( stat, dofini - dof, n - dof, lower.tail = FALSE, log.p = TRUE), stat )
-        colnames(mat) <- c("variable", "log.p-values", "statistic" )
-        rownames(mat) <- 1:p 
+      mat <- cbind(1:p, pf( stat, dofini - dof, n - dof, lower.tail = FALSE, log.p = TRUE), stat )
+      colnames(mat) <- c("variable", "log.p-values", "statistic" )
+      rownames(mat) <- 1:p 
         
-        sel <- which.max( mat[, 2] )
-        info <- matrix( c(0, -10, -10) , ncol = 3 )
-        sela <- sel 
+      sel <- which.max( mat[, 2] )
+      info <- matrix( c(0, -10, -10) , ncol = 3 )
+      sela <- sel 
         
         if ( mat[sel, 2] < threshold ) {
           runtime <- proc.time() - runtime
-          res <- list(runtime = runtime, info = matrix(0, 0, 3), mat = mat, ci_test = "testIndGamma", final = ini ) 
+          res <- list(runtime = runtime, info = matrix(0, 0, 3), mat = mat, ci_test = ci_test, final = ini ) 
           
         } else {
           
@@ -64,10 +57,10 @@ gammabsreg <- function(target, dataset, threshold = 0.05, wei = NULL) {
             while ( info[i, 2] > threshold  &  dim(dat)[2] > 0 )  {   
               i <- i + 1
               k <- p - i + 1
-              ini <- glm( target ~., data = dat, family = Gamma(link = log), weights = wei, y = FALSE, model = FALSE )
+              ini <- glm( target ~., data = dat, family = type, weights = wei, y = FALSE, model = FALSE )
               dofini <- length(ini$coefficients)
               if ( k == 1 ) {
-                mod <- glm(target ~ 1, data = dat, family = Gamma(link = log), weights = wei)
+                mod <- glm(target ~ 1, data = dat, family = type, weights = wei)
                 dof <- length( mod$coefficients ) 
                 stat <- (mod$deviance - ini$deviance) / (dofini - dof) / summary(mod)[[ 14 ]]
                 pval <- pf( stat, dofini - dof, n - dof, lower.tail = FALSE, log.p = TRUE)
@@ -105,7 +98,7 @@ gammabsreg <- function(target, dataset, threshold = 0.05, wei = NULL) {
 
         runtime <- proc.time() - runtime		
         info <- info[ info[, 1] > 0, , drop = FALSE]
-        res <- list( runtime = runtime, info = info, mat = mat, ci_test = "testIndGamma", final = final ) 
+        res <- list( runtime = runtime, info = info, mat = mat, ci_test = ci_test, final = final ) 
           
     }  
   }  

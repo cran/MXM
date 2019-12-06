@@ -50,9 +50,10 @@ A vector including the test statistic, it's associated p-value and the relevant 
 Tsagris M., Borboudakis G., Lagani V. and Tsamardinos I. (2018). Constraint-based Causal Discovery with Mixed Data. 
 International Journal of Data Science and Analytics. 
 
-https://link.springer.com/content/pdf/10.1007%2Fs41060-018-0097-y.pdf
+\url{https://link.springer.com/content/pdf/10.1007%2Fs41060-018-0097-y.pdf
+}
  
-http://nugget.unisa.edu.au/CD2017/papersonly/constraint-based-causal-r1.pdf
+\url{http://nugget.unisa.edu.au/CD2017/papersonly/constraint-based-causal-r1.pdf}
 
 Paik M.C. (1988). Repeated measurement analysis for nonnormal data in small samples. Communications in Statistics-Simulation and Computation, 17(4): 1155-1171.
 
@@ -66,7 +67,7 @@ Eugene Demidenko (2013). Mixed Models: Theory and Applications with R, 2nd Editi
 \author{
 Michail Tsagris
   
-R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>
+R implementation and documentation: Michail Tsagris \email{mtsagris@uoc.gr}
 }
 
 %\note{

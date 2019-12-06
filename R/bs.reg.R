@@ -61,8 +61,11 @@ bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
    ###  GLMs 
    ############
     if ( test == "testIndPois"  |  test == "testIndReg"  | test == "testIndLogistic"  | test == "testIndBinom" | test == "testIndMMReg" ) {
-     res <- glm.bsreg(target = target, dataset = dataset, wei = wei, threshold = exp( threshold ) ) 
-      
+     res <- glm.bsreg(target = target, dataset = dataset, wei = wei, threshold = exp( threshold ), test = test ) 
+     
+    } else if  ( test == "testIndGamma"  |  test == "testIndNormLog"  | test == "testIndQPois"  | test == "testIndQBinom" ) {
+      res <- glm.bsreg2(target = target, dataset = dataset, wei = wei, threshold = exp( threshold ), test = test ) 
+    
     } else  if ( test == "testIndFisher" ) {
       res <- cor.bsreg(target, dataset, threshold = exp( threshold ) ) 
         
@@ -71,25 +74,13 @@ bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
 	  
     } else if ( test == "testIndZIP" ) {
       res <- zip.bsreg(target = target, dataset = dataset, wei = wei, threshold = exp( threshold ) ) 	
-      
-    } else if ( test == "testIndGamma" ) {
-      res <- gammabsreg(target = target, dataset = dataset, wei = wei, threshold = exp( threshold )) 	
-      
-    } else if ( test == "testIndNormLog" ) {
-      res <- normlog.bsreg(target = target, dataset = dataset, wei = wei, threshold = exp( threshold ) ) 	
 
     } else if ( test == "testIndTobit" ) {
       res <- tobit.bsreg(target = target, dataset = dataset, wei = wei, threshold = exp( threshold ) ) 	
       
     } else if ( test == "testIndClogit" ) {
       res <- clogit.bsreg(target = target, dataset = dataset, wei = wei, threshold = exp( threshold ) ) 	
-      
-    } else if ( test == "testIndQPois" ) {
-      res <- quasipois.bsreg(target = target, dataset = dataset, wei = wei, threshold = exp( threshold ) ) 
-      
-    } else if ( test == "testIndQBinom" ) {
-      res <- quasibinom.bsreg(target = target, dataset = dataset, wei = wei, threshold = exp( threshold ) ) 
-      
+
 	  } else if ( test == "gSquare" ) {
 	    res <- bs.g2(target, dataset, threshold = exp( threshold ) )
 	    

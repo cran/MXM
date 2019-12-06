@@ -1,4 +1,4 @@
-fbed.lmm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0) { 
+fbed.lmm <- function(y, x, id, prior = NULL, univ = NULL, alpha = 0.05, wei = NULL, K = 0) { 
 
   dm <- dim(x)
   p <- dm[2]
@@ -14,27 +14,33 @@ fbed.lmm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0) {
   zevar <- Rfast::check_data(x)
   if ( sum( zevar > 0) > 0 )  x[, zevar] <- rnorm( n * length(zevar) )
   
+  priorindex <- NULL
+  if ( !is.null(prior) ) {
+    x <- cbind(x, prior)
+    priorindex <- c( (p + 1):dim(x)[2] )
+  }
+  
   runtime <- proc.time()
   
   if ( is.null(univ) ) {
-    if ( is.null(wei) ) {
+    if ( is.null(wei)  &  is.null(prior) ) {
       univ <- MXM::rint.regs(y, x, id = id)
       stat <- univ$stat
       pval <- univ$pvalue
       n.tests <- p
     } else {
       for ( i in ind ) {
-        fit2 <- lme4::lmer( y ~ x[, i] + (1|id), REML = FALSE, weights = wei )
+        fit2 <- lme4::lmer( y ~ x[, c(i, priorindex)] + (1|id), REML = FALSE, weights = wei )
         stat[i] <- summary(fit2)[[ 10 ]][2, 3]^2
       }
-      n.tests <- p
-      pval <- pf(stat, 1, n - 4, lower.tail = FALSE, log.p = TRUE)
-      univ <- list()
-      univ$stat <- stat
-      univ$pvalue <- pval
-      univ$stat[zevar] <- 0
-      univ$pvalue[zevar] <- 0
-    }  ##  end  if ( length(poios) == 0  &  is.null(wei) ) 
+    }  
+    pval <- pf(stat, 1, n - 4 - length(priorindex), lower.tail = FALSE, log.p = TRUE)
+    n.tests <- p
+    univ <- list()
+    univ$stat <- stat
+    univ$pvalue <- pval
+    univ$stat[zevar] <- 0
+    univ$pvalue[zevar] <- 0
   } else {
     n.tests <- 0
     stat <- univ$stat
@@ -54,7 +60,7 @@ fbed.lmm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0) {
     while ( sum(s>0) > 0 ) {
       d0 <- length(sela)
       for ( i in ind[s] )  {
-        fit2 <- lme4::lmer( y ~ x[, c(sela, i)] + (1|id), REML = FALSE, weights = wei )
+        fit2 <- lme4::lmer( y ~ x[, c(priorindex, sela, i)] + (1|id), REML = FALSE, weights = wei )
         d1 <- summary(fit2)[[3]]$dims[3]
         stat[i] <- summary(fit2)[[ 10 ]][d1, 3]^2
         param[i] <- d1 - d0
@@ -75,7 +81,7 @@ fbed.lmm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0) {
     if (K == 1) {
       d0 <- length(sela)
       for ( i in ind[-c(sela, zevar)] )  {
-        fit2 <- lme4::lmer( y ~ x[, c(sela, i)] + (1|id), REML = FALSE, weights = wei )
+        fit2 <- lme4::lmer( y ~ x[, c(priorindex, sela, i)] + (1|id), REML = FALSE, weights = wei )
         d1 <- summary(fit2)[[3]]$dims[3]
         stat[i] <- summary(fit2)[[ 10 ]][d1, 3]^2
         param[i] <- d1 - d0
@@ -92,7 +98,7 @@ fbed.lmm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0) {
       while ( sum(s>0) > 0 ) {
         d0 <- length(sela)
         for ( i in ind[s] )  {
-          fit2 <- lme4::lmer( y ~ x[, c(sela, i)] + (1|id), REML = FALSE, weights = wei )
+          fit2 <- lme4::lmer( y ~ x[, c(priorindex, sela, i)] + (1|id), REML = FALSE, weights = wei )
           d1 <- summary(fit2)[[3]]$dims[3]
           stat[i] <- summary(fit2)[[ 10 ]][d1, 3]^2
           param[i] <- d1 - d0
@@ -114,7 +120,7 @@ fbed.lmm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0) {
       
       d0 <- length(sela)
       for ( i in ind[-c(sela, zevar)] )  {
-        fit2 <- lme4::lmer( y ~ x[, c(sela, i)] + (1|id), REML = FALSE, weights = wei )
+        fit2 <- lme4::lmer( y ~ x[, c(priorindex, sela, i)] + (1|id), REML = FALSE, weights = wei )
         d1 <- summary(fit2)[[3]]$dims[3]
         stat[i] <- summary(fit2)[[ 10 ]][d1, 3]^2
         param[i] <- d1 - d0
@@ -132,7 +138,7 @@ fbed.lmm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0) {
       while ( sum(s > 0) > 0 ) {
         d0 <- length(sela)
         for ( i in ind[s] )  {
-          fit2 <- lme4::lmer( y ~ x[, c(sela, i)] + (1|id), REML = FALSE, weights = wei )
+          fit2 <- lme4::lmer( y ~ x[, c(priorindex, sela, i)] + (1|id), REML = FALSE, weights = wei )
           d1 <- summary(fit2)[[3]]$dims[3]
           stat[i] <- summary(fit2)[[ 10 ]][d1, 3]^2
           param[i] <- d1 - d0
@@ -154,7 +160,7 @@ fbed.lmm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0) {
         vim <- vim + 1
         d0 <- length(sela)
         for ( i in ind[-c(sela, zevar)] )  {
-          fit2 <- lme4::lmer( y ~ x[, c(sela, i)] + (1|id), REML = FALSE, weights = wei )
+          fit2 <- lme4::lmer( y ~ x[, c(priorindex, sela, i)] + (1|id), REML = FALSE, weights = wei )
           d1 <- summary(fit2)[[3]]$dims[3]
           stat[i] <- summary(fit2)[[ 10 ]][d1, 3]^2
           param[i] <- d1 - d0
@@ -171,7 +177,7 @@ fbed.lmm <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0) {
         while ( sum(s > 0) > 0 ) {
           d0 <- length(sela)
           for ( i in ind[s] )  {
-            fit2 <- lme4::lmer( y ~ x[, c(sela, i)] + (1|id), REML = FALSE, weights = wei )
+            fit2 <- lme4::lmer( y ~ x[, c(priorindex, sela, i)] + (1|id), REML = FALSE, weights = wei )
             d1 <- summary(fit2)[[3]]$dims[3]
             stat[i] <- summary(fit2)[[ 10 ]][d1, 3]^2
             param[i] <- d1 - d0

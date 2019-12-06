@@ -57,14 +57,14 @@ testIndQBinom = function(target, dataset, xIndex, csIndex, wei = NULL, univariat
           pvalue_hash[key] <- log(1);     #.set(pvalue_hash , key , 1)
         }
         results <- list(pvalue = log(1), stat = 0, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
-        return(results);
+        return(results)
       }
     } else { #more than one var
-      for (col in 1:dim(cs)[2]) {
+      for ( col in 1:dim(cs)[2] ) {
         if (identical(x, cs[, col]) ) {    #if(!any(x == cs) == FALSE
           if( hash ) {      #update hash objects
-            stat_hash[key] <- 0;   #.set(stat_hash , key , 0)
-            pvalue_hash[key] <- log(1);   #.set(pvalue_hash , key , 1)
+            stat_hash[key] <- 0    #.set(stat_hash , key , 0)
+            pvalue_hash[key] <- log(1)    #.set(pvalue_hash , key , 1)
           }
           results <- list(pvalue = log(1), stat = 0, stat_hash=stat_hash, pvalue_hash=pvalue_hash);
           return(results);

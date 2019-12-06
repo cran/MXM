@@ -63,7 +63,7 @@ starting from the smallest value (which selected most variables). The final colu
 \author{
 Michail Tsagris
 
-R implementation and documentation: Michail Tsagris <mtsagris@uoc.gr>. For more information see the "bigmemory" package.
+R implementation and documentation: Michail Tsagris \email{mtsagris@uoc.gr}. For more information see the "bigmemory" package.
 }
 
 \seealso{

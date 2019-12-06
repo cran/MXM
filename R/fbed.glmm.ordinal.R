@@ -1,11 +1,13 @@
-fbed.glmm.ordinal <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K = 0) { 
+fbed.glmm.ordinal <- function(y, x, id, prior = NULL, univ = NULL, alpha = 0.05, wei = NULL, K = 0) { 
 
   dm <- dim(x)
   p <- dm[2]
   n <- dm[1]
   ind <- 1:p
   sig <- log(alpha)
-  lik1 <- logLik( ordinal::clmm(y ~ 1 + (1|id), weights = wei) )
+  if ( is.null(prior) ) {
+    lik1 <- logLik( ordinal::clmm(y ~ 1 + (1|id), weights = wei) )
+  } else lik1 <- logLik( ordinal::clmm(y ~ prior + (1|id), weights = wei) )
   lik2 <- numeric(p)
   sela <- NULL
   card <- 0
@@ -15,11 +17,17 @@ fbed.glmm.ordinal <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K
   zevar <- Rfast::check_data(x)
   if ( sum( zevar > 0 ) > 0 )  x[, zevar] <- rnorm( n * length(zevar) )
   
+  priorindex <- NULL
+  if ( !is.null(prior) ) {
+    x <- cbind(x, prior)
+    priorindex <- c( (p + 1):dim(x)[2] )
+  }
+  
   runtime <- proc.time()
   
   if ( is.null(univ) ) {
     for ( i in ind ) {
-      fit2 <- ordinal::clmm( y ~ x[, i] + (1|id), weights = wei )
+      fit2 <- ordinal::clmm( y ~ x[, c(i, priorindex)] + (1|id), weights = wei )
       lik2[i] <- logLik( fit2 )
     }
     n.tests <- p
@@ -50,7 +58,7 @@ fbed.glmm.ordinal <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K
     #########
     while ( sum(s>0) > 0 ) {
       for ( i in ind[s] )  {
-        fit2 <- ordinal::clmm( y ~ x[, c(sela, i)] + (1|id), weights = wei )
+        fit2 <- ordinal::clmm( y ~ x[, c(priorindex, sela, i)] + (1|id), weights = wei )
         lik2[i] <- logLik( fit2 )
       }
       n.tests <- n.tests + length( ind[s] ) 
@@ -72,8 +80,8 @@ fbed.glmm.ordinal <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K
     
     if (K == 1) {
       for ( i in ind[-c(sela, zevar)] )  {
-        fit2 <- ordinal::clmm( y ~ x[, c(sela, i)] + (1|id), weights = wei )
-        lik2[i] <- logLik( fit2 )
+        fit2 <- ordinal::clmm( y ~ x[, c(priorindex, sela, i)] + (1|id), weights = wei )
+        lik2[i] <- logLik(fit2)
       }
       n.tests[2] <- length( ind[-c(sela, zevar)] )
       stat <- 2 * (lik2 - lik1)
@@ -90,8 +98,8 @@ fbed.glmm.ordinal <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K
       } 
       while ( sum(s>0) > 0 ) {
         for ( i in ind[s] )  {
-          fit2 <- ordinal::clmm( y ~ x[, c(sela, i)] + (1|id), weights = wei )
-          lik2[i] <- logLik( fit2 )
+          fit2 <- ordinal::clmm( y ~ x[, c(priorindex, sela, i)] + (1|id), weights = wei )
+          lik2[i] <- logLik(fit2)
         }
         n.tests[2] <- n.tests[2] + length( ind[s] )
         stat <- 2 * (lik2 - lik1)
@@ -113,8 +121,8 @@ fbed.glmm.ordinal <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K
     if ( K > 1) {
       
       for ( i in ind[-c(sela, zevar)] )  {
-        fit2 <- ordinal::clmm( y ~ x[, c(sela, i)] + (1|id), weights = wei )
-        lik2[i] <- logLik( fit2 )
+        fit2 <- ordinal::clmm( y ~ x[, c(priorindex, sela, i)] + (1|id), weights = wei )
+        lik2[i] <- logLik(fit2)
       }
       n.tests[2] <- length( ind[-c(sela, zevar)] ) 
       stat <- 2 * (lik2 - lik1)
@@ -131,8 +139,8 @@ fbed.glmm.ordinal <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K
       } 
       while ( sum(s > 0) > 0 ) {
         for ( i in ind[s] )  {
-          fit2 <- ordinal::clmm( y ~ x[, c(sela, i)] + (1|id), weights = wei )
-          lik2[i] <- logLik( fit2 )
+          fit2 <- ordinal::clmm( y ~ x[, c(priorindex, sela, i)] + (1|id), weights = wei )
+          lik2[i] <- logLik(fit2)
         }
         n.tests[2] <- n.tests[2] + length( ind[s] )  
         stat <- 2 * (lik2 - lik1)
@@ -154,8 +162,8 @@ fbed.glmm.ordinal <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K
       while ( vim < K  & card[vim + 1] - card[vim] > 0 ) {
         vim <- vim + 1
         for ( i in ind[-sela] )  {
-          fit2 <- ordinal::clmm( y ~ x[, c(sela, i)] + (1|id), weights = wei )
-          lik2[i] <- logLik( fit2 )
+          fit2 <- ordinal::clmm( y ~ x[, c(priorindex, sela, i)] + (1|id), weights = wei )
+          lik2[i] <- logLik(fit2)
         }
         n.tests[vim + 1] <- length( ind[-sela] )
         stat <- 2 * (lik2 - lik1)
@@ -172,8 +180,8 @@ fbed.glmm.ordinal <- function(y, x, id, univ = NULL, alpha = 0.05, wei = NULL, K
         }    
         while ( sum(s > 0) > 0 ) {
           for ( i in ind[s] )  {
-            fit2 <- ordinal::clmm( y ~ x[, c(sela, i)] + (1|id), weights = wei )
-            lik2[i] <- logLik( fit2 )
+            fit2 <- ordinal::clmm( y ~ x[, c(priorindex, sela, i)] + (1|id), weights = wei )
+            lik2[i] <- logLik(fit2)
           }
           n.tests[vim + 1] <- n.tests[vim + 1] + length( ind[s] )
           stat <- 2 * (lik2 - lik1)
