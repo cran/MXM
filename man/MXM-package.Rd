@@ -20,17 +20,17 @@ MMPC and SES can handle even thousands of variables and for some tests, even man
 The user is best advised to check his variables in the beginning. For some regressions, logistic and Poisson for example, 
 we have used C++ codes for speed reasons. 
 
-For more information the reader is addressed to Lagani V., Athineou G., Farcomeni A., Tsagris M. and Tsamardinos I. (2017). 
-Feature Selection with the R Package MXM: Discovering Statistically Equivalent Feature Subsets. Journal of Statistical Software, 
-80(7), doi:10.18637/jss.v080.i07.
+For more information the reader is addressed to 
+Lagani V., Athineou G., Farcomeni A., Tsagris M. and Tsamardinos I. (2017). Feature Selection with the R Package MXM: Discovering Statistically Equivalent Feature Subsets. Journal of Statistical Software, 80(7), doi:10.18637/jss.v080.i07 and 
+Tsagris, M. and Tsamardinos, I. (2019). Feature selection with the R package MXM. F1000Research 7: 1505.
 }
 
 \details{
 \tabular{ll}{
 Package: \tab MXM\cr
 Type: \tab Package\cr
-Version: \tab 1.4.5\cr
-Date: \tab 2019-12-06\cr
+Version: \tab 1.4.6\cr
+Date: \tab 2020-05-05\cr
 License: \tab GPL-2\cr
 }
 }
@@ -44,7 +44,22 @@ Michail Tsagris \email{mtsagris@uoc.gr}
 }
 
 \references{
+Tsagris, M. and Tsamardinos, I. (2019). Feature selection with the R package MXM. F1000Research 7: 1505
+
 Borboudakis G. and Tsamardinos I. (2019). Forward-backward selection with early dropping. Journal of Machine Learning Research, 20(8): 1-39.
+
+Tsagris, M. (2019). Bayesian Network Learning with the PC Algorithm: An Improved and Correct Variation. Applied Artificial Intelligence, 33(2):101-123.
+
+Tsagris, M., Lagani, V. and Tsamardinos, I. (2018). 
+Feature selection for high-dimensional temporal data. 
+BMC Bioinformatics, 19:17. 
+
+Tsagris, M., Borboudakis, G., Lagani, V. and Tsamardinos, I. (2018). 
+Constraint-based causal discovery with mixed data. International Journal 
+of Data Science and Analytics, 6(1): 19-30. 
+
+Tsagris, M., Papadovasilakis, Z., Lakiotaki, K. and Tsamardinos, I. (2018). 
+Efficient feature selection on gene expression data: Which algorithm to use? BioRxiv. 
 
 Chen S., Billings S. A., and Luo W. (1989). Orthogonal least squares methods and their application to non-linear system identification. 
 International Journal of control, 50(5), 1873-1896.

@@ -11,23 +11,23 @@ univariateScore.gee <- function(target, reps = NULL, group, dataset, test, wei, 
   }
     
   poia <- Rfast::check_data(dataset)
-  if ( sum(poia) > 0 )   ind[poia] <- 0
-
+  if ( sum(poia) > 0 )   dataset[, poia] <- rnorm(rows * length(poia) )    
+  
   univariateModels$pvalue <- numeric(cols) 
   univariateModels$stat <- numeric(cols)
-  test_results = NULL;
+  test_results <- NULL;
   if ( ncores == 1 | is.null(ncores) | ncores <= 0 ) {
     
     for(i in ind) {
       test_results <- test(target, reps, group, dataset, i, 0, wei = wei, correl = correl, se = se)
-      univariateModels$pvalue[[i]] <- test_results$pvalue;
-      univariateModels$stat[[i]] <- test_results$stat;
+      univariateModels$pvalue[[ i ]] <- test_results$pvalue;
+      univariateModels$stat[[ i ]] <- test_results$stat;
     } 
   } else {
     #require(doParallel, quiet = TRUE, warn.conflicts = FALSE)  
     cl <- makePSOCKcluster(ncores)
     registerDoParallel(cl)
-    test = test
+    test <- test
     mod <- foreach(i = ind, .combine = rbind, .export = c("geeglm", "ordgee"), .packages = "geepack") %dopar% {
       test_results = test(target, reps, group, dataset, i, 0, wei = wei, correl = correl, se = se)
       return( c(test_results$pvalue, test_results$stat) )
@@ -42,5 +42,10 @@ univariateScore.gee <- function(target, reps = NULL, group, dataset, test, wei, 
     univariateModels$pvalue[targetID] <- log(1)
   }
 
+  if ( sum(poia>0) > 0 ) {
+    univariateModels$stat[poia] <- 0
+    univariateModels$pvalue[poia] <- log(1)
+  }
+  
   univariateModels
 }

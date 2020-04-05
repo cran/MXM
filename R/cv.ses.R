@@ -271,8 +271,7 @@ auc.mxm <- function(predictions, test_target, theta = NULL) {
 # F score (binary)
 fscore.mxm <- function(predictions, test_target, theta = NULL) {
   test_target <- as.numeric( as.factor(test_target) ) - 1
-  predictions[predictions > 0.5] <- 1
-  predictions[predictions <= 0.5] <- 0
+  predictions <- round(predictions) 
   tab <- table(test_target, predictions)
   prec <- tab[2, 2]/(tab[2, 2] + tab[1, 2])
   rec <- tab[2, 2] / (tab[2, 2] + tab[2, 1])
@@ -282,8 +281,7 @@ fscore.mxm <- function(predictions, test_target, theta = NULL) {
 # euclid_sens.spec score (binary)
 euclid_sens.spec.mxm <- function(predictions, test_target, theta = NULL) {
   test_target <- as.numeric( as.factor(test_target) ) - 1
-  predictions[predictions > 0.5] <- 1
-  predictions[predictions <= 0.5] <- 0
+  predictions <- round(predictions) 
   tab <- table(test_target, predictions)
   spec <- tab[1, 1]/(tab[1, 1] + tab[1, 2])
   sens <- tab[2, 2] / (tab[2, 2] + tab[2, 1])

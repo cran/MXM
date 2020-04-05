@@ -21,13 +21,6 @@ vignette: |
   %\VignetteEncoding{UTF-8}
 ---
 
-<br>
-<br>
-<img src = 'https://s22.postimg.cc/rpuduutb5/image.png' width="500" height="1000" align="middle" />
-<br>
-<br> 
-
-
 # Introduction
   
   

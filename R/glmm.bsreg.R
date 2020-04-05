@@ -40,15 +40,15 @@ glmm.bsreg <- function(target, dataset, id, threshold = 0.05, wei = NULL, test =
     }
     ###################
     ###################
-    ini <- lme4::glmer( target ~ dataset + (1 | id), family = oiko, weights = wei )
+    ini <- lme4::glmer( target ~ dataset + (1 | id), family = oiko, weights = wei, nAGQ = 0 )
     likini <- logLik(ini) 
     stat <- numeric(p)
     if ( p == 1 )  {
-      mod <- lme4::glmer( target ~ 1 + (1 | id), family = oiko, weights = wei )
+      mod <- lme4::glmer( target ~ 1 + (1 | id), family = oiko, weights = wei, nAGQ = 0 )
       stat <- 2 * ( likini - logLik(mod) )	
 	  } else {
       for (j in 1:p) {
-        mod <- lme4::glmer( target ~ dataset[, -j, drop = FALSE] + (1 | id), family = oiko, weights = wei )
+        mod <- lme4::glmer( target ~ dataset[, -j, drop = FALSE] + (1 | id), family = oiko, weights = wei, nAGQ = 0 )
         stat[j] <- 2 * ( likini - logLik(mod) )
       }
     }  
@@ -73,13 +73,13 @@ glmm.bsreg <- function(target, dataset, id, threshold = 0.05, wei = NULL, test =
         
         while ( info[i, 2] > threshold  &  dim(dat)[2] > 0 )  {   
             
-          ini <- lme4::glmer( target ~ dat + (1 | id), family = oiko, weights = wei )
+          ini <- lme4::glmer( target ~ dat + (1 | id), family = oiko, weights = wei, nAGQ = 0 )
           likini <- logLik(ini) 
           i <- i + 1        
           k <- p - i + 1
             
           if ( k == 1 ) {
-            mod <- lme4::glmer(target ~ 1 + (1 | id), REML = FALSE, family = oiko, weights = wei)
+            mod <- lme4::glmer(target ~ 1 + (1 | id), REML = FALSE, family = oiko, weights = wei, nAGQ = 0 )
             stat <- 2 * ( likini - logLik(mod) )
             pval <- pchisq( stat, 1, lower.tail = FALSE, log.p = TRUE)
             
@@ -97,7 +97,7 @@ glmm.bsreg <- function(target, dataset, id, threshold = 0.05, wei = NULL, test =
             stat <- numeric(k)
               
             for (j in 1:k) {
-              mod <- lme4::glmer( target ~ dat[, -j, drop = FALSE] + (1 | id), family = oiko, weights = wei )
+              mod <- lme4::glmer( target ~ dat[, -j, drop = FALSE] + (1 | id), family = oiko, weights = wei, nAGQ = 0 )
               stat[j] <- 2 * ( likini - logLik(mod) )
             }
             mat[, 2:3] <- cbind( pchisq( stat, 1, lower.tail = FALSE, log.p = TRUE), stat )

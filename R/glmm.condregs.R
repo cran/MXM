@@ -86,25 +86,25 @@ glmm.condregs <- function(target, reps = NULL, id, dataset, xIndex, csIndex, tes
       cs <- dataset[, csIndex]
       
       if ( is.null(reps) ) {
-        lik1 <- logLik( lme4::glmer( target ~ (1|id) + cs, weights = wei, family = binomial ) )
+        lik1 <- logLik( lme4::glmer( target ~ (1|id) + cs, weights = wei, family = binomial, nAGQ = 0 ) )
         for (i in xIndex) {
-          fit2 <- lme4::glmer( target ~ (1|id) + cs + dataset[, i], weights = wei, family = binomial ) 
+          fit2 <- lme4::glmer( target ~ (1|id) + cs + dataset[, i], weights = wei, family = binomial, nAGQ = 0 ) 
           lik2[i] <- logLik(fit2)
         }
 
       } else {
         reps <- reps 
         if ( slopes ) {
-          lik1 <- logLik( lme4::glmer( target ~ reps + (reps|id) + cs, weights = wei, family = binomial ) )
+          lik1 <- logLik( lme4::glmer( target ~ reps + (reps|id) + cs, weights = wei, family = binomial, nAGQ = 0 ) )
           for (i in xIndex) {
-            fit2 <- lme4::glmer( target ~ reps + (reps|id) + cs + dataset[, i], weights = wei, family = binomial ) 
+            fit2 <- lme4::glmer( target ~ reps + (reps|id) + cs + dataset[, i], weights = wei, family = binomial, nAGQ = 0 ) 
             lik2[i] <- logLik(fit2)
           }  ##  end for (i in xIndex)  
         } else {  ###  yes slopes
           reps <- reps 
-          lik1 <- logLik( lme4::glmer( target ~ reps + (1|id) + cs, weights = wei, family = binomial ) )
+          lik1 <- logLik( lme4::glmer( target ~ reps + (1|id) + cs, weights = wei, family = binomial, nAGQ = 0 ) )
           for (i in xIndex) {
-            fit2 <- lme4::glmer( target ~ reps + (1|id) + cs + dataset[, i], weights = wei, family = binomial ) 
+            fit2 <- lme4::glmer( target ~ reps + (1|id) + cs + dataset[, i], weights = wei, family = binomial, nAGQ = 0 ) 
             lik2[i] <- logLik(fit2)
           }  ##  end for (i in xIndex)
         }  ##  end if  slopes
@@ -118,25 +118,25 @@ glmm.condregs <- function(target, reps = NULL, id, dataset, xIndex, csIndex, tes
       cs <- dataset[, csIndex]
       
       if ( is.null(reps) ) {
-        lik1 <- logLik( lme4::glmer( target ~ (1|id) + cs, weights = wei, family = poisson ) )
+        lik1 <- logLik( lme4::glmer( target ~ (1|id) + cs, weights = wei, family = poisson, nAGQ = 0 ) )
         for (i in xIndex) {
-          fit2 <- lme4::glmer( target ~ (1|id) + cs + dataset[, i], weights = wei, family = poisson ) 
+          fit2 <- lme4::glmer( target ~ (1|id) + cs + dataset[, i], weights = wei, family = poisson, nAGQ = 0 ) 
           lik2[i] <- logLik(fit2)
         }
         
       } else {
         reps <- reps 
         if ( slopes ) {
-          lik1 <- logLik( lme4::glmer( target ~ reps + (reps|id) + cs, weights = wei, family = poisson ) )
+          lik1 <- logLik( lme4::glmer( target ~ reps + (reps|id) + cs, weights = wei, family = poisson, nAGQ = 0 ) )
           for (i in xIndex) {
-            fit2 <- lme4::glmer( target ~ reps + (reps|id) + cs + dataset[, i], weights = wei, family = poisson ) 
+            fit2 <- lme4::glmer( target ~ reps + (reps|id) + cs + dataset[, i], weights = wei, family = poisson, nAGQ = 0 ) 
             lik2[i] <- logLik(fit2)
           }  ##  end for (i in xIndex)  
         } else {  ###  yes slopes
           reps <- reps 
-          lik1 <- logLik( lme4::glmer( target ~ reps + (1|id) + cs, weights = wei, family = poisson ) )
+          lik1 <- logLik( lme4::glmer( target ~ reps + (1|id) + cs, weights = wei, family = poisson, nAGQ = 0 ) )
           for (i in xIndex) {
-            fit2 <- lme4::glmer( target ~ reps + (1|id) + cs + dataset[, i], weights = wei, family = poisson) 
+            fit2 <- lme4::glmer( target ~ reps + (1|id) + cs + dataset[, i], weights = wei, family = poisson, nAGQ = 0 ) 
             lik2[i] <- logLik(fit2)
           }  ##  end for (i in xIndex)
         }  ##  end if  slopes
@@ -150,25 +150,25 @@ glmm.condregs <- function(target, reps = NULL, id, dataset, xIndex, csIndex, tes
       cs <- dataset[, csIndex]
       
       if ( is.null(reps) ) {
-        lik1 <- logLik( lme4::glmer( target ~ (1|id) + cs, weights = wei, family = Gamma(log) ) )
+        lik1 <- logLik( lme4::glmer( target ~ (1|id) + cs, weights = wei, family = Gamma(log), nAGQ = 0 ) )
         for (i in xIndex) {
-          fit2 <- lme4::glmer( target ~ (1|id) + cs + dataset[, i], weights = wei, family = Gamma(log) ) 
+          fit2 <- lme4::glmer( target ~ (1|id) + cs + dataset[, i], weights = wei, family = Gamma(log), nAGQ = 0 ) 
           lik2[i] <- logLik(fit2)
         }
         
       } else {
         reps <- reps 
         if ( slopes ) {
-          lik1 <- logLik( lme4::glmer( target ~ reps + (reps|id) + cs, weights = wei, family = Gamma(log) ) )
+          lik1 <- logLik( lme4::glmer( target ~ reps + (reps|id) + cs, weights = wei, family = Gamma(log), nAGQ = 0 ) )
           for (i in xIndex) {
-            fit2 <- lme4::glmer( target ~ reps + (reps|id) + cs + dataset[, i], weights = wei, family = Gamma(log) ) 
+            fit2 <- lme4::glmer( target ~ reps + (reps|id) + cs + dataset[, i], weights = wei, family = Gamma(log), nAGQ = 0 ) 
             lik2[i] <- logLik(fit2)
           }  ##  end for (i in xIndex)  
         } else {  ###  yes slopes
           reps <- reps 
-          lik1 <- logLik( lme4::glmer( target ~ reps + (1|id) + cs, weights = wei, family = Gamma(log) ) )
+          lik1 <- logLik( lme4::glmer( target ~ reps + (1|id) + cs, weights = wei, family = Gamma(log), nAGQ = 0 ) )
           for (i in xIndex) {
-            fit2 <- lme4::glmer( target ~ reps + (1|id) + cs + dataset[, i], weights = wei, family = Gamma(log) ) 
+            fit2 <- lme4::glmer( target ~ reps + (1|id) + cs + dataset[, i], weights = wei, family = Gamma(log), nAGQ = 0 ) 
             lik2[i] <- logLik(fit2)
           }  ##  end for (i in xIndex)
         }  ##  end if  slopes
@@ -182,25 +182,25 @@ glmm.condregs <- function(target, reps = NULL, id, dataset, xIndex, csIndex, tes
       cs <- dataset[, csIndex]
       
       if ( is.null(reps) ) {
-        lik1 <- logLik( lme4::glmer( target ~ (1|id) + cs, weights = wei, family = gaussian(log) ) )
+        lik1 <- logLik( lme4::glmer( target ~ (1|id) + cs, weights = wei, family = gaussian(log), nAGQ = 0 ) )
         for (i in xIndex) {
-          fit2 <- lme4::glmer( target ~ (1|id) + cs + dataset[, i], weights = wei, family = gaussian(log) ) 
+          fit2 <- lme4::glmer( target ~ (1|id) + cs + dataset[, i], weights = wei, family = gaussian(log), nAGQ = 0 ) 
           lik2[i] <- logLik(fit2)
         }
         
       } else {
         reps <- reps 
         if ( slopes ) {
-          lik1 <- logLik( lme4::glmer( target ~ reps + (reps|id) + cs, weights = wei, family = gaussian(log) ) )
+          lik1 <- logLik( lme4::glmer( target ~ reps + (reps|id) + cs, weights = wei, family = gaussian(log), nAGQ = 0 ) )
           for (i in xIndex) {
-            fit2 <- lme4::glmer( target ~ reps + (reps|id) + cs + dataset[, i], weights = wei, family = gaussian(log) ) 
+            fit2 <- lme4::glmer( target ~ reps + (reps|id) + cs + dataset[, i], weights = wei, family = gaussian(log), nAGQ = 0 ) 
             lik2[i] <- logLik(fit2)
           }  ##  end for (i in xIndex)  
         } else {  ###  yes slopes
           reps <- reps 
-          lik1 <- logLik( lme4::glmer( target ~ reps + (1|id) + cs, weights = wei, family = gaussian(log) ) )
+          lik1 <- logLik( lme4::glmer( target ~ reps + (1|id) + cs, weights = wei, family = gaussian(log), nAGQ = 0 ) )
           for (i in xIndex) {
-            fit2 <- lme4::glmer( target ~ reps + (1|id) + cs + dataset[, i], weights = wei, family = gaussian(log) ) 
+            fit2 <- lme4::glmer( target ~ reps + (1|id) + cs + dataset[, i], weights = wei, family = gaussian(log), nAGQ = 0 ) 
             lik2[i] <- logLik(fit2)
           }  ##  end for (i in xIndex)
         }  ##  end if  slopes

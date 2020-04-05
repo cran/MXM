@@ -4,7 +4,7 @@ wald.betaregs <- function(target, dataset, wei = NULL, check = FALSE, logged = F
   D <- dm[2]
   if (check) {
     id <- which( Rfast::colrange(dataset) == 0 )
-    if ( length(id) > 0 )  dataset[, id] <- rnorm( length(target) * length(id) )
+    if ( length(id) > 0 )  dataset[, id] <- rnorm( dm[1] )
   }
   
   if ( ncores <= 1 ) {
@@ -24,7 +24,7 @@ wald.betaregs <- function(target, dataset, wei = NULL, check = FALSE, logged = F
     iniphi <- log( sum(a$param) )
     stat <- numeric(D)
     id <- which( Rfast::colVars(dataset) == 0 )
-    if ( length(id) > 0 )  dataset[, id] <- target
+    if ( length(id) > 0 )  dataset[, id] <- rnorm(n) 
     
     if ( is.null(wei) ) {
       for (i in 1:D) {

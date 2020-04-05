@@ -1,3 +1,4 @@
+
 ebic.nb.bsreg <- function(target, dataset, wei = NULL, gam = NULL) {
 
   dm <- dim(dataset)

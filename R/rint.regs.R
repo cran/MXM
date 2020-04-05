@@ -10,10 +10,7 @@ rint.regs <- function(target, dataset, targetID = -1, id, reps = NULL, tol = 1e-
     target <- dataset[, targetID]
     dataset[, targetID] <- rnorm(n)
   }   
-  poia <- NULL
-  poia <- Rfast::check_data(dataset)
-  if ( sum(poia > 0) )  ind[poia] <- 0
-  
+
   if ( is.null(reps) ) {
     mod <- Rfast::rint.regs(target, dataset, id, logged = TRUE)
     mod[ is.na(mod) ] <- 0
@@ -21,7 +18,10 @@ rint.regs <- function(target, dataset, targetID = -1, id, reps = NULL, tol = 1e-
     univariateModels$pvalue <- mod[, 2]  ## pf(stat, 1, n - 4, lower.tail = FALSE, log.p = TRUE)
     
   } else {
-    
+    poia <- NULL
+    poia <- Rfast::check_data(dataset)
+    if ( sum(poia) > 0 )   dataset[, poia] <- rnorm(n) 
+
     sy <- as.vector( rowsum(target, id) )
     ni <- tabulate(id)
     my <- sy / ni
@@ -65,6 +65,11 @@ rint.regs <- function(target, dataset, targetID = -1, id, reps = NULL, tol = 1e-
     
     univariateModels$stat <- stat
     univariateModels$pvalue <- pf(stat, 1, n - 5, lower.tail = FALSE, log.p = TRUE)
+    
+    if ( sum(poia>0) > 0 ) {
+      univariateModels$stat[poia] <- 0
+      univariateModels$pvalue[poia] <- log(1)
+    }
     
   }  ## else if ( is.null(reps) )
 

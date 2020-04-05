@@ -7,13 +7,13 @@ glmm.ci.mm <- function(ind1, ind2, cs = NULL, dat, group) {
   if ( is.null(cs) ) {
     dof <- 1
     if ( Rfast::sort_unique.length(y) == 2 ) {
-      mod1 <- lme4::glmer(y ~ x + (1|group), family = "binomial")
-      mod0 <- lme4::glmer(y ~ 1 + (1|group), family = "binomial")
+      mod1 <- lme4::glmer( y ~ x + (1|group), family = "binomial", nAGQ = 0 )
+      mod0 <- lme4::glmer( y ~ 1 + (1|group), family = "binomial", nAGQ = 0 )
       t1 <- anova(mod0, mod1)[2, 6]
       p1 <- pchisq(t1, 1, lower.tail = FALSE, log.p = TRUE)
     } else if ( sum(round(y) - y) == 0 ) {
-      mod1 <- lme4::glmer(y ~ x + (1|group), family = "poisson")
-      mod0 <- lme4::glmer(y ~ 1 + (1|group), family = "poisson")
+      mod1 <- lme4::glmer( y ~ x + (1|group), family = "poisson", nAGQ = 0 )
+      mod0 <- lme4::glmer( y ~ 1 + (1|group), family = "poisson", nAGQ = 0 )
       t1 <- anova(mod0, mod1)[2, 6]
       p1 <- pchisq(t1, 1, lower.tail = FALSE, log.p = TRUE)
     } else {
@@ -29,13 +29,13 @@ glmm.ci.mm <- function(ind1, ind2, cs = NULL, dat, group) {
     }  ## end if ( Rfast::sort_unique.length(y) == 2 ) 
     
     if ( Rfast::sort_unique.length(x) == 2 ) {
-      mod2 <- lme4::glmer(x ~ y + (1|group), family = "binomial")
-      mod0 <- lme4::glmer(x ~ 1 + (1|group), family = "binomial")
+      mod2 <- lme4::glmer( x ~ y + (1|group), family = "binomial", nAGQ = 0 )
+      mod0 <- lme4::glmer( x ~ 1 + (1|group), family = "binomial", nAGQ = 0 )
       t2 <- anova(mod0, mod2)[2, 6]
       p2 <- pchisq(t2, 1, lower.tail = FALSE, log.p = TRUE)
     } else if ( sum(round(x) - x) == 0 ) {
-      mod2 <- lme4::glmer(x ~ y + (1|group), family = "poisson")
-      mod0 <- lme4::glmer(x ~ 1 + (1|group), family = "poisson")
+      mod2 <- lme4::glmer( x ~ y + (1|group), family = "poisson", nAGQ = 0 )
+      mod0 <- lme4::glmer( x ~ 1 + (1|group), family = "poisson", nAGQ = 0 )
       t2 <- anova(mod0, mod2)[2, 6]
       p2 <- pchisq(t2, 1, lower.tail = FALSE, log.p = TRUE)
     } else {
@@ -55,13 +55,13 @@ glmm.ci.mm <- function(ind1, ind2, cs = NULL, dat, group) {
     z <- dat[, cs]
     dof <- 1
     if ( Rfast::sort_unique.length(y) == 2 ) {
-      mod1 <- lme4::glmer(y ~ z + x + (1|group), family = "binomial")
-      mod0 <- lme4::glmer(y ~ z + (1|group), family = "binomial")
+      mod1 <- lme4::glmer( y ~ z + x + (1|group), family = "binomial", nAGQ = 0 )
+      mod0 <- lme4::glmer( y ~ z + (1|group), family = "binomial", nAGQ = 0 )
       t1 <- anova(mod0, mod1)[2, 6]
       p1 <- pchisq(t1, 1, lower.tail = FALSE, log.p = TRUE)
     } else if ( sum(round(y) - y) == 0 ) {
-      mod1 <- lme4::glmer(y ~ z + x + (1|group), family = "poisson")
-      mod0 <- lme4::glmer(y ~ z + (1|group), family = "poisson")
+      mod1 <- lme4::glmer( y ~ z + x + (1|group), family = "poisson", nAGQ = 0 )
+      mod0 <- lme4::glmer( y ~ z + (1|group), family = "poisson", nAGQ = 0 )
       t1 <- anova(mod0, mod1)[2, 6]
       p1 <- pchisq(t1, 1, lower.tail = FALSE, log.p = TRUE)
     } else {
@@ -78,13 +78,13 @@ glmm.ci.mm <- function(ind1, ind2, cs = NULL, dat, group) {
     }  ## end if ( Rfast::sort_unique.length(y) == 2 )
     
     if ( Rfast::sort_unique.length(x) == 2 ) {
-      mod2 <- lme4::glmer(x ~ z + y + (1|group), family = "binomial")
-      mod0 <- lme4::glmer(x ~ z + (1|group), family = "binomial")
+      mod2 <- lme4::glmer( x ~ z + y + (1|group), family = "binomial", nAGQ = 0 )
+      mod0 <- lme4::glmer( x ~ z + (1|group), family = "binomial", nAGQ = 0 )
       t2 <- anova(mod0, mod2)[2, 6]
       p2 <- pchisq(t2, 1, lower.tail = FALSE, log.p = TRUE)
     } else if ( sum(round(x) - x) == 0 ) {
-      mod2 <- lme4::glmer(x ~ z + y + (1|group), family = "poisson")
-      mod0 <- lme4::glmer(x ~ z + (1|group), family = "poisson")
+      mod2 <- lme4::glmer( x ~ z + y + (1|group), family = "poisson", nAGQ = 0 )
+      mod0 <- lme4::glmer( x ~ z + (1|group), family = "poisson", nAGQ = 0 )
       t2 <- anova(mod0, mod2)[2, 6]
       p2 <- pchisq(t2, 1, lower.tail = FALSE, log.p = TRUE)
     } else {  

@@ -110,7 +110,7 @@ testIndGLMMReg <- function(target, reps = NULL, group, dataset, xIndex, csIndex,
   }
   #calculate the p value and stat.
   dcs <- length(csIndex) + 1
-  if ( dcs < summary(fit2)[[ 3 ]]$dims[3] ) {
+  if ( dcs <= summary(fit2)[[ 3 ]]$dims[3] ) {
     mod <- anova(fit2)
     v2 <- as.numeric( summary(fit2)[[14]][5] )
     pr <- nrow(mod) 

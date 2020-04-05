@@ -32,7 +32,7 @@ glmm.mmhc.skel <- function(dataset, group, max_k = 3, threshold = 0.05, test = "
       pa <- proc.time()
       for (i in 1:n) {
         if ( !is.null(ini.pvalue) )   ini$pvalue <- ini.pvalue[i, ]
-        a <- MMPC.glmm(i, group = group, dataset = dataset, max_k = max_k, threshold = threshold, hash = hash, test = test, ini = ini)
+        a <- MXM::MMPC.glmm(i, group = group, dataset = dataset, max_k = max_k, threshold = threshold, hash = hash, test = test, ini = ini)
         ini.pval[i, ] <- a@univ$pvalue
         pvalue[i, ] <- a@pvalues
         sel <- a@selectedVars
@@ -49,7 +49,7 @@ glmm.mmhc.skel <- function(dataset, group, max_k = 3, threshold = 0.05, test = "
       mod <- foreach(i = 1:n, .combine = rbind, .export = c("MMPC.glmm") ) %dopar% {
         sel <- numeric(n)
         if ( !is.null(ini.pvalue) )   ini$pvalue <- ini.pvalue[i, ]
-        a <- MMPC.glmm(i, group = group, dataset = dataset, max_k = max_k, threshold = threshold, hash = hash, test = test, ini = ini)
+        a <- MXM::MMPC.glmm(i, group = group, dataset = dataset, max_k = max_k, threshold = threshold, hash = hash, test = test, ini = ini)
         sel[a@selectedVars] <- 1
         return( c(a@n.tests, sel, a@pvalues, a@univ$pvalue) )
       }
@@ -70,7 +70,7 @@ glmm.mmhc.skel <- function(dataset, group, max_k = 3, threshold = 0.05, test = "
       pa <- proc.time()
       for (i in 1:n) {
         if ( !is.null(ini.pvalue) )   ini$pvalue <- ini.pvalue[i, ]
-        a <- SES.glmm(i, group = group, dataset = dataset, max_k = max_k, threshold = threshold, hash = hash, test = test, ini = ini)
+        a <- MXM::SES.glmm(i, group = group, dataset = dataset, max_k = max_k, threshold = threshold, hash = hash, test = test, ini = ini)
         ini.pval[i, ] <- a@univ$pvalue
         poies <- a@signatures
         ms[i] <- dim(poies)[1]
@@ -91,7 +91,7 @@ glmm.mmhc.skel <- function(dataset, group, max_k = 3, threshold = 0.05, test = "
         ## arguments order for any CI test are fixed
         sel <- numeric(n)
         if ( !is.null(ini.pvalue) )   ini$pvalue <- ini.pvalue[i, ]
-        a <- SES.glmm(i, group = group, dataset = dataset, max_k = max_k, threshold = threshold, hash = hash, test = test, ini = ini)
+        a <- MXM::SES.glmm(i, group = group, dataset = dataset, max_k = max_k, threshold = threshold, hash = hash, test = test, ini = ini)
         poies <- a@signatures
         sel[ unique(poies) ] <- 1
         return( c(a@n.tests, dim(poies)[1], sel, a@pvalues, a@univ$pvalue) ) 

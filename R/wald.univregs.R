@@ -7,12 +7,12 @@ wald.univregs <- function(target, dataset, targetID = - 1, test = NULL, user_tes
   cols <- dm[2]
   if (targetID != -1 )   {
     target <- dataset[, targetID]
-    dataset[, targetID] <- rnorm(length(target) )
+    dataset[, targetID] <- rnorm(rows)
   }  
   ina <- NULL
   id <- NULL
   id <- Rfast::check_data(dataset)
-  if ( sum(id > 0) )  dataset[, id] <- rnorm(rows * length(id) )
+  if ( sum(id > 0) )  dataset[, id] <- rnorm(rows)
   
   if ( !is.null(user_test) ) {
     univariateModels <- wald.univariateScore(target, dataset, test = user_test, wei, targetID)

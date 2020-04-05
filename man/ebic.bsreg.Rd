@@ -79,11 +79,8 @@ R implementation and documentation: Michail Tsagris \email{mtsagris@uoc.gr}
 }
 
 \examples{
-#simulate a dataset with continuous data
-dataset <- matrix( runif(100 * 20, 1, 100), ncol = 20 )
-#define a simulated class variable 
+dataset <- matrix( runif(100 * 15, 1, 100), ncol = 15 )
 target <- rt(100, 10)
-
 a1 <- ebic.bsreg(target, dataset, test = "testIndReg") 
 target <- rpois(100, 10)
 a2 <- ebic.bsreg(target, dataset, test = "testIndPois") 

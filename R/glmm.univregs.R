@@ -12,18 +12,15 @@ glmm.univregs <- function(target, reps = NULL, id, dataset, targetID = -1, test,
     stat <- numeric(cols)
     poia <- Rfast::check_data(dataset)
     
-    if ( sum(poia) > 0 )  {
-      stat[poia] <- 0
-      ind[poia] <- 0
-    }
+    if ( sum(poia) > 0 )  dataset[, poia] <- rnorm( dim(dataset)[1] )
   
     ### Logistic GLMM    
     if ( identical(test, testIndGLMMLogistic) ) {
       
       if ( is.null(reps) ) {
-        fit1 <- lme4::glmer( target ~ (1|id), weights = wei, family = binomial ) 
+        fit1 <- lme4::glmer( target ~ (1|id), weights = wei, family = binomial, nAGQ = 0 ) 
         for (i in ind) {
-          fit2 <- lme4::glmer( target ~ (1|id) + dataset[, i], weights = wei, family = binomial ) 
+          fit2 <- lme4::glmer( target ~ (1|id) + dataset[, i], weights = wei, family = binomial, nAGQ = 0 ) 
           mod <- anova(fit1, fit2)
           stat[i] <- mod[2, 6]
         }
@@ -31,17 +28,17 @@ glmm.univregs <- function(target, reps = NULL, id, dataset, targetID = -1, test,
       } else {
         reps <- reps 
         if ( slopes ) {
-          fit1 <- lme4::glmer( target ~ reps + (reps|id), weights = wei, family = binomial ) 
+          fit1 <- lme4::glmer( target ~ reps + (reps|id), weights = wei, family = binomial, nAGQ = 0 ) 
           for (i in ind) {
-            fit2 <- lme4::glmer( target ~ reps + (reps|id) + dataset[, i], weights = wei, family = binomial ) 
+            fit2 <- lme4::glmer( target ~ reps + (reps|id) + dataset[, i], weights = wei, family = binomial, nAGQ = 0 ) 
             mod <- anova(fit1, fit2)
             stat[i] <- mod[2, 6]
           }  ##  end for (i in ind)  
         } else {  ###  yes slopes
           reps <- reps 
-          fit1 <- lme4::glmer( target ~ reps + (1|id), weights = wei, family = binomial )  
+          fit1 <- lme4::glmer( target ~ reps + (1|id), weights = wei, family = binomial, nAGQ = 0 )  
           for (i in ind) {
-            fit2 <- lme4::glmer( target ~ reps + (1|id) + dataset[, i], weights = wei, family = binomial ) 
+            fit2 <- lme4::glmer( target ~ reps + (1|id) + dataset[, i], weights = wei, family = binomial, nAGQ = 0 ) 
             mod <- anova(fit1, fit2)
             stat[i] <- mod[2, 6]
           }  ##  end for (i in ind)
@@ -52,9 +49,9 @@ glmm.univregs <- function(target, reps = NULL, id, dataset, targetID = -1, test,
     } else if ( identical(test, testIndGLMMPois) ) {
     
       if ( is.null(reps) ) {
-        fit1 <- lme4::glmer( target ~ (1|id), weights = wei, family = poisson ) 
+        fit1 <- lme4::glmer( target ~ (1|id), weights = wei, family = poisson, nAGQ = 0 ) 
         for (i in ind) {
-          fit2 <- lme4::glmer( target ~ (1|id) + dataset[, i], weights = wei, family = poisson ) 
+          fit2 <- lme4::glmer( target ~ (1|id) + dataset[, i], weights = wei, family = poisson, nAGQ = 0 ) 
           mod <- anova(fit1, fit2)
           stat[i] <- mod[2, 6]
         }
@@ -62,17 +59,17 @@ glmm.univregs <- function(target, reps = NULL, id, dataset, targetID = -1, test,
       } else {
         reps <- reps 
         if ( slopes ) {
-          fit1 <- lme4::glmer( target ~ reps + (reps|id), weights = wei, family = poisson ) 
+          fit1 <- lme4::glmer( target ~ reps + (reps|id), weights = wei, family = poisson, nAGQ = 0 ) 
           for (i in ind) {
-            fit2 <- lme4::glmer( target ~ reps + (reps|id) + dataset[, i], weights = wei, family = poisson ) 
+            fit2 <- lme4::glmer( target ~ reps + (reps|id) + dataset[, i], weights = wei, family = poisson, nAGQ = 0 ) 
             mod <- anova(fit1, fit2)
             stat[i] <- mod[2, 6]
           }  ##  end for (i in ind)  
         } else {  ###  yes slopes
           reps <- reps 
-          fit1 <- lme4::glmer( target ~ reps + (1|id), weights = wei, family = poisson )  
+          fit1 <- lme4::glmer( target ~ reps + (1|id), weights = wei, family = poisson, nAGQ = 0 )  
           for (i in ind) {
-            fit2 <- lme4::glmer( target ~ reps + (1|id) + dataset[, i], weights = wei, family = poisson ) 
+            fit2 <- lme4::glmer( target ~ reps + (1|id) + dataset[, i], weights = wei, family = poisson, nAGQ = 0 ) 
             mod <- anova(fit1, fit2)
             stat[i] <- mod[2, 6]
           }  ##  end for (i in ind)
@@ -83,9 +80,9 @@ glmm.univregs <- function(target, reps = NULL, id, dataset, targetID = -1, test,
     } else if ( identical(test, testIndGLMMGamma) ) {
     
       if ( is.null(reps) ) {
-        fit1 <- lme4::glmer( target ~ (1|id), weights = wei, family = Gamma(log) ) 
+        fit1 <- lme4::glmer( target ~ (1|id), weights = wei, family = Gamma(log), nAGQ = 0 ) 
         for (i in ind) {
-          fit2 <- lme4::glmer( target ~ (1|id) + dataset[, i], weights = wei, family = Gamma(log) ) 
+          fit2 <- lme4::glmer( target ~ (1|id) + dataset[, i], weights = wei, family = Gamma(log), nAGQ = 0 ) 
           mod <- anova(fit1, fit2)
           stat[i] <- mod[2, 6]
         }
@@ -93,17 +90,17 @@ glmm.univregs <- function(target, reps = NULL, id, dataset, targetID = -1, test,
       } else {
         reps <- reps 
         if ( slopes ) {
-          fit1 <- lme4::glmer( target ~ reps + (reps|id), weights = wei, family = Gamma(log) ) 
+          fit1 <- lme4::glmer( target ~ reps + (reps|id), weights = wei, family = Gamma(log), nAGQ = 0 ) 
           for (i in ind) {
-            fit2 <- lme4::glmer( target ~ reps + (reps|id) + dataset[, i], weights = wei, family = Gamma(log) ) 
+            fit2 <- lme4::glmer( target ~ reps + (reps|id) + dataset[, i], weights = wei, family = Gamma(log), nAGQ = 0 ) 
             mod <- anova(fit1, fit2)
             stat[i] <- mod[2, 6]
           }  ##  end for (i in ind)  
         } else {  ###  yes slopes
           reps <- reps 
-          fit1 <- lme4::glmer( target ~ reps + (1|id), weights = wei, family = Gamma(log) )  
+          fit1 <- lme4::glmer( target ~ reps + (1|id), weights = wei, family = Gamma(log), nAGQ = 0 )  
           for (i in ind) {
-            fit2 <- lme4::glmer( target ~ reps + (1|id) + dataset[, i], weights = wei, family = Gamma(log) ) 
+            fit2 <- lme4::glmer( target ~ reps + (1|id) + dataset[, i], weights = wei, family = Gamma(log), nAGQ = 0 ) 
             mod <- anova(fit1, fit2)
             stat[i] <- mod[2, 6]
           }  ##  end for (i in ind)
@@ -114,9 +111,9 @@ glmm.univregs <- function(target, reps = NULL, id, dataset, targetID = -1, test,
     } else if ( identical(test, testIndGLMMNormLog) ) {
       
       if ( is.null(reps) ) {
-        fit1 <- lme4::glmer( target ~ (1|id), weights = wei, family = gaussian(log) ) 
+        fit1 <- lme4::glmer( target ~ (1|id), weights = wei, family = gaussian(log), nAGQ = 0 ) 
         for (i in ind) {
-          fit2 <- lme4::glmer( target ~ (1|id) + dataset[, i], weights = wei, family = gaussian(log) ) 
+          fit2 <- lme4::glmer( target ~ (1|id) + dataset[, i], weights = wei, family = gaussian(log), nAGQ = 0 ) 
           mod <- anova(fit1, fit2)
           stat[i] <- mod[2, 6]
         }
@@ -124,17 +121,17 @@ glmm.univregs <- function(target, reps = NULL, id, dataset, targetID = -1, test,
       } else {
         reps <- reps 
         if ( slopes ) {
-          fit1 <- lme4::glmer( target ~ reps + (reps|id), weights = wei, family = gaussian(log) ) 
+          fit1 <- lme4::glmer( target ~ reps + (reps|id), weights = wei, family = gaussian(log), nAGQ = 0 ) 
           for (i in ind) {
-            fit2 <- lme4::glmer( target ~ reps + (reps|id) + dataset[, i], weights = wei, family = gaussian(log) ) 
+            fit2 <- lme4::glmer( target ~ reps + (reps|id) + dataset[, i], weights = wei, family = gaussian(log), nAGQ = 0 ) 
             mod <- anova(fit1, fit2)
             stat[i] <- mod[2, 6]
           }  ##  end for (i in ind)  
         } else {  ###  yes slopes
           reps <- reps 
-          fit1 <- lme4::glmer( target ~ reps + (1|id), weights = wei, family = gaussian(log) )  
+          fit1 <- lme4::glmer( target ~ reps + (1|id), weights = wei, family = gaussian(log), nAGQ = 0 )  
           for (i in ind) {
-            fit2 <- lme4::glmer( target ~ reps + (1|id) + dataset[, i], weights = wei, family = gaussian(log) ) 
+            fit2 <- lme4::glmer( target ~ reps + (1|id) + dataset[, i], weights = wei, family = gaussian(log), nAGQ = 0 ) 
             mod <- anova(fit1, fit2)
             stat[i] <- mod[2, 6]
           }  ##  end for (i in ind)
@@ -183,6 +180,8 @@ glmm.univregs <- function(target, reps = NULL, id, dataset, targetID = -1, test,
       }  
 
     }
+    
+    if ( sum(poia) > 0 )  stat[poia] <- 0
     
     univariateModels$stat <- stat
     univariateModels$pvalue <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)  
