@@ -129,15 +129,16 @@ modeler <- function(target,dataset = NULL, test = "testIndFisher") {
     
   } else {  ## ifdataset is not NULL
     
+	dataset <- as.data.frame(dataset)  
     if ( test == "testIndFisher" | test == "testIndReg" ) {
-      mod <- lm(target ~ dataset)
+      mod <- lm(target ~., dataset)
       res <- resid(mod)
       dev <- deviance(mod)
       bic <- dev
       
       ## MM regression
     } else if ( test == "testIndMMReg" ) {
-      mod <- try( MASS::rlm(target ~ dataset, maxit = 2000, method = "MM"), silent = TRUE )
+      mod <- try( MASS::rlm(target ~., dataset, maxit = 2000, method = "MM"), silent = TRUE )
       if ( identical( class(mod), "try-error" ) ) {
         res <- NA
         dev <- NA
@@ -150,70 +151,70 @@ modeler <- function(target,dataset = NULL, test = "testIndFisher") {
       
       ## Quantile regression
     } else if ( test == "testIndRQ" ) {
-      mod <- quantreg::rq(target ~ dataset)
+      mod <- quantreg::rq(target ~., dataset)
       res <- resid(mod)
       dev <-  - 2 * as.numeric( logLik(mod) )
       bic <- dev + (length(mod$coefficients) + 1) * log(n)
       
       ## Gamma regression
     } else if ( test == "testIndGamma" ) {
-      mod <- glm(target ~ dataset, family = Gamma(log) ) 
+      mod <- glm(target ~., dataset, family = Gamma(log) ) 
       res <- resid(mod, type = "response")
       dev <-  deviance(mod)
       bic <- BIC(mod)
       
       ## Gaussian regression with log link
     } else if ( test == "testIndNormLog" ) {
-      mod <- glm(target ~ dataset, family = gaussian(log) ) 
+      mod <- glm(target ~., dataset, family = gaussian(log) ) 
       res <- resid(mod, type = "response")
       dev <-  deviance(mod)
       bic <- BIC(mod)
       
       ## binary logistic regression
     } else if ( test == "testIndLogistic" ) {
-      mod <- glm(target ~ dataset, binomial)
+      mod <- glm(target ~., dataset, binomial)
       res <- resid(mod, type = "response")
       dev <-  deviance(mod)
       bic <- BIC(mod)
 
       ## multinomial regression
     } else if ( test == "testIndMultinom" ) {
-      mod <- nnet::multinom(target ~ dataset, trace = FALSE)
+      mod <- nnet::multinom(target ~., dataset, trace = FALSE)
       res <- resid(mod)
       dev <-  mod$deviance
       bic <- BIC(mod)
       
       ## ordinal regression
     } else if ( test == "testIndOrdinal" ) {
-      mod <- MASS::polr(target ~ dataset)
+      mod <- MASS::polr(target ~., dataset)
       res <- ord.resid(target, mod$fitted.values)
       dev <-  deviance(mod)
       bic <- BIC(mod)
       
       ## Poisson regression
     } else if ( test == "testIndPois" ) {
-      mod <- glm(target ~ dataset, poisson)
+      mod <- glm(target ~., dataset, poisson)
       res <- resid(mod, type = "response")
       dev <-  deviance(mod)
       bic <- BIC(mod)
       
       ## quasi binomial regression
     } else if ( test == "testIndQBinom" ) {
-      mod <- glm(target ~ dataset, quasibinomial)
+      mod <- glm(target ~., dataset, quasibinomial)
       res <- resid(mod, type = "response")
       dev <-  - 2 * as.numeric( logLik(mod) )
       bic <- NA
       
       ## quasi Poisson regression
     } else if ( test == "testIndQPois" ) {
-      mod <- glm(target ~ dataset, quasipoisson)
+      mod <- glm(target ~., dataset, quasipoisson)
       res <- resid(mod, type = "response")
       dev <-  - 2 * as.numeric( logLik(mod) )
       bic <- NA
       
       ## negative binomial regression
     } else if ( test == "testIndNB" ) {
-      mod <- MASS::glm.nb(target ~ dataset )
+      mod <- MASS::glm.nb(target ~., dataset )
       res <- resid(mod, type = "response")
       dev <-  - 2 * as.numeric( logLik(mod) )
       bic <- BIC(mod)
@@ -233,7 +234,7 @@ modeler <- function(target,dataset = NULL, test = "testIndFisher") {
       
       ## Tobit regression
     } else if ( test == "testIndTobit" ) {
-      mod <- try( survival::survreg(target ~ dataset, dist = "gaussian" ), silent = TRUE )
+      mod <- try( survival::survreg(target ~., dataset, dist = "gaussian" ), silent = TRUE )
       if ( identical( class(mod), "try-error" ) ) {
         res <- NA
         dev <- NA
@@ -246,7 +247,7 @@ modeler <- function(target,dataset = NULL, test = "testIndFisher") {
       
       ## Cox proportional hazards
     } else if ( test == "censIndCR" ) {
-      mod <- try( survival::coxph(target ~ dataset), silent = TRUE )
+      mod <- try( survival::coxph(target ~., dataset), silent = TRUE )
       if ( identical( class(mod), "try-error" ) ) {
         res <- NA
         dev <- NA
@@ -258,7 +259,7 @@ modeler <- function(target,dataset = NULL, test = "testIndFisher") {
       
       ## Weibull regression
     } else if ( test == "censIndWR" ) {
-      mod <- try( survival::survreg(target ~ dataset ), silent = TRUE )
+      mod <- try( survival::survreg(target ~., dataset ), silent = TRUE )
       if ( identical( class(mod), "try-error" ) ) {
         res <- NA
         dev <- NA
@@ -271,7 +272,7 @@ modeler <- function(target,dataset = NULL, test = "testIndFisher") {
       
       ## Log-logistic regression
     } else if ( test == "censIndLLR" ) {
-      mod <- try( survival::survreg(target ~ dataset, dist = "loglogistic" ), silent = TRUE )
+      mod <- try( survival::survreg(target ~., dataset, dist = "loglogistic" ), silent = TRUE )
       if ( identical( class(mod), "try-error" ) ) {
         res <- NA
         dev <- NA

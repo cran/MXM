@@ -71,7 +71,7 @@ A numerical vector of size equal to the number of columns of the dataset.
 The number of tests performed.
 }
 \item{pvalues}{
-The maximum p-value for the association of each predictor variable.
+The maximum \bold{logged p-value} for the association of each predictor variable.
 }
 }
 

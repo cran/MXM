@@ -22,6 +22,7 @@ we have used C++ codes for speed reasons.
 
 For more information the reader is addressed to 
 Lagani V., Athineou G., Farcomeni A., Tsagris M. and Tsamardinos I. (2017). Feature Selection with the R Package MXM: Discovering Statistically Equivalent Feature Subsets. Journal of Statistical Software, 80(7), doi:10.18637/jss.v080.i07 and 
+
 Tsagris, M. and Tsamardinos, I. (2019). Feature selection with the R package MXM. F1000Research 7: 1505.
 }
 
@@ -29,8 +30,8 @@ Tsagris, M. and Tsamardinos, I. (2019). Feature selection with the R package MXM
 \tabular{ll}{
 Package: \tab MXM\cr
 Type: \tab Package\cr
-Version: \tab 1.4.6\cr
-Date: \tab 2020-05-05\cr
+Version: \tab 1.4.7\cr
+Date: \tab 2020-05-06\cr
 License: \tab GPL-2\cr
 }
 }
@@ -44,14 +45,17 @@ Michail Tsagris \email{mtsagris@uoc.gr}
 }
 
 \references{
+Michail Tsagris, Zacharias Papadovasilakis, Kleanthi Lakiotaki, Ioannis Tsamardinos (2020). 
+A generalised OMP algorithm for feature selection with application to gene expression data. arxiv preprint.
+https://arxiv.org/pdf/2004.00281.pdf
+
 Tsagris, M. and Tsamardinos, I. (2019). Feature selection with the R package MXM. F1000Research 7: 1505
 
 Borboudakis G. and Tsamardinos I. (2019). Forward-backward selection with early dropping. Journal of Machine Learning Research, 20(8): 1-39.
 
 Tsagris, M. (2019). Bayesian Network Learning with the PC Algorithm: An Improved and Correct Variation. Applied Artificial Intelligence, 33(2):101-123.
 
-Tsagris, M., Lagani, V. and Tsamardinos, I. (2018). 
-Feature selection for high-dimensional temporal data. 
+Tsagris, M., Lagani, V. and Tsamardinos, I. (2018). Feature selection for high-dimensional temporal data. 
 BMC Bioinformatics, 19:17. 
 
 Tsagris, M., Borboudakis, G., Lagani, V. and Tsamardinos, I. (2018). 
@@ -61,8 +65,7 @@ of Data Science and Analytics, 6(1): 19-30.
 Tsagris, M., Papadovasilakis, Z., Lakiotaki, K. and Tsamardinos, I. (2018). 
 Efficient feature selection on gene expression data: Which algorithm to use? BioRxiv. 
 
-Chen S., Billings S. A., and Luo W. (1989). Orthogonal least squares methods and their application to non-linear system identification. 
-International Journal of control, 50(5), 1873-1896.
+Chen S., Billings S. A., and Luo W. (1989). Orthogonal least squares methods and their application to non-linear system identification. International Journal of control, 50(5), 1873-1896.
 http://eprints.whiterose.ac.uk/78100/1/acse%20report%20343...pdf
 
 Davis G. (1994). Adaptive Nonlinear Approximations. PhD thesis. 
@@ -76,10 +79,10 @@ Proceedings of the 1998 IEEE International Conference on (Vol. 3, pp. 1389-1392)
 Lagani V., Athineou G., Farcomeni A., Tsagris M. and Tsamardinos I. (2017). Feature Selection with the R Package MXM: Discovering Statistically 
 Equivalent Feature Subsets. Journal of Statistical Software, 80(7), doi:10.18637/jss.v080.i07.
 
-Lagani V., Kortas G. and Tsamardinos I. (2013), Biomarker signature identification in "omics" with multiclass outcome. 
-Computational and Structural Biotechnology Journal, 6(7):1-7.
+Lagani V., Kortas G. and Tsamardinos I. (2013), Biomarker signature identification in "omics" with multiclass outcome. Computational and Structural Biotechnology Journal, 6(7):1-7.
 
-Liang  K.Y.  and  Zeger  S.L. (1986). Longitudinal data analysis using generalized linear models. Biometrika, 73(1): 13-22.
+Liang  K.Y.  and  Zeger  S.L. (1986). Longitudinal data analysis using generalized linear models. 
+Biometrika, 73(1): 13-22.
 
 Mallat S. G. & Zhang Z. (1993). Matching pursuits with time-frequency dictionaries. IEEE Transactions on signal processing, 41(12), 3397-3415.
 https://www.di.ens.fr/~mallat/papiers/MallatPursuit93.pdf
@@ -95,38 +98,31 @@ of multivariate discrete and continuous responses. Biometrics, 47(3): 825-839.
 
 Spirtes P.,  Glymour C. and Scheines R. (2001). Causation, Prediction, and Search. The MIT Press, Cambridge, MA, USA, 3nd edition.
 
-Tsagris M. (2019). Bayesian network learning with the PC algorithm: an improved and correct variation. 
-Applied Artificial Intelligence 33(2): 101-123.
-
-Tsagris, M., Papadovasilakis, Z., Lakiotaki, K. and Tsamardinos, I. (2018). Efficient feature selection on gene expression data: 
-Which algorithm to use? BioRxiv preprint. 
+Tsagris, M., Papadovasilakis, Z., Lakiotaki, K. and Tsamardinos, I. (2018). Efficient feature selection on gene expression data: Which algorithm to use? BioRxiv preprint. 
 
 Tsagris M. (2018). Guide on performing feature selection with the R package MXM.
 http://mensxmachina.org/site/wp-content/uploads/2018/04/Guide-on-performing-feature-selection-with-the-R-package-MXM.pdf
 
 Tsagris M., Lagani V., and Tsamardinos I. (2018). Feature selection for high-dimensional temporal data. BMC bioinformatics, 19:17.
 
-Tsagris M., Borboudakis G., Lagani V. and Tsamardinos I. (2018). Constraint-based Causal Discovery with Mixed Data. 
-International Journal of Data Science and Analytics. 
+Tsagris M., Borboudakis G., Lagani V. and Tsamardinos I. (2018). Constraint-based Causal Discovery with Mixed Data. International Journal of Data Science and Analytics. 
 
-Tsamardinos I., Greasidou E. and Borboudakis G. (2018). Bootstrapping the out-of-sample predictions for efficient and accurate cross-validation. 
-Machine Learning 107(12): 1895-1922.  
+Tsamardinos I., Greasidou E. and Borboudakis G. (2018). Bootstrapping the out-of-sample predictions for efficient and accurate cross-validation. Machine Learning 107(12): 1895-1922.  
 
-Tsamardinos I., Lagani V. and Pappas D. (2012) Discovering multiple, equivalent biomarker signatures. In proceedings of the 7th conference of the 
-Hellenic Society for Computational Biology \& Bioinformatics - HSCBB12.
+Tsamardinos I., Lagani V. and Pappas D. (2012) Discovering multiple, equivalent biomarker signatures. In proceedings of the 7th conference of the Hellenic Society for Computational Biology \& Bioinformatics - HSCBB12.
 
 Tsamardinos, Brown and Aliferis (2006). The max-min hill-climbing Bayesian network structure learning algorithm. Machine learning, 65(1), 31-78.
 
 Tsamardinos I., Aliferis C. F. and Statnikov, A. (2003). Time and sample efficient discovery of Markov blankets and direct causal relations. 
 In Proceedings of the 9th ACM SIGKDD international conference on Knowledge discovery and data mining p. 673-678. 
 
-Yan J. and Fine J. (2004). Estimating equations for association structures. Statistics in medicine, 23(6): 859-874
+Yan J. and Fine J. (2004). Estimating equations for association structures. 
+Statistics in medicine, 23(6): 859-874
 
 Zhang, Jiji. (2008). On the completeness of orientation rules for causal discovery in the presence of latent confounders and selection bias. 
 Artificial Intelligence 172(16): 1873--1896.
 
-Ziegler A., Kastner C., Brunner D. and Blettner M. (2000). Familial associations of lipid profiles: A generalised
-estimating equations approach. Statistics in medicine, 19(24): 3345-3357
+Ziegler A., Kastner C., Brunner D. and Blettner M. (2000). Familial associations of lipid profiles: A generalised estimating equations approach. Statistics in medicine, 19(24): 3345-3357
 
 }
 
@@ -142,7 +138,8 @@ team are greatly acknowledged for their assistance. Prof Achim Zeileis is grealt
 quasi binomial regression models. Christina Chatzipantsiou and Kleio Maria Verrou are acknowledged for their suggestions. Margarita Rebolledo 
 is acknowledged for spotting a bug. Nikolaos Pandis from the University of Bern is acknowledged for his suggestion of the AFT (regression) 
 models and for his suggestions. Michail is grateful to James Dalgleish from Columbia University who suggested that we mention, in various places, 
-that most algorithms return the logarithm of the p-values and not the p-values.
+that most algorithms return the logarithm of the p-values and not the p-values. Stavros Lymperiadis provided a very useful example where weights are used 
+in a regression model; in surveys when stratified random sampling has been applied.
 
 \bold{Disclaimer:} Professor Tsamardinos is the creator of this package. Mr Athineou built it, supervised by Dr Lagani. 
 Dr Tsagris is the current maintainer.

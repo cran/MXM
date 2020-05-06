@@ -77,16 +77,16 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.01, rob = FALSE, R = 
         for ( i in 1:c(n - 1) ) {
           for ( j in c(i + 1):n ) {
             ro <- condi(i, j, 0, dataset, type = "pearson", rob = TRUE) 
-            stat[i, j] = ro[1]
-            stat[j, i] = ro[1]
-            pv[i, j] = ro[2]
-            pv[j, i] = ro[2]
+            stat[i, j] <- ro[1]
+            stat[j, i] <- ro[1]
+            pv[i, j] <- ro[2]
+            pv[j, i] <- ro[2]
           }
         }  ## end for ( i in 1:c(n - 1) )
       } else    pv <- ini.pvalue
-      pvalue = pv  ## p-values
-      dof = matrix(m - 3, n, n)
-      stadf = stat / dof
+      pvalue <- pv  ## p-values
+      dof <- matrix(m - 3, n, n)
+      stadf <- stat / dof
       
     } else if ( method == "distcor" )  {
       if ( is.null(stat) | is.null(ini.pvalue) ) {

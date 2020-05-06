@@ -1,4 +1,5 @@
-mmpc2 <- function(target, dataset, prior = NULL, max_k = 3, threshold = 0.05, test = "testIndLogistic", ini = NULL, wei = NULL, ncores = 1, backward = FALSE) {
+mmpc2 <- function(target, dataset, prior = NULL, max_k = 3, threshold = 0.05, 
+                  test = "testIndLogistic", ini = NULL, wei = NULL, ncores = 1, backward = FALSE) {
   
   runtime <- proc.time()
 
@@ -32,7 +33,7 @@ mmpc2 <- function(target, dataset, prior = NULL, max_k = 3, threshold = 0.05, te
    
  if ( ( ci_test == "testIndLogistic" | ci_test == "testIndPois" |  ci_test == "testIndQPois")  &  is.matrix(dataset) ) {
  
- if ( ci_test == "testIndLogistic"  &  is.matrix(dataset) ) {
+ if ( ci_test == "testIndLogistic" ) {
    runtime <- proc.time()
    ep <- Rfast2::mmpc2(y = target, x = dataset, max_k = max_k, threshold = threshold, test = "logistic", parallel = (ncores > 1) )
    kapa_pval <- ep$kapa_pval
@@ -62,7 +63,7 @@ mmpc2 <- function(target, dataset, prior = NULL, max_k = 3, threshold = 0.05, te
    res <- list(selectedVars = as.numeric(ep$selectedVars), pvalues = as.numeric(ep$pvalues), uni = as.numeric(ep$univ), 
                kapa_pval = kapa_pval, max_k = ep$max_k, threshold = ep$threshold, n.tests = ep$n.tests, runtime = runtime, test = ci_test)
    
- } else if ( ci_test == "testIndPois"  &  is.matrix(dataset) ) {  
+ } else if ( ci_test == "testIndPois" ) {  
    runtime <- proc.time()
    ep <- Rfast2::mmpc2(y = target, x = dataset, max_k = max_k, threshold = threshold, test = "poisson", parallel = (ncores > 1) )
    kapa_pval <- ep$kapa_pval
@@ -92,7 +93,7 @@ mmpc2 <- function(target, dataset, prior = NULL, max_k = 3, threshold = 0.05, te
    res <- list(selectedVars = as.numeric(ep$selectedVars), pvalues = as.numeric(ep$pvalues), uni = as.numeric(ep$univ), 
                kapa_pval = kapa_pval, max_k = ep$max_k, threshold = ep$threshold, n.tests = ep$n.tests, runtime = runtime, test = ci_test)
    
- } else if ( ci_test == "testIndQPois"  &  is.matrix(dataset) ) {  
+ } else if ( ci_test == "testIndQPois" ) {  
    runtime <- proc.time()
    ep <- Rfast2::mmpc2(y = target, x = dataset, max_k = max_k, threshold = threshold, test = "qpoisson", parallel = (ncores > 1) )
    kapa_pval <- ep$kapa_pval
@@ -125,104 +126,23 @@ mmpc2 <- function(target, dataset, prior = NULL, max_k = 3, threshold = 0.05, te
    
  } else {  ## end if if ( ( ci_test == "testIndLogistic" | ci_test == "testIndPois" |  ci_test == "testIndQPois")  &  is.matrix(dataset) ) { 
  
- 
- if (length(test) == 1) {      #avoid vectors, matrices etc
-   test <- match.arg(test, av_tests, TRUE);
-    
-    if (test == "testIndFisher") {
-     test <- testIndFisher;
-     
-   } else if (test == "testIndMMFisher") {
-     test <- testIndMMFisher;
-     
-   } else if (test == "testIndMMReg") {
-     test <- testIndMMReg;
-     
-   } else if (test == "testIndSpearman")  {
+   test <- match.arg(test, av_tests, TRUE)
+   
+   if ( test == "testIndSpearman" )  {
      target <- rank(target)
      dataset <- Rfast::colRanks(dataset)  
      test <- testIndSpearman;  ## Spearman is Pearson on the ranks of the data
-     
-   } else if (test == "testIndReg")  {  ## It uMMPC the F test
-     test <- testIndReg
-     
-   }  else if (test == "testIndMVreg") {
+   } else if ( test == "testIndMVreg" ) {
      if ( min(target) > 0 & sd( Rfast::rowsums(target) ) == 0 )  target = log( target[, -1]/target[, 1] ) 
      test <- testIndMVreg;
      
-   } else if (test == "testIndBeta") {
-     test <- testIndBeta;
-     
-   } else if (test == "testIndRQ") {  ## quantile regression
-     #an einai posostiaio target
-     test <- testIndRQ;
-     
-   } else if (test == "testIndIGreg") { ## Inverse Gaussian regression
-     test <- testIndIGreg;
-     
-   } else if (test == "testIndPois") { ## Poisson regression
-     test <- testIndPois;
-     
-   } else if (test == "testIndNB") { ## Negative binomial regression
-     test <- testIndNB;
-     
-   } else if (test == "testIndGamma") {  ## Gamma regression
-     test <- testIndGamma;
-     
-   } else if (test == "testIndNormLog") { ## Normal regression with a log link
-     test <- testIndNormLog;
-     
-   } else if (test == "testIndZIP") { ## Zero inflated Poisson regression
-     test <- testIndZIP;
-     
-   } else if (test == "testIndTobit") { ## Tobit regression
-     test <- testIndTobit;
-     
-   } else if (test == "censIndCR") {
-     test <- censIndCR;
-     
-   } else if (test == "censIndWR") {
-     test <- censIndWR;
-     
-   } else if (test == "censIndER") {
-     test <- censIndER;
-     
-   } else if (test == "censIndLLR") {
-     test <- censIndLLR;
-     
-   } else if (test == "testIndClogit") {
-     test <- testIndClogit;
-     
-   } else if (test == "testIndBinom") {
-     test <- testIndBinom;
-     
-   } else if (test == "testIndLogistic") {
-     test <- testIndLogistic;
-     
-   } else if (test == "testIndMultinom") {
-     test <- testIndMultinom;
-     
-   } else if (test == "testIndOrdinal") {
-     test <- testIndOrdinal;
-     
-   } else if (test == "testIndQBinom") {
-     test <- testIndQBinom;
-     
-   } else if (test == "testIndQPois") {
-     test <- testIndQPois;
-     
-   } else if (test == "gSquare") {
-     test <- gSquare;
-     
-   } else if (test == "testIndSPML") {
+   } else if ( test == "testIndSPML" ) {
      test <- testIndSPML
      if ( !is.matrix(target) )   target <- cbind( cos(target), sin(target) )
-   }
+     
+   } else test <- test.maker(test)
    #more tests here
- } else {
-   stop('invalid test option');
- }
- 
+   
   dataset <- as.data.frame(dataset)  
   n.tests <- 0
   alpha <- log(threshold)
@@ -322,11 +242,11 @@ mmpc2 <- function(target, dataset, prior = NULL, max_k = 3, threshold = 0.05, te
       pval[vars] <- pmax(pval[vars], pval2[vars]) 
       ide <- which(pval[vars] < alpha)
       vars <- vars[ide]
-    }  ## end  if ( max_k >= 3 ) {
+    }  
     sel <- which.min(pval[vars])
     sela <- c(sela, vars[sel] )
     vars <- setdiff(vars, vars[sel])  
-  }  ## end  if ( length(vars) > 0  &  max_k >= 2 ) {  
+  }  ## end  if ( length(vars) > 0  &  max_k >= 1 ) {  
   
   ## 4 selected
   while ( length(vars) > 0  &  max_k >= 1 ) {
@@ -338,11 +258,9 @@ mmpc2 <- function(target, dataset, prior = NULL, max_k = 3, threshold = 0.05, te
     ide <- which(pval[vars] < alpha)
     vars <- vars[ide]
     if ( length(vars) > 0  &  max_k >= 2 ) {
-      for ( i in 2:max_k ) {  
+      for ( i in 2:min( max_k, length(sela) ) ) {  
         cand <- Rfast::comb_n(sort(sela), i)
-        cand <- cand[, which(cand == sela[dm], arr.ind = TRUE)[, 2], drop = FALSE ]
         j <- 1
-        #for ( j in 1:dim(cand)[2] ) {
         while ( length(vars) > 0  &  j <= dim(cand)[2] ) {
           pval2 <- MXM::cond.regs(target, dataset, xIndex = vars, csIndex = c(cand[, j], priorindex), test = test, wei = wei, ncores = 1)$pvalue
           kapa_pval[[ i ]] <- cbind( kapa_pval[[ i ]], rbind( pval2[vars], vars, matrix( rep(cand[, j], length(vars)), ncol = length(vars) ) ) )
@@ -353,26 +271,30 @@ mmpc2 <- function(target, dataset, prior = NULL, max_k = 3, threshold = 0.05, te
           j <- j + 1
         }  ## end  while ( length(vars) > 0  &  j <= dim(cand)[2] ) {
       }  ## end  for ( i in 2:max_k ) {  
-    }  ## end  if ( max_k >= 2 ) {
-    sel <- which.min(pval[vars])
-    sela <- c(sela, vars[sel] )
-    vars <- setdiff(vars, vars[sel])  
+      sel <- which.min(pval[vars])
+      sela <- c(sela, vars[sel] )
+      vars <- setdiff(vars, vars[sel]) 
+    }  ## end  if ( length(vars) > 0  &  max_k >= 2 ) {
   } ## end  while ( length(vars) > 0  &  max_k >= 1 ) {
     
-  runtime <- proc.time() - runtime
-  
   if ( backward  & length( sela ) > 0  ) {
-    tic <- proc.time()
     pv <- pval[sela]
     sela <- sela[ order(pv) ]
     bc <- MXM::mmpcbackphase(target, dataset[, sela, drop = FALSE], test = test, wei = wei, max_k = max_k, threshold = threshold)
     met <- bc$met
     sela <- sela[met]
-    pval[sela] <- bc$pvalues
+    pval[sela] <- bc$pvalues[met]
     n.tests <- n.tests + bc$counter
-    runtime <- runtime + proc.time() - tic
-  }  
+  }  ## end  if ( backward  & length( sela ) > 0  ) { 
   
+  runtime <- proc.time() - runtime 
+  if ( length(kapa_pval) > 0 ) {
+    for ( i in 1:length(kapa_pval) ) {
+      if ( length(kapa_pval[[ i ]]) > 0 ) {
+        rownames(kapa_pval[[ i ]]) <- c("log_pvalue", "variable", paste("cond_var=", 1:i, sep = "") )
+      } else  kapa_pval[[ length(kapa_pval)]] <- NULL  
+    }  
+  }  ##  end  if ( length(kapa_pval) > 0 )     
   res <- list(selectedVars = sela, pvalues = pval, uni = univ, kapa_pval = kapa_pval, max_k = max_k, threshold = alpha, 
       n.tests = n.tests, runtime = runtime, test = ci_test)
  }

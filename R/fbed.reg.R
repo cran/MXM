@@ -52,7 +52,9 @@ fbed.reg <- function(target, dataset, prior = NULL, ini = NULL, test = NULL, thr
         
         if ( typeof(a) == "list" ) {
           result$back.rem <- result$res[a$info[, 1], 1]
-          back.n.tests <- sum( dim(result$res)[1] : dim(a$mat)[1] )
+		  if ( !is.null(a$mat) )  { 
+            back.n.tests <- sum( dim(result$res)[1] : dim(a$mat)[1] )
+		  } else  back.n.tests <- sum( 1:dim(result$res)[1] )
           sel <- result$res[a$mat[, 1], 1] 
           stat <- a$mat[, 3]
           pval <- a$mat[, 2]

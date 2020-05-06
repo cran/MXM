@@ -29,7 +29,7 @@ If you want to use multinomial or ordinal logistic regression,  make sure your t
 See also \code{\link{SES}} and \code{\link{CondIndTests}} for the tests.
 }
 \item{wei}{
-A vector of weights to be used for weighted regression. The default value is NULL. 
+A vector of weights to be used for weighted regression. The default value is NULL. An example where weights are used is surveys when stratified sampling has occured. 
 }
 \item{user_test}{
 A user-defined conditional independence test (provide a closure type object). Default value is NULL. If this is defined, the "test" argument is ignored.
@@ -48,10 +48,10 @@ The output of the algorithm is S3 object including:
 The run time of the algorithm. A numeric vector. The first element is the user time, the second element is the system time and the third element is the elapsed time.
 }
 \item{info}{
-A matrix with the non selected variables and their latest test statistics and p-values.
+A matrix with the non selected variables and their latest test statistics and \bold{logged p-values}.
 }
 \item{mat}{
-A matrix with the selected variables and their latest statistics and logged p-values.
+A matrix with the selected variables and their latest statistics and \bold{logged p-values}.
 }
 
 \item{ci_test}{

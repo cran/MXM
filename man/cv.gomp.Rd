@@ -85,10 +85,14 @@ Bear in mind that the values can be extracted with the $ symbol, i.e. this is an
 }
 
 \references{
-Tsamardinos I., Greasidou E. and Borboudakis G. (2018). 
+Tsamardinos I., Greasidou E. and Borboudakis G. (2018).  
 Bootstrapping the out-of-sample predictions for efficient and accurate cross-validation. 
 Machine Learning 107(12): 1895-1922.  
 \url{ https://link.springer.com/article/10.1007/s10994-018-5714-4 }
+
+Michail Tsagris, Zacharias Papadovasilakis, Kleanthi Lakiotaki, Ioannis Tsamardinos (2020). 
+A generalised OMP algorithm for feature selection with application to gene expression data. arxiv preprint.
+https://arxiv.org/pdf/2004.00281.pdf
 }
 
 \author{

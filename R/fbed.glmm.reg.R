@@ -2,7 +2,7 @@ fbed.glmm.reg <- function(target, dataset, id, prior = NULL, reps = NULL, ini = 
   
   if ( length(K) > 1 ) {
     
-    result <- kfbed.glmm.reg(y = target, x = dataset, id = id, univ = ini, alpha = threshold, wei = wei, K = K, method = method, gam = gam, backward = backward, test = test)
+    result <- kfbed.glmm.reg(y = target, x = dataset, id = id, prior= prior, reps= reps, univ = ini, alpha = threshold, wei = wei, K = K, method = method, gam = gam, backward = backward, test = test)
     
   } else {
     
@@ -49,7 +49,7 @@ fbed.glmm.reg <- function(target, dataset, id, prior = NULL, reps = NULL, ini = 
         } else {
           if ( !is.null(reps) ) {
             a <- glmm.reps.bsreg(target, dataset[, result$res[, 1], drop = FALSE], id, reps = reps, threshold = threshold, wei = wei, test = test)
-          } else  a <- glmm.bsreg(target, dataset[, result$res[, 1], drop = FALSE], id, threshold = threshold, wei = wei, test = test)
+          } else  a <- MXM::glmm.bsreg(target, dataset[, result$res[, 1], drop = FALSE], id, threshold = threshold, wei = wei, test = test)
         }
         
         if ( typeof(a) == "list" ) {

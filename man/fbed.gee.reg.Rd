@@ -73,7 +73,7 @@ If you specify a range of values of K it returns the results of fbed.reg for thi
 \value{
 If K is a single number a list including:
 \item{res}{
-A matrix with the selected variables, their test statistic and the associated p-value.
+A matrix with the selected variables, their test statistic and the associated \bold{logged p-value}.
 }
 \item{info}{
 A matrix with the number of variables and the number of tests performed (or models fitted) at each round (value of K).

@@ -20,8 +20,8 @@ A numeric vector containing the values of the target variable. It can also discr
 A numeric matrix or data.frame containing the variables. Rows are samples and columns are features. If you have categorical variables, this should be a data frame.
   }
 \item{wei}{
-A vector of weights to be used for weighted regression. The default value is NULL. We suggest not to use weights if you 
-choose "testIndMMReg" as weights are alreayd being used there.
+A vector of weights to be used for weighted regression. The default value is NULL.  An example where weights are used is surveys when stratified sampling has occured.
+We suggest not to use weights if you choose "testIndMMReg" as weights are already being used there.
 }
 \item{fbedreg.object}{
 An object with the results of an FBED run.

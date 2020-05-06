@@ -26,11 +26,11 @@ user_test = NULL, R = 999, ncores = 1)
 The class variable. Provide either a string, an integer, a numeric value, a vector, a factor, an ordered factor or a Surv object. See also Details.
 }
 \item{dataset}{
-The data-set; provide either a data frame or a matrix (columns = variables , rows = samples).
+The dataset; provide either a data frame or a matrix (columns = variables , rows = samples).
 Alternatively, provide an ExpressionSet (in which case rows are samples and columns are features, see bioconductor for details).
 }
 \item{wei}{
-A vector of weights to be used for weighted regression. The default value is NULL. 
+A vector of weights to be used for weighted regression. The default value is NULL. An example where weights are used is surveys when stratified sampling has occured. 
 }
 \item{max_ks}{
 A vector of possible max_k values. Can be a number as well, but this does not really make sense to do. If nothing is given, the values max_k = (4,3,2) are used by default. 

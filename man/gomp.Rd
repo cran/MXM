@@ -107,6 +107,11 @@ Mazin Abdulrasool Hameed (2012). Comparative analysis of orthogonal matching pur
 Tsagis M. (2018). Guide on performing feature selection with the R package MXM.
 \url{http://mensxmachina.org/site/wp-content/uploads/2018/04/Guide-on-performing-feature-selection-with-the-R-package-MXM.pdf}
 
+Michail Tsagris, Zacharias Papadovasilakis, Kleanthi Lakiotaki, Ioannis Tsamardinos (2020). 
+A generalised OMP algorithm for feature selection with application to gene expression data. arxiv preprint.
+https://arxiv.org/pdf/2004.00281.pdf
+
+
 }
 
 \author{

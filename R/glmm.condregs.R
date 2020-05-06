@@ -2,7 +2,7 @@ glmm.condregs <- function(target, reps = NULL, id, dataset, xIndex, csIndex, tes
                                 slopes = FALSE, ncores = 1) {
     
   if ( identical(csIndex, 0) ) {
-    models <- glmm.univregs(target = target, reps = reps, id = id, dataset = dataset, targetID = -1, test = test, 
+    models <- MXM::glmm.univregs(target = target, reps = reps, id = id, dataset = dataset, targetID = -1, test = test, 
                                 wei = wei, slopes = slopes, ncores = ncores)
   } else {
     

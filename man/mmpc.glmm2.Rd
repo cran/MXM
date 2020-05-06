@@ -87,10 +87,10 @@ The selected variables, i.e., the signature of the target variable.
 \item{pvalues}{
 For each feature included in the dataset, this vector reports the strength of its association with the target in the context of 
 all other variables. Particularly, this vector reports the max p-values foudn when the association of each variable with the 
-target is tested against different conditional sets. Lower values indicate higher association.
+target is tested against different conditional sets. Lower values indicate higher association. \bold{Note that these are the logarithm of the p-values}.
 }
 \item{univ}{
-A vector with the logged p-values of the univariate associations. This vector is very important for subsequent runs of MMPC with 
+A vector with the \bold{logged p-values} of the univariate associations. This vector is very important for subsequent runs of MMPC with 
 different hyper-parameters. After running SES with some hyper-parameters you might want to run MMPCagain with different hyper-parameters. 
 To avoid calculating the univariate associations (first step) again, you can take this list from the first run of SES and plug it in 
 the argument "ini" in the next run(s) of MMPC. This can speed up the second run (and subequent runs of course) by 50\%. See the argument 

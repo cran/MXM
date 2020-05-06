@@ -45,7 +45,7 @@ that the zero part is constant, the variables are not associated with the excess
 and also the number of trials. "MM" stands for robust regression using MM estimation and "clogit" stands for conditional logistic regression.
 }
 \item{wei}{
-A vector of weights to be used for weighted regression. The default value is NULL.
+A vector of weights to be used for weighted regression. The default value is NULL. An example where weights are used is surveys when stratified sampling has occured.
 }
 \item{xnew}{
 If you have new data whose target values you want to predict put it here, otherwise leave it blank.

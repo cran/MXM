@@ -35,7 +35,7 @@ If you have a set of variables already start with this one. Otherwise leave it N
 Threshold (suitable values in (0, 1)) for assessing the p-values significance. Default value is 0.05.
 }
 \item{wei}{
-A vector of weights to be used for weighted regression. The default value is NULL. It is not suggested when robust is set to TRUE.
+A vector of weights to be used for weighted regression. An example where weights are used is surveys when stratified sampling has occured.
 }
 \item{tol}{
 The difference bewtween two successive values of the stopping rule. By default this is is set to 2. If for example, the BIC difference between two succesive models is less than 2, the process stops and the last variable, even though significant does not enter the model.
@@ -58,10 +58,10 @@ The output of the algorithm is S3 object including:
 The run time of the algorithm. A numeric vector. The first element is the user time, the second element is the system time and the third element is the elapsed time.
 }
 \item{mat}{
-A matrix with the variables and their latest test statistics and p-values. If you have logistic or Poisson regression with continuous predictor variables in a matrix form and no weights, this will not appear. In this case, a C++ code is called and the output is less.
+A matrix with the variables and their latest test statistics and \bold{logged p-values}. If you have logistic or Poisson regression with continuous predictor variables in a matrix form and no weights, this will not appear. In this case, a C++ code is called and the output is less.
 }
 \item{info}{
-A matrix with the selected variables, their logged p-values and test statistics. Each row corresponds to a model which contains the variables up to that line. The BIC in the last column is the BIC of that model.
+A matrix with the selected variables, their \bold{logged p-values} and test statistics. Each row corresponds to a model which contains the variables up to that line. The BIC in the last column is the BIC of that model.
 }
 \item{ci_test}{
 The conditional independence test used. 

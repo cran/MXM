@@ -29,12 +29,13 @@ fbed.lmm <- function(y, x, id, prior = NULL, univ = NULL, alpha = 0.05, wei = NU
       pval <- univ$pvalue
       n.tests <- p
     } else {
-      for ( i in ind ) {
-        fit2 <- lme4::lmer( y ~ x[, c(i, priorindex)] + (1|id), REML = FALSE, weights = wei )
-        stat[i] <- summary(fit2)[[ 10 ]][2, 3]^2
-      }
+      
+      mod <- MXM::glmm.condregs(target = y, id = id, dataset = x, xIndex = ind, csIndex = priorindex, 
+                            test = testIndGLMMReg, wei = wei, ncores = 1)
+      stat <- mod$stat
+      pval <- mod$pvalue
     }  
-    pval <- pf(stat, 1, n - 4 - length(priorindex), lower.tail = FALSE, log.p = TRUE)
+    
     n.tests <- p
     univ <- list()
     univ$stat <- stat
@@ -58,15 +59,20 @@ fbed.lmm <- function(y, x, id, prior = NULL, univ = NULL, alpha = 0.05, wei = NU
     param <- numeric(p)
     #########
     while ( sum(s>0) > 0 ) {
-      d0 <- length(sela)
-      for ( i in ind[s] )  {
-        fit2 <- lme4::lmer( y ~ x[, c(priorindex, sela, i)] + (1|id), REML = FALSE, weights = wei )
-        d1 <- summary(fit2)[[3]]$dims[3]
-        stat[i] <- summary(fit2)[[ 10 ]][d1, 3]^2
-        param[i] <- d1 - d0
-      }
+      #d0 <- length(sela)
+      #for ( i in ind[s] )  {
+      #  fit2 <- lme4::lmer( y ~ x[, c(priorindex, sela, i)] + (1|id), REML = FALSE, weights = wei )
+      #  d1 <- summary(fit2)[[3]]$dims[3]
+      #  stat[i] <- summary(fit2)[[ 10 ]][d1, 3]^2
+      #  param[i] <- d1 - d0
+      #}
+      #pval <- pf(stat, 1, n - param - 2, lower.tail = FALSE, log.p = TRUE)
+      mod <- MXM::glmm.condregs(target = y, id = id, dataset = x, xIndex = ind[s], csIndex = c(priorindex, sela), 
+                                test = testIndGLMMReg, wei = wei, ncores = 1)
+      stat <- mod$stat
+      pval <- mod$pvalue
+      
       n.tests <- n.tests + length( ind[s] ) 
-      pval <- pf(stat, 1, n - param - 2, lower.tail = FALSE, log.p = TRUE)
       s <- which(pval < sig) 
       sel <- which.min(pval) * ( length(s) > 0 )
       sa <- c(sa, stat[sel]) 
@@ -79,15 +85,21 @@ fbed.lmm <- function(y, x, id, prior = NULL, univ = NULL, alpha = 0.05, wei = NU
     card <- sum(sela > 0)
     
     if (K == 1) {
-      d0 <- length(sela)
-      for ( i in ind[-c(sela, zevar)] )  {
-        fit2 <- lme4::lmer( y ~ x[, c(priorindex, sela, i)] + (1|id), REML = FALSE, weights = wei )
-        d1 <- summary(fit2)[[3]]$dims[3]
-        stat[i] <- summary(fit2)[[ 10 ]][d1, 3]^2
-        param[i] <- d1 - d0
-      }
+      #d0 <- length(sela)
+      #for ( i in ind[-c(sela, zevar)] )  {
+      #  fit2 <- lme4::lmer( y ~ x[, c(priorindex, sela, i)] + (1|id), REML = FALSE, weights = wei )
+      #  d1 <- summary(fit2)[[3]]$dims[3]
+      #  stat[i] <- summary(fit2)[[ 10 ]][d1, 3]^2
+      #  param[i] <- d1 - d0
+      #}
+      #pval <- pf(stat, 1, n - param - 2, lower.tail = FALSE, log.p = TRUE)
+      
+      mod <- MXM::glmm.condregs(target = y, id = id, dataset = x, xIndex = ind[-c(sela, zevar)], 
+                                csIndex = c(priorindex, sela), test = testIndGLMMReg, wei = wei, ncores = 1)
+      stat <- mod$stat
+      pval <- mod$pvalue
+      
       n.tests[2] <- length( ind[-c(sela, zevar)] )
-      pval <- pf(stat, 1, n - param - 2, lower.tail = FALSE, log.p = TRUE)
       s <- which(pval < sig)
       sel <- which.min(pval) * ( length(s)>0 )
       sa <- c(sa, stat[sel]) 
@@ -96,15 +108,21 @@ fbed.lmm <- function(y, x, id, prior = NULL, univ = NULL, alpha = 0.05, wei = NU
       s <- s[ - which(s == sel) ]
       if (sel > 0)   stat <- numeric(p)
       while ( sum(s>0) > 0 ) {
-        d0 <- length(sela)
-        for ( i in ind[s] )  {
-          fit2 <- lme4::lmer( y ~ x[, c(priorindex, sela, i)] + (1|id), REML = FALSE, weights = wei )
-          d1 <- summary(fit2)[[3]]$dims[3]
-          stat[i] <- summary(fit2)[[ 10 ]][d1, 3]^2
-          param[i] <- d1 - d0
-        }
+        #d0 <- length(sela)
+        #for ( i in ind[s] )  {
+        #  fit2 <- lme4::lmer( y ~ x[, c(priorindex, sela, i)] + (1|id), REML = FALSE, weights = wei )
+        #  d1 <- summary(fit2)[[3]]$dims[3]
+        #  stat[i] <- summary(fit2)[[ 10 ]][d1, 3]^2
+        #  param[i] <- d1 - d0
+        #}
+        #pval <- pf(stat, 1, n - param - 2, lower.tail = FALSE, log.p = TRUE)
+        
+        mod <- MXM::glmm.condregs(target = y, id = id, dataset = x, xIndex = ind[s], 
+                                  csIndex = c(priorindex, sela), test = testIndGLMMReg, wei = wei, ncores = 1)
+        stat <- mod$stat
+        pval <- mod$pvalue
+        
         n.tests[2] <- n.tests[2] + length( ind[s] )
-        pval <- pf(stat, 1, n - param - 2, lower.tail = FALSE, log.p = TRUE)
         s <- which(pval < sig)
         sel <- which.min(pval) * ( length(s)>0 )
         sa <- c(sa, stat[sel]) 
@@ -118,15 +136,21 @@ fbed.lmm <- function(y, x, id, prior = NULL, univ = NULL, alpha = 0.05, wei = NU
     
     if ( K > 1) {
       
-      d0 <- length(sela)
-      for ( i in ind[-c(sela, zevar)] )  {
-        fit2 <- lme4::lmer( y ~ x[, c(priorindex, sela, i)] + (1|id), REML = FALSE, weights = wei )
-        d1 <- summary(fit2)[[3]]$dims[3]
-        stat[i] <- summary(fit2)[[ 10 ]][d1, 3]^2
-        param[i] <- d1 - d0
-      }
+      #d0 <- length(sela)
+      #for ( i in ind[-c(sela, zevar)] )  {
+      #  fit2 <- lme4::lmer( y ~ x[, c(priorindex, sela, i)] + (1|id), REML = FALSE, weights = wei )
+      #  d1 <- summary(fit2)[[3]]$dims[3]
+      #  stat[i] <- summary(fit2)[[ 10 ]][d1, 3]^2
+      #  param[i] <- d1 - d0
+      #}
+      #pval <- pf(stat, 1, n - param - 2, lower.tail = FALSE, log.p = TRUE)
+      
+      mod <- MXM::glmm.condregs(target = y, id = id, dataset = x, xIndex = ind[-c(sela, zevar)], 
+                                csIndex = c(priorindex, sela), test = testIndGLMMReg, wei = wei, ncores = 1)
+      stat <- mod$stat
+      pval <- mod$pvalue
+      
       n.tests[2] <- length( ind[-c(sela, zevar)] )
-      pval <- pf(stat, 1, n - param - 2, lower.tail = FALSE, log.p = TRUE)
       s <- which(pval < sig)
       sel <- which.min(pval) * ( length(s)>0 )
       sa <- c(sa, stat[sel]) 
@@ -136,15 +160,21 @@ fbed.lmm <- function(y, x, id, prior = NULL, univ = NULL, alpha = 0.05, wei = NU
       if (sel > 0)  stat <- numeric(p)
       
       while ( sum(s > 0) > 0 ) {
-        d0 <- length(sela)
-        for ( i in ind[s] )  {
-          fit2 <- lme4::lmer( y ~ x[, c(priorindex, sela, i)] + (1|id), REML = FALSE, weights = wei )
-          d1 <- summary(fit2)[[3]]$dims[3]
-          stat[i] <- summary(fit2)[[ 10 ]][d1, 3]^2
-          param[i] <- d1 - d0
-        }
+        #d0 <- length(sela)
+        #for ( i in ind[s] )  {
+        #  fit2 <- lme4::lmer( y ~ x[, c(priorindex, sela, i)] + (1|id), REML = FALSE, weights = wei )
+        #  d1 <- summary(fit2)[[3]]$dims[3]
+        #  stat[i] <- summary(fit2)[[ 10 ]][d1, 3]^2
+        #  param[i] <- d1 - d0
+        #}
+        #pval <- pf(stat, 1, n - param - 2, lower.tail = FALSE, log.p = TRUE)
+        
+        mod <- MXM::glmm.condregs(target = y, id = id, dataset = x, xIndex = ind[s], 
+                                  csIndex = c(priorindex, sela), test = testIndGLMMReg, wei = wei, ncores = 1)
+        stat <- mod$stat
+        pval <- mod$pvalue
+        
         n.tests[2] <- n.tests[2] + length( ind[s] )  
-        pval <- pf(stat, 1, n - param - 2, lower.tail = FALSE, log.p = TRUE)
         s <- which(pval < sig)
         sel <- which.min(pval) * ( length(s)>0 )
         sa <- c(sa, stat[sel]) 
@@ -158,15 +188,21 @@ fbed.lmm <- function(y, x, id, prior = NULL, univ = NULL, alpha = 0.05, wei = NU
       vim <- 1
       while ( vim < K  & card[vim + 1] - card[vim] > 0 ) {
         vim <- vim + 1
-        d0 <- length(sela)
-        for ( i in ind[-c(sela, zevar)] )  {
-          fit2 <- lme4::lmer( y ~ x[, c(priorindex, sela, i)] + (1|id), REML = FALSE, weights = wei )
-          d1 <- summary(fit2)[[3]]$dims[3]
-          stat[i] <- summary(fit2)[[ 10 ]][d1, 3]^2
-          param[i] <- d1 - d0
-        }
+        #d0 <- length(sela)
+        #for ( i in ind[-c(sela, zevar)] )  {
+        #  fit2 <- lme4::lmer( y ~ x[, c(priorindex, sela, i)] + (1|id), REML = FALSE, weights = wei )
+        #  d1 <- summary(fit2)[[3]]$dims[3]
+        #  stat[i] <- summary(fit2)[[ 10 ]][d1, 3]^2
+        #  param[i] <- d1 - d0
+        #}
+        #pval <- pf(stat, 1, n - param - 2, lower.tail = FALSE, log.p = TRUE)
+        
+        mod <- MXM::glmm.condregs(target = y, id = id, dataset = x, xIndex = ind[-c(sela, zevar)], 
+                                  csIndex = c(priorindex, sela), test = testIndGLMMReg, wei = wei, ncores = 1)
+        stat <- mod$stat
+        pval <- mod$pvalue
+        
         n.tests[vim + 1] <- length( ind[-c(sela, zevar)] )
-        pval <- pf(stat, 1, n - param - 2, lower.tail = FALSE, log.p = TRUE)
         s <- which(pval < sig)
         sel <- which.min(pval) * ( length(s)>0 )
         sa <- c(sa, stat[sel]) 
@@ -175,15 +211,21 @@ fbed.lmm <- function(y, x, id, prior = NULL, univ = NULL, alpha = 0.05, wei = NU
         s <- s[ - which(s == sel) ]
         if (sel > 0)  stat <- numeric(p)
         while ( sum(s > 0) > 0 ) {
-          d0 <- length(sela)
-          for ( i in ind[s] )  {
-            fit2 <- lme4::lmer( y ~ x[, c(priorindex, sela, i)] + (1|id), REML = FALSE, weights = wei )
-            d1 <- summary(fit2)[[3]]$dims[3]
-            stat[i] <- summary(fit2)[[ 10 ]][d1, 3]^2
-            param[i] <- d1 - d0
-          }
+          #d0 <- length(sela)
+          #for ( i in ind[s] )  {
+          #  fit2 <- lme4::lmer( y ~ x[, c(priorindex, sela, i)] + (1|id), REML = FALSE, weights = wei )
+          #  d1 <- summary(fit2)[[3]]$dims[3]
+          #  stat[i] <- summary(fit2)[[ 10 ]][d1, 3]^2
+          #  param[i] <- d1 - d0
+          #}
+          #pval <- pf(stat, 1, n - param - 2, lower.tail = FALSE, log.p = TRUE)
+          
+          mod <- MXM::glmm.condregs(target = y, id = id, dataset = x, xIndex = ind[s], 
+                                    csIndex = c(priorindex, sela), test = testIndGLMMReg, wei = wei, ncores = 1)
+          stat <- mod$stat
+          pval <- mod$pvalue
+          
           n.tests[vim + 1] <- n.tests[vim + 1] + length( ind[s] )
-          pval <- pf(stat, 1, n - param - 2, lower.tail = FALSE, log.p = TRUE)
           s <- which(pval < sig)
           sel <- which.min(pval) * ( length(s)>0 )
           sa <- c(sa, stat[sel]) 

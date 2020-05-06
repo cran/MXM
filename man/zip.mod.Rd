@@ -28,8 +28,8 @@ with mixed or only categorical variables. If this is NULL, a zero inflated Poiss
 are present.
 }
 \item{wei}{
-A vector of weights to be used for weighted regression. The default value is NULL. This is applicable only in the 
-zero inflated Poisson distribution.
+A vector of weights to be used for weighted regression. The default value is NULL. An example where weights are used is surveys when stratified sampling has occured.
+This is applicable only in the zero inflated Poisson distribution.
 }
 \item{xnew}{
 If you have new values for the predictor variables (dataset) whose target variable you want to predict insert them here. 

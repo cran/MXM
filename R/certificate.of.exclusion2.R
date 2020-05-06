@@ -1,6 +1,6 @@
 certificate.of.exclusion2 <- function(xIndex, mmpc2object) {
     threshold <- mmpc2object$threshold
-    pval.ini <- mmpc2object$univ$pvalue
+    pval.ini <- mmpc2object$uni
     pval <- mmpc2object$kapa_pval
    
     info <- list()
@@ -11,6 +11,7 @@ certificate.of.exclusion2 <- function(xIndex, mmpc2object) {
       } else if ( pval.ini[ xIndex[i] ] > threshold ) {
         info[[ i ]] <- c(0, mmpc2object$univ$pvalue[ xIndex[i] ] )
         names(info[[ i ]])[2] <- "p-value"
+        
       } else {
         j <- 0
         ok <- FALSE
@@ -20,7 +21,7 @@ certificate.of.exclusion2 <- function(xIndex, mmpc2object) {
           if  ( length(poies) > 0 ) {
             a <- which( pval[[ j ]][1, poies] > threshold )
             if ( length(a) > 0 ) {
-              info[[ i ]] <- c( pval[[ j ]][-c(1,2), a], pval[[ j ]][1, a] ) 
+              info[[ i ]] <- c( pval[[ j ]][-c(1,2), poies[a]], pval[[ j ]][1, poies[a]] ) 
               names(info[[ i ]])[ length( info[[ i ]] ) ] <- "p-value"
               ok <- TRUE 
             }  ##  end if ( length(a) > 0 ) {

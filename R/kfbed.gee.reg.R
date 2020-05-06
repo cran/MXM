@@ -1,6 +1,6 @@
 kfbed.gee.reg <- function(y, x, id, prior = NULL, reps = NULL, univ = NULL, alpha = 0.05, wei = NULL, K = 0:5, test = "testIndGEEReg", correl = "exchangeable", se = "jack") { 
     
-  a <- fbed.gee.reg(target = y, dataset = x, id = id, prior = prior, reps = reps, ini = univ, threshold = alpha, wei = wei, K = max(K), test = test, correl = correl, se = se) 
+  a <- MXM::fbed.gee.reg(target = y, dataset = x, id = id, prior = prior, reps = reps, ini = univ, threshold = alpha, wei = wei, K = max(K), test = test, correl = correl, se = se) 
     
   info <- a$info
   k <- dim(info)[1]

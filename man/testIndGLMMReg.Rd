@@ -69,7 +69,7 @@ The index of the variable whose association with the target we want to test.
 The indices of the variables to condition on. If you have no variables set this equal to 0.
 }
 \item{wei}{
-A vector of weights to be used for weighted regression. The default value is NULL. 
+A vector of weights to be used for weighted regression. The default value is NULL. An example where weights are used is surveys when stratified sampling has occured.
 }
 \item{univariateModels}{
 Fast alternative to the hash object for univariate test. List with vectors "pvalues" (p-values), "stats" (statistics) and "flags" (flag = TRUE if the test was succesful) representing the univariate association of each variable with the target. Default value is NULL.

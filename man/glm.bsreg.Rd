@@ -26,7 +26,7 @@ The dataset; provide either a data frame or a matrix (columns = variables, rows 
 Threshold (suitable values in (0, 1)) for assessing p-values significance. Default value is 0.05.
 }
 \item{wei}{
-A vector of weights to be used for weighted regression. The default value is NULL. It is not suggested when robust is set to TRUE.
+A vector of weights to be used for weighted regression. The default value is NULL. An example where weights are used is surveys when stratified sampling has occured.
 }
 \item{test}{
 For "glm.bsreg" this can be "testIndLogistic", "testIndPois", "testIndBinom", testIndReg" or "testIndMMReg".
@@ -44,10 +44,10 @@ The output of the algorithm is S3 object including:
 The run time of the algorithm. A numeric vector. The first element is the user time, the second element is the system time and the third element is the elapsed time.
 }
 \item{info}{
-A matrix with the variables and their latest test statistics and p-values.
+A matrix with the variables and their latest test statistics and \bold{logged p-values}.
 }
 \item{mat}{
-A matrix with the selected variables and their latest test statistic and logged p-value.
+A matrix with the selected variables and their latest test statistic and \bold{logged p-value}.
 }
 \item{ci_test}{
 The conditional independence test used. 

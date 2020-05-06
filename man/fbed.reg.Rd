@@ -40,6 +40,7 @@ Threshold (suitable values in (0, 1)) for assessing p-values significance. Defau
 \item{wei}{
 A vector of weights to be used for weighted regression. The default value is NULL. It is not suggested when robust is set 
 to TRUE. If you want to use the "testIndBinom", then supply the successes in the y and the trials here.
+An example where weights are used is surveys when stratified sampling has occured.
 }
 \item{K}{
 How many times should the process be repeated? The default value is 0. You can also specify a range of values of K, say 0:4 for example.
@@ -72,10 +73,10 @@ If you specify a range of values of K it returns the results of fbed.reg for thi
 \value{
 If K is a single number a list including:
 \item{univ}{
-If you have used the log-likelihood ratio test this list contains the test statistics and the associated p-values of the univariate associations tests. If you have used the EBIc this list contains the eBIC of the univariate associations. Note, that the "gam" argument must be the same though.
+If you have used the log-likelihood ratio test this list contains the test statistics and the associated \bold{logged p-values} of the univariate associations tests. If you have used the EBIc this list contains the eBIC of the univariate associations. Note, that the "gam" argument must be the same though.
 }
 \item{res}{
-A matrix with the selected variables, their test statistic and the associated logged p-value.
+A matrix with the selected variables, their test statistic and the associated \bold{logged p-value}.
 }
 \item{info}{
 A matrix with the number of variables and the number of tests performed (or models fitted) at each round (value of K). This refers to the

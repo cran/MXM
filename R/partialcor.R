@@ -15,7 +15,7 @@ partialcor <- function(R, indx, indy, indz, n) {
   }
     if ( abs(r) > 1 ) r <- 0.99999
     z <- 0.5 * log( (1 + r) / (1 - r) ) * sqrt( n - sum(indz > 0) - 3 )
-    pvalue <- pt( abs(z), n - sum(indz > 0) - 3, lower.tail = FALSE, log.p = TRUE )
+    pvalue <- log(2) + pt( abs(z), n - sum(indz > 0) - 3, lower.tail = FALSE, log.p = TRUE )
     res <- c(r, pvalue)
     names(res) <- c("partial cor", "p-value")
     res

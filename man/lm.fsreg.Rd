@@ -28,7 +28,7 @@ If you have a set of variables already start with this one. Currently this can o
 Threshold (suitable values in (0, 1)) for assessing the p-values significance. Default value is 0.05.
 }
 \item{wei}{
-A vector of weights to be used for weighted regression. The default value is NULL. It is not suggested when robust is set to TRUE.
+A vector of weights to be used for weighted regression. The default value is NULL. An example where weights are used is surveys when stratified sampling has occured.
 }
 \item{stopping}{
 The stopping rule. The BIC ("BIC") or the adjusted \eqn{R^2} ("adjrsq") can be used. 
@@ -51,10 +51,10 @@ The output of the algorithm is S3 object including:
 The run time of the algorithm. A numeric vector. The first element is the user time, the second element is the system time and the third element is the elapsed time.
 }
 \item{mat}{
-A matrix with the variables and their latest test statistics and p-values.
+A matrix with the variables and their latest test statistics and \bold{logged p-values}.
 }
 \item{info}{
-A matrix with the selected variables, their logged p-values and test statistics. Each row corresponds to a model which contains the variables up to that line. The BIC in the last column is the BIC of that model.
+A matrix with the selected variables, their \bold{logged p-values} and test statistics. Each row corresponds to a model which contains the variables up to that line. The BIC in the last column is the BIC of that model.
 }
 \item{models}{
 The regression models, one at each step.

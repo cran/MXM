@@ -250,7 +250,7 @@ cond.regs <- function(target, dataset, xIndex, csIndex, test = NULL, wei = NULL,
 
   } else if ( identical(test, testIndPois) ) {  ## Poisson regression
     fit1 <- glm( target ~., data = dataset[, csIndex, drop = FALSE], poisson, weights = wei )
-    lik1 = fit1$deviance
+    lik1 <- fit1$deviance
     d1 <- length(fit1$coefficients)
     
     if ( ncores <= 1 | is.null(ncores) ) {
@@ -276,13 +276,14 @@ cond.regs <- function(target, dataset, xIndex, csIndex, test = NULL, wei = NULL,
     }
     
   } else if ( identical(test, testIndNB) ) {  ## Negative binomial regression
-    lik1 <- MASS::glm.nb( target ~., data = dataset[, csIndex, drop = FALSE], weights = wei )$twologlik
+    fit1 <- MASS::glm.nb( target ~., data = dataset[, csIndex, drop = FALSE], weights = wei )
+    lik1 <- fit1$twologlik
     d1 <- length(fit1$coefficients)
     
     if ( ncores <= 1 | is.null(ncores) ) {
       lik2 <- dof <- numeric( cols )
       for ( i in xIndex ) {
-        fit2 = MASS::glm.nb( target ~., data = dataset[, c(csIndex, i)], weights = wei )
+        fit2 <- MASS::glm.nb( target ~., data = dataset[, c(csIndex, i)], weights = wei )
         lik2[i] <- fit2$twologlik
         dof[i] <- length( fit2$coefficients ) 
       }
@@ -293,7 +294,7 @@ cond.regs <- function(target, dataset, xIndex, csIndex, test = NULL, wei = NULL,
       cl <- parallel::makePSOCKcluster(ncores)
       doParallel::registerDoParallel(cl)
       mod <- foreach::foreach(i = xIndex, .combine = rbind, .packages = "MASS") %dopar% {
-        fit2 = MASS::glm.nb( target ~., data = dataset[, c(csIndex, i)], weights = wei )
+        fit2 <- MASS::glm.nb( target ~., data = dataset[, c(csIndex, i)], weights = wei )
         return( c(fit2$twologlik, length( fit2$coefficients ) ) )
       }
       parallel::stopCluster(cl)

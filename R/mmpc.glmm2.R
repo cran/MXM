@@ -177,11 +177,9 @@ mmpc.glmm2 <- function(target, reps = NULL, group, dataset, prior = NULL, max_k 
     ide <- which(pval[vars] < alpha)
     vars <- vars[ide]
     if ( length(vars) > 0  &  max_k >= 2 ) {
-      for ( i in 2:max_k ) {  
+      for ( i in 2:min( max_k, length(sela) ) ) {  
         cand <- Rfast::comb_n(sort(sela), i)
-        cand <- cand[, which(cand == sela[dm], arr.ind = TRUE)[, 2], drop = FALSE ]
         j <- 1
-        #for ( j in 1:dim(cand)[2] ) {
         while ( length(vars) > 0  &  j < dim(cand)[2] ) {
           pval2 <- MXM::glmm.condregs(target = target, reps = reps, id = group, dataset = dataset, xIndex = vars, 
                                  csIndex = c( cand[, j], priorindex), test = test, wei = wei, slopes = slopes, ncores = 1)$pvalue 

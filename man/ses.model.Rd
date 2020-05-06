@@ -30,7 +30,7 @@ i.e. strictly within 0 and 1 they are mapped into R using log( target/(1 - targe
 A numeric matrix or data.frame containing the variables. Rows are samples and columns are features. If you have categorical variables, this should be a data frame.
 }
 \item{wei}{
-A vector of weights to be used for weighted regression. The default value is NULL. 
+A vector of weights to be used for weighted regression. The default value is NULL. An example where weights are used is surveys when stratified sampling has occured. 
 }
 \item{sesObject}{
 An object with the results of a SES run.

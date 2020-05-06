@@ -26,6 +26,7 @@ and "testIndTobit".
 }
 \item{wei}{
 A vector of weights to be used for weighted regression. The default value is NULL. It is not suggested when testIndMMReg is used.
+An example where weights are used is surveys when stratified sampling has occured.
 }
 \item{gam}{
 In case the method is chosen to be "eBIC" one can also specify the \eqn{gamma} parameter. The default value is "NULL", so that the value is 

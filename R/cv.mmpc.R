@@ -16,18 +16,17 @@
 #best_performance: numeric, the best average performance
 #best_configuration: the best configuration of mmpc (a list with the slots id, a, max_k)
 cv.mmpc <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, alphas = c(0.1, 0.05, 0.01), max_ks = c(3, 2), task = NULL, 
-                    metric = NULL, metricbbc = NULL, modeler = NULL, mmpc_test = NULL, ncores = 1, B = 1) 
-{
+                    metric = NULL, metricbbc = NULL, modeler = NULL, mmpc_test = NULL, ncores = 1, B = 1) {
   if ( ncores > 1 ) {  ## multi-threaded task
-    result = cvmmpc.par(target, dataset, wei = wei, kfolds = kfolds, folds = folds, alphas = alphas, max_ks = max_ks, task = task, metric = metric, modeler = modeler, mmpc_test = mmpc_test, ncores = ncores)
+    result <- cvmmpc.par(target, dataset, wei = wei, kfolds = kfolds, folds = folds, alphas = alphas, max_ks = max_ks, task = task, metric = metric, modeler = modeler, mmpc_test = mmpc_test, ncores = ncores)
       
   } else { ## one core task
        
   if (is.null(alphas) )  alphas <- c(0.1, 0.05, 0.01)
   if (is.null(max_ks) )  max_ks <- c(3, 2)  
   
-  alphas = sort(alphas, decreasing = TRUE)
-  max_ks = sort(max_ks, decreasing = TRUE)
+  alphas <- sort(alphas, decreasing = TRUE)
+  max_ks <- sort(max_ks, decreasing = TRUE)
   nAlpha <- length(alphas);
   nMax_ks <- length(max_ks);
   #defining the mmpc configurations
@@ -103,7 +102,7 @@ cv.mmpc <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, alph
     
   } else  stop("Please provide a valid task argument 'C'-classification, 'R'-regression, 'S'-survival.")
   
-  nmmpcConfs = length(mmpc_configurations)
+  nmmpcConfs <- length(mmpc_configurations)
   #merging mmpc configuration lists and create the general cv results list
   conf_mmpc <- vector("list" , nmmpcConfs)
   for (i in 1:nmmpcConfs) {
@@ -160,7 +159,7 @@ cv.mmpc <- function(target, dataset, wei = NULL, kfolds = 10, folds = NULL, alph
           conf_mmpc[[mmpc_conf_id]]$preds[[k]] <- NULL
           conf_mmpc[[mmpc_conf_id]]$performances[k] <- NA
         } else {
-          performance = metricFunction(preds, test_target, theta)
+          performance <- metricFunction(preds, test_target, theta)
           conf_mmpc[[mmpc_conf_id]]$preds[[k]] <- preds
           conf_mmpc[[mmpc_conf_id]]$performances[k] <- performance
         }

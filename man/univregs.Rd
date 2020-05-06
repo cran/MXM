@@ -86,7 +86,7 @@ A user-defined conditional independence test (provide a closure type object). De
 argument is ignored.
 }
 \item{wei}{
-A vector of weights to be used for weighted regression. The default value is NULL. 
+A vector of weights to be used for weighted regression. The default value is NULL. An example where weights are used is surveys when stratified sampling has occured. 
 }
 \item{gam}{
 This is for ebic.univregs only and it refers to the \eqn{gamma} value of the eBIC. If it is NULL, the default value is calculated and if gam is zero, the usual BIC is returned. see Chen and Chen (2008) for more information.
@@ -146,7 +146,7 @@ For all other cases a list including:
 The value of the test statistic. If the i-th value is zero (0) it means that the i-th variable had zero variance. It had the same value everywhere.
 }
 \item{pvalue}{
-The logarithm of the p-value of the test. If the i-th value is zero (0) it means that the i-th variable had zero variance. It had the same value everywhere.
+The \bold{logarithm of the p-value} of the test. If the i-th value is zero (0) it means that the i-th variable had zero variance. It had the same value everywhere.
 }
 }
 

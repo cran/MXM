@@ -58,7 +58,7 @@ If K is a single number a list including:
 If you have used the log-likelihood ratio test this list contains the test statistics and the associated p-values of the univariate associations tests. If you have used the EBIc this list contains the eBIC of the univariate associations. Note, that the "gam" argument must be the same though.
 }
 \item{res}{
-A matrix with the selected variables, their test statistic and the associated logged p-value.
+A matrix with the selected variables, their test statistic and the associated \bold{logged p-value}.
 }
 \item{info}{
 A matrix with the number of variables and the number of tests performed (or models fitted) at each round (value of K). This refers to the

@@ -24,7 +24,7 @@ The dataset; provide either a data frame or a matrix (columns = variables, rows 
 Threshold (suitable values in (0,1)) for assessing p-values significance. Default value is 0.05.
 }
 \item{wei}{
-A vector of weights to be used for weighted regression. The default value is NULL. It is not suggested when robust is set to TRUE.
+A vector of weights to be used for weighted regression. The default value is NULL. An example where weights are used is surveys when stratified sampling has occured.
 }
 \item{test}{
 The regression model to use. Available options are most of the tests for SES and MMPC. The ones NOT available are "gSquare", "censIndER", "testIndMVreg", "testIndClogit", "testIndSpearman" and "testIndFisher" and "testIndIGreg". 
@@ -54,7 +54,7 @@ So, one variable is removed at every step. In the IAMB backward phase, at aevery
 \value{
 The output of the algorithm is a list of an S3 object including:
 \item{vars}{
-A vector with the selcted variables.
+A vector with the selected variables.
 }
 \item{mod}{
 The output of the backward phase. In the case of no backward procedure this is the output of the forward phase. 

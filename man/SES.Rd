@@ -61,7 +61,7 @@ The conditional independence test to use. Default value is NULL. See also \code{
 This is a supposed to be a list. After running SES or MMPC with some hyper-parameters you might want to run SES again with different hyper-parameters. To avoid calculating the univariate associations (first step of SES and of MMPC) again, you can extract them from the first run of SES and plug them here. This can speed up the second run (and subequent runs of course) by 50\%. See the details and the argument "univ" in the output values. 
 }
 \item{wei}{
-A vector of weights to be used for weighted regression. The default value is NULL. 
+A vector of weights to be used for weighted regression. The default value is NULL. An example where weights are used is surveys when stratified sampling has occured. 
 }
 \item{user_test}{
 A user-defined conditional independence test (provide a closure type object). Default value is NULL. If this is defined, the "test" argument is ignored.
@@ -82,7 +82,7 @@ The number of permutations, set to 999 by default. There is a trick to avoind do
 How many cores to use. This plays an important role if you have tens of thousands of variables or really large sample sizes and tens of thousands of variables and a regression based test which requires numerical optimisation. In other cases it will not make a difference in the overall time (in fact it can be slower). The parallel computation is used in the first step of the algorithm, where univariate associations are examined, those take place in parallel. We have seen a reduction in time of 50\% with 4 cores in comparison to 1 core. Note also, that the amount of reduction is not linear in the number of cores.
 }
 \item{backward}{
-If TRUE, the backward (or symmetry correction) phase will be implemented. This removes any falsely included variables in the parents and children set of the target variable. It call the \code{link{mmpcbackphase}} for this purpose. 
+If TRUE, the backward (or symmetry correction) phase will be implemented. This removes any falsely included variables in the parents and children set of the target variable. It calls the \code{link{mmpcbackphase}} for this purpose. 
 }
 }
 
@@ -94,12 +94,12 @@ The MMPC function implements the MMPC algorithm as presented in "Tsamardinos, Br
 
 he output value "univ" along with the output value "hashObject" 
 can speed up the computations of subsequent runs of SES and MMPC. The first run with a specific pair of hyper-parameters (threshold and max_k) the univariate associations tests 
-and the conditional independence tests (test statistic and natural logarithm of their corresponding p-values) are stored and returned. In the next run(s) with different pair(s) of 
+and the conditional independence tests (test statistic and \bold{natural logarithm of their corresponding p-values}) are stored and returned. In the next run(s) with different pair(s) of 
 hyper-parameters you can use this information to save time. With a few thousands of variables you will see the difference, which can be up to 50\%. For the non robust correlation based tests, 
 the difference may not be significant though, because the unconditional correlation coefficients are calculated very efficiently.s. 
 
 The max_k option: the maximum size of the conditioning set to use in the conditioning independence test. Larger values provide more accurate results, at the cost of higher 
-computational times. When the sample size is small (e.g., \eqn{<50} observations) the max_k parameter should be \eqn{ \leq 5}, otherwise the conditional independence test may 
+computational times. When the sample size is small (e.g., \eqn{<50} observations) the max_k parameter should be say 3, otherwise the conditional independence test may 
 not be able to provide reliable results.
 
 If the dataset (predictor variables) contains missing (NA) values, they will automatically be replaced by the current variable (column) mean value with an appropriate warning 
@@ -172,7 +172,7 @@ The hashObject caching the statistic calculated in the current run.
 \item{pvalues}{
 For each feature included in the dataset, this vector reports the strength of its association with the target in the context of all other variable. 
 Particularly, this vector reports the max p-values found when the association of each variable with the target is tested against different conditional sets. 
-Lower values indicate higher association. Note that these are the logged p-values, natural logarithm of the pvalues, and not the p-values.
+Lower values indicate higher association. \bold{Note that these are the logged p-values, natural logarithm of the pvalues, and not the p-values}.
 }
 \item{stats}{
 The statistics corresponding to "pvalues" (higher values indicates higher association).

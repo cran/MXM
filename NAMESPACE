@@ -93,7 +93,7 @@ export(SES, InternalSES, MMPC, InternalMMPC, SES.glmm, InternalSES.glmm, MMPC.gl
 	   gee.mmhc.skel, gomp.path, testIndGLMMGamma, testIndGLMMNormLog, cv.gomp, testIndGLMMOrdinal, bbc, big.gomp, read.big.data, 
 	   supervised.pca, big.score.univregs, corgraph, big.fbed.reg, mmpc2, certificate.of.exclusion2, glmm.condregs, gee.condregs, mci.mxm, 
 	   clogit.mxm, mmpc.glmm2, mmpc.gee2, testIndGLMMCR, ebic.regs, ebic.model, testIndSPML, perm.mmpc.path, boot.gomp, censIndLLR, permLLR, 
-	   waldLLR, logiquant.regs, sp.logiregs, pc.sel, zinb.mod, zinb.reg)
+	   waldLLR, logiquant.regs, sp.logiregs, pc.sel, zinb.mod, zinb.reg, cv.fbed.lmm.reg)
 
 exportClasses("SESoutput")
 exportClasses("MMPCoutput")

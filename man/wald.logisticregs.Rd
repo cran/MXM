@@ -27,7 +27,7 @@ A data.frame, the predictor variables. If you have no categorical variables, the
 The tolerance value to stop the Newton-Raphson iterations. It is set to 1e-09 by default. 
 }
 \item{wei}{
-A vector of weights to be used for weighted regression. The default value is NULL. 
+A vector of weights to be used for weighted regression. The default value is NULL. An example where weights are used is surveys when stratified sampling has occured. 
 }
 \item{check}{
 A boolean variable indicating whether to chekc for variables with identical values. The defauls is FALSE.
@@ -45,7 +45,7 @@ Instead of using R built-in function \code{\link{glm}} we implemented the newton
 }
 
 \value{
-A matrix with three columns, the test statistic, its associated (logged) p-value and the BIC of each model.   
+A matrix with three columns, the test statistic, its associated (\bold{logged}) p-value and the BIC of each model.   
 }
 
 \references{

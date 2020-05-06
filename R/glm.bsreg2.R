@@ -27,12 +27,13 @@ glm.bsreg2 <- function(target, dataset, threshold = 0.05, wei = NULL, test = NUL
       } else if ( test == "testIndQBinom" )  {
         type <- quasibinomial(link = logit)
       }
-
+	  poio <- 4  
+      if ( test == "testIndQBinom"  |  test == "testIndQPois" )  poio <- 3 
       ini <- glm( target ~.,  data = dataset, family = type, weights = wei, y = FALSE, model = FALSE )
       dofini <- length( ini$coefficients )
       tab <- drop1( ini, test = "F" )
       dof <- tab[-1, 1]
-      stat <- tab[-1, 4]
+      stat <- tab[-1, poio]
         
       mat <- cbind(1:p, pf( stat, dofini - dof, n - dof, lower.tail = FALSE, log.p = TRUE), stat )
       colnames(mat) <- c("variable", "log.p-values", "statistic" )
@@ -80,7 +81,7 @@ glm.bsreg2 <- function(target, dataset, threshold = 0.05, wei = NULL, test = NUL
                 
                 tab <- drop1( ini, test = "F" )
                 dof <- tab[-1, 1]
-                stat <- tab[-1, 4]
+                stat <- tab[-1, poio]
                 mat[, 2:3] <- cbind( pf(stat, dof, n - (dofini - dof), lower.tail = FALSE, log.p = TRUE), stat )
                 sel <- which.max( mat[, 2] )
                 

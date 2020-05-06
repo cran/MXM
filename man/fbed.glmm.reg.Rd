@@ -20,7 +20,7 @@ The class variable. This can be a numerical vector with continuous data, binary 
 factor variable with two levels only.
 }
 \item{dataset}{
-The dataset; provide a numerical a matrix (columns = variables, rows = samples).
+The dataset; provide a numerical a matrix (columns = variables, rows = observations).
 }
 \item{id}{
 This is a numerical vector of the same size as target denoting the groups or the subjects. 
@@ -76,7 +76,7 @@ If you specify a range of values of K it returns the results of fbed.reg for thi
 \value{
 If K is a single number a list including:
 \item{res}{
-A matrix with the selected variables, their test statistic and the associated loged p-value.
+A matrix with the selected variables, their test statistic and the associated \bold{logged p-value}.
 }
 \item{info}{
 A matrix with the number of variables and the number of tests performed (or models fitted) at each round (value of K). This refers to the
@@ -118,7 +118,7 @@ R implementation and documentation: Michail Tsagris \email{mtsagris@uoc.gr}
 }
 
 \seealso{
-\code{ \link{fbed.gee.reg}, \link{glmm.bsreg}, \link{MMPC.glmm}, \link{fbed.reg} }
+\code{ \link{fbed.gee.reg}, \link{glmm.bsreg}, \link{MMPC.glmm}, \link{cv.fbed.lmm.reg} }
 }
 
 \examples{
@@ -127,8 +127,8 @@ require(lme4)
 data(sleepstudy)
 reaction <- sleepstudy$Reaction
 subject <- sleepstudy$Subject
-x <- matrix(rnorm(180 * 20),ncol = 20) ## unrelated predictor variables
-m1 <- fbed.glmm.reg(reaction, x, subject) 
+x <- matrix(rnorm(180 * 200),ncol = 200) ## unrelated predictor variables
+m1 <- fbed.glmm.reg(reaction, cbind(x1, x), subject) 
 m2 <- MMPC.glmm(target = reaction, group = subject, dataset = x)
 }
 }

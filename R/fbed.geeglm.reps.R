@@ -156,7 +156,7 @@ fbed.geeglm.reps <- function(y, x, id, prior = NULL, reps, univ = NULL, alpha = 
           stat[i] <- mod[nr, 2]
         }  
       }
-      n.tests[2] <- length( ind[-c(sela, zevar)] )
+      n.tests[1] <- length( ind[-c(sela, zevar)] )
       pval <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
       s <- which(pval < sig)
       sel <- which.min(pval) * ( length(s)>0 )

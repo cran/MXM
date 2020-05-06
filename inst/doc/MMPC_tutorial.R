@@ -1,4 +1,4 @@
-## ---- eval = FALSE-------------------------------------------------------
+## ---- eval = FALSE------------------------------------------------------------
 #  
 #  # Overview the MXM::`MMPC()` function
 #  
@@ -20,7 +20,7 @@
 #                            # Falsely included variables,
 #                            # in the MMPC output signature are removed.
 
-## ---- warning = FALSE, message = FALSE-----------------------------------
+## ---- warning = FALSE, message = FALSE----------------------------------------
 
 # 0. INSTALL and LOAD the MXM R Package:
 #install.packages('MXM', dependencies = TRUE )
@@ -49,14 +49,14 @@ head(wine, 2)
 # Alcohol | Malic | Ash | Alcalinity | Magnesium | Phenols | Flavanoids 
 # Nonflavanoids | Proanthocyanins | Color | Hue | Dilution | Proline 
 
-## ---- warning = FALSE, message = FALSE-----------------------------------
+## ---- warning = FALSE, message = FALSE----------------------------------------
 # 5. CHECK for missing or non-numeric values in the dataframe:
 
 sum(is.na(wine))
 sum(is.nan(as.matrix(wine)))  #if 0, then No NAs, none NaNs, good to go!
  
 
-## ---- warning = FALSE, message = FALSE-----------------------------------
+## ---- warning = FALSE, message = FALSE----------------------------------------
 
 # 6. CHECK `wine` object's data type, dimensions:
 str(wine)
@@ -64,7 +64,7 @@ str(wine)
 # The output should be a datarame: 
 #'data.frame':	178 obs. of  13 variables
 
-## ---- warning = FALSE, message = FALSE-----------------------------------
+## ---- warning = FALSE, message = FALSE----------------------------------------
 
 # 0. Exclude target variable column
 targetVariable <- wine$Nonflavanoids
@@ -77,7 +77,7 @@ wine_dataset[, 12] <- as.numeric(wine_dataset[, 12])
 head(wine_dataset, 2)
 
 
-## ---- warning = FALSE, message = FALSE-----------------------------------
+## ---- warning = FALSE, message = FALSE----------------------------------------
 
 # 2. Check dimensions of the wine_dataset
 # REMINDER: We need it as N x f    // N for instances, f or features
@@ -87,12 +87,12 @@ dim(wine_dataset)
 # The output should be 178 x 12, 
 #178 instances and 12 features; if so, we're good to go
 
-## ---- warning = FALSE, message = FALSE-----------------------------------
+## ---- warning = FALSE, message = FALSE----------------------------------------
 # 3. Select the target variable (`Nonflavanoids`) and store as a matrix:
 target_NonFlav <- as.vector(wine$Nonflavanoids)
 str(target_NonFlav,2)
 
-## ---- warning = FALSE, message = FALSE-----------------------------------
+## ---- warning = FALSE, message = FALSE----------------------------------------
 
 # MMPC on the wine dataset: 
 
@@ -108,18 +108,18 @@ mmpcobject_wine_NonFlav <- MXM::MMPC( target  = target_NonFlav,
                                        ncores = 1,         
                                        backward = TRUE)   
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # Cache of the stats calculated in the MMPC run
 str(mmpcobject_wine_NonFlav@hashObject) 
 
 # a list with the univariate associations
 str(mmpcobject_wine_NonFlav@univ)        
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 execution_time_1st_MMPC_run <- mmpcobject_wine_NonFlav@runtime
 execution_time_1st_MMPC_run
 
-## ---- warning = FALSE, message = FALSE-----------------------------------
+## ---- warning = FALSE, message = FALSE----------------------------------------
 
 # MMPC on the wine dataset: 
 
@@ -136,13 +136,13 @@ mmpcobject_2nd_run <- MXM::MMPC(target  = target_NonFlav,
                            # cached stats, p-values
                            hashObject = mmpcobject_wine_NonFlav@hashObject)  
 
-## ---- warning = FALSE, message = FALSE-----------------------------------
+## ---- warning = FALSE, message = FALSE----------------------------------------
 execution_time_2nd_MMPC_run <- mmpcobject_2nd_run@runtime
 
 execution_time_1st_MMPC_run
 execution_time_2nd_MMPC_run
 
-## ---- warning = FALSE, message = FALSE-----------------------------------
+## ---- warning = FALSE, message = FALSE----------------------------------------
 
 # Grid Search for MMPC hyper-parameter tuning 
 
@@ -156,38 +156,38 @@ mmpcGridSearch <- MXM::mmpc.path(target  = target_NonFlav,
                   test = 'testIndFisher',   
                   ncores = 1)
 
-## ---- warning = FALSE, message = FALSE-----------------------------------
+## ---- warning = FALSE, message = FALSE----------------------------------------
 BIC_results <- as.data.frame(mmpcGridSearch$bic)
 head(BIC_results, 4)
 
 # We can retrieve the indices of the minimum BIC values:
 which(BIC_results == min(BIC_results), arr.ind = TRUE)
 
-## ---- warning = FALSE, message = FALSE-----------------------------------
+## ---- warning = FALSE, message = FALSE----------------------------------------
 size_of_signature_results <- as.data.frame(mmpcGridSearch$size)
 head(size_of_signature_results, 4)
 
 # We can retrieve the indices of the maximum subset:
 which(size_of_signature_results == max(size_of_signature_results), arr.ind = TRUE)
 
-## ---- warning = FALSE, message = FALSE-----------------------------------
+## ---- warning = FALSE, message = FALSE----------------------------------------
 head(mmpcGridSearch$variables, 4)
 
 
-## ---- warning = FALSE, message = FALSE-----------------------------------
+## ---- warning = FALSE, message = FALSE----------------------------------------
 summary(mmpcobject_wine_NonFlav)
 
-## ---- warning = FALSE, message = FALSE-----------------------------------
+## ---- warning = FALSE, message = FALSE----------------------------------------
 mmpcobject_wine_NonFlav@selectedVarsOrder
 
 # The signature should include the variables with indices 7, 4, 5
 
-## ---- warning = FALSE, message = FALSE-----------------------------------
+## ---- warning = FALSE, message = FALSE----------------------------------------
 colnames(wine_dataset)[7]
 colnames(wine_dataset)[4]
 colnames(wine_dataset)[5]
 
-## ---- warning = FALSE, message = FALSE-----------------------------------
+## ---- warning = FALSE, message = FALSE----------------------------------------
 
 # MODEL ESTIMATES USING MMPC'S FEATURE SUBSET AS PrEDICTORs 
 mmpcmodel_wine_NonFlav<- mmpc.model(
@@ -200,9 +200,9 @@ mmpcmodel_wine_NonFlav<- mmpc.model(
 summary(mmpcmodel_wine_NonFlav) ; 
 mmpcmodel_wine_NonFlav$ypografi
 
-## ---- warning = FALSE, message = FALSE-----------------------------------
+## ---- warning = FALSE, message = FALSE----------------------------------------
 mmpcmodel_wine_NonFlav$mod
 
-## ---- warning = FALSE, message = FALSE-----------------------------------
+## ---- warning = FALSE, message = FALSE----------------------------------------
 sessionInfo()
 

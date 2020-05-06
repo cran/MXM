@@ -45,7 +45,7 @@ For the "gee.condregs" one of the following: \bold{testIndGEEReg}, \bold{testInd
 Note that in all cases you must give the name of the test, without " ". 
 }
 \item{wei}{
-A vector of weights to be used for weighted regression. The default value is NULL. 
+A vector of weights to be used for weighted regression. The default value is NULL. An example where weights are used is surveys when stratified sampling has occured. 
 }
 \item{ncores}{
 How many cores to use. This plays an important role if you have tens of thousands of variables or really large sample 
@@ -98,7 +98,7 @@ A list including:
 The value of the test statistic.
 }
 \item{pvalue}{
-The logarithm of the p-value of the test. 
+The \bold{logarithm of the p-value} of the test. 
 }
 }
 

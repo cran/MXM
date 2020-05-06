@@ -82,13 +82,13 @@ The hashObject caching the statistic calculated in the current run.
 \item{pvalues}{
 For each feature included in the dataset, this vector reports the strength of its association with the target in the context of all other variables. 
 Particularly, this vector reports the max p-values found when the association of each variable with the target is tested against different conditional sets. 
-Lower values indicate higher association. Note that these are the logged p-values, natural logarithm of the pvalues, and not the p-values.
+Lower values indicate higher association. \bold{Note that these are the logged p-values, natural logarithm of the pvalues, and not the p-values}.
 }
 \item{stats}{
 The statistics corresponding to "pvalues" (higher values indicates higher association).
 }
 \item{univ}{
-This is a list with the univariate associations. The test statistics and their corresponding logged p-values, along with their flag (1 if the test was perfromed and 0 otherwise). 
+This is a list with the univariate associations. The test statistics and their corresponding \bold{logged p-values}, along with their flag (1 if the test was perfromed and 0 otherwise). 
 This list is very important for subsequent runs of SES with different hyper-parameters. After running SES with some hyper-parameters you might want to run SES again with different 
 hyper-parameters. To avoid calculating the univariate associations (first step of SES or MMPC) again, you can take this list from the first run of SES and plug it in the argument "ini" 
 in the next run(s) of SES or MMPC. This can speed up the second run (and subequent runs of course) by 50\%. See the argument "univ" in the output values. 

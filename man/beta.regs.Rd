@@ -27,7 +27,7 @@ The target (dependent) variable. It must be a numerical vector with integers.
 The indendent variable(s). It can be a vector, a matrix or a dataframe with continuous only variables, a data frame with mixed or only categorical variables.
 }
 \item{wei}{
-A vector of weights to be used for weighted regression. The default value is NULL. 
+A vector of weights to be used for weighted regression. The default value is NULL. An example where weights are used is surveys when stratified sampling has occured. 
 }
 \item{check}{
 A boolean variable indicating whether to check for variables with identical values. The default is FALSE.
@@ -51,7 +51,7 @@ Many simple beta regressions are fitted.
 }
 
 \value{
-A matrix with the test statistic values, their relevant (logged) p-values and the BIC values. 
+A matrix with the test statistic values, their relevant (\bold{logged}) p-values and the BIC values. 
 }
 
 \references{

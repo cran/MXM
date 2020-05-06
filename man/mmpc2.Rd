@@ -40,7 +40,7 @@ This is a supposed to be a list. To avoid calculating the univariate association
 This can speed up the second run (and subequent runs of course) by 50\%. See the details and the argument "univ" in the output values. 
 }
 \item{wei}{
-A vector of weights to be used for weighted regression. The default value is NULL. 
+A vector of weights to be used for weighted regression. The default value is NULL. An example where weights are used is surveys when stratified sampling has occured. 
 }
 
 %\item{R}{
@@ -68,13 +68,13 @@ The output of the algorithm is an S3 object including:
 The selected variables, i.e., the signature of the target variable.
 }
 \item{pvalues}{
-For each feature included in the dataset, this vector reports the strength of its association with the target in the context of all other variable. Particularly, this vector reports the max p-values found when the association of each variable with the target is tested against different conditional sets. Lower values indicate higher association.
+For each feature included in the dataset, this vector reports the strength of its association with the target in the context of all other variable. Particularly, this vector reports the max p-values found when the association of each variable with the target is tested against different conditional sets. Lower values indicate higher association. \bold{Note that these are the logarithm of the p-values}
 }
 \item{univ}{
-A vector with the logged p-values of the univariate associations. This vector is very important for subsequent runs of MMPC with different hyper-parameters. After running SES with some hyper-parameters you might want to run MMPCagain with different hyper-parameters. To avoid calculating the univariate associations (first step) again, you can take this list from the first run of SES and plug it in the argument "ini" in the next run(s) of MMPC. This can speed up the second run (and subequent runs of course) by 50\%. See the argument "univ" in the output values. 
+A vector with the \bold{logged p-values} of the univariate associations. This vector is very important for subsequent runs of MMPC with different hyper-parameters. After running SES with some hyper-parameters you might want to run MMPCagain with different hyper-parameters. To avoid calculating the univariate associations (first step) again, you can take this list from the first run of SES and plug it in the argument "ini" in the next run(s) of MMPC. This can speed up the second run (and subequent runs of course) by 50\%. See the argument "univ" in the output values. 
 }
 \item{kapa_pval}{
-A list with the same number of elements as the max$_k$. Every element in the list is a matrix. The first row is the logged p-values, the second row is the variable whose conditional association with the target variable was tests and the other rows are the conditioning variables. 
+A list with the same number of elements as the max$_k$. Every element in the list is a matrix. The first row is the \bold{logged p-values}, the second row is the variable whose conditional association with the target variable was tests and the other rows are the conditioning variables. 
 }
 \item{max_k}{
 The max_k option used in the current run.

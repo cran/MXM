@@ -50,7 +50,7 @@ The output of the algorithm is S3 object including:
 The run time of the algorithm. A numeric vector. The first element is the user time, the second element is the system time and the third element is the elapsed time.
 }
 \item{mat}{
-A matrix with the variables and their latest test statistics and p-values.
+A matrix with the variables and their latest test statistics and \bold{logged p-values}.
 }
 \item{info}{
 A matrix with the selected variables, and the BIC of the model with that and all the previous variables.
