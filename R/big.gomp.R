@@ -6,7 +6,7 @@ big.gomp <- function(target = NULL, dataset, tol = qchisq(0.95, 1) + log(dim(x)[
   
   if ( is.null(target) ) {
     if (test == "censIndCR" | test == "censIndWR") {
-      y <- Surv(dataset[, 1], dataset[, 2])
+      y <- survival::Surv(dataset[, 1], dataset[, 2])
       x <- bigmemory::sub.big.matrix(dataset, firstCol = 3)
     } else {  
       y <- dataset[, 1]

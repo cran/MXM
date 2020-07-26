@@ -18,8 +18,8 @@ Univariate regression based tests.
 }
 
 \usage{
-univregs(target, dataset, targetID = -1, test = NULL, user_test = NULL, wei = NULL, 
-ncores = 1) 
+univregs(target, dataset, targetID = -1, test = NULL, user_test = NULL, 
+wei = NULL, ncores = 1) 
 
 ebic.univregs(target, dataset, targetID = -1, test = NULL, user_test = NULL, 
 wei = NULL, ncores = 1, gam = NULL) 
@@ -34,7 +34,7 @@ score.univregs(target, dataset, test)
 
 big.score.univregs(target = NULL, dataset, test) 
 
-rint.regs(target, dataset, targetID = -1, id, reps = NULL, tol = 1e-08)
+rint.regs(target, dataset, targetID = -1, id, reps = NULL, tol = 1e-07)
 
 glmm.univregs(target, reps = NULL, id, dataset, targetID = -1, test, wei = NULL, 
 slopes = FALSE, ncores = 1)
@@ -73,7 +73,7 @@ For the "score.univregs" and "big.score.univregs" this can only be one of the fo
 not a Surv object. Ordinal regression is not supported. 
 
 For the "glmm.univregs" this can only be one of the following: \bold{testIndGLMMReg}, \bold{testIndLMM}, 
-\bold{testIndGLMMLogistic}, \bold{testIndGLMMOrdinal}, \bold{testIndGLMMPois}, \bold{testIndGLMMGamma}, 
+\bold{testIndGLMMLogistic}, \bold{testIndGLMMOrdinal}, \bold{testIndGLMMPois}, \bold{testIndGLMMNB}, \bold{testIndGLMMGamma}, 
 \bold{testIndGLMMNormLog} or \bold{testIndGLMMCR}. 
 
 For the "gee.univregs" this can only be one of the following: \bold{testIndGLMMReg}, \bold{testIndGLMMLogistic}, 

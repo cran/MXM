@@ -1,4 +1,4 @@
-univariateScore.glmm = function(target, reps = NULL, group, dataset, test, wei, targetID, slopes, ncores) {
+univariateScore.glmm <- function(target, reps = NULL, group, dataset, test, wei, targetID, slopes, ncores) {
 
   univariateModels <- list();
   dm <- dim(dataset)

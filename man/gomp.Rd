@@ -1,13 +1,13 @@
-\name{Generalised orthogonal matching pursuit (gOMP)}
+\name{Generic orthogonal matching pursuit (gOMP)}
 \alias{gomp}
 \alias{gomp.path}
 \alias{boot.gomp}
 \title{
-Generalised orthogonal matching pursuit (gOMP)
+Generic orthogonal matching pursuit (gOMP)
 }
 
 \description{
-Generalised orthogonal matching pursuit.
+Generic orthogonal matching pursuit.
 }
 
 \usage{

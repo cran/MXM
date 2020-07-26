@@ -61,9 +61,9 @@ bbc <- function(predictions, target, metric = "auc.mxm", conf = 0.95, B = 1000) 
   } else if (metric == "acc_multinom.mxm") {
     for (i in 1:B) {
       ind <- sample.int(n, n, replace = TRUE)
-      in.perf <- 1 - Rfast::colmeans( predictions[ind, ] - target[ind] )
+      in.perf <- Rfast::colmeans( predictions[ind, ] - target[ind] ==0 )
       poio <- which.max(in.perf)
-      out.perf[i] <- 1 - mean( predictions[-ind, poio] - target[-ind] )
+      out.perf[i] <- mean( predictions[-ind, poio] - target[-ind] == 0 )
     } 
   
   } else if (metric == "mse.mxm") {

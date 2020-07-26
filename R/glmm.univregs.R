@@ -76,6 +76,37 @@ glmm.univregs <- function(target, reps = NULL, id, dataset, targetID = -1, test,
         }  ##  end if  slopes
       }  ##  end if ( is.null(reps) ) 
 
+      ### Negative binomial GLMM    
+    } else if ( identical(test, testIndGLMMNB) ) {
+      
+      if ( is.null(reps) ) {
+        fit1 <- lme4::glmer.nb( target ~ (1|id), weights = wei, nAGQ = 0 ) 
+        for (i in ind) {
+          fit2 <- lme4::glmer.nb( target ~ (1|id) + dataset[, i], weights = wei, nAGQ = 0 ) 
+          mod <- anova(fit1, fit2)
+          stat[i] <- mod[2, 6]
+        }
+        
+      } else {
+        reps <- reps 
+        if ( slopes ) {
+          fit1 <- lme4::glmer.nb( target ~ reps + (reps|id), weights = wei, nAGQ = 0 ) 
+          for (i in ind) {
+            fit2 <- lme4::glmer.nb( target ~ reps + (reps|id) + dataset[, i], weights = wei, nAGQ = 0 ) 
+            mod <- anova(fit1, fit2)
+            stat[i] <- mod[2, 6]
+          }  ##  end for (i in ind)  
+        } else {  ###  yes slopes
+          reps <- reps 
+          fit1 <- lme4::glmer.nb( target ~ reps + (1|id), weights = wei, nAGQ = 0 )  
+          for (i in ind) {
+            fit2 <- lme4::glmer.nb( target ~ reps + (1|id) + dataset[, i], weights = wei, nAGQ = 0 ) 
+            mod <- anova(fit1, fit2)
+            stat[i] <- mod[2, 6]
+          }  ##  end for (i in ind)
+        }  ##  end if  slopes
+      }  ##  end if ( is.null(reps) ) 
+      
       ### Gamma GLMM
     } else if ( identical(test, testIndGLMMGamma) ) {
     

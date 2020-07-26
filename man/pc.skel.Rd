@@ -175,15 +175,11 @@ Bear in mind that the values can be extracted with the $ symbol, i.e. this is an
 \references{
 Spirtes P.,  Glymour C. and Scheines R. (2001). Causation, Prediction, and Search. The MIT Press, Cambridge, MA, USA, 3nd edition.
 
-Tsamardinos, Ioannis, and Laura E. Brown. Bounding the False Discovery Rate in Local Bayesian Network Learning. AAAI, 2008.
+Tsagris M. (2019). Bayesian network learning with the PC algorithm: an improved and correct variation. 
+Applied Artificial Intelligence, 33(2): 101-123.
 
 Tsagris M., Borboudakis G., Lagani V. and Tsamardinos I. (2018). Constraint-based Causal Discovery with Mixed Data. 
 International Journal of Data Science and Analytics, 6: 19-30. 
-
-\url{ http://nugget.unisa.edu.au/CD2017/papersonly/constraint-based-causal-r1.pdf }
-
-Tsagris M. Bayesian network learning with the PC algorithm: an improved and correct variation. 
-Applied Artificial Intelligence (Accepted for publication).
 
 Sedgewick, A. J., Ramsey, J. D., Spirtes, P., Glymour, C., & Benos, P. V. (2017). Mixed Graphical Models for Causal Analysis of 
 Multi-modal Variables. arXiv preprint arXiv:1704.02621.

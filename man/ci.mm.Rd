@@ -56,12 +56,10 @@ A vector including the test statistic, it's associated p-value and the relevant 
 }
 
 \references{
-Tsagris M., Borboudakis G., Lagani V. and Tsamardinos I. (2018). Constraint-based Causal Discovery with Mixed Data. International Journal of Data Science and Analytics. 
+Tsagris M. (2019). Bayesian network learning with the PC algorithm: an improved and correct variation. 
+Applied Artificial Intelligence, 33(2): 101-123.
 
-\url{ https://link.springer.com/content/pdf/10.1007%2Fs41060-018-0097-y.pdf 
-}
- 
-\url{ http://nugget.unisa.edu.au/CD2017/papersonly/constraint-based-causal-r1.pdf }
+Tsagris M., Borboudakis G., Lagani V. and Tsamardinos I. (2018). Constraint-based Causal Discovery with Mixed Data. International Journal of Data Science and Analytics. 
 
 Spirtes P.,  Glymour C. and Scheines R. (2001). Causation, Prediction, and Search. The MIT Press, Cambridge, MA, USA, 3nd edition.
 

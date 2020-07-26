@@ -2,6 +2,7 @@
 \alias{testIndGLMMReg}
 \alias{testIndGLMMLogistic}
 \alias{testIndGLMMPois}
+\alias{testIndGLMMNB}
 \alias{testIndGLMMGamma}
 \alias{testIndGLMMNormLog}
 \alias{testIndGLMMOrdinal}
@@ -25,6 +26,10 @@ univariateModels = NULL, hash = FALSE, stat_hash = NULL,
 pvalue_hash = NULL, slopes = FALSE)
 
 testIndGLMMPois(target, reps = NULL, group, dataset, xIndex, csIndex, wei = NULL,
+univariateModels = NULL, hash = FALSE, stat_hash = NULL, 
+pvalue_hash = NULL, slopes = FALSE)
+
+testIndGLMMNB(target, reps = NULL, group, dataset, xIndex, csIndex, wei = NULL,
 univariateModels = NULL, hash = FALSE, stat_hash = NULL, 
 pvalue_hash = NULL, slopes = FALSE)
 

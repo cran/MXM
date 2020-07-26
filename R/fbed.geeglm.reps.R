@@ -19,6 +19,9 @@ fbed.geeglm.reps <- function(y, x, id, prior = NULL, reps, univ = NULL, alpha = 
     x <- cbind(x, prior)
     priorindex <- c( (p + 1):dim(x)[2] )
   }
+  x <- cbind(x, reps)
+  xronoi <- dim(x)[2] + 1
+  x <- as.data.frame(x)
   
   if ( test == "testIndGEELogistic" ) {
     oiko <- binomial(logit)
@@ -35,14 +38,14 @@ fbed.geeglm.reps <- function(y, x, id, prior = NULL, reps, univ = NULL, alpha = 
   if ( is.null(univ) ) {
     if ( is.null(prior) ) {
       for ( i in ind ) {
-        fit2 <- try( geepack::geeglm( y ~ reps + x[, i], family = oiko, id = id, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE )
+        fit2 <- try( geepack::geeglm( y ~., data = x[, c(xronoi, i)], family = oiko, id = id, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE )
         if ( identical( class(fit2), "try-error" ) ) {
           stat[i] <- 0
         } else  stat[i] <- anova(fit2)[2, 2]
       }
     } else {
       for ( i in ind )  {
-        fit2 <- try( geepack::geeglm( y ~ reps + prior + x[,i], family = oiko, id = id, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
+        fit2 <- try( geepack::geeglm( y ~., data = x[, c(xronoi, priorindex, i)], family = oiko, id = id, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
         if ( identical( class(fit2), "try-error" ) ) {
           stat[i] <- 0
         } else {  
@@ -76,7 +79,7 @@ fbed.geeglm.reps <- function(y, x, id, prior = NULL, reps, univ = NULL, alpha = 
     #########
     while ( sum(s>0) > 0 ) {
       for ( i in ind[s] )  {
-        fit2 <- try( geepack::geeglm( y ~ reps + x[, c(priorindex, sela)] + x[,i], family = oiko, id = id, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
+        fit2 <- try( geepack::geeglm( y ~., data = x[, c(xronoi, priorindex, sela, i)], family = oiko, id = id, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
         if ( identical( class(fit2), "try-error" ) ) {
           stat[i] <- 0
         } else {  
@@ -101,7 +104,7 @@ fbed.geeglm.reps <- function(y, x, id, prior = NULL, reps, univ = NULL, alpha = 
     if (K == 1) {
       d0 <- length(sela)
       for ( i in ind[-c(sela, zevar)] )  {
-        fit2 <- try( geepack::geeglm( y ~ reps + x[, c(priorindex, sela)] + x[,i], family = oiko, id = id, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
+        fit2 <- try( geepack::geeglm( y ~., data = x[, c(xronoi, priorindex, sela, i)], family = oiko, id = id, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
         if ( identical( class(fit2), "try-error" ) ) {
           stat[i] <- 0
         } else {
@@ -122,7 +125,7 @@ fbed.geeglm.reps <- function(y, x, id, prior = NULL, reps, univ = NULL, alpha = 
       while ( sum(s>0) > 0 ) {
         d0 <- length(sela)
         for ( i in ind[s] )  {
-          fit2 <- try( geepack::geeglm( y ~ reps + x[, c(priorindex, sela)] + x[,i], family = oiko, id = id, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
+          fit2 <- try( geepack::geeglm( y ~., data = x[, c(xronoi, priorindex, sela, i)], family = oiko, id = id, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
           if ( identical( class(fit2), "try-error" ) ) {
             stat[i] <- 0
           } else {
@@ -147,7 +150,7 @@ fbed.geeglm.reps <- function(y, x, id, prior = NULL, reps, univ = NULL, alpha = 
     if ( K > 1) {
       
       for ( i in ind[-c(sela, zevar)] )  {
-        fit2 <- try( geepack::geeglm( y ~ reps + x[, c(priorindex, sela)] + x[,i], family = oiko, id = id, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
+        fit2 <- try( geepack::geeglm( y ~., data = x[, c(xronoi, priorindex, sela, i)], family = oiko, id = id, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
         if ( identical( class(fit2), "try-error" ) ) {
           stat[i] <- 0
         } else {
@@ -168,7 +171,7 @@ fbed.geeglm.reps <- function(y, x, id, prior = NULL, reps, univ = NULL, alpha = 
       
       while ( sum(s > 0) > 0 ) {
         for ( i in ind[s] )  {
-          fit2 <- try( geepack::geeglm( y ~ reps + x[, c(priorindex, sela)] + x[,i], family = oiko, id = id, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
+          fit2 <- try( geepack::geeglm( y ~., data = x[, c(xronoi, priorindex, sela, i)], family = oiko, id = id, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
           if ( identical( class(fit2), "try-error" ) ) {
             stat[i] <- 0
           } else {
@@ -193,7 +196,7 @@ fbed.geeglm.reps <- function(y, x, id, prior = NULL, reps, univ = NULL, alpha = 
       while ( vim < K  & card[vim + 1] - card[vim] > 0 ) {
         vim <- vim + 1
         for ( i in ind[-c(sela, zevar)] )  {
-          fit2 <- try( geepack::geeglm( y ~ reps + x[, c(priorindex, sela)] + x[,i], family = oiko, id = id, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
+          fit2 <- try( geepack::geeglm( y ~., data = x[, c(xronoi, priorindex, sela, i)], family = oiko, id = id, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
           if ( identical( class(fit2), "try-error" ) ) {
             stat[i] <- 0
           } else {
@@ -213,7 +216,7 @@ fbed.geeglm.reps <- function(y, x, id, prior = NULL, reps, univ = NULL, alpha = 
         if (sel > 0)  stat <- numeric(p)
         while ( sum(s > 0) > 0 ) {
           for ( i in ind[s] )  {
-            fit2 <- try( geepack::geeglm( y ~ reps + x[, c(priorindex, sela)] + x[,i], family = oiko, id = id, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
+            fit2 <- try( geepack::geeglm( y ~., data = x[, c(xronoi, priorindex, sela, i)], family = oiko, id = id, waves = reps, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
             if ( identical( class(fit2), "try-error" ) ) {
               stat[i] <- 0
             } else {

@@ -1,6 +1,9 @@
 cv.gomp <- function(target, dataset, kfolds = 10, folds = NULL, tol = seq(4, 9, by = 1), task = "C", metric = NULL,
                     metricbbc = NULL, modeler = NULL, test = NULL, method = "ar2", B = 1) {
 
+    oop <- options(warn = -1)
+    on.exit( options(oop) )
+    
     if ( is.null(tol) )   tol <- seq(4, 9, by = 1)
     tol <- sort(tol)
     ntol <- length(tol);
@@ -10,10 +13,10 @@ cv.gomp <- function(target, dataset, kfolds = 10, folds = NULL, tol = seq(4, 9, 
     
     if ( is.null(folds) ) {
       if (task == "R" ) {
-        folds <- generatefolds(target, nfolds = kfolds, stratified = FALSE, seed = FALSE)
+        folds <- MXM::generatefolds(target, nfolds = kfolds, stratified = FALSE, seed = FALSE)
       } else if (task == "S") {
-        folds <- generatefolds(target[, 1], nfolds = kfolds, stratified = FALSE, seed = FALSE)
-      } else   folds <- generatefolds(target, nfolds = kfolds, stratified = TRUE, seed = FALSE)
+        folds <- MXM::generatefolds(target[, 1], nfolds = kfolds, stratified = FALSE, seed = FALSE)
+      } else if (task == "C")  folds <- MXM::generatefolds(target, nfolds = kfolds, stratified = TRUE, seed = FALSE)
     } else  kfolds <- length( folds );
     
     if ( is.null(task) ) {
@@ -79,10 +82,10 @@ cv.gomp <- function(target, dataset, kfolds = 10, folds = NULL, tol = seq(4, 9, 
       test_target <- target[ folds[[ k ]] ]
       dm <- dim(test_set)
       
-      results <- gomp.path(target = train_target, dataset = train_set, tol = tol, test = test, method = method)
-      sel.vars[[ k ]] <-  results$res[-1, -(ntol + 1)]
+      results <- MXM::gomp.path(target = train_target, dataset = train_set, tol = tol, test = test, method = method)
+      sel.vars[[ k ]] <- results$res[-1, -c(ntol + 1), drop = FALSE]
       cv_results_all[[ k ]] <- list()
-      cv_results_all[[ k ]]$preds <- matrix(0, dm[1], ntol )
+      cv_results_all[[ k ]]$preds <- matrix(0, dm[1], ntol)
       colnames(cv_results_all[[ k ]]$preds) <- nama
       cv_results_all[[ k ]]$performances <- numeric(ntol)
       names(cv_results_all[[ k ]]$performances) <- nama

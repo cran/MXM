@@ -203,6 +203,10 @@
 \alias{ebic.spml.bsreg}
 \alias{regzinb}
 \alias{zinb.mle}
+\alias{fbed.glmm.nb}
+\alias{fbed.glmm.nb.reps}
+\alias{glmm.nb.bsreg}
+\alias{glmm.nb.reps.bsreg}
 
 \title{ Internal MXM Functions }
 \description{
@@ -413,6 +417,11 @@ Internal functions of Package \pkg{MXM}
 \item ebic.spml.bsreg( ... )
 \item regzinb( ... )
 \item zinb.mle( ... )
+\item fbed.glmm.nb( ... )
+\item fbed.glmm.nb.reps( ... )
+\item glmm.nb.bsreg( ... )
+\item glmm.nb.reps.bsreg( ... )
+
 }
 }
 \details{

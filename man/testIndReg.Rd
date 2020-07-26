@@ -130,6 +130,8 @@ Hampel F. R., Ronchetti E. M., Rousseeuw P. J., and Stahel W. A. (1986). Robust 
 
 Koenker R.W. (2005). Quantile regression. New York, Cambridge University Press.
 
+Sadovski A. (1974). L1-norm fit of a straight line. Applied Statistics, 23(2):244-248.
+
 Yohai, V. J. (1987). High breakdown-point and high efficiency robust estimates for regression. The Annals of Statistics, 15(2): 642-656.
 
 Mardia, Kanti, John T. Kent and John M. Bibby. Multivariate analysis. Academic press, 1979.

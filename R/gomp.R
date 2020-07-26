@@ -1,5 +1,8 @@
 gomp <- function(target, dataset, xstand = TRUE, tol = qchisq(0.95, 1), test = "testIndLogistic", method = "ar2") {
 
+  oop <- options(warn = -1)
+  on.exit( options(oop) )
+  
   if ( xstand )  dataset <- Rfast::standardise(dataset)
     
   if ( test == "testIndReg" | test == "testIndFisher" ) {
@@ -62,16 +65,16 @@ gomp <- function(target, dataset, xstand = TRUE, tol = qchisq(0.95, 1), test = "
     can <- which( is.na( Rfast::colsums(dataset) ) )
     ind[can] <- 0
 	
-    if (test == "testIndNB") {
+    if ( test == "testIndNB" ) {
       tic <- proc.time()
      	mod <- MASS::glm.nb(target ~ 1)
     	rho <-  - 2 * as.numeric( logLik(mod) ) 
-	    res <-  target - fitted(mod)
+    	res <-  target - fitted(mod)
 	    ela <- as.vector( cov(res, dataset) )
 	    sel <- which.max( abs(ela) )  
       sela <- sel
       names(sela) <- NULL
-      mod <- MASS::glm.nb( target ~ dataset[, sela], control = list(epsilon = 1e-08, maxit = 50, trace = FALSE) )
+      mod <- MASS::glm.nb( target ~ dataset[, sela], control = list(epsilon = 1e-07, maxit = 50, trace = FALSE) )
       res <-  mod$residuals
       rho[2] <-  - 2 * as.numeric( logLik(mod) )
       ind[sel] <- 0
@@ -83,7 +86,7 @@ gomp <- function(target, dataset, xstand = TRUE, tol = qchisq(0.95, 1), test = "
         r[ind] <- Rfast::eachcol.apply(dataset, res, indices = ind[ind > 0 ], oper = "*", apply = "sum") 
         sel <- which.max( abs(r) )
         sela <- c(sela, sel)
-        mod <- MASS::glm.nb( target ~ dataset[, sela], control = list(epsilon = 1e-08, maxit = 50, trace = FALSE) )        
+        mod <- MASS::glm.nb( target ~ dataset[, sela], control = list(epsilon = 1e-07, maxit = 50, trace = FALSE) )        
         res <- target - fitted(mod)
         rho[i] <-  - 2 * as.numeric( logLik(mod) )
         ind[sela] <- 0
@@ -92,11 +95,11 @@ gomp <- function(target, dataset, xstand = TRUE, tol = qchisq(0.95, 1), test = "
       len <- length(sela)
       res <- cbind(c(0, sela[-len]), rho[1:len])
       colnames(res) <- c("Selected Vars", "Deviance") 
-      result <- list(runtime = runtime, res = res)
+      result <- list(runtime = runtime, phi = NULL, res = res)
        
-    } else if (test == "testIndBeta") {
+    } else if ( test == "testIndBeta" ) {
       tic <- proc.time()
-	    mod <- Rfast::beta.mle(target)
+    	mod <- Rfast::beta.mle(target)
       rho <-  - 2 * mod$loglik
 	    res <- target - mod$param[1]/sum(mod$param)
       ela <- as.vector( cov(res, dataset) )
@@ -107,8 +110,8 @@ gomp <- function(target, dataset, xstand = TRUE, tol = qchisq(0.95, 1), test = "
       if ( identical( class(mod), "try-error" ) ) {
         rho[2] <- rho[1]  
       } else {  
-        est <- exp( mod$be[1] + dataset[, sela] * mod$be[2] )
-        res <- target - est / (1 + est)
+        est <- exp( - mod$be[1] - dataset[, sela] * mod$be[2] )
+        res <- target - 1 / (1 + est)
         rho[2] <-  - 2 * mod$loglik
         ind[sel] <- 0
       }  
@@ -124,8 +127,8 @@ gomp <- function(target, dataset, xstand = TRUE, tol = qchisq(0.95, 1), test = "
         if ( identical( class(mod), "try-error" ) ) {
           rho[i] <- rho[i - 1]  
         } else {  
-          est <- exp( mod$be[1] + dataset[, sela] %*% mod$be[-1] )
-          res <- target - est / (1 + est)
+          est <- exp( - mod$be[1] - dataset[, sela] %*% mod$be[-1] )
+          res <- target - 1 / (1 + est)
           rho[i] <-  - 2 * mod$loglik
           ind[sela] <- 0
         }  
@@ -134,9 +137,9 @@ gomp <- function(target, dataset, xstand = TRUE, tol = qchisq(0.95, 1), test = "
       len <- length(sela)
       res <- cbind(c(0, sela[-len]), rho[1:len])
       colnames(res) <- c("Selected Vars", "Deviance") 
-      result <- list(runtime = runtime, res = res)
+      result <- list(runtime = runtime, phi = NULL, res = res)
       
-    } else if ( test == "testIndMMReg") {
+    } else if ( test == "testIndMMReg" ) {
       tic <- proc.time()
       mod <- MASS::rlm(target ~ 1, method = "MM", maxit = 2000)
       rho <-  - 2 * as.numeric( logLik(mod) ) 
@@ -170,7 +173,7 @@ gomp <- function(target, dataset, xstand = TRUE, tol = qchisq(0.95, 1), test = "
       len <- length(sela)
       res <- cbind(c(0, sela[-len]), rho[1:len])
       colnames(res) <- c("Selected Vars", "Deviance") 
-      result <- list(runtime = runtime, res = res)
+      result <- list(runtime = runtime, phi = NULL, res = res)
       
     } else if ( test == "testIndRQ") {
       tic <- proc.time()
@@ -206,19 +209,19 @@ gomp <- function(target, dataset, xstand = TRUE, tol = qchisq(0.95, 1), test = "
       len <- length(sela)
       res <- cbind(c(0, sela[-len]), rho[1:len])
       colnames(res) <- c("Selected Vars", "Deviance") 
-      result <- list(runtime = runtime, res = res)
+      result <- list(runtime = runtime, phi = NULL, res = res)
       
-    } else if (test == "testIndOrdinal") {
+    } else if ( test == "testIndOrdinal" ) {
       tic <- proc.time()
       mod <- MASS::polr(target ~ 1)
       rho <-  - 2 * as.numeric( logLik(mod) )
-      res <- ord.resid(target, mod$fitted.values)
+      res <- MXM::ord.resid(target, mod$fitted.values)
       ela <- as.vector( cov(res, dataset) )
       sel <- which.max( abs(ela) )     
       sela <- sel
       names(sela) <- NULL
       mod <- MASS::polr(target ~ dataset[, sela])
-      res <- ord.resid(target, mod$fitted.values) 
+      res <- MXM::ord.resid(target, mod$fitted.values) 
       rho[2] <-  - 2 * as.numeric( logLik(mod) )
       ind[sel] <- 0
       i <- 2
@@ -242,9 +245,9 @@ gomp <- function(target, dataset, xstand = TRUE, tol = qchisq(0.95, 1), test = "
       len <- length(sela)
       res <- cbind(c(0, sela[-len]), rho[1:len])
       colnames(res) <- c("Selected Vars", "Deviance") 
-      result <- list(runtime = runtime, res = res)
+      result <- list(runtime = runtime, phi = NULL, res = res)
       
-    } else if ( test == "testIndTobit") {
+    } else if ( test == "testIndTobit" ) {
       tic <- proc.time()
       mod <- survival::survreg(target ~ 1, dist = "gaussian")
       rho <-  - 2 * as.numeric( logLik(mod) ) 
@@ -278,9 +281,9 @@ gomp <- function(target, dataset, xstand = TRUE, tol = qchisq(0.95, 1), test = "
       len <- length(sela)
       res <- cbind(c(0, sela[-len]), rho[1:len])
       colnames(res) <- c("Selected Vars", "Deviance") 
-      result <- list(runtime = runtime, res = res)
+      result <- list(runtime = runtime, phi = NULL, res = res)
 
-    } else if ( test == "censIndCR") {
+    } else if ( test == "censIndCR" ) {
       tic <- proc.time()
       mod <- survival::coxph(target ~ 1)
       rho <-  - 2 * summary( mod) [[1]]
@@ -314,9 +317,9 @@ gomp <- function(target, dataset, xstand = TRUE, tol = qchisq(0.95, 1), test = "
       len <- length(sela)
       res <- cbind(c(0, sela[-len]), rho[1:len])
       colnames(res) <- c("Selected Vars", "Deviance") 
-      result <- list(runtime = runtime, res = res)
+      result <- list(runtime = runtime, phi = NULL, res = res)
     
-    } else if ( test == "censIndWR") {
+    } else if ( test == "censIndWR" ) {
       tic <- proc.time()
       mod <- survival::survreg(target ~ 1)
       rho <-  - 2 * as.numeric( logLik(mod) ) 
@@ -353,7 +356,7 @@ gomp <- function(target, dataset, xstand = TRUE, tol = qchisq(0.95, 1), test = "
       colnames(res) <- c("Selected Vars", "Deviance") 
       result <- list(runtime = runtime, phi = NULL, res = res)
       
-    } else if ( test == "censIndLLR") {
+    } else if ( test == "censIndLLR" ) {
       tic <- proc.time()
       mod <- survival::survreg(target ~ 1, dist = "loglogistic")
       rho <-  - 2 * as.numeric( logLik(mod) ) 

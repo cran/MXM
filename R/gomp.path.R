@@ -1,7 +1,7 @@
 gomp.path <- function(target, dataset, xstand = TRUE, tol = c(4, 5, 6), test = "testIndLogistic", method = "ar2" ) {
   
   tic <- proc.time()
-  mod <- gomp(target, dataset, xstand = xstand, tol = min(tol), test = test, method = method) 
+  mod <- MXM::gomp(target, dataset, xstand = xstand, tol = min(tol), test = test, method = method) 
   sel <- mod$res[, 1]
   crit <- mod$res[, 2]
   dm <- dim(mod$res)[1]

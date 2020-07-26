@@ -47,13 +47,11 @@ A vector including the test statistic, it's associated p-value and the relevant 
 }
 
 \references{
+Tsagris M. (2019). Bayesian network learning with the PC algorithm: an improved and correct variation. 
+Applied Artificial Intelligence, 33(2): 101-123.
+
 Tsagris M., Borboudakis G., Lagani V. and Tsamardinos I. (2018). Constraint-based Causal Discovery with Mixed Data. 
 International Journal of Data Science and Analytics. 
-
-\url{https://link.springer.com/content/pdf/10.1007%2Fs41060-018-0097-y.pdf
-}
- 
-\url{http://nugget.unisa.edu.au/CD2017/papersonly/constraint-based-causal-r1.pdf}
 
 Paik M.C. (1988). Repeated measurement analysis for nonnormal data in small samples. Communications in Statistics-Simulation and Computation, 17(4): 1155-1171.
 

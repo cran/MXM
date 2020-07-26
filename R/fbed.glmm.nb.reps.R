@@ -1,11 +1,14 @@
-fbed.geelm <- function(y, x, id, prior = NULL, univ = NULL, alpha = 0.05, wei = NULL, K = 0, correl = "exchangeable", se = "jack") { 
+fbed.glmm.nb.reps <- function(y, x, id, prior = NULL, reps, univ = NULL, alpha = 0.05, wei = NULL, K = 0) { 
   
   dm <- dim(x)
   p <- dm[2]
   n <- dm[1]
   ind <- 1:p
   sig <- log(alpha)
-  stat <- numeric(p)
+  if ( is.null(prior) ) {
+    lik1 <- logLik( lme4::glmer.nb(y ~ 1 + reps + (1|id), weights = wei, nAGQ = 0) )
+  } else  lik1 <- logLik( lme4::glmer.nb(y ~ prior + reps + (1|id), weights = wei, nAGQ = 0) )   
+  lik2 <- numeric(p)
   sela <- NULL
   card <- 0
   sa <- NULL
@@ -13,39 +16,22 @@ fbed.geelm <- function(y, x, id, prior = NULL, univ = NULL, alpha = 0.05, wei = 
   
   zevar <- Rfast::check_data(x)
   if ( sum( zevar > 0 ) > 0 )  x[, zevar] <- rnorm( n * length(zevar) )
-
+  
   priorindex <- NULL
   if ( !is.null(prior) ) {
     x <- cbind(x, prior)
     priorindex <- c( (p + 1):dim(x)[2] )
   }
-  x <- as.data.frame(x)
   
   runtime <- proc.time()
   
   if ( is.null(univ) ) {
-    if ( is.null(prior) ) {
-      for ( i in ind ) {
-        fit2 <- try( geepack::geeglm( y ~ x[, i], family = gaussian, id = id, weights = wei, corstr = correl, std.err = se ), silent = TRUE )
-        if ( identical( class(fit2), "try-error" ) ) {
-          stat[i] <- 0
-        } else {
-          stat[i] <- summary(fit2)[[ 6 ]][2, 3]
-        }  
-      }
-    } else {  
-      for ( i in ind )  {
-        fit2 <- try( geepack::geeglm( y ~., data = x[, c(priorindex, i)], family = gaussian, id = id, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
-        if ( identical( class(fit2), "try-error" ) ) {
-          stat[i] <- 0
-        } else {
-          mod <- summary(fit2)[[ 6 ]]
-          nr <- dim(mod)[1]
-          stat[i] <- mod[nr, 3]
-        }  
-      }
-    }  
+    for ( i in ind ) {
+      fit2 <- lme4::glmer.nb( y ~ x[, c(i, priorindex)] + reps + (1|id), weights = wei, nAGQ = 0 )
+      lik2[i] <- logLik(fit2)
+    }
     n.tests <- p
+    stat <- 2 * (lik2 - lik1)
     pval <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
     univ <- list()
     univ$stat <- stat
@@ -56,54 +42,48 @@ fbed.geelm <- function(y, x, id, prior = NULL, univ = NULL, alpha = 0.05, wei = 
     n.tests <- 0
     stat <- univ$stat
     pval <- univ$pvalue
-  }  
+    lik2 <- 0.5 * stat + lik1
+  } 
   s <- which(pval < sig)
   
   if ( length(s) > 0 ) {
     sel <- which.min(pval)
     sela <- sel
     s <- s[ - which(s == sel) ]
+    lik1 <- lik2[sel] 
     sa <- stat[sel]
     pva <- pval[sel]
-    stat <- numeric(p)
+    lik2 <- rep( lik1, p )
     #########
     while ( sum(s>0) > 0 ) {
-       
       for ( i in ind[s] )  {
-        fit2 <- try( geepack::geeglm( y ~., data = x[, c(priorindex, sela, i)], family = gaussian, id = id, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
-        if ( identical( class(fit2), "try-error" ) ) {
-          stat[i] <- 0
-        } else {
-          mod <- summary(fit2)[[ 6 ]]
-          nr <- dim(mod)[1]
-          stat[i] <- mod[nr, 3]
-        }  
-      } 
+        fit2 <- lme4::glmer.nb( y ~ x[, c(priorindex, sela, i)] + reps + (1|id), weights = wei, nAGQ = 0 )
+        lik2[i] <- logLik(fit2)
+      }
       n.tests <- n.tests + length( ind[s] ) 
+      stat <- 2 * (lik2 - lik1)
       pval <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
       s <- which(pval < sig) 
-      sel <- which.min(pval) * ( length(s) > 0 )
+      sel <- which.min(pval) * ( length(s)>0 )
       sa <- c(sa, stat[sel]) 
       pva <- c(pva, pval[sel])
       sela <- c(sela, sel[sel>0])
       s <- s[ - which(s == sel) ]
-      if (sel > 0)  stat <- rep(0, p)
+      if (sel > 0) {
+        lik1 <- lik2[sel] 
+        lik2 <- rep(lik1, p)
+      } 
     } ## end while ( sum(s > 0) > 0 )
     
     card <- sum(sela > 0)
     
     if (K == 1) {
       for ( i in ind[-c(sela, zevar)] )  {
-        fit2 <- try( geepack::geeglm( y ~., data = x[, c(priorindex, sela, i)], family = gaussian, id = id, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
-        if ( identical( class(fit2), "try-error" ) ) {
-          stat[i] <- 0
-        } else {
-          mod <- summary(fit2)[[ 6 ]]
-          nr <- dim(mod)[1]
-          stat[i] <- mod[nr, 3]
-        } 
+        fit2 <- lme4::glmer.nb( y ~ x[, c(priorindex, sela, i)] + reps + (1|id), weights = wei, nAGQ = 0 )
+        lik2[i] <- logLik(fit2)
       }
       n.tests[2] <- length( ind[-c(sela, zevar)] )
+      stat <- 2 * (lik2 - lik1)
       pval <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
       s <- which(pval < sig)
       sel <- which.min(pval) * ( length(s)>0 )
@@ -111,19 +91,17 @@ fbed.geelm <- function(y, x, id, prior = NULL, univ = NULL, alpha = 0.05, wei = 
       pva <- c(pva, pval[sel])
       sela <- c(sela, sel[sel>0])
       s <- s[ - which(s == sel) ]
-      if (sel > 0)   stat <- numeric(p)
+      if (sel > 0) {
+        lik1 <- lik2[sel] 
+        lik2 <- rep(lik1, p)
+      } 
       while ( sum(s>0) > 0 ) {
         for ( i in ind[s] )  {
-          fit2 <- try( geepack::geeglm( y ~., data = x[, c(priorindex, sela, i)], family = gaussian, id = id, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
-          if ( identical( class(fit2), "try-error" ) ) {
-            stat[i] <- 0
-          } else {
-            mod <- summary(fit2)[[ 6 ]]
-            nr <- dim(mod)[1]
-            stat[i] <- mod[nr, 3]
-          } 
+          fit2 <- lme4::glmer.nb( y ~ x[, c(priorindex, sela, i)] + reps + (1|id), weights = wei, nAGQ = 0 )
+          lik2[i] <- logLik(fit2)
         }
         n.tests[2] <- n.tests[2] + length( ind[s] )
+        stat <- 2 * (lik2 - lik1)
         pval <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
         s <- which(pval < sig)
         sel <- which.min(pval) * ( length(s)>0 )
@@ -131,7 +109,10 @@ fbed.geelm <- function(y, x, id, prior = NULL, univ = NULL, alpha = 0.05, wei = 
         pva <- c(pva, pval[sel])
         sela <- c(sela, sel[sel>0])
         s <- s[ - which(s == sel) ]
-        if (sel > 0)  stat <- numeric(p)
+        if (sel > 0) {
+          lik1 <- lik2[sel] 
+          lik2 <- rep(lik1, p)
+        } 
       } ## end while ( sum(s>0) > 0 ) 
       card <- c(card, sum(sela>0) )
     }  ## end if ( K == 1 ) 
@@ -139,16 +120,11 @@ fbed.geelm <- function(y, x, id, prior = NULL, univ = NULL, alpha = 0.05, wei = 
     if ( K > 1) {
       
       for ( i in ind[-c(sela, zevar)] )  {
-        fit2 <- try( geepack::geeglm( y ~., data = x[, c(priorindex, sela, i)], family = gaussian, id = id, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
-        if ( identical( class(fit2), "try-error" ) ) {
-          stat[i] <- 0
-        } else {
-          mod <- summary(fit2)[[ 6 ]]
-          nr <- dim(mod)[1]
-          stat[i] <- mod[nr, 3]
-        } 
+        fit2 <- lme4::glmer.nb( y ~ x[, c(priorindex, sela, i)] + reps + (1|id), weights = wei, nAGQ = 0 )
+        lik2[i] <- logLik(fit2)
       }
-      n.tests[2] <- length( ind[-c(sela, zevar)] )
+      n.tests[2] <- length( ind[-c(sela, zevar)] ) 
+      stat <- 2 * (lik2 - lik1)
       pval <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
       s <- which(pval < sig)
       sel <- which.min(pval) * ( length(s)>0 )
@@ -156,20 +132,17 @@ fbed.geelm <- function(y, x, id, prior = NULL, univ = NULL, alpha = 0.05, wei = 
       pva <- c(pva, pval[sel])
       sela <- c(sela, sel[sel>0])
       s <- s[ - which(s == sel) ]
-      if (sel > 0)  stat <- numeric(p)
-      
+      if (sel > 0) {
+        lik1 <- lik2[sel] 
+        lik2 <- rep(lik1, p)
+      } 
       while ( sum(s > 0) > 0 ) {
         for ( i in ind[s] )  {
-          fit2 <- try( geepack::geeglm( y ~., data = x[, c(priorindex, sela, i)], family = gaussian, id = id, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
-          if ( identical( class(fit2), "try-error" ) ) {
-            stat[i] <- 0
-          } else {
-            mod <- summary(fit2)[[ 6 ]]
-            nr <- dim(mod)[1]
-            stat[i] <- mod[nr, 3]
-          } 
+          fit2 <- lme4::glmer.nb( y ~ x[, c(priorindex, sela, i)] + reps + (1|id), weights = wei, nAGQ = 0 )
+          lik2[i] <- logLik(fit2)
         }
         n.tests[2] <- n.tests[2] + length( ind[s] )  
+        stat <- 2 * (lik2 - lik1)
         pval <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
         s <- which(pval < sig)
         sel <- which.min(pval) * ( length(s)>0 )
@@ -177,7 +150,10 @@ fbed.geelm <- function(y, x, id, prior = NULL, univ = NULL, alpha = 0.05, wei = 
         pva <- c(pva, pval[sel])
         sela <- c(sela, sel[sel>0])
         s <- s[ - which(s == sel) ]
-        if (sel > 0)  stat <- numeric(p)
+        if (sel > 0) {
+          lik1 <- lik2[sel] 
+          lik2 <- rep(lik1, p)
+        } 
       } ## end while ( sum(s>0) > 0 ) 
       
       card <- c(card, sum(sela > 0) )
@@ -185,16 +161,11 @@ fbed.geelm <- function(y, x, id, prior = NULL, univ = NULL, alpha = 0.05, wei = 
       while ( vim < K  & card[vim + 1] - card[vim] > 0 ) {
         vim <- vim + 1
         for ( i in ind[-c(sela, zevar)] )  {
-          fit2 <- try( geepack::geeglm( y ~., data = x[, c(priorindex, sela, i)], family = gaussian, id = id, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
-          if ( identical( class(fit2), "try-error" ) ) {
-            stat[i] <- 0
-          } else {
-            mod <- summary(fit2)[[ 6 ]]
-            nr <- dim(mod)[1]
-            stat[i] <- mod[nr, 3]
-          } 
+          fit2 <- lme4::glmer.nb( y ~ x[, c(priorindex, sela, i)] + reps + (1|id), weights = wei, nAGQ = 0 )
+          lik2[i] <- logLik(fit2)
         }
-        n.tests[vim + 1] <- length( ind[-c(sela,zevar)] )
+        n.tests[vim + 1] <- length( ind[-c(sela, zevar)] )
+        stat <- 2 * (lik2 - lik1)
         pval <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
         s <- which(pval < sig)
         sel <- which.min(pval) * ( length(s)>0 )
@@ -202,19 +173,17 @@ fbed.geelm <- function(y, x, id, prior = NULL, univ = NULL, alpha = 0.05, wei = 
         pva <- c(pva, pval[sel])
         sela <- c(sela, sel[sel>0])
         s <- s[ - which(s == sel) ]
-        if (sel > 0)  stat <- numeric(p)
+        if (sel > 0) {
+          lik1 <- lik2[sel] 
+          lik2 <- rep(lik1, p)
+        }    
         while ( sum(s > 0) > 0 ) {
           for ( i in ind[s] )  {
-            fit2 <- try( geepack::geeglm( y ~., data = x[, c(priorindex, sela, i)], family = gaussian, id = id, weights = wei, corstr = correl, std.err = se ), silent = TRUE)
-            if ( identical( class(fit2), "try-error" ) ) {
-              stat[i] <- 0
-            } else {
-              mod <- summary(fit2)[[ 6 ]]
-              nr <- dim(mod)[1]
-              stat[i] <- mod[nr, 3]
-            } 
+            fit2 <- lme4::glmer.nb( y ~ x[, c(priorindex, sela, i)] + reps + (1|id), weights = wei, nAGQ = 0 )
+            lik2[i] <- logLik(fit2)
           }
           n.tests[vim + 1] <- n.tests[vim + 1] + length( ind[s] )
+          stat <- 2 * (lik2 - lik1)
           pval <- pchisq(stat, 1, lower.tail = FALSE, log.p = TRUE)
           s <- which(pval < sig)
           sel <- which.min(pval) * ( length(s)>0 )
@@ -222,7 +191,10 @@ fbed.geelm <- function(y, x, id, prior = NULL, univ = NULL, alpha = 0.05, wei = 
           pva <- c(pva, pval[sel])
           sela <- c(sela, sel[sel>0])
           s <- s[ - which(s == sel) ]
-          if (sel > 0)  stat <- numeric(p)
+          if (sel > 0) {
+            lik1 <- lik2[sel] 
+            lik2 <- rep(lik1, p)
+          }  
         } ## end while ( sum(s > 0) > 0 ) 
         card <- c(card, sum(sela>0) )
       }  ## end while ( vim < K )

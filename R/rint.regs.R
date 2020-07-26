@@ -1,4 +1,4 @@
-rint.regs <- function(target, dataset, targetID = -1, id, reps = NULL, tol = 1e-08) {
+rint.regs <- function(target, dataset, targetID = -1, id, reps = NULL, tol = 1e-07) {
   
   univariateModels <- list();
   dm <- dim(dataset)
