@@ -221,8 +221,8 @@ Medinfo, 711-715.
 Tsamardinos, Brown and Aliferis (2006). The max-min hill-climbing Bayesian network structure learning algorithm. Machine learning, 
 65(1), 31-78.
 
-Tsagis M. (2018). Guide on performing feature selection with the R package MXM.
-\url{ http://mensxmachina.org/site/wp-content/uploads/2018/04/Guide-on-performing-feature-selection-with-the-R-package-MXM.pdf }
+%Tsagis M. (2018). Guide on performing feature selection with the R package MXM.
+%http://mensxmachina.org/site/wp-content/uploads/2018/04/Guide-on-performing-feature-selection-with-the-R-package-MXM.pdf
 }
 
 \author{

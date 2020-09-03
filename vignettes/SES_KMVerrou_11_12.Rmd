@@ -122,8 +122,6 @@ This is the first time that we are running the algorithm, so we are going to exp
   
 `test` : The conditional independence test to use. Default value is NULL. *Here* since our dataset includes only continuous features (*remember*: Categorical variable 'Type' was removed) and our dependent variable is also continuous, we choose 'testIndFisher'.
   
-For more information, about which test to use, please visit :  <https://www.rdocumentation.org/packages/MXM/versions/0.9.7/topics/CondInditional%20independence%20tests>. 
-  
 `ini` : After running SES with some hyper-parameters you might want to run SES again with different hyper-parameters. To avoid calculating the univariate associations (first step of SES) again, you can extract them from the first run of SES and plug them here. This can speed up the second run (and subsequent runs of course) by 50%. *Here*, since we are going to apply the analysis for the first time, we place the argument being equal to **NULL**.
 
 `wei` : A vector of weights to be used for weighted regression. The default value is NULL. It is not taken into account when robust is set to TRUE. *Here* we are not going to use weights.
@@ -578,8 +576,7 @@ mean(cv_ses_model$cv_results_all[[index]]$performances)
 ## Choosing k_max
   
   
-There is a rule of thumb that we are suggesting. If the sample size is small, take as max_k the smallest integer near N/10, where N is the number of samples. For more details, you may visit <http://bit.ly/stack_ovrflw_max_predictors_in_multi_regression>
-
+There is a rule of thumb that we are suggesting. If the sample size is small, take as max_k the smallest integer near N/10, where N is the number of samples. 
 ```{r}
 #
 N = dim(wine_dataset)[1]

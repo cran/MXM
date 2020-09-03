@@ -70,7 +70,7 @@ Technometrics, 34(1):1-14.
 
 Rui Fang (2013). Zero-inflated neagative binomial (ZINB) regression model for over-dispersed count data with excess zeros and 
 repeated measures, an application to human microbiota sequence data. MSc thesis, University of Colorado. 
-\url{https://mountainscholar.org/bitstream/handle/10968/244/FANG_ucdenveramc_1639M_10037.pdf?sequence=1&isAllowed=y}
+https://mountainscholar.org/bitstream/handle/10968/244/FANG_ucdenveramc_1639M_10037.pdf?sequence=1&isAllowed=y
 }
 
 \author{

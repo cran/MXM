@@ -55,8 +55,8 @@ The run time of the algorithm. A numeric vector. The first element is the user t
 \references{
 Tsamardinos I., Aliferis C. F. and Statnikov, A. (2003). Time and sample efficient discovery of Markov blankets and direct causal relations. In Proceedings of the 9th ACM SIGKDD international conference on Knowledge discovery and data mining, pp. 673-678.
 
-Tsagis M. (2018). Guide on performing feature selection with the R package MXM.
-\url{ http://mensxmachina.org/site/wp-content/uploads/2018/04/Guide-on-performing-feature-selection-with-the-R-package-MXM.pdf }
+%Tsagis M. (2018). Guide on performing feature selection with the R package MXM.
+%\url{ http://mensxmachina.org/site/wp-content/uploads/2018/04/Guide-on-performing-feature-selection-with-the-R-package-MXM.pdf }
 }
 
 

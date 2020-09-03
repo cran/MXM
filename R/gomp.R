@@ -9,7 +9,7 @@ gomp <- function(target, dataset, xstand = TRUE, tol = qchisq(0.95, 1), test = "
     tic <- proc.time()
     res <- Rfast::ompr(target, dataset, xstand = FALSE, method = method, tol = tol)
     runtime <- proc.time() - tic
-    result <- list(runtime = runtime, phi = NULL, res = res)
+    result <- list(runtime = runtime, phi = NULL, res = res$info)
 	
   } else if ( test == "testIndLogistic" ) {
     tic <- proc.time()

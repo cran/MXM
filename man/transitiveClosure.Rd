@@ -20,7 +20,7 @@ The adjacency matrix of a graph.
 
 \details{
 A function that computes the transitive closure of a graph. The transitive closure C(G) of a graph is a graph which contains an edge between nodes u and v whenever there is a directed path from u to v (Skiena 1990, p. 203).
-\url{http://mathworld.wolfram.com/TransitiveClosure.html}
+http://mathworld.wolfram.com/TransitiveClosure.html
 }
 
 \value{

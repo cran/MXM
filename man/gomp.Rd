@@ -82,12 +82,10 @@ proportion of selection.
 Pati Y. C., Rezaiifar R. & Krishnaprasad P. S. (1993). Orthogonal matching pursuit: Recursive function approximation with applications to wavelet decomposition. In Signals, Systems and Computers. 1993 Conference Record of The Twenty-Seventh Asilomar Conference on. IEEE.
 
 Davis G. (1994). Adaptive Nonlinear Approximations. PhD thesis. 
-\url{http://www.geoffdavis.net/papers/dissertation.pdf
-}
+http://www.geoffdavis.net/papers/dissertation.pdf
 
 Mallat S. G. & Zhang Z. (1993). Matching pursuits with time-frequency dictionaries. IEEE Transactions on signal processing, 41(12), 3397-3415.
-\url{https://www.di.ens.fr/~mallat/papiers/MallatPursuit93.pdf
-}
+https://www.di.ens.fr/~mallat/papiers/MallatPursuit93.pdf
 
 Gharavi-Alkhansari M., & Huang T. S. (1998, May). A fast orthogonal matching pursuit algorithm. In Acoustics, Speech and Signal Processing, 1998. 
 Proceedings of the 1998 IEEE International Conference on (Vol. 3, pp. 1389-1392). IEEE.
@@ -101,16 +99,14 @@ Razavi S. A. Ollila E., & Koivunen V. (2012). Robust greedy algorithms for compr
 Conference (EUSIPCO), 2012 Proceedings of the 20th European. IEEE.
 
 Mazin Abdulrasool Hameed (2012). Comparative analysis of orthogonal matching pursuit and least angle regression. MSc thesis, Michigan State University.
-\url{ https://www.google.gr/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&ved=0ahUKEwik9P3Yto7XAhUiCZoKHQ8XDr8QFgglMAA&url=https%3A%2F%2Fd.lib.msu.edu%2Fetd%2F1711%2Fdatastream%2FOBJ%2Fdownload%2FComparative_analysis_of_orthogonal_matching_pursuit_and_least_angle_regression.pdf&usg=AOvVaw2fRcSemcbteyWUiAKYi-8B 
-}
+https://www.google.gr/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&ved=0ahUKEwik9P3Yto7XAhUiCZoKHQ8XDr8QFgglMAA&url=https%3A%2F%2Fd.lib.msu.edu%2Fetd%2F1711%2Fdatastream%2FOBJ%2Fdownload%2FComparative_analysis_of_orthogonal_matching_pursuit_and_least_angle_regression.pdf&usg=AOvVaw2fRcSemcbteyWUiAKYi-8B 
 
-Tsagis M. (2018). Guide on performing feature selection with the R package MXM.
-\url{http://mensxmachina.org/site/wp-content/uploads/2018/04/Guide-on-performing-feature-selection-with-the-R-package-MXM.pdf}
+%Tsagis M. (2018). Guide on performing feature selection with the R package MXM.
+%\url{http://mensxmachina.org/site/wp-content/uploads/2018/04/Guide-on-performing-feature-selection-with-the-R-package-MXM.pdf}
 
 Michail Tsagris, Zacharias Papadovasilakis, Kleanthi Lakiotaki, Ioannis Tsamardinos (2020). 
 A generalised OMP algorithm for feature selection with application to gene expression data. arxiv preprint.
 https://arxiv.org/pdf/2004.00281.pdf
-
 
 }
 

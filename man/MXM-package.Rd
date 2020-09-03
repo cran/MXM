@@ -33,8 +33,8 @@ Tsagris, M. and Tsamardinos, I. (2019). Feature selection with the R package MXM
 \tabular{ll}{
 Package: \tab MXM\cr
 Type: \tab Package\cr
-Version: \tab 1.4.8\cr
-Date: \tab 2020-07-26\cr
+Version: \tab 1.4.9\cr
+Date: \tab 2020-09-02\cr
 License: \tab GPL-2\cr
 }
 }
@@ -66,9 +66,6 @@ Constraint-based causal discovery with mixed data. International Journal
 of Data Science and Analytics, 6(1): 19-30. 
 
 Tsagris, M., Papadovasilakis, Z., Lakiotaki, K. and Tsamardinos, I. (2018). Efficient feature selection on gene expression data: Which algorithm to use? BioRxiv preprint. 
-
-Tsagris M. (2018). Guide on performing feature selection with the R package MXM.
-http://mensxmachina.org/site/wp-content/uploads/2018/04/Guide-on-performing-feature-selection-with-the-R-package-MXM.pdf
 
 Lagani V., Athineou G., Farcomeni A., Tsagris M. and Tsamardinos I. (2017). Feature Selection with the R Package MXM: Discovering Statistically Equivalent Feature Subsets. Journal of Statistical Software, 80(7), doi:10.18637/jss.v080.i07.
 

@@ -78,8 +78,8 @@ Draper N.R. and Smith H. (1988). Applied regression analysis. New York, Wiley, 3
 
 Tsamardinos, Brown and Aliferis (2006). The max-min hill-climbing Bayesian network structure learning algorithm. Machine learning, 65(1), 31-78.
 
-Borboudakis G. and Tsamardinos I. (2017). Forward-Backward Selection with Early Dropping. 
-\url{ https://arxiv.org/pdf/1705.10770.pdf }
+Borboudakis G. and Tsamardinos I. (2019). Forward-backward selection with early dropping. Journal of Machine Learning Research, 20(8): 1-39.
+
 }
 
 \author{

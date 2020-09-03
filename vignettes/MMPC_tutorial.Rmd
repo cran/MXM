@@ -407,7 +407,7 @@ As a rule of thumb, when the sample size is rather small eg. < 100, the default 
 ```max_k = floor(N/10)```
 where __N__ is the number of instances.
 
-For example, in a __gene expression dataset__, where N = 100 and features = 50000, max_k = 100/10 = 10, could be used. For more information about this heuristic there is an interesting topic in stackoverflow <http://bit.ly/stack_ovrflw_max_predictors_in_multi_regression>.  
+For example, in a __gene expression dataset__, where N = 100 and features = 50000, max_k = 100/10 = 10, could be used. For more information about this heuristic there is an interesting topic in stackoverflow to search.
 
 ##  Parallel computing: Choose number of cores option
 You can use more than one cores to speed up execution time. However, this only pays off when working with large datasets. For small datasets, like in our example ```ncore = 1``` is recommended.

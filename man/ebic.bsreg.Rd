@@ -64,8 +64,7 @@ The number of models fitted in the backward phase.
 }
 
 \references{
-Borboudakis G. and Tsamardinos I. (2017). Forward-Backward Selection with Early Dropping. 
-\url{https://arxiv.org/pdf/1705.10770.pdf }
+Borboudakis G. and Tsamardinos I. (2019). Forward-backward selection with early dropping. Journal of Machine Learning Research, 20(8): 1-39.
 }
 
 

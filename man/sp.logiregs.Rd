@@ -41,9 +41,7 @@ associated p-values (or their loggarithm).
 Karolina Sikorska, Emmanuel Lesaffre, Patrick FJ Groenen and Paul HC Eilers (2013), 14:166.
 GWAS on your notebook: fast semi-parallel linear and logistic regression for genome-wide
 association studies. 
-
-\url{ https://bmcbioinformatics.biomedcentral.com/track/pdf/10.1186/1471-2105-14-166 
-}
+\url{ https://bmcbioinformatics.biomedcentral.com/track/pdf/10.1186/1471-2105-14-166 }
 }
 
 \author{
