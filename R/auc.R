@@ -26,7 +26,7 @@ auc <- function(group, preds, roc = FALSE, cutoffs = NULL) {
     spec <- c(spec, 0)
     sens<- c(0, sens)
     plot( 1 - spec, sens, pch = 16, xlab = "1- specificity", ylab = "Sensitivity", col = 3, 
-          xlim = c(0, 1), ylim = c(0, 1), type = "l")
+          xlim = c(0, 1), ylim = c(0, 1), type = "l", cex.la = 1.3, cex.axis = 1.3)
     abline(a = 0, b = 1, lty = 2, col = 2)
     qa <- which.max( sens + spec - 1 )
     points( 1 - spec[qa], sens[qa], lwd = 2, col = 4, pch = 3)

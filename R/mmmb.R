@@ -5,7 +5,6 @@ mmmb = function(target, dataset, max_k = 3, threshold = 0.05, test = "testIndFis
   mmpcobject <- MMPC(target, dataset, max_k = max_k, threshold = threshold, test = test, user_test = user_test, ncores = ncores, backward = TRUE)
   varsToIterate <- mmpcobject@selectedVars;
   pct <- varsToIterate
-  met <- 1:length(pct)
   d <- dim(dataset)[2] 
   ci_test <- test <- mmpcobject@test
   lista <- list()
@@ -13,7 +12,7 @@ mmmb = function(target, dataset, max_k = 3, threshold = 0.05, test = "testIndFis
   
   if ( length(pct) > 0 ) {
     
-    for ( i in met) {
+    for ( i in 1:length(pct) ) {
       tar <- dataset[, varsToIterate[i] ];
       datas <- cbind( dataset[, -varsToIterate[i] ], target)
       res <- MMPC(tar, datas, max_k = max_k, threshold = threshold, test = test, user_test = user_test, ncores = ncores, backward = TRUE) 
@@ -22,9 +21,10 @@ mmmb = function(target, dataset, max_k = 3, threshold = 0.05, test = "testIndFis
       poies[ poies >= varsToIterate[i] ] = poies[ poies >= varsToIterate[i] ] + 1
       lista[[ i ]] <- poies     
     }
-
+    aa <- unlist( lista) 
   }
   runtime <- proc.time() - durat   
-  
-  list( mb = sort( c(mmpcobject@selectedVars[met], aa) ), ci_test = ci_test, runtime = runtime )
+  mb <- sort( c( mmpcobject@selectedVars, aa) )
+  mb <- unique(mb)
+  list( mb = mb, ci_test = ci_test, runtime = runtime )
 }

@@ -107,8 +107,7 @@ A list where each element refers to a K value. If you run FBEd with method = "LR
 \references{
 Borboudakis G. and Tsamardinos I. (2019). Forward-backward selection with early dropping. Journal of Machine Learning Research, 20(8): 1-39.
 
-%Tsagis M. (2018). Guide on performing feature selection with the R package MXM.
-%http://mensxmachina.org/site/wp-content/uploads/2018/04/Guide-on-performing-feature-selection-with-the-R-package-MXM.pdf
+Tsagris, M. and Tsamardinos, I. (2019). Feature selection with the R package MXM. F1000Research 7: 1505
 }
 
 

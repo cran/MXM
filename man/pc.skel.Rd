@@ -42,8 +42,8 @@ For the pc.con, pc.skel.boot and glmm.pc.skel, the dataset can only be a matrix.
 If you have continuous data, you can choose either "pearson", "spearman" or "distcor". The latter uses the distance correlation and 
 should not be used with lots of observations as it is by default really slow. If you have categorical data, this must be "cat". 
 If you have a mix of continuous, binary and ordinal data (we will expand the available dataset in the future) then choose 
-"comb.fast" or "comb.mm". These two methods perform the symmetric test for mixed data (Tsagris et al., 2017). See details for 
-more information on this. For the mixed models PC algorithm, this is the same argument, but cuurently only "comb.mm" is acecpted.
+"comb.fast" or "comb.mm". These two methods perform the symmetric test for mixed data (Tsagris et al., 2018). See details for 
+more information on this. For the mixed models PC algorithm, this is the same argument, but currently only "comb.mm" is acecpted.
 }
 \item{group}{
 This is to be used in the "glmm.pc.skel" and "gee.pc.skel" only. It is a vector for identifying the grouped data, the correlated 
@@ -194,9 +194,9 @@ Paik M.C. (1988). Repeated measurement analysis for nonnormal data in small samp
 Computation, 17(4): 1155-1171.
 
 Ziegler A., Kastner C., Brunner D. and Blettner M. (2000). Familial associations of lipid profiles: A generalised estimating 
-equations approach. Statistics in medicine, 19(24): 3345-3357
+equations approach. Statistics in Medicine, 19(24): 3345-3357
 
-Yan J. and Fine J. (2004). Estimating equations for association structures. Statistics in medicine, 23(6): 859-874.
+Yan J. and Fine J. (2004). Estimating equations for association structures. Statistics in Medicine, 23(6): 859-874.
 
 Liang K.Y. and Zeger S.L. (1986). Longitudinal data analysis using generalized linear models. Biometrika, 73(1): 13-22.
 
@@ -206,14 +206,15 @@ Eugene Demidenko (2013). Mixed Models: Theory and Applications with R, 2nd Editi
 \author{
  Michail Tsagris
 
-R implementation and documentation: Michail Tsagris \email{mtsagris@uoc.gr}
+R implementation and documentation: Michail Tsagris \email{mtsagris@uoc.gr}.
 }
 
 %\note{
 %%  ~~further notes~~
 %}
 \seealso{
-\code{ \link{bn.skel.utils}, \link{mmhc.skel}, \link{corfs.network}, \link{local.mmhc.skel}  }
+\code{ \link{bn.skel.utils}, \link{mmhc.skel}, \link{corfs.network}, \link{local.mmhc.skel} 
+}
 }
 
 \examples{

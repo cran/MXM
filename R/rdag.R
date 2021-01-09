@@ -26,7 +26,7 @@ rdag <- function(n, p, s, a = 0, m = NULL, A = NULL, seed = FALSE) {
   if ( seed )  set.seed(1234567)
   
   if (a > 0) {
-    y <- Rfast::rmvnorm( n - nout, numeric(p), sigma)
+    y <- Rfast::rmvnorm( (1 - a) * (n - nout), numeric(p), sigma)
     nout <- round( a * n )
     yout <- Rfast::rmvnorm(nout, m, sigma)
     x <- rbind(y, yout)  

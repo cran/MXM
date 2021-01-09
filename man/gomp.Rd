@@ -79,33 +79,40 @@ proportion of selection.
 }
 
 \references{
-Pati Y. C., Rezaiifar R. & Krishnaprasad P. S. (1993). Orthogonal matching pursuit: Recursive function approximation with applications to wavelet decomposition. In Signals, Systems and Computers. 1993 Conference Record of The Twenty-Seventh Asilomar Conference on. IEEE.
+Pati Y. C., Rezaiifar R. & Krishnaprasad P. S. (1993). Orthogonal matching pursuit: Recursive function approximation with 
+applications to wavelet decomposition. In Signals, Systems and Computers. 1993 Conference Record of The Twenty-Seventh 
+Asilomar Conference on. IEEE.
 
 Davis G. (1994). Adaptive Nonlinear Approximations. PhD thesis. 
 http://www.geoffdavis.net/papers/dissertation.pdf
 
-Mallat S. G. & Zhang Z. (1993). Matching pursuits with time-frequency dictionaries. IEEE Transactions on signal processing, 41(12), 3397-3415.
+Mallat S. G. & Zhang Z. (1993). Matching pursuits with time-frequency dictionaries. IEEE Transactions on signal processing, 
+41(12), 3397-3415.
 https://www.di.ens.fr/~mallat/papiers/MallatPursuit93.pdf
 
-Gharavi-Alkhansari M., & Huang T. S. (1998, May). A fast orthogonal matching pursuit algorithm. In Acoustics, Speech and Signal Processing, 1998. 
+Gharavi-Alkhansari M., & Huang T. S. (1998, May). A fast orthogonal matching pursuit algorithm. In Acoustics, Speech and Signal 
+Processing, 1998. 
 Proceedings of the 1998 IEEE International Conference on (Vol. 3, pp. 1389-1392). IEEE.
 
 Chen S., Billings S. A., & Luo W. (1989). Orthogonal least squares methods and their application to non-linear system identification. 
 International Journal of control, 50(5), 1873-1896.
 
-Lozano A., Swirszcz G., & Abe N. (2011). Group orthogonal matching pursuit for logistic regression. In Proceedings of the Fourteenth International Conference on Artificial Intelligence and Statistics.
+Lozano A., Swirszcz G., & Abe N. (2011). Group orthogonal matching pursuit for logistic regression. In Proceedings of the Fourteenth 
+International Conference on Artificial Intelligence and Statistics.
 
 Razavi S. A. Ollila E., & Koivunen V. (2012). Robust greedy algorithms for compressed sensing. In Signal Processing 
 Conference (EUSIPCO), 2012 Proceedings of the 20th European. IEEE.
 
-Mazin Abdulrasool Hameed (2012). Comparative analysis of orthogonal matching pursuit and least angle regression. MSc thesis, Michigan State University.
+Mazin Abdulrasool Hameed (2012). Comparative analysis of orthogonal matching pursuit and least angle regression. 
+MSc thesis, Michigan State University.
 https://www.google.gr/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&ved=0ahUKEwik9P3Yto7XAhUiCZoKHQ8XDr8QFgglMAA&url=https%3A%2F%2Fd.lib.msu.edu%2Fetd%2F1711%2Fdatastream%2FOBJ%2Fdownload%2FComparative_analysis_of_orthogonal_matching_pursuit_and_least_angle_regression.pdf&usg=AOvVaw2fRcSemcbteyWUiAKYi-8B 
 
 %Tsagis M. (2018). Guide on performing feature selection with the R package MXM.
 %\url{http://mensxmachina.org/site/wp-content/uploads/2018/04/Guide-on-performing-feature-selection-with-the-R-package-MXM.pdf}
 
-Michail Tsagris, Zacharias Papadovasilakis, Kleanthi Lakiotaki, Ioannis Tsamardinos (2020). 
-A generalised OMP algorithm for feature selection with application to gene expression data. arxiv preprint.
+Tsagris M., Papadovasilakis Z., Lakiotaki K. and Tsamardinos I. (2020). The \eqn{\gamma}-OMP algorithm for feature selection 
+with application to gene expression data. 
+IEEE/ACM Transactions on Computational Biology and Bioinformatics (Accepted for publication)
 https://arxiv.org/pdf/2004.00281.pdf
 
 }

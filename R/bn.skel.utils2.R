@@ -20,7 +20,7 @@ bn.skel.utils2 <- function(mod, G = NULL, roc = TRUE, alpha = 0.01) {
   area <- NULL
   if ( !is.null(G) ) {
     group <- G[ pxy[, 1:2] ] 
-    area <- auc(group,  pxy[, 4], roc = roc)
+    area <- MXM::auc(group,  pxy[, 4], roc = roc)
   }
   lower <- conf.edge.lower(pxy[, 4])
   list(area = area, pxy = pxy, lower = lower)

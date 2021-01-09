@@ -4,7 +4,7 @@ bn.skel.utils <- function(mod, G = NULL, roc = TRUE, alpha = 0.01) {
   preds <- preds[ upper.tri(preds) ]
   if ( !is.null(G) ) {
     group <- G[ upper.tri(G) ] 
-    area <- auc(group,  -preds, roc = roc)
+    area <- MXM::auc(group, -preds, roc = roc)
   }  
   p <- exp(preds)
   sig.p <- p[ which(p <= alpha) ]

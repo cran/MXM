@@ -3,12 +3,11 @@
 \alias{rdag2}
 \alias{rmdag}
 \title{
-Simulation of data from DAG (directed acyclic graph)
+Data simulation from a DAG.
 }
 
 \description{
-The main task of this test is to provide a p-value PVALUE for the null hypothesis: feature 'X' is independent 
-from 'TARGET' given a conditioning set CS. This test is based on the log likelihood ratio test.
+Data simulation from a DAG.
 }
 
 \usage{
@@ -53,7 +52,7 @@ Every child will be a function of some parents. The beta coefficients of the par
 
 \details{
 In the case where no adjacency matrix is given, an \eqn{p \times p} matrix with zeros everywhere is created. 
-very element below the diagonal is is replaced by random values from a Bernoulli distribution with probability of success equal to s. 
+Every element below the diagonal is is replaced by random values from a Bernoulli distribution with probability of success equal to s. 
 This is the matrix B. Every value of 1 is replaced by a uniform value in \eqn{0.1, 1}. This final matrix is called A. 
 The data are generated from a multivariate normal distribution with a zero mean vector and covariance matrix equal to 
 \eqn{\left({\bf I}_p- A\right)^{-1}\left({\bf I}_p- A\right)}, where \eqn{{\bf I}_p} is the \eqn{p \times p} identiy matrix. 

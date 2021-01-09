@@ -8,8 +8,7 @@ constructing the skeleton of a Bayesian network.
 }
 
 \description{
-'MXM' stands for Mens eX Machina, meaning 'Mind from the Machine' in Latin. The package provides source code for the SES 
-algorithm and for some appropriate statistical conditional independence tests. (Fisher and Spearman correlation, 
+'MXM' stands for Mens eX Machina, meaning 'Mind from the Machine' in Latin. The package provides source code for the SES algorithm and for some appropriate statistical conditional independence tests. (Fisher and Spearman correlation, 
 G-square test are some examples. Currently the response variable can be univariate or multivariate Euclidean, 
 proportions within 0 and 1, compositional data without zeros and  ones, binary, nominal or ordinal multinomial, 
 count data (handling also overdispersed and with more zeros than expected), longitudinal, clustered data, survival 
@@ -17,13 +16,11 @@ and case-control. Robust versions are also available in some cases and a K-fold 
 Bayesian network related algorithms and ridge reression are also included. Read the package's help pages for more details.
 
 MMPC and SES can handle even thousands of variables and for some tests, even many sample sizes of tens of thousands. 
-The user is best advised to check his variables in the beginning. For some regressions, logistic and Poisson for example, 
-we have used C++ codes for speed reasons. 
+The user is best advised to check his variables in the beginning. For some regressions, logistic and Poisson for example, we have used C++ codes for speed reasons. 
 
 For more information the reader is addressed to 
 
 Lagani V., Athineou G., Farcomeni A., Tsagris M. and Tsamardinos I. (2017). Feature Selection with the R Package MXM: Discovering Statistically Equivalent Feature Subsets. Journal of Statistical Software, 80(7), doi:10.18637/jss.v080.i07 
-
 and 
 
 Tsagris, M. and Tsamardinos, I. (2019). Feature selection with the R package MXM. F1000Research 7: 1505.
@@ -33,8 +30,8 @@ Tsagris, M. and Tsamardinos, I. (2019). Feature selection with the R package MXM
 \tabular{ll}{
 Package: \tab MXM\cr
 Type: \tab Package\cr
-Version: \tab 1.4.9\cr
-Date: \tab 2020-09-02\cr
+Version: \tab 1.5.0\cr
+Date: \tab 2021-01-08\cr
 License: \tab GPL-2\cr
 }
 }
@@ -48,8 +45,8 @@ Michail Tsagris \email{mtsagris@uoc.gr}
 }
 
 \references{
-Michail Tsagris, Zacharias Papadovasilakis, Kleanthi Lakiotaki, Ioannis Tsamardinos (2020). 
-A generalised OMP algorithm for feature selection with application to gene expression data. arxiv preprint.
+The \eqn{\gamma}-OMP algorithm for feature selection with application to gene expression data.  
+IEEE/ACM Transactions on Computational Biology and Bioinformatics (Accepted for publication)
 https://arxiv.org/pdf/2004.00281.pdf
 
 Tsagris, M. and Tsamardinos, I. (2019). Feature selection with the R package MXM. F1000Research 7: 1505
@@ -61,8 +58,7 @@ Tsagris, M. (2019). Bayesian Network Learning with the PC Algorithm: An Improved
 Tsagris, M., Lagani, V. and Tsamardinos, I. (2018). Feature selection for high-dimensional temporal data. 
 BMC Bioinformatics, 19:17. 
 
-Tsagris, M., Borboudakis, G., Lagani, V. and Tsamardinos, I. (2018). 
-Constraint-based causal discovery with mixed data. International Journal 
+Tsagris, M., Borboudakis, G., Lagani, V. and Tsamardinos, I. (2018). Constraint-based causal discovery with mixed data. International Journal 
 of Data Science and Analytics, 6(1): 19-30. 
 
 Tsagris, M., Papadovasilakis, Z., Lakiotaki, K. and Tsamardinos, I. (2018). Efficient feature selection on gene expression data: Which algorithm to use? BioRxiv preprint. 
@@ -122,7 +118,14 @@ European Union's Seventh Framework Programme (FP/2007-2013) / ERC Grant Agreemen
 
 Michail Tsagris would like to express his acknowledgments to Marios Dimitriadis and Manos Papadakis, 
 undergraduate students in the department of computer science, university of Crete, for their programming tips and advice. 
-Their help has been very valuable. Dr David Gomez Cabrero Lopez is also acknowledged. Dr Uwe Ligges and Prof Kurt Hornik from the CRAN team are greatly acknowledged for their assistance. Prof Achim Zeileis is grealty acknowledged for this help with the quasi Poisson and quasi binomial regression models. Christina Chatzipantsiou and Kleio Maria Verrou are acknowledged for their suggestions. Margarita Rebolledo is acknowledged for spotting a bug. Nikolaos Pandis from the University of Bern is acknowledged for his suggestion of the AFT (regression) models and for his suggestions. Michail is grateful to James Dalgleish from Columbia University who suggested that we mention, in various places, that most algorithms return the logarithm of the p-values and not the p-values. Stavros Lymperiadis provided a very useful example where weights are used in a regression model; in surveys when stratified random sampling has been applied.
+Their help has been very valuable. Dr David Gomez Cabrero Lopez is also acknowledged. Dr Uwe Ligges and Prof Kurt Hornik from 
+the CRAN team are greatly acknowledged for their assistance. Prof Achim Zeileis is grealty acknowledged for this help with the 
+quasi Poisson and quasi binomial regression models. Christina Chatzipantsiou and Kleio Maria Verrou are acknowledged for their suggestions. 
+Margarita Rebolledo is acknowledged for spotting a bug. Nikolaos Pandis from the University of Bern is acknowledged for his suggestion of the 
+AFT (regression) models and for his suggestions. Michail is grateful to James Dalgleish from Columbia University who suggested that we mention, 
+in various places, that most algorithms return the logarithm of the p-values and not the p-values. Stavros Lymperiadis provided a very useful 
+example where weights are used in a regression model; in surveys when stratified random sampling has been applied. Zurab Khasidashvili from Intel Israel
+is acknowledged for spotting a bug in the function mmmb. 
 
 \bold{Disclaimer:} Professor Tsamardinos is the creator of this package. Mr Athineou built it, supervised by Dr Lagani. 
 Dr Tsagris is the current maintainer.

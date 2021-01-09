@@ -1,11 +1,11 @@
 \name{Read big data or a big.matrix object}
 \alias{read.big.data}
 \title{
-Forward Backward Early Dropping selection regression
+Read big data or a big.matrix object
 }
 
 \description{
-Forward Backward Early Dropping selection regression.
+Read big data or a big.matrix object.
 }
 
 \usage{
@@ -45,8 +45,8 @@ R implementation and documentation: Michail Tsagris \email{mtsagris@uoc.gr}. For
 \examples{
 \dontrun{
 dataset <- matrix( runif(100 * 50, 1, 100), ncol = 50 )
-read.csv(data, "dataset.csv", sep = ",")
-a <- read.big.data("dataset.csv")
+write.csv(dataset, "dataset.csv", sep = ",")
+a <- read.big.data("dataset.csv", header = TRUE)
 }
 }
 

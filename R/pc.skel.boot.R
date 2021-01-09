@@ -19,14 +19,14 @@ pc.skel.boot <- function(dataset, method = "pearson", alpha = 0.01, R = 199, nco
     }  ## end for (i in 1:R)
 
   } else {  ## parallel computations
-    cl <- makePSOCKcluster(ncores)
-    registerDoParallel(cl)
-    gboot <- foreach( i = 1:R, .combine = rbind, .export = "pc.skel", .packages = "Rfast" ) %dopar% {
+    cl <- parallel::makePSOCKcluster(ncores)
+    doParallel::registerDoParallel(cl)
+    gboot <- foreach::foreach( i = 1:R, .combine = rbind, .export = "pc.skel", .packages = "Rfast" ) %dopar% {
       id <- sample(n, n, replace = TRUE)
       gb <- Rfast::pc.skel(dataset = dataset[id, ], method = method, alpha = alpha, R = 1)$G
       return( as.vector(gb) )
     }
-    stopCluster(cl)
+    parallel::stopCluster(cl)
   }  ## end if (ncores <= 1)
   Gboot <- Rfast::colmeans(gboot)
   Gboot <- matrix(Gboot, nrow = p, ncol = p)

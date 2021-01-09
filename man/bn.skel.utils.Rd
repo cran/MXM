@@ -31,11 +31,11 @@ The significance level ( suitable values in (0, 1) ) for assessing the p-values.
 }
 
 \details{
-Given the true adjaceny matrix one can evaluate the estimated adjacency matrix, skeleton, of the Pc or the MMHC algorithm. 
+Given the true adjaceny matrix one can evaluate the estimated adjacency matrix, skeleton, of the PC or the MMHC algorithm. 
 
 The bn.skels.utils give you the area under the curve, false discovery rate and sorting of the edges based on their p-values. 
 
-The bn.skel.utils2 estimates the confidence of each edge. The estimated proporiton of null p-values is estimated the algorithm by 
+The bn.skel.utils2 estimates the confidence of each edge. The estimated proportion of null p-values is estimated the algorithm by 
 Storey and Tibshirani (2003). 
 }
 
