@@ -76,7 +76,7 @@ R implementation and documentation: Michail Tsagris \email{mtsagris@uoc.gr}
 y <- rbeta(80, 5, 3)
 x <- matrix( rnorm(80 * 7), ncol = 7)
 a1 <- beta.regs(y, x)
-a2 <- perm.betaregs(y, x[, 1:4], R = 499)
+a2 <- perm.betaregs(y, x[, 1:4], R = 299)
 }
 
 \keyword{ Regression models }

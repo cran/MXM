@@ -43,12 +43,14 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> and M
 }
 
 \examples{
+\dontrun{
 # simulate a dataset with continuous data
-dataset <- matrix( runif(500 * 20, 1, 100), nrow = 500 ) 
+dataset <- matrix( runif(200 * 20, 1, 100), nrow = 200 ) 
 a <- mmhc.skel(dataset, max_k = 3, threshold = 0.05, test = "testIndFisher", 
 nc = 1) 
 plotnetwork(a$G)
 plotnetwork(a$G, titlos = "DAG skeleton")
+}
 }
 
 \keyword{ Network plot }

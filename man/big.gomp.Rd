@@ -124,10 +124,10 @@ R implementation and documentation: Michail Tsagris \email{mtsagris@uoc.gr}. For
 
 \examples{
 \dontrun{
-dataset <- matrix( runif(100 * 50, 1, 100), ncol = 50 )
+dataset <- matrix( runif(10^6 * 50, 1, 100), ncol = 50 )
 write.csv(data, "dataset.csv", sep = ",")
 a <- read.big.data("dataset.csv")
-mod <- big.gomp(a, test = "testIndFisher", tol = 0.01)
+mod <- big.gomp(dataset = a, test = "testIndFisher", tol = 0.01)
 }
 }
 

@@ -66,9 +66,9 @@ R implementation and documentation: Michail Tsagris \email{mtsagris@uoc.gr}
 }
 
 \examples{
-dataset <- matrix( runif(400 * 50, 1, 100), ncol = 50 )
+dataset <- matrix( runif(100 * 20, 1, 100), ncol = 20 )
 #define a simulated class variable 
-target <- rt(400, 10)
+target <- rt(100, 10)
 a <- fbed.reg(target, dataset, K = 10, test = "testIndFisher", method = "eBIC") 
 fbedreg.bic(target, dataset, fbedreg.object = a, test = "testIndFisher")
 }

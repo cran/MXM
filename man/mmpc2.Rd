@@ -124,10 +124,10 @@ R implementation and documentation: Michail Tsagris \email{mtsagris@uoc.gr}.
 set.seed(123)
 
 #simulate a dataset with continuous data
-dataset <- matrix(runif(100 * 100, 1, 100), ncol = 100)
+dataset <- matrix(runif(100 * 40, 1, 100), ncol = 40)
 
 #define a simulated class variable 
-target <- 3 * dataset[, 10] + 2 * dataset[, 100] + 3 * dataset[, 20] + rnorm(100, 0, 5)
+target <- 3 * dataset[, 10] + 2 * dataset[, 15] + 3 * dataset[, 20] + rnorm(100, 0, 5)
 m <- median(target)
 target[target < m] <- 0
 target[abs(target) > 0 ] <- 1

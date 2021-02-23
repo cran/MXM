@@ -131,7 +131,7 @@ data(sleepstudy)
 reaction <- sleepstudy$Reaction
 days <- sleepstudy$Days
 subject <- sleepstudy$Subject
-x <- matrix(rnorm(180 * 20),ncol = 20) ## unrelated preidctor variables
+x <- matrix(rnorm(180 * 200),ncol = 200) ## unrelated predictor variables
 m1 <- fbed.gee.reg(reaction, x, subject) 
 m2 <- fbed.glmm.reg(reaction, x, subject, backward = FALSE) 
 }

@@ -60,7 +60,7 @@ R implementation and documentation: Michail Tsagris \email{mtsagris@uoc.gr}
 
 \examples{
 y <- rbinom(200, 1, 0.5)
-x <- matrix( rnorm(200 * 50), ncol = 50 )
+x <- matrix( rnorm(200 * 30), ncol = 30 )
 a <- MXM::sp.logiregs(y, x)
 }
 

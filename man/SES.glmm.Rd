@@ -258,7 +258,7 @@ data(sleepstudy)
 reaction <- sleepstudy$Reaction
 days <- sleepstudy$Days
 subject <- sleepstudy$Subject
-x <- matrix(rnorm(180 * 20),ncol = 20) ## unrelated preidctor variables
+x <- matrix(rnorm(180 * 200),ncol = 200) ## unrelated predictor variables
 m1 <- SES.glmm(target = reaction, reps = days, group = subject, dataset = x)
 m2 <- MMPC.glmm(target = reaction, reps = days, group = subject, dataset = x)
 }

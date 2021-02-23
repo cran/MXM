@@ -56,6 +56,7 @@ ci.mm <- function(ind1, ind2, cs = NULL, dat, type, rob = FALSE, R = 1) {
       dof2 <- a2[2, 5]
       p2 <- pchisq(t2, dof2, lower.tail = FALSE, log.p = TRUE)
     } 
+
   } else {
     ### with conditioning set   
     ds0 <- dat[, cs, drop = FALSE ]
@@ -69,9 +70,9 @@ ci.mm <- function(ind1, ind2, cs = NULL, dat, type, rob = FALSE, R = 1) {
       p1 <- pchisq(t1, dof1, lower.tail = FALSE, log.p = TRUE)
     } else if ( is.numeric(y) ) {
       mod1 <- lm(y ~., data = ds1)
-      a1 <- anova(mod1)
       if ( any( is.na(mod1$coefficients) ) ) {
         p1 <- log(1)
+        t1 <- 0
       } else {
         a1 <- anova(mod1)
         d1 <- dim(a1)[1] - 1
@@ -106,6 +107,7 @@ ci.mm <- function(ind1, ind2, cs = NULL, dat, type, rob = FALSE, R = 1) {
       mod2 <- lm(x ~., data = ds2)  ## linear regression
       if ( any( is.na(mod2$coefficients) ) ) {
         p2 <- log(1)
+        t2 <- 0
       } else {
         a2 <- anova(mod2)
         d2 <- dim(a2)[1] - 1

@@ -66,8 +66,8 @@ R implementation and documentation: Michail Tsagris \email{mtsagris@uoc.gr}
 }
 
 \examples{
-y <- rnorm(200)
-x <- matrix( rnorm(200 * 50), ncol = 50)
+y <- rnorm(100)
+x <- matrix( rnorm(100 * 30), ncol = 30)
 a <- MXM::pc.sel(y, x)
 b <- MMPC(y, x)
 }

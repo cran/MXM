@@ -110,9 +110,9 @@ x <- matrix( runif(10^6 * 50, 1, 100), ncol = 50 )
 require(bigmemory)
 dataset <- bigmemory::as.big.matrix(x)
 #define a simulated class variable 
-target <- rt(100, 10)
+target <- rt(10^6, 10)
 a1 <- big.fbed.reg(target, dataset, test = "testIndFisher") 
-y <- rpois(100, 10)
+y <- rpois(10^6, 10)
 a2 <- big.fbed.reg(y, dataset, test = "testIndPois") 
 }
 }

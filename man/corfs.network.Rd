@@ -97,7 +97,7 @@ R implementation and documentation: Michail Tsagris \email{mtsagris@uoc.gr}
 
 \examples{
 # simulate a dataset with continuous data
-dataset <- matrix(runif(600 * 30, 1, 100), nrow = 600 ) 
+dataset <- matrix(runif(400 * 20, 1, 100), ncol = 20 ) 
 a1 <- mmhc.skel(dataset, max_k = 3, threshold = 0.05, test = "testIndFisher", 
 nc = 1) 
 a2 <- corfs.network(dataset, threshold = 0.05, tolb = 2, tolr = 0.02, stopping = "BIC", 

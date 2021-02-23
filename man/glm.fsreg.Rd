@@ -90,10 +90,10 @@ R implementation and documentation: Michail Tsagris \email{mtsagris@uoc.gr}
 set.seed(123)
 
 #simulate a dataset with continuous data
-dataset <- matrix( runif(500 * 40, 1, 100), ncol = 40 )
+dataset <- matrix( runif(200 * 30, 1, 100), ncol = 30 )
 
 #define a simulated class variable 
-target <- rpois(500, 10)
+target <- rpois(200, 10)
 
 a <- glm.fsreg(target, dataset, threshold = 0.05, tol = 2, ncores = 1 ) 
 b <- MMPC(target, dataset, max_k = 3, threshold = 0.05, test = "testIndPois")

@@ -123,7 +123,7 @@ R implementation and documentation: Michail Tsagris \email{mtsagris@uoc.gr}
 
 \examples{
 #simulate a dataset with continuous data
-dataset <- matrix( runif(100 * 50, 1, 100), ncol = 50 )
+dataset <- matrix( runif(100 * 20, 1, 100), ncol = 20 )
 #define a simulated class variable 
 target <- rt(100, 10)
 

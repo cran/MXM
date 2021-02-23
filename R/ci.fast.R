@@ -78,6 +78,7 @@ ci.fast <- function(ind1, ind2, cs = NULL, dat, type, rob = FALSE, R = 1) {
       mod1 <- lm(y ~., data = ds)
       if ( any( is.na(mod1$coefficients) ) ) {
         pval <- log(1)
+		stat <- 0
       } else {
         a1 <- anova(mod1)
         d1 <- dim(a1)[1] - 1
@@ -90,6 +91,7 @@ ci.fast <- function(ind1, ind2, cs = NULL, dat, type, rob = FALSE, R = 1) {
       mod1 <- lm(x ~., data = ds)
       if ( any( is.na(mod1$coefficients) ) ) {
         pval <- log(1)
+		stat <- 0
       } else {
         a1 <- anova(mod1)
         d1 <- dim(a1)[1] - 1

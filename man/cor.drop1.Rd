@@ -51,8 +51,8 @@ R implementation and documentation: Michail Tsagris \email{mtsagris@uoc.gr}
 }
 
 \examples{
-y <- rnorm(500)
-x <- matrix( rnorm(500 * 20), ncol = 20)
+y <- rnorm(200)
+x <- matrix( rnorm(200 * 10), ncol = 10)
 cor.drop1(y, x)
 }
 

@@ -139,7 +139,7 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> Vince
 
 \examples{
 ## assume these are longitudinal data, each column is a variable (or feature)
-dataset <- matrix( rnorm(400 * 50), ncol = 50 ) 
+dataset <- matrix( rnorm(400 * 30), ncol = 30 ) 
 id <- rep(1:80, each = 5)  ## 80 subjects
 reps <- rep( seq(4, 12, by = 2), 80)  ## 5 time points for each subject
 ## dataset contains are the regression coefficients of each subject's values on the 

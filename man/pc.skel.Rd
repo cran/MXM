@@ -219,7 +219,7 @@ R implementation and documentation: Michail Tsagris \email{mtsagris@uoc.gr}.
 
 \examples{
 # simulate a dataset with continuous data
-y <- rdag2(500, p = 20, nei = 3)
+y <- rdag2(300, p = 20, nei = 3)
 ind <- sample(1:20, 20)
 x <- y$x[, ind]
 a <- mmhc.skel(x, max_k = 3, threshold = 0.05, test = "testIndFisher" ) 

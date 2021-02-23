@@ -116,7 +116,7 @@ dataset <- matrix( rnorm(200 * 50), ncol = 50 )
 target <- dataset[, 50]
 dataset <- dataset[, -50]
 # run a 10 fold CV for the regression task
-best_model = cv.gomp(target, dataset, kfolds = 5, task = "R", 
+best_model <- cv.gomp(target, dataset, kfolds = 5, task = "R", 
 tol = seq(0.001, 0.01,by=0.001), method = "ar2" )
 }
 }

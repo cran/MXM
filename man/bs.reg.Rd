@@ -74,8 +74,8 @@ R implementation and documentation: Michail Tsagris \email{mtsagris@uoc.gr}
 
 \examples{
 set.seed(123)
-dataset <- matrix( runif(500 * 10, 1, 100), ncol = 10 )
-target <- rnorm(500)
+dataset <- matrix( runif(200 * 10, 1, 100), ncol = 10 )
+target <- rnorm(200)
 a <- bs.reg(target, dataset, threshold = 0.05, test = "testIndRQ") 
 b <- bs.reg(target, dataset, threshold = 0.05, test = "testIndReg") 
 b2 <- bs.reg(target, dataset, threshold = 0.05, test = "testIndFisher") 

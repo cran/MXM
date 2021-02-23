@@ -30,8 +30,8 @@ Tsagris, M. and Tsamardinos, I. (2019). Feature selection with the R package MXM
 \tabular{ll}{
 Package: \tab MXM\cr
 Type: \tab Package\cr
-Version: \tab 1.5.0\cr
-Date: \tab 2021-01-08\cr
+Version: \tab 1.5.1\cr
+Date: \tab 2021-02-23\cr
 License: \tab GPL-2\cr
 }
 }
@@ -41,12 +41,12 @@ Giorgos Athineou <athineou@csd.uoc.gr>, Vincenzo Lagani <vlagani@csd.uoc.gr>, Mi
 }
 
 \section{Maintainer}{
-Michail Tsagris \email{mtsagris@uoc.gr}
+Michail Tsagris \email{mtsagris@uoc.gr}.
 }
 
 \references{
 The \eqn{\gamma}-OMP algorithm for feature selection with application to gene expression data.  
-IEEE/ACM Transactions on Computational Biology and Bioinformatics (Accepted for publication)
+IEEE/ACM Transactions on Computational Biology and Bioinformatics (Accepted for publication).
 https://arxiv.org/pdf/2004.00281.pdf
 
 Tsagris, M. and Tsamardinos, I. (2019). Feature selection with the R package MXM. F1000Research 7: 1505
@@ -116,19 +116,9 @@ Acknowledgments:
 The research leading to these results has received funding from the European Research Council under the 
 European Union's Seventh Framework Programme (FP/2007-2013) / ERC Grant Agreement n. 617393.
 
-Michail Tsagris would like to express his acknowledgments to Marios Dimitriadis and Manos Papadakis, 
-undergraduate students in the department of computer science, university of Crete, for their programming tips and advice. 
-Their help has been very valuable. Dr David Gomez Cabrero Lopez is also acknowledged. Dr Uwe Ligges and Prof Kurt Hornik from 
-the CRAN team are greatly acknowledged for their assistance. Prof Achim Zeileis is grealty acknowledged for this help with the 
-quasi Poisson and quasi binomial regression models. Christina Chatzipantsiou and Kleio Maria Verrou are acknowledged for their suggestions. 
-Margarita Rebolledo is acknowledged for spotting a bug. Nikolaos Pandis from the University of Bern is acknowledged for his suggestion of the 
-AFT (regression) models and for his suggestions. Michail is grateful to James Dalgleish from Columbia University who suggested that we mention, 
-in various places, that most algorithms return the logarithm of the p-values and not the p-values. Stavros Lymperiadis provided a very useful 
-example where weights are used in a regression model; in surveys when stratified random sampling has been applied. Zurab Khasidashvili from Intel Israel
-is acknowledged for spotting a bug in the function mmmb. 
+Michail Tsagris would like to express his acknowledgments to Marios Dimitriadis and Manos Papadakis, undergraduate students in the department of computer science, university of Crete, for their programming tips and advice. Their help has been very valuable. Dr Uwe Ligges and Prof Kurt Hornik from the CRAN team are greatly acknowledged for their assistance. Prof Achim Zeileis is greatly acknowledged for this help with the quasi Poisson and quasi binomial regression models. Christina Chatzipantsiou and Kleio Maria Verrou are acknowledged for their suggestions. Nikolaos Pandis from the University of Bern is acknowledged for his suggestion of the AFT (regression) models and for his suggestions. Michail is grateful to James Dalgleish from Columbia University who suggested that we mention, in various places, that most algorithms return the logarithm of the p-values and not the p-values. Stavros Lymperiadis provided a very useful example where weights are used in a regression model; in surveys when stratified random sampling has been applied. Dr David Gomez Cabrero Lopez is also acknowledged. Margarita Rebolledo is acknowledged for spotting a bug. Zurab Khasidashvili from Intel Israel is acknowledged for spotting a bug in the function mmmb. Teny Handhayani (PhD student at the University of York) spotted a bug in the conditional independence tests with mixed data and she is acknowledged for that. 
 
-\bold{Disclaimer:} Professor Tsamardinos is the creator of this package. Mr Athineou built it, supervised by Dr Lagani. 
-Dr Tsagris is the current maintainer.
+\bold{Disclaimer:} Professor Tsamardinos is the creator of this package and Dr Lagani supervised Mr Athineou build it. Dr Tsagris is the current maintainer.
 }
 
 \keyword{ SES }
@@ -136,6 +126,6 @@ Dr Tsagris is the current maintainer.
 \keyword{ Feature Selection }
 
 \seealso{
-\code{\link{SES}, \link{MMPC}, \link{censIndCR},\link{testIndFisher}, \link{testIndLogistic}, \link{gSquare}, \link{testIndRQ}}
+\code{\link{SES}, \link{MMPC}, \link{fbed.reg}, \link{gomp}, \link{pc.sel}, \link{censIndCR},\link{testIndFisher}, \link{testIndLogistic}, \link{gSquare}, \link{testIndRQ}}
 }
 

@@ -149,10 +149,10 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.01, rob = FALSE, R = 
     dial <- which( pv <= alpha, arr.ind = TRUE )
     zeu <- cbind( dial, stadf[ dial ], pv[ dial ] )  ## all significant pairs of variables
     zeu <- zeu[ order( - zeu[, 4], zeu[, 3] ), , drop = FALSE] ## order of the pairs based on their strength
-    duo = dim(zeu)[1]  ## number of pairs to be checked for conditional independence
+    duo <- dim(zeu)[1]  ## number of pairs to be checked for conditional independence
     n.tests[1] = n * (n - 1) / 2
     #### main search
-    if (duo == 0) {
+    if ( duo == 0 ) {
       diag(G) <- 0
       res <- list(kappa = k, G = G) 
     } else {
@@ -228,8 +228,8 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.01, rob = FALSE, R = 
             a <- ci.test( candpair[1], candpair[2], sam[1, 1:k], dataset, type = type, rob = rob, R = R )
             b <- a[2]
             if ( a[2] > alpha ) {
-              G[ candpair[1], candpair[2] ] = 0  ## remove the edge between two variables
-              G[ candpair[2], candpair[1] ] = 0  ## remove the edge between two variables 
+              G[ candpair[1], candpair[2] ] <- 0  ## remove the edge between two variables
+              G[ candpair[2], candpair[1] ] <- 0  ## remove the edge between two variables 
               met[i, ] <- c( sam[1, 1:k], a[1:2] )
               tes <- tes + 1 
             } else {
@@ -241,13 +241,13 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.01, rob = FALSE, R = 
                 tes <- tes + 1
               }  ## end while ( a[2] < alpha  &  m < nrow(sam) )
               if (a[2] > alpha) {
-                G[ candpair[1], candpair[2] ] = 0  ## remove the edge between two variables
-                G[ candpair[2], candpair[1] ] = 0  ## remove the edge between two variables
-                met[i, ] = c( sam[m, 1:k], a[1:2] ) 
+                G[ candpair[1], candpair[2] ] <- 0  ## remove the edge between two variables
+                G[ candpair[2], candpair[1] ] <- 0  ## remove the edge between two variables
+                met[i, ] <- c( sam[m, 1:k], a[1:2] ) 
               }  ## end if (a[2] > alpha)
             }  ## end if ( a[2] > alpha )
-            pvalue[ candpair[1], candpair[2] ] = max(b, pvalue[ candpair[1], candpair[2] ] )
-            pvalue[ candpair[2], candpair[1] ] = max(b, pvalue[ candpair[1], candpair[2] ] )
+            pvalue[ candpair[1], candpair[2] ] <- max(b, pvalue[ candpair[1], candpair[2] ] )
+            pvalue[ candpair[2], candpair[1] ] <- max(b, pvalue[ candpair[1], candpair[2] ] )
           }  ## end if ( dim(sam)[1] == 0 ) 
           sam = samx = samy = NULL
         }  ## end for ( i in 1:nrow(zeu) )
@@ -255,17 +255,17 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.01, rob = FALSE, R = 
         ax = ay = list()
         lx = ly = numeric( duo )
         for ( i in 1:duo ) {
-          ax[[ i ]] = ina[ G[ zeu[i, 1], ] == 2 ]  ;  lx[i] = length( ax[[ i ]] )
-          ay[[ i ]] = ina[ G[ zeu[i, 2], ] == 2 ]  ;  ly[i] = length( ay[[ i ]] ) 
+          ax[[ i ]] <- ina[ G[ zeu[i, 1], ] == 2 ]  ;  lx[i] <- length( ax[[ i ]] )
+          ay[[ i ]] <- ina[ G[ zeu[i, 2], ] == 2 ]  ;  ly[i] <- length( ay[[ i ]] ) 
         }
         ell <- max(lx, ly)
         id <- which( rowSums(met) > 0 )
         if (length(id) == 1) {
-          sep[[ k ]] = c( zeu[id, 1:2], met[id, ] )
-        } else  sep[[ k ]] = cbind( zeu[id, 1:2], met[id, ] )
+          sep[[ k ]] <- c( zeu[id, 1:2], met[id, ] )
+        } else  sep[[ k ]] <- cbind( zeu[id, 1:2], met[id, ] )
         zeu <- zeu[-id, , drop = FALSE]  
         duo <- dim(zeu)[1]
-        n.tests[ k + 1 ] = tes
+        n.tests[ k + 1 ] <- tes
       }  ## end while ( k <= ell & duo > 0 )
       
       G <- G/2
@@ -300,13 +300,13 @@ pc.skel <- function(dataset, method = "pearson", alpha = 0.01, rob = FALSE, R = 
     info <- summary( Rfast::rowsums(G) )
     density <- sum(G) / n / ( n - 1 ) 
     if ( is.null( colnames(dataset) ) ) {
-      colnames(G) = rownames(G) = paste("X", 1:n, sep = "")
-      colnames(stat) = rownames(stat) = paste("X", 1:n, sep = "")
-      colnames(pvalue) = rownames(pvalue) = paste("X", 1:n, sep = "")
+      colnames(G) <- rownames(G) <- paste("X", 1:n, sep = "")
+      colnames(stat) <- rownames(stat) <- paste("X", 1:n, sep = "")
+      colnames(pvalue) <- rownames(pvalue) <- paste("X", 1:n, sep = "")
     } else {
-      colnames(G) = rownames(G) = nam
-      colnames(stat) = rownames(stat) = nam
-      colnames(pvalue) = rownames(pvalue) = nam
+      colnames(G) <- rownames(G) <- nam
+      colnames(stat) <- rownames(stat) <- nam
+      colnames(pvalue) <- rownames(pvalue) <- nam
     }  
     res <- list(stat = stat, ini.pvalue = ini.pvalue, pvalue = pvalue, runtime = durat, kappa = k, n.tests = n.tests, density = density, info = info, G = G, sepset = sepset, title = title )
   }  ## end if ( method != distcor & rob = FALSE )

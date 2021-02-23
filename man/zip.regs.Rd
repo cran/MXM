@@ -77,7 +77,7 @@ y <- rpois(50, 3)
 x <- matrix( rnorm(50 * 7), ncol = 7)
 y[1:10] <- 0
 a1 <- zip.regs(y, x)
-a2 <- perm.zipregs(y, x[, 1:3], R = 499)
+a2 <- perm.zipregs(y, x[, 1:3], R = 299)
 }
 
 \keyword{ Regression models }

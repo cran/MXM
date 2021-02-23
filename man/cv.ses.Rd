@@ -246,7 +246,7 @@ R implementation and documentation: Giorgos Athineou <athineou@csd.uoc.gr> and V
 set.seed(1234)
 
 # simulate a dataset with continuous data
-dataset <- matrix( rnorm(200 * 50), ncol = 50 )
+dataset <- matrix( rnorm(100 * 50), ncol = 50 )
 # the target feature is the last column of the dataset as a vector
 target <- dataset[, 50]
 dataset <- dataset[, -50]
@@ -256,7 +256,7 @@ train_set <- dataset[1:100, ]
 train_target <- target[1:100]
 
 # run a 10 fold CV for the regression task
-best_model = cv.ses(target = train_target, dataset = train_set, kfolds = 5, task = "R")
+best_model <- cv.ses(target = train_target, dataset = train_set, kfolds = 5, task = "R")
 
 # get the results
 best_model$best_configuration
@@ -267,7 +267,7 @@ best_model$best_performance
 # best_model$cv_results_all[[...]]$...
 #i.e.
 # mse value for the 1st configuration of SES of the 5 fold
-abs(best_model$cv_results_all[[1]]$performances[5])
+abs( best_model$cv_results_all[[ 1 ]]$performances[5] )
 
 best_a <- best_model$best_configuration$a
 best_max_k <- best_model$best_configuration$max_k

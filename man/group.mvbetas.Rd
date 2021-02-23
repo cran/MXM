@@ -52,11 +52,11 @@ R implementation and documentation: Michail Tsagris \email{mtsagris@uoc.gr}
 
 \examples{
 ## assume these are longitudinal data, each column is a variable (or feature)
-x <- matrix( rnorm(100 * 100), ncol = 100 ) 
+x <- matrix( rnorm(100 * 30), ncol = 30 ) 
 id <- rep(1:20, each = 5)  ## 20 subjects
 reps <- rep( seq(4, 12, by = 2), 20)  ## 5 time points for each subject
 a <- group.mvbetas(x, id, reps)
-dim(a)  ## 5  200
+dim(a)  ## 5  100
 ## these are the regression coefficients of the first subject's values on the 
 ## reps (which is assumed to be time in this example)
 a[c(1, 21), 1] 

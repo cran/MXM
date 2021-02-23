@@ -86,10 +86,10 @@ R implementation and documentation: Michail Tsagris \email{mtsagris@uoc.gr}
 set.seed(123)
 
 #simulate a dataset with continuous data
-dataset <- matrix( runif(500 * 30, 1, 100), ncol = 30 )
+dataset <- matrix( runif(200 * 20, 1, 100), ncol = 20 )
 
 #define a simulated class variable 
-target <- 3 * dataset[, 10] + 2 * dataset[, 20] + rnorm(500, 0, 5)
+target <- 3 * dataset[, 10] + 2 * dataset[, 20] + rnorm(200, 0, 5)
 a1 <- lm.fsreg(target, dataset, threshold = 0.05, stopping = "BIC", tol = 2) 
 }
 

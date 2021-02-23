@@ -80,8 +80,8 @@ R implementation and documentation: Giorgos Aathineou <athineou@csd.uoc.gr> Mich
 
 \examples{
 set.seed(123)
-dataset <- matrix( runif(500 * 50, 1, 100), ncol = 50 )
-target <- 3 * dataset[, 10] + 2 * dataset[, 20] + 3 * dataset[, 30] + rnorm(500, 0, 5)
+dataset <- matrix( runif(200 * 20, 1, 100), ncol = 20 )
+target <- 3 * dataset[, 10] + 2 * dataset[, 15] + 3 * dataset[, 20] + rnorm(200, 0, 5)
 a1 <- bic.glm.fsreg(target, dataset, tol = 2, ncores = 1 ) 
 a2 <- bic.glm.fsreg( round(target), dataset, tol = 2, ncores = 1 ) 
 y <- target   ;   me <- median(target)  ;   y[ y < me ] <- 0   ;   y[ y >= me ] <- 1

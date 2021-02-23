@@ -30,6 +30,7 @@ ci.mm2 <- function(ind1, ind2, cs = NULL, suffStat) {
       dof <- length( mod2$be ) - length( mod0$be )
       p2 <- pchisq(t2, dof, lower.tail = FALSE)
     } 
+	
     ### with conditioning set   
   } else {
     ########  
@@ -40,7 +41,7 @@ ci.mm2 <- function(ind1, ind2, cs = NULL, suffStat) {
       mod0 <- lm(y ~., data = ds0)
       a1 <- anova(mod0, mod1)
       p1 <- a1[2, 6]
-    } else if ( is.ordered(y)) {
+    } else if ( is.ordered(y) ) {
       ds1 <-  data.frame(y = y, dataset[, cs], x = x)
       mod1 <- ordinal.reg(y ~., data = ds1)
       ds0 <- data.frame(y = y, dataset[, cs])
