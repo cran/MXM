@@ -30,8 +30,8 @@ Tsagris, M. and Tsamardinos, I. (2019). Feature selection with the R package MXM
 \tabular{ll}{
 Package: \tab MXM\cr
 Type: \tab Package\cr
-Version: \tab 1.5.1\cr
-Date: \tab 2021-02-23\cr
+Version: \tab 1.5.2\cr
+Date: \tab 2021-09-21\cr
 License: \tab GPL-2\cr
 }
 }

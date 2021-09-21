@@ -66,8 +66,8 @@ A list including:
 The runtime of the algorithm
 }
 \item{phi}{
-The \eqn{phi} coefficient, returned in the quasi binomial (testIndQBinom), quasi Poisson (testIndQPois), Gamma (testIndGamma) and 
-Gaussian with log link (testIndNormLog). In all other cases this is NULL. 
+The \eqn{phi} coefficient, returned in the quasi binomial (testIndQBinom), quasi Poisson (testIndQPois), Gamma (testIndGamma) 
+and Gaussian with log link (testIndNormLog). In all other cases this is NULL. 
 }
 \item{res}{
 For the case of "gomp" a matrix with two columns. The selected variable(s) and the criterion value at every step. 
@@ -107,12 +107,9 @@ Mazin Abdulrasool Hameed (2012). Comparative analysis of orthogonal matching pur
 MSc thesis, Michigan State University.
 https://www.google.gr/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&ved=0ahUKEwik9P3Yto7XAhUiCZoKHQ8XDr8QFgglMAA&url=https%3A%2F%2Fd.lib.msu.edu%2Fetd%2F1711%2Fdatastream%2FOBJ%2Fdownload%2FComparative_analysis_of_orthogonal_matching_pursuit_and_least_angle_regression.pdf&usg=AOvVaw2fRcSemcbteyWUiAKYi-8B 
 
-%Tsagis M. (2018). Guide on performing feature selection with the R package MXM.
-%\url{http://mensxmachina.org/site/wp-content/uploads/2018/04/Guide-on-performing-feature-selection-with-the-R-package-MXM.pdf}
-
-Tsagris M., Papadovasilakis Z., Lakiotaki K. and Tsamardinos I. (2020). The \eqn{\gamma}-OMP algorithm for feature selection 
-with application to gene expression data. 
-IEEE/ACM Transactions on Computational Biology and Bioinformatics (Accepted for publication)
+Tsagris M., Papadovasilakis Z., Lakiotaki K. and Tsamardinos I. (2020). The \eqn{\gamma}-OMP algorithm for feature 
+selection with application to gene expression data. IEEE/ACM Transactions on Computational Biology and Bioinformatics 
+(Accepted for publication)  
 https://arxiv.org/pdf/2004.00281.pdf
 
 }

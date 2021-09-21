@@ -1,4 +1,4 @@
-compare_p_values = function(pval, pval2, stat, stat2) {
+compare_p_values <- function(pval, pval2, stat, stat2) {
   if ( length(pval) == 0 | length(pval2) == 0 | length(stat) == 0 | length(stat2) == 0 ) {
     return(FALSE);
   } else {

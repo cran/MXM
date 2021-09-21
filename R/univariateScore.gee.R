@@ -29,7 +29,7 @@ univariateScore.gee <- function(target, reps = NULL, group, dataset, test, wei, 
     registerDoParallel(cl)
     test <- test
     mod <- foreach(i = ind, .combine = rbind, .export = c("geeglm", "ordgee"), .packages = "geepack") %dopar% {
-      test_results = test(target, reps, group, dataset, i, 0, wei = wei, correl = correl, se = se)
+      test_results <- test(target, reps, group, dataset, i, 0, wei = wei, correl = correl, se = se)
       return( c(test_results$pvalue, test_results$stat) )
     }
     stopCluster(cl)

@@ -264,7 +264,7 @@ mod &lt;- MXM::MMPC(
 library(MXM)
 
 # 1. DOWNLOAD the wine dataset from UCI:
-URL  &lt;- &quot;ftp://ftp.ics.uci.edu/pub/machine-learning-databases/wine/wine.data&quot;
+URL  &lt;- &quot;https://archive.ics.uci.edu/ml/machine-learning-databases/wine/wine.data&quot;
 wine &lt;-  read.csv(URL, header = FALSE) 
 
 
@@ -417,8 +417,8 @@ str(mmpcobject_wine_NonFlav@hashObject)
 </code></pre>
 
 <pre><code>## List of 2
-##  $ stat_hash  :Class &#39;Hash&#39; &lt;environment: 0x0000000019339ed8&gt; 
-##  $ pvalue_hash:Class &#39;Hash&#39; &lt;environment: 0x0000000019336460&gt;
+##  $ stat_hash  :Class &#39;Hash&#39; &lt;environment: 0x134f45a8&gt; 
+##  $ pvalue_hash:Class &#39;Hash&#39; &lt;environment: 0x134f4368&gt;
 </code></pre>
 
 <pre><code class="r"># a list with the univariate associations
@@ -437,7 +437,7 @@ execution_time_1st_MMPC_run
 </code></pre>
 
 <pre><code>##    user  system elapsed 
-##    0.02    0.00    0.03
+##    0.02    0.00    0.02
 </code></pre>
 
 <h2><code>MMPC()</code> subsequent run: Efficiency with the <code>ini</code> and <code>hashObject</code> arguments</h2>
@@ -469,7 +469,7 @@ execution_time_1st_MMPC_run
 </code></pre>
 
 <pre><code>##    user  system elapsed 
-##    0.02    0.00    0.03
+##    0.02    0.00    0.02
 </code></pre>
 
 <pre><code class="r">execution_time_2nd_MMPC_run
@@ -728,56 +728,56 @@ where <strong>N</strong> is the number of instances.</p>
 </code></pre>
 
 <pre><code>## R version 4.0.3 (2020-10-10)
-## Platform: x86_64-w64-mingw32/x64 (64-bit)
+## Platform: i386-w64-mingw32/i386 (32-bit)
 ## Running under: Windows 10 x64 (build 19041)
 ## 
 ## Matrix products: default
 ## 
 ## locale:
-## [1] LC_COLLATE=C                  LC_CTYPE=Greek_Greece.1253   
-## [3] LC_MONETARY=Greek_Greece.1253 LC_NUMERIC=C                 
-## [5] LC_TIME=Greek_Greece.1253    
-## system code page: 1252
+## [1] LC_COLLATE=C                    LC_CTYPE=English_Jersey.1252   
+## [3] LC_MONETARY=English_Jersey.1252 LC_NUMERIC=C                   
+## [5] LC_TIME=English_Jersey.1252    
 ## 
 ## attached base packages:
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] MXM_1.5.1
+## [1] MXM_1.5.2
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] tidyr_1.1.2         foreach_1.5.1       jsonlite_1.7.2     
-##  [4] splines_4.0.3       R.utils_2.10.1      Formula_1.2-4      
-##  [7] ucminf_1.1-4        statmod_1.4.35      latticeExtra_0.6-29
-## [10] slam_0.1-48         numDeriv_2016.8-1.1 pillar_1.4.7       
-## [13] backports_1.2.0     lattice_0.20-41     quantreg_5.75      
-## [16] glue_1.4.2          digest_0.6.27       RColorBrewer_1.1-2 
-## [19] checkmate_2.0.0     minqa_1.2.4         colorspace_2.0-0   
-## [22] htmltools_0.5.0     Matrix_1.2-18       R.oo_1.24.0        
-## [25] Rfast2_0.0.8        conquer_1.0.2       pkgconfig_2.0.3    
-## [28] broom_0.7.3         SparseM_1.78        relations_0.6-9    
-## [31] purrr_0.3.4         scales_1.1.1        RANN_2.6.1         
-## [34] jpeg_0.1-8.1        lme4_1.1-26         MatrixModels_0.4-1 
-## [37] htmlTable_2.1.0     tibble_3.0.4        generics_0.1.0     
-## [40] ggplot2_3.3.2       ellipsis_0.3.1      geepack_1.3-2      
-## [43] nnet_7.3-14         survival_3.2-7      magrittr_2.0.1     
-## [46] crayon_1.3.4        evaluate_0.14       ordinal_2019.12-10 
-## [49] R.methodsS3_1.8.1   doParallel_1.0.16   R.cache_0.14.0     
-## [52] nlme_3.1-149        MASS_7.3-53         foreign_0.8-80     
-## [55] R.rsp_0.44.0        RcppZiggurat_0.1.6  tools_4.0.3        
-## [58] coxme_2.2-16        data.table_1.13.4   energy_1.7-7       
-## [61] lifecycle_0.2.0     matrixStats_0.57.0  stringr_1.4.0      
-## [64] munsell_0.5.0       cluster_2.1.0       Rfast_2.0.1        
-## [67] compiler_4.0.3      rlang_0.4.9         grid_4.0.3         
-## [70] nloptr_1.2.2.2      iterators_1.0.13    rstudioapi_0.13    
-## [73] bigmemory.sri_0.1.3 htmlwidgets_1.5.3   visNetwork_2.0.9   
-## [76] base64enc_0.1-3     boot_1.3-25         codetools_0.2-16   
-## [79] gtable_0.3.0        sets_1.0-18         bigmemory_4.5.36   
-## [82] R6_2.5.0            gridExtra_2.3       knitr_1.30         
-## [85] dplyr_1.0.2         bdsmatrix_1.3-4     Hmisc_4.4-2        
-## [88] stringi_1.5.3       parallel_4.0.3      Rcpp_1.0.5         
-## [91] vctrs_0.3.6         rpart_4.1-15        png_0.1-7          
-## [94] tidyselect_1.1.0    xfun_0.19
+##  [1] nlme_3.1-149        matrixStats_0.57.0  ordinal_2019.12-10 
+##  [4] doParallel_1.0.16   RColorBrewer_1.1-2  R.cache_0.14.0     
+##  [7] numDeriv_2016.8-1.1 tools_4.0.3         backports_1.2.0    
+## [10] utf8_1.1.4          R6_2.5.0            rpart_4.1-15       
+## [13] Hmisc_4.4-2         DBI_1.1.1           colorspace_2.0-0   
+## [16] nnet_7.3-14         tidyselect_1.1.0    gridExtra_2.3      
+## [19] compiler_4.0.3      coxme_2.2-16        quantreg_5.75      
+## [22] htmlTable_2.1.0     SparseM_1.78        slam_0.1-48        
+## [25] scales_1.1.1        checkmate_2.0.0     relations_0.6-9    
+## [28] stringr_1.4.0       digest_0.6.27       foreign_0.8-80     
+## [31] minqa_1.2.4         R.utils_2.10.1      base64enc_0.1-3    
+## [34] jpeg_0.1-8.1        pkgconfig_2.0.3     htmltools_0.5.1.1  
+## [37] lme4_1.1-26         Rfast2_0.0.9        htmlwidgets_1.5.3  
+## [40] rlang_0.4.10        rstudioapi_0.13     visNetwork_2.0.9   
+## [43] generics_0.1.0      energy_1.7-7        jsonlite_1.7.2     
+## [46] dplyr_1.0.6         R.oo_1.24.0         magrittr_2.0.1     
+## [49] Formula_1.2-4       Matrix_1.2-18       Rcpp_1.0.5         
+## [52] munsell_0.5.0       fansi_0.4.1         geepack_1.3-2      
+## [55] lifecycle_1.0.0     RcppZiggurat_0.1.6  R.methodsS3_1.8.1  
+## [58] ucminf_1.1-4        stringi_1.5.3       MASS_7.3-53        
+## [61] grid_4.0.3          parallel_4.0.3      bdsmatrix_1.3-4    
+## [64] bigmemory.sri_0.1.3 crayon_1.4.1        lattice_0.20-41    
+## [67] splines_4.0.3       knitr_1.30          pillar_1.6.1       
+## [70] boot_1.3-25         codetools_0.2-16    glue_1.4.2         
+## [73] evaluate_0.14       latticeExtra_0.6-29 data.table_1.13.4  
+## [76] foreach_1.5.1       png_0.1-7           vctrs_0.3.8        
+## [79] nloptr_1.2.2.2      MatrixModels_0.4-1  gtable_0.3.0       
+## [82] RANN_2.6.1          purrr_0.3.4         tidyr_1.1.3        
+## [85] assertthat_0.2.1    ggplot2_3.3.3       xfun_0.19          
+## [88] Rfast_2.0.2         broom_0.7.6         survival_3.2-7     
+## [91] tibble_3.0.4        conquer_1.0.2       iterators_1.0.13   
+## [94] sets_1.0-18         cluster_2.1.0       statmod_1.4.35     
+## [97] bigmemory_4.5.36    ellipsis_0.3.2      R.rsp_0.44.0
 </code></pre>
 
 </body>

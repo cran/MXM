@@ -68,7 +68,7 @@ z <- as.vector( iris[, 3] )
 e1 <- resid( lm(y ~ z) )
 e2 <- resid( lm(x ~ z) )
 cor(e1, e2)
-partialcor(r, 1,2, 3, 150)
+partialcor(r, 1, 2, 3, 150)
 }
 
 \keyword{ Partial correlation }

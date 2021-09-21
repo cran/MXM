@@ -7,7 +7,7 @@ library(dplyr)
 ## -----------------------------------------------------------------------------
 
 ### ~ ~ ~ Load The Dataset ~ ~ ~ ###
-wine.url <- "ftp://ftp.ics.uci.edu/pub/machine-learning-databases/wine/wine.data"
+wine.url <- "https://archive.ics.uci.edu/ml/machine-learning-databases/wine/wine.data"
 wine <- read.csv(wine.url,
                  check.names = FALSE,
                  header = FALSE) 

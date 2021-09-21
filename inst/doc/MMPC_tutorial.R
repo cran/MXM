@@ -27,7 +27,7 @@
 library(MXM)
 
 # 1. DOWNLOAD the wine dataset from UCI:
-URL  <- "ftp://ftp.ics.uci.edu/pub/machine-learning-databases/wine/wine.data"
+URL  <- "https://archive.ics.uci.edu/ml/machine-learning-databases/wine/wine.data"
 wine <-  read.csv(URL, header = FALSE) 
 
 
