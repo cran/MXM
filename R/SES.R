@@ -67,7 +67,7 @@ SES <- function(target, dataset, max_k = 3, threshold = 0.05 , test = NULL, ini 
     if (is.null(hashObject) )  {
       stat_hash <- Rfast::Hash();
       pvalue_hash <- Rfast::Hash();
-    } else if ( class(hashObject) == "list" ) {
+    } else if ( is.list( hashObject ) ) {
       stat_hash <- hashObject$stat_hash;
       pvalue_hash <- hashObject$pvalue_hash;
     } else   stop('hashObject must be a list of two hash objects (stat_hash, pvalue_hash)')
@@ -75,11 +75,11 @@ SES <- function(target, dataset, max_k = 3, threshold = 0.05 , test = NULL, ini 
   ###################################
   # dataset checking and initialize #
   ###################################
-  if ( !is.null(dataset) ) {
-    if ( sum( class(target) == "matrix") == 1 )  {
-      if ( sum( class(target) == "Surv") == 1 )  stop('Invalid dataset class. For survival analysis provide a dataframe-class dataset');      
-    }
-  }
+  #if ( !is.null(dataset) ) {
+  #  if ( is.matrix(target) )  {
+  #    if ( !is.Surv(target) )  stop('Invalid dataset class. For survival analysis provide a dataframe-class dataset');      
+  #  }
+  #}
   if ( is.null(dataset) || is.null(target) ) {  #|| (dim(as.matrix(target))[2] != 1 & class(target) != "Surv" ))
     stop('invalid dataset or target (class feature) arguments.');
   } else  target <- target;
@@ -128,7 +128,7 @@ SES <- function(target, dataset, max_k = 3, threshold = 0.05 , test = NULL, ini 
   }
 
   if ( is.matrix(target) ) {
-    if ( ncol(target) >= 2  &  class(target) != "Surv" ) {
+    if ( ncol(target) >= 2  &  !is.Surv(target) ) {
       if ( (is.null(test) || test == "auto")  &  is.null(user_test) ) {
         test <- "testIndMVreg"
       }
@@ -146,7 +146,7 @@ SES <- function(target, dataset, max_k = 3, threshold = 0.05 , test = NULL, ini 
     if ( is.null(test) || test == "auto" ) {
       
       if ( la == 2 )   target <- as.factor(target)
-      if ( sum( class(target) == "matrix") == 1 )  test = "testIndMVreg"
+      if ( is.matrix(target) )  test = "testIndMVreg"
       #if target is a factor then use the Logistic test
       if ( "factor" %in% class(target) )  {
         if ( is.ordered(target) &  la > 2 ) {

@@ -15,13 +15,13 @@ ses.model <- function(target, dataset, wei = NULL, sesObject, nsignat = 1, test 
   if ( any(is.na(dataset) ) ) {
     #dataset = as.matrix(dataset);
     warning("The dataset contains missing values (NA) and they were replaced automatically by the variable (column) median (for numeric) or by the most frequent level (mode) if the variable is factor")
-    if (class(dataset) == "matrix")  {
+    if ( is.matrix( dataset) )  {
       dataset <- apply( dataset, 2, function(x){ x[which(is.na(x))] = median(x, na.rm = TRUE) ; return(x) } ) 
     } else {
       poia <- which( is.na(dataset), arr.ind = TRUE )[2]
       for( i in poia )  {
         xi <- dataset[, i]
-        if(class(xi) == "numeric") {                    
+        if( is.numeric(xi) ) {                    
           xi[ which( is.na(xi) ) ] <- median(xi, na.rm = TRUE) 
         } else if ( is.factor( xi ) ) {
           xi[ which( is.na(xi) ) ] <- levels(xi)[ which.max( as.vector( table(xi) ) )]

@@ -19,9 +19,9 @@ reg.fit <- function(y, dataset, event = NULL, reps = NULL, group = NULL, slopes 
 
   if ( is.null(model) ) {
     ## linear regression 
-    if ( sum( class(y) == "numeric" ) == 1 & is.null(event) & is.null(reps)  &  is.null(group) )  model <- "gaussian"  
+    if ( is.numeric(y)  &  is.null(event) & is.null(reps)  &  is.null(group) )  model <- "gaussian"  
     ## multivariate data
-    if ( sum( class(y) == "matrix" ) == 1 ) { 
+    if ( is.matrix(y) ) { 
       if ( min(y) > 0 &  Rfast::Var(Rfast::rowsums(y) == 0 ) )  y <- log(y[, -1] / y[, 1])  ## compositional data
       model <- "gaussian"
     }

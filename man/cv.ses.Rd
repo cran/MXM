@@ -14,7 +14,10 @@
 \alias{ci.mxm}
 \alias{ciwr.mxm}
 \alias{fscore.mxm}
+\alias{prec.mxm}
 \alias{euclid_sens.spec.mxm}
+\alias{spec.mxm}
+\alias{sens.mxm}
 \alias{glm.mxm}
 \alias{lm.mxm}
 \alias{rq.mxm}
@@ -146,8 +149,11 @@ The metric functions that are currently supported are:
 \item auc.mxm: "area under the receiver operator characteristic curve" metric for binary logistic regression.
 \item acc.mxm: accuracy for binary logistic regression.
 \item fscore.mxm: F score for binary logistic regression.
+\item prec.mxm: precision for binary logistic regression.
 \item euclid_sens.spec.mxm: Euclidean norm of 1 - sensititivy and 1 - specificity for binary logistic regression.
-\item acc_multinom.mxm: accuracy or multinomial logistic regression.
+\item spec.mxm: specificity for logistic regression.
+\item sens.mxm: sensitivity for logistic regression.
+\item acc_multinom.mxm: accuracy for multinomial logistic regression.
 \item mse.mxm: mean squared error, for robust and non robust linear regression and median (quantile) regression (multiplied by -1). 
 \item pve.mxm:  1 - (mean squared error)/( (n - 1) * var(y_out) ), for non robust linear regression. It is basically the proportion of variance explained in the test set. 
 \item ci.mxm: 1 - concordance index as provided in the rcorr.cens function from the suvriva package. This is to be used with the Cox proportional hazards model only.

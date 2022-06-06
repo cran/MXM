@@ -119,7 +119,7 @@ permTobit(y, x, xIndex = 12, csIndex = c(5, 7, 4), R = 499 )
   
 #run the SES algorithm using the censIndCR conditional independence
 #test for the survival class variable
-a <- MMPC(y, x, max_k = 2, threshold = 0.05, test = "testIndTobit");
+a <- MMPC(y, x, max_k = 2, threshold = 0.05, test = "testIndTobit")
 }
 
 \keyword{ Survival }

@@ -49,7 +49,7 @@ fs.reg <- function(target, dataset, ini = NULL, threshold = 0.05, wei = NULL, te
   if ( is.null(test)  &  is.null(user_test) ) {
     
     ## surival data
-    if ( sum( class(target) == "Surv" ) == 1 ) {
+    if ( is.Surv(target) ) {
       ci_test <- test <- "censIndCR"
       ## ordinal, multinomial or perhaps binary data
     } else if ( length( unique(target) ) == 2 ) {

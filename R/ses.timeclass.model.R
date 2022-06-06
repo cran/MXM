@@ -19,7 +19,7 @@ ses.timeclass.model <- function(target, dataset, id, reps, wei = NULL, sestimecl
     target <- tar
     tar <- NULL
     
-    if ( nsignat == 1 || ( nsignat > 1 & nrow(sestimeclass.Object@signatures) == 1 ) ) {
+    if ( nsignat == 1 || ( nsignat > 1 & NROW(sestimeclass.Object@signatures) == 1 ) ) {
       signature <- sestimeclass.Object@selectedVars  
       
       dat <- dataset[, signature, drop = FALSE]

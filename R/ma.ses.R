@@ -69,7 +69,7 @@ ma.ses <- function(target, dataset, ina, statistic = FALSE, max_k = 3, threshold
     if (is.null(hashObject) )  {
       stat_hash <- Rfast::Hash()
       pvalue_hash <- Rfast::Hash()
-    } else if ( class(hashObject) == "list" ) {
+    } else if ( is.list( hashObject ) ) {
       stat_hash <- hashObject$stat_hash;
       pvalue_hash <- hashObject$pvalue_hash;
     } else   stop('hashObject must be a list of two hash objects (stat_hash, pvalue_hash)')

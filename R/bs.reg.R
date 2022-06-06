@@ -37,7 +37,7 @@ bs.reg <- function(target, dataset, threshold = 0.05, wei = NULL, test = NULL, u
   ## but other arguments are given. For some cases, these are default cases
   if ( is.null(test)  &  is.null(user_test) ) {
     ## surival data
-    if ( identical( class(target), "Surv" ) ) {
+    if ( is.Surv(target) ) {
       ci_test <- test <- "censIndCR"
       ## ordinal, multinomial or perhaps binary data
     } else if ( is.factor(target)  &  length( unique(target) ) == 2 ) {

@@ -20,17 +20,45 @@ bbc <- function(predictions, target, metric = "auc.mxm", conf = 0.95, B = 1000) 
       ind <- sample.int(n, n, replace = TRUE)
       for (j in 1:p) {
         tab <- table(target[ind], predictions[ind, j])
-        prec <- tab[2, 2]/(tab[2, 2] + tab[1, 2])
-        rec <- tab[2, 2] / (tab[2, 2] + tab[2, 1])
-        in.perf[j] <- prec * rec / (prec + rec)    
+	  if ( sum( dim(tab) ) < 4 ) {
+	    in.perf[j] <- 0.5
+	  } else { 
+          prec <- tab[2, 2]/(tab[2, 2] + tab[1, 2])
+          rec <- tab[2, 2] / (tab[2, 2] + tab[2, 1])
+          in.perf[j] <- prec * rec / (prec + rec)    
+        }
       }
       poio <- which.max(in.perf)
       tab <- table(target[-ind], predictions[-ind, poio])
-      prec <- tab[2, 2]/(tab[2, 2] + tab[1, 2])
-      rec <- tab[2, 2] / (tab[2, 2] + tab[2, 1])
-      out.perf[i] <- 2 * prec * rec / (prec + rec)
+      if ( sum( dim(tab) ) < 4 ) {
+        out.perf[i] <- NA
+      } else {
+        prec <- tab[2, 2]/(tab[2, 2] + tab[1, 2])
+        rec <- tab[2, 2] / (tab[2, 2] + tab[2, 1])
+        out.perf[i] <- 2 * prec * rec / (prec + rec)
+      }
     }
-
+    
+  } else if (metric == "prec.mxm") {
+    target <- as.numeric( as.factor(target) ) - 1
+    in.perf <- numeric(p)
+    for (i in 1:B) {
+      ind <- sample.int(n, n, replace = TRUE)
+      for (j in 1:p) {
+        tab <- table(target[ind], predictions[ind, j])
+	  if ( sum( dim(tab) ) < 4 ) {
+	    in.perf[j] <- 0.5
+	  } else  in.perf[j] <- tab[2, 2]/(tab[2, 2] + tab[1, 2])
+      }
+      poio <- which.max(in.perf)
+      tab <- table(target[-ind], predictions[-ind, poio])
+      if ( sum( dim(tab) ) < 4 ) {
+        out.perf[i] <- NA
+      } else {
+        out.perf[i] <- tab[2, 2]/(tab[2, 2] + tab[1, 2])
+      }
+    }
+    
   } else if (metric == "euclid_sens.spec.mxm") {
     target <- as.numeric( as.factor(target) ) - 1
     in.perf <- numeric(p)
@@ -38,32 +66,80 @@ bbc <- function(predictions, target, metric = "auc.mxm", conf = 0.95, B = 1000) 
       ind <- sample.int(n, n, replace = TRUE)
       for (j in 1:p) {
         tab <- table(target[ind], predictions[ind, j])
-        spec <- tab[1, 1]/(tab[1, 1] + tab[1, 2])
-        sens <- tab[2, 2] / (tab[2, 2] + tab[2, 1])
-        in.perf[j] <- sqrt( (1 - sens)^2 + (1 - spec)^2 )
+	  if ( sum( dim(tab) ) < 4 ) {
+	    in.perf[j] <- 0.5
+	  } else { 
+          spec <- tab[1, 1]/(tab[1, 1] + tab[1, 2])
+          sens <- tab[2, 2] / (tab[2, 2] + tab[2, 1])
+          in.perf[j] <- sqrt( (1 - sens)^2 + (1 - spec)^2 )
+	  }   
       }
       poio <- which.max(in.perf)
       tab <- table(target[-ind], predictions[-ind, poio])
-      spec <- tab[1, 1]/(tab[1, 1] + tab[1, 2])
-      sens <- tab[2, 2] / (tab[2, 2] + tab[2, 1])
-      out.perf[i] <- sqrt( (1 - sens)^2 + (1 - spec)^2 )
+      if ( sum( dim(tab) ) < 4 ) {
+        out.perf[i] <- NA
+      } else {
+        spec <- tab[1, 1]/(tab[1, 1] + tab[1, 2])
+        sens <- tab[2, 2] / (tab[2, 2] + tab[2, 1])
+        out.perf[i] <- sqrt( (1 - sens)^2 + (1 - spec)^2 )
+      }
+    }
+    
+  } else if (metric == "spec.mxm") {
+    target <- as.numeric( as.factor(target) ) - 1
+    in.perf <- numeric(p)
+    for (i in 1:B) {
+      ind <- sample.int(n, n, replace = TRUE)
+      for (j in 1:p) {
+        tab <- table(target[ind], predictions[ind, j])
+	  if ( sum( dim(tab) ) < 4 ) {
+	    in.perf[j] <- 0.5
+	  } else  in.perf[j] <- tab[1, 1]/(tab[1, 1] + tab[1, 2])
+      }
+      poio <- which.max(in.perf)
+      tab <- table(target[-ind], predictions[-ind, poio])
+      if ( sum( dim(tab) ) < 4 ) {
+        out.perf[i] <- NA
+      } else {
+        out.perf[i] <- tab[1, 1]/(tab[1, 1] + tab[1, 2])
+      }
+    }
+    
+  } else if (metric == "sens.mxm") {
+    target <- as.numeric( as.factor(target) ) - 1
+    in.perf <- numeric(p)
+    for (i in 1:B) {
+      ind <- sample.int(n, n, replace = TRUE)
+      for (j in 1:p) {
+        tab <- table(target[ind], predictions[ind, j])
+	  if ( sum( dim(tab) ) < 4 ) {
+	    in.perf[j] <- 0.5
+	  } else  in.perf[j] <- tab[2, 2] / (tab[2, 2] + tab[2, 1])
+      }
+      poio <- which.max(in.perf)
+      tab <- table(target[-ind], predictions[-ind, poio])
+      if ( sum( dim(tab) ) < 4 ) {
+        out.perf[i] <- NA
+      } else {
+        out.perf[i] <- tab[2, 2] / (tab[2, 2] + tab[2, 1])
+      }
     }
     
   } else if (metric == "acc.mxm") {
     target <- as.numeric( as.factor(target) ) - 1
     for (i in 1:B) {
       ind <- sample.int(n, n, replace = TRUE)
-      in.perf <- 1 - Rfast::colmeans( predictions[ind, ] - target[ind] )
+      in.perf <- Rfast::colmeans( predictions[ind, ] == target[ind] )
       poio <- which.max(in.perf)
-      out.perf[i] <- 1 - mean( predictions[-ind, poio] - target[-ind] )
+      out.perf[i] <- mean( predictions[-ind, poio] == target[-ind] )
     } 
   
   } else if (metric == "acc_multinom.mxm") {
     for (i in 1:B) {
       ind <- sample.int(n, n, replace = TRUE)
-      in.perf <- Rfast::colmeans( predictions[ind, ] - target[ind] ==0 )
+      in.perf <- Rfast::colmeans( predictions[ind, ] == target[ind] )
       poio <- which.max(in.perf)
-      out.perf[i] <- mean( predictions[-ind, poio] - target[-ind] == 0 )
+      out.perf[i] <- mean( predictions[-ind, poio] == target[-ind] )
     } 
   
   } else if (metric == "mse.mxm") {
@@ -148,8 +224,8 @@ bbc <- function(predictions, target, metric = "auc.mxm", conf = 0.95, B = 1000) 
     
   } ## end  if (metric == " ") {
   a <- 0.5 * (1 - conf )
-  ci <- quantile(out.perf, probs = c(a, 1 - a) )  
-  list(bbc.perf = mean(out.perf), out.perf = out.perf, ci = ci )
+  ci <- quantile(out.perf, probs = c(a, 1 - a), na.rm = TRUE )  
+  list(out.perf = out.perf, bbc.perf = mean(out.perf, na.rm = TRUE), ci = ci )
   
 }  
 

@@ -42,7 +42,7 @@ bic.fsreg <- function( target, dataset, test = NULL, wei = NULL, tol = 2, ncores
 	     test <- "testIndLogistic" 
 	   }	 
        ## surival data
-    } else if ( sum( class(target) == "Surv" ) == 1 ) {
+    } else if ( is.Surv(target) ) {
       test <- "censIndCR"
     }  ## end if ( is.null(test) )
     #available conditional independence tests

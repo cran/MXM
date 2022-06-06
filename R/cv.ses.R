@@ -278,6 +278,14 @@ fscore.mxm <- function(predictions, test_target, theta = NULL) {
   2 * prec * rec / (prec + rec)
 }
 
+# precision (binary)
+prec.mxm <- function(predictions, test_target, theta = NULL) {
+  test_target <- as.numeric( as.factor(test_target) ) - 1
+  predictions <- round(predictions) 
+  tab <- table(test_target, predictions)
+  tab[2, 2]/(tab[2, 2] + tab[1, 2])
+}
+
 # euclid_sens.spec score (binary)
 euclid_sens.spec.mxm <- function(predictions, test_target, theta = NULL) {
   test_target <- as.numeric( as.factor(test_target) ) - 1
@@ -288,7 +296,23 @@ euclid_sens.spec.mxm <- function(predictions, test_target, theta = NULL) {
   sqrt( (1 - sens)^2 + (1 - spec)^2 )
 }
 
-#accuracy (binary)
+# specificity (binary)
+spec.mxm <- function(predictions, test_target, theta = NULL) {
+  test_target <- as.numeric( as.factor(test_target) ) - 1
+  predictions <- round(predictions) 
+  tab <- table(test_target, predictions)
+  tab[1, 1]/(tab[1, 1] + tab[1, 2])
+}
+
+# sensitivity or recall (binary)
+sens.mxm <- function(predictions, test_target, theta = NULL) {
+  test_target <- as.numeric( as.factor(test_target) ) - 1
+  predictions <- round(predictions) 
+  tab <- table(test_target, predictions)
+  tab[2, 2] / (tab[2, 2] + tab[2, 1])
+}
+
+# accuracy (binary)
 acc.mxm <- function(predictions, test_target, theta = NULL) {
   test_target <- as.numeric( as.factor(test_target) ) - 1
   sum( (predictions > 0.5) == test_target ) / length(test_target)
