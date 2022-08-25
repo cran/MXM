@@ -162,13 +162,12 @@ bbc <- function(predictions, target, metric = "auc.mxm", conf = 0.95, B = 1000) 
   } else if (metric == "ord_mae.mxm") {
     target <- as.numeric(target)
   	for (i in 1:dim(predictions)[2] ) 	predictions[, i] <- as.numeric(predictions[, i])
-	  predictions <- as.matrix(predictions)
-	  
+	  predictions <- as.matrix(predictions)  
     for (i in 1:B) {
       ind <- sample.int(n, n, replace = TRUE)
       in.perf <-  - Rfast:: colmeans( abs(predictions[ind, ] - target[ind]) ) 
       poio <- which.max(in.perf)
-      out.perf[i] <-  - mean( abs(predictions[-ind, ] - target[-ind]) ) 
+      out.perf[i] <-  - mean( abs(predictions[-ind, poio] - target[-ind]) ) 
     } 
     
   } else if (metric == "mae.mxm") {
@@ -176,7 +175,7 @@ bbc <- function(predictions, target, metric = "auc.mxm", conf = 0.95, B = 1000) 
       ind <- sample.int(n, n, replace = TRUE)
       in.perf <-  - Rfast::colmeans( abs(predictions[ind, ] - target[ind]) ) 
       poio <- which.max(in.perf)
-      out.perf[i] <-  - mean( abs(predictions[-ind, ] - target[-ind]) ) 
+      out.perf[i] <-  - mean( abs(predictions[-ind, poio] - target[-ind]) ) 
     } 
     
   } else if (metric == "ci.mxm") {

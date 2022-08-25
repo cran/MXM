@@ -105,10 +105,9 @@ https://www.google.gr/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&ved=0ahUKEwik9P3Y
 %Tsagis M. (2018). Guide on performing feature selection with the R package MXM.
 %\url{http://mensxmachina.org/site/wp-content/uploads/2018/04/Guide-on-performing-feature-selection-with-the-R-package-MXM.pdf}
 
-Tsagris M., Papadovasilakis Z., Lakiotaki K. and Tsamardinos I. (2020). The \eqn{\gamma}-OMP algorithm for feature 
-selection with application to gene expression data. IEEE/ACM Transactions on Computational Biology and Bioinformatics,
-19(2), 1214-1224. 
-https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=9219177
+Tsagris, M., Papadovasilakis, Z., Lakiotaki, K., & Tsamardinos, I. (2022). 
+The \eqn{\gamma}-OMP algorithm for feature selection with application to gene expression data. 
+IEEE/ACM Transactions on Computational Biology and Bioinformatics, 19(2): 1214-1224.
 }
 
 \author{

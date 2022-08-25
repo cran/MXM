@@ -154,7 +154,7 @@ The \bold{logarithm of the p-value} of the test. If the i-th value is zero (0) i
 Chen J. and Chen Z. (2008). Extended Bayesian information criteria for model selection with large model spaces. 
 Biometrika, 95(3): 759-771.
 
-Eugene Demidenko (2013). Mixed Models: Theory and Applications with R, 2nd Edition. New Jersey: Wiley \& Sons.
+Eugene Demidenko (2013). Mixed Models: Theory and Applications with R, 2nd Edition. New Jersey: Wiley & Sons.
 
 McCullagh, Peter, and John A. Nelder. Generalized linear models.  CRC press, USA, 2nd edition, 1989.
 

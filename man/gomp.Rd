@@ -107,10 +107,9 @@ Mazin Abdulrasool Hameed (2012). Comparative analysis of orthogonal matching pur
 MSc thesis, Michigan State University.
 https://www.google.gr/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&ved=0ahUKEwik9P3Yto7XAhUiCZoKHQ8XDr8QFgglMAA&url=https%3A%2F%2Fd.lib.msu.edu%2Fetd%2F1711%2Fdatastream%2FOBJ%2Fdownload%2FComparative_analysis_of_orthogonal_matching_pursuit_and_least_angle_regression.pdf&usg=AOvVaw2fRcSemcbteyWUiAKYi-8B 
 
-Tsagris M., Papadovasilakis Z., Lakiotaki K. and Tsamardinos I. (2020). The \eqn{\gamma}-OMP algorithm for feature 
-selection with application to gene expression data. IEEE/ACM Transactions on Computational Biology and Bioinformatics,
-19(2), 1214-1224. 
-https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=9219177
+Tsagris, M., Papadovasilakis, Z., Lakiotaki, K., & Tsamardinos, I. (2022). 
+The \eqn{\gamma}-OMP algorithm for feature selection with application to gene expression data. 
+IEEE/ACM Transactions on Computational Biology and Bioinformatics, 19(2): 1214-1224.
 }
 
 \author{

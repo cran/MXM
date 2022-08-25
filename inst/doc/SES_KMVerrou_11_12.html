@@ -494,7 +494,7 @@ SelectedVars_indecies_Ordered
 </code></pre>
 
 <pre><code>##    user  system elapsed 
-##    0.02    0.01    0.03
+##    0.04    0.00    0.05
 </code></pre>
 
 <h2>Running SES 2nd time</h2>
@@ -642,7 +642,7 @@ SelectedVars_indecies_Ordered
 </code></pre>
 
 <pre><code>##    user  system elapsed 
-##    3.59    0.00    3.61
+##    3.79    0.00    3.80
 </code></pre>
 
 <h2>Creating the model</h2>
@@ -800,19 +800,19 @@ cv_ses_model &lt;- MXM::cv.ses(target   = wine[, 1], # Using the 1st column as t
 </code></pre>
 
 <pre><code>## $id
-## [1] 3
+## [1] 1
 ## 
 ## $a
 ## [1] 0.1
 ## 
 ## $max_k
-## [1] 3
+## [1] 5
 </code></pre>
 
 <pre><code class="r">cv_ses_model$best_performance
 </code></pre>
 
-<pre><code>## [1] 0.9496825
+<pre><code>## [1] 0.9379365
 </code></pre>
 
 <p>As we see, the id, the significance threshold (&ldquo;a&rdquo;) and the best max_k are returned. </p>
@@ -837,7 +837,7 @@ Here we check separately the results for the first configuration.</p>
 <pre><code class="r">cv_ses_model$cv_results_all[[1]]$performances # those are the performances.
 </code></pre>
 
-<pre><code>## [1] 1.0000000 0.8888889 0.9722222 0.9142857 0.9428571
+<pre><code>## [1] 0.9444444 0.9722222 0.9444444 1.0000000 0.8285714
 </code></pre>
 
 <pre><code class="r">cv_ses_model$cv_results_all[[1]]$signatures # signatures created by this configuration
@@ -845,24 +845,26 @@ Here we check separately the results for the first configuration.</p>
 
 <pre><code>## [[1]]
 ##      Var1 Var2 Var3 Var4
-## [1,]    1    7   11   13
+## [1,]    1    7   10   13
 ## 
 ## [[2]]
-##      Var1 Var2 Var3
-## [1,]    7   10   13
+##      Var1 Var2 Var3 Var4
+## [1,]    1    7   11   13
 ## 
 ## [[3]]
 ##      Var1 Var2 Var3 Var4
-## [1,]    1    7   10   13
+## [1,]    1    7   11   13
 ## 
 ## [[4]]
 ##      Var1 Var2 Var3 Var4
 ## [1,]    1    7   11   13
+## [2,]   12    7   11   13
+## [3,]    1    3   11   13
+## [4,]   12    3   11   13
 ## 
 ## [[5]]
 ##      Var1 Var2 Var3 Var4
-## [1,]    1    7   11   13
-## [2,]   12    7   11   13
+## [1,]    1    4    7   13
 </code></pre>
 
 <p><strong>Note:</strong> By asking the best performance <code>$best_performance</code>, we get the mean value of all folds of the best configuration. If we ask for the performances of the best configuration (here it is the first configuration) <code>$cv_results_all[[1]]$performances</code> we get all performance values of each fold (here 5). </p>
@@ -870,20 +872,20 @@ Here we check separately the results for the first configuration.</p>
 <pre><code class="r">cv_ses_model$best_performance
 </code></pre>
 
-<pre><code>## [1] 0.9496825
+<pre><code>## [1] 0.9379365
 </code></pre>
 
 <pre><code class="r">index&lt;-cv_ses_model$best_configuration$id
 cv_ses_model$cv_results_all[[index]]$performances
 </code></pre>
 
-<pre><code>## [1] 0.9444444 0.8888889 0.9722222 0.9714286 0.9714286
+<pre><code>## [1] 0.9444444 0.9722222 0.9444444 1.0000000 0.8285714
 </code></pre>
 
 <pre><code class="r">mean(cv_ses_model$cv_results_all[[index]]$performances)  
 </code></pre>
 
-<pre><code>## [1] 0.9496825
+<pre><code>## [1] 0.9379365
 </code></pre>
 
 <h1>Tips</h1>
@@ -943,7 +945,7 @@ Hope that you found this tutorial helpful.    </p>
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] dplyr_1.0.7 MXM_1.5.4  
+## [1] dplyr_1.0.7 MXM_1.5.5  
 ## 
 ## loaded via a namespace (and not attached):
 ##  [1] nlme_3.1-149        matrixStats_0.57.0  ordinal_2019.12-10 
@@ -969,7 +971,7 @@ Hope that you found this tutorial helpful.    </p>
 ## [61] parallel_4.0.3      bdsmatrix_1.3-4     bigmemory.sri_0.1.3
 ## [64] crayon_1.4.1        lattice_0.20-41     splines_4.0.3      
 ## [67] knitr_1.36          pillar_1.6.1        boot_1.3-25        
-## [70] markdown_1.1        codetools_0.2-16    glue_1.4.2         
+## [70] markdown_1.1        codetools_0.2-16    glue_1.6.2         
 ## [73] evaluate_0.14       latticeExtra_0.6-29 data.table_1.13.4  
 ## [76] foreach_1.5.1       png_0.1-7           vctrs_0.3.8        
 ## [79] nloptr_1.2.2.2      MatrixModels_0.4-1  gtable_0.3.0       

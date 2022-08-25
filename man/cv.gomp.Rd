@@ -90,10 +90,9 @@ Bootstrapping the out-of-sample predictions for efficient and accurate cross-val
 Machine Learning 107(12): 1895-1922.  
 \url{ https://link.springer.com/article/10.1007/s10994-018-5714-4 }
 
-Tsagris M., Papadovasilakis Z., Lakiotaki K. and Tsamardinos I. (2020). The \eqn{\gamma}-OMP algorithm for feature 
-selection with application to gene expression data. IEEE/ACM Transactions on Computational Biology and Bioinformatics,
-19(2), 1214-1224. 
-https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=9219177
+Tsagris, M., Papadovasilakis, Z., Lakiotaki, K., & Tsamardinos, I. (2022). 
+The \eqn{\gamma}-OMP algorithm for feature selection with application to gene expression data. 
+IEEE/ACM Transactions on Computational Biology and Bioinformatics, 19(2): 1214-1224.
 }
 
 \author{

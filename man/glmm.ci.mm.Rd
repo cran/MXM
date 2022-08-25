@@ -59,7 +59,7 @@ Ziegler A., Kastner C., Brunner D. and Blettner M. (2000). Familial associations
 
 Yan J. and Fine J. (2004). Estimating equations for association structures. Statistics in medicine, 23(6): 859-874.
 
-Eugene Demidenko (2013). Mixed Models: Theory and Applications with R, 2nd Edition. New Jersey: Wiley \& Sons.
+Eugene Demidenko (2013). Mixed Models: Theory and Applications with R, 2nd Edition. New Jersey: Wiley & Sons.
 }
 
 \author{

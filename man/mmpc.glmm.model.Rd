@@ -105,9 +105,9 @@ Tsagris, M., Lagani, V., & Tsamardinos, I. (2018). Feature selection for high-di
 I. Tsamardinos, M. Tsagris and V. Lagani (2015). Feature selection for longitudinal data. Proceedings of the 10th conference of 
 the Hellenic Society for Computational Biology & Bioinformatics (HSCBB15)
 
-Eugene Demidenko (2013). Mixed Models: Theory and Applications with R, 2nd Edition. New Jersey: Wiley \& Sons.
+Eugene Demidenko (2013). Mixed Models: Theory and Applications with R, 2nd Edition. New Jersey: Wiley & Sons.
 
-Pinheiro J. and D. Bates. Mixed-effects models in S and S-PLUS. Springer Science \& Business Media, 2006.
+Pinheiro J. and D. Bates. Mixed-effects models in S and S-PLUS. Springer Science & Business Media, 2006.
 }
 
 \author{

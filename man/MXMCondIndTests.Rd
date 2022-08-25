@@ -32,7 +32,7 @@ As for the other tests, they share one thing in common. For all of them, two par
   Strictly Positive \tab Mixed \tab censIndWR \tab Weibull regression \cr
   Strictly Positive \tab Mixed \tab censIndER \tab Exponential regression \cr
   Strictly Positive \tab Mixed \tab censIndLLR \tab Log-logistic regression \cr
-  Successes \& totals \tab Mixed \tab testIndBinom \tab Binomial regression \cr
+  Successes & totals \tab Mixed \tab testIndBinom \tab Binomial regression \cr
   Discrete \tab	Mixed \tab testIndPois \tab Poisson regression \cr 
   Discrete \tab	Mixed \tab testIndZIP \tab Zero Inflated \cr 
   \tab	\tab  \tab Poisson regression \cr 
@@ -171,7 +171,7 @@ The available tests for wald.ses and wald.mmpc are listed below. Note, that only
   Non negative \tab waldIGreg \tab Inverse Gaussian regression \cr 
   Strictly positive \tab waldGamma \tab Gamma regression \cr 
   Non negative \tab waldNormLog \tab Gaussian regression with log link \cr 
-  Successes \& totals \tab testIndBinom \tab Binomial regression \cr
+  Successes & totals \tab testIndBinom \tab Binomial regression \cr
   Discrete \tab waldPois \tab Poisson regression \cr 
   Discrete \tab waldSpeedPois \tab Poisson regression \cr 
   Discrete \tab waldZIP \tab Zero Inflated \cr 
@@ -209,7 +209,7 @@ The available tests for perm.ses and perm.mmpc are listed below. Note, that only
   Strictly positive \tab permGamma \tab Gamma regression \cr 
   Non negative \tab permNormLog \tab Gaussian regression with log link \cr 
   Non negative \tab permWR \tab Weibull regression \cr
-  Successes \& totals \tab permBinom \tab Binomial regression \cr
+  Successes & totals \tab permBinom \tab Binomial regression \cr
   Discrete \tab permPois \tab Poisson regression \cr 
   Discrete \tab permZIP \tab Zero Inflated \cr 
   \tab	\tab  Poisson regression \cr 
@@ -239,7 +239,7 @@ Brown P.J. (1994). Measurement, Regression and Calibration. Oxford Science Publi
 
 Cox D.R. (1972). Regression models and life-tables. J. R. Stat. Soc., 34, 187-220.
 
-Demidenko E. (2013). Mixed Models: Theory and Applications with R, 2nd Edition. New Jersey: Wiley \& Sons.
+Demidenko E. (2013). Mixed Models: Theory and Applications with R, 2nd Edition. New Jersey: Wiley & Sons.
 
 Draper, N.R. and Smith H. (1988). Applied regression analysis. New York, Wiley, 3rd edition.
 
@@ -273,7 +273,7 @@ McCullagh P. and Nelder J.A. (1989). Generalized linear models. CRC press, USA, 
 
 Paik M.C. (1988). Repeated measurement analysis for nonnormal data in small samples. Communications in Statistics-Simulation and Computation, 17(4): 1155-1171.
 
-Pinheiro J., and D. Bates. Mixed-effects models in S and S-PLUS. Springer Science \& Business Media, 2006.
+Pinheiro J., and D. Bates. Mixed-effects models in S and S-PLUS. Springer Science & Business Media, 2006.
 
 Prentice R.L. and Zhao L.P. (1991). Estimating equations for parameters in means and covariances of multivariate discrete and continuous responses. Biometrics, 47(3): 825-839.
 

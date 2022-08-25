@@ -219,9 +219,9 @@ conference of the Hellenic Society for Computational Biology & Bioinformatics - 
 
 Tsamardinos, Brown and Aliferis (2006). The max-min hill-climbing Bayesian network structure learning algorithm. Machine learning, 65(1), 31-78.
 
-Eugene Demidenko (2013). Mixed Models: Theory and Applications with R, 2nd Edition. New Jersey: Wiley \& Sons.
+Eugene Demidenko (2013). Mixed Models: Theory and Applications with R, 2nd Edition. New Jersey: Wiley & Sons.
 
-J. Pinheiro and D. Bates. Mixed-effects models in S and S-PLUS. Springer Science \& Business Media, 2006.
+J. Pinheiro and D. Bates. Mixed-effects models in S and S-PLUS. Springer Science & Business Media, 2006.
 
 Liang K.Y. and Zeger S.L. (1986). Longitudinal data analysis using generalized linear models. Biometrika, 73(1): 13-22.
 
